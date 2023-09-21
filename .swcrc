@@ -5,9 +5,12 @@
       "tsx": false,
       "decorators": false,
       "dynamicImport": false
-    }
+    },
+    "target": "es2020"
   },
   "module": {
-    "type": "es6"
-  }
+    "type": "commonjs"
+  },
+  "sourceMaps": true,
+  "inlineSourcesContent": true
 }

@@ -7,7 +7,13 @@ import {
   Plugin,
   PluginSettingTab,
   Setting,
+  normalizePath,
+  TFile,
 } from "obsidian";
+import { runMoveCommand } from "./move-action";
+import { registerMoveBlock } from "./move-block";
+import { Datastore } from "./datastore";
+import CharacterTracker from "./character";
 
 // Remember to rename these classes and interfaces!
 
@@ -19,10 +25,36 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
   mySetting: "default",
 };
 
-export default class MyPlugin extends Plugin {
-  settings: MyPluginSettings;
+function pluginAsset(plug: Plugin, assetPath: string): string {
+  return normalizePath(
+    [plug.app.vault.configDir, "plugins", plug.manifest.id, assetPath].join(
+      "/",
+    ),
+  );
+}
 
-  async onload() {
+export default class ForgedPlugin extends Plugin {
+  settings: MyPluginSettings;
+  datastore: Datastore;
+  tracker: CharacterTracker;
+
+  async onload(): Promise<void> {
+    this.datastore = new Datastore(this.app);
+    this.tracker = this.addChild(new CharacterTracker(this.app));
+
+    if (this.app.workspace.layoutReady) {
+      this.tracker.initialize();
+    } else {
+      this.app.workspace.onLayoutReady(() => {
+        this.tracker.initialize();
+      });
+    }
+
+    this.app.workspace.onLayoutReady(async () => {
+      const jsonPath = pluginAsset(this, "starforged.json");
+      await this.datastore.load(jsonPath);
+    });
+
     await this.loadSettings();
 
     // This creates an icon in the left ribbon.
@@ -32,7 +64,7 @@ export default class MyPlugin extends Plugin {
       (evt: MouseEvent) => {
         // Called when the user clicks the icon.
         new Notice("This is a notice!");
-      }
+      },
     );
     // Perform additional things with the ribbon
     ribbonIconEl.addClass("my-plugin-ribbon-class");
@@ -41,21 +73,17 @@ export default class MyPlugin extends Plugin {
     const statusBarItemEl = this.addStatusBarItem();
     statusBarItemEl.setText("Status Bar Text");
 
-    // This adds a simple command that can be triggered anywhere
     this.addCommand({
-      id: "open-sample-modal-simple",
-      name: "Open sample modal (simple)",
-      callback: () => {
-        new SampleModal(this.app).open();
-      },
-    });
-    // This adds an editor command that can perform some operation on the current editor instance
-    this.addCommand({
-      id: "sample-editor-command",
-      name: "Sample editor command",
-      editorCallback: (editor: Editor, view: MarkdownView) => {
-        console.log(editor.getSelection());
-        editor.replaceSelection("Sample Editor Command");
+      id: "move-command",
+      name: "Make a Move",
+      editorCallback: async (editor: Editor, view: MarkdownView) => {
+        await runMoveCommand(
+          this.app,
+          this.datastore,
+          this.tracker,
+          editor,
+          view,
+        );
       },
     });
     // This adds a complex command that can check whether the current state of the app allows execution of the command
@@ -84,14 +112,15 @@ export default class MyPlugin extends Plugin {
 
     // If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
     // Using this function will automatically remove the event listener when this plugin is disabled.
-    this.registerDomEvent(document, "click", (evt: MouseEvent) => {
-      console.log("click", evt);
-    });
+    // this.registerDomEvent(document, "click", (evt: MouseEvent) => {
+    //   console.log("click", evt);
+    // });
 
     // When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-    this.registerInterval(
-      window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
-    );
+    // this.registerInterval(
+    //   window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000),
+    // );
+    registerMoveBlock(this);
   }
 
   onunload() {}
@@ -122,9 +151,9 @@ class SampleModal extends Modal {
 }
 
 class SampleSettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
+  plugin: ForgedPlugin;
 
-  constructor(app: App, plugin: MyPlugin) {
+  constructor(app: App, plugin: ForgedPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }
@@ -144,7 +173,7 @@ class SampleSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.mySetting = value;
             await this.plugin.saveSettings();
-          })
+          }),
       );
   }
 }
