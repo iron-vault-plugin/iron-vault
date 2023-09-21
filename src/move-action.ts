@@ -1,14 +1,9 @@
 import {
   type App,
-  FuzzySuggestModal,
   type Editor,
   stringifyYaml,
   type FuzzyMatch,
   type MarkdownView,
-  SuggestModal,
-  prepareFuzzySearch,
-  type SearchResult,
-  sortSearchResults,
 } from "obsidian";
 import {
   type ActionMoveDescription,
@@ -17,8 +12,7 @@ import {
 } from "./move-desc";
 import type CharacterTracker from "./character";
 import { type Move, type Datastore } from "./datastore";
-
-class CancelError extends Error {}
+import { CustomSuggestModal } from "./utils/suggest";
 
 enum MoveKind {
   Progress = "Progress",
@@ -48,180 +42,16 @@ function getMoveKind(move: Move): MoveKind {
 
   return MoveKind.Other;
 }
-
-function processMatches(
-  text: string,
-  search: SearchResult,
-  onPlain: (text: string) => void,
-  onHighlighted: (text: string) => void,
-): void {
-  let nextChar = 0;
-  for (const [start, end] of search.matches) {
-    if (start - nextChar > 0) {
-      onPlain(text.slice(nextChar, start));
-    }
-    onHighlighted(text.slice(start, end));
-    nextChar = end;
-  }
-  const remainder = text.slice(nextChar);
-  if (remainder.length > 0) {
-    onPlain(remainder);
-  }
-}
-
-class MoveSuggestModal extends SuggestModal<FuzzyMatch<Move>> {
-  private resolved: boolean = false;
-  private readonly moves: Move[];
-  private readonly onSelect: (move: Move) => void;
-  private readonly onCancel: () => void;
-
-  static async select(app: App, moves: Move[]): Promise<Move> {
-    return await new Promise((resolve, reject) => {
-      new this(app, moves, resolve, reject).open();
-    });
-  }
-
-  constructor(
-    app: App,
-    moves: Move[],
-    onSelect: (move: Move) => void,
-    onCancel: () => void,
-  ) {
-    super(app);
-    this.moves = moves;
-    this.onSelect = onSelect;
-    this.onCancel = onCancel;
-  }
-
-  getSuggestions(
-    query: string,
-  ): Array<FuzzyMatch<Move>> | Promise<Array<FuzzyMatch<Move>>> {
-    const fuzzyScore = prepareFuzzySearch(query);
-    const results = this.moves.flatMap((move) => {
-      const match = fuzzyScore(move.Title.Standard);
-      return match != null
-        ? [
-            {
-              item: move,
-              match,
-            },
-          ]
-        : [];
-    });
-    sortSearchResults(results);
-    return results;
-  }
-
-  renderSuggestion(
-    { item: move, match }: FuzzyMatch<Move>,
-    el: HTMLElement,
-  ): void {
-    el.createDiv(undefined, (div) => {
-      processMatches(
-        move.Title.Standard,
-        match,
-        (text) => {
-          div.appendText(text);
-        },
-        (text) => {
-          div.createEl("strong", { text });
-        },
-      );
-    });
-    // el.createEl("div", { text: move.item.Title.Standard });
-    const moveKind = getMoveKind(move);
-    el.createEl("small", { text: `(${moveKind}) ${move.Trigger.Text}` });
-  }
-
-  selectSuggestion(
-    value: FuzzyMatch<Move>,
-    evt: MouseEvent | KeyboardEvent,
-  ): void {
-    console.assert(!this.resolved, "selectSuggestion called more than once");
-    this.resolved = true;
-    super.selectSuggestion(value, evt);
-  }
-
-  onChooseSuggestion(
-    item: FuzzyMatch<Move>,
-    _evt: MouseEvent | KeyboardEvent,
-  ): void {
-    console.assert(this.resolved, "expected to already have been resolved");
-    console.log(item);
-    this.onSelect(item.item);
-  }
-
-  onClose(): void {
-    super.onClose();
-    console.log("closed");
-    if (!this.resolved) {
-      this.onCancel();
-    }
-  }
-}
-
-class ListSelectModal<T> extends FuzzySuggestModal<T> {
-  resolved: boolean;
-  resolve: (item: T) => void;
-  reject: (reason?: any) => void;
-  items: T[];
-  itemText: (item: T) => string;
-
-  constructor(
-    app: App,
-    items: T[],
-    itemText: (item: T) => string,
-    resolve: (item: T) => void,
-    reject: (reason?: any) => void,
-  ) {
-    super(app);
-    this.resolve = resolve;
-    this.items = items;
-    this.itemText = itemText;
-    this.resolved = false;
-    this.reject = reject;
-  }
-
-  getItems(): T[] {
-    return this.items;
-  }
-
-  getItemText(item: T): string {
-    return this.itemText(item);
-  }
-
-  selectSuggestion(
-    value: FuzzyMatch<T>,
-    evt: MouseEvent | KeyboardEvent,
-  ): void {
-    console.assert(!this.resolved, "selectSuggestion called more than once");
-    this.resolved = true;
-    super.selectSuggestion(value, evt);
-  }
-
-  onChooseItem(item: T, evt: MouseEvent | KeyboardEvent): void {
-    console.assert(this.resolved, "onChooseItem called without resolve");
-    this.resolve(item);
-  }
-
-  onClose(): void {
-    super.onClose();
-    if (!this.resolved) {
-      this.reject(new CancelError());
-    }
-  }
-}
-
-async function chooseItem<T>(
-  app: App,
-  items: T[],
-  itemText: (item: T) => string,
-): Promise<T> {
-  return await new Promise((resolve, reject) => {
-    const modal = new ListSelectModal(app, items, itemText, resolve, reject);
-    modal.open();
-  });
-}
+const promptForMove = async (app: App, moves: Move[]): Promise<Move> =>
+  await CustomSuggestModal.select(
+    app,
+    moves,
+    (move) => move.Title.Standard,
+    ({ item: move, match }: FuzzyMatch<Move>, el: HTMLElement) => {
+      const moveKind = getMoveKind(move);
+      el.createEl("small", { text: `(${moveKind}) ${move.Trigger.Text}` });
+    },
+  );
 
 function randomInt(min: number, max: number): number {
   const randomBuffer = new Uint32Array(1);
@@ -297,21 +127,20 @@ export async function runMoveCommand(
   }
   const [character] = characters.values();
 
-  const move = await MoveSuggestModal.select(
+  const move = await promptForMove(
     app,
     datastore.moves.sort((a, b) =>
       a.Title.Standard.localeCompare(b.Title.Standard),
     ),
-    // (m) => m.Title.Standard,
   );
   const moveKind = getMoveKind(move);
   if (moveKind === MoveKind.Action) {
-    const stat = await chooseItem(
+    const stat = await CustomSuggestModal.select(
       app,
       Object.values(character.measures),
       (m) => `${m.name}: ${m.value ?? "missing (defaults to 0)"}`,
     );
-    const adds = await chooseItem(
+    const adds = await CustomSuggestModal.select(
       app,
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       (n) => n.toString(10),
@@ -324,7 +153,7 @@ export async function runMoveCommand(
     );
     editor.replaceSelection(moveTemplate(description));
   } else if (moveKind === MoveKind.Progress) {
-    const progressTrack = await chooseItem(
+    const progressTrack = await CustomSuggestModal.select(
       app,
       ["do something", "a real great vow"],
       (text) => text,
