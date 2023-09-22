@@ -1,5 +1,7 @@
 import { watch } from "turbowatch";
 
+const ASSETS = ["styles.css", "starforged.json", "manifest.json"];
+
 void watch({
   project: __dirname,
   triggers: [
@@ -7,6 +9,7 @@ void watch({
       expression: [
         "allof",
         ["not", ["dirname", "node_modules"]],
+        ["not", ["dirname", "test-vault"]],
         ["match", "*.ts", "basename"],
       ],
       name: "type-check",
@@ -27,6 +30,14 @@ void watch({
       // Enabling this option modifies what Turbowatch logs and warns
       // you if your configuration is incompatible with persistent tasks.
       persistent: true,
+    },
+    {
+      expression: ["match", `{${ASSETS.join(",")}}`, "wholename"],
+      name: "copy-assets",
+      onChange: async ({ spawn, files, first }) => {
+        const assetsToCopy = first ? ASSETS : files.map((f) => f.name);
+        await spawn`cp -v ${assetsToCopy} test-vault/.obsidian/plugins/forged/`;
+      },
     },
   ],
 });
