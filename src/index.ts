@@ -1,19 +1,18 @@
 import {
   type App,
   type Editor,
-  MarkdownView,
-  Modal,
+  type MarkdownView,
   Notice,
   Plugin,
   PluginSettingTab,
   Setting,
   normalizePath,
-  TFile,
 } from "obsidian";
 import { runMoveCommand } from "./move-action";
 import { registerMoveBlock } from "./move-block";
 import { Datastore } from "./datastore";
 import CharacterTracker from "./character";
+import { runOracleCommand } from "./oracles";
 
 // Remember to rename these classes and interfaces!
 
@@ -74,7 +73,7 @@ export default class ForgedPlugin extends Plugin {
     statusBarItemEl.setText("Status Bar Text");
 
     this.addCommand({
-      id: "move-command",
+      id: "make-a-move",
       name: "Make a Move",
       editorCallback: async (editor: Editor, view: MarkdownView) => {
         await runMoveCommand(
@@ -86,24 +85,12 @@ export default class ForgedPlugin extends Plugin {
         );
       },
     });
-    // This adds a complex command that can check whether the current state of the app allows execution of the command
-    this.addCommand({
-      id: "open-sample-modal-complex",
-      name: "Open sample modal (complex)",
-      checkCallback: (checking: boolean) => {
-        // Conditions to check
-        const markdownView =
-          this.app.workspace.getActiveViewOfType(MarkdownView);
-        if (markdownView) {
-          // If checking is true, we're simply "checking" if the command can be run.
-          // If checking is false, then we want to actually perform the operation.
-          if (!checking) {
-            new SampleModal(this.app).open();
-          }
 
-          // This command will only show up in Command Palette when the check function returns true
-          return true;
-        }
+    this.addCommand({
+      id: "ask-the-oracle",
+      name: "Ask the Oracle",
+      editorCallback: async (editor: Editor, view: MarkdownView) => {
+        await runOracleCommand(this.app, this.datastore, editor, view);
       },
     });
 
@@ -125,28 +112,12 @@ export default class ForgedPlugin extends Plugin {
 
   onunload() {}
 
-  async loadSettings() {
+  async loadSettings(): Promise<void> {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
   }
 
-  async saveSettings() {
+  async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
-  }
-}
-
-class SampleModal extends Modal {
-  constructor(app: App) {
-    super(app);
-  }
-
-  onOpen() {
-    const { contentEl } = this;
-    contentEl.setText("Woah!");
-  }
-
-  onClose() {
-    const { contentEl } = this;
-    contentEl.empty();
   }
 }
 
