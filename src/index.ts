@@ -2,7 +2,6 @@ import {
   type App,
   type Editor,
   type MarkdownView,
-  Notice,
   Plugin,
   PluginSettingTab,
   Setting,
@@ -11,7 +10,7 @@ import {
 import { runMoveCommand } from "./move-action";
 import { registerMoveBlock } from "./move-block";
 import { Datastore } from "./datastore";
-import CharacterTracker from "./character";
+import CharacterTracker, { IronswornMeasures } from "./character";
 import { runOracleCommand } from "./oracles";
 
 // Remember to rename these classes and interfaces!
@@ -56,21 +55,9 @@ export default class ForgedPlugin extends Plugin {
 
     await this.loadSettings();
 
-    // This creates an icon in the left ribbon.
-    const ribbonIconEl = this.addRibbonIcon(
-      "dice",
-      "Sample Plugin",
-      (evt: MouseEvent) => {
-        // Called when the user clicks the icon.
-        new Notice("This is a notice!");
-      },
-    );
-    // Perform additional things with the ribbon
-    ribbonIconEl.addClass("my-plugin-ribbon-class");
-
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-    const statusBarItemEl = this.addStatusBarItem();
-    statusBarItemEl.setText("Status Bar Text");
+    // const statusBarItemEl = this.addStatusBarItem();
+    // statusBarItemEl.setText("Status Bar Text");
 
     this.addCommand({
       id: "make-a-move",
@@ -94,6 +81,47 @@ export default class ForgedPlugin extends Plugin {
       },
     });
 
+    this.addCommand({
+      id: "burn-momentum",
+      name: "Burn Mometnum",
+      editorCallback: async (editor: Editor, view: MarkdownView) => {
+        const [[path, character]] = this.tracker.characters.entries();
+        const momentum = character.measures(IronswornMeasures).momentum;
+        if (momentum > 0) {
+          const resetValue = 2; // TODO: what is it
+          await this.tracker.updateCharacter(path, (character) => {
+            const measures = character.measures(IronswornMeasures);
+            measures.momentum = resetValue;
+            return true;
+          });
+          editor.replaceSelection(
+            `old momentum: ${momentum}; new momentum: ${resetValue}`,
+          );
+        }
+      },
+    });
+
+    this.addCommand({
+      id: "take-meter",
+      name: "Take on a Meter",
+      editorCallback: async (editor: Editor, view: MarkdownView) => {
+        // todo: multichar
+        const [[path, character]] = this.tracker.characters.entries();
+        const momentum = character.measures(IronswornMeasures).momentum;
+        if (momentum > 0) {
+          const resetValue = 2; // TODO: what is it
+          await this.tracker.updateCharacter(path, (character) => {
+            const measures = character.measures(IronswornMeasures);
+            measures.momentum = resetValue;
+            return true;
+          });
+          editor.replaceSelection(
+            `old momentum: ${momentum}; new momentum: ${resetValue}`,
+          );
+        }
+      },
+    });
+
     // This adds a settings tab so the user can configure various aspects of the plugin
     this.addSettingTab(new SampleSettingTab(this.app, this));
 
@@ -110,7 +138,7 @@ export default class ForgedPlugin extends Plugin {
     registerMoveBlock(this);
   }
 
-  onunload() {}
+  onunload(): void {}
 
   async loadSettings(): Promise<void> {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());

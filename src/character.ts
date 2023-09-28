@@ -1,13 +1,13 @@
 import {
   type App,
-  type TFile,
+  TFile,
   getAllTags,
-  type Plugin,
   type CachedMetadata,
   type FrontMatterCache,
   Component,
   type MetadataCache,
   type Vault,
+  type FileManager,
 } from "obsidian";
 // import { getAPI } from "obsidian-dataview";
 
@@ -27,6 +27,7 @@ function isCharacterFile(
 export default class CharacterTracker extends Component {
   metadataCache: MetadataCache;
   vault: Vault;
+  fileManager: FileManager;
 
   /** Map file paths to metadata. */
   index: Map<string, CharacterMetadata>;
@@ -37,6 +38,7 @@ export default class CharacterTracker extends Component {
     this.metadataCache = app.metadataCache;
     this.vault = app.vault;
     this.index = new Map();
+    this.fileManager = app.fileManager;
   }
 
   public initialize(): void {
@@ -44,6 +46,17 @@ export default class CharacterTracker extends Component {
       this.metadataCache.on("changed", (file, data, cache) => {
         console.log("changed: ", file);
         this.indexFile(file, cache);
+      }),
+    );
+
+    this.registerEvent(
+      this.metadataCache.on("deleted", (file) => {
+        // TODO: might want to check values in prevCache
+        const indexKey = file.path;
+        if (this.index.has(indexKey)) {
+          console.log("indexed file %s deleted. removing from index", indexKey);
+          this.index.delete(indexKey);
+        }
       }),
     );
 
@@ -55,6 +68,34 @@ export default class CharacterTracker extends Component {
         console.log("no cache for ", file.path);
       }
     }
+  }
+
+  public async updateCharacter(
+    path: string,
+    updater: (character: CharacterMetadata, frontmatter: any) => boolean,
+  ): Promise<void> {
+    const file = this.vault.getAbstractFileByPath(path);
+    if (!this.index.has(path) || !(file instanceof TFile)) {
+      throw new Error(`invalid character file ${path}`);
+    }
+    await this.fileManager.processFrontMatter(file, (frontmatter: any) => {
+      const character = new CharacterMetadata(frontmatter);
+      // TODO: do i want to switch back to a more immutable style?
+      if (!updater(character, frontmatter)) {
+        // TODO: maybe raise an exception here so that we abort the update rather than do it
+        console.debug("no updates for %s", path);
+        return;
+      }
+      for (const [key, newValue] of character.changes) {
+        console.log(
+          "updating entry %s from %s to %d",
+          key,
+          character._data[key],
+          newValue,
+        );
+        frontmatter[key] = newValue;
+      }
+    });
   }
 
   private unindex(path: string): void {
@@ -124,37 +165,106 @@ export default class CharacterTracker extends Component {
   // }
 }
 
-const DEFAULT_MEASURES = ["heart", "wits", "iron", "shadow", "edge"];
-
 interface Measure {
-  name: string;
-  value: number | null;
-  source: string;
+  /** Kind of measure. Meters change; stats do not. */
+  kind: "meter" | "stat";
+
+  /** Internal ID */
+  id: string;
+
+  /** How should we show this in the UI? */
+  label: string;
+
+  /** Where does this live in frontmatter data? */
+  dataPath: string;
 }
 
-export class CharacterMetadata {
-  data: Record<string, any>;
-  readonly measures: Readonly<Record<string, Readonly<Measure>>>;
+export type MeasureSpec = Record<string, Measure>;
 
-  constructor(data: Record<string, any>) {
-    console.log(data);
-    this.data = data;
-    const calcMeasures: Record<string, Measure> = {};
-    DEFAULT_MEASURES.forEach((name) => {
-      calcMeasures[name] = {
-        name,
-        value: Number.isInteger(this.data[name]) ? this.data[name] : null,
-        source: "Character",
-      };
-    });
-    this.measures = calcMeasures;
+export const IronswornMeasures = {
+  heart: {
+    kind: "stat",
+    id: "heart",
+    label: "Heart",
+    dataPath: "heart",
+  },
+  wits: {
+    kind: "stat",
+    id: "wits",
+    label: "Wits",
+    dataPath: "wits",
+  },
+  shadow: {
+    kind: "stat",
+    id: "shadow",
+    label: "Shadow",
+    dataPath: "shadow",
+  },
+  edge: {
+    kind: "stat",
+    id: "edge",
+    label: "Edge",
+    dataPath: "edge",
+  },
+  iron: {
+    kind: "stat",
+    id: "iron",
+    label: "Iron",
+    dataPath: "iron",
+  },
+  momentum: {
+    kind: "meter",
+    id: "momentum",
+    label: "Momentum",
+    dataPath: "momentum",
+  },
+} satisfies MeasureSpec;
+
+export type MeasureSet<T extends MeasureSpec> = Record<keyof T, number>;
+
+export type IrowswornMeasureSet = MeasureSet<typeof IronswornMeasures>;
+
+export class CharacterMetadata {
+  public changes: Map<string, any>;
+
+  constructor(public readonly _data: any) {
+    this.changes = new Map();
+  }
+
+  public measures<T extends Record<string, any>>(
+    measureClass: T,
+  ): MeasureSet<T> {
+    const changes = this.changes;
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const obj: MeasureSet<T> = {} as MeasureSet<T>;
+    for (const [name, measure] of Object.entries(measureClass)) {
+      const val = Number.isInteger(this._data[name])
+        ? this._data[name]
+        : typeof this._data[name] === "string"
+        ? Number.parseInt(this._data[name])
+        : null;
+      Object.defineProperty(obj, name, {
+        enumerable: true,
+        get: () => changes.get(measure.dataPath) ?? val,
+        set: (newValue: any) => {
+          newValue = Number.isInteger(newValue)
+            ? newValue
+            : Number.parseInt(newValue);
+          if (Number.isNaN(newValue)) {
+            throw new TypeError(`${name} must be an integer.`);
+          }
+          if (val === newValue) {
+            changes.delete(name);
+          } else {
+            changes.set(name, newValue);
+          }
+        },
+      });
+    }
+    return obj;
   }
 
   get name(): string {
-    return this.data.name;
-  }
-
-  measure(name: string): number | undefined {
-    return this.data[name];
+    return this._data.name;
   }
 }

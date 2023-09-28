@@ -14,6 +14,7 @@ import type CharacterTracker from "./character";
 import { type Move, type Datastore } from "./datastore";
 import { CustomSuggestModal } from "./utils/suggest";
 import { randomInt } from "./utils/dice";
+import { IronswornMeasures } from "./character";
 
 enum MoveKind {
   Progress = "Progress",
@@ -53,15 +54,6 @@ const promptForMove = async (app: App, moves: Move[]): Promise<Move> =>
       el.createEl("small", { text: `(${moveKind}) ${move.Trigger.Text}` });
     },
   );
-
-// const DICE_REGEX = /^(\d+)d(\d+)$/;
-
-// function dice(str: string) {
-//   const match = str.match(DICE_REGEX);
-//   if (!match) {
-//     throw new Error(`invalid dice expression: ${str}`);
-//   }
-// }
 
 function processActionMove(
   move: Move,
@@ -127,7 +119,12 @@ export async function runMoveCommand(
   if (moveKind === MoveKind.Action) {
     const stat = await CustomSuggestModal.select(
       app,
-      Object.values(character.measures),
+      Object.entries(character.measures(IronswornMeasures)).map(
+        ([name, value]) => ({
+          name,
+          value,
+        }),
+      ),
       (m) => `${m.name}: ${m.value ?? "missing (defaults to 0)"}`,
     );
     const adds = await CustomSuggestModal.select(
