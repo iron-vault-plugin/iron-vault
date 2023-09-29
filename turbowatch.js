@@ -10,7 +10,11 @@ void watch({
         "allof",
         ["not", ["dirname", "node_modules"]],
         ["not", ["dirname", "test-vault"]],
-        ["match", "*.ts", "basename"],
+        [
+          "anyof",
+          ["match", "*.ts", "basename"],
+          ["match", "{.swcrc,tsconfig.json}", "wholename"],
+        ],
       ],
       name: "type-check",
       onChange: async ({ spawn }) => {
