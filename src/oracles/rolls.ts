@@ -1,7 +1,7 @@
 import {
-  type OracleTableRow,
   type OracleBase,
   type OracleTable,
+  type OracleTableRow,
 } from "dataforged";
 import { randomInt } from "../utils/dice";
 
@@ -23,7 +23,8 @@ interface TemplatedRoll extends BaseRoll {
   templateRolls: Map<string, Roll>;
 }
 export type Roll = SimpleRoll | MultiRoll | TemplatedRoll;
-function sameRoll(roll1: Roll, roll2: Roll): boolean {
+
+export function sameRoll(roll1: Roll, roll2: Roll): boolean {
   if (
     roll1.kind !== roll2.kind ||
     roll1.table.$id !== roll2.table.$id ||
@@ -79,9 +80,7 @@ export class OracleRoller {
         throw new Error(`unhandled template for ${table.$id}`);
       }
       const templateRolls = new Map<string, Roll>();
-      for (const [_match, id] of template.Result.matchAll(
-        /\{\{([^{}]+)\}\}/g,
-      )) {
+      for (const [, id] of template.Result.matchAll(/\{\{([^{}]+)\}\}/g)) {
         const subTable = this.index.get(id);
         if (subTable == null) {
           throw new Error(`missing subtable ${id} in ${table.$id}`);

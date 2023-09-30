@@ -7,6 +7,7 @@
 
 ## Characters
 
+- deal with multiple characters (find all of the places where i just hardcode to taking first)
 - Manage momentum
 
 ## Other

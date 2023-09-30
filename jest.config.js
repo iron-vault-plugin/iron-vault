@@ -1,5 +1,8 @@
+/** @type {import('jest').Config} */
+
 module.exports = {
   transform: {
-    "^.+\\.(t|j)sx?$": ["@swc-node/jest"],
+    "^.+\\.(t|j)sx?$": ["@swc/jest"],
   },
+  testEnvironment: "jsdom",
 };

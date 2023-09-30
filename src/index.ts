@@ -1,17 +1,19 @@
 import {
-  type App,
-  type Editor,
-  type MarkdownView,
   Plugin,
   PluginSettingTab,
   Setting,
   normalizePath,
+  type App,
+  type Editor,
+  type MarkdownView,
 } from "obsidian";
+import { IronswornMeasures } from "./character";
+import { CharacterTracker } from "./character-tracker";
+import { Datastore } from "./datastore";
 import { runMoveCommand } from "./move-action";
 import { registerMoveBlock } from "./move-block";
-import { Datastore } from "./datastore";
-import CharacterTracker, { IronswornMeasures } from "./character";
 import { runOracleCommand } from "./oracles";
+import { CustomSuggestModal } from "./utils/suggest";
 
 // Remember to rename these classes and interfaces!
 
@@ -107,18 +109,31 @@ export default class ForgedPlugin extends Plugin {
       editorCallback: async (editor: Editor, view: MarkdownView) => {
         // todo: multichar
         const [[path, character]] = this.tracker.characters.entries();
-        const momentum = character.measures(IronswornMeasures).momentum;
-        if (momentum > 0) {
-          const resetValue = 2; // TODO: what is it
-          await this.tracker.updateCharacter(path, (character) => {
-            const measures = character.measures(IronswornMeasures);
-            measures.momentum = resetValue;
-            return true;
-          });
-          editor.replaceSelection(
-            `old momentum: ${momentum}; new momentum: ${resetValue}`,
-          );
-        }
+        const measures = character.measures(IronswornMeasures);
+        const measure = await CustomSuggestModal.selectCustom(
+          this.app,
+          measures.entries(),
+          ({ key, value, definition }) => definition.label,
+          (match, el) => {
+            el.createEl("small", { text: `${match.item.value}` });
+          },
+        );
+        const modifier = await CustomSuggestModal.select(
+          this.app,
+          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+          (n) => n.toString(),
+        );
+        let updatedValue: number | undefined;
+        await this.tracker.updateCharacter(path, (character) => {
+          const measures = character.measures(IronswornMeasures);
+          updatedValue = measures.value(measure.key) ?? 0 + modifier;
+          measures.setValue(measure.key, updatedValue);
+
+          return true;
+        });
+        editor.replaceSelection(
+          `old ${measure.definition.label}: ${measure.value}; new ${measure.definition.label}: ${updatedValue}`,
+        );
       },
     });
 

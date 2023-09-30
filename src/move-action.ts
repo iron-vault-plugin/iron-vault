@@ -1,20 +1,20 @@
 import {
+  stringifyYaml,
   type App,
   type Editor,
-  stringifyYaml,
   type FuzzyMatch,
   type MarkdownView,
 } from "obsidian";
+import { IronswornMeasures } from "./character";
+import { type CharacterTracker } from "./character-tracker";
+import { type Datastore, type Move } from "./datastore";
 import {
   type ActionMoveDescription,
-  type ProgressMoveDescription,
   type MoveDescription,
+  type ProgressMoveDescription,
 } from "./move-desc";
-import type CharacterTracker from "./character";
-import { type Move, type Datastore } from "./datastore";
-import { CustomSuggestModal } from "./utils/suggest";
 import { randomInt } from "./utils/dice";
-import { IronswornMeasures } from "./character";
+import { CustomSuggestModal } from "./utils/suggest";
 
 enum MoveKind {
   Progress = "Progress",
