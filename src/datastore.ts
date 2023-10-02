@@ -1,10 +1,18 @@
+import {
+  type Move,
+  type OracleBase,
+  type OracleSet,
+  type OracleTable,
+  type Starforged,
+} from "dataforged";
 import { type App } from "obsidian";
-import { type Move, type Starforged, type OracleBase } from "dataforged";
 
-export type { Move };
+export { type Move };
 
-function indexOracles(data: Starforged): Map<string, OracleBase> {
-  const index = new Map<string, OracleBase>();
+type OracleMap = Map<string, OracleTable | OracleSet>;
+
+function createOracleMap(data: Starforged): OracleMap {
+  const index: OracleMap = new Map();
   function expand(oracleBase: OracleBase, prefix: string[]): void {
     index.set(oracleBase.$id, oracleBase);
     if (oracleBase.Sets != null) {
@@ -24,10 +32,80 @@ function indexOracles(data: Starforged): Map<string, OracleBase> {
   return index;
 }
 
+export class OracleIndex
+  implements ReadonlyMap<string, OracleTable | OracleSet>
+{
+  static fromData(data: Starforged): OracleIndex {
+    return new OracleIndex(createOracleMap(data));
+  }
+
+  constructor(protected readonly _index: OracleMap) {}
+
+  forEach(
+    callbackfn: (
+      value: OracleSet | OracleTable,
+      key: string,
+      map: ReadonlyMap<string, OracleSet | OracleTable>,
+    ) => void,
+    thisArg?: any,
+  ): void {
+    throw new Error("Method not implemented.");
+  }
+
+  get(key: string): OracleSet | OracleTable | undefined {
+    return this._index.get(key);
+  }
+
+  has(key: string): boolean {
+    return this._index.has(key);
+  }
+
+  get size(): number {
+    return this._index.size;
+  }
+
+  entries(): IterableIterator<[string, OracleSet | OracleTable]> {
+    return this._index.entries();
+  }
+
+  keys(): IterableIterator<string> {
+    return this._index.keys();
+  }
+
+  values(): IterableIterator<OracleSet | OracleTable> {
+    return this._index.values();
+  }
+
+  [Symbol.iterator](): IterableIterator<[string, OracleSet | OracleTable]> {
+    return this._index[Symbol.iterator]();
+  }
+
+  *tables(): IterableIterator<OracleTable> {
+    for (const table of this._index.values()) {
+      if ("Table" in table) {
+        yield table;
+      }
+    }
+  }
+
+  /**
+   * Retrieve an oracle table from the index.
+   * @param id ID of oracle table
+   * @returns oracle table or undefined if the table is missing or is an OracleSet
+   */
+  getTable(id: string): OracleTable | undefined {
+    const oracle = this.get(id);
+    if (oracle == null || !("Table" in oracle)) {
+      return undefined;
+    }
+    return oracle;
+  }
+}
+
 export class Datastore {
   private readonly app: App;
   _data: Starforged | undefined;
-  _oracleIndex: Map<string, OracleBase> | undefined;
+  _oracleIndex: OracleIndex | undefined;
 
   constructor(app: App) {
     this.app = app;
@@ -38,7 +116,7 @@ export class Datastore {
     // const data = await this.app.vault.cachedRead(file);
     const data = await this.app.vault.adapter.read(normalizdPath);
     this._data = JSON.parse(data);
-    this._oracleIndex = indexOracles(this._data as Starforged);
+    this._oracleIndex = OracleIndex.fromData(this._data as Starforged);
   }
 
   get ready(): boolean {
@@ -58,14 +136,14 @@ export class Datastore {
     });
   }
 
-  get oracles(): Map<string, OracleBase> {
+  get oracles(): OracleIndex {
     this.assertReady();
     return this._oracleIndex;
   }
 
   private assertReady(): asserts this is {
     _data: Starforged;
-    _oracleIndex: Map<string, OracleBase>;
+    _oracleIndex: OracleIndex;
   } {
     if (this._data == null) {
       throw new Error("data not loaded yet");

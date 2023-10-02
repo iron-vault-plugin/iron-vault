@@ -7,6 +7,7 @@ import {
   type Editor,
   type MarkdownView,
 } from "obsidian";
+import { registerOracleBlock } from "oracles/render";
 import { IronswornMeasures } from "./character";
 import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
@@ -151,6 +152,7 @@ export default class ForgedPlugin extends Plugin {
     //   window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000),
     // );
     registerMoveBlock(this);
+    registerOracleBlock(this, this.datastore);
   }
 
   onunload(): void {}
