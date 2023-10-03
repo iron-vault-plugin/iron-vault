@@ -15,7 +15,7 @@ export async function runOracleCommand(
   app: App,
   datastore: Datastore,
   editor: Editor,
-  view: MarkdownView,
+  _view: MarkdownView,
 ): Promise<void> {
   if (!datastore.ready) {
     console.warn("data not ready");
@@ -33,10 +33,4 @@ export async function runOracleCommand(
   editor.replaceSelection(
     `\`\`\`oracle\n${stringifyYaml(dehydrateRoll(result))}\`\`\`\n\n`,
   );
-  // editor.replaceSelection(
-  //   `> [!oracle] Oracle: ${formatOraclePath(
-  //     datastore.oracles,
-  //     oracle,
-  //   )}: ${renderRoll(result)}\n\n`,
-  // );
 }
