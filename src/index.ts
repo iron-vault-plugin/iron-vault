@@ -14,7 +14,7 @@ import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
 import { runMoveCommand } from "./move-action";
 import { registerMoveBlock } from "./move-block";
-import { runOracleCommand } from "./oracles";
+import { runOracleCommand } from "./oracles/command";
 import { CustomSuggestModal } from "./utils/suggest";
 
 // Remember to rename these classes and interfaces!

@@ -1,7 +1,26 @@
 import { type OracleTable, type OracleTableRow } from "dataforged";
 import { type OracleIndex } from "datastore";
 import { randomInt } from "../utils/dice";
-import { type Roll, type RollSchema } from "./schema";
+import { type RollSchema } from "./schema";
+
+export interface BaseRoll {
+  kind: "simple" | "multi" | "templated";
+  roll: number;
+  table: OracleTable;
+  row: OracleTableRow;
+}
+export interface SimpleRoll extends BaseRoll {
+  kind: "simple";
+}
+export interface MultiRoll extends BaseRoll {
+  kind: "multi";
+  results: Roll[];
+}
+export interface TemplatedRoll extends BaseRoll {
+  kind: "templated";
+  templateRolls: Map<string, Roll>;
+}
+export type Roll = SimpleRoll | MultiRoll | TemplatedRoll;
 
 export function sameRoll(roll1: Roll, roll2: Roll): boolean {
   if (
@@ -133,65 +152,93 @@ export class OracleRoller {
 }
 
 export function dehydrateRoll(rollData: Roll): RollSchema {
-  const { kind, table, row } = rollData;
+  const { kind, table, row, roll } = rollData;
+  const baseData = {
+    roll,
+    tableId: table.$id,
+    tableName: table.Title.Standard,
+  };
   switch (kind) {
     case "simple":
-      return { ...rollData, table: table.$id, row: row.$id };
-    case "multi":
       return {
-        ...rollData,
-        table: table.$id,
-        row: row.$id,
-        results: rollData.results.map((r) => dehydrateRoll(r)),
+        kind,
+        ...baseData,
+        results: [row.Result],
       };
+    case "multi": {
+      const rolls = rollData.results.map((r) => dehydrateRoll(r));
+      return {
+        kind,
+        ...baseData,
+        rolls,
+        results: Array.combine(rolls.map((r) => r.results)),
+      };
+    }
     case "templated": {
       const templateRolls: Record<string, RollSchema> = {};
+      const templateString = row["Roll template"]?.Result;
+      if (templateString == null) {
+        throw new Error(
+          `expected template result for ${row.$id} of ${table.$id}`,
+        );
+      }
 
       for (const [k, v] of rollData.templateRolls.entries()) {
         templateRolls[k] = dehydrateRoll(v);
       }
 
-      return { ...rollData, table: table.$id, row: row.$id, templateRolls };
-    }
-  }
-}
-export function hydrateRoll(index: OracleIndex, rollData: RollSchema): Roll {
-  const { kind, roll, table: tableId, row: rowId } = rollData;
-  const table = index.getTable(tableId);
-  if (table == null) {
-    throw new Error(`oracle table with id ${tableId} not found in index`);
-  }
-
-  // TODO: use information present (static result values)
-  const row = table.Table.find(
-    (row): row is OracleTableRow => "$id" in row && row.$id === rowId,
-  );
-  if (row == null) {
-    throw new Error(`missing oracle row ${rowId} in oracle table ${tableId}`);
-  }
-  switch (kind) {
-    case "simple":
-      return { kind, roll, table, row };
-    case "multi":
       return {
         kind,
-        roll,
-        table,
-        row,
-        results: rollData.results.map((r) => hydrateRoll(index, r)),
-      };
-    case "templated": {
-      const templateRolls = new Map();
-      for (const [k, v] of Object.entries(rollData.templateRolls)) {
-        templateRolls.set(k, hydrateRoll(index, v));
-      }
-      return {
-        kind,
-        roll,
-        table,
-        row,
+        ...baseData,
         templateRolls,
+        templateString,
+        results: [
+          templateString.replace(/\{\{([^{}]+)\}\}/g, (_match, id) => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return templateRolls[id].results.join("; ");
+          }),
+        ],
       };
     }
   }
 }
+// export function hydrateRoll(index: OracleIndex, rollData: RollSchema): Roll {
+//   const { kind, roll, table: tableId, row: rowId } = rollData;
+//   const table = index.getTable(tableId);
+//   if (table == null) {
+//     throw new Error(`oracle table with id ${tableId} not found in index`);
+//   }
+
+//   // TODO: use information present (static result values)
+//   const row = table.Table.find(
+//     (row): row is OracleTableRow => "$id" in row && row.$id === rowId,
+//   );
+//   if (row == null) {
+//     throw new Error(`missing oracle row ${rowId} in oracle table ${tableId}`);
+//   }
+//   switch (kind) {
+//     case "simple":
+//       return { kind, roll, table, row };
+//     case "multi":
+//       return {
+//         kind,
+//         roll,
+//         table,
+//         row,
+//         results: rollData.results.map((r) => hydrateRoll(index, r)),
+//       };
+//     case "templated": {
+//       const templateRolls = new Map();
+//       for (const [k, v] of Object.entries(rollData.templateRolls)) {
+//         templateRolls.set(k, hydrateRoll(index, v));
+//       }
+//       return {
+//         kind,
+//         roll,
+//         table,
+//         row,
+//         templateRolls,
+//       };
+//     }
+//   }
+// }

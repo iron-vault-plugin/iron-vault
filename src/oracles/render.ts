@@ -9,8 +9,8 @@ import {
   type MarkdownPostProcessorContext,
   type Plugin,
 } from "obsidian";
-import { OracleRoller, dehydrateRoll, hydrateRoll } from "./rolls";
-import { rollSchema, type Roll, type RollSchema } from "./schema";
+import { OracleRoller, dehydrateRoll } from "./roller";
+import { rollSchema, type RollSchema } from "./schema";
 import { formatOraclePath } from "./utils";
 
 export function registerOracleBlock(
@@ -44,27 +44,27 @@ export function registerOracleBlock(
   );
 }
 
-function renderRoll(roll: Roll): string {
-  switch (roll.kind) {
-    case "multi":
-      return `(${roll.roll} on ${roll.table.Title.Standard} -> ${
-        roll.row.Result
-      }): ${roll.results.map((r) => renderRoll(r)).join(", ")}`;
-    case "simple":
-      return `(${roll.roll} on ${roll.table.Title.Standard}) ${roll.row.Result}`;
-    case "templated":
-      return `(${roll.roll} on ${roll.table.Title.Standard}) ${roll.row[
-        "Roll template"
-      ]?.Result?.replace(/\{\{([^{}]+)\}\}/g, (_match, id) => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return renderRoll(roll.templateRolls.get(id)!);
-      })}`;
-    default: {
-      const _exhaustiveCheck: never = roll;
-      return _exhaustiveCheck;
-    }
-  }
-}
+// function renderRoll(roll: Roll): string {
+//   switch (roll.kind) {
+//     case "multi":
+//       return `(${roll.roll} on ${roll.table.Title.Standard} -> ${
+//         roll.row.Result
+//       }): ${roll.results.map((r) => renderRoll(r)).join(", ")}`;
+//     case "simple":
+//       return `(${roll.roll} on ${roll.table.Title.Standard}) ${roll.row.Result}`;
+//     case "templated":
+//       return `(${roll.roll} on ${roll.table.Title.Standard}) ${roll.row[
+//         "Roll template"
+//       ]?.Result?.replace(/\{\{([^{}]+)\}\}/g, (_match, id) => {
+//         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+//         return renderRoll(roll.templateRolls.get(id)!);
+//       })}`;
+//     default: {
+//       const _exhaustiveCheck: never = roll;
+//       return _exhaustiveCheck;
+//     }
+//   }
+// }
 
 class OracleMarkdownRenderChild extends MarkdownRenderChild {
   protected _renderEl: HTMLElement;
@@ -81,11 +81,10 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
 
   template(): string {
     const index = this.datastore.oracles;
-    const result = hydrateRoll(index, this.roll);
-    return `> [!oracle] Oracle: ${formatOraclePath(
-      index,
-      result.table,
-    )}: ${renderRoll(result)}\n\n`;
+    const table = index.getTable(this.roll.tableId);
+    return `> [!oracle] Oracle: ${
+      table != null ? formatOraclePath(index, table) : this.roll.tableName
+    }: ${this.roll.results.join("; ")}\n\n`;
   }
 
   async render(): Promise<void> {
@@ -116,7 +115,7 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
         const oracles = this.datastore.oracles;
         const result = new OracleRoller(oracles).roll(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          oracles.getTable(this.roll.table)!,
+          oracles.getTable(this.roll.tableId)!,
         );
 
         editor.replaceRange(

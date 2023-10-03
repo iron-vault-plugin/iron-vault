@@ -5,11 +5,11 @@ import {
   type Editor,
   type MarkdownView,
 } from "obsidian";
-import { dehydrateRoll } from "oracles/rolls";
+import { dehydrateRoll } from "oracles/roller";
 import { formatOraclePath } from "oracles/utils";
-import { type Datastore } from "./datastore";
-import { OracleRoller } from "./oracles/rolls";
-import { CustomSuggestModal } from "./utils/suggest";
+import { type Datastore } from "../datastore";
+import { CustomSuggestModal } from "../utils/suggest";
+import { OracleRoller } from "./roller";
 
 export async function runOracleCommand(
   app: App,
