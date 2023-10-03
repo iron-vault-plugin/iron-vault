@@ -17,7 +17,7 @@ import { registerMoveBlock } from "./move-block";
 import { runOracleCommand } from "./oracles/command";
 import { CustomSuggestModal } from "./utils/suggest";
 
-// Remember to rename these classes and interfaces!
+// TODO: Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
   mySetting: string;
@@ -48,6 +48,9 @@ export default class ForgedPlugin extends Plugin {
         this.datastore.initialize(jsonPath);
       });
     }
+
+    window.ForgedAPI = { datastore: this.datastore, tracker: this.tracker };
+    this.register(() => delete window.ForgedAPI);
 
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
     // const statusBarItemEl = this.addStatusBarItem();

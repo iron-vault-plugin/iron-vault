@@ -4,14 +4,13 @@ import {
   MarkdownRenderer,
   MarkdownView,
   parseYaml,
-  stringifyYaml,
   type App,
   type MarkdownPostProcessorContext,
   type Plugin,
 } from "obsidian";
-import { OracleRoller, dehydrateRoll } from "./roller";
-import { rollSchema, type RollSchema } from "./schema";
-import { formatOraclePath } from "./utils";
+import { formatOracleBlock } from "./command";
+import { OracleRoller } from "./roller";
+import { oracleSchema, type OracleSchema, type RollSchema } from "./schema";
 
 export function registerOracleBlock(
   plugin: Plugin,
@@ -21,23 +20,23 @@ export function registerOracleBlock(
     "oracle",
     async (source, el, ctx) => {
       const doc = parseYaml(source);
-      const validatedRoll = rollSchema.safeParse(doc);
+      const validatedOracle = oracleSchema.safeParse(doc);
 
-      if (validatedRoll.success) {
+      if (validatedOracle.success) {
         ctx.addChild(
           new OracleMarkdownRenderChild(
             el,
             plugin.app,
             ctx,
             datastore,
-            validatedRoll.data,
+            validatedOracle.data,
           ),
         );
       } else {
         el.createEl("pre", {
           text:
-            "Error parsing roll\n" +
-            JSON.stringify(validatedRoll.error.format()),
+            "Error parsing oracle result\n" +
+            JSON.stringify(validatedOracle.error.format()),
         });
       }
     },
@@ -66,6 +65,23 @@ export function registerOracleBlock(
 //   }
 // }
 
+function renderDetails(roll: RollSchema): string {
+  let result = `${roll.tableName} (${roll.roll}: ${
+    roll.raw ?? roll.results[0]
+  })`;
+  switch (roll.kind) {
+    case "multi":
+      result += ` -> (${roll.rolls.map(renderDetails).join(", ")})`;
+      break;
+    case "templated":
+      result += ` -> (${Object.values(roll.templateRolls)
+        .map(renderDetails)
+        .join(", ")})`;
+      break;
+  }
+  return result;
+}
+
 class OracleMarkdownRenderChild extends MarkdownRenderChild {
   protected _renderEl: HTMLElement;
 
@@ -74,20 +90,20 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
     protected readonly app: App,
     protected readonly ctx: MarkdownPostProcessorContext,
     protected readonly datastore: Datastore,
-    protected readonly roll: RollSchema,
+    protected readonly oracle: OracleSchema,
   ) {
     super(containerEl);
   }
 
   template(): string {
-    const index = this.datastore.oracles;
-    const table = index.getTable(this.roll.tableId);
-    return `> [!oracle] Oracle: ${
-      table != null ? formatOraclePath(index, table) : this.roll.tableName
-    }: ${this.roll.results.join("; ")}\n\n`;
+    const { roll, question } = this.oracle;
+    return `> [!oracle] ${question ?? "Ask the Oracle"}: ${roll.results.join(
+      "; ",
+    )}\n> ${renderDetails(roll)}\n\n`;
   }
 
   async render(): Promise<void> {
+    this._renderEl.replaceChildren();
     await MarkdownRenderer.render(
       this.app,
       this.template(),
@@ -100,6 +116,7 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
   async onload(): Promise<void> {
     const div = this.containerEl.createDiv();
     const button = div.createEl("button", { type: "button", text: "Re-roll" });
+    // TODO: only render actions if we are in edit-only mode
     button.onClickEvent((_ev) => {
       const view = this.app.workspace.getActiveViewOfType(MarkdownView);
       if (this.ctx.sourcePath !== view?.file?.path) {
@@ -115,11 +132,11 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
         const oracles = this.datastore.oracles;
         const result = new OracleRoller(oracles).roll(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          oracles.getTable(this.roll.tableId)!,
+          oracles.getTable(this.oracle.roll.tableId)!,
         );
 
         editor.replaceRange(
-          `\n\n\`\`\`oracle\n${stringifyYaml(dehydrateRoll(result))}\`\`\`\n\n`,
+          "\n\n" + formatOracleBlock({ roll: result }),
           { line: sectionInfo.lineEnd + 1, ch: 0 },
           { line: sectionInfo.lineEnd + 1, ch: 0 },
         );

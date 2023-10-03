@@ -10,6 +10,9 @@ const baseRollSchema = z.object({
   /** Descriptive name of oracle table. */
   tableName: z.string(),
 
+  /** The direct label of the entry, if one exists and is different than the result. */
+  raw: z.string().optional(),
+
   /** Composite results */
   results: z.string().array(),
 });
@@ -26,13 +29,13 @@ export type MultiRollSchema = z.infer<typeof baseRollSchema> & {
 export const multiRollSchema = baseRollSchema.extend({
   kind: z.literal("multi"),
   rolls: z.lazy(() => rollSchema.array()),
-});
+}) satisfies z.ZodType<MultiRollSchema>;
 
 export const templatedRollSchema = baseRollSchema.extend({
   kind: z.literal("templated"),
   templateString: z.string(),
   templateRolls: z.lazy(() => z.record(rollSchema)),
-});
+}) satisfies z.ZodType<TemplatedRollSchema>;
 
 export type TemplatedRollSchema = z.infer<typeof baseRollSchema> & {
   kind: "templated";
@@ -56,4 +59,4 @@ export const oracleSchema = z.object({
   question: z.string().optional(),
 });
 
-export type OracleSchmea = z.infer<typeof oracleSchema>;
+export type OracleSchema = z.infer<typeof oracleSchema>;

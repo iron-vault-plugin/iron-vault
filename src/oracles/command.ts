@@ -5,11 +5,26 @@ import {
   type Editor,
   type MarkdownView,
 } from "obsidian";
-import { dehydrateRoll } from "oracles/roller";
+import { dehydrateRoll, type Roll } from "oracles/roller";
 import { formatOraclePath } from "oracles/utils";
 import { type Datastore } from "../datastore";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRoller } from "./roller";
+import { type OracleSchema } from "./schema";
+
+export function formatOracleBlock({
+  question,
+  roll,
+}: {
+  question?: string;
+  roll: Roll;
+}): string {
+  const oracle: OracleSchema = {
+    question,
+    roll: dehydrateRoll(roll),
+  };
+  return `\`\`\`oracle\n${stringifyYaml(oracle)}\`\`\`\n\n`;
+}
 
 export async function runOracleCommand(
   app: App,
@@ -29,8 +44,5 @@ export async function runOracleCommand(
   );
   console.log(oracle);
   const roller = new OracleRoller(datastore.oracles);
-  const result = roller.roll(oracle);
-  editor.replaceSelection(
-    `\`\`\`oracle\n${stringifyYaml(dehydrateRoll(result))}\`\`\`\n\n`,
-  );
+  editor.replaceSelection(formatOracleBlock({ roll: roller.roll(oracle) }));
 }

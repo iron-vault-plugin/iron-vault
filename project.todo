@@ -1,7 +1,10 @@
 Oracles:
-☐ better formatting for complex results
+✔ better formatting for complex results @done(23-10-03 16:21)
 ✔ oracle block should encode enough info that it doesn't need original tables @done(23-10-03 14:30)
 ✔ button to re-roll an oracle @done(23-10-02 16:23)
+☐ When a roll has suggestions, make it possible to build on those suggestions (example: starforged/oracles/campaign/inciting_incident/96-100)
+☐ Usage (Max Rolls, Allow duplicates), e.g. starforged/oracles/characters/revealed_aspect
+
 
 Characters:
 ☐ deal with multiple characters (find all of the places where i just hardcode to taking first)

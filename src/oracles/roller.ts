@@ -72,6 +72,13 @@ export class OracleRoller {
 
     console.log(row);
     if (row["Roll template"] != null) {
+      if (row["Multiple rolls"] != null) {
+        console.warn(
+          "Oracle %s row %s has both 'Roll template' and 'Multiple rolls'",
+          table.$id,
+          row.$id,
+        );
+      }
       const template = row["Roll template"];
       // TODO: apparently also description and summary
       if (template.Result == null) {
@@ -171,6 +178,7 @@ export function dehydrateRoll(rollData: Roll): RollSchema {
         kind,
         ...baseData,
         rolls,
+        raw: row.Result,
         results: Array.combine(rolls.map((r) => r.results)),
       };
     }
@@ -190,6 +198,7 @@ export function dehydrateRoll(rollData: Roll): RollSchema {
       return {
         kind,
         ...baseData,
+        raw: row.Result,
         templateRolls,
         templateString,
         results: [
