@@ -1,0 +1,10 @@
+Oracles:
+☐ better formatting for complex results
+✔ button to re-roll an oracle @done(23-10-02 16:23)
+
+Characters:
+☐ deal with multiple characters (find all of the places where i just hardcode to taking first)
+✔ Manage momentum @done(23-10-02 16:23)
+
+Other:
+☐ Investigate using https://eemeli.org/yaml/#yaml to manipulate frontmatter without rewriting

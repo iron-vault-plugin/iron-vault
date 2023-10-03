@@ -5,14 +5,13 @@ import {
   type OracleTable,
   type Starforged,
 } from "dataforged";
-import { type App } from "obsidian";
+import { Component, type App } from "obsidian";
 
 export { type Move };
 
 type OracleMap = Map<string, OracleTable | OracleSet>;
 
-function createOracleMap(data: Starforged): OracleMap {
-  const index: OracleMap = new Map();
+function indexIntoOracleMap(index: OracleMap, data: Starforged): void {
   function expand(oracleBase: OracleBase, prefix: string[]): void {
     index.set(oracleBase.$id, oracleBase);
     if (oracleBase.Sets != null) {
@@ -29,14 +28,15 @@ function createOracleMap(data: Starforged): OracleMap {
   for (const [name, set] of Object.entries(data["Oracle sets"])) {
     expand(set, [name]);
   }
-  return index;
 }
 
 export class OracleIndex
   implements ReadonlyMap<string, OracleTable | OracleSet>
 {
   static fromData(data: Starforged): OracleIndex {
-    return new OracleIndex(createOracleMap(data));
+    const map = new Map();
+    indexIntoOracleMap(map, data);
+    return new OracleIndex(map);
   }
 
   constructor(protected readonly _index: OracleMap) {}
@@ -102,21 +102,30 @@ export class OracleIndex
   }
 }
 
-export class Datastore {
-  private readonly app: App;
+export class Datastore extends Component {
   _data: Starforged | undefined;
-  _oracleIndex: OracleIndex | undefined;
+  _oracleMap: OracleMap;
+  _oracleIndex: OracleIndex;
 
-  constructor(app: App) {
-    this.app = app;
+  constructor(public readonly app: App) {
+    super();
     this._data = undefined;
+
+    // create an empty oracle index initially
+    this._oracleMap = new Map();
+    this._oracleIndex = new OracleIndex(this._oracleMap);
   }
 
-  async load(normalizdPath: string): Promise<void> {
+  public initialize(jsonPath: string): void {
+    void this.loadFile(jsonPath);
+  }
+
+  async loadFile(normalizdPath: string): Promise<void> {
     // const data = await this.app.vault.cachedRead(file);
     const data = await this.app.vault.adapter.read(normalizdPath);
     this._data = JSON.parse(data);
-    this._oracleIndex = OracleIndex.fromData(this._data as Starforged);
+    indexIntoOracleMap(this._oracleMap, this._data as Starforged);
+    this.app.metadataCache.trigger("forged:index-changed");
   }
 
   get ready(): boolean {

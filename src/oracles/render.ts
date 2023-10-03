@@ -67,6 +67,8 @@ function renderRoll(roll: Roll): string {
 }
 
 class OracleMarkdownRenderChild extends MarkdownRenderChild {
+  protected _renderEl: HTMLElement;
+
   constructor(
     containerEl: HTMLElement,
     protected readonly app: App,
@@ -84,6 +86,16 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
       index,
       result.table,
     )}: ${renderRoll(result)}\n\n`;
+  }
+
+  async render(): Promise<void> {
+    await MarkdownRenderer.render(
+      this.app,
+      this.template(),
+      this._renderEl,
+      this.ctx.sourcePath,
+      this,
+    );
   }
 
   async onload(): Promise<void> {
@@ -114,12 +126,15 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
         );
       }
     });
-    await MarkdownRenderer.render(
-      this.app,
-      this.template(),
-      this.containerEl.createDiv(),
-      this.ctx.sourcePath,
-      this,
+    this._renderEl = this.containerEl.createDiv();
+
+    if (this.datastore.ready) {
+      await this.render();
+    }
+    this.registerEvent(
+      this.app.metadataCache.on("forged:index-changed", async () => {
+        await this.render();
+      }),
     );
   }
 }

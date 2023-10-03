@@ -2,12 +2,13 @@ import {
   Plugin,
   PluginSettingTab,
   Setting,
-  normalizePath,
   type App,
   type Editor,
+  type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
 import { registerOracleBlock } from "oracles/render";
+import { pluginAsset } from "utils/obsidian";
 import { IronswornMeasures } from "./character";
 import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
@@ -26,37 +27,27 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
   mySetting: "default",
 };
 
-function pluginAsset(plug: Plugin, assetPath: string): string {
-  return normalizePath(
-    [plug.app.vault.configDir, "plugins", plug.manifest.id, assetPath].join(
-      "/",
-    ),
-  );
-}
-
 export default class ForgedPlugin extends Plugin {
   settings: MyPluginSettings;
   datastore: Datastore;
   tracker: CharacterTracker;
 
   async onload(): Promise<void> {
-    this.datastore = new Datastore(this.app);
+    this.datastore = this.addChild(new Datastore(this.app));
     this.tracker = this.addChild(new CharacterTracker(this.app));
+    await this.loadSettings();
 
     if (this.app.workspace.layoutReady) {
+      const jsonPath = pluginAsset(this, "starforged.json");
       this.tracker.initialize();
+      this.datastore.initialize(jsonPath);
     } else {
       this.app.workspace.onLayoutReady(() => {
+        const jsonPath = pluginAsset(this, "starforged.json");
         this.tracker.initialize();
+        this.datastore.initialize(jsonPath);
       });
     }
-
-    this.app.workspace.onLayoutReady(async () => {
-      const jsonPath = pluginAsset(this, "starforged.json");
-      await this.datastore.load(jsonPath);
-    });
-
-    await this.loadSettings();
 
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
     // const statusBarItemEl = this.addStatusBarItem();
@@ -65,13 +56,17 @@ export default class ForgedPlugin extends Plugin {
     this.addCommand({
       id: "make-a-move",
       name: "Make a Move",
-      editorCallback: async (editor: Editor, view: MarkdownView) => {
+      editorCallback: async (
+        editor: Editor,
+        view: MarkdownView | MarkdownFileInfo,
+      ) => {
+        // TODO: what if it is just a fileinfo?
         await runMoveCommand(
           this.app,
           this.datastore,
           this.tracker,
           editor,
-          view,
+          view as MarkdownView,
         );
       },
     });
@@ -79,15 +74,26 @@ export default class ForgedPlugin extends Plugin {
     this.addCommand({
       id: "ask-the-oracle",
       name: "Ask the Oracle",
-      editorCallback: async (editor: Editor, view: MarkdownView) => {
-        await runOracleCommand(this.app, this.datastore, editor, view);
+      editorCallback: async (
+        editor: Editor,
+        view: MarkdownView | MarkdownFileInfo,
+      ) => {
+        await runOracleCommand(
+          this.app,
+          this.datastore,
+          editor,
+          view as MarkdownView,
+        );
       },
     });
 
     this.addCommand({
       id: "burn-momentum",
       name: "Burn Mometnum",
-      editorCallback: async (editor: Editor, view: MarkdownView) => {
+      editorCallback: async (
+        editor: Editor,
+        _view: MarkdownView | MarkdownFileInfo,
+      ) => {
         const [[path, character]] = this.tracker.characters.entries();
         const momentum = character.measures(IronswornMeasures).momentum;
         if (momentum > 0) {
@@ -107,7 +113,10 @@ export default class ForgedPlugin extends Plugin {
     this.addCommand({
       id: "take-meter",
       name: "Take on a Meter",
-      editorCallback: async (editor: Editor, view: MarkdownView) => {
+      editorCallback: async (
+        editor: Editor,
+        _view: MarkdownView | MarkdownFileInfo,
+      ) => {
         // todo: multichar
         const [[path, character]] = this.tracker.characters.entries();
         const measures = character.measures(IronswornMeasures);

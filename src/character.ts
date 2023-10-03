@@ -115,8 +115,10 @@ export function createMeasureSetImpl<T extends MeasureSpec>(
         : null;
     }
 
-    value(key: string): number | null {
-      return this.changeMap.get(key) ?? this.originalValue(key);
+    value(key: keyof T): number | null {
+      return (
+        this.changeMap.get(key.toString()) ?? this.originalValue(key.toString())
+      );
     }
 
     get specs(): T {
