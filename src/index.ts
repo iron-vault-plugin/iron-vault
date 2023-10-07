@@ -8,13 +8,14 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { registerOracleBlock } from "oracles/render";
+import { dehydrateRoll } from "oracles/roller";
 import { pluginAsset } from "utils/obsidian";
 import { IronswornMeasures } from "./character";
 import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
 import { runMoveCommand } from "./move-action";
 import { registerMoveBlock } from "./move-block";
-import { runOracleCommand } from "./oracles/command";
+import { formatOracleBlock, runOracleCommand } from "./oracles/command";
 import { CustomSuggestModal } from "./utils/suggest";
 
 // TODO: Remember to rename these classes and interfaces!
@@ -49,7 +50,12 @@ export default class ForgedPlugin extends Plugin {
       });
     }
 
-    window.ForgedAPI = { datastore: this.datastore, tracker: this.tracker };
+    window.ForgedAPI = {
+      datastore: this.datastore,
+      tracker: this.tracker,
+      formatOracleBlock,
+      dehydrateRoll,
+    };
     this.register(() => delete window.ForgedAPI);
 
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.

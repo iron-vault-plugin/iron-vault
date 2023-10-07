@@ -6,6 +6,7 @@ import {
   type Starforged,
 } from "dataforged";
 import { Component, type App } from "obsidian";
+import { OracleRoller } from "oracles/roller";
 
 export { type Move };
 
@@ -148,6 +149,11 @@ export class Datastore extends Component {
   get oracles(): OracleIndex {
     this.assertReady();
     return this._oracleIndex;
+  }
+
+  get roller(): OracleRoller {
+    this.assertReady();
+    return new OracleRoller(this._oracleIndex);
   }
 
   private assertReady(): asserts this is {

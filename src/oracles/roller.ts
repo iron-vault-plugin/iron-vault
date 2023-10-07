@@ -53,9 +53,18 @@ export function sameRoll(roll1: Roll, roll2: Roll): boolean {
 export class OracleRoller {
   constructor(protected index: OracleIndex) {}
 
-  roll(oracle: OracleTable): Roll {
+  roll(oracle: OracleTable | string): Roll {
     const roll = randomInt(1, 100);
-    return this.evaluateRow(roll, oracle);
+    let table: OracleTable | undefined;
+    if (typeof oracle === "string") {
+      table = this.index.getTable(oracle);
+      if (table == null) {
+        throw new Error(`unable to find table with $id = ${oracle}`);
+      }
+    } else {
+      table = oracle;
+    }
+    return this.evaluateRow(roll, table);
   }
 
   evaluateRow(roll: number, table: OracleTable): Roll {
@@ -155,6 +164,50 @@ export class OracleRoller {
       row,
       table,
     };
+  }
+}
+
+export class TableWrapper {
+  constructor(
+    public readonly value: OracleTable,
+    public readonly roller: OracleRoller,
+  ) {}
+
+  roll(): RollWrapper {
+    return new RollWrapper(this.roller.roll(this.value), this);
+  }
+
+  fixedRow(roll: number): RollWrapper {
+    return new RollWrapper(this.roller.evaluateRow(roll, this.value), this);
+  }
+
+  maxRoll(): number {
+    // TODO: i think new schema might have a different way of doing this
+    return Math.max(
+      ...this.value.Table.flatMap((row) =>
+        row.Ceiling != null ? [row.Ceiling] : [],
+      ),
+    );
+  }
+}
+
+export class RollWrapper {
+  protected _flip: RollWrapper | undefined;
+
+  constructor(
+    public readonly value: Roll,
+    public readonly table: TableWrapper,
+  ) {}
+
+  get flip(): RollWrapper {
+    if (this._flip == null) {
+      this._flip = this.table.fixedRow(this.table.maxRoll() - this.value.roll);
+    }
+    return this._flip;
+  }
+
+  dehydrate(): RollSchema {
+    return dehydrateRoll(this.value);
   }
 }
 

@@ -82,6 +82,35 @@ function renderDetails(roll: RollSchema): string {
   return result;
 }
 
+export function renderRollPath(roll: RollSchema): string {
+  let result = `${roll.tableId}:${roll.roll}`;
+  switch (roll.kind) {
+    case "multi":
+      result += `(${roll.rolls.map(renderRollPath).join(",")})`;
+      break;
+    case "templated":
+      result += `(${Object.values(roll.templateRolls)
+        .map(renderRollPath)
+        .join(",")})`;
+      break;
+  }
+  return result;
+}
+
+export function renderOracleCallout(oracle: OracleSchema): string {
+  const { roll, question } = oracle;
+  return `> [!oracle] ${question ?? "Ask the Oracle"}: ${roll.results.join(
+    "; ",
+  )} %%${renderRollPath(roll)}%%\n>\n\n`;
+}
+
+export function renderDetailedOracleCallout(oracle: OracleSchema): string {
+  const { roll, question } = oracle;
+  return `> [!oracle] ${question ?? "Ask the Oracle"}: ${roll.results.join(
+    "; ",
+  )}\n> ${renderDetails(roll)}\n\n`;
+}
+
 class OracleMarkdownRenderChild extends MarkdownRenderChild {
   protected _renderEl: HTMLElement;
 
@@ -96,10 +125,7 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
   }
 
   template(): string {
-    const { roll, question } = this.oracle;
-    return `> [!oracle] ${question ?? "Ask the Oracle"}: ${roll.results.join(
-      "; ",
-    )}\n> ${renderDetails(roll)}\n\n`;
+    return renderDetailedOracleCallout(this.oracle);
   }
 
   async render(): Promise<void> {
