@@ -1,4 +1,6 @@
 [
   "forged",
-  "hot-reload"
+  "hot-reload",
+  "templater-obsidian",
+  "dataview"
 ]
