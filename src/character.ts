@@ -51,6 +51,24 @@ export const IronswornMeasures = {
     label: "Momentum",
     dataPath: "momentum",
   },
+  health: {
+    kind: "meter",
+    id: "health",
+    label: "Health",
+    dataPath: "health",
+  },
+  spirit: {
+    kind: "meter",
+    id: "spirit",
+    label: "Spirit",
+    dataPath: "spirit",
+  },
+  supply: {
+    kind: "meter",
+    id: "supply",
+    label: "Supply",
+    dataPath: "supply",
+  },
 } satisfies MeasureSpec;
 
 export interface MeasureSetUtils<T extends MeasureSpec> {
