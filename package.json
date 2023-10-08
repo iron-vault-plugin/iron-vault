@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -rf dist && tsc --noEmit && spack",
+    "build": "tsc --noEmit && node esbuild.config.mjs production",
+    "copy:target": "pnpm build && ./scripts/deploy.sh",
     "swc:build": "swc src --out-dir dist --copy-files",
     "dev": "turbowatch ./turbowatch.js",
     "_dev": "swc src --out-dir dist --copy-files --watch"
