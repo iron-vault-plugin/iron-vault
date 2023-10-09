@@ -35,13 +35,13 @@ void watch({
       // you if your configuration is incompatible with persistent tasks.
       persistent: true,
     },
-    // {
-    //   expression: ["match", `{${ASSETS.join(",")}}`, "wholename"],
-    //   name: "copy-assets",
-    //   onChange: async ({ spawn, files, first }) => {
-    //     const assetsToCopy = first ? ASSETS : files.map((f) => f.name);
-    //     await spawn`cp -v ${assetsToCopy} test-vault/.obsidian/plugins/forged/`;
-    //   },
-    // },
+    {
+      expression: ["match", `{${ASSETS.join(",")}}`, "wholename"],
+      name: "copy-assets",
+      onChange: async ({ spawn, files, first }) => {
+        const assetsToCopy = first ? ASSETS : files.map((f) => f.name);
+        await spawn`cp -v ${assetsToCopy} test-vault/.obsidian/plugins/forged/`;
+      },
+    },
   ],
 });

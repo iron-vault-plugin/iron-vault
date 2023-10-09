@@ -26,6 +26,9 @@ function indexIntoOracleMap(index: OracleMap, data: Starforged): void {
       }
     }
   }
+  if (data?.["Oracle sets"] == null) {
+    throw new Error("Oracle data seems to be missing");
+  }
   for (const [name, set] of Object.entries(data["Oracle sets"])) {
     expand(set, [name]);
   }

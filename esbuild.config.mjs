@@ -1,6 +1,5 @@
 import builtins from "builtin-modules";
 import esbuild from "esbuild";
-import { copy } from "esbuild-plugin-copy";
 import process from "process";
 
 const banner = `/*
@@ -41,18 +40,19 @@ const context = await esbuild.context({
   sourcemap: prod ? false : "inline",
   treeShaking: true,
   outfile: prod ? "main.js" : "test-vault/.obsidian/plugins/forged/main.js",
-  plugins: prod
-    ? []
-    : [
-        copy({
-          // resolveFrom: "cwd",
-          assets: {
-            from: ASSETS,
-            to: ASSETS,
-          },
-          watch: true,
-        }),
-      ],
+  // plugins: prod
+  //   ? []
+  //   : [
+  //       copy({
+  //         // resolveFrom: "cwd",
+  //         verbose: true,
+  //         assets: ASSETS.map((filename) => ({
+  //           from: filename,
+  //           to: filename,
+  //         })),
+  //         watch: true,
+  //       }),
+  //     ],
 });
 
 if (prod) {
