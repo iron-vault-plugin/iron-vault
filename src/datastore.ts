@@ -5,6 +5,7 @@ import {
   type OracleTable,
   type Starforged,
 } from "dataforged";
+import { PriorityIndexer } from "datastore/priority-index";
 import { Component, type App } from "obsidian";
 import { OracleRoller } from "oracles/roller";
 
@@ -12,7 +13,14 @@ export { type Move };
 
 type OracleMap = Map<string, OracleTable | OracleSet>;
 
-function indexIntoOracleMap(index: OracleMap, data: Starforged): void {
+export interface OraclePackage {
+  data: OracleMap;
+  source: string;
+  priority: number;
+}
+
+function indexIntoOracleMap(data: Starforged): OracleMap {
+  const index = new Map();
   function expand(oracleBase: OracleBase, prefix: string[]): void {
     index.set(oracleBase.$id, oracleBase);
     if (oracleBase.Sets != null) {
@@ -32,60 +40,15 @@ function indexIntoOracleMap(index: OracleMap, data: Starforged): void {
   for (const [name, set] of Object.entries(data["Oracle sets"])) {
     expand(set, [name]);
   }
+  return index;
 }
 
-export class OracleIndex
-  implements ReadonlyMap<string, OracleTable | OracleSet>
-{
-  static fromData(data: Starforged): OracleIndex {
-    const map = new Map();
-    indexIntoOracleMap(map, data);
-    return new OracleIndex(map);
-  }
-
-  constructor(protected readonly _index: OracleMap) {}
-
-  forEach(
-    callbackfn: (
-      value: OracleSet | OracleTable,
-      key: string,
-      map: ReadonlyMap<string, OracleSet | OracleTable>,
-    ) => void,
-    thisArg?: any,
-  ): void {
-    throw new Error("Method not implemented.");
-  }
-
-  get(key: string): OracleSet | OracleTable | undefined {
-    return this._index.get(key);
-  }
-
-  has(key: string): boolean {
-    return this._index.has(key);
-  }
-
-  get size(): number {
-    return this._index.size;
-  }
-
-  entries(): IterableIterator<[string, OracleSet | OracleTable]> {
-    return this._index.entries();
-  }
-
-  keys(): IterableIterator<string> {
-    return this._index.keys();
-  }
-
-  values(): IterableIterator<OracleSet | OracleTable> {
-    return this._index.values();
-  }
-
-  [Symbol.iterator](): IterableIterator<[string, OracleSet | OracleTable]> {
-    return this._index[Symbol.iterator]();
-  }
-
+export class OracleIndex extends PriorityIndexer<
+  string,
+  OracleSet | OracleTable
+> {
   *tables(): IterableIterator<OracleTable> {
-    for (const table of this._index.values()) {
+    for (const table of this.values()) {
       if ("Table" in table) {
         yield table;
       }
@@ -107,46 +70,62 @@ export class OracleIndex
 }
 
 export class Datastore extends Component {
-  _data: Starforged | undefined;
   _oracleMap: OracleMap;
   _oracleIndex: OracleIndex;
+  _moveIndex: PriorityIndexer<string, Move>;
+  _ready: boolean;
 
   constructor(public readonly app: App) {
     super();
-    this._data = undefined;
+    this._ready = false;
 
-    // create an empty oracle index initially
-    this._oracleMap = new Map();
-    this._oracleIndex = new OracleIndex(this._oracleMap);
+    this._oracleIndex = new OracleIndex();
+    this._moveIndex = new PriorityIndexer();
   }
 
-  public initialize(jsonPath: string): void {
-    void this.loadFile(jsonPath);
+  async initialize(jsonPath: string): Promise<void> {
+    await this.indexPluginFile(jsonPath, 0);
+    this._ready = true;
   }
 
-  async loadFile(normalizdPath: string): Promise<void> {
+  async indexPluginFile(
+    normalizedPath: string,
+    priority: number,
+  ): Promise<void> {
     // const data = await this.app.vault.cachedRead(file);
-    const data = await this.app.vault.adapter.read(normalizdPath);
-    this._data = JSON.parse(data);
-    indexIntoOracleMap(this._oracleMap, this._data as Starforged);
+    const data = JSON.parse(
+      await this.app.vault.adapter.read(normalizedPath),
+    ) as Starforged;
+    this._oracleIndex.indexSource(
+      normalizedPath,
+      priority,
+      indexIntoOracleMap(data),
+    );
+    this._moveIndex.indexSource(
+      normalizedPath,
+      priority,
+      Object.values(data["Move categories"]).flatMap(
+        (category): Array<[string, Move]> => {
+          return Object.values(category.Moves).map((m) => {
+            return [m.$id, m];
+          });
+        },
+      ),
+    );
     this.app.metadataCache.trigger("forged:index-changed");
   }
 
   get ready(): boolean {
-    return this._data != null;
+    return this._ready;
   }
 
-  get data(): Starforged | undefined {
-    return this._data;
-  }
+  // get data(): Starforged | undefined {
+  //   return this._data;
+  // }
 
   get moves(): Move[] {
     this.assertReady();
-    return Object.values(this._data["Move categories"]).flatMap((category) => {
-      return Object.values(category.Moves).map((m) => {
-        return m;
-      });
-    });
+    return [...this._moveIndex.values()];
   }
 
   get oracles(): OracleIndex {
@@ -159,11 +138,8 @@ export class Datastore extends Component {
     return new OracleRoller(this._oracleIndex);
   }
 
-  private assertReady(): asserts this is {
-    _data: Starforged;
-    _oracleIndex: OracleIndex;
-  } {
-    if (this._data == null) {
+  private assertReady(): void {
+    if (!this._ready) {
       throw new Error("data not loaded yet");
     }
   }
