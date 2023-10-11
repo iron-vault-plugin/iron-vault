@@ -40,13 +40,15 @@ export default class ForgedPlugin extends Plugin {
 
     if (this.app.workspace.layoutReady) {
       const jsonPath = pluginAsset(this, "starforged.json");
+      const supplementPath = pluginAsset(this, "starforged.supplement.yaml");
       this.tracker.initialize();
-      this.datastore.initialize(jsonPath);
+      this.datastore.initialize(jsonPath, supplementPath);
     } else {
       this.app.workspace.onLayoutReady(() => {
         const jsonPath = pluginAsset(this, "starforged.json");
+        const supplementPath = pluginAsset(this, "starforged.supplement.yaml");
         this.tracker.initialize();
-        this.datastore.initialize(jsonPath);
+        this.datastore.initialize(jsonPath, supplementPath);
       });
     }
 

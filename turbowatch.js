@@ -1,6 +1,11 @@
 import { watch } from "turbowatch";
 
-const ASSETS = ["styles.css", "starforged.json", "manifest.json"];
+const ASSETS = [
+  "styles.css",
+  "starforged.json",
+  "manifest.json",
+  "starforged.supplement.yaml",
+];
 
 void watch({
   project: __dirname,

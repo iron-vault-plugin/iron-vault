@@ -6,18 +6,12 @@ import {
   type Starforged,
 } from "dataforged";
 import { PriorityIndexer } from "datastore/priority-index";
-import { Component, type App } from "obsidian";
+import { Component, parseYaml, type App } from "obsidian";
 import { OracleRoller } from "oracles/roller";
 
 export { type Move };
 
 type OracleMap = Map<string, OracleTable | OracleSet>;
-
-export interface OraclePackage {
-  data: OracleMap;
-  source: string;
-  priority: number;
-}
 
 function indexIntoOracleMap(data: Starforged): OracleMap {
   const index = new Map();
@@ -83,19 +77,27 @@ export class Datastore extends Component {
     this._moveIndex = new PriorityIndexer();
   }
 
-  async initialize(jsonPath: string): Promise<void> {
+  async initialize(jsonPath: string, supplement: string): Promise<void> {
     await this.indexPluginFile(jsonPath, 0);
+    await this.indexPluginFile(supplement, -1, "yaml");
     this._ready = true;
   }
 
   async indexPluginFile(
     normalizedPath: string,
     priority: number,
+    format: string = "json",
   ): Promise<void> {
     // const data = await this.app.vault.cachedRead(file);
-    const data = JSON.parse(
-      await this.app.vault.adapter.read(normalizedPath),
-    ) as Starforged;
+    const content = await this.app.vault.adapter.read(normalizedPath);
+    let data: Starforged;
+    if (format === "json") {
+      data = JSON.parse(content) as Starforged;
+    } else if (format === "yaml") {
+      data = parseYaml(content) as Starforged;
+    } else {
+      throw new Error(`unknown file type ${format}`);
+    }
     this._oracleIndex.indexSource(
       normalizedPath,
       priority,
@@ -104,7 +106,7 @@ export class Datastore extends Component {
     this._moveIndex.indexSource(
       normalizedPath,
       priority,
-      Object.values(data["Move categories"]).flatMap(
+      Object.values(data["Move categories"] ?? []).flatMap(
         (category): Array<[string, Move]> => {
           return Object.values(category.Moves).map((m) => {
             return [m.$id, m];
