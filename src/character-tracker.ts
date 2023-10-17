@@ -1,4 +1,9 @@
-import { CharacterMetadata } from "character";
+import {
+  CharacterMetadata,
+  CharacterMetadataFactory,
+  CharacterWrapper,
+  IronswornCharacterMetadata,
+} from "character";
 import {
   Component,
   TFile,
@@ -28,7 +33,7 @@ export class CharacterTracker extends Component {
   fileManager: FileManager;
 
   /** Map file paths to metadata. */
-  index: Map<string, CharacterMetadata>;
+  index: Map<string, CharacterWrapper>;
 
   constructor(app: App) {
     super();
@@ -68,27 +73,32 @@ export class CharacterTracker extends Component {
     }
   }
 
-  public async updateCharacter(
+  public async updateCharacter<T extends CharacterMetadata>(
     path: string,
-    updater: (character: CharacterMetadata, frontmatter: any) => boolean,
+    kls: CharacterMetadataFactory<T>,
+    updater: (character: InstanceType<typeof kls>) => void,
   ): Promise<void> {
+    const wrapper = this.index.get(path);
     const file = this.vault.getAbstractFileByPath(path);
-    if (!this.index.has(path) || !(file instanceof TFile)) {
+    if (wrapper == null || !(file instanceof TFile)) {
       throw new Error(`invalid character file ${path}`);
     }
     await this.fileManager.processFrontMatter(file, (frontmatter: any) => {
-      const character = new CharacterMetadata(frontmatter);
+      const changes = new Map<string, any>();
+      const character = wrapper.forUpdates(kls, frontmatter, changes);
+      updater(character);
       // TODO: do i want to switch back to a more immutable style?
-      if (!updater(character, frontmatter)) {
+      if (changes.size == 0) {
         // TODO: maybe raise an exception here so that we abort the update rather than do it
         console.debug("no updates for %s", path);
         return;
       }
-      for (const [key, newValue] of character.changes) {
+      // TODO: this doesn't support nested keys
+      for (const [key, newValue] of changes) {
         console.log(
           "updating entry %s from %s to %d",
           key,
-          character._data[key],
+          frontmatter[key],
           newValue,
         );
         frontmatter[key] = newValue;
@@ -112,10 +122,17 @@ export class CharacterTracker extends Component {
     }
 
     console.log("indexing %s", indexKey);
-    this.index.set(indexKey, new CharacterMetadata(cache.frontmatter));
+    // TODO: write now we're just using ironsworn
+    this.index.set(
+      indexKey,
+      new CharacterWrapper(
+        cache.frontmatter,
+        new Set([IronswornCharacterMetadata]),
+      ),
+    );
   }
 
-  get characters(): Map<string, CharacterMetadata> {
+  get characters(): Map<string, CharacterWrapper> {
     return this.index;
   }
 

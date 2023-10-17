@@ -1,3 +1,4 @@
+import Handlebars from "handlebars";
 import {
   Plugin,
   type Editor,
@@ -12,7 +13,7 @@ import {
   ForgedSettingTab,
 } from "settings/ui";
 import { pluginAsset } from "utils/obsidian";
-import { IronswornMeasures } from "./character";
+import { IronswornCharacterMetadata, IronswornMeasures } from "./character";
 import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
 import { runMoveCommand } from "./move-action";
@@ -94,14 +95,24 @@ export default class ForgedPlugin extends Plugin {
 
     this.addCommand({
       id: "burn-momentum",
-      name: "Burn Mometnum",
+      name: "Burn Momentum",
       editorCallback: async (
         editor: Editor,
         _view: MarkdownView | MarkdownFileInfo,
       ) => {
         const [[path, character]] = this.tracker.characters.entries();
-        const momentum = character.measures(IronswornMeasures).momentum;
+        const sheet = character.as(IronswornCharacterMetadata);
+        const momentum = sheet.measures.momentum;
         if (momentum > 0) {
+          let newValue;
+          await this.tracker.updateCharacter(
+            path,
+            IronswornCharacterMetadata,
+            (character) => {
+              const measures = character.measures;
+              newValue = measures.momentum = character.momentumReset;
+            },
+          );
           const resetValue = 2; // TODO: what is it
           await this.tracker.updateCharacter(path, (character) => {
             const measures = character.measures(IronswornMeasures);

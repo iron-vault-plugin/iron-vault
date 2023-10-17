@@ -161,18 +161,136 @@ export function createMeasureSetImpl<T extends MeasureSpec>(
   } as new (...args: any[]) => MeasureSet<T>;
 }
 
-export class CharacterMetadata {
-  public changes: Map<string, any>;
+export enum Impact {
+  Unmarked = 0,
+  Marked = 1,
+}
 
-  constructor(public readonly _data: any) {
-    this.changes = new Map();
+export const IRONSWORN_IMPACTS = [
+  "Wounded",
+  "Shaken",
+  "Unprepared",
+  "Harmed",
+  "Traumatized",
+  "Doomed",
+  "Tormented",
+  "Indebted",
+];
+
+function parseImpact(val: string): Impact | undefined {
+  val = val.trim();
+  if (val === "0" || val === "⬡") {
+    return Impact.Unmarked;
+  } else if (val === "1" || val === "⬢") {
+    return Impact.Marked;
+  } else {
+    return undefined;
+  }
+}
+
+export interface Measured<T extends MeasureSpec> {
+  measures: MeasureSet<T>;
+}
+
+export interface CharacterMetadata {
+  name: string;
+}
+
+class UnwritableMap<K, V> extends Map<K, V> {
+  set(key: K, value: V): this {
+    throw new Error(`attempt to write key ${key} to unwritable map`);
+  }
+  clear(): void {
+    throw new Error("attempt to clear unwritable map");
+  }
+  delete(key: K): boolean {
+    throw new Error(`attempt to delete key ${key} to unwritable map`);
+  }
+}
+
+export class CharacterWrapper {
+  constructor(
+    protected readonly _data: Record<string, any>,
+    protected readonly _validatedSheets: Set<
+      CharacterMetadataFactory<CharacterMetadata>
+    >,
+  ) {}
+
+  as<T extends CharacterMetadata>(kls: CharacterMetadataFactory<T>): T {
+    return this.forUpdates(kls, this._data, new UnwritableMap());
   }
 
-  public measures<T extends MeasureSpec>(measureClass: T): MeasureSet<T> {
-    return new (createMeasureSetImpl(measureClass))(this._data, this.changes);
+  forUpdates<T extends CharacterMetadata>(
+    kls: CharacterMetadataFactory<T>,
+    data: Record<string, any>,
+    changes: Map<string, any>,
+  ): T {
+    if (!this._validatedSheets.has(kls)) {
+      throw new Error(`requested character sheet ${kls} not in validated list`);
+    }
+    return new kls(data, changes);
+  }
+}
+
+export type CharacterMetadataFactory<T extends CharacterMetadata> = new (
+  _data: Record<string, any>,
+  changes: Map<string, any>,
+) => T;
+
+export const IronswornMeasureSetImpl = createMeasureSetImpl(IronswornMeasures);
+export class IronswornCharacterMetadata
+  implements Measured<typeof IronswornMeasures>, CharacterMetadata
+{
+  protected _measures: MeasureSet<typeof IronswornMeasures>;
+
+  constructor(
+    public readonly _data: Record<string, any>,
+    public readonly changes: Map<string, any> = new Map(),
+  ) {
+    this._measures = new IronswornMeasureSetImpl(this._data, this.changes);
   }
 
-  get name(): string {
+  public get measures(): MeasureSet<typeof IronswornMeasures> {
+    return this._measures;
+  }
+
+  public get name(): string {
     return this._data.name;
+  }
+
+  get impacts(): Map<string, Impact | undefined> {
+    return new Map(
+      IRONSWORN_IMPACTS.map((impactKey) => [
+        impactKey,
+        parseImpact(this._data[impactKey]),
+      ]),
+    );
+  }
+
+  get markedImpacts(): Set<string> {
+    const marked = new Set<string>();
+    for (const [key, status] of this.impacts.entries()) {
+      if (status === Impact.Marked) {
+        marked.add(key);
+      }
+    }
+    return marked;
+  }
+
+  // TODO: are there assets that change this?
+  get momentumReset(): number {
+    const numMarked = this.markedImpacts.size;
+    if (numMarked == 0) {
+      return 2;
+    } else if (numMarked == 1) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+
+  // TODO: are there assets that change this?
+  get maxMomentum(): number {
+    return Math.max(0, 10 - this.markedImpacts.size);
   }
 }
