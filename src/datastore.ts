@@ -6,8 +6,17 @@ import {
   type Starforged,
 } from "dataforged";
 import { PriorityIndexer } from "datastore/priority-index";
-import { Component, parseYaml, type App } from "obsidian";
+import ForgedPlugin from "index";
+import {
+  Component,
+  TAbstractFile,
+  TFile,
+  TFolder,
+  parseYaml,
+  type App,
+} from "obsidian";
 import { OracleRoller } from "oracles/roller";
+import { breadthFirstTraversal } from "utils/traversal";
 
 export { type Move };
 
@@ -68,19 +77,130 @@ export class Datastore extends Component {
   _oracleIndex: OracleIndex;
   _moveIndex: PriorityIndexer<string, Move>;
   _ready: boolean;
+  _indexedPaths: Map<string, Set<string>>;
 
-  constructor(public readonly app: App) {
+  constructor(public readonly plugin: ForgedPlugin) {
     super();
     this._ready = false;
 
     this._oracleIndex = new OracleIndex();
     this._moveIndex = new PriorityIndexer();
+    this._indexedPaths = new Map();
   }
 
-  async initialize(jsonPath: string, supplement: string): Promise<void> {
+  get app(): App {
+    return this.plugin.app;
+  }
+
+  async initialize(): Promise<void> {
+    const jsonPath = this.plugin.assetFilePath("starforged.json");
+    // const supplementPath = this.plugin.assetFilePath(
+    //   "starforged.supplement.yaml",
+    // );
     await this.indexPluginFile(jsonPath, 0);
-    await this.indexPluginFile(supplement, -1, "yaml");
+    // await this.indexPluginFile(supplementPath, -1, "yaml");
+    if (this.plugin.settings.oraclesFolder != "") {
+      const oraclesFolderFile = this.app.vault.getAbstractFileByPath(
+        this.plugin.settings.oraclesFolder,
+      );
+      if (
+        oraclesFolderFile == null ||
+        !(oraclesFolderFile instanceof TFolder)
+      ) {
+        console.error(
+          "oracle folders: expected '%s' to be folder",
+          oraclesFolderFile,
+        );
+      } else {
+        this.indexOraclesFolder(oraclesFolderFile);
+      }
+    }
     this._ready = true;
+  }
+
+  async indexOraclesFolder(folder: TFolder): Promise<void> {
+    console.log("indexing folder %s", folder.path);
+    const filesToIndex = new Map(
+      breadthFirstTraversal<TFile, TAbstractFile>(
+        folder,
+        (node) => (node instanceof TFile ? node : undefined),
+        (node) => (node instanceof TFolder ? node.children : []),
+      ).map((p) => [p.path, p]),
+    );
+
+    const indexedPaths = new Set<string>();
+
+    for (const fileToIndex of filesToIndex.values()) {
+      if (await this.indexOracleFile(fileToIndex)) {
+        indexedPaths.add(fileToIndex.path);
+      }
+    }
+
+    const existingPaths = this._indexedPaths.get(folder.path) ?? new Set();
+    const pathsToRemove = new Set(
+      [...existingPaths].filter((prevPath) => !indexedPaths.has(prevPath)),
+    );
+
+    for (const pathToRemove of pathsToRemove) {
+      console.log(
+        "index: previously indexed data file %s (part of %s) no longer indexable, removing...",
+        pathToRemove,
+        folder.path,
+      );
+      this._oracleIndex.removeSource(pathToRemove);
+      this._moveIndex.removeSource(pathToRemove);
+    }
+
+    this._indexedPaths.set(folder.path, indexedPaths);
+  }
+
+  async indexOracleFile(file: TFile): Promise<boolean> {
+    console.log("indexing %s", file.path);
+    const cache = this.app.metadataCache.getFileCache(file);
+    if (cache?.frontmatter?.forged !== "dataforged-inline") {
+      return false;
+    }
+
+    const content = await this.app.vault.cachedRead(file);
+    let matches = content.match(/^```[^\S\r\n]*dataforged\s?\n([\s\S]+?)^```/m);
+    if (matches == null) {
+      return false;
+    }
+
+    try {
+      const data = parseYaml(matches[1]);
+      // TODO: priority
+      // TODO: validation?
+      this.indexDataForgedData(file.path, 1, data as Starforged);
+    } catch (e) {
+      console.error("error loading file", file, e);
+      return false;
+    }
+
+    return true;
+  }
+
+  indexDataForgedData(
+    normalizedPath: string,
+    priority: number,
+    data: Starforged,
+  ): void {
+    this._oracleIndex.indexSource(
+      normalizedPath,
+      priority,
+      indexIntoOracleMap(data),
+    );
+    this._moveIndex.indexSource(
+      normalizedPath,
+      priority,
+      Object.values(data["Move categories"] ?? []).flatMap(
+        (category): Array<[string, Move]> => {
+          return Object.values(category.Moves).map((m) => {
+            return [m.$id, m];
+          });
+        },
+      ),
+    );
   }
 
   async indexPluginFile(
@@ -98,22 +218,9 @@ export class Datastore extends Component {
     } else {
       throw new Error(`unknown file type ${format}`);
     }
-    this._oracleIndex.indexSource(
-      normalizedPath,
-      priority,
-      indexIntoOracleMap(data),
-    );
-    this._moveIndex.indexSource(
-      normalizedPath,
-      priority,
-      Object.values(data["Move categories"] ?? []).flatMap(
-        (category): Array<[string, Move]> => {
-          return Object.values(category.Moves).map((m) => {
-            return [m.$id, m];
-          });
-        },
-      ),
-    );
+    this.indexDataForgedData(normalizedPath, priority, data);
+    this._indexedPaths.set(normalizedPath, new Set([normalizedPath]));
+
     this.app.metadataCache.trigger("forged:index-changed");
   }
 

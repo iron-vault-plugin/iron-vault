@@ -1,14 +1,16 @@
 import {
   Plugin,
-  PluginSettingTab,
-  Setting,
-  type App,
   type Editor,
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
 import { registerOracleBlock } from "oracles/render";
 import { dehydrateRoll } from "oracles/roller";
+import {
+  DEFAULT_SETTINGS,
+  ForgedPluginSettings,
+  ForgedSettingTab,
+} from "settings/ui";
 import { pluginAsset } from "utils/obsidian";
 import { IronswornMeasures } from "./character";
 import { CharacterTracker } from "./character-tracker";
@@ -18,38 +20,30 @@ import { registerMoveBlock } from "./move-block";
 import { formatOracleBlock, runOracleCommand } from "./oracles/command";
 import { CustomSuggestModal } from "./utils/suggest";
 
-// TODO: Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
-  mySetting: string;
-}
-
-const DEFAULT_SETTINGS: MyPluginSettings = {
-  mySetting: "default",
-};
-
 export default class ForgedPlugin extends Plugin {
-  settings: MyPluginSettings;
+  settings: ForgedPluginSettings;
   datastore: Datastore;
   tracker: CharacterTracker;
 
+  private initialize(): void {
+    this.tracker.initialize();
+    this.datastore.initialize();
+  }
+
+  public assetFilePath(assetPath: string) {
+    return pluginAsset(this, assetPath);
+  }
+
   async onload(): Promise<void> {
-    this.datastore = this.addChild(new Datastore(this.app));
-    this.tracker = this.addChild(new CharacterTracker(this.app));
     await this.loadSettings();
 
+    this.datastore = this.addChild(new Datastore(this));
+    this.tracker = this.addChild(new CharacterTracker(this.app));
+
     if (this.app.workspace.layoutReady) {
-      const jsonPath = pluginAsset(this, "starforged.json");
-      const supplementPath = pluginAsset(this, "starforged.supplement.yaml");
-      this.tracker.initialize();
-      this.datastore.initialize(jsonPath, supplementPath);
+      this.initialize();
     } else {
-      this.app.workspace.onLayoutReady(() => {
-        const jsonPath = pluginAsset(this, "starforged.json");
-        const supplementPath = pluginAsset(this, "starforged.supplement.yaml");
-        this.tracker.initialize();
-        this.datastore.initialize(jsonPath, supplementPath);
-      });
+      this.app.workspace.onLayoutReady(() => this.initialize());
     }
 
     window.ForgedAPI = {
@@ -159,7 +153,7 @@ export default class ForgedPlugin extends Plugin {
     });
 
     // This adds a settings tab so the user can configure various aspects of the plugin
-    this.addSettingTab(new SampleSettingTab(this.app, this));
+    this.addSettingTab(new ForgedSettingTab(this.app, this));
 
     // If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
     // Using this function will automatically remove the event listener when this plugin is disabled.
@@ -183,33 +177,5 @@ export default class ForgedPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
-  }
-}
-
-class SampleSettingTab extends PluginSettingTab {
-  plugin: ForgedPlugin;
-
-  constructor(app: App, plugin: ForgedPlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
-
-  display(): void {
-    const { containerEl } = this;
-
-    containerEl.empty();
-
-    new Setting(containerEl)
-      .setName("Setting #1")
-      .setDesc("It's a secret")
-      .addText((text) =>
-        text
-          .setPlaceholder("Enter your secret")
-          .setValue(this.plugin.settings.mySetting)
-          .onChange(async (value) => {
-            this.plugin.settings.mySetting = value;
-            await this.plugin.saveSettings();
-          }),
-      );
   }
 }
