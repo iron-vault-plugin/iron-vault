@@ -25,3 +25,20 @@ Oracle sets:
             "Roll template":
               "$id": "starforgedsupp/oracles/templates/actiontheme/1-100/roll_template"
               "Result": "{{starforged/oracles/core/action}} {{starforged/oracles/core/theme}}"
+      "Descriptor+Focus":
+        "$id": starforgedsupp/oracles/templates/descriptorfocus
+        Title:
+          "$id": starforgedsupp/oracles/templates/descriptorfocus/title
+          Canonical: Descriptor+Focus
+          Standard: Descriptor+Focus
+          Short: Descriptor+Focus
+        Ancestors:
+          - starforgedsupp/oracles/templates
+        Table:
+          - Floor: 1
+            Ceiling: 100
+            "$id": "starforgedsupp/oracles/templates/descriptorfocus/1-100"
+            "Result": "[[⏵Descriptor](starforged/oracles/core/descriptor)] [[⏵Focus](starforged/oracles/core/focus)]"
+            "Roll template":
+              "$id": "starforgedsupp/oracles/templates/descriptorfocus/1-100/roll_template"
+              "Result": "{{starforged/oracles/core/descriptor}} {{starforged/oracles/core/focus}}"
