@@ -42,7 +42,7 @@ export class CharacterTracker extends Component {
   public initialize(): void {
     this.registerEvent(
       this.metadataCache.on("changed", (file, data, cache) => {
-        console.log("changed: ", file);
+        // console.log("changed: ", file);
         this.indexFile(file, cache);
       }),
     );
