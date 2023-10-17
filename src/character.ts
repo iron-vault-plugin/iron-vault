@@ -177,8 +177,8 @@ export const IRONSWORN_IMPACTS = [
   "Indebted",
 ];
 
-function parseImpact(val: string): Impact | undefined {
-  val = val.trim();
+function parseImpact(val: string | undefined): Impact | undefined {
+  val = val?.trim();
   if (val === "0" || val === "⬡") {
     return Impact.Unmarked;
   } else if (val === "1" || val === "⬢") {

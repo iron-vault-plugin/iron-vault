@@ -6,6 +6,7 @@ tags:
   - character
 iron: "3"
 momentum: 2
+health: 4
 ---
 
 asdf

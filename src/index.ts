@@ -13,7 +13,7 @@ import {
   ForgedSettingTab,
 } from "settings/ui";
 import { pluginAsset } from "utils/obsidian";
-import { IronswornCharacterMetadata, IronswornMeasures } from "./character";
+import { IronswornCharacterMetadata } from "./character";
 import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
 import { runMoveCommand } from "./move-action";
@@ -102,8 +102,8 @@ export default class ForgedPlugin extends Plugin {
       ) => {
         const [[path, character]] = this.tracker.characters.entries();
         const sheet = character.as(IronswornCharacterMetadata);
-        const momentum = sheet.measures.momentum;
-        if (momentum > 0) {
+        const oldValue = sheet.measures.momentum;
+        if (oldValue > 0) {
           let newValue;
           await this.tracker.updateCharacter(
             path,
@@ -113,14 +113,12 @@ export default class ForgedPlugin extends Plugin {
               newValue = measures.momentum = character.momentumReset;
             },
           );
-          const resetValue = 2; // TODO: what is it
-          await this.tracker.updateCharacter(path, (character) => {
-            const measures = character.measures(IronswornMeasures);
-            measures.momentum = resetValue;
-            return true;
-          });
+          const template = Handlebars.compile(
+            this.settings.momentumResetTemplate,
+            { noEscape: true },
+          );
           editor.replaceSelection(
-            `old momentum: ${momentum}; new momentum: ${resetValue}`,
+            template({ character: { name: sheet.name }, oldValue, newValue }),
           );
         }
       },
@@ -135,8 +133,9 @@ export default class ForgedPlugin extends Plugin {
       ) => {
         // todo: multichar
         const [[path, character]] = this.tracker.characters.entries();
-        const measures = character.measures(IronswornMeasures);
-        const measure = await CustomSuggestModal.selectCustom(
+        const sheet = character.as(IronswornCharacterMetadata);
+        const measures = sheet.measures;
+        const measure = await CustomSuggestModal.select(
           this.app,
           measures.entries(),
           ({ key, value, definition }) => definition.label,
@@ -149,16 +148,21 @@ export default class ForgedPlugin extends Plugin {
           [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
           (n) => n.toString(),
         );
-        let updatedValue: number | undefined;
-        await this.tracker.updateCharacter(path, (character) => {
-          const measures = character.measures(IronswornMeasures);
-          updatedValue = measures.value(measure.key) ?? 0 + modifier;
-          measures.setValue(measure.key, updatedValue);
-
-          return true;
+        let newValue: number | undefined;
+        await this.tracker.updateCharacter(
+          path,
+          IronswornCharacterMetadata,
+          (character) => {
+            const measures = character.measures;
+            newValue = (measures.value(measure.key) ?? 0) + modifier;
+            measures.setValue(measure.key, newValue);
+          },
+        );
+        const template = Handlebars.compile(this.settings.meterAdjTemplate, {
+          noEscape: true,
         });
         editor.replaceSelection(
-          `old ${measure.definition.label}: ${measure.value}; new ${measure.definition.label}: ${updatedValue}`,
+          template({ character: { name: sheet.name }, measure, newValue }),
         );
       },
     });

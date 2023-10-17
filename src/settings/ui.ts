@@ -30,7 +30,13 @@ export class ForgedSettingTab extends PluginSettingTab {
 }
 export interface ForgedPluginSettings {
   oraclesFolder: string;
+  momentumResetTemplate: string;
+  meterAdjTemplate: string;
 }
 export const DEFAULT_SETTINGS: ForgedPluginSettings = {
   oraclesFolder: "",
+  momentumResetTemplate:
+    "> [!mechanics] {{character.name}} burned momentum: {{oldValue}} -> {{newValue}}\n\n",
+  meterAdjTemplate:
+    "> [!mechanics] {{character.name}} old {{measure.definition.label}}: {{measure.value}}; new {{measure.definition.label}}: {{newValue}}\n\n",
 };
