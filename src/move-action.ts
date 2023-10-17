@@ -5,7 +5,7 @@ import {
   type FuzzyMatch,
   type MarkdownView,
 } from "obsidian";
-import { IronswornMeasures } from "./character";
+import { IronswornCharacterMetadata } from "./character";
 import { type CharacterTracker } from "./character-tracker";
 import { type Datastore, type Move } from "./datastore";
 import {
@@ -117,15 +117,11 @@ export async function runMoveCommand(
   );
   const moveKind = getMoveKind(move);
   if (moveKind === MoveKind.Action) {
+    const measures = character.as(IronswornCharacterMetadata).measures;
     const stat = await CustomSuggestModal.select(
       app,
-      Object.entries(character.measures(IronswornMeasures)).map(
-        ([name, value]) => ({
-          name,
-          value,
-        }),
-      ),
-      (m) => `${m.name}: ${m.value ?? "missing (defaults to 0)"}`,
+      measures.entries(),
+      (m) => `${m.definition.label}: ${m.value ?? "missing (defaults to 0)"}`,
     );
     const adds = await CustomSuggestModal.select(
       app,
@@ -134,7 +130,7 @@ export async function runMoveCommand(
     );
     const description = processActionMove(
       move,
-      stat.name,
+      stat.key,
       stat.value ?? 0,
       adds,
     );
