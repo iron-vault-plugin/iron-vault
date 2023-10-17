@@ -1,11 +1,6 @@
 import { watch } from "turbowatch";
 
-const ASSETS = [
-  "styles.css",
-  "starforged.json",
-  "manifest.json",
-  "starforged.supplement.yaml",
-];
+const ASSETS = ["styles.css", "manifest.json"];
 
 void watch({
   project: __dirname,
@@ -46,6 +41,14 @@ void watch({
       onChange: async ({ spawn, files, first }) => {
         const assetsToCopy = first ? ASSETS : files.map((f) => f.name);
         await spawn`cp -v ${assetsToCopy} test-vault/.obsidian/plugins/forged/`;
+      },
+    },
+    {
+      expression: ["allof", ["dirname", "data"], ["match", "*"]],
+      name: "copy-data",
+      onChange: async ({ spawn, files, first }) => {
+        //const assetsToCopy = first ? ASSETS : files.map((f) => f.name);
+        await spawn`mkdir -p test-vault/.obsidian/plugins/forged/data && cp -v ./data/* test-vault/.obsidian/plugins/forged/data`;
       },
     },
   ],

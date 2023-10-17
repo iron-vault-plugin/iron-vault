@@ -93,12 +93,20 @@ export class Datastore extends Component {
   }
 
   async initialize(): Promise<void> {
-    const jsonPath = this.plugin.assetFilePath("starforged.json");
-    // const supplementPath = this.plugin.assetFilePath(
-    //   "starforged.supplement.yaml",
-    // );
-    await this.indexPluginFile(jsonPath, 0);
-    // await this.indexPluginFile(supplementPath, -1, "yaml");
+    // todo: also handle folders
+    const dataFiles = await this.app.vault.adapter.list(
+      this.plugin.assetFilePath("data"),
+    );
+    for (const dataFilePath of dataFiles.files) {
+      let extension = dataFilePath.split(".").pop();
+      if (extension === "yml") {
+        extension = "yaml";
+      }
+      if (extension === "yml" || extension === "yaml" || extension === "json") {
+        await this.indexPluginFile(dataFilePath, 0, extension);
+      }
+    }
+
     if (this.plugin.settings.oraclesFolder != "") {
       const oraclesFolderFile = this.app.vault.getAbstractFileByPath(
         this.plugin.settings.oraclesFolder,
@@ -208,7 +216,12 @@ export class Datastore extends Component {
     priority: number,
     format: string = "json",
   ): Promise<void> {
-    // const data = await this.app.vault.cachedRead(file);
+    console.log(
+      "forged: datastore: indexing plugin file %s (format: %s priority: %d)",
+      normalizedPath,
+      format,
+      priority,
+    );
     const content = await this.app.vault.adapter.read(normalizedPath);
     let data: Starforged;
     if (format === "json") {
