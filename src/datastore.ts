@@ -73,22 +73,67 @@ export class OracleIndex extends PriorityIndexer<
   }
 }
 
-export class Datastore extends Component {
-  _oracleMap: OracleMap;
+export class DataIndex {
   _oracleIndex: OracleIndex;
   _moveIndex: PriorityIndexer<string, Move>;
   _assetIndex: PriorityIndexer<string, Asset>;
+
+  /** Tracks "groups" of sources that should be updated together.  */
+  _indexGroups: Map<string, Set<string>>;
+
+  constructor() {
+    this._oracleIndex = new OracleIndex();
+    this._moveIndex = new PriorityIndexer();
+    this._assetIndex = new PriorityIndexer();
+    this._indexGroups = new Map();
+  }
+
+  updateIndexGroup(group: string, indexedPaths: Set<string>): Set<string> {
+    const existingPaths = this._indexGroups.get(group) ?? new Set();
+    const pathsToRemove = new Set(
+      [...existingPaths].filter((prevPath) => !indexedPaths.has(prevPath)),
+    );
+
+    for (const pathToRemove of pathsToRemove) {
+      this.removeSource(pathToRemove);
+    }
+
+    this._indexGroups.set(group, indexedPaths);
+
+    return pathsToRemove;
+  }
+
+  removeSource(pathToRemove: string) {
+    this._oracleIndex.removeSource(pathToRemove);
+    this._moveIndex.removeSource(pathToRemove);
+    this._assetIndex.removeSource(pathToRemove);
+  }
+
+  indexSource(
+    normalizedPath: string,
+    priority: number,
+    data: {
+      oracles: IndexableData<string, OracleSet | OracleTable>;
+      moves: IndexableData<string, Move>;
+      assets: IndexableData<string, Asset>;
+    },
+  ): void {
+    this._oracleIndex.indexSource(normalizedPath, priority, data.oracles);
+    this._moveIndex.indexSource(normalizedPath, priority, data.moves);
+    this._assetIndex.indexSource(normalizedPath, priority, data.assets);
+  }
+}
+
+export class Datastore extends Component {
+  //_oracleMap: OracleMap;
   _ready: boolean;
-  _indexedPaths: Map<string, Set<string>>;
+  readonly index: DataIndex;
 
   constructor(public readonly plugin: ForgedPlugin) {
     super();
     this._ready = false;
 
-    this._oracleIndex = new OracleIndex();
-    this._moveIndex = new PriorityIndexer();
-    this._assetIndex = new PriorityIndexer();
-    this._indexedPaths = new Map();
+    this.index = new DataIndex();
   }
 
   get app(): App {
@@ -128,9 +173,9 @@ export class Datastore extends Component {
     }
     console.log(
       "forged: init complete. loaded: %d oracles, %d moves, %d assets",
-      this._oracleIndex.size,
-      this._moveIndex.size,
-      this._assetIndex.size,
+      this.index._oracleIndex.size,
+      this.index._moveIndex.size,
+      this.index._assetIndex.size,
     );
     this._ready = true;
   }
@@ -153,9 +198,9 @@ export class Datastore extends Component {
       }
     }
 
-    const existingPaths = this._indexedPaths.get(folder.path) ?? new Set();
-    const pathsToRemove = new Set(
-      [...existingPaths].filter((prevPath) => !indexedPaths.has(prevPath)),
+    const pathsToRemove = this.index.updateIndexGroup(
+      folder.path,
+      indexedPaths,
     );
 
     for (const pathToRemove of pathsToRemove) {
@@ -164,10 +209,7 @@ export class Datastore extends Component {
         pathToRemove,
         folder.path,
       );
-      this._removeSource(pathToRemove);
     }
-
-    this._indexedPaths.set(folder.path, indexedPaths);
   }
 
   async indexOracleFile(file: TFile): Promise<boolean> {
@@ -201,7 +243,7 @@ export class Datastore extends Component {
     priority: number,
     data: Starforged,
   ): void {
-    this._indexData(normalizedPath, priority, {
+    this.index.indexSource(normalizedPath, priority, {
       oracles: indexIntoOracleMap(data),
       moves: Object.values(data["Move categories"] ?? []).flatMap(
         (category): Array<[string, Move]> =>
@@ -212,26 +254,6 @@ export class Datastore extends Component {
           Object.values(category.Assets).map((asset) => [asset.$id, asset]),
       ),
     });
-  }
-
-  protected _removeSource(pathToRemove: string) {
-    this._oracleIndex.removeSource(pathToRemove);
-    this._moveIndex.removeSource(pathToRemove);
-    this._assetIndex.removeSource(pathToRemove);
-  }
-
-  protected _indexData(
-    normalizedPath: string,
-    priority: number,
-    data: {
-      oracles: OracleMap;
-      moves: IndexableData<string, Move>;
-      assets: IndexableData<string, Asset>;
-    },
-  ): void {
-    this._oracleIndex.indexSource(normalizedPath, priority, data.oracles);
-    this._moveIndex.indexSource(normalizedPath, priority, data.moves);
-    this._assetIndex.indexSource(normalizedPath, priority, data.assets);
   }
 
   async indexPluginFile(
@@ -255,7 +277,7 @@ export class Datastore extends Component {
       throw new Error(`unknown file type ${format}`);
     }
     this.indexDataForgedData(normalizedPath, priority, data);
-    this._indexedPaths.set(normalizedPath, new Set([normalizedPath]));
+    this.index.updateIndexGroup(normalizedPath, new Set([normalizedPath]));
 
     this.app.metadataCache.trigger("forged:index-changed");
   }
@@ -270,17 +292,16 @@ export class Datastore extends Component {
 
   get moves(): Move[] {
     this.assertReady();
-    return [...this._moveIndex.values()];
+    return [...this.index._moveIndex.values()];
   }
 
   get oracles(): OracleIndex {
     this.assertReady();
-    return this._oracleIndex;
+    return this.index._oracleIndex;
   }
 
   get roller(): OracleRoller {
-    this.assertReady();
-    return new OracleRoller(this._oracleIndex);
+    return new OracleRoller(this.oracles);
   }
 
   private assertReady(): void {
