@@ -1,11 +1,12 @@
 import {
+  Asset,
   type Move,
   type OracleBase,
   type OracleSet,
   type OracleTable,
   type Starforged,
 } from "dataforged";
-import { PriorityIndexer } from "datastore/priority-index";
+import { IndexableData, PriorityIndexer } from "datastore/priority-index";
 import ForgedPlugin from "index";
 import {
   Component,
@@ -76,6 +77,7 @@ export class Datastore extends Component {
   _oracleMap: OracleMap;
   _oracleIndex: OracleIndex;
   _moveIndex: PriorityIndexer<string, Move>;
+  _assetIndex: PriorityIndexer<string, Asset>;
   _ready: boolean;
   _indexedPaths: Map<string, Set<string>>;
 
@@ -85,6 +87,7 @@ export class Datastore extends Component {
 
     this._oracleIndex = new OracleIndex();
     this._moveIndex = new PriorityIndexer();
+    this._assetIndex = new PriorityIndexer();
     this._indexedPaths = new Map();
   }
 
@@ -123,6 +126,12 @@ export class Datastore extends Component {
         this.indexOraclesFolder(oraclesFolderFile);
       }
     }
+    console.log(
+      "forged: init complete. loaded: %d oracles, %d moves, %d assets",
+      this._oracleIndex.size,
+      this._moveIndex.size,
+      this._assetIndex.size,
+    );
     this._ready = true;
   }
 
@@ -155,8 +164,7 @@ export class Datastore extends Component {
         pathToRemove,
         folder.path,
       );
-      this._oracleIndex.removeSource(pathToRemove);
-      this._moveIndex.removeSource(pathToRemove);
+      this._removeSource(pathToRemove);
     }
 
     this._indexedPaths.set(folder.path, indexedPaths);
@@ -193,22 +201,37 @@ export class Datastore extends Component {
     priority: number,
     data: Starforged,
   ): void {
-    this._oracleIndex.indexSource(
-      normalizedPath,
-      priority,
-      indexIntoOracleMap(data),
-    );
-    this._moveIndex.indexSource(
-      normalizedPath,
-      priority,
-      Object.values(data["Move categories"] ?? []).flatMap(
-        (category): Array<[string, Move]> => {
-          return Object.values(category.Moves).map((m) => {
-            return [m.$id, m];
-          });
-        },
+    this._indexData(normalizedPath, priority, {
+      oracles: indexIntoOracleMap(data),
+      moves: Object.values(data["Move categories"] ?? []).flatMap(
+        (category): Array<[string, Move]> =>
+          Object.values(category.Moves).map((m) => [m.$id, m]),
       ),
-    );
+      assets: Object.values(data["Asset types"] ?? []).flatMap(
+        (category): Array<[string, Asset]> =>
+          Object.values(category.Assets).map((asset) => [asset.$id, asset]),
+      ),
+    });
+  }
+
+  protected _removeSource(pathToRemove: string) {
+    this._oracleIndex.removeSource(pathToRemove);
+    this._moveIndex.removeSource(pathToRemove);
+    this._assetIndex.removeSource(pathToRemove);
+  }
+
+  protected _indexData(
+    normalizedPath: string,
+    priority: number,
+    data: {
+      oracles: OracleMap;
+      moves: IndexableData<string, Move>;
+      assets: IndexableData<string, Asset>;
+    },
+  ): void {
+    this._oracleIndex.indexSource(normalizedPath, priority, data.oracles);
+    this._moveIndex.indexSource(normalizedPath, priority, data.moves);
+    this._assetIndex.indexSource(normalizedPath, priority, data.assets);
   }
 
   async indexPluginFile(

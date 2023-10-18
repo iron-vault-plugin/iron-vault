@@ -40,6 +40,10 @@ function getHighestPriority<K extends string, V>(
   }
 }
 
+export type IndexableData<K extends string, V> =
+  | Record<K, V>
+  | Iterable<[K, V]>;
+
 export class PriorityIndexer<K extends string, V> implements ReadonlyMap<K, V> {
   /** Maps keys to source path */
   public readonly dataMap: Map<K, Array<Sourced<K, V>>>;
@@ -126,7 +130,7 @@ export class PriorityIndexer<K extends string, V> implements ReadonlyMap<K, V> {
   indexSource(
     path: string,
     priority: number,
-    dataset: Record<K, V> | Iterable<[K, V]>,
+    dataset: IndexableData<K, V>,
   ): void {
     let iterator: Iterable<[K, V]>;
     if (Symbol.iterator in dataset) {

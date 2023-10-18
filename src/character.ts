@@ -71,10 +71,9 @@ export const IronswornMeasures = {
   },
 } satisfies MeasureSpec;
 
-export interface MeasureSetUtils<T extends MeasureSpec> {
+export interface BaseMeasureSetUtils<T extends MeasureSpec> {
   get specs(): T;
   value: (key: keyof T) => number | null;
-  setValue: (key: keyof T, newValue: number | null) => void;
   keys: () => Array<keyof T>; // TODO: maybe use iterator, but do they support map/reduce yet?
   entries: () => Array<{
     key: keyof T;
@@ -83,20 +82,29 @@ export interface MeasureSetUtils<T extends MeasureSpec> {
   }>;
 }
 
+export interface ReadonlyMeasureSetUtils<T extends MeasureSpec>
+  extends BaseMeasureSetUtils<T> {}
+
+export interface MeasureSetUtils<T extends MeasureSpec>
+  extends BaseMeasureSetUtils<T> {
+  setValue: (key: keyof T, newValue: number | null) => void;
+}
+
 export type MeasureSet<T extends MeasureSpec> = {
   [P in keyof T]: number;
 } & MeasureSetUtils<T>;
+
+export type ReadonlyMeasureSet<T extends MeasureSpec> = {
+  readonly [P in keyof T]: number;
+} & ReadonlyMeasureSetUtils<T>;
 
 export type IrowswornMeasureSet = MeasureSet<typeof IronswornMeasures>;
 
 export function createMeasureSetImpl<T extends MeasureSpec>(
   measureClass: T,
-): new (data: any, changeMap?: Map<string, any>) => MeasureSet<T> {
+): new (data: any) => MeasureSet<T> {
   return class MeasureSetImpl implements MeasureSetUtils<T> {
-    constructor(
-      protected readonly _data: any,
-      public readonly changeMap: Map<string, any> = new Map(),
-    ) {
+    constructor(protected readonly _data: any) {
       for (const name of Object.keys(measureClass)) {
         Object.defineProperty(this, name, {
           enumerable: true,
@@ -118,25 +126,15 @@ export function createMeasureSetImpl<T extends MeasureSpec>(
       if (Number.isNaN(newValue)) {
         throw new TypeError(`${stringKey} must be an integer.`);
       }
-      if (this.originalValue(stringKey) === newValue) {
-        this.changeMap.delete(stringKey);
-      } else {
-        this.changeMap.set(stringKey, newValue);
-      }
+      this._data[stringKey] = newValue;
     }
 
-    originalValue(key: string): number | null {
+    value(key: keyof T): number | null {
       return Number.isInteger(this._data[key])
         ? this._data[key]
         : typeof this._data[key] === "string"
         ? Number.parseInt(this._data[key])
         : null;
-    }
-
-    value(key: keyof T): number | null {
-      return (
-        this.changeMap.get(key.toString()) ?? this.originalValue(key.toString())
-      );
     }
 
     get specs(): T {
@@ -158,7 +156,7 @@ export function createMeasureSetImpl<T extends MeasureSpec>(
         definition,
       }));
     }
-  } as new (...args: any[]) => MeasureSet<T>;
+  } as new (data: any) => MeasureSet<T>;
 }
 
 export enum Impact {
@@ -196,45 +194,45 @@ export interface CharacterMetadata {
   name: string;
 }
 
-class UnwritableMap<K, V> extends Map<K, V> {
-  set(key: K, value: V): this {
-    throw new Error(`attempt to write key ${key} to unwritable map`);
-  }
-  clear(): void {
-    throw new Error("attempt to clear unwritable map");
-  }
-  delete(key: K): boolean {
-    throw new Error(`attempt to delete key ${key} to unwritable map`);
-  }
-}
+// class UnwritableMap<K, V> extends Map<K, V> {
+//   set(key: K, value: V): this {
+//     throw new Error(`attempt to write key ${key} to unwritable map`);
+//   }
+//   clear(): void {
+//     throw new Error("attempt to clear unwritable map");
+//   }
+//   delete(key: K): boolean {
+//     throw new Error(`attempt to delete key ${key} to unwritable map`);
+//   }
+// }
 
 export class CharacterWrapper {
   constructor(
-    protected readonly _data: Record<string, any>,
+    protected readonly _data: Readonly<Record<string, any>>,
     protected readonly _validatedSheets: Set<
       CharacterMetadataFactory<CharacterMetadata>
     >,
   ) {}
 
-  as<T extends CharacterMetadata>(kls: CharacterMetadataFactory<T>): T {
-    return this.forUpdates(kls, this._data, new UnwritableMap());
+  as<T extends CharacterMetadata>(
+    kls: CharacterMetadataFactory<T>,
+  ): Readonly<T> {
+    return this.forUpdates(kls, this._data);
   }
 
   forUpdates<T extends CharacterMetadata>(
     kls: CharacterMetadataFactory<T>,
     data: Record<string, any>,
-    changes: Map<string, any>,
   ): T {
     if (!this._validatedSheets.has(kls)) {
       throw new Error(`requested character sheet ${kls} not in validated list`);
     }
-    return new kls(data, changes);
+    return new kls(data);
   }
 }
 
 export type CharacterMetadataFactory<T extends CharacterMetadata> = new (
   _data: Record<string, any>,
-  changes: Map<string, any>,
 ) => T;
 
 export const IronswornMeasureSetImpl = createMeasureSetImpl(IronswornMeasures);
@@ -243,11 +241,8 @@ export class IronswornCharacterMetadata
 {
   protected _measures: MeasureSet<typeof IronswornMeasures>;
 
-  constructor(
-    public readonly _data: Record<string, any>,
-    public readonly changes: Map<string, any> = new Map(),
-  ) {
-    this._measures = new IronswornMeasureSetImpl(this._data, this.changes);
+  constructor(public readonly _data: Record<string, any>) {
+    this._measures = new IronswornMeasureSetImpl(this._data);
   }
 
   public get measures(): MeasureSet<typeof IronswornMeasures> {

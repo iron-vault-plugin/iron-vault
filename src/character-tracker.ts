@@ -4,6 +4,7 @@ import {
   CharacterWrapper,
   IronswornCharacterMetadata,
 } from "character";
+import { enableMapSet, enablePatches, freeze } from "immer";
 import {
   Component,
   TFile,
@@ -15,6 +16,9 @@ import {
   type MetadataCache,
   type Vault,
 } from "obsidian";
+
+enableMapSet();
+enablePatches();
 
 function isCharacterFile(
   md: CachedMetadata,
@@ -84,25 +88,8 @@ export class CharacterTracker extends Component {
       throw new Error(`invalid character file ${path}`);
     }
     await this.fileManager.processFrontMatter(file, (frontmatter: any) => {
-      const changes = new Map<string, any>();
-      const character = wrapper.forUpdates(kls, frontmatter, changes);
+      const character = wrapper.forUpdates(kls, frontmatter);
       updater(character);
-      // TODO: do i want to switch back to a more immutable style?
-      if (changes.size == 0) {
-        // TODO: maybe raise an exception here so that we abort the update rather than do it
-        console.debug("no updates for %s", path);
-        return;
-      }
-      // TODO: this doesn't support nested keys
-      for (const [key, newValue] of changes) {
-        console.log(
-          "updating entry %s from %s to %d",
-          key,
-          frontmatter[key],
-          newValue,
-        );
-        frontmatter[key] = newValue;
-      }
     });
   }
 
@@ -126,7 +113,7 @@ export class CharacterTracker extends Component {
     this.index.set(
       indexKey,
       new CharacterWrapper(
-        cache.frontmatter,
+        freeze(cache.frontmatter, true),
         new Set([IronswornCharacterMetadata]),
       ),
     );
