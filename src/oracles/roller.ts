@@ -1,5 +1,5 @@
 import { type OracleTable, type OracleTableRow } from "dataforged";
-import { type OracleIndex } from "datastore";
+import { type OracleIndex } from "datastore/data-index";
 import { randomInt } from "../utils/dice";
 import { type RollSchema } from "./schema";
 

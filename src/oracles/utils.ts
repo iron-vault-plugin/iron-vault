@@ -1,5 +1,5 @@
 import { type OracleBase } from "dataforged";
-import { type OracleIndex } from "datastore";
+import { type OracleIndex } from "datastore/data-index";
 
 export function formatOraclePath(
   index: OracleIndex,
