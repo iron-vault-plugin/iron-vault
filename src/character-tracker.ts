@@ -4,6 +4,7 @@ import {
   CharacterWrapper,
   IronswornCharacterMetadata,
 } from "character";
+import { DataIndex } from "datastore/data-index";
 import { enableMapSet, enablePatches, freeze } from "immer";
 import {
   Component,
@@ -39,7 +40,10 @@ export class CharacterTracker extends Component {
   /** Map file paths to metadata. */
   index: Map<string, CharacterWrapper>;
 
-  constructor(app: App) {
+  constructor(
+    app: App,
+    protected readonly dataIndex: DataIndex,
+  ) {
     super();
 
     this.metadataCache = app.metadataCache;
@@ -80,17 +84,24 @@ export class CharacterTracker extends Component {
   public async updateCharacter<T extends CharacterMetadata>(
     path: string,
     kls: CharacterMetadataFactory<T>,
-    updater: (character: InstanceType<typeof kls>) => void,
-  ): Promise<void> {
+    updater: (character: InstanceType<typeof kls>) => InstanceType<typeof kls>,
+  ): Promise<T> {
     const wrapper = this.index.get(path);
     const file = this.vault.getAbstractFileByPath(path);
     if (wrapper == null || !(file instanceof TFile)) {
       throw new Error(`invalid character file ${path}`);
     }
+    let updated: T | undefined;
     await this.fileManager.processFrontMatter(file, (frontmatter: any) => {
-      const character = wrapper.forUpdates(kls, frontmatter);
-      updater(character);
+      updated = updater(
+        wrapper.forUpdates(kls, Object.freeze(Object.assign({}, frontmatter))),
+      );
+
+      // TODO: this isn't actually going to work right... for deletes
+      Object.assign(frontmatter, updated.data);
     });
+    // SAFETY: if we get here, we should have set updated.
+    return updated!;
   }
 
   private unindex(path: string): void {
@@ -102,19 +113,18 @@ export class CharacterTracker extends Component {
     const indexKey = file.path;
 
     // If the file is no longer a character file, remove it from the cache if it existed.
-    // TODO: can typescript assert non-nullability?
     if (!isCharacterFile(cache)) {
       this.unindex(indexKey);
       return;
     }
 
     console.log("indexing %s", indexKey);
-    // TODO: write now we're just using ironsworn
     this.index.set(
       indexKey,
       new CharacterWrapper(
         freeze(cache.frontmatter, true),
-        new Set([IronswornCharacterMetadata]),
+        this.dataIndex,
+        new Set([IronswornCharacterMetadata]), // TODO: right now we're just using ironsworn
       ),
     );
   }

@@ -109,11 +109,13 @@ export async function runMoveCommand(
   }
   const [character] = characters.values();
 
+  const allMoves = datastore.moves.concat(
+    character.as(IronswornCharacterMetadata).moves,
+  );
+
   const move = await promptForMove(
     app,
-    datastore.moves.sort((a, b) =>
-      a.Title.Standard.localeCompare(b.Title.Standard),
-    ),
+    allMoves.sort((a, b) => a.Title.Standard.localeCompare(b.Title.Standard)),
   );
   const moveKind = getMoveKind(move);
   if (moveKind === MoveKind.Action) {

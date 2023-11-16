@@ -1,5 +1,5 @@
 import { Asset, type Move, type OracleSet, type OracleTable } from "dataforged";
-import { IndexableData, PriorityIndexer } from "datastore/priority-index";
+import { IndexableData, PriorityIndexer } from "./priority-index";
 
 export class OracleIndex extends PriorityIndexer<
   string,

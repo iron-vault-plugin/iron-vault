@@ -39,7 +39,9 @@ export default class ForgedPlugin extends Plugin {
     await this.loadSettings();
 
     this.datastore = this.addChild(new Datastore(this));
-    this.tracker = this.addChild(new CharacterTracker(this.app));
+    this.tracker = this.addChild(
+      new CharacterTracker(this.app, this.datastore.index),
+    );
 
     if (this.app.workspace.layoutReady) {
       this.initialize();
@@ -104,13 +106,14 @@ export default class ForgedPlugin extends Plugin {
         const sheet = character.as(IronswornCharacterMetadata);
         const oldValue = sheet.measures.momentum;
         if (oldValue > 0) {
-          let newValue;
-          await this.tracker.updateCharacter(
+          const updated = await this.tracker.updateCharacter(
             path,
             IronswornCharacterMetadata,
             (character) => {
-              const measures = character.measures;
-              newValue = measures.momentum = character.momentumReset;
+              return character.measures.set(
+                "momentum",
+                character.momentumReset,
+              );
             },
           );
           const template = Handlebars.compile(
@@ -118,7 +121,11 @@ export default class ForgedPlugin extends Plugin {
             { noEscape: true },
           );
           editor.replaceSelection(
-            template({ character: { name: sheet.name }, oldValue, newValue }),
+            template({
+              character: { name: sheet.name },
+              oldValue,
+              newValue: updated.measures.momentum,
+            }),
           );
         }
       },
@@ -148,21 +155,24 @@ export default class ForgedPlugin extends Plugin {
           [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
           (n) => n.toString(),
         );
-        let newValue: number | undefined;
-        await this.tracker.updateCharacter(
+        const updated = await this.tracker.updateCharacter(
           path,
           IronswornCharacterMetadata,
           (character) => {
             const measures = character.measures;
-            newValue = (measures.value(measure.key) ?? 0) + modifier;
-            measures.setValue(measure.key, newValue);
+            const newValue = (measures.value(measure.key) ?? 0) + modifier;
+            return measures.set(measure.key, newValue);
           },
         );
         const template = Handlebars.compile(this.settings.meterAdjTemplate, {
           noEscape: true,
         });
         editor.replaceSelection(
-          template({ character: { name: sheet.name }, measure, newValue }),
+          template({
+            character: { name: sheet.name },
+            measure,
+            newValue: updated.measures.value(measure.key),
+          }),
         );
       },
     });

@@ -1,3 +1,8 @@
+import { Asset, Move } from "dataforged";
+import { DataIndex } from "datastore/data-index";
+import { Immutable, immerable, produce } from "immer";
+import { z } from "zod";
+
 interface Measure {
   /** Kind of measure. Meters change; stats do not. */
   kind: "meter" | "stat";
@@ -71,6 +76,14 @@ export const IronswornMeasures = {
   },
 } satisfies MeasureSpec;
 
+export function schemaFromSpec(spec: MeasureSpec) {
+  const schemas: Record<string, z.ZodTypeAny> = {};
+  for (const [key, _measure] of Object.entries(spec)) {
+    schemas[key] = z.number();
+  }
+  return schemas;
+}
+
 export interface BaseMeasureSetUtils<T extends MeasureSpec> {
   get specs(): T;
   value: (key: keyof T) => number | null;
@@ -85,50 +98,39 @@ export interface BaseMeasureSetUtils<T extends MeasureSpec> {
 export interface ReadonlyMeasureSetUtils<T extends MeasureSpec>
   extends BaseMeasureSetUtils<T> {}
 
-export interface MeasureSetUtils<T extends MeasureSpec>
+export interface MeasureSetUtils<T extends MeasureSpec, U>
   extends BaseMeasureSetUtils<T> {
-  setValue: (key: keyof T, newValue: number | null) => void;
+  set: (key: keyof T, newValue: number | null) => U;
 }
 
-export type MeasureSet<T extends MeasureSpec> = {
-  [P in keyof T]: number;
-} & MeasureSetUtils<T>;
+export type MeasureSet<T extends MeasureSpec, U> = {
+  readonly [P in keyof T]: number;
+} & MeasureSetUtils<T, U>;
 
 export type ReadonlyMeasureSet<T extends MeasureSpec> = {
   readonly [P in keyof T]: number;
 } & ReadonlyMeasureSetUtils<T>;
 
-export type IrowswornMeasureSet = MeasureSet<typeof IronswornMeasures>;
+export type IrowswornMeasureSet<U> = MeasureSet<typeof IronswornMeasures, U>;
 
 export function createMeasureSetImpl<T extends MeasureSpec>(
   measureClass: T,
-): new (data: any) => MeasureSet<T> {
-  return class MeasureSetImpl implements MeasureSetUtils<T> {
+): [
+  new (data: any) => ReadonlyMeasureSet<T>,
+  new <U>(data: any, build: (data: any) => U) => MeasureSet<T, U>,
+] {
+  const base = class implements BaseMeasureSetUtils<T> {
     constructor(protected readonly _data: any) {
       for (const name of Object.keys(measureClass)) {
         Object.defineProperty(this, name, {
           enumerable: true,
           get: () => this.value(name),
-          set: (newValue: any) => {
-            this.setValue(name, newValue);
-          },
+          // set: (newValue: any) => {
+          //   this.setValue(name, newValue);
+          // },
         });
       }
     }
-
-    setValue(key: keyof T, newValue: number | null): void {
-      const stringKey = String(key);
-      newValue = Number.isInteger(newValue)
-        ? newValue
-        : typeof newValue === "string"
-        ? Number.parseInt(newValue)
-        : NaN;
-      if (Number.isNaN(newValue)) {
-        throw new TypeError(`${stringKey} must be an integer.`);
-      }
-      this._data[stringKey] = newValue;
-    }
-
     value(key: keyof T): number | null {
       return Number.isInteger(this._data[key])
         ? this._data[key]
@@ -156,7 +158,36 @@ export function createMeasureSetImpl<T extends MeasureSpec>(
         definition,
       }));
     }
-  } as new (data: any) => MeasureSet<T>;
+  };
+  const immutable = class extends base implements ReadonlyMeasureSetUtils<T> {};
+  const mutable = class<U> extends base implements MeasureSetUtils<T, U> {
+    constructor(
+      data: any,
+      protected readonly build: (data: any) => U,
+    ) {
+      super(data);
+    }
+    set(key: keyof T, newValue: number | null): U {
+      const stringKey = String(key);
+      newValue = Number.isInteger(newValue)
+        ? newValue
+        : typeof newValue === "string"
+        ? Number.parseInt(newValue)
+        : NaN;
+      if (Number.isNaN(newValue)) {
+        throw new TypeError(`${stringKey} must be an integer.`);
+      }
+      return this.build(
+        produce(this._data, (draft: any) => {
+          draft[stringKey] = newValue;
+        }),
+      );
+    }
+  };
+  return [
+    immutable as new (data: any) => ReadonlyMeasureSet<T>,
+    mutable as new <U>(data: any, build: (data: any) => U) => MeasureSet<T, U>,
+  ];
 }
 
 export enum Impact {
@@ -186,12 +217,13 @@ function parseImpact(val: string | undefined): Impact | undefined {
   }
 }
 
-export interface Measured<T extends MeasureSpec> {
-  measures: MeasureSet<T>;
-}
+// export interface Measured<T extends MeasureSpec> {
+//   measures: MeasureSet<T>;
+// }
 
 export interface CharacterMetadata {
   name: string;
+  readonly data: Readonly<Record<string, any>>;
 }
 
 // class UnwritableMap<K, V> extends Map<K, V> {
@@ -209,6 +241,7 @@ export interface CharacterMetadata {
 export class CharacterWrapper {
   constructor(
     protected readonly _data: Readonly<Record<string, any>>,
+    protected readonly _index: DataIndex,
     protected readonly _validatedSheets: Set<
       CharacterMetadataFactory<CharacterMetadata>
     >,
@@ -227,37 +260,98 @@ export class CharacterWrapper {
     if (!this._validatedSheets.has(kls)) {
       throw new Error(`requested character sheet ${kls} not in validated list`);
     }
-    return new kls(data);
+    return new kls(data, this._index);
   }
+}
+
+export interface IronswornCharacterAsset {
+  id: string;
+  marked_abilities?: number[];
+  condition_meter?: number;
+  marked_conditions?: string[];
+  marked_states?: string[];
+  inputs?: Record<string, any>;
 }
 
 export type CharacterMetadataFactory<T extends CharacterMetadata> = new (
   _data: Record<string, any>,
+  _index: DataIndex,
 ) => T;
 
-export const IronswornMeasureSetImpl = createMeasureSetImpl(IronswornMeasures);
-export class IronswornCharacterMetadata
-  implements Measured<typeof IronswornMeasures>, CharacterMetadata
-{
-  protected _measures: MeasureSet<typeof IronswornMeasures>;
+export class IronswornAssetWrapper {
+  constructor(
+    public readonly _assetData: IronswornCharacterAsset,
+    public readonly _index: DataIndex,
+  ) {}
 
-  constructor(public readonly _data: Record<string, any>) {
-    this._measures = new IronswornMeasureSetImpl(this._data);
+  get definition(): Asset {
+    const val = this._index._assetIndex.get(this._assetData.id);
+    if (val == null) {
+      throw new Error(`missing asset ${this._assetData.id}`);
+    }
+    return val;
   }
 
-  public get measures(): MeasureSet<typeof IronswornMeasures> {
-    return this._measures;
+  get moves(): Move[] {
+    const moveList = [];
+    const defn = this.definition;
+    const marked_abilities = this._assetData.marked_abilities ?? [];
+    for (const [idx, ability] of defn.Abilities.entries()) {
+      if (marked_abilities.includes(idx + 1)) {
+        moveList.push(...(ability.Moves ?? []));
+      }
+    }
+    return moveList;
+  }
+}
+
+const characterSchema = z.object({
+  name: z.string(),
+  momentum: z.number().optional(),
+});
+
+export const [
+  ImmutableIronswornMeasureSetImpl,
+  MutableIronswornMeasureSetImpl,
+] = createMeasureSetImpl(IronswornMeasures);
+export class IronswornCharacterMetadata implements CharacterMetadata {
+  // implements Measured<typeof IronswornMeasures>
+  [immerable] = true;
+
+  constructor(
+    public readonly data: Immutable<Record<string, any>>,
+    public readonly _index: DataIndex,
+  ) {}
+
+  public get measures(): MeasureSet<
+    typeof IronswornMeasures,
+    IronswornCharacterMetadata
+  > {
+    return new MutableIronswornMeasureSetImpl(
+      this.data,
+      (data: any) => new IronswornCharacterMetadata(data, this._index),
+    );
   }
 
   public get name(): string {
-    return this._data.name;
+    return this.data.name;
+  }
+
+  public get assets(): IronswornCharacterAsset[] {
+    return this.data.assets ?? [];
+  }
+
+  public get moves(): Move[] {
+    return this.assets.flatMap(
+      (asset) => new IronswornAssetWrapper(asset, this._index).moves,
+    );
   }
 
   get impacts(): Map<string, Impact | undefined> {
     return new Map(
       IRONSWORN_IMPACTS.map((impactKey) => [
         impactKey,
-        parseImpact(this._data[impactKey]),
+        parseImpact(this.data[impactKey]),
       ]),
     );
   }

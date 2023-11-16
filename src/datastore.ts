@@ -48,7 +48,6 @@ function indexIntoOracleMap(data: Starforged): OracleMap {
 }
 
 export class Datastore extends Component {
-  //_oracleMap: OracleMap;
   _ready: boolean;
   readonly index: DataIndex;
 
