@@ -1,12 +1,6 @@
-import {
-  Asset,
-  type Move,
-  type OracleBase,
-  type OracleSet,
-  type OracleTable,
-  type Starforged,
-} from "dataforged";
+import { type Move, type Starforged } from "dataforged";
 import { DataIndex, OracleIndex } from "datastore/data-index";
+import { indexDataForgedData } from "datastore/parsers/dataforged";
 import ForgedPlugin from "index";
 import {
   Component,
@@ -20,32 +14,6 @@ import { OracleRoller } from "oracles/roller";
 import { breadthFirstTraversal } from "utils/traversal";
 
 export { type Move };
-
-type OracleMap = Map<string, OracleTable | OracleSet>;
-
-function indexIntoOracleMap(data: Starforged): OracleMap {
-  const index = new Map();
-  function expand(oracleBase: OracleBase, prefix: string[]): void {
-    index.set(oracleBase.$id, oracleBase);
-    if (oracleBase.Sets != null) {
-      for (const [name, set] of Object.entries(oracleBase.Sets)) {
-        expand(set, prefix.concat([name]));
-      }
-    }
-    if (oracleBase.Tables != null) {
-      for (const [name, set] of Object.entries(oracleBase.Tables)) {
-        expand(set, prefix.concat(name));
-      }
-    }
-  }
-  if (data?.["Oracle sets"] == null) {
-    throw new Error("Oracle data seems to be missing");
-  }
-  for (const [name, set] of Object.entries(data["Oracle sets"])) {
-    expand(set, [name]);
-  }
-  return index;
-}
 
 export class Datastore extends Component {
   _ready: boolean;
@@ -151,31 +119,13 @@ export class Datastore extends Component {
       const data = parseYaml(matches[1]);
       // TODO: priority
       // TODO: validation?
-      this.indexDataForgedData(file.path, 1, data as Starforged);
+      indexDataForgedData(this.index, file.path, 1, data as Starforged);
     } catch (e) {
       console.error("error loading file", file, e);
       return false;
     }
 
     return true;
-  }
-
-  indexDataForgedData(
-    normalizedPath: string,
-    priority: number,
-    data: Starforged,
-  ): void {
-    this.index.indexSource(normalizedPath, priority, {
-      oracles: indexIntoOracleMap(data),
-      moves: Object.values(data["Move categories"] ?? []).flatMap(
-        (category): Array<[string, Move]> =>
-          Object.values(category.Moves).map((m) => [m.$id, m]),
-      ),
-      assets: Object.values(data["Asset types"] ?? []).flatMap(
-        (category): Array<[string, Asset]> =>
-          Object.values(category.Assets).map((asset) => [asset.$id, asset]),
-      ),
-    });
   }
 
   async indexPluginFile(
@@ -198,7 +148,7 @@ export class Datastore extends Component {
     } else {
       throw new Error(`unknown file type ${format}`);
     }
-    this.indexDataForgedData(normalizedPath, priority, data);
+    indexDataForgedData(this.index, normalizedPath, priority, data);
     this.index.updateIndexGroup(normalizedPath, new Set([normalizedPath]));
 
     this.app.metadataCache.trigger("forged:index-changed");
