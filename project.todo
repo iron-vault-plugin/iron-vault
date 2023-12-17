@@ -9,7 +9,7 @@ Oracles:
     ☐ For template rolls, shorten the key name (and update template string)
     ☐ Shorten some of the property names?
   View:
-    ☐ Some sort of mechanism for seeing different options for a roll instead of putting it directly into the document. @high
+    ✔ Some sort of mechanism for seeing different options for a roll instead of putting it directly into the document. @high @done(23-11-15 21:32)
       So like a modal that displays different variants after you select it. Or maybe suggestions?
 
 Entity generation:
@@ -20,4 +20,4 @@ Characters:
   ✔ Manage momentum @done(23-10-02 16:23)
 
 Other:
-  ☐ Invest'igate using https://eemeli.org/yaml/#yaml to manipulate frontmatter without rewriting
+  ☐ Investigate using https://eemeli.org/yaml/#yaml to manipulate frontmatter without rewriting
