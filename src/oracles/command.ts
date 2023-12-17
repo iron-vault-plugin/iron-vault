@@ -1,16 +1,12 @@
 import { type OracleTable } from "dataforged";
+import { type Roll } from "model/rolls";
 import {
   stringifyYaml,
   type App,
   type Editor,
   type MarkdownView,
 } from "obsidian";
-import {
-  OracleRoller,
-  TableWrapper,
-  dehydrateRoll,
-  type Roll,
-} from "oracles/roller";
+import { OracleRoller, TableWrapper, dehydrateRoll } from "oracles/roller";
 import { formatOraclePath } from "oracles/utils";
 import { type Datastore } from "../datastore";
 import { CustomSuggestModal } from "../utils/suggest";

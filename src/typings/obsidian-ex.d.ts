@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/method-signature-style */
 import { type CharacterTracker } from "character-tracker";
 import { type Datastore } from "datastore";
+import { type Roll } from "model/rolls";
 import "obsidian";
-import { type Roll } from "oracles/roller";
 import { type RollSchema } from "oracles/schema";
 
 declare module "obsidian" {

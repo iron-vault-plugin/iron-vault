@@ -1,5 +1,6 @@
+import { type Roll } from "model/rolls";
 import { Modal, Setting, type App } from "obsidian";
-import { type Roll, type RollWrapper, type TableWrapper } from "./roller";
+import { type RollWrapper, type TableWrapper } from "./roller";
 
 export class OracleRollerModal extends Modal {
   public accepted: boolean = false;

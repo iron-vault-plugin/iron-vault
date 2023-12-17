@@ -1,54 +1,56 @@
 import {
   Asset,
   Move,
-  OracleBase,
-  OracleSet,
-  OracleTable,
-  Starforged,
-} from "dataforged";
+  OracleCollection,
+  OracleRollable,
+  RulesPackage,
+} from "@datasworn/core";
 import { DataIndex } from "datastore/data-index";
 
 export function indexDataForgedData(
   index: DataIndex,
   normalizedPath: string,
   priority: number,
-  data: Starforged,
+  ruleset: RulesPackage,
 ): void {
   index.indexSource(normalizedPath, priority, {
-    oracles: indexIntoOracleMap(data),
-    moves: Object.values(data["Move categories"] ?? []).flatMap(
+    oracles: indexIntoOracleMap(ruleset),
+    moves: Object.values(ruleset.moves ?? {}).flatMap(
       (category): Array<[string, Move]> =>
-        Object.values(category.Moves).map((m) => [m.$id, m]),
+        Object.values(category.contents ?? {}).map((m) => [m.id, m]),
     ),
-    assets: Object.values(data["Asset types"] ?? []).flatMap(
+    assets: Object.values(ruleset.assets ?? {}).flatMap(
       (category): Array<[string, Asset]> =>
-        Object.values(category.Assets).map((asset) => [asset.$id, asset]),
+        Object.values(category.contents ?? {}).map((asset) => [
+          asset.id,
+          asset,
+        ]),
     ),
   });
 }
 
-type OracleMap = Map<string, OracleTable | OracleSet>;
+type OracleMap = Map<string, OracleCollection | OracleRollable>;
 
-export function indexIntoOracleMap(data: Starforged): OracleMap {
+export function indexIntoOracleMap(data: RulesPackage): OracleMap {
   const index = new Map();
-  function expand(oracleBase: OracleBase, prefix: string[]): void {
-    index.set(oracleBase.$id, oracleBase);
-    if (oracleBase.Sets != null) {
-      for (const [name, set] of Object.entries(oracleBase.Sets)) {
-        expand(set, prefix.concat([name]));
+  function expand(collection: OracleCollection): void {
+    index.set(collection.id, collection);
+    if (collection.contents != null) {
+      for (const [_name, set] of Object.entries(collection.contents) satisfies [
+        string,
+        OracleRollable,
+      ][]) {
+        index.set(set.id, set);
       }
     }
-    if (oracleBase.Tables != null) {
-      for (const [name, set] of Object.entries(oracleBase.Tables)) {
-        expand(set, prefix.concat(name));
+    if (collection.oracle_type == "tables") {
+      for (const [_name, set] of Object.entries(collection.collections ?? {})) {
+        expand(set);
       }
     }
   }
-  if (data?.["Oracle sets"] == null) {
-    throw new Error("Oracle data seems to be missing");
-  }
-  for (const [name, set] of Object.entries(data["Oracle sets"])) {
-    expand(set, [name]);
+  for (const [_name, set] of Object.entries(data.oracles ?? {})) {
+    expand(set);
   }
   return index;
 }
