@@ -1,4 +1,4 @@
-import { Asset, Move } from "dataforged";
+import { Asset, Move } from "@datasworn/core";
 import { DataIndex } from "datastore/data-index";
 import { Immutable, immerable, produce } from "immer";
 import { z } from "zod";
@@ -135,8 +135,8 @@ export function createMeasureSetImpl<T extends MeasureSpec>(
       return Number.isInteger(this._data[key])
         ? this._data[key]
         : typeof this._data[key] === "string"
-        ? Number.parseInt(this._data[key])
-        : null;
+          ? Number.parseInt(this._data[key])
+          : null;
     }
 
     get specs(): T {
@@ -172,8 +172,8 @@ export function createMeasureSetImpl<T extends MeasureSpec>(
       newValue = Number.isInteger(newValue)
         ? newValue
         : typeof newValue === "string"
-        ? Number.parseInt(newValue)
-        : NaN;
+          ? Number.parseInt(newValue)
+          : NaN;
       if (Number.isNaN(newValue)) {
         throw new TypeError(`${stringKey} must be an integer.`);
       }
@@ -296,19 +296,19 @@ export class IronswornAssetWrapper {
     const moveList = [];
     const defn = this.definition;
     const marked_abilities = this._assetData.marked_abilities ?? [];
-    for (const [idx, ability] of defn.Abilities.entries()) {
+    for (const [idx, ability] of defn.abilities.entries()) {
       if (marked_abilities.includes(idx + 1)) {
-        moveList.push(...(ability.Moves ?? []));
+        moveList.push(...Object.values(ability.moves ?? {}));
       }
     }
     return moveList;
   }
 }
 
-const characterSchema = z.object({
-  name: z.string(),
-  momentum: z.number().optional(),
-});
+// const characterSchema = z.object({
+//   name: z.string(),
+//   momentum: z.number().optional(),
+// });
 
 export const [
   ImmutableIronswornMeasureSetImpl,

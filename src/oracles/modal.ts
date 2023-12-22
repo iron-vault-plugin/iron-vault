@@ -1,24 +1,28 @@
+import { Oracle, RollContext } from "model/oracle";
+import { RollWrapper, type Roll } from "model/rolls";
 import { Modal, Setting, type App } from "obsidian";
-import { type Roll, type RollWrapper, type TableWrapper } from "./roller";
 
 export class OracleRollerModal extends Modal {
   public accepted: boolean = false;
+  public currentRoll: RollWrapper;
 
   constructor(
     app: App,
-    protected oracle: TableWrapper,
-    public currentRoll: RollWrapper = oracle.roll(),
-    protected readonly onAccept: (roll: Roll) => void,
+    protected rollContext: RollContext,
+    protected oracle: Oracle,
+    initialRoll: Roll | undefined,
+    protected readonly onAccept: (roll: RollWrapper) => void,
     protected readonly onCancel: () => void,
   ) {
     super(app);
+    this.currentRoll = new RollWrapper(oracle, rollContext, initialRoll);
   }
 
   onOpen(): void {
     this.accepted = false;
 
     const { contentEl } = this;
-    contentEl.createEl("h1", { text: this.oracle.value.Title.Standard });
+    contentEl.createEl("h1", { text: this.oracle.name });
 
     // new Setting(contentEl).addButton((btn) =>
     //   btn
@@ -39,16 +43,20 @@ export class OracleRollerModal extends Modal {
       return `${evaledRoll.roll}: ${evaledRoll.results.join("; ")}`;
     };
 
+    const onUpdateRoll = (): void => {
+      rollSetting.setDesc(render(this.currentRoll));
+      flipSetting.setDesc(render(this.currentRoll.variants["flip"]));
+    };
+
     const setRoll = (roll: RollWrapper): void => {
       this.currentRoll = roll;
-      rollSetting.setDesc(render(this.currentRoll));
-      flipSetting.setDesc(render(this.currentRoll.flip));
+      onUpdateRoll();
     };
 
     rollSetting
       .addExtraButton((btn) =>
         btn.setIcon("refresh-cw").onClick(() => {
-          setRoll(this.oracle.roll());
+          setRoll(this.currentRoll.reroll());
         }),
       )
       .addButton((btn) => {
@@ -62,11 +70,11 @@ export class OracleRollerModal extends Modal {
 
     flipSetting.addButton((btn) => {
       btn.setButtonText("Select").onClick(() => {
-        this.accept(this.currentRoll.flip);
+        this.accept(this.currentRoll.variants.flip);
       });
     });
 
-    setRoll(this.currentRoll);
+    onUpdateRoll();
 
     new Setting(contentEl).addButton((button) => {
       button.setButtonText("Cancel").onClick(() => {
@@ -78,7 +86,7 @@ export class OracleRollerModal extends Modal {
   accept(roll: RollWrapper): void {
     this.accepted = true;
     this.close();
-    this.onAccept(roll.value);
+    this.onAccept(roll);
   }
 
   onClose(): void {

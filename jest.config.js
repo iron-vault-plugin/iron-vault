@@ -5,4 +5,5 @@ module.exports = {
     "^.+\\.(t|j)sx?$": ["@swc/jest"],
   },
   testEnvironment: "jsdom",
+  rootDir: "src",
 };

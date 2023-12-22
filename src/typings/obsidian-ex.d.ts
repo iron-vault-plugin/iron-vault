@@ -2,8 +2,6 @@
 import { type CharacterTracker } from "character-tracker";
 import { type Datastore } from "datastore";
 import "obsidian";
-import { type Roll } from "oracles/roller";
-import { type RollSchema } from "oracles/schema";
 
 declare module "obsidian" {
   interface MetadataCache {
@@ -16,14 +14,14 @@ declare global {
     ForgedAPI?: {
       datastore: Datastore;
       tracker: CharacterTracker;
-      formatOracleBlock: ({
-        question,
-        roll,
-      }: {
-        question?: string;
-        roll: Roll;
-      }) => string;
-      dehydrateRoll: (rollData: Roll) => RollSchema;
+      // formatOracleBlock: ({
+      //   question,
+      //   roll,
+      // }: {
+      //   question?: string;
+      //   roll: Roll;
+      // }) => string;
+      // dehydrateRoll: (rollData: Roll) => RollSchema;
     };
   }
 }
