@@ -1,11 +1,7 @@
-import {
-  Asset,
-  Move,
-  OracleCollection,
-  OracleRollable,
-  RulesPackage,
-} from "@datasworn/core";
-import { DataIndex } from "datastore/data-index";
+import { Asset, Move, OracleCollection, RulesPackage } from "@datasworn/core";
+import { DataIndex } from "../../datastore/data-index";
+import { Oracle } from "../../model/oracle";
+import { DataswornOracle } from "./datasworn/oracles";
 
 export function indexDataForgedData(
   index: DataIndex,
@@ -29,28 +25,55 @@ export function indexDataForgedData(
   });
 }
 
-type OracleMap = Map<string, OracleCollection | OracleRollable>;
+type OracleMap = Map<string, Oracle>;
 
 export function indexIntoOracleMap(data: RulesPackage): OracleMap {
-  const index = new Map();
-  function expand(collection: OracleCollection): void {
-    index.set(collection.id, collection);
-    if (collection.contents != null) {
-      for (const [_name, set] of Object.entries(collection.contents) satisfies [
-        string,
-        OracleRollable,
-      ][]) {
-        index.set(set.id, set);
-      }
+  const index: OracleMap = new Map();
+  function expand(collection: OracleCollection, pathPrefix: string[]): void {
+    switch (collection.oracle_type) {
+      case "tables":
+        if (collection.contents != null) {
+          for (const [_name, oracle] of Object.entries(collection.contents)) {
+            index.set(
+              oracle.id,
+              new DataswornOracle(
+                oracle,
+                collection.id,
+                pathPrefix.join(" / "),
+              ),
+            );
+          }
+        }
+        break;
+      // TODO: maybe instead of expanding these tables out, we can support nesting in the menu
+      // e.g., you pick Ask The Oracle -> then you pick the odds
+      case "table_shared_results":
+      case "table_shared_rolls":
+      case "table_shared_details":
+        if (collection.contents != null) {
+          for (const [_name, oracle] of Object.entries(collection.contents)) {
+            index.set(
+              oracle.id,
+              new DataswornOracle(
+                oracle,
+                collection.id,
+                pathPrefix.join(" / "),
+                collection.name,
+              ),
+            );
+          }
+        }
+        break;
     }
-    if (collection.oracle_type == "tables") {
-      for (const [_name, set] of Object.entries(collection.collections ?? {})) {
-        expand(set);
+
+    if ("collections" in collection) {
+      for (const [, set] of Object.entries(collection.collections ?? {})) {
+        expand(set, [...pathPrefix, set.name]);
       }
     }
   }
-  for (const [_name, set] of Object.entries(data.oracles ?? {})) {
-    expand(set);
+  for (const [, set] of Object.entries(data.oracles ?? {})) {
+    expand(set, [set.name]);
   }
   return index;
 }

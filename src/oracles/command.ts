@@ -1,17 +1,16 @@
-import { type OracleTable } from "dataforged";
-import { type Roll } from "model/rolls";
 import {
   stringifyYaml,
   type App,
   type Editor,
   type MarkdownView,
 } from "obsidian";
-import { OracleRoller, TableWrapper, dehydrateRoll } from "oracles/roller";
-import { formatOraclePath } from "oracles/utils";
 import { type Datastore } from "../datastore";
+import { Oracle } from "../model/oracle";
+import { RollWrapper } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
 import { renderOracleCallout } from "./render";
+import { OracleRoller } from "./roller";
 import { type OracleSchema } from "./schema";
 
 export function formatOracleBlock({
@@ -19,11 +18,11 @@ export function formatOracleBlock({
   roll,
 }: {
   question?: string;
-  roll: Roll;
+  roll: RollWrapper;
 }): string {
   const oracle: OracleSchema = {
     question,
-    roll: dehydrateRoll(roll),
+    roll: roll.dehydrate(),
   };
   return `\`\`\`oracle\n${stringifyYaml(oracle)}\`\`\`\n\n`;
 }
@@ -40,23 +39,25 @@ export async function runOracleCommand(
     console.warn("data not ready");
     return;
   }
-  const oracles: OracleTable[] = [...datastore.oracles.tables()];
+  const oracles: Oracle[] = [...datastore.oracles.values()];
   const oracle = await CustomSuggestModal.select(
     app,
     oracles,
-    formatOraclePath.bind(undefined, datastore.oracles),
+    (oracle) => oracle.category,
   );
   console.log(oracle);
+  const rollContext = new OracleRoller(datastore.oracles);
   new OracleRollerModal(
     app,
-    new TableWrapper(oracle, new OracleRoller(datastore.oracles)),
+    rollContext,
+    oracle,
     undefined,
     (roll) => {
       if (USE_ORACLE_BLOCK) {
         editor.replaceSelection(formatOracleBlock({ roll }));
       } else {
         editor.replaceSelection(
-          renderOracleCallout({ roll: dehydrateRoll(roll) }),
+          renderOracleCallout({ roll: roll.dehydrate() }),
         );
       }
     },

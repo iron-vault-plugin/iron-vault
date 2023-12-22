@@ -1,4 +1,4 @@
-import { type Move, type Starforged } from "dataforged";
+import { Move, RulesPackage } from "@datasworn/core";
 import { DataIndex, OracleIndex } from "datastore/data-index";
 import { indexDataForgedData } from "datastore/parsers/dataforged";
 import ForgedPlugin from "index";
@@ -12,8 +12,6 @@ import {
 } from "obsidian";
 import { OracleRoller } from "oracles/roller";
 import { breadthFirstTraversal } from "utils/traversal";
-
-export { type Move };
 
 export class Datastore extends Component {
   _ready: boolean;
@@ -119,7 +117,7 @@ export class Datastore extends Component {
       const data = parseYaml(matches[1]);
       // TODO: priority
       // TODO: validation?
-      indexDataForgedData(this.index, file.path, 1, data as Starforged);
+      indexDataForgedData(this.index, file.path, 1, data as RulesPackage);
     } catch (e) {
       console.error("error loading file", file, e);
       return false;
@@ -140,11 +138,12 @@ export class Datastore extends Component {
       priority,
     );
     const content = await this.app.vault.adapter.read(normalizedPath);
-    let data: Starforged;
+    // TODO: validate
+    let data: RulesPackage;
     if (format === "json") {
-      data = JSON.parse(content) as Starforged;
+      data = JSON.parse(content) as RulesPackage;
     } else if (format === "yaml") {
-      data = parseYaml(content) as Starforged;
+      data = parseYaml(content) as RulesPackage;
     } else {
       throw new Error(`unknown file type ${format}`);
     }

@@ -1,68 +1,73 @@
-import { OracleRollable, OracleTableSimple } from "@datasworn/core";
-import { RollContext, RollableOracle } from "model/oracle";
-import { Roll } from "model/rolls";
-import { randomInt } from "utils/dice";
+import { OracleRollable } from "@datasworn/core";
+import { Oracle, OracleRow, RollContext } from "../../../model/oracle";
+import { Roll, sameRoll } from "../../../model/rolls";
+import { Dice } from "../../../utils/dice";
 
-export function wrapOracle(table: OracleRollable): RollableOracle {
-  switch (table.oracle_type) {
-    case "table_simple":
-      return new TableOracle(table);
-    case "table_details":
-    case "column_simple":
-    case "column_details":
-      throw new Error(`not currently implementing ${table.oracle_type}`);
+export class DataswornOracle implements Oracle {
+  constructor(
+    protected table: OracleRollable,
+    public readonly parentId: string,
+    public readonly category: string,
+    protected namePrefix?: string,
+  ) {}
+  row(id: string): OracleRow | undefined {
+    const rawRow = this.table.rows.find((row) => row.id === id);
+    return rawRow
+      ? Object.freeze({ id, result: rawRow.result, template: rawRow.template })
+      : undefined;
   }
-}
+  get name(): string {
+    return this.namePrefix
+      ? `${this.namePrefix}: ${this.table.name}`
+      : this.table.name;
+  }
 
-export class TableOracle implements RollableOracle {
-  constructor(protected table: OracleTableSimple) {}
   get id(): string {
-    throw new Error("Method not implemented.");
+    return this.table.id;
   }
-  evaluate(context: RollContext, value: number): Roll {
-    throw new Error("Method not implemented.");
+
+  dice(): Dice {
+    return Dice.fromDiceString(this.table.dice);
   }
 
   roll(context: RollContext): Roll {
-    const roll = randomInt(1, 100);
-    this.table.dice;
-    return this.evaluateRow(roll, table);
+    const dice = this.dice();
+    return this.evaluate(context, dice.roll());
   }
 
-  evaluateRow(roll: number, table: OracleTable): Roll {
-    const row = table.Table.find(
-      (row): row is OracleTableRow =>
-        row.Floor != null &&
-        row.Floor <= roll &&
-        row.Ceiling != null &&
-        roll <= row.Ceiling,
+  evaluate(context: RollContext, roll: number): Roll {
+    const row = this.table.rows.find(
+      (row) =>
+        row.min != null &&
+        row.min <= roll &&
+        row.max != null &&
+        roll <= row.max,
     );
     if (row == null) {
-      throw new Error(`roll ${roll} is off the charts for ${table.$id}`);
+      throw new Error(`roll ${roll} is off the charts for ${this.table.id}`);
     }
 
     console.log(row);
-    if (row["Roll template"] != null) {
-      if (row["Multiple rolls"] != null) {
+    if (row.template != null) {
+      if (row.oracle_rolls != null) {
         console.warn(
-          "Oracle %s row %s has both 'Roll template' and 'Multiple rolls'",
-          table.$id,
-          row.$id,
+          "Oracle %s row %s has both 'template' and 'oracle_rolls'",
+          this.table.id,
+          row.id,
         );
       }
-      const template = row["Roll template"];
+      const template = row.template;
       // TODO: apparently also description and summary
-      if (template.Result == null) {
-        throw new Error(`unhandled template for ${table.$id}`);
+      if (template.result == null) {
+        throw new Error(`unhandled template for ${this.table.id}`);
       }
       const templateRolls = new Map<string, Roll>();
-      for (const [, id] of template.Result.matchAll(/\{\{([^{}]+)\}\}/g)) {
-        const subTable = this.index.get(id);
+      for (const [, id] of template.result.matchAll(/\{\{([^{}]+)\}\}/g)) {
+        const subTable = context.lookup(id);
         if (subTable == null) {
-          throw new Error(`missing subtable ${id} in ${table.$id}`);
+          throw new Error(`missing subtable ${id} in ${this.table.id}`);
         }
-        // TODO: assertion somewhere that this is a table?
-        const subResult = this.roll(subTable as OracleTable);
+        const subResult = subTable.roll(context);
         templateRolls.set(id, subResult);
       }
 
@@ -70,61 +75,82 @@ export class TableOracle implements RollableOracle {
         kind: "templated",
         templateRolls,
         roll,
-        table,
-        row,
+        tableId: this.id,
+        rowId: row.id,
       };
     }
-    if (row.Subtable != null) {
-      console.warn("subtable", row);
-      throw new Error(`subtable roll ${table.$id}`);
-    }
-    if (row["Multiple rolls"] != null) {
-      const results: Roll[] = [];
-      let iterations = 0;
-      while (results.length < row["Multiple rolls"].Amount) {
-        if (iterations++ >= 10) {
-          throw new Error("too many iterations");
-        }
-        const roll = this.roll(table);
-        if (
-          !row["Multiple rolls"]["Allow duplicates"] &&
-          results.find((otherRoll) => sameRoll(roll, otherRoll)) != null
-        ) {
-          console.log("duplicate roll skipped", results, roll);
-          continue;
-        }
-        results.push(roll);
-      }
-      return {
-        kind: "multi",
-        results,
-        table,
-        roll,
-        row,
-      };
-    }
-    if (row["Oracle rolls"] != null) {
-      const subrolls = row["Oracle rolls"].map((id) => {
-        const suboracle = this.index.get(id);
-        if (suboracle == null)
-          throw new Error(
-            `missing oracle ${id} referenced in ${table.$id} Oracle rolls`,
+    if (row.oracle_rolls != null) {
+      const subrolls = row.oracle_rolls.flatMap((subOracle) => {
+        if (!subOracle.auto) {
+          console.warn(
+            "[oracles] [table: %s] oracle_rolls contains non-auto entry %s",
+            this.id,
+            subOracle.oracle,
           );
-        return this.roll(suboracle as OracleTable);
+        }
+        let subrollable: Oracle | undefined =
+          subOracle.oracle == null ? this : context.lookup(subOracle.oracle);
+        if (!subrollable)
+          throw new Error(
+            `missing oracle ${subOracle.oracle} referenced in ${this.id} Oracle rolls`,
+          );
+
+        const results: Roll[] = [];
+        let iterations = 0;
+        while (results.length < subOracle.number_of_rolls) {
+          if (iterations++ >= 10) {
+            console.warn(
+              "[oracles] [table: %s] too many iterations for subroll %s",
+              this.id,
+              subOracle.oracle,
+            );
+            throw new Error("too many iterations");
+          }
+          const roll = subrollable.roll(context);
+          switch (subOracle.duplicates) {
+            case "reroll":
+              if (
+                results.find((otherRoll) => sameRoll(roll, otherRoll)) != null
+              ) {
+                console.log("duplicate roll skipped", results, roll);
+              }
+              break;
+            case "make_it_worse":
+              console.warn(
+                "[oracles] [table: %s] found `make_it_worse` in subroll %s",
+                this.id,
+                subOracle.oracle,
+              );
+            case "keep":
+              results.push(roll);
+            default:
+              throw new Error("unexpected duplicate type");
+          }
+        }
+
+        return results;
       });
+
       return {
         kind: "multi",
-        roll,
-        table,
-        row,
         results: subrolls,
+        roll,
+        tableId: this.id,
+        rowId: row.id,
       };
     }
     return {
       kind: "simple",
       roll,
-      row,
-      table,
+      tableId: this.id,
+      rowId: row.id,
+    };
+  }
+
+  variants(context: RollContext, roll: Roll): Record<string, Roll> {
+    const dice = this.dice();
+    return {
+      flip: this.evaluate(context, dice.maxRoll() - roll.roll),
     };
   }
 }

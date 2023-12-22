@@ -1,4 +1,4 @@
-import { OracleTable } from "dataforged";
+import { OracleTableSimple } from "@datasworn/core";
 import { parseTable, tableRows } from "./table";
 
 describe("tableRows", () => {
@@ -23,40 +23,41 @@ describe("parseTable", () => {
     | 3-4       | [Theme](starforged/oracles/core/theme) |
     | 5-6       | Just foo |
     `;
-    const expectedOracle: OracleTable = {
-      $id: "custom/oracles/foo",
-      Title: {
-        $id: "custom/oracles/foo/title",
-        Canonical: "Foo",
-        Short: "Foo",
-        Standard: "Foo",
+    const expectedOracle: OracleTableSimple = {
+      id: "custom/oracles/foo",
+      name: "Foo",
+      dice: "1d100",
+      source: {
+        authors: [{ name: "Test" }],
+        date: "2023-12-22",
+        license: "Foo",
+        title: "Tests",
+        url: "https://example.com",
       },
-      Table: [
+      column_labels: { roll: "Roll", result: "Result" },
+      oracle_type: "table_simple",
+      rows: [
         {
-          $id: "custom/oracles/foo/1-33",
-          Floor: 1,
-          Ceiling: 33,
-          Result: "[Action](starforged/oracles/core/action)",
-          "Roll template": {
-            $id: "custom/oracles/foo/1-2/roll_template",
-            Result: "{{starforged/oracles/core/action}}",
+          id: "custom/oracles/foo/1-33",
+          min: 1,
+          max: 33,
+          result: "[Action](starforged/oracles/core/action)",
+          template: { result: "{{starforged/oracles/core/action}}" },
+        },
+        {
+          id: "custom/oracles/foo/34-67",
+          min: 34,
+          max: 67,
+          result: "[Theme](starforged/oracles/core/theme)",
+          template: {
+            result: "{{starforged/oracles/core/theme}}",
           },
         },
         {
-          $id: "custom/oracles/foo/34-67",
-          Floor: 34,
-          Ceiling: 67,
-          Result: "[Theme](starforged/oracles/core/theme)",
-          "Roll template": {
-            $id: "custom/oracles/foo/3-4/roll_template",
-            Result: "{{starforged/oracles/core/theme}}",
-          },
-        },
-        {
-          $id: "custom/oracles/foo/68-100",
-          Floor: 68,
-          Ceiling: 100,
-          Result: "Just foo",
+          id: "custom/oracles/foo/68-100",
+          min: 68,
+          max: 100,
+          result: "Just foo",
         },
       ],
     };

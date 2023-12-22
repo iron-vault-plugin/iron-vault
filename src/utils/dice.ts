@@ -32,4 +32,8 @@ export class Dice {
     }
     return total;
   }
+
+  maxRoll(): number {
+    return this.count * this.sides;
+  }
 }

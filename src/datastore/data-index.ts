@@ -1,10 +1,10 @@
 import { Asset, type Move } from "@datasworn/core";
-import { RollableOracle } from "model/oracle";
+import { Oracle } from "model/oracle";
 import { IndexableData, PriorityIndexer } from "./priority-index";
 
-export class OracleIndex extends PriorityIndexer<string, RollableOracle> {
+export class OracleIndex extends PriorityIndexer<string, Oracle> {
   /** @deprecated */
-  *tables(): IterableIterator<RollableOracle> {
+  *tables(): IterableIterator<Oracle> {
     for (const table of this.values()) {
       yield table;
     }
@@ -15,7 +15,7 @@ export class OracleIndex extends PriorityIndexer<string, RollableOracle> {
    * @param id ID of oracle table
    * @returns oracle table or undefined if the table is missing or is an OracleSet
    */
-  getTable(id: string): RollableOracle | undefined {
+  getTable(id: string): Oracle | undefined {
     return this.get(id);
   }
 }
@@ -60,7 +60,7 @@ export class DataIndex {
     normalizedPath: string,
     priority: number,
     data: {
-      oracles: IndexableData<string, RollableOracle>;
+      oracles: IndexableData<string, Oracle>;
       moves: IndexableData<string, Move>;
       assets: IndexableData<string, Asset>;
     },

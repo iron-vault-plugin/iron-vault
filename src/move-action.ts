@@ -1,3 +1,4 @@
+import { Move } from "@datasworn/core";
 import {
   stringifyYaml,
   type App,
@@ -7,7 +8,7 @@ import {
 } from "obsidian";
 import { IronswornCharacterMetadata } from "./character";
 import { type CharacterTracker } from "./character-tracker";
-import { type Datastore, type Move } from "./datastore";
+import { type Datastore } from "./datastore";
 import {
   type ActionMoveDescription,
   type MoveDescription,
@@ -38,20 +39,30 @@ enum MoveKind {
 // }
 
 function getMoveKind(move: Move): MoveKind {
-  if (move["Progress move"] === true) return MoveKind.Progress;
-
-  if (move.Outcomes != null) return MoveKind.Action;
-
-  return MoveKind.Other;
+  switch (move.roll_type) {
+    case "action_roll":
+      return MoveKind.Action;
+    case "progress_roll":
+      return MoveKind.Progress;
+    case "special_track":
+    case "no_roll":
+      return MoveKind.Other;
+    default:
+      throw new Error(
+        `unexpected roll type ${(move as Move).roll_type} on move id ${
+          (move as Move).id
+        }`,
+      );
+  }
 }
 const promptForMove = async (app: App, moves: Move[]): Promise<Move> =>
   await CustomSuggestModal.select(
     app,
     moves,
-    (move) => move.Title.Standard,
+    (move) => move.name,
     ({ item: move, match }: FuzzyMatch<Move>, el: HTMLElement) => {
       const moveKind = getMoveKind(move);
-      el.createEl("small", { text: `(${moveKind}) ${move.Trigger.Text}` });
+      el.createEl("small", { text: `(${moveKind}) ${move.trigger.text}` });
     },
   );
 
@@ -62,7 +73,7 @@ function processActionMove(
   adds: number,
 ): ActionMoveDescription {
   return {
-    name: move.Title.Standard,
+    name: move.name,
     action: randomInt(1, 6),
     stat,
     statVal,
@@ -77,7 +88,7 @@ function processProgressMove(
   track: string,
 ): ProgressMoveDescription {
   return {
-    name: move.Title.Standard,
+    name: move.name,
     progressTrack: track,
     // todo: fetch val
     progressTicks: randomInt(1, 40),
@@ -115,7 +126,7 @@ export async function runMoveCommand(
 
   const move = await promptForMove(
     app,
-    allMoves.sort((a, b) => a.Title.Standard.localeCompare(b.Title.Standard)),
+    allMoves.sort((a, b) => a.name.localeCompare(b.name)),
   );
   const moveKind = getMoveKind(move);
   if (moveKind === MoveKind.Action) {

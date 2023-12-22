@@ -6,7 +6,6 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { registerOracleBlock } from "oracles/render";
-import { dehydrateRoll } from "oracles/roller";
 import {
   DEFAULT_SETTINGS,
   ForgedPluginSettings,
@@ -18,7 +17,7 @@ import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
 import { runMoveCommand } from "./move-action";
 import { registerMoveBlock } from "./move-block";
-import { formatOracleBlock, runOracleCommand } from "./oracles/command";
+import { runOracleCommand } from "./oracles/command";
 import { CustomSuggestModal } from "./utils/suggest";
 
 export default class ForgedPlugin extends Plugin {
@@ -52,8 +51,8 @@ export default class ForgedPlugin extends Plugin {
     window.ForgedAPI = {
       datastore: this.datastore,
       tracker: this.tracker,
-      formatOracleBlock,
-      dehydrateRoll,
+      // formatOracleBlock,
+      // dehydrateRoll,
     };
     this.register(() => delete window.ForgedAPI);
 
