@@ -8,7 +8,11 @@ forged: inline-oracle
 | 5-6       | Just foo |
 ||asd|
 
-| asd |
-| -- |
-| asd |
 
+  | asd | bsd |
+   | --- | --- |
+   | 1 |  |
+
+  | 2sd | 2sd |
+  | --- | --- |
+   | 2 |  |

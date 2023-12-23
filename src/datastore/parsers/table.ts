@@ -1,31 +1,81 @@
+// TODO: this doesn't support slash escaping pipes
 export const TABLE_REGEX =
-  /^(\|?[^\n|]*(?:\|[^\n|]*)+\|?)$\n^(\|? *-{2,} *(?:\| *-{2,} *)*)\|?$((?:\n^\|?[^|\n]*(?:\|[^|\n]*)+\|?$)*)/gm;
+  /^( *(\|?)[^\n|]*(?:\|[^\n|]*)+\2)$\n^( *\2 *:?-{2,}:? *(?:\| *:?-{2,}:? *)*\2)$((?:\n^ *\2[^|\n]*(?:\|[^|\n]*)+\2$)*)/gm;
 
-export function tableRows(content: string): Array<Array<Array<string>>> {
-  const tables: Array<Array<Array<string>>> = [];
-  for (const tableMatch of content.matchAll(TABLE_REGEX)) {
-    const rows: Array<Array<string>> = [];
-    const dividerRow = tableMatch[2].split(/(?<!\\)\|/).map((s) => s.trim());
+export enum MarkdownTableAlignment {
+  Default,
+  Left,
+  Right,
+  Center,
+}
 
-    const tableLines = content.trim().split("\n");
-    for (const line of tableLines) {
-      const interior = line
-        .slice(
-          line.startsWith("|") ? 1 : 0,
-          line.length + (line.endsWith("|") ? -1 : 0),
-        )
-        .trim();
-      rows.push(interior.split(/(?<!\\)\|/).map((s) => s.trim()));
+export interface MarkdownTable {
+  columnAlignments: MarkdownTableAlignment[];
+  header: Array<string>;
+  body: Array<Array<string>>;
+}
+
+export class MalformedMarkdownTableError extends Error {}
+
+export function splitTableRow(row: string): string[] {
+  const segments = row.split(/(?<!\\)\|/).map((s) => s.trim());
+  if (segments[0] === "") {
+    segments.shift();
+  }
+  if (segments[segments.length - 1] === "") {
+    segments.pop();
+  }
+  return segments;
+}
+
+function parseTable(match: RegExpMatchArray): MarkdownTable {
+  // TODO: handle alignments
+  const columnAlignments = splitTableRow(match[3]).map(
+    (_) => MarkdownTableAlignment.Default,
+  );
+  const header = splitTableRow(match[1]);
+
+  if (columnAlignments.length != header.length) {
+    throw new MalformedMarkdownTableError(
+      `header has ${header.length} cols, but divider has ${columnAlignments.length}`,
+    );
+  }
+
+  const body = match[4].split("\n").flatMap((line) => {
+    if (line === "") {
+      return [];
     }
-    tables.push(rows);
+    const row = splitTableRow(line).slice(0, columnAlignments.length);
+    return [row];
+  });
+
+  return {
+    columnAlignments,
+    header,
+    body,
+  };
+}
+
+export function matchTable(content: string): MarkdownTable {
+  for (const reg of content.matchAll(TABLE_REGEX)) {
+    return parseTable(reg);
+  }
+  throw new MalformedMarkdownTableError("no table found");
+}
+
+export function matchTables(content: string): MarkdownTable[] {
+  const tables: Array<MarkdownTable> = [];
+  for (const tableMatch of content.matchAll(TABLE_REGEX)) {
+    let table;
+    // try {
+    table = parseTable(tableMatch);
+    // } catch {
+    //   table = null;
+    // }
+    if (table) {
+      tables.push(table);
+    }
   }
 
   return tables;
 }
-
-// TODO: this doesn't account for multiple tables / a gap between tables
-// export function parseTable(id: string, content: string): OracleTable {
-//   const tables = content.matchAll(TABLE_REGEX);
-//   for (const tableMatch of tables) {
-//   }
-// }

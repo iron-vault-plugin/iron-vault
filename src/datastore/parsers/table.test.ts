@@ -1,66 +1,107 @@
-import { OracleTableSimple } from "@datasworn/core";
-import { parseTable, tableRows } from "./table";
+import {
+  MalformedMarkdownTableError,
+  MarkdownTableAlignment,
+  matchTable,
+  matchTables,
+  splitTableRow,
+} from "./table";
 
-describe("tableRows", () => {
-  it("matches a table row", () => {
-    const row = "| foo | bar |\n| -- | -- |\n| asd | sdf |\n";
-    expect(tableRows(row)).toEqual([
-      [
-        ["foo", "bar"],
-        ["--", "--"],
-        ["asd", "sdf"],
-      ],
-    ]);
+describe("splitTableRow", () => {
+  it("splits unenclosed rows", () => {
+    expect(splitTableRow(" a | b | c  ")).toEqual(["a", "b", "c"]);
+  });
+
+  it("removes first leading and trailing empties", () => {
+    expect(splitTableRow(" || a | b | c |")).toEqual(["", "a", "b", "c"]);
   });
 });
 
-describe("parseTable", () => {
-  xit("converts a markdown roll table into an oracle", () => {
-    const table = `
-    | dice: 1d6 | Result |
-    | --------- | ------ |
-    | 1-2       | [Action](starforged/oracles/core/action) |
-    | 3-4       | [Theme](starforged/oracles/core/theme) |
-    | 5-6       | Just foo |
-    `;
-    const expectedOracle: OracleTableSimple = {
-      id: "custom/oracles/foo",
-      name: "Foo",
-      dice: "1d100",
-      source: {
-        authors: [{ name: "Test" }],
-        date: "2023-12-22",
-        license: "Foo",
-        title: "Tests",
-        url: "https://example.com",
-      },
-      column_labels: { roll: "Roll", result: "Result" },
-      oracle_type: "table_simple",
-      rows: [
-        {
-          id: "custom/oracles/foo/1-33",
-          min: 1,
-          max: 33,
-          result: "[Action](starforged/oracles/core/action)",
-          template: { result: "{{starforged/oracles/core/action}}" },
-        },
-        {
-          id: "custom/oracles/foo/34-67",
-          min: 34,
-          max: 67,
-          result: "[Theme](starforged/oracles/core/theme)",
-          template: {
-            result: "{{starforged/oracles/core/theme}}",
-          },
-        },
-        {
-          id: "custom/oracles/foo/68-100",
-          min: 68,
-          max: 100,
-          result: "Just foo",
-        },
+describe("matchTable", () => {
+  it("matches a table with enclosing pipes", () => {
+    const row = "| foo | bar |\n| -- | -- |\n| asd | sdf |\n";
+    expect(matchTable(row)).toEqual({
+      columnAlignments: [
+        MarkdownTableAlignment.Default,
+        MarkdownTableAlignment.Default,
       ],
-    };
-    expect(parseTable("custom/oracles/foo", table)).toEqual(expectedOracle);
+      header: ["foo", "bar"],
+      body: [["asd", "sdf"]],
+    });
+  });
+
+  it("matches a table without enclosing pipes", () => {
+    const row = " foo | bar \n --|-- \n asd | sdf \n bar |baz";
+    expect(matchTable(row)).toEqual({
+      columnAlignments: [
+        MarkdownTableAlignment.Default,
+        MarkdownTableAlignment.Default,
+      ],
+      header: ["foo", "bar"],
+      body: [
+        ["asd", "sdf"],
+        ["bar", "baz"],
+      ],
+    });
+  });
+
+  it("matches a table with leading whitespace", () => {
+    const row =
+      "   | foo | bar |\n    | --|-- |\n    | asd | sdf |\n | bar |baz |";
+    expect(matchTable(row)).toEqual({
+      columnAlignments: [
+        MarkdownTableAlignment.Default,
+        MarkdownTableAlignment.Default,
+      ],
+      header: ["foo", "bar"],
+      body: [
+        ["asd", "sdf"],
+        ["bar", "baz"],
+      ],
+    });
+  });
+
+  it("ignores excess columns in data", () => {
+    const row = " foo | bar \n --|-- \n asd | sdf \n bar |baz | boom";
+    expect(matchTable(row)).toEqual({
+      columnAlignments: [
+        MarkdownTableAlignment.Default,
+        MarkdownTableAlignment.Default,
+      ],
+      header: ["foo", "bar"],
+      body: [
+        ["asd", "sdf"],
+        ["bar", "baz"],
+      ],
+    });
+  });
+
+  it("does not match a table with mismatched header and divider rows", () => {
+    const row = "| foo | bar |\n| -- | -- | -- |\n| asd | sdf |\n";
+    expect(() => matchTable(row)).toThrow(
+      new MalformedMarkdownTableError("header has 2 cols, but divider has 3"),
+    );
+  });
+
+  it("does not match a table with mismatched pipes", () => {
+    const row = " foo | bar |\n| -- | -- |\n| asd | sdf |\n";
+    expect(() => matchTable(row)).toThrow(
+      new MalformedMarkdownTableError("no table found"),
+    );
+  });
+});
+
+describe("matchTables", () => {
+  it("finds all tables in content", () => {
+    expect(
+      matchTables(`
+    | asd | bsd |
+    | --- | --- |
+    | 1 |  |
+
+    | 2sd | 2sd |
+    | --- | --- |
+    | 2 |  |
+    `),
+    ).toMatchObject([{ header: ["asd", "bsd"] }, { header: ["2sd", "2sd"] }]);
   });
 });
