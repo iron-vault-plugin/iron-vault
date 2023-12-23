@@ -1,5 +1,14 @@
 {
   "editor.tabSize": 2,
   "git.branchProtection": [],
-  "jest.jestCommandLine": "pnpm test --"
+  "jest.jestCommandLine": "pnpm test --",
+  "yaml.schemas": {
+    "./node_modules/@datasworn/core/json/datasworn.schema.json": ["/data/*"]
+  },
+  "json.schemas": [
+    {
+      "fileMatch": ["/data/*"],
+      "url": "./node_modules/@datasworn/core/json/datasworn.schema.json"
+    }
+  ]
 }

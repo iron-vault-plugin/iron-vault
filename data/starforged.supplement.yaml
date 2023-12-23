@@ -1,44 +1,62 @@
 ---
-Oracle sets:
-  Templates:
-    "$id": starforgedsupp/oracles/templates
-    Title:
-      "$id": starforged/oracles/templates/title
-      Canonical: Templates
-      Standard: Templates
-      Short: Templates
-    Tables:
-      "Action+Theme":
-        "$id": starforgedsupp/oracles/templates/actiontheme
-        Title:
-          "$id": starforgedsupp/oracles/templates/actiontheme/title
-          Canonical: Action+Theme
-          Standard: Action+Theme
-          Short: Action+Theme
-        Ancestors:
-          - starforgedsupp/oracles/templates
-        Table:
-          - Floor: 1
-            Ceiling: 100
-            "$id": "starforgedsupp/oracles/templates/actiontheme/1-100"
-            "Result": "[[⏵Action](starforged/oracles/core/action)] [[⏵Theme](starforged/oracles/core/theme)]"
-            "Roll template":
-              "$id": "starforgedsupp/oracles/templates/actiontheme/1-100/roll_template"
-              "Result": "{{starforged/oracles/core/action}} {{starforged/oracles/core/theme}}"
-      "Descriptor+Focus":
-        "$id": starforgedsupp/oracles/templates/descriptorfocus
-        Title:
-          "$id": starforgedsupp/oracles/templates/descriptorfocus/title
-          Canonical: Descriptor+Focus
-          Standard: Descriptor+Focus
-          Short: Descriptor+Focus
-        Ancestors:
-          - starforgedsupp/oracles/templates
-        Table:
-          - Floor: 1
-            Ceiling: 100
-            "$id": "starforgedsupp/oracles/templates/descriptorfocus/1-100"
-            "Result": "[[⏵Descriptor](starforged/oracles/core/descriptor)] [[⏵Focus](starforged/oracles/core/focus)]"
-            "Roll template":
-              "$id": "starforgedsupp/oracles/templates/descriptorfocus/1-100/roll_template"
-              "Result": "{{starforged/oracles/core/descriptor}} {{starforged/oracles/core/focus}}"
+package_type: expansion
+id: delve
+datasworn_version: 0.0.5
+ruleset: starforged
+oracles:
+  templates:
+    id: starforgedsupp/collections/oracles/templates
+    name: Templates
+    oracle_type: tables
+    source:
+      title: Original
+      authors:
+        - name: Shawn Tomkin
+      date: "1234-12-12"
+      url: "https://example.com"
+      license: "???"
+    contents:
+      "actiontheme":
+        id: starforgedsupp/oracles/templates/actiontheme
+        oracle_type: table_simple
+        name: "Action + Theme"
+        dice: "1d100"
+        source:
+          title: Original
+          authors:
+            - name: Shawn Tomkin
+          date: "1234-12-12"
+          url: "https://example.com"
+          license: "???"
+        column_labels:
+          roll: Roll
+          result: Result
+        rows:
+          - min: 1
+            max: 100
+            id: "starforgedsupp/oracles/templates/actiontheme/1-100"
+            result: "[[⏵Action](id:starforged/oracles/core/action)] [[⏵Theme](id:starforged/oracles/core/theme)]"
+            template:
+              result: "{{result:starforged/oracles/core/action}} {{result:starforged/oracles/core/theme}}"
+      "descriptorfocus":
+        id: starforgedsupp/oracles/templates/descriptorfocus
+        name: Descriptor+Focus
+        dice: "1d100"
+        oracle_type: table_simple
+        source:
+          title: Original
+          authors:
+            - name: Shawn Tomkin
+          date: "1234-12-12"
+          url: "https://example.com"
+          license: "???"
+        column_labels:
+          roll: Roll
+          result: Result
+        rows:
+          - min: 1
+            max: 100
+            id: "starforgedsupp/oracles/templates/descriptorfocus/1-100"
+            result: "[[⏵Descriptor](id:starforged/oracles/core/descriptor)] [[⏵Focus](id:starforged/oracles/core/focus)]"
+            template:
+              result: "{{result:starforged/oracles/core/descriptor}} {{result:starforged/oracles/core/focus}}"
