@@ -1,6 +1,7 @@
 import { Move, RulesPackage } from "@datasworn/core";
 import { DataIndex, OracleIndex } from "datastore/data-index";
 import { indexDataForgedData } from "datastore/parsers/dataforged";
+import { ParserReturn, parserForFrontmatter } from "datastore/parsers/markdown";
 import ForgedPlugin from "index";
 import {
   Component,
@@ -103,27 +104,37 @@ export class Datastore extends Component {
   async indexOracleFile(file: TFile): Promise<boolean> {
     console.log("indexing %s", file.path);
     const cache = this.app.metadataCache.getFileCache(file);
-    if (cache?.frontmatter?.forged !== "dataforged-inline") {
+    const parser = parserForFrontmatter(file, cache);
+    if (parser == null) {
       return false;
     }
 
     const content = await this.app.vault.cachedRead(file);
-    let matches = content.match(/^```[^\S\r\n]*dataforged\s?\n([\s\S]+?)^```/m);
-    if (matches == null) {
+    let result: ParserReturn;
+    try {
+      result = parser(content);
+    } catch (error) {
+      result = { success: false, error };
+    }
+
+    if (!result.success) {
+      console.error(`[file: ${file.path}] error parsing file`, result.error);
       return false;
     }
 
     try {
-      const data = parseYaml(matches[1]);
-      // TODO: priority
       // TODO: validation?
-      indexDataForgedData(this.index, file.path, 1, data as RulesPackage);
+      indexDataForgedData(
+        this.index,
+        file.path,
+        result.priority ?? 1,
+        result.rules,
+      );
+      return true;
     } catch (e) {
-      console.error("error loading file", file, e);
+      console.error(`[file: ${file.path}] error indexing file`, e);
       return false;
     }
-
-    return true;
   }
 
   async indexPluginFile(

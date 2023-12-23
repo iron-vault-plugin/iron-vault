@@ -1,6 +1,6 @@
 // TODO: this doesn't support slash escaping pipes
 export const TABLE_REGEX =
-  /^( *(\|?)[^\n|]*(?:\|[^\n|]*)+\2)$\n^( *\2 *:?-{2,}:? *(?:\| *:?-{2,}:? *)*\2)$((?:\n^ *\2[^|\n]*(?:\|[^|\n]*)+\2$)*)/gm;
+  /^( *(\|?)[^\n|]*(?:\|[^\n|]*)+\2 *)$\n^( *\2 *:?-{2,}:? *(?:\| *:?-{2,}:? *)*\2 *)$((?:\n^ *\2[^|\n]*(?:\|[^|\n]*)+\2 *$)*)/gm;
 
 export enum MarkdownTableAlignment {
   Default,
@@ -30,10 +30,10 @@ export function splitTableRow(row: string): string[] {
 
 function parseTable(match: RegExpMatchArray): MarkdownTable {
   // TODO: handle alignments
-  const columnAlignments = splitTableRow(match[3]).map(
+  const columnAlignments = splitTableRow(match[3].trim()).map(
     (_) => MarkdownTableAlignment.Default,
   );
-  const header = splitTableRow(match[1]);
+  const header = splitTableRow(match[1].trim());
 
   if (columnAlignments.length != header.length) {
     throw new MalformedMarkdownTableError(
@@ -42,6 +42,7 @@ function parseTable(match: RegExpMatchArray): MarkdownTable {
   }
 
   const body = match[4].split("\n").flatMap((line) => {
+    line = line.trim();
     if (line === "") {
       return [];
     }

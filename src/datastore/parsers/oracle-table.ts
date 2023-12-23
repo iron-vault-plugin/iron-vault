@@ -52,7 +52,7 @@ export function parseResultTemplate(
 export function extractOracleTable(
   id: string,
   content: string,
-): Partial<OracleTableSimple> {
+): Omit<OracleTableSimple, "name" | "source"> {
   const tables = matchTables(content);
   if (tables.length != 1) {
     throw new Error(`expected 1 table, found ${tables.length}`);

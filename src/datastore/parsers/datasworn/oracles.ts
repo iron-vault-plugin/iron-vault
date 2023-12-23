@@ -62,7 +62,9 @@ export class DataswornOracle implements Oracle {
         throw new Error(`unhandled template for ${this.table.id}`);
       }
       const templateRolls = new Map<string, Roll>();
-      for (const [, id] of template.result.matchAll(/\{\{([^{}]+)\}\}/g)) {
+      for (const [, id] of template.result.matchAll(
+        /\{\{result:([^{}]+)\}\}/g,
+      )) {
         const subTable = context.lookup(id);
         if (subTable == null) {
           throw new Error(`missing subtable ${id} in ${this.table.id}`);

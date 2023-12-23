@@ -104,4 +104,12 @@ describe("matchTables", () => {
     `),
     ).toMatchObject([{ header: ["asd", "bsd"] }, { header: ["2sd", "2sd"] }]);
   });
+
+  it("finds a table in a markdown file", () => {
+    expect(
+      matchTables(
+        "---\nforged: inline-oracle\n---\n| dice: 1d6 | Result | \n| --------- | ------ | \n| 1-2       | [Action](id:asdf/asdf) |\n| 3-4       | [Theme](id:asdf) |\n| 5-6       | Just foo |\n",
+      ),
+    ).toHaveLength(1);
+  });
 });
