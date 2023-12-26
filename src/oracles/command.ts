@@ -67,11 +67,28 @@ export async function runOracleCommand(
     oracle,
     undefined,
     (roll) => {
+      const [firstSelection, ...restSelections] = editor.listSelections();
+      if (!firstSelection) {
+        throw new Error("no selection, can't insert!");
+      }
+      if (restSelections.length > 0) {
+        console.warn("found extra selections when inserting oracle");
+      }
+      const earliestLineNo = Math.min(
+        firstSelection.anchor.line,
+        firstSelection.head.line,
+      );
+      let prefix = "";
+      if (earliestLineNo > 0) {
+        if (editor.getLine(earliestLineNo - 1) !== "") {
+          prefix = "\n";
+        }
+      }
       if (USE_ORACLE_BLOCK) {
-        editor.replaceSelection(formatOracleBlock({ roll }));
+        editor.replaceSelection(prefix + formatOracleBlock({ roll }));
       } else {
         editor.replaceSelection(
-          renderOracleCallout({ roll: roll.dehydrate() }),
+          prefix + renderOracleCallout({ roll: roll.dehydrate() }),
         );
       }
     },

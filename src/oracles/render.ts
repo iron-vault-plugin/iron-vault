@@ -99,9 +99,9 @@ export function renderRollPath(roll: RollSchema): string {
 
 export function renderOracleCallout(oracle: OracleSchema): string {
   const { roll, question } = oracle;
-  return `> [!oracle] ${question ?? "Ask the Oracle"}: ${roll.results.join(
-    "; ",
-  )} %%${renderRollPath(roll)}%%\n>\n\n`;
+  return `> [!oracle] ${question ?? "Ask the Oracle"} (${
+    roll.tableName
+  }): ${roll.results.join("; ")} %%${renderRollPath(roll)}%%\n>\n\n`;
 }
 
 export function renderDetailedOracleCallout(oracle: OracleSchema): string {
