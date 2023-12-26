@@ -87,7 +87,7 @@ export function dehydrateRoll(
     }
     case "templated": {
       const templateRolls: Record<string, RollSchema> = {};
-      const templateString = row.template?.Result;
+      const templateString = row.template?.result;
       if (templateString == null) {
         throw new Error(
           `expected template result for ${row.id} of ${table.id}`,
@@ -105,10 +105,13 @@ export function dehydrateRoll(
         templateRolls,
         templateString,
         results: [
-          templateString.replace(/\{\{([^{}]+)\}\}/g, (_: any, id: string) => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return templateRolls[id].results.join("; ");
-          }),
+          templateString.replace(
+            /\{\{result:([^{}]+)\}\}/g,
+            (_: any, id: string) => {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              return templateRolls[id].results.join("; ");
+            },
+          ),
         ],
       };
     }

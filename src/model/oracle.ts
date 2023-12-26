@@ -1,3 +1,4 @@
+import { OracleRollTemplate } from "@datasworn/core";
 import { Roll } from "./rolls";
 
 export interface RollContext {
@@ -20,8 +21,9 @@ export interface Oracle {
   variants(context: RollContext, roll: Roll): Record<string, Roll>;
 }
 
+// TODO: template currently relies on re-exporting datasworn
 export interface OracleRow {
-  readonly template: any;
+  readonly template: OracleRollTemplate | undefined;
   readonly id: string;
   readonly result: string;
 }
