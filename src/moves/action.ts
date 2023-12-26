@@ -6,16 +6,16 @@ import {
   type FuzzyMatch,
   type MarkdownView,
 } from "obsidian";
-import { IronswornCharacterMetadata } from "./character";
-import { type CharacterTracker } from "./character-tracker";
-import { type Datastore } from "./datastore";
+import { IronswornCharacterMetadata } from "../character";
+import { type CharacterTracker } from "../character-tracker";
+import { type Datastore } from "../datastore";
+import { randomInt } from "../utils/dice";
+import { CustomSuggestModal } from "../utils/suggest";
 import {
   type ActionMoveDescription,
   type MoveDescription,
   type ProgressMoveDescription,
-} from "./move-desc";
-import { randomInt } from "./utils/dice";
-import { CustomSuggestModal } from "./utils/suggest";
+} from "./desc";
 
 enum MoveKind {
   Progress = "Progress",
@@ -62,7 +62,10 @@ const promptForMove = async (app: App, moves: Move[]): Promise<Move> =>
     (move) => move.name,
     ({ item: move, match }: FuzzyMatch<Move>, el: HTMLElement) => {
       const moveKind = getMoveKind(move);
-      el.createEl("small", { text: `(${moveKind}) ${move.trigger.text}` });
+      el.createEl("small", {
+        text: `(${moveKind}) ${move.trigger.text}`,
+        cls: "forged-suggest-hint",
+      });
     },
   );
 

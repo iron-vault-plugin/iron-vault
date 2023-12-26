@@ -5,19 +5,19 @@ import {
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
-import { registerOracleBlock } from "oracles/render";
+import { IronswornCharacterMetadata } from "./character";
+import { CharacterTracker } from "./character-tracker";
+import { Datastore } from "./datastore";
+import { runMoveCommand } from "./moves/action";
+import { registerMoveBlock } from "./moves/block";
+import { runOracleCommand } from "./oracles/command";
+import { registerOracleBlock } from "./oracles/render";
 import {
   DEFAULT_SETTINGS,
   ForgedPluginSettings,
   ForgedSettingTab,
-} from "settings/ui";
-import { pluginAsset } from "utils/obsidian";
-import { IronswornCharacterMetadata } from "./character";
-import { CharacterTracker } from "./character-tracker";
-import { Datastore } from "./datastore";
-import { runMoveCommand } from "./move-action";
-import { registerMoveBlock } from "./move-block";
-import { runOracleCommand } from "./oracles/command";
+} from "./settings/ui";
+import { pluginAsset } from "./utils/obsidian";
 import { CustomSuggestModal } from "./utils/suggest";
 
 export default class ForgedPlugin extends Plugin {

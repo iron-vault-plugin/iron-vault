@@ -34,3 +34,14 @@ export const MoveDescriptionSchema = z.union([
 ]);
 
 export type MoveDescription = z.infer<typeof MoveDescriptionSchema>;
+export function moveIsAction(
+  move: MoveDescription,
+): move is ActionMoveDescription {
+  return (move as ActionMoveDescription).action !== undefined;
+}
+
+export function moveIsProgress(
+  move: MoveDescription,
+): move is ActionMoveDescription {
+  return (move as ProgressMoveDescription).progressTrack !== undefined;
+}

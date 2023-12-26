@@ -1,76 +1,24 @@
 import {
-  MarkdownRenderer,
-  type Plugin,
-  parseYaml,
   MarkdownRenderChild,
+  MarkdownRenderer,
+  parseYaml,
   type App,
+  type Plugin,
 } from "obsidian";
 import {
   MoveDescriptionSchema,
+  moveIsAction,
+  moveIsProgress,
   type ActionMoveDescription,
   type MoveDescription,
   type ProgressMoveDescription,
-} from "./move-desc";
-
-export function moveIsAction(
-  move: MoveDescription,
-): move is ActionMoveDescription {
-  return (move as ActionMoveDescription).action !== undefined;
-}
-
-export function moveIsProgress(
-  move: MoveDescription,
-): move is ActionMoveDescription {
-  return (move as ProgressMoveDescription).progressTrack !== undefined;
-}
-
-enum RollResult {
-  StrongHit,
-  WeakHit,
-  Miss,
-}
-
-abstract class MoveWrapper<T extends MoveDescription> {
-  public readonly move: T;
-
-  public constructor(move: T) {
-    this.move = move;
-  }
-
-  abstract get score(): number;
-
-  public isMatch(): boolean {
-    return this.move.challenge1 === this.move.challenge2;
-  }
-
-  public result(): RollResult {
-    const move = this.move;
-    const actionScore = this.score;
-
-    if (actionScore > move.challenge1 && actionScore > move.challenge2) {
-      return RollResult.StrongHit;
-    } else if (
-      actionScore <= move.challenge1 &&
-      actionScore <= move.challenge2
-    ) {
-      return RollResult.Miss;
-    } else {
-      return RollResult.WeakHit;
-    }
-  }
-}
-
-class ActionMoveWrapper extends MoveWrapper<ActionMoveDescription> {
-  public get score(): number {
-    return Math.min(this.move.action + this.move.statVal + this.move.adds, 10);
-  }
-}
-
-class ProgressMoveWrapper extends MoveWrapper<ProgressMoveDescription> {
-  public get score(): number {
-    return Math.floor(this.move.progressTicks / 4);
-  }
-}
+} from "./desc";
+import {
+  ActionMoveWrapper,
+  MoveWrapper,
+  ProgressMoveWrapper,
+  RollResult,
+} from "./wrapper";
 
 export function registerMoveBlock(plugin: Plugin): void {
   plugin.registerMarkdownCodeBlockProcessor("move", async (source, el, ctx) => {
