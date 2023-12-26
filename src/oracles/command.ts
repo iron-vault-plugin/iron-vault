@@ -29,7 +29,7 @@ export function formatOracleBlock({
 
 const USE_ORACLE_BLOCK = false;
 
-export function formatOraclePath(oracle: Oracle) {
+export function formatOraclePath(oracle: Oracle): string {
   let current = oracle.parent;
   const path = [];
   while (
@@ -40,7 +40,18 @@ export function formatOraclePath(oracle: Oracle) {
     current = current.parent;
   }
   path.push(oracle.name);
-  return `${path.join(" / ")} (${current?.name ?? "Unknown"})`;
+  return `${path.join(" / ")}`;
+}
+
+export function oracleRuleset(oracle: Oracle): string {
+  let current = oracle.parent;
+  while (
+    current != null &&
+    current.grouping_type !== OracleGroupingType.Ruleset
+  ) {
+    current = current.parent;
+  }
+  return current?.name ?? "Unknown";
 }
 
 export async function runOracleCommand(
@@ -58,6 +69,10 @@ export async function runOracleCommand(
     app,
     oracles,
     formatOraclePath,
+    (match, el) => {
+      const ruleset = oracleRuleset(match.item);
+      el.createEl("small", { text: ruleset, cls: "forged-suggest-hint" });
+    },
   );
   console.log(oracle);
   const rollContext = new OracleRoller(datastore.oracles);

@@ -6,6 +6,9 @@
     --color-code: 255, 255, 255;
 }
 
+.forged-suggest-hint {
+    color: var(--color-base-50);
+}
 
 /* New Callout Types Start Here */
 
