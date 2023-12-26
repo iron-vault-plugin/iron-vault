@@ -152,7 +152,7 @@ export class DataswornOracle implements Oracle {
   variants(context: RollContext, roll: Roll): Record<string, Roll> {
     const dice = this.dice();
     return {
-      flip: this.evaluate(context, dice.maxRoll() - roll.roll),
+      flip: this.evaluate(context, dice.flip(roll.roll)),
     };
   }
 }

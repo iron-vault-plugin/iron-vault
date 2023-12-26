@@ -36,4 +36,8 @@ export class Dice {
   maxRoll(): number {
     return this.count * this.sides;
   }
+
+  flip(roll: number): number {
+    return this.maxRoll() - roll + 1;
+  }
 }

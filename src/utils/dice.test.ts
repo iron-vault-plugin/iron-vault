@@ -5,4 +5,12 @@ it("parses and rolls", () => {
   expect(dice.count).toBe(3);
   expect(dice.sides).toBe(4);
   expect(dice.roll()).toBeGreaterThanOrEqual(3);
+  expect(dice.maxRoll()).toBe(12);
+});
+
+it("flips values", () => {
+  const dice = Dice.fromDiceString("3d4");
+  expect(dice.flip(12)).toBe(1);
+  expect(dice.flip(1)).toBe(12);
+  expect(dice.flip(6)).toBe(7);
 });
