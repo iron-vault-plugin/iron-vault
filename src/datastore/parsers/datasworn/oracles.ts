@@ -1,14 +1,17 @@
 import { OracleRollable } from "@datasworn/core";
-import { Oracle, OracleRow, RollContext } from "../../../model/oracle";
+import {
+  Oracle,
+  OracleGrouping,
+  OracleRow,
+  RollContext,
+} from "../../../model/oracle";
 import { Roll, sameRoll } from "../../../model/rolls";
 import { Dice } from "../../../utils/dice";
 
 export class DataswornOracle implements Oracle {
   constructor(
     protected table: OracleRollable,
-    public readonly parentId: string,
-    public readonly category: string,
-    protected namePrefix?: string,
+    public readonly parent: OracleGrouping,
   ) {}
   row(id: string): OracleRow | undefined {
     const rawRow = this.table.rows.find((row) => row.id === id);
@@ -17,9 +20,7 @@ export class DataswornOracle implements Oracle {
       : undefined;
   }
   get name(): string {
-    return this.namePrefix
-      ? `${this.namePrefix}: ${this.table.name}`
-      : this.table.name;
+    return this.table.name;
   }
 
   get id(): string {

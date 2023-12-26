@@ -5,7 +5,7 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { type Datastore } from "../datastore";
-import { Oracle } from "../model/oracle";
+import { Oracle, OracleGroupingType } from "../model/oracle";
 import { RollWrapper } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
@@ -29,6 +29,20 @@ export function formatOracleBlock({
 
 const USE_ORACLE_BLOCK = false;
 
+export function formatOraclePath(oracle: Oracle) {
+  let current = oracle.parent;
+  const path = [];
+  while (
+    current != null &&
+    current.grouping_type != OracleGroupingType.Ruleset
+  ) {
+    path.unshift(current.name);
+    current = current.parent;
+  }
+  path.push(oracle.name);
+  return `${path.join(" / ")} (${current?.name ?? "Unknown"})`;
+}
+
 export async function runOracleCommand(
   app: App,
   datastore: Datastore,
@@ -43,7 +57,7 @@ export async function runOracleCommand(
   const oracle = await CustomSuggestModal.select(
     app,
     oracles,
-    (oracle) => oracle.category,
+    formatOraclePath,
   );
   console.log(oracle);
   const rollContext = new OracleRoller(datastore.oracles);

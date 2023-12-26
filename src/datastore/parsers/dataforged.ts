@@ -1,6 +1,12 @@
 import { Asset, Move, OracleCollection, RulesPackage } from "@datasworn/core";
 import { DataIndex } from "../../datastore/data-index";
-import { Oracle } from "../../model/oracle";
+import {
+  Oracle,
+  OracleCollectionGrouping,
+  OracleGrouping,
+  OracleGroupingType,
+  OracleRulesetGrouping,
+} from "../../model/oracle";
 import { DataswornOracle } from "./datasworn/oracles";
 
 export function indexDataForgedData(
@@ -29,51 +35,45 @@ type OracleMap = Map<string, Oracle>;
 
 export function indexIntoOracleMap(data: RulesPackage): OracleMap {
   const index: OracleMap = new Map();
-  function expand(collection: OracleCollection, pathPrefix: string[]): void {
+  function expand(collection: OracleCollection, parent: OracleGrouping): void {
+    let newParent: OracleCollectionGrouping = {
+      grouping_type: OracleGroupingType.Collection,
+      name: collection.name,
+      parent,
+      id: collection.id,
+    };
+    // TODO: do we need/want to handle any of these differently? Main thing might be
+    // different grouping types, so we can adjust display in some cases?
+    // Like, grouping Ask The Oracle results-- but then we'd need to index Ask The Oracle
+    // instead of the individual tables
     switch (collection.oracle_type) {
       case "tables":
-        if (collection.contents != null) {
-          for (const [_name, oracle] of Object.entries(collection.contents)) {
-            index.set(
-              oracle.id,
-              new DataswornOracle(
-                oracle,
-                collection.id,
-                pathPrefix.join(" / "),
-              ),
-            );
-          }
-        }
-        break;
-      // TODO: maybe instead of expanding these tables out, we can support nesting in the menu
-      // e.g., you pick Ask The Oracle -> then you pick the odds
       case "table_shared_results":
       case "table_shared_rolls":
       case "table_shared_details":
         if (collection.contents != null) {
           for (const [_name, oracle] of Object.entries(collection.contents)) {
-            index.set(
-              oracle.id,
-              new DataswornOracle(
-                oracle,
-                collection.id,
-                pathPrefix.join(" / "),
-                collection.name,
-              ),
-            );
+            index.set(oracle.id, new DataswornOracle(oracle, newParent));
           }
         }
+
         break;
     }
 
     if ("collections" in collection) {
       for (const [, set] of Object.entries(collection.collections ?? {})) {
-        expand(set, [...pathPrefix, set.name]);
+        expand(set, newParent);
       }
     }
   }
+  const rootGrouping: OracleRulesetGrouping = {
+    id: data.id,
+    name: data.title ?? data.id,
+    grouping_type: OracleGroupingType.Ruleset,
+  };
+
   for (const [, set] of Object.entries(data.oracles ?? {})) {
-    expand(set, [set.name]);
+    expand(set, rootGrouping);
   }
   return index;
 }

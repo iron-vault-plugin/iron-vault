@@ -5,11 +5,30 @@ export interface RollContext {
   lookup(id: string): Oracle | undefined;
 }
 
+export enum OracleGroupingType {
+  Ruleset = "ruleset",
+  Collection = "collection",
+}
+
+export interface OracleCollectionGrouping {
+  readonly grouping_type: OracleGroupingType.Collection;
+  readonly id: string;
+  readonly parent: OracleGrouping;
+  readonly name: string;
+}
+
+export interface OracleRulesetGrouping {
+  readonly grouping_type: OracleGroupingType.Ruleset;
+  readonly id: string;
+  readonly name: string;
+}
+
+export type OracleGrouping = OracleRulesetGrouping | OracleCollectionGrouping;
+
 export interface Oracle {
   readonly id: string;
   readonly name: string;
-  readonly parentId: string | null;
-  readonly category: string;
+  readonly parent: OracleGrouping;
 
   row(id: string): OracleRow | undefined;
 
