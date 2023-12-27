@@ -116,6 +116,8 @@ export class DataswornOracle implements Oracle {
                 results.find((otherRoll) => sameRoll(roll, otherRoll)) != null
               ) {
                 console.log("duplicate roll skipped", results, roll);
+              } else {
+                results.push(roll);
               }
               break;
             case "make_it_worse":
@@ -126,6 +128,7 @@ export class DataswornOracle implements Oracle {
               );
             case "keep":
               results.push(roll);
+              break;
             default:
               throw new Error("unexpected duplicate type");
           }
