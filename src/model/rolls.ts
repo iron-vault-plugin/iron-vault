@@ -13,8 +13,36 @@ export interface Roll {
   /**
    * Subsidiary result rolls
    */
-  subrolls: Roll[];
+  subrolls?: Record<string, Roll[]>;
 }
+
+export function recordsEqual<T>(
+  eq: (arg1: T, arg2: T) => boolean,
+): (arg1: Record<string, T>, arg2: Record<string, T>) => boolean {
+  return (arg1, arg2) => {
+    const keys1 = Object.keys(arg1);
+    const keys2 = Object.keys(arg2);
+    if (keys1.length !== keys2.length) return false;
+
+    for (const key of keys1) {
+      if (!(key in arg2)) return false;
+      if (!eq(arg1[key], arg2[key])) return false;
+    }
+
+    return true;
+  };
+}
+
+export function sameElementsInArray<T>(
+  eq: (arg1: T, arg2: T) => boolean,
+): (arg1: T[], arg2: T[]) => boolean {
+  return (arg1, arg2) => {
+    if (arg1.length !== arg2.length) return false;
+    return arg1.every((val1) => arg2.find((val2) => eq(val1, val2)));
+  };
+}
+
+export const subrollsEqual = recordsEqual(sameElementsInArray(sameRoll));
 
 export function sameRoll(roll1: Roll, roll2: Roll): boolean {
   // Rolls must have the same table, row
@@ -23,13 +51,7 @@ export function sameRoll(roll1: Roll, roll2: Roll): boolean {
 
   // If subrolls are present, rolls are the same if they have the same number of subrolls
   // and each subroll is present in the other list
-  return (
-    roll1.subrolls.length === roll2.subrolls.length &&
-    roll1.subrolls.every(
-      (subroll1) =>
-        roll2.subrolls.find((subroll2) => sameRoll(subroll1, subroll2)) != null,
-    )
-  );
+  return subrollsEqual(roll1.subrolls ?? {}, roll2.subrolls ?? {});
 }
 
 export function dehydrateRoll(
