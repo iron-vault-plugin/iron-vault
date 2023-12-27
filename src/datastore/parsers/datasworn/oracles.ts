@@ -86,10 +86,11 @@ export class DataswornOracle implements Oracle {
       const subrolls = row.oracle_rolls.flatMap((subOracle) => {
         if (!subOracle.auto) {
           console.warn(
-            "[oracles] [table: %s] oracle_rolls contains non-auto entry %s",
+            "[oracles] [table: %s] ignoring auto=false oracle_rolls entry %s",
             this.id,
             subOracle.oracle,
           );
+          return [];
         }
         let subrollable: Oracle | undefined =
           subOracle.oracle == null ? this : context.lookup(subOracle.oracle);
