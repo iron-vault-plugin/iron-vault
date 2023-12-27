@@ -25,7 +25,7 @@ export function sameRoll(roll1: Roll, roll2: Roll): boolean {
   if (
     roll1.kind !== roll2.kind ||
     roll1.tableId !== roll2.tableId ||
-    roll1.rowId !== roll2.tableId
+    roll1.rowId !== roll2.rowId
   )
     return false;
 
