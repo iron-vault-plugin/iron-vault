@@ -1,3 +1,6 @@
+Datasworn:
+  ☐ Validate against datasworn schema
+
 Oracles:
   ✔ better formatting for complex results @done(23-10-03 16:21)
   ✔ oracle block should encode enough info that it doesn't need original tables @done(23-10-03 14:30)
@@ -16,19 +19,24 @@ Entity generation:
   ☐ Create a faction from a template? Maybe the ability to include oracle rolls in a template using templater? @high
 
 Moves:
+  Move modal:
+    ✔ Burn momentum @done(23-12-27 05:49)
   Move stats:
     ☐ Highlight suggested stats (based on move triggers)
     ☐ Incorporate asset modifications into suggested stats
   Move render:
     ☐ Display outcome information in move renderer (or make it possible to show it on mouseover?)
 
-
 Characters:
+  Core:
+    ☐ Validate schema
   ☐ deal with multiple characters (find all of the places where i just hardcode to taking first)
   ✔ Manage momentum @done(23-10-02 16:23)
   ☐ Abstract out deriving stats and meters from the datasworn ruleset information
     This might mean we remove the static compile time stat info, but tbh that's fine. Only momentum
     is special, and the datasworn info doesn't even include momentum.
+  Assets:
+    ☐ Add asset tracks to track list
 
 Other:
   ☐ Investigate using https://eemeli.org/yaml/#yaml to manipulate frontmatter without rewriting

@@ -5,6 +5,7 @@ import {
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
+import { ForgedAPI } from "./api";
 import { IronswornCharacterMetadata } from "./character";
 import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
@@ -24,6 +25,7 @@ export default class ForgedPlugin extends Plugin {
   settings: ForgedPluginSettings;
   datastore: Datastore;
   tracker: CharacterTracker;
+  api: ForgedAPI;
 
   private initialize(): void {
     this.tracker.initialize();
@@ -48,12 +50,7 @@ export default class ForgedPlugin extends Plugin {
       this.app.workspace.onLayoutReady(() => this.initialize());
     }
 
-    window.ForgedAPI = {
-      datastore: this.datastore,
-      tracker: this.tracker,
-      // formatOracleBlock,
-      // dehydrateRoll,
-    };
+    window.ForgedAPI = this.api = new ForgedAPI(this.datastore, this.tracker);
     this.register(() => delete window.ForgedAPI);
 
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.

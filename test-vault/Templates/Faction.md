@@ -1,19 +1,23 @@
 ---
 <%*
 const api = window.ForgedAPI;
-const nameRoll = api.datastore.roller.roll('starforged/oracles/factions/name/template');
-const name = api.dehydrateRoll(nameRoll).results[0];
+const nameRoll = api.roll('starforged/oracles/factions/name/template');
+const name = nameRoll.simpleResult;
 await tp.file.rename(name)
+
+const factionTypeRoll = api.roll('starforged/oracles/factions/type');
 -%>
 name: <% name %>
+tags:
+  - faction
+faction_type: <% faction_type %>
 ---
 
 > [!INFO] Faction Attributes
 > Name: `= this.name`
 
-
 ## Appendix
 
 ### Oracle Rolls
 
-<% api.formatOracleBlock({roll: nameRoll, question: "Faction name:"}) %>
+<% api.formatOracleBlock({roll: nameRoll, question: "Faction name"}) %>

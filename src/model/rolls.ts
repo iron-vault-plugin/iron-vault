@@ -119,6 +119,8 @@ export function dehydrateRoll(
 }
 
 export class RollWrapper {
+  private _dehydrated?: RollSchema;
+
   constructor(
     public readonly oracle: Oracle,
     public readonly context: RollContext,
@@ -134,7 +136,14 @@ export class RollWrapper {
   }
 
   dehydrate(): RollSchema {
-    return dehydrateRoll(this.context, this.roll);
+    return (
+      this._dehydrated ||
+      (this._dehydrated = dehydrateRoll(this.context, this.roll))
+    );
+  }
+
+  get simpleResult(): string {
+    return this.dehydrate().results.join(", ");
   }
 
   reroll(): RollWrapper {
