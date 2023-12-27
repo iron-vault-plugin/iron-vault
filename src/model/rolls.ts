@@ -2,52 +2,34 @@ import { RollSchema } from "../oracles/schema";
 import { Oracle, RollContext } from "./oracle";
 
 // TODO: better reference for origin of roll?
-export interface BaseRoll {
-  kind: "simple" | "multi" | "templated";
+export interface Roll {
+  /**
+   * Dice roll corresponding to table
+   */
   roll: number;
   tableId: string;
   rowId: string;
+
+  /**
+   * Subsidiary result rolls
+   */
+  subrolls: Roll[];
 }
-export interface SimpleRoll extends BaseRoll {
-  kind: "simple";
-}
-export interface MultiRoll extends BaseRoll {
-  kind: "multi";
-  results: Roll[];
-}
-export interface TemplatedRoll extends BaseRoll {
-  kind: "templated";
-  templateRolls: Map<string, Roll>;
-}
-export type Roll = SimpleRoll | MultiRoll | TemplatedRoll;
 
 export function sameRoll(roll1: Roll, roll2: Roll): boolean {
-  if (
-    roll1.kind !== roll2.kind ||
-    roll1.tableId !== roll2.tableId ||
-    roll1.rowId !== roll2.rowId
-  )
+  // Rolls must have the same table, row
+  if (roll1.tableId !== roll2.tableId || roll1.rowId !== roll2.rowId)
     return false;
 
-  if (roll1.kind === "multi" && roll2.kind === "multi") {
-    // Two multi rolls are the same if they have the same length and each subroll is
-    // present in the other
-    return (
-      roll1.results.length === roll2.results.length &&
-      roll1.results.every(
-        (subroll1) =>
-          roll2.results.find((subroll2) => sameRoll(subroll1, subroll2)) !=
-          null,
-      )
-    );
-  } else if (roll1.kind === "templated" && roll2.kind === "templated") {
-    for (const [k1, v1] of roll1.templateRolls) {
-      const v2 = roll2.templateRolls.get(k1);
-      if (v2 == null || !sameRoll(v1, v2)) return false;
-    }
-  }
-  // a simple roll -- these must be the same
-  return true;
+  // If subrolls are present, rolls are the same if they have the same number of subrolls
+  // and each subroll is present in the other list
+  return (
+    roll1.subrolls.length === roll2.subrolls.length &&
+    roll1.subrolls.every(
+      (subroll1) =>
+        roll2.subrolls.find((subroll2) => sameRoll(subroll1, subroll2)) != null,
+    )
+  );
 }
 
 export function dehydrateRoll(

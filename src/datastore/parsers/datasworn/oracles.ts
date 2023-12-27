@@ -49,39 +49,8 @@ export class DataswornOracle implements Oracle {
     }
 
     console.log(row);
-    if (row.template != null) {
-      if (row.oracle_rolls != null) {
-        console.warn(
-          "Oracle %s row %s has both 'template' and 'oracle_rolls'",
-          this.table.id,
-          row.id,
-        );
-      }
-      const template = row.template;
-      // TODO: apparently also description and summary
-      if (template.result == null) {
-        throw new Error(`unhandled template for ${this.table.id}`);
-      }
-      const templateRolls = new Map<string, Roll>();
-      for (const [, id] of template.result.matchAll(
-        /\{\{result:([^{}]+)\}\}/g,
-      )) {
-        const subTable = context.lookup(id);
-        if (subTable == null) {
-          throw new Error(`missing subtable ${id} in ${this.table.id}`);
-        }
-        const subResult = subTable.roll(context);
-        templateRolls.set(id, subResult);
-      }
 
-      return {
-        kind: "templated",
-        templateRolls,
-        roll,
-        tableId: this.id,
-        rowId: row.id,
-      };
-    }
+    const subrolls: Roll[] = [];
     if (row.oracle_rolls != null) {
       const subrolls = row.oracle_rolls.flatMap((subOracle) => {
         if (!subOracle.auto) {
@@ -99,58 +68,71 @@ export class DataswornOracle implements Oracle {
             `missing oracle ${subOracle.oracle} referenced in ${this.id} Oracle rolls`,
           );
 
-        const results: Roll[] = [];
-        let iterations = 0;
-        while (results.length < subOracle.number_of_rolls) {
-          if (iterations++ >= 10) {
-            console.warn(
-              "[oracles] [table: %s] too many iterations for subroll %s",
-              this.id,
-              subOracle.oracle,
-            );
-            throw new Error("too many iterations");
-          }
-          const roll = subrollable.roll(context);
-          switch (subOracle.duplicates) {
-            case "reroll":
-              if (
-                results.find((otherRoll) => sameRoll(roll, otherRoll)) != null
-              ) {
-                console.log("duplicate roll skipped", results, roll);
-              } else {
-                results.push(roll);
-              }
-              break;
-            case "make_it_worse":
+          const results: Roll[] = [];
+          let iterations = 0;
+          while (results.length < subOracle.number_of_rolls) {
+            if (iterations++ >= 10) {
               console.warn(
-                "[oracles] [table: %s] found `make_it_worse` in subroll %s",
+                "[oracles] [table: %s] too many iterations for subroll %s",
                 this.id,
                 subOracle.oracle,
               );
-            case "keep":
-              results.push(roll);
-              break;
-            default:
-              throw new Error("unexpected duplicate type");
+              throw new Error("too many iterations");
+            }
+            const roll = subrollable.roll(context);
+            switch (subOracle.duplicates) {
+              case "reroll":
+                if (
+                  results.find((otherRoll) => sameRoll(roll, otherRoll)) != null
+                ) {
+                  console.log("duplicate roll skipped", results, roll);
+                } else {
+                  results.push(roll);
+                }
+                break;
+              case "make_it_worse":
+                console.warn(
+                  "[oracles] [table: %s] found `make_it_worse` in subroll %s",
+                  this.id,
+                  subOracle.oracle,
+                );
+              case "keep":
+                results.push(roll);
+                break;
+              default:
+                throw new Error("unexpected duplicate type");
+            }
           }
+
+          return results;
+        }),
+      );
+    }
+    if (row.template != null) {
+      const template = row.template;
+      // TODO: apparently also description and summary
+      if (template.result == null) {
+        throw new Error(`unhandled template for ${this.table.id}`);
+      }
+      for (const [, id] of template.result.matchAll(
+        /\{\{result:([^{}]+)\}\}/g,
+      )) {
+        let prevRoll = subrolls.find((roll) => roll.tableId == id);
+        if (!prevRoll) {
+          const subTable = context.lookup(id);
+          if (subTable == null) {
+            throw new Error(`missing subtable ${id} in ${this.table.id}`);
+          }
+          prevRoll = subTable.roll(context);
+          subrolls.push(prevRoll);
         }
-
-        return results;
-      });
-
-      return {
-        kind: "multi",
-        results: subrolls,
-        roll,
-        tableId: this.id,
-        rowId: row.id,
-      };
+      }
     }
     return {
-      kind: "simple",
       roll,
       tableId: this.id,
       rowId: row.id,
+      subrolls,
     };
   }
 
