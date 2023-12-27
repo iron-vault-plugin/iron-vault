@@ -1,4 +1,4 @@
-import { Move } from "@datasworn/core";
+import { Move, MoveActionRoll } from "@datasworn/core";
 import {
   stringifyYaml,
   type App,
@@ -11,11 +11,13 @@ import { type CharacterTracker } from "../character-tracker";
 import { type Datastore } from "../datastore";
 import { randomInt } from "../utils/dice";
 import { CustomSuggestModal } from "../utils/suggest";
+import { checkForMomentumBurn } from "./action-modal";
 import {
   type ActionMoveDescription,
   type MoveDescription,
   type ProgressMoveDescription,
 } from "./desc";
+import { ActionMoveWrapper } from "./wrapper";
 
 enum MoveKind {
   Progress = "Progress",
@@ -104,6 +106,14 @@ function moveTemplate(move: MoveDescription): string {
   return `\`\`\`move\n${stringifyYaml(move)}\n\`\`\`\n\n`;
 }
 
+export function validAdds(baseStat: number): number[] {
+  const adds = [];
+  for (let add = 0; 1 + baseStat + add <= 10; add++) {
+    adds.push(add);
+  }
+  return adds;
+}
+
 export async function runMoveCommand(
   app: App,
   datastore: Datastore,
@@ -121,11 +131,11 @@ export async function runMoveCommand(
     console.error("No characters found");
     return;
   }
-  const [character] = characters.values();
+  const [[characterPath, rawCharacter]] = characters.entries();
 
-  const allMoves = datastore.moves.concat(
-    character.as(IronswornCharacterMetadata).moves,
-  );
+  const character = rawCharacter.as(IronswornCharacterMetadata);
+
+  const allMoves = datastore.moves.concat(character.moves);
 
   const move = await promptForMove(
     app,
@@ -133,23 +143,35 @@ export async function runMoveCommand(
   );
   const moveKind = getMoveKind(move);
   if (moveKind === MoveKind.Action) {
-    const measures = character.as(IronswornCharacterMetadata).measures;
+    const measures = character.measures;
     const stat = await CustomSuggestModal.select(
       app,
       measures.entries(),
       (m) => `${m.definition.label}: ${m.value ?? "missing (defaults to 0)"}`,
     );
+
     const adds = await CustomSuggestModal.select(
       app,
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      validAdds(stat.value ?? 0),
       (n) => n.toString(10),
     );
-    const description = processActionMove(
-      move,
-      stat.key,
-      stat.value ?? 0,
-      adds,
+    let description = processActionMove(move, stat.key, stat.value ?? 0, adds);
+    const wrapper = new ActionMoveWrapper(description);
+    description = await checkForMomentumBurn(
+      app,
+      move as MoveActionRoll,
+      wrapper,
+      character,
     );
+    if (description.burn) {
+      await tracker.updateCharacter(
+        characterPath,
+        IronswornCharacterMetadata,
+        (character) => {
+          return character.measures.set("momentum", character.momentumReset);
+        },
+      );
+    }
     editor.replaceSelection(moveTemplate(description));
   } else if (moveKind === MoveKind.Progress) {
     const progressTrack = await CustomSuggestModal.select(

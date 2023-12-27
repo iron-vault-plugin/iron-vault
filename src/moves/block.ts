@@ -18,6 +18,7 @@ import {
   MoveWrapper,
   ProgressMoveWrapper,
   RollResult,
+  formatRollResult,
 } from "./wrapper";
 
 export function registerMoveBlock(plugin: Plugin): void {
@@ -88,7 +89,7 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
 
   actionTemplate(move: ActionMoveDescription): string {
     const wrap = new ActionMoveWrapper(move);
-    return `> [!${this.calloutForResult(wrap.result())}] ${move.name}: ${
+    let display = `> [!${this.calloutForResult(wrap.result())}] ${move.name}: ${
       move.stat
     } + ${move.adds}: ${this.labelForResult(wrap)}
 > ${move.action} + ${move.statVal} + ${move.adds} = ${
@@ -96,6 +97,12 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
     }
 > vs ${move.challenge1} and ${move.challenge2}
 >`;
+    if (move.burn) {
+      display += ` burned momentum (${move.burn.orig} -> ${
+        move.burn.reset
+      }) to upgrade from ${formatRollResult(wrap.originalResult())}\n>`;
+    }
+    return display;
   }
 
   progressTemplate(move: ProgressMoveDescription): string {

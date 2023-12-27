@@ -7,9 +7,9 @@ import {
 } from "./desc";
 
 export enum RollResult {
-  StrongHit,
-  WeakHit,
   Miss,
+  WeakHit,
+  StrongHit,
 }
 
 export enum MoveKind {
@@ -45,8 +45,12 @@ export abstract class MoveWrapper<T extends MoveDescription> {
   }
 
   public result(): RollResult {
-    const move = this.move;
     const actionScore = this.score;
+    return this.resultWithActionScore(actionScore);
+  }
+
+  public resultWithActionScore(actionScore: number): RollResult {
+    const move = this.move;
 
     if (actionScore > move.challenge1 && actionScore > move.challenge2) {
       return RollResult.StrongHit;
@@ -63,7 +67,15 @@ export abstract class MoveWrapper<T extends MoveDescription> {
 
 export class ActionMoveWrapper extends MoveWrapper<ActionMoveDescription> {
   public get score(): number {
+    return this.move.burn?.orig ?? this.actionScore;
+  }
+
+  public get actionScore(): number {
     return Math.min(this.move.action + this.move.statVal + this.move.adds, 10);
+  }
+
+  public originalResult(): RollResult {
+    return this.resultWithActionScore(this.actionScore);
   }
 
   public get kind(): MoveKind {
@@ -78,5 +90,15 @@ export class ProgressMoveWrapper extends MoveWrapper<ProgressMoveDescription> {
 
   public get kind(): MoveKind {
     return MoveKind.Progress;
+  }
+}
+export function formatRollResult(roll: RollResult): string {
+  switch (roll) {
+    case RollResult.StrongHit:
+      return "Strong Hit";
+    case RollResult.WeakHit:
+      return "Weak Hit";
+    case RollResult.Miss:
+      return "Miss";
   }
 }

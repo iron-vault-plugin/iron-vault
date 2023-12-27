@@ -6,6 +6,11 @@ const BaseMoveDescriptionSchema = z.object({
 
 // type BaseMoveDescription = z.infer<typeof BaseMoveDescriptionSchema>;
 
+const BurnSchema = z.object({
+  orig: z.number().int(),
+  reset: z.number().int(),
+});
+
 const ActionMoveDescriptionSchema = BaseMoveDescriptionSchema.extend({
   action: z.number().int(),
   stat: z.string(),
@@ -13,6 +18,7 @@ const ActionMoveDescriptionSchema = BaseMoveDescriptionSchema.extend({
   adds: z.number().int(),
   challenge1: z.number().int(),
   challenge2: z.number().int(),
+  burn: z.optional(BurnSchema),
 });
 
 export type ActionMoveDescription = z.infer<typeof ActionMoveDescriptionSchema>;

@@ -8,8 +8,9 @@ iron: "3"
 momentum: 2
 health: 7
 assets:
- - id: starforged/assets/path/empath
-   marked_abilities: [1]
+  - id: starforged/assets/path/empath
+    marked_abilities:
+      - 1
 ---
 
 asdf
