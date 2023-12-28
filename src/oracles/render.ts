@@ -69,30 +69,20 @@ function renderDetails(roll: RollSchema): string {
   let result = `${roll.tableName} (${roll.roll}: ${
     roll.raw ?? roll.results[0]
   })`;
-  switch (roll.kind) {
-    case "multi":
-      result += ` -> (${roll.rolls.map(renderDetails).join(", ")})`;
-      break;
-    case "templated":
-      result += ` -> (${Object.values(roll.templateRolls)
-        .map(renderDetails)
-        .join(", ")})`;
-      break;
+  const subrolls = Object.values(roll.subrolls ?? {});
+  if (subrolls.length > 0) {
+    result += ` -> (${subrolls
+      .flatMap((sr) => sr.map(renderDetails))
+      .join(", ")})`;
   }
   return result;
 }
 
 export function renderRollPath(roll: RollSchema): string {
   let result = `${roll.tableId}:${roll.roll}`;
-  switch (roll.kind) {
-    case "multi":
-      result += `(${roll.rolls.map(renderRollPath).join(",")})`;
-      break;
-    case "templated":
-      result += `(${Object.values(roll.templateRolls)
-        .map(renderRollPath)
-        .join(",")})`;
-      break;
+  const subrolls = Object.values(roll.subrolls ?? {});
+  if (subrolls.length > 0) {
+    result += `(${subrolls.flatMap((sr) => sr.map(renderRollPath)).join(",")})`;
   }
   return result;
 }

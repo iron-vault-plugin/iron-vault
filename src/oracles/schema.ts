@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const baseRollSchema = z.object({
+const coreRollSchema = z.object({
   /** numerical roll */
   roll: z.number().int().positive(),
 
@@ -17,30 +17,33 @@ const baseRollSchema = z.object({
   results: z.string().array(),
 });
 
+const baseRollSchema = coreRollSchema.extend({
+  /** Sub rolls */
+  subrolls: z.lazy(() => z.record(z.string(), z.array(rollSchema)).optional()),
+});
+
+type BaseRollSchema = z.infer<typeof coreRollSchema> & {
+  subrolls?: Record<string, RollSchema[]>;
+};
+
 const simpleRollSchema = baseRollSchema.extend({ kind: z.literal("simple") });
 
-type SimpleRollSchema = z.infer<typeof simpleRollSchema>;
+type SimpleRollSchema = BaseRollSchema & { kind: "simple" };
 
-export type MultiRollSchema = z.infer<typeof baseRollSchema> & {
-  kind: "multi";
-  rolls: RollSchema[];
-};
+export type MultiRollSchema = BaseRollSchema & { kind: "multi" };
 
 export const multiRollSchema = baseRollSchema.extend({
   kind: z.literal("multi"),
-  rolls: z.lazy(() => rollSchema.array()),
-}) satisfies z.ZodType<MultiRollSchema>;
+});
 
 export const templatedRollSchema = baseRollSchema.extend({
   kind: z.literal("templated"),
   templateString: z.string(),
-  templateRolls: z.lazy(() => z.record(rollSchema)),
-}) satisfies z.ZodType<TemplatedRollSchema>;
+});
 
-export type TemplatedRollSchema = z.infer<typeof baseRollSchema> & {
+export type TemplatedRollSchema = BaseRollSchema & {
   kind: "templated";
   templateString: string;
-  templateRolls: Record<string, RollSchema>;
 };
 
 export const rollSchema: z.ZodType<RollSchema> = z.discriminatedUnion("kind", [

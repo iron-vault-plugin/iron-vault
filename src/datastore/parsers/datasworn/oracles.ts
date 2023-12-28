@@ -5,7 +5,7 @@ import {
   OracleRow,
   RollContext,
 } from "../../../model/oracle";
-import { Roll, sameRoll } from "../../../model/rolls";
+import { Roll, RollResultKind, Subroll, sameRoll } from "../../../model/rolls";
 import { Dice } from "../../../utils/dice";
 
 export class DataswornOracle implements Oracle {
@@ -50,16 +50,65 @@ export class DataswornOracle implements Oracle {
 
     console.log(row);
 
-    const subrolls: Roll[] = [];
+    const subrolls: Record<string, Subroll<Roll>> = {};
+
+    let kind: RollResultKind | undefined;
+
+    if (row.template != null) {
+      const template = row.template;
+      // TODO: apparently also description and summary
+      if (template.result == null) {
+        throw new Error(`unhandled template for ${this.table.id}`);
+      }
+      kind = RollResultKind.Templated;
+      for (const [, id] of template.result.matchAll(
+        /\{\{result:([^{}]+)\}\}/g,
+      )) {
+        let prevRoll = subrolls[id];
+        if (!prevRoll) {
+          const subTable = context.lookup(id);
+          if (subTable == null) {
+            throw new Error(`missing subtable ${id} in ${this.table.id}`);
+          }
+          subrolls[id] = {
+            rolls: [subTable.roll(context)],
+            inTemplate: true,
+          };
+        }
+      }
+    }
     if (row.oracle_rolls != null) {
-      const subrolls = row.oracle_rolls.flatMap((subOracle) => {
+      for (const subOracle of row.oracle_rolls) {
+        const subOracleId = subOracle.oracle ?? this.id;
+        if (subOracleId in subrolls) {
+          console.warn(
+            "[oracles] [table: %s] already generated subrolls for %s. skipping...",
+            this.id,
+            subOracleId,
+          );
+          throw new Error("unexpected duplicate subroll");
+        }
+        if (subOracle.oracle == null) {
+          if (kind == null) {
+            kind = RollResultKind.Multi;
+          } else {
+            console.warn(
+              "[oracles] [table: %s] table has both template and self rolls",
+              this.id,
+              subOracleId,
+            );
+            throw new Error(
+              `table ${this.id} has both template and self rolls`,
+            );
+          }
+        }
         if (!subOracle.auto) {
           console.warn(
             "[oracles] [table: %s] ignoring auto=false oracle_rolls entry %s",
             this.id,
             subOracle.oracle,
           );
-          return [];
+          continue;
         }
         let subrollable: Oracle | undefined =
           subOracle.oracle == null ? this : context.lookup(subOracle.oracle);
@@ -68,67 +117,48 @@ export class DataswornOracle implements Oracle {
             `missing oracle ${subOracle.oracle} referenced in ${this.id} Oracle rolls`,
           );
 
-          const results: Roll[] = [];
-          let iterations = 0;
-          while (results.length < subOracle.number_of_rolls) {
-            if (iterations++ >= 10) {
+        const results: Roll[] = [];
+        let iterations = 0;
+        while (results.length < subOracle.number_of_rolls) {
+          if (iterations++ >= 10) {
+            console.warn(
+              "[oracles] [table: %s] too many iterations for subroll %s",
+              this.id,
+              subOracle.oracle,
+            );
+            throw new Error("too many iterations");
+          }
+          const roll = subrollable.roll(context);
+          switch (subOracle.duplicates) {
+            case "reroll":
+              if (
+                results.find((otherRoll) => sameRoll(roll, otherRoll)) != null
+              ) {
+                console.log("duplicate roll skipped", results, roll);
+              } else {
+                results.push(roll);
+              }
+              break;
+            case "make_it_worse":
               console.warn(
-                "[oracles] [table: %s] too many iterations for subroll %s",
+                "[oracles] [table: %s] found `make_it_worse` in subroll %s",
                 this.id,
                 subOracle.oracle,
               );
-              throw new Error("too many iterations");
-            }
-            const roll = subrollable.roll(context);
-            switch (subOracle.duplicates) {
-              case "reroll":
-                if (
-                  results.find((otherRoll) => sameRoll(roll, otherRoll)) != null
-                ) {
-                  console.log("duplicate roll skipped", results, roll);
-                } else {
-                  results.push(roll);
-                }
-                break;
-              case "make_it_worse":
-                console.warn(
-                  "[oracles] [table: %s] found `make_it_worse` in subroll %s",
-                  this.id,
-                  subOracle.oracle,
-                );
-              case "keep":
-                results.push(roll);
-                break;
-              default:
-                throw new Error("unexpected duplicate type");
-            }
+            case "keep":
+              results.push(roll);
+              break;
+            default:
+              throw new Error("unexpected duplicate type");
           }
-
-          return results;
-        }),
-      );
-    }
-    if (row.template != null) {
-      const template = row.template;
-      // TODO: apparently also description and summary
-      if (template.result == null) {
-        throw new Error(`unhandled template for ${this.table.id}`);
-      }
-      for (const [, id] of template.result.matchAll(
-        /\{\{result:([^{}]+)\}\}/g,
-      )) {
-        let prevRoll = subrolls.find((roll) => roll.tableId == id);
-        if (!prevRoll) {
-          const subTable = context.lookup(id);
-          if (subTable == null) {
-            throw new Error(`missing subtable ${id} in ${this.table.id}`);
-          }
-          prevRoll = subTable.roll(context);
-          subrolls.push(prevRoll);
         }
+
+        subrolls[subOracleId] = { rolls: results, inTemplate: false };
       }
     }
+
     return {
+      kind: kind ?? RollResultKind.Simple,
       roll,
       tableId: this.id,
       rowId: row.id,
