@@ -13,6 +13,7 @@ export class DataswornOracle implements Oracle {
     protected table: OracleRollable,
     public readonly parent: OracleGrouping,
   ) {}
+
   row(id: string): OracleRow | undefined {
     const rawRow = this.table.rows.find((row) => row.id === id);
     return rawRow
