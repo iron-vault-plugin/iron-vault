@@ -5,7 +5,7 @@ import {
   OracleRow,
   RollContext,
 } from "../../../model/oracle";
-import { Roll, sameRoll } from "../../../model/rolls";
+import { Roll, RollResultKind, Subroll, sameRoll } from "../../../model/rolls";
 import { Dice } from "../../../utils/dice";
 
 export class DataswornOracle implements Oracle {
@@ -13,6 +13,7 @@ export class DataswornOracle implements Oracle {
     protected table: OracleRollable,
     public readonly parent: OracleGrouping,
   ) {}
+
   row(id: string): OracleRow | undefined {
     const rawRow = this.table.rows.find((row) => row.id === id);
     return rawRow
@@ -49,48 +50,66 @@ export class DataswornOracle implements Oracle {
     }
 
     console.log(row);
+
+    const subrolls: Record<string, Subroll<Roll>> = {};
+
+    let kind: RollResultKind | undefined;
+
     if (row.template != null) {
-      if (row.oracle_rolls != null) {
-        console.warn(
-          "Oracle %s row %s has both 'template' and 'oracle_rolls'",
-          this.table.id,
-          row.id,
-        );
-      }
       const template = row.template;
       // TODO: apparently also description and summary
       if (template.result == null) {
         throw new Error(`unhandled template for ${this.table.id}`);
       }
-      const templateRolls = new Map<string, Roll>();
+      kind = RollResultKind.Templated;
       for (const [, id] of template.result.matchAll(
         /\{\{result:([^{}]+)\}\}/g,
       )) {
-        const subTable = context.lookup(id);
-        if (subTable == null) {
-          throw new Error(`missing subtable ${id} in ${this.table.id}`);
+        let prevRoll = subrolls[id];
+        if (!prevRoll) {
+          const subTable = context.lookup(id);
+          if (subTable == null) {
+            throw new Error(`missing subtable ${id} in ${this.table.id}`);
+          }
+          subrolls[id] = {
+            rolls: [subTable.roll(context)],
+            inTemplate: true,
+          };
         }
-        const subResult = subTable.roll(context);
-        templateRolls.set(id, subResult);
       }
-
-      return {
-        kind: "templated",
-        templateRolls,
-        roll,
-        tableId: this.id,
-        rowId: row.id,
-      };
     }
     if (row.oracle_rolls != null) {
-      const subrolls = row.oracle_rolls.flatMap((subOracle) => {
+      for (const subOracle of row.oracle_rolls) {
+        const subOracleId = subOracle.oracle ?? this.id;
+        if (subOracleId in subrolls) {
+          console.warn(
+            "[oracles] [table: %s] already generated subrolls for %s. skipping...",
+            this.id,
+            subOracleId,
+          );
+          throw new Error("unexpected duplicate subroll");
+        }
+        if (subOracle.oracle == null) {
+          if (kind == null) {
+            kind = RollResultKind.Multi;
+          } else {
+            console.warn(
+              "[oracles] [table: %s] table has both template and self rolls",
+              this.id,
+              subOracleId,
+            );
+            throw new Error(
+              `table ${this.id} has both template and self rolls`,
+            );
+          }
+        }
         if (!subOracle.auto) {
           console.warn(
             "[oracles] [table: %s] ignoring auto=false oracle_rolls entry %s",
             this.id,
             subOracle.oracle,
           );
-          return [];
+          continue;
         }
         let subrollable: Oracle | undefined =
           subOracle.oracle == null ? this : context.lookup(subOracle.oracle);
@@ -135,22 +154,16 @@ export class DataswornOracle implements Oracle {
           }
         }
 
-        return results;
-      });
-
-      return {
-        kind: "multi",
-        results: subrolls,
-        roll,
-        tableId: this.id,
-        rowId: row.id,
-      };
+        subrolls[subOracleId] = { rolls: results, inTemplate: false };
+      }
     }
+
     return {
-      kind: "simple",
+      kind: kind ?? RollResultKind.Simple,
       roll,
       tableId: this.id,
       rowId: row.id,
+      subrolls,
     };
   }
 

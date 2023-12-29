@@ -1,131 +1,99 @@
 import { RollSchema } from "../oracles/schema";
-import { Oracle, RollContext } from "./oracle";
+import { Oracle, OracleRow, RollContext } from "./oracle";
 
 // TODO: better reference for origin of roll?
-export interface BaseRoll {
-  kind: "simple" | "multi" | "templated";
+export interface Roll {
+  kind: RollResultKind;
+
+  /**
+   * Dice roll corresponding to table
+   */
   roll: number;
   tableId: string;
   rowId: string;
+
+  /**
+   * Subsidiary result rolls
+   */
+  subrolls?: Record<string, Subroll<Roll>>;
 }
-export interface SimpleRoll extends BaseRoll {
-  kind: "simple";
+
+export enum RollResultKind {
+  Simple = "simple",
+  Multi = "multi",
+  Templated = "templated",
 }
-export interface MultiRoll extends BaseRoll {
-  kind: "multi";
-  results: Roll[];
+
+export interface Subroll<T> {
+  inTemplate: boolean;
+  rolls: T[];
 }
-export interface TemplatedRoll extends BaseRoll {
-  kind: "templated";
-  templateRolls: Map<string, Roll>;
+
+export function recordsEqual<T>(
+  eq: (arg1: T, arg2: T) => boolean,
+): (arg1: Record<string, T>, arg2: Record<string, T>) => boolean {
+  return (arg1, arg2) => {
+    const keys1 = Object.keys(arg1);
+    const keys2 = Object.keys(arg2);
+    if (keys1.length !== keys2.length) return false;
+
+    for (const key of keys1) {
+      if (!(key in arg2)) return false;
+      if (!eq(arg1[key], arg2[key])) return false;
+    }
+
+    return true;
+  };
 }
-export type Roll = SimpleRoll | MultiRoll | TemplatedRoll;
+
+export function sameElementsInArray<T>(
+  eq: (arg1: T, arg2: T) => boolean,
+): (arg1: T[], arg2: T[]) => boolean {
+  return (arg1, arg2) => {
+    if (arg1.length !== arg2.length) return false;
+    return arg1.every((val1) => arg2.find((val2) => eq(val1, val2)));
+  };
+}
+
+export const arrayOfRollsEqual = sameElementsInArray(sameRoll);
+export const subrollRecordsEqual = recordsEqual(subrollsEqual);
+
+export function subrollsEqual(
+  subroll1: Subroll<Roll>,
+  subroll2: Subroll<Roll>,
+): boolean {
+  return (
+    subroll1.inTemplate == subroll2.inTemplate &&
+    arrayOfRollsEqual(subroll1.rolls, subroll2.rolls)
+  );
+}
 
 export function sameRoll(roll1: Roll, roll2: Roll): boolean {
-  if (
-    roll1.kind !== roll2.kind ||
-    roll1.tableId !== roll2.tableId ||
-    roll1.rowId !== roll2.rowId
-  )
+  // Rolls must have the same table, row
+  if (roll1.tableId !== roll2.tableId || roll1.rowId !== roll2.rowId)
     return false;
 
-  if (roll1.kind === "multi" && roll2.kind === "multi") {
-    // Two multi rolls are the same if they have the same length and each subroll is
-    // present in the other
-    return (
-      roll1.results.length === roll2.results.length &&
-      roll1.results.every(
-        (subroll1) =>
-          roll2.results.find((subroll2) => sameRoll(subroll1, subroll2)) !=
-          null,
-      )
-    );
-  } else if (roll1.kind === "templated" && roll2.kind === "templated") {
-    for (const [k1, v1] of roll1.templateRolls) {
-      const v2 = roll2.templateRolls.get(k1);
-      if (v2 == null || !sameRoll(v1, v2)) return false;
-    }
-  }
-  // a simple roll -- these must be the same
-  return true;
-}
-
-export function dehydrateRoll(
-  context: RollContext,
-  rollData: Roll,
-): RollSchema {
-  const { kind, tableId, rowId, roll } = rollData;
-  const table = context.lookup(tableId);
-  if (table == null) {
-    throw new Error(`missing table ${tableId}`);
-  }
-  const row = table.row(rowId);
-  if (row == null) {
-    throw new Error(`missing row ${rowId} on table ${tableId}`);
-  }
-  const baseData = {
-    roll,
-    tableId,
-    tableName: table.name,
-  };
-  switch (kind) {
-    case "simple":
-      return {
-        kind,
-        ...baseData,
-        results: [row.result],
-      };
-    case "multi": {
-      const rolls = rollData.results.map((r) => dehydrateRoll(context, r));
-      return {
-        kind,
-        ...baseData,
-        rolls,
-        raw: row.result,
-        results: Array.combine(rolls.map((r) => r.results)),
-      };
-    }
-    case "templated": {
-      const templateRolls: Record<string, RollSchema> = {};
-      const templateString = row.template?.result;
-      if (templateString == null) {
-        throw new Error(
-          `expected template result for ${row.id} of ${table.id}`,
-        );
-      }
-
-      for (const [k, v] of rollData.templateRolls.entries()) {
-        templateRolls[k] = dehydrateRoll(context, v);
-      }
-
-      return {
-        kind,
-        ...baseData,
-        raw: row.result,
-        templateRolls,
-        templateString,
-        results: [
-          templateString.replace(
-            /\{\{result:([^{}]+)\}\}/g,
-            (_: any, id: string) => {
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return templateRolls[id].results.join("; ");
-            },
-          ),
-        ],
-      };
-    }
-  }
+  // If subrolls are present, rolls are the same if they have the same number of subrolls
+  // and each subroll is present in the other list
+  return subrollRecordsEqual(roll1.subrolls ?? {}, roll2.subrolls ?? {});
 }
 
 export class RollWrapper {
-  private _dehydrated?: RollSchema;
+  private _subrolls?: Record<string, Subroll<RollWrapper>>;
+  public readonly row: OracleRow;
 
   constructor(
     public readonly oracle: Oracle,
     public readonly context: RollContext,
     public readonly roll: Roll = oracle.roll(context),
-  ) {}
+  ) {
+    const row = oracle.row(roll.rowId);
+    if (!row) {
+      console.debug("missing row", row, roll);
+      throw new Error(`[table ${roll.tableId}] missing row ${roll.rowId}`);
+    }
+    this.row = row;
+  }
 
   get variants(): Readonly<Record<string, RollWrapper>> {
     return Object.fromEntries(
@@ -136,17 +104,120 @@ export class RollWrapper {
   }
 
   dehydrate(): RollSchema {
-    return (
-      this._dehydrated ||
-      (this._dehydrated = dehydrateRoll(this.context, this.roll))
-    );
+    const { kind, tableId, rowId, roll } = this.roll;
+    const baseData = {
+      roll,
+      tableId,
+      tableName: this.oracle.name,
+      results: this.results,
+      subrolls: Object.fromEntries(
+        Object.entries(this.subrolls).map(([key, subroll]) => {
+          return [key, subroll.rolls.map((r) => r.dehydrate())];
+        }),
+      ),
+    };
+    switch (kind) {
+      case RollResultKind.Simple:
+        return {
+          kind,
+          ...baseData,
+        };
+      case RollResultKind.Multi: {
+        return {
+          kind,
+          ...baseData,
+          raw: this.rawResult,
+        };
+      }
+      case RollResultKind.Templated: {
+        const templateString = this.row.template?.result;
+        if (templateString == null) {
+          throw new Error(
+            `expected template result for ${rowId} of ${tableId}`,
+          );
+        }
+        return {
+          kind,
+          ...baseData,
+          raw: this.rawResult,
+          templateString,
+        };
+      }
+      default: {
+        const k: never = kind;
+        throw new Error(`unexpected kind ${k}`);
+      }
+    }
   }
 
   get simpleResult(): string {
-    return this.dehydrate().results.join(", ");
+    return this.results.join(", ");
   }
 
   reroll(): RollWrapper {
     return new RollWrapper(this.oracle, this.context);
+  }
+
+  get subrolls(): Record<string, Subroll<RollWrapper>> {
+    if (!this._subrolls) {
+      this._subrolls = {};
+      for (const [key, { inTemplate, rolls }] of Object.entries(
+        this.roll.subrolls ?? {},
+      )) {
+        const suboracle = this.context.lookup(key);
+        if (!suboracle) {
+          console.error(
+            "[table %s] subroll has unknown table %s",
+            this.oracle.id,
+            key,
+          );
+          throw new Error(`unknown oracle ${key} in subroll`);
+        }
+        this._subrolls[key] = {
+          inTemplate,
+          rolls: rolls.map(
+            (roll) => new RollWrapper(suboracle, this.context, roll),
+          ),
+        };
+      }
+    }
+    return this._subrolls;
+  }
+
+  get selfRolls(): RollWrapper[] {
+    return this.subrolls[this.roll.tableId]?.rolls ?? [];
+  }
+
+  get rawResult(): string {
+    return this.row.result;
+  }
+
+  get results(): string[] {
+    switch (this.roll.kind) {
+      case RollResultKind.Simple:
+        return [this.row.result];
+      case RollResultKind.Multi:
+        return this.selfRolls.flatMap((r) => r.results);
+      case RollResultKind.Templated:
+        const templateString = this.row.template?.result;
+        if (templateString == null) {
+          throw new Error(
+            `expected template result for ${this.row.id} of ${this.oracle.id}`,
+          );
+        }
+        return [
+          templateString.replace(
+            /\{\{result:([^{}]+)\}\}/g,
+            (_: any, id: string) => {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const templateRolls = this.subrolls[id];
+              if (templateRolls == null) {
+                throw new Error(`expected subroll of ${id}`);
+              }
+              return templateRolls.rolls.flatMap((r) => r.results).join("; ");
+            },
+          ),
+        ];
+    }
   }
 }
