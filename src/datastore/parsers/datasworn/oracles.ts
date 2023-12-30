@@ -1,4 +1,8 @@
-import { OracleRollable } from "@datasworn/core";
+import {
+  OracleRollable,
+  OracleTableRowDetails,
+  OracleTableRowSimple,
+} from "@datasworn/core";
 import {
   Oracle,
   OracleGrouping,
@@ -14,12 +18,25 @@ export class DataswornOracle implements Oracle {
     public readonly parent: OracleGrouping,
   ) {}
 
-  row(id: string): OracleRow | undefined {
-    const rawRow = this.table.rows.find((row) => row.id === id);
-    return rawRow
-      ? Object.freeze({ id, result: rawRow.result, template: rawRow.template })
-      : undefined;
+  row(id: string): OracleRow {
+    const rawRow = this.internalRow(id);
+    return Object.freeze({
+      id,
+      result: rawRow.result,
+      template: rawRow.template,
+    });
   }
+
+  protected internalRow(
+    id: string,
+  ): OracleTableRowSimple | OracleTableRowDetails {
+    const row = this.table.rows.find((row) => row.id === id);
+    if (row == null) {
+      throw new Error(`[table ${this.id}] missing row ${id}`);
+    }
+    return row;
+  }
+
   get name(): string {
     return this.table.name;
   }

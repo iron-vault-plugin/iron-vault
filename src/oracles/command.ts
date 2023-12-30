@@ -78,9 +78,8 @@ export async function runOracleCommand(
   const rollContext = new OracleRoller(datastore.oracles);
   new OracleRollerModal(
     app,
-    rollContext,
     oracle,
-    undefined,
+    new RollWrapper(oracle, rollContext),
     (roll) => {
       const [firstSelection, ...restSelections] = editor.listSelections();
       if (!firstSelection) {

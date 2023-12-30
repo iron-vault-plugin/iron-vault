@@ -87,12 +87,7 @@ export class RollWrapper {
     public readonly context: RollContext,
     public readonly roll: Roll = oracle.roll(context),
   ) {
-    const row = oracle.row(roll.rowId);
-    if (!row) {
-      console.debug("missing row", row, roll);
-      throw new Error(`[table ${roll.tableId}] missing row ${roll.rowId}`);
-    }
-    this.row = row;
+    this.row = oracle.row(roll.rowId);
   }
 
   get variants(): Readonly<Record<string, RollWrapper>> {

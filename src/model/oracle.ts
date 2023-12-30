@@ -30,7 +30,7 @@ export interface Oracle {
   readonly name: string;
   readonly parent: OracleGrouping;
 
-  row(id: string): OracleRow | undefined;
+  row(id: string): OracleRow;
 
   roll(context: RollContext): Roll;
   // TODO: with variants, can we eliminate this? or is there a better way to deal with the

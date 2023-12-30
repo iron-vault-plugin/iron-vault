@@ -1,21 +1,18 @@
-import { Oracle, RollContext } from "model/oracle";
-import { RollWrapper, type Roll } from "model/rolls";
+import { Oracle } from "model/oracle";
+import { RollWrapper } from "model/rolls";
 import { Modal, Setting, type App } from "obsidian";
 
 export class OracleRollerModal extends Modal {
   public accepted: boolean = false;
-  public currentRoll: RollWrapper;
 
   constructor(
     app: App,
-    protected rollContext: RollContext,
     protected oracle: Oracle,
-    initialRoll: Roll | undefined,
+    public currentRoll: RollWrapper,
     protected readonly onAccept: (roll: RollWrapper) => void,
     protected readonly onCancel: () => void,
   ) {
     super(app);
-    this.currentRoll = new RollWrapper(oracle, rollContext, initialRoll);
   }
 
   onOpen(): void {

@@ -54,11 +54,11 @@ describe("DataswornOracle", () => {
         template: undefined,
       });
     });
-    it("returns undefined for missing row", () => {
+    it("throws error for missing row", () => {
       const fringeOracle = loadOracle("factions", "fringe_group");
-      expect(
+      expect(() =>
         fringeOracle.row("starforged/oracles/factions/fringe_group/101-102"),
-      ).toBeUndefined();
+      ).toThrow("missing row starforged/oracles/factions/fringe_group/101-102");
     });
   });
 
