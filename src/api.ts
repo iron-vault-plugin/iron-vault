@@ -4,6 +4,10 @@ import { RollWrapper } from "model/rolls";
 import { App } from "obsidian";
 import { formatOracleBlock } from "oracles/command";
 
+function stripLinks(input: string): string {
+  return input.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+}
+
 export class ForgedAPI {
   constructor(
     public readonly datastore: Datastore,
@@ -19,6 +23,10 @@ export class ForgedAPI {
     roll: RollWrapper;
   }): string {
     return formatOracleBlock(params);
+  }
+
+  public stripLinks(input: string): string {
+    return stripLinks(input);
   }
 }
 
