@@ -1,4 +1,4 @@
-import { RollSchema } from "../oracles/schema";
+import { BaseRollSchema, RollSchema } from "../oracles/schema";
 import { Oracle, OracleRow, RollContext } from "./oracle";
 
 // TODO: better reference for origin of roll?
@@ -100,16 +100,15 @@ export class RollWrapper {
 
   dehydrate(): RollSchema {
     const { kind, tableId, rowId, roll } = this.roll;
-    const baseData = {
+    const subrolls = Object.values(this.subrolls).flatMap((subroll) => {
+      return subroll.rolls.map((r) => r.dehydrate());
+    });
+    const baseData: BaseRollSchema = {
       roll,
       tableId,
       tableName: this.oracle.name,
       results: this.results,
-      subrolls: Object.fromEntries(
-        Object.entries(this.subrolls).map(([key, subroll]) => {
-          return [key, subroll.rolls.map((r) => r.dehydrate())];
-        }),
-      ),
+      subrolls: subrolls.length == 0 ? undefined : subrolls,
     };
     switch (kind) {
       case RollResultKind.Simple:

@@ -19,11 +19,11 @@ const coreRollSchema = z.object({
 
 const baseRollSchema = coreRollSchema.extend({
   /** Sub rolls */
-  subrolls: z.lazy(() => z.record(z.string(), z.array(rollSchema)).optional()),
+  subrolls: z.lazy(() => z.array(rollSchema).optional()),
 });
 
-type BaseRollSchema = z.infer<typeof coreRollSchema> & {
-  subrolls?: Record<string, RollSchema[]>;
+export type BaseRollSchema = z.infer<typeof coreRollSchema> & {
+  subrolls?: RollSchema[];
 };
 
 const simpleRollSchema = baseRollSchema.extend({ kind: z.literal("simple") });
