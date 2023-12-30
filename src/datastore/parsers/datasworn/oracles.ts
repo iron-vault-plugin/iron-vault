@@ -106,6 +106,14 @@ export class DataswornOracle implements Oracle {
           );
           throw new Error("unexpected duplicate subroll");
         }
+        if (!subOracle.auto) {
+          console.warn(
+            "[oracles] [table: %s] ignoring auto=false oracle_rolls entry %s",
+            this.id,
+            subOracle.oracle,
+          );
+          continue;
+        }
         if (subOracle.oracle == null) {
           if (kind == null) {
             kind = RollResultKind.Multi;
@@ -120,14 +128,7 @@ export class DataswornOracle implements Oracle {
             );
           }
         }
-        if (!subOracle.auto) {
-          console.warn(
-            "[oracles] [table: %s] ignoring auto=false oracle_rolls entry %s",
-            this.id,
-            subOracle.oracle,
-          );
-          continue;
-        }
+
         let subrollable: Oracle | undefined =
           subOracle.oracle == null ? this : context.lookup(subOracle.oracle);
         if (!subrollable)
