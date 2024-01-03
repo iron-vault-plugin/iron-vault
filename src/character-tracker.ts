@@ -13,11 +13,52 @@ enablePatches();
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
 
-export class CharacterTracker extends BaseIndexer<CharacterWrapper> {
+export class CharacterTracker implements ReadonlyMap<string, CharacterWrapper> {
+  constructor(
+    public readonly index: Map<string, CharacterWrapper> = new Map(),
+  ) {}
+
+  forEach(
+    callbackfn: (
+      value: CharacterWrapper,
+      key: string,
+      map: ReadonlyMap<string, CharacterWrapper>,
+    ) => void,
+    thisArg?: any,
+  ): void {
+    this.index.forEach(callbackfn, thisArg);
+  }
+  get(key: string): CharacterWrapper | undefined {
+    return this.index.get(key);
+  }
+  has(key: string): boolean {
+    return this.index.has(key);
+  }
+  get size(): number {
+    return this.index.size;
+  }
+  entries(): IterableIterator<[string, CharacterWrapper]> {
+    return this.index.entries();
+  }
+  keys(): IterableIterator<string> {
+    return this.index.keys();
+  }
+  values(): IterableIterator<CharacterWrapper> {
+    return this.index.values();
+  }
+  [Symbol.iterator](): IterableIterator<[string, CharacterWrapper]> {
+    return this.index[Symbol.iterator]();
+  }
+}
+
+export class CharacterIndexer extends BaseIndexer<CharacterWrapper> {
   readonly id: string = "character";
 
-  constructor(protected readonly dataIndex: DataIndex) {
-    super();
+  constructor(
+    tracker: CharacterTracker,
+    protected readonly dataIndex: DataIndex,
+  ) {
+    super(tracker.index);
   }
 
   determineSheetClass(
@@ -39,10 +80,6 @@ export class CharacterTracker extends BaseIndexer<CharacterWrapper> {
       this.dataIndex,
       new Set([IronswornCharacterMetadata]), // TODO: right now we're just using ironsworn
     );
-  }
-
-  get characters(): Map<string, CharacterWrapper> {
-    return this.index;
   }
 }
 // class UnwritableMap<K, V> extends Map<K, V> {

@@ -221,9 +221,7 @@ export class IndexManager extends Component {
 export abstract class BaseIndexer<T> implements Indexer {
   abstract id: string;
 
-  readonly index: Map<string, T> = new Map();
-
-  constructor() {}
+  constructor(public readonly index: Map<string, T>) {}
 
   onChanged(path: string, cache: CachedMetadata): IndexUpdateResult {
     try {

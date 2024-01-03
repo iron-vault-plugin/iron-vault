@@ -117,7 +117,7 @@ export function validAdds(baseStat: number): number[] {
 export async function runMoveCommand(
   app: App,
   datastore: Datastore,
-  tracker: CharacterTracker,
+  characters: CharacterTracker,
   editor: Editor,
   view: MarkdownView,
 ): Promise<void> {
@@ -126,7 +126,6 @@ export async function runMoveCommand(
     return;
   }
 
-  const characters = tracker.characters;
   if (characters.size === 0) {
     console.error("No characters found");
     return;

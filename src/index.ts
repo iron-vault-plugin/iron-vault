@@ -8,7 +8,7 @@ import {
 } from "obsidian";
 import { ForgedAPI } from "./api";
 import { IronswornCharacterMetadata } from "./character";
-import { CharacterTracker } from "./character-tracker";
+import { CharacterIndexer, CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
 import { runMoveCommand } from "./moves/action";
 import { registerMoveBlock } from "./moves/block";
@@ -25,7 +25,7 @@ import { CustomSuggestModal } from "./utils/suggest";
 export default class ForgedPlugin extends Plugin {
   settings: ForgedPluginSettings;
   datastore: Datastore;
-  tracker: CharacterTracker;
+  characters: CharacterTracker;
   indexManager: IndexManager;
   api: ForgedAPI;
 
@@ -42,8 +42,11 @@ export default class ForgedPlugin extends Plugin {
     await this.loadSettings();
 
     this.datastore = this.addChild(new Datastore(this));
-    this.tracker = new CharacterTracker(this.datastore.index);
+    this.characters = new CharacterTracker();
     this.indexManager = new IndexManager(this.app, this.datastore.index);
+    this.indexManager.registerHandler(
+      new CharacterIndexer(this.characters, this.datastore.index),
+    );
 
     if (this.app.workspace.layoutReady) {
       this.initialize();
@@ -51,7 +54,10 @@ export default class ForgedPlugin extends Plugin {
       this.app.workspace.onLayoutReady(() => this.initialize());
     }
 
-    window.ForgedAPI = this.api = new ForgedAPI(this.datastore, this.tracker);
+    window.ForgedAPI = this.api = new ForgedAPI(
+      this.datastore,
+      this.characters,
+    );
     this.register(() => delete window.ForgedAPI);
 
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
@@ -69,7 +75,7 @@ export default class ForgedPlugin extends Plugin {
         await runMoveCommand(
           this.app,
           this.datastore,
-          this.tracker,
+          this.characters,
           editor,
           view as MarkdownView,
         );
@@ -99,7 +105,7 @@ export default class ForgedPlugin extends Plugin {
         editor: Editor,
         _view: MarkdownView | MarkdownFileInfo,
       ) => {
-        const [[path, character]] = this.tracker.characters.entries();
+        const [[path, character]] = this.characters.entries();
         const sheet = character.as(IronswornCharacterMetadata);
         const oldValue = sheet.measures.momentum;
         if (oldValue > 0) {
@@ -137,7 +143,7 @@ export default class ForgedPlugin extends Plugin {
         _view: MarkdownView | MarkdownFileInfo,
       ) => {
         // todo: multichar
-        const [[path, character]] = this.tracker.characters.entries();
+        const [[path, character]] = this.characters.entries();
         const sheet = character.as(IronswornCharacterMetadata);
         const measures = sheet.measures;
         const measure = await CustomSuggestModal.select(
