@@ -14,6 +14,9 @@ Oracles:
   View:
     ✔ Some sort of mechanism for seeing different options for a roll instead of putting it directly into the document. @high @done(23-11-15 21:32)
       So like a modal that displays different variants after you select it. Or maybe suggestions?
+  Formatting:
+    ☐ Prompt for a question -- maybe after the result dialog?
+    ☐ Include full path in oracle block (Derelicts: Access: Feature vs Feature)
 
 Entity generation:
   ☐ Create a faction from a template? Maybe the ability to include oracle rolls in a template using templater? @high
@@ -37,6 +40,11 @@ Characters:
     is special, and the datasworn info doesn't even include momentum.
   Assets:
     ☐ Add asset tracks to track list
+
+Progress Tracks Refactor:
+  ✔ Create generic indexer framework to process game objects @done(24-01-03 12:58)
+  ✔ Move character to that framework @done(24-01-03 12:58)
+  ☐ Create indexer for vows and clocks
 
 Other:
   ☐ Investigate using https://eemeli.org/yaml/#yaml to manipulate frontmatter without rewriting

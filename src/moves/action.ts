@@ -7,7 +7,7 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { IronswornCharacterMetadata } from "../character";
-import { type CharacterTracker } from "../character-tracker";
+import { CharacterWrapper, type CharacterTracker } from "../character-tracker";
 import { type Datastore } from "../datastore";
 import { randomInt } from "../utils/dice";
 import { CustomSuggestModal } from "../utils/suggest";
@@ -141,45 +141,70 @@ export async function runMoveCommand(
     app,
     allMoves.sort((a, b) => a.name.localeCompare(b.name)),
   );
-  const moveKind = getMoveKind(move);
-  if (moveKind === MoveKind.Action) {
-    const measures = character.measures;
-    const stat = await CustomSuggestModal.select(
-      app,
-      measures.entries(),
-      (m) => `${m.definition.label}: ${m.value ?? "missing (defaults to 0)"}`,
-    );
-
-    const adds = await CustomSuggestModal.select(
-      app,
-      validAdds(stat.value ?? 0),
-      (n) => n.toString(10),
-    );
-    let description = processActionMove(move, stat.key, stat.value ?? 0, adds);
-    const wrapper = new ActionMoveWrapper(description);
-    description = await checkForMomentumBurn(
-      app,
-      move as MoveActionRoll,
-      wrapper,
-      character,
-    );
-    if (description.burn) {
-      await tracker.updateCharacter(
-        characterPath,
-        IronswornCharacterMetadata,
-        (character) => {
-          return character.measures.set("momentum", character.momentumReset);
-        },
-      );
+  switch (move.roll_type) {
+    case "action_roll": {
+      await handleActionRoll(rawCharacter, app, move, characterPath, editor);
+      break;
     }
-    editor.replaceSelection(moveTemplate(description));
-  } else if (moveKind === MoveKind.Progress) {
-    const progressTrack = await CustomSuggestModal.select(
-      app,
-      ["do something", "a real great vow"],
-      (text) => text,
-    );
-    const description = processProgressMove(move, progressTrack);
-    editor.replaceSelection(moveTemplate(description));
+    case "progress_roll": {
+      const progressTrack = await CustomSuggestModal.select(
+        app,
+        ["do something", "a real great vow"],
+        (text) => text,
+      );
+      const description = processProgressMove(move, progressTrack);
+      editor.replaceSelection(moveTemplate(description));
+      break;
+    }
+    case "no_roll":
+    case "special_track":
+    default:
+      console.warn(
+        "Teach me how to handle a move with roll type %s: %o",
+        move.roll_type,
+        move,
+      );
   }
+}
+
+// TODO: refactor this so it returns the description and handle the other parts separately?
+async function handleActionRoll(
+  characterWrapper: CharacterWrapper,
+  app: App,
+  move: MoveActionRoll,
+  characterPath: string,
+  editor: Editor,
+) {
+  const character = characterWrapper.as(IronswornCharacterMetadata);
+  const measures = character.measures;
+  const stat = await CustomSuggestModal.select(
+    app,
+    measures.entries(),
+    (m) => `${m.definition.label}: ${m.value ?? "missing (defaults to 0)"}`,
+  );
+
+  const adds = await CustomSuggestModal.select(
+    app,
+    validAdds(stat.value ?? 0),
+    (n) => n.toString(10),
+  );
+  let description = processActionMove(move, stat.key, stat.value ?? 0, adds);
+  const wrapper = new ActionMoveWrapper(description);
+  description = await checkForMomentumBurn(
+    app,
+    move as MoveActionRoll,
+    wrapper,
+    character,
+  );
+  if (description.burn) {
+    await characterWrapper.update(
+      app,
+      characterPath,
+      IronswornCharacterMetadata,
+      (character) => {
+        return character.measures.set("momentum", character.momentumReset);
+      },
+    );
+  }
+  editor.replaceSelection(moveTemplate(description));
 }

@@ -1,4 +1,5 @@
 import Handlebars from "handlebars";
+import { IndexManager } from "indexer/manager";
 import {
   Plugin,
   type Editor,
@@ -25,10 +26,11 @@ export default class ForgedPlugin extends Plugin {
   settings: ForgedPluginSettings;
   datastore: Datastore;
   tracker: CharacterTracker;
+  indexManager: IndexManager;
   api: ForgedAPI;
 
   private initialize(): void {
-    this.tracker.initialize();
+    this.indexManager.initialize();
     this.datastore.initialize();
   }
 
@@ -40,9 +42,8 @@ export default class ForgedPlugin extends Plugin {
     await this.loadSettings();
 
     this.datastore = this.addChild(new Datastore(this));
-    this.tracker = this.addChild(
-      new CharacterTracker(this.app, this.datastore.index),
-    );
+    this.tracker = new CharacterTracker(this.datastore.index);
+    this.indexManager = new IndexManager(this.app, this.datastore.index);
 
     if (this.app.workspace.layoutReady) {
       this.initialize();
@@ -102,7 +103,8 @@ export default class ForgedPlugin extends Plugin {
         const sheet = character.as(IronswornCharacterMetadata);
         const oldValue = sheet.measures.momentum;
         if (oldValue > 0) {
-          const updated = await this.tracker.updateCharacter(
+          const updated = await character.update(
+            this.app,
             path,
             IronswornCharacterMetadata,
             (character) => {
@@ -151,7 +153,8 @@ export default class ForgedPlugin extends Plugin {
           [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
           (n) => n.toString(),
         );
-        const updated = await this.tracker.updateCharacter(
+        const updated = await character.update(
+          this.app,
           path,
           IronswornCharacterMetadata,
           (character) => {

@@ -226,44 +226,6 @@ export interface CharacterMetadata {
   readonly data: Readonly<Record<string, any>>;
 }
 
-// class UnwritableMap<K, V> extends Map<K, V> {
-//   set(key: K, value: V): this {
-//     throw new Error(`attempt to write key ${key} to unwritable map`);
-//   }
-//   clear(): void {
-//     throw new Error("attempt to clear unwritable map");
-//   }
-//   delete(key: K): boolean {
-//     throw new Error(`attempt to delete key ${key} to unwritable map`);
-//   }
-// }
-
-export class CharacterWrapper {
-  constructor(
-    protected readonly _data: Readonly<Record<string, any>>,
-    protected readonly _index: DataIndex,
-    protected readonly _validatedSheets: Set<
-      CharacterMetadataFactory<CharacterMetadata>
-    >,
-  ) {}
-
-  as<T extends CharacterMetadata>(
-    kls: CharacterMetadataFactory<T>,
-  ): Readonly<T> {
-    return this.forUpdates(kls, this._data);
-  }
-
-  forUpdates<T extends CharacterMetadata>(
-    kls: CharacterMetadataFactory<T>,
-    data: Record<string, any>,
-  ): T {
-    if (!this._validatedSheets.has(kls)) {
-      throw new Error(`requested character sheet ${kls} not in validated list`);
-    }
-    return new kls(data, this._index);
-  }
-}
-
 export interface IronswornCharacterAsset {
   id: string;
   marked_abilities?: number[];

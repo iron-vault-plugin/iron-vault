@@ -1,100 +1,101 @@
+import { enableMapSet, enablePatches, freeze } from "immer";
+import { BaseIndexer } from "indexer/manager";
+import { TFile, type App, type CachedMetadata } from "obsidian";
 import {
   CharacterMetadata,
   CharacterMetadataFactory,
-  CharacterWrapper,
   IronswornCharacterMetadata,
-} from "character";
-import { DataIndex } from "datastore/data-index";
-import { enableMapSet, enablePatches, freeze } from "immer";
-import {
-  Component,
-  TFile,
-  getAllTags,
-  type App,
-  type CachedMetadata,
-  type FileManager,
-  type FrontMatterCache,
-  type MetadataCache,
-  type Vault,
-} from "obsidian";
+} from "./character";
+import { DataIndex } from "./datastore/data-index";
 
 enableMapSet();
 enablePatches();
 
-function isCharacterFile(
-  md: CachedMetadata,
-): md is CachedMetadata & { frontmatter: FrontMatterCache } {
-  const tags = md != null ? getAllTags(md) ?? [] : [];
-  if (tags.contains("#character")) {
-    return true;
-  } else {
-    return false;
+type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
+
+export class CharacterTracker extends BaseIndexer<CharacterWrapper> {
+  readonly id: string = "character";
+
+  constructor(protected readonly dataIndex: DataIndex) {
+    super();
+  }
+
+  determineSheetClass(
+    path: string,
+    cache: WithRequired<CachedMetadata, "frontmatter">,
+  ): CharacterMetadataFactory<CharacterMetadata> {
+    return IronswornCharacterMetadata;
+  }
+
+  processFile(
+    path: string,
+    cache: CachedMetadata,
+  ): CharacterWrapper | undefined {
+    if (cache.frontmatter == null) {
+      throw new Error("missing frontmatter cache");
+    }
+    return new CharacterWrapper(
+      freeze(cache.frontmatter, true),
+      this.dataIndex,
+      new Set([IronswornCharacterMetadata]), // TODO: right now we're just using ironsworn
+    );
+  }
+
+  get characters(): Map<string, CharacterWrapper> {
+    return this.index;
   }
 }
+// class UnwritableMap<K, V> extends Map<K, V> {
+//   set(key: K, value: V): this {
+//     throw new Error(`attempt to write key ${key} to unwritable map`);
+//   }
+//   clear(): void {
+//     throw new Error("attempt to clear unwritable map");
+//   }
+//   delete(key: K): boolean {
+//     throw new Error(`attempt to delete key ${key} to unwritable map`);
+//   }
+// }
 
-export class CharacterTracker extends Component {
-  metadataCache: MetadataCache;
-  vault: Vault;
-  fileManager: FileManager;
-
-  /** Map file paths to metadata. */
-  index: Map<string, CharacterWrapper>;
-
+export class CharacterWrapper {
   constructor(
-    app: App,
-    protected readonly dataIndex: DataIndex,
-  ) {
-    super();
+    protected readonly _data: Readonly<Record<string, any>>,
+    protected readonly _index: DataIndex,
+    protected readonly _validatedSheets: Set<
+      CharacterMetadataFactory<CharacterMetadata>
+    >,
+  ) {}
 
-    this.metadataCache = app.metadataCache;
-    this.vault = app.vault;
-    this.index = new Map();
-    this.fileManager = app.fileManager;
+  as<T extends CharacterMetadata>(
+    kls: CharacterMetadataFactory<T>,
+  ): Readonly<T> {
+    return this.forUpdates(kls, this._data);
   }
 
-  public initialize(): void {
-    this.registerEvent(
-      this.metadataCache.on("changed", (file, data, cache) => {
-        // console.log("changed: ", file);
-        this.indexFile(file, cache);
-      }),
-    );
-
-    this.registerEvent(
-      this.metadataCache.on("deleted", (file) => {
-        // TODO: might want to check values in prevCache
-        const indexKey = file.path;
-        if (this.index.has(indexKey)) {
-          console.log("indexed file %s deleted. removing from index", indexKey);
-          this.index.delete(indexKey);
-        }
-      }),
-    );
-
-    for (const file of this.vault.getMarkdownFiles()) {
-      const cache = this.metadataCache.getFileCache(file);
-      if (cache != null) {
-        this.indexFile(file, cache);
-      } else {
-        console.log("no cache for ", file.path);
-      }
+  protected forUpdates<T extends CharacterMetadata>(
+    kls: CharacterMetadataFactory<T>,
+    data: Record<string, any>,
+  ): T {
+    if (!this._validatedSheets.has(kls)) {
+      throw new Error(`requested character sheet ${kls} not in validated list`);
     }
+    return new kls(data, this._index);
   }
 
-  public async updateCharacter<T extends CharacterMetadata>(
+  public async update<T extends CharacterMetadata>(
+    app: App,
     path: string,
     kls: CharacterMetadataFactory<T>,
     updater: (character: InstanceType<typeof kls>) => InstanceType<typeof kls>,
   ): Promise<T> {
-    const wrapper = this.index.get(path);
-    const file = this.vault.getAbstractFileByPath(path);
-    if (wrapper == null || !(file instanceof TFile)) {
+    const file = app.vault.getAbstractFileByPath(path);
+    if (!(file instanceof TFile)) {
       throw new Error(`invalid character file ${path}`);
     }
     let updated: T | undefined;
-    await this.fileManager.processFrontMatter(file, (frontmatter: any) => {
+    await app.fileManager.processFrontMatter(file, (frontmatter: any) => {
       updated = updater(
-        wrapper.forUpdates(kls, Object.freeze(Object.assign({}, frontmatter))),
+        this.forUpdates(kls, Object.freeze(Object.assign({}, frontmatter))),
       );
 
       // TODO: this isn't actually going to work right... for deletes
@@ -103,76 +104,4 @@ export class CharacterTracker extends Component {
     // SAFETY: if we get here, we should have set updated.
     return updated!;
   }
-
-  private unindex(path: string): void {
-    const removed = this.index.delete(path);
-    if (removed) console.debug("removed character cache %s", path);
-  }
-
-  public indexFile(file: TFile, cache: CachedMetadata): void {
-    const indexKey = file.path;
-
-    // If the file is no longer a character file, remove it from the cache if it existed.
-    if (!isCharacterFile(cache)) {
-      this.unindex(indexKey);
-      return;
-    }
-
-    console.log("indexing %s", indexKey);
-    this.index.set(
-      indexKey,
-      new CharacterWrapper(
-        freeze(cache.frontmatter, true),
-        this.dataIndex,
-        new Set([IronswornCharacterMetadata]), // TODO: right now we're just using ironsworn
-      ),
-    );
-  }
-
-  get characters(): Map<string, CharacterWrapper> {
-    return this.index;
-  }
-
-  // characters(): TFile[] {
-  //   // TODO: this should be smarter
-  //   const charactersFolder = this.app.vault.getAbstractFileByPath("Characters");
-  //   if (charactersFolder == null || !(charactersFolder instanceof TFolder)) {
-  //     console.warn("Missing characters folder");
-  //     return [];
-  //   }
-  //   return charactersFolder.children.flatMap((childFile) => {
-  //     if (childFile instanceof TFile) {
-  //       const md = this.app.metadataCache.getFileCache(childFile);
-  //       const tags = md != null ? getAllTags(md) ?? [] : [];
-  //       if (tags.contains("#character")) {
-  //         return [childFile];
-  //       } else {
-  //         return [];
-  //       }
-  //     } else {
-  //       return [];
-  //     }
-  //   });
-  // }
-
-  // tryFetch(file: TFile): CharacterMetadata | undefined {
-  //   try {
-  //     return this.fetch(file);
-  //   } catch (e) {
-  //     console.error(e);
-  //     return undefined;
-  //   }
-  // }
-
-  // fetch(file: TFile): CharacterMetadata {
-  //   // const file = this.app.metadataCache.getFirstLinkpathDest(name, sourcePath);
-  //   // if (file == null) {
-  //   //   throw new Error(`Can't find character file named ${name}`);
-  //   // }
-  //   const metadata = this.app.metadataCache.getFileCache(file);
-  //   if (metadata?.frontmatter === undefined) {
-  //     throw new Error(`Can't find metadata for character named ${file.path}`);
-  //   }
-  //   return new CharacterMetadata(metadata.frontmatter);
-  // }
 }
