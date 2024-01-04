@@ -22,11 +22,11 @@ import { IndexUpdateResult, Indexer, IndexerId } from "./indexer";
 // }
 
 export class IndexManager extends Component {
-  protected metadataCache: MetadataCache;
-  protected vault: Vault;
-  protected fileManager: FileManager;
-  protected handlers: Map<IndexerId, Indexer>;
-  protected indexedFiles: Map<string, IndexerId>;
+  protected readonly metadataCache: MetadataCache;
+  protected readonly vault: Vault;
+  protected readonly fileManager: FileManager;
+  protected readonly handlers: Map<IndexerId, Indexer> = new Map();
+  protected readonly indexedFiles: Map<string, IndexerId> = new Map();
 
   constructor(
     app: App,
@@ -36,7 +36,6 @@ export class IndexManager extends Component {
 
     this.metadataCache = app.metadataCache;
     this.vault = app.vault;
-    this.handlers = new Map();
     this.fileManager = app.fileManager;
   }
 
@@ -44,6 +43,7 @@ export class IndexManager extends Component {
     if (this.handlers.has(indexer.id)) {
       throw new Error(`attempt to re-register handler for ${indexer.id}`);
     }
+    console.log("[index-manager] registered indexer %s", indexer.id);
     this.handlers.set(indexer.id, indexer);
   }
 
@@ -72,6 +72,8 @@ export class IndexManager extends Component {
         }
       }),
     );
+
+    console.log("[index-manager] starting initial index...");
 
     for (const file of this.vault.getMarkdownFiles()) {
       const cache = this.metadataCache.getFileCache(file);
@@ -167,6 +169,12 @@ export class IndexManager extends Component {
     }
 
     if (newIndexer) {
+      console.log(
+        "[index-manager] [file:%s] using indexer %s for file",
+        indexKey,
+        newIndexer.id,
+      );
+
       let result: IndexUpdateResult;
       try {
         result = newIndexer.onChanged(file.path, cache);
