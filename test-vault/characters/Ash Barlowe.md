@@ -7,6 +7,7 @@ tags:
 iron: "3"
 momentum: 2
 health: 7
+forgedkind: character
 assets:
   - id: starforged/assets/path/empath
     marked_abilities:

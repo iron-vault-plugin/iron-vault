@@ -26,11 +26,26 @@ export abstract class BaseIndexer<T> implements Indexer {
     try {
       const entry = this.processFile(path, cache);
       if (entry) {
+        this.index.set(path, entry);
         return { type: "indexed" };
       } else {
+        if (this.index.delete(path)) {
+          console.log(
+            "[indexer:%s] [file:%s] removing because no longer indexable",
+            this.id,
+            path,
+          );
+        }
         return { type: "not_indexable" };
       }
     } catch (error) {
+      if (this.index.delete(path)) {
+        console.log(
+          "[indexer:%s] [file:%s] removing because error",
+          this.id,
+          path,
+        );
+      }
       return { type: "error", error };
     }
   }
