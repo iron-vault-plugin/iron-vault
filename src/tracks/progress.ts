@@ -1,24 +1,34 @@
+import { Immutable } from "immer";
 import { CachedMetadata } from "obsidian";
 import { z } from "zod";
 import { BaseIndexer } from "../indexer/indexer";
 
 export enum ChallengeRanks {
+  /** 12 ticks per step */
   Troublesome = "Troublesome",
+
+  /** 8 ticks per step */
   Dangerous = "Dangerous",
+
+  /** 4 ticks per step */
   Formidable = "Formidable",
+
+  /** 2 ticks per step */
   Extreme = "Extreme",
+
+  /** 1 tick per step */
   Epic = "Epic",
 }
 
-const CHALLENGE_STEPS: Record<ChallengeRanks, number> = {
+export const CHALLENGE_STEPS: Record<ChallengeRanks, number> = {
   Troublesome: 12,
   Dangerous: 8,
   Formidable: 4,
   Extreme: 2,
   Epic: 1,
-} as const;
+};
 
-const MAX_TICKS = 40 as const;
+const MAX_TICKS = 40;
 
 const challengeRankSchema = z.nativeEnum(ChallengeRanks);
 
@@ -43,6 +53,17 @@ const progressTrackerSchema = z.object({
   TrackImage: z.string(),
 });
 
+const validatingProgressTrackerSchema = (
+  trackImageGen: (progress: number) => string,
+) => {
+  return progressTrackerSchema
+    .partial({ TrackImage: true })
+    .transform((val, ctx) => {
+      const desiredTrackImage = trackImageGen(val.Progress);
+      return { ...val, TrackImage: desiredTrackImage };
+    });
+};
+
 export type ProgressTrackerInputSchema = z.input<typeof progressTrackerSchema>;
 export type ProgressTrackerSchema = z.infer<typeof progressTrackerSchema>;
 
@@ -54,9 +75,19 @@ function classFromProps<T>() {
   } as { new (args: T): T };
 }
 
-export class ProgressTracker extends classFromProps<ProgressTrackerSchema>() {
+export class ProgressTracker extends classFromProps<
+  Immutable<ProgressTrackerSchema>
+>() {
   static fromData(data: unknown): ProgressTracker {
     return new this(progressTrackerSchema.parse(data));
+  }
+
+  static fromDataWithRepair(data: unknown): ProgressTracker {
+    return new this(
+      validatingProgressTrackerSchema(
+        (progress) => `[[progress-track-${progress}.svg]]`,
+      ).parse(data),
+    );
   }
 
   get complete(): boolean {
@@ -92,6 +123,8 @@ export class ProgressIndexer extends BaseIndexer<ProgressTracker> {
     path: string,
     cache: CachedMetadata,
   ): ProgressTracker | undefined {
-    return ProgressTracker.fromData(cache.frontmatter);
+    return ProgressTracker.fromDataWithRepair(cache.frontmatter);
   }
 }
+
+export type ProgressIndex = Map<string, ProgressTracker>;

@@ -6,6 +6,7 @@ import {
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
+import { ProgressIndex, ProgressIndexer } from "tracks/progress";
 import { ForgedAPI } from "./api";
 import { IronswornCharacterMetadata } from "./character";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
@@ -26,6 +27,7 @@ export default class ForgedPlugin extends Plugin {
   settings: ForgedPluginSettings;
   datastore: Datastore;
   characters: CharacterTracker;
+  progressIndex: ProgressIndex;
   indexManager: IndexManager;
   api: ForgedAPI;
 
@@ -43,10 +45,12 @@ export default class ForgedPlugin extends Plugin {
 
     this.datastore = this.addChild(new Datastore(this));
     this.characters = new CharacterTracker();
+    this.progressIndex = new Map();
     this.indexManager = new IndexManager(this.app, this.datastore.index);
     this.indexManager.registerHandler(
       new CharacterIndexer(this.characters, this.datastore.index),
     );
+    this.indexManager.registerHandler(new ProgressIndexer(this.progressIndex));
 
     if (this.app.workspace.layoutReady) {
       this.initialize();
@@ -57,6 +61,7 @@ export default class ForgedPlugin extends Plugin {
     window.ForgedAPI = this.api = new ForgedAPI(
       this.datastore,
       this.characters,
+      this.progressIndex,
     );
     this.register(() => delete window.ForgedAPI);
 

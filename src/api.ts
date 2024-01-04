@@ -3,6 +3,7 @@ import { Datastore } from "datastore";
 import { RollWrapper } from "model/rolls";
 import { App } from "obsidian";
 import { formatOracleBlock } from "oracles/command";
+import { ProgressIndex } from "tracks/progress";
 
 function stripLinks(input: string): string {
   return input.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
@@ -12,6 +13,7 @@ export class ForgedAPI {
   constructor(
     public readonly datastore: Datastore,
     public readonly tracker: CharacterTracker,
+    public readonly progress: ProgressIndex,
   ) {}
 
   public roll(oracle: string): RollWrapper {
