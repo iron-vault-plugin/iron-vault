@@ -13,6 +13,7 @@ describe("ProgressTracker", () => {
     Progress: 10,
     tags: "incomplete",
     TrackImage: "[[progress-track-10.svg]]",
+    tracktype: "Vow",
   };
 
   function make(
@@ -31,6 +32,7 @@ describe("ProgressTracker", () => {
         Progress: 10,
         tags: ["incomplete"],
         TrackImage: "[[progress-track-10.svg]]",
+        tracktype: "Vow",
       }),
     );
   });

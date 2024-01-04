@@ -51,6 +51,7 @@ const progressTrackerSchema = z.object({
       },
     ),
   TrackImage: z.string(),
+  tracktype: z.string(),
 });
 
 const validatingProgressTrackerSchema = (

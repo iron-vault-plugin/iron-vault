@@ -1,4 +1,4 @@
-import { Move, MoveActionRoll } from "@datasworn/core";
+import { Move, MoveActionRoll, MoveProgressRoll } from "@datasworn/core";
 import {
   stringifyYaml,
   type App,
@@ -6,6 +6,7 @@ import {
   type FuzzyMatch,
   type MarkdownView,
 } from "obsidian";
+import { ProgressIndex, ProgressTracker } from "tracks/progress";
 import { IronswornCharacterMetadata } from "../character";
 import { CharacterWrapper, type CharacterTracker } from "../character-tracker";
 import { type Datastore } from "../datastore";
@@ -90,13 +91,13 @@ function processActionMove(
 
 function processProgressMove(
   move: Move,
-  track: string,
+  trackerPath: string,
+  tracker: ProgressTracker,
 ): ProgressMoveDescription {
   return {
     name: move.name,
-    progressTrack: track,
-    // todo: fetch val
-    progressTicks: randomInt(1, 40),
+    progressTrack: `[[${trackerPath}]]`,
+    progressTicks: tracker.Progress,
     challenge1: randomInt(1, 10),
     challenge2: randomInt(1, 10),
   };
@@ -117,6 +118,7 @@ export function validAdds(baseStat: number): number[] {
 export async function runMoveCommand(
   app: App,
   datastore: Datastore,
+  progressIndex: ProgressIndex,
   characters: CharacterTracker,
   editor: Editor,
   view: MarkdownView,
@@ -146,13 +148,7 @@ export async function runMoveCommand(
       break;
     }
     case "progress_roll": {
-      const progressTrack = await CustomSuggestModal.select(
-        app,
-        ["do something", "a real great vow"],
-        (text) => text,
-      );
-      const description = processProgressMove(move, progressTrack);
-      editor.replaceSelection(moveTemplate(description));
+      await handleProgressRoll(app, progressIndex, move, editor);
       break;
     }
     case "no_roll":
@@ -164,6 +160,31 @@ export async function runMoveCommand(
         move,
       );
   }
+}
+
+async function handleProgressRoll(
+  app: App,
+  progressIndex: ProgressIndex,
+  move: MoveProgressRoll,
+  editor: Editor,
+) {
+  const progressTrack = await CustomSuggestModal.select(
+    app,
+    [...progressIndex.entries()].filter(
+      ([, prog]) => prog.tracktype == move.tracks.category,
+    ),
+    ([, prog]) => prog.Name,
+    (match, el) => {
+      el.createEl("small", { text: match.item[0], cls: "forged-suggest-hint" });
+    },
+  );
+  const description = processProgressMove(
+    move,
+    progressTrack[0],
+    progressTrack[1],
+  );
+  // TODO: when would we mark complete? should we prompt on a hit?
+  editor.replaceSelection(moveTemplate(description));
 }
 
 // TODO: refactor this so it returns the description and handle the other parts separately?
