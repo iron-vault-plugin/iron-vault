@@ -1,5 +1,4 @@
 import { enableMapSet, enablePatches, freeze } from "immer";
-import { BaseIndexer } from "indexer/manager";
 import { TFile, type App, type CachedMetadata } from "obsidian";
 import {
   CharacterMetadata,
@@ -7,6 +6,7 @@ import {
   IronswornCharacterMetadata,
 } from "./character";
 import { DataIndex } from "./datastore/data-index";
+import { BaseIndexer } from "./indexer/indexer";
 
 enableMapSet();
 enablePatches();
