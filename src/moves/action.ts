@@ -7,6 +7,7 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { ProgressIndex, ProgressTracker } from "tracks/progress";
+import { selectProgressTrack } from "tracks/select";
 import { IronswornCharacterMetadata } from "../character";
 import { CharacterWrapper, type CharacterTracker } from "../character-tracker";
 import { type Datastore } from "../datastore";
@@ -168,15 +169,10 @@ async function handleProgressRoll(
   move: MoveProgressRoll,
   editor: Editor,
 ) {
-  const progressTrack = await CustomSuggestModal.select(
+  const progressTrack = await selectProgressTrack(
+    progressIndex,
     app,
-    [...progressIndex.entries()].filter(
-      ([, prog]) => prog.tracktype == move.tracks.category,
-    ),
-    ([, prog]) => prog.Name,
-    (match, el) => {
-      el.createEl("small", { text: match.item[0], cls: "forged-suggest-hint" });
-    },
+    ([, prog]) => prog.tracktype == move.tracks.category && prog.incomplete,
   );
   const description = processProgressMove(
     move,

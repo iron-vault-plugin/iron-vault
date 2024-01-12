@@ -6,7 +6,6 @@ import {
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
-import { ProgressIndex, ProgressIndexer } from "tracks/progress";
 import { ForgedAPI } from "./api";
 import { IronswornCharacterMetadata } from "./character";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
@@ -20,6 +19,7 @@ import {
   ForgedPluginSettings,
   ForgedSettingTab,
 } from "./settings/ui";
+import { ProgressIndex, ProgressIndexer } from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
 import { CustomSuggestModal } from "./utils/suggest";
 
@@ -80,6 +80,7 @@ export default class ForgedPlugin extends Plugin {
         await runMoveCommand(
           this.app,
           this.datastore,
+          this.progressIndex,
           this.characters,
           editor,
           view as MarkdownView,

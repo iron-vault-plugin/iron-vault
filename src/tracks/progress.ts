@@ -103,12 +103,19 @@ export class ProgressTracker extends classFromProps<
     return CHALLENGE_STEPS[this.Difficulty];
   }
 
+  get boxesFilled(): number {
+    return Math.floor(this.Progress / 4);
+  }
+
   advanced(steps: number): ProgressTracker {
     return this.advancedByTicks(steps * this.ticksPerStep);
   }
 
   advancedByTicks(ticks: number): ProgressTracker {
     const Progress = Math.min(MAX_TICKS, this.Progress + ticks);
+    if (Progress == this.Progress) {
+      return this;
+    }
     return new ProgressTracker({
       ...this,
       Progress,

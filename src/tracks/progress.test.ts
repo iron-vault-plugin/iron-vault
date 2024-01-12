@@ -97,4 +97,15 @@ describe("ProgressTracker", () => {
       "[[progress-track-25.svg]]",
     );
   });
+
+  it.each([
+    { ticks: 7, boxes: 1 },
+    { ticks: 0, boxes: 0 },
+    { ticks: 12, boxes: 3 },
+  ])(
+    "#boxesFilled calculates $ticks ticks is $boxes boxes",
+    ({ ticks, boxes }) => {
+      expect(make({ Progress: ticks }).boxesFilled).toBe(boxes);
+    },
+  );
 });
