@@ -107,6 +107,14 @@ export class ProgressTracker extends classFromProps<
     return Math.floor(this.Progress / 4);
   }
 
+  get ticksRemaining(): number {
+    return MAX_TICKS - this.Progress;
+  }
+
+  get stepsRemaining(): number {
+    return Math.ceil(this.ticksRemaining / this.ticksPerStep);
+  }
+
   advanced(steps: number): ProgressTracker {
     return this.advancedByTicks(steps * this.ticksPerStep);
   }

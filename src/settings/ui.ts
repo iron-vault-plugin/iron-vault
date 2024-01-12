@@ -32,6 +32,7 @@ export interface ForgedPluginSettings {
   oraclesFolder: string;
   momentumResetTemplate: string;
   meterAdjTemplate: string;
+  advanceProgressTemplate: string;
 }
 export const DEFAULT_SETTINGS: ForgedPluginSettings = {
   oraclesFolder: "",
@@ -39,4 +40,6 @@ export const DEFAULT_SETTINGS: ForgedPluginSettings = {
     "> [!mechanics] {{character.name}} burned momentum: {{oldValue}} -> {{newValue}}\n\n",
   meterAdjTemplate:
     "> [!mechanics] {{character.name}} old {{measure.definition.label}}: {{measure.value}}; new {{measure.definition.label}}: {{newValue}}\n\n",
+  advanceProgressTemplate:
+    "> [!progress] [[{{trackPath}}|{{track.Name}}]], {{steps}} progress marked ({{track.boxesFilled}} ![[progress-box-4.svg|15]] total)\n> \n> Milestone: \n\n",
 };

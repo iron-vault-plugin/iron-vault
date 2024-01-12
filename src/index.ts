@@ -19,6 +19,7 @@ import {
   ForgedPluginSettings,
   ForgedSettingTab,
 } from "./settings/ui";
+import { advanceProgressTrack } from "./tracks/commands";
 import { ProgressIndex, ProgressIndexer } from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
 import { CustomSuggestModal } from "./utils/suggest";
@@ -138,6 +139,20 @@ export default class ForgedPlugin extends Plugin {
             }),
           );
         }
+      },
+    });
+
+    this.addCommand({
+      id: "progress-advance",
+      name: "Advance a Progress Track",
+      editorCallback: async (editor, ctx) => {
+        await advanceProgressTrack(
+          this.app,
+          this.settings,
+          editor,
+          ctx as MarkdownView,
+          this.progressIndex,
+        );
       },
     });
 

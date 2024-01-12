@@ -98,6 +98,10 @@ describe("ProgressTracker", () => {
     );
   });
 
+  it("calculates ticks per step", () => {
+    expect(make().ticksPerStep).toBe(8);
+  });
+
   it.each([
     { ticks: 7, boxes: 1 },
     { ticks: 0, boxes: 0 },
@@ -106,6 +110,20 @@ describe("ProgressTracker", () => {
     "#boxesFilled calculates $ticks ticks is $boxes boxes",
     ({ ticks, boxes }) => {
       expect(make({ Progress: ticks }).boxesFilled).toBe(boxes);
+    },
+  );
+
+  it.each([
+    { ticks: 0, steps: 5, rank: ChallengeRanks.Dangerous },
+    { ticks: 2, steps: 5, rank: ChallengeRanks.Dangerous },
+    { ticks: 8, steps: 4, rank: ChallengeRanks.Dangerous },
+    { ticks: 0, steps: 4, rank: ChallengeRanks.Troublesome },
+  ])(
+    "#stepsRemaining calculates $steps steps from $ticks ticks for $rank",
+    ({ ticks, steps, rank }) => {
+      expect(make({ Progress: ticks, Difficulty: rank }).stepsRemaining).toBe(
+        steps,
+      );
     },
   );
 });
