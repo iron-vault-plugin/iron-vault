@@ -44,7 +44,18 @@ Characters:
 Progress Tracks Refactor:
   ✔ Create generic indexer framework to process game objects @done(24-01-03 12:58)
   ✔ Move character to that framework @done(24-01-03 12:58)
-  ☐ Create indexer for vows and clocks
+  ✔ Create indexer for vows @done(24-01-14 14:47)
+  ☐ Create indexer for clocks
+  ☐ Create a progress track:
+    ☐ Simple modal
+  ☐ Add hint to "advance track" steps suggest dialog that explains what you are typing
+  ☐ Create a clock
+  Special tracks:
+    ☐ Support legacy tracks on character
+    ☐ Initial command initially -- but maybe combine later?
+
+Refactors:
+  ☐ Move indexes/indexers? into datastore?
 
 Other:
   ☐ Investigate using https://eemeli.org/yaml/#yaml to manipulate frontmatter without rewriting
