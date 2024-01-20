@@ -47,7 +47,9 @@ export default class ForgedPlugin extends Plugin {
     this.datastore = this.addChild(new Datastore(this));
     this.characters = new CharacterTracker();
     this.progressIndex = new Map();
-    this.indexManager = new IndexManager(this.app, this.datastore.index);
+    this.indexManager = this.addChild(
+      new IndexManager(this.app, this.datastore.index),
+    );
     this.indexManager.registerHandler(
       new CharacterIndexer(this.characters, this.datastore.index),
     );
