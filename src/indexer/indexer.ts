@@ -46,7 +46,11 @@ export abstract class BaseIndexer<T> implements Indexer {
           path,
         );
       }
-      return { type: "error", error };
+      return {
+        type: "error",
+        error:
+          error instanceof Error ? error : new Error("error", { cause: error }),
+      };
     }
   }
 

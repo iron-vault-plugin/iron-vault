@@ -1,3 +1,4 @@
+import Handlebars from "handlebars";
 import ForgedPlugin from "index";
 import { PluginSettingTab, Setting, type App } from "obsidian";
 import { ProgressTrackInfo } from "tracks/progress";
