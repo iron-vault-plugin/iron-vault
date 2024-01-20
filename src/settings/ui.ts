@@ -1,5 +1,6 @@
 import ForgedPlugin from "index";
 import { PluginSettingTab, Setting, type App } from "obsidian";
+import { ProgressTrackInfo } from "tracks/progress";
 
 export class ForgedSettingTab extends PluginSettingTab {
   plugin: ForgedPlugin;
@@ -41,5 +42,22 @@ export const DEFAULT_SETTINGS: ForgedPluginSettings = {
   meterAdjTemplate:
     "> [!mechanics] {{character.name}} old {{measure.definition.label}}: {{measure.value}}; new {{measure.definition.label}}: {{newValue}}\n\n",
   advanceProgressTemplate:
-    "> [!progress] [[{{trackPath}}|{{track.Name}}]], {{steps}} progress marked ({{track.boxesFilled}} ![[progress-box-4.svg|15]] total)\n> \n> Milestone: \n\n",
+    "> [!progress] [[{{trackPath}}|{{trackInfo.name}}]], {{steps}} progress marked ({{trackInfo.track.boxesFilled}} ![[progress-box-4.svg|15]] total)\n> \n> Milestone: \n\n",
 };
+
+export type AdvanceProgressTemplateParams = {
+  trackPath: string;
+  trackInfo: ProgressTrackInfo;
+  steps: number;
+};
+
+export function advanceProgressTemplate(
+  settings: ForgedPluginSettings,
+): HandlebarsTemplateDelegate<AdvanceProgressTemplateParams> {
+  return Handlebars.compile<AdvanceProgressTemplateParams>(
+    settings.advanceProgressTemplate,
+    {
+      noEscape: true,
+    },
+  );
+}

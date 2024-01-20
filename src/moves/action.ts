@@ -6,7 +6,7 @@ import {
   type FuzzyMatch,
   type MarkdownView,
 } from "obsidian";
-import { ProgressIndex, ProgressTracker } from "tracks/progress";
+import { ProgressIndex, ProgressTrackFileAdapter } from "tracks/progress";
 import { selectProgressTrack } from "tracks/select";
 import { IronswornCharacterMetadata } from "../character";
 import { CharacterWrapper, type CharacterTracker } from "../character-tracker";
@@ -93,12 +93,12 @@ function processActionMove(
 function processProgressMove(
   move: Move,
   trackerPath: string,
-  tracker: ProgressTracker,
+  tracker: ProgressTrackFileAdapter,
 ): ProgressMoveDescription {
   return {
     name: move.name,
     progressTrack: `[[${trackerPath}]]`,
-    progressTicks: tracker.Progress,
+    progressTicks: tracker.track.progress,
     challenge1: randomInt(1, 10),
     challenge2: randomInt(1, 10),
   };
@@ -172,7 +172,8 @@ async function handleProgressRoll(
   const progressTrack = await selectProgressTrack(
     progressIndex,
     app,
-    ([, prog]) => prog.tracktype == move.tracks.category && prog.incomplete,
+    ([, prog]) =>
+      prog.trackType == move.tracks.category && !prog.track.complete,
   );
   const description = processProgressMove(
     move,

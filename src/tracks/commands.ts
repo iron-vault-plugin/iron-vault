@@ -1,15 +1,17 @@
 import { App, Editor, MarkdownView } from "obsidian";
-import { ForgedPluginSettings } from "settings/ui";
+import { ForgedPluginSettings, advanceProgressTemplate } from "settings/ui";
 import { CustomSuggestModal } from "utils/suggest";
 import { updater, vaultProcess } from "utils/update";
-import { ProgressIndex, ProgressTracker } from "./progress";
+import { ProgressIndex, ProgressTrackFileAdapter } from "./progress";
 import { selectProgressTrack } from "./select";
 
-import Handlebars from "handlebars";
-
-const progressTrackUpdater = updater(
-  (data) => ProgressTracker.fromDataWithRepair(data),
-  (tracker) => tracker,
+const progressTrackUpdater = updater<ProgressTrackFileAdapter>(
+  (data) =>
+    ProgressTrackFileAdapter.create(
+      data,
+      (track) => `[[progress-track-${track.progress}.svg]]`,
+    ).expect("could not parse"),
+  (tracker) => tracker.raw,
 );
 
 export async function advanceProgressTrack(
@@ -23,15 +25,16 @@ export async function advanceProgressTrack(
   //   console.warn("data not ready");
   //   return;
   // }
-  const [trackPath, track] = await selectProgressTrack(
+  const [trackPath, trackInfo] = await selectProgressTrack(
     progressIndex,
     app,
-    ([, track]) => track.incomplete && track.ticksRemaining > 0,
+    ([, trackInfo]) =>
+      !trackInfo.track.complete && trackInfo.track.ticksRemaining > 0,
   );
 
   const steps = await CustomSuggestModal.select(
     app,
-    Array(track.stepsRemaining)
+    Array(trackInfo.track.stepsRemaining)
       .fill(0)
       .map((_, i) => i + 1),
     (num) => num.toString(),
@@ -39,21 +42,16 @@ export async function advanceProgressTrack(
 
   const newTrack = await progressTrackUpdater(
     vaultProcess(app, trackPath),
-    (track) => {
-      return track.advanced(steps);
+    (trackAdapter) => {
+      return trackAdapter.updatingTrack((track) => track.advanced(steps));
     },
   );
 
-  // TODO: centralize the template compilation, so we can include type information for the template delegates
-  const template = Handlebars.compile(settings.advanceProgressTemplate, {
-    noEscape: true,
-  });
   editor.replaceSelection(
-    template(
+    advanceProgressTemplate(settings)(
       {
-        track: newTrack,
+        trackInfo: newTrack,
         trackPath,
-        oldTrack: track,
         steps,
       },
       { allowProtoPropertiesByDefault: true },

@@ -46,7 +46,11 @@ export function dataforgedInlineParser(content: string): ParserReturn {
     // TODO: validation?
     return { success: true, rules: data as RulesPackage };
   } catch (e) {
-    return { success: false, error: e };
+    return {
+      success: false,
+      error:
+        e instanceof Error ? e : new Error("unexpected error", { cause: e }),
+    };
   }
 }
 
@@ -88,7 +92,13 @@ export function inlineOracleParser(baseName: string): MarkdownDataParser {
         },
       };
     } catch (error) {
-      return { success: false, error };
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error
+            : new Error("unexpected error", { cause: error }),
+      };
     }
   };
 }

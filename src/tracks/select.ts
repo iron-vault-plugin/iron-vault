@@ -1,12 +1,16 @@
 import { App } from "obsidian";
 import { CustomSuggestModal } from "utils/suggest";
-import { ProgressIndex, ProgressTracker } from "./progress";
+import {
+  ProgressIndex,
+  ProgressTrackFileAdapter,
+  ProgressTrackInfo,
+} from "./progress";
 
 export async function selectProgressTrack(
   progressIndex: ProgressIndex,
   app: App,
-  filter?: (track: [string, ProgressTracker]) => boolean,
-): Promise<[string, ProgressTracker]> {
+  filter?: (track: [string, ProgressTrackInfo]) => boolean,
+): Promise<[string, ProgressTrackFileAdapter]> {
   let tracks = [...progressIndex.entries()];
   if (filter) {
     tracks = tracks.filter(filter);
@@ -14,10 +18,11 @@ export async function selectProgressTrack(
   return await CustomSuggestModal.select(
     app,
     tracks,
-    ([, track]) => track.Name,
-    ({ item: [path, track] }, el) => {
+    ([, trackInfo]) => trackInfo.name,
+    ({ item: [path, trackInfo] }, el) => {
+      const track = trackInfo.track;
       el.createEl("small", {
-        text: `${track.tracktype}; ${track.boxesFilled}/10 boxes (${track.Progress}/40 ticks); ${path}`,
+        text: `${trackInfo.trackType}; ${track.boxesFilled}/10 boxes (${track.progress}/40 ticks); ${path}`,
         cls: "forged-suggest-hint",
       });
     },

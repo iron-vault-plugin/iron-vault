@@ -100,7 +100,7 @@ export function renderDetailedOracleCallout(oracle: OracleSchema): string {
 }
 
 class OracleMarkdownRenderChild extends MarkdownRenderChild {
-  protected _renderEl: HTMLElement;
+  protected _renderEl?: HTMLElement;
 
   constructor(
     containerEl: HTMLElement,
@@ -117,11 +117,11 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
   }
 
   async render(): Promise<void> {
-    this._renderEl.replaceChildren();
+    this._renderEl!.replaceChildren();
     await MarkdownRenderer.render(
       this.app,
       this.template(),
-      this._renderEl,
+      this._renderEl!,
       this.ctx.sourcePath,
       this,
     );

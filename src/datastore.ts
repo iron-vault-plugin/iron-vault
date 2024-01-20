@@ -114,7 +114,13 @@ export class Datastore extends Component {
     try {
       result = parser(content);
     } catch (error) {
-      result = { success: false, error };
+      result = {
+        success: false,
+        error:
+          error instanceof Error
+            ? error
+            : new Error("unexpected parsing error", { cause: error }),
+      };
     }
 
     if (!result.success) {
