@@ -1,9 +1,9 @@
 import {
-  type App,
-  type FuzzyMatch,
   SuggestModal,
   prepareFuzzySearch,
   sortSearchResults,
+  type App,
+  type FuzzyMatch,
   type SearchResult,
 } from "obsidian";
 
@@ -35,6 +35,7 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     items: T[],
     getItemText: (item: T) => string,
     renderExtras?: (match: FuzzyMatch<T>, el: HTMLElement) => void,
+    placeholder?: string,
   ): Promise<T> {
     return await new Promise((resolve, reject) => {
       new this<T>(
@@ -60,6 +61,7 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
         },
         resolve,
         reject,
+        placeholder,
       ).open();
     });
   }
@@ -69,6 +71,7 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     items: T[],
     getItemText: (item: T) => string,
     renderSuggestion: (match: FuzzyMatch<T>, el: HTMLElement) => void,
+    placeholder?: string,
   ): Promise<T> {
     return await new Promise((resolve, reject) => {
       new this(
@@ -78,11 +81,12 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
         renderSuggestion,
         resolve,
         reject,
+        placeholder,
       ).open();
     });
   }
 
-  constructor(
+  private constructor(
     app: App,
     protected readonly items: T[],
     protected readonly getTtemText: (item: T) => string,
@@ -92,8 +96,12 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     ) => void,
     protected readonly onSelect: (item: T) => void,
     protected readonly onCancel: () => void,
+    placeholder?: string,
   ) {
     super(app);
+    if (placeholder) {
+      this.setPlaceholder(placeholder);
+    }
   }
 
   getSuggestions(

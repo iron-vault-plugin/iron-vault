@@ -45,10 +45,10 @@ Progress Tracks Refactor:
   ✔ Create generic indexer framework to process game objects @done(24-01-03 12:58)
   ✔ Move character to that framework @done(24-01-03 12:58)
   ✔ Create indexer for vows @done(24-01-14 14:47)
-  ☐ Create indexer for clocks
+  ✔ Create indexer for clocks @done(24-01-20 22:38)
   ☐ Create a progress track:
     ☐ Simple modal
-  ☐ Add hint to "advance track" steps suggest dialog that explains what you are typing
+  ✔ Add hint to "advance track" steps suggest dialog that explains what you are typing @done(24-01-20 22:47)
   ☐ Create a clock
   Special tracks:
     ☐ Support legacy tracks on character

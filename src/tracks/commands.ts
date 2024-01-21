@@ -35,6 +35,8 @@ export async function advanceProgressTrack(
       .fill(0)
       .map((_, i) => i + 1),
     (num) => num.toString(),
+    undefined,
+    "Select number of times to advance the progress track.",
   );
 
   const newTrack = await progressTrackUpdater(
@@ -77,6 +79,8 @@ export async function advanceClock(
       .fill(0)
       .map((_, i) => i + 1),
     (num) => num.toString(),
+    undefined,
+    "Select number of segments to fill.",
   );
 
   const newClock = await clockUpdater(

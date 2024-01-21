@@ -1,10 +1,10 @@
 ---
 Name: Destruction of Kresnik
 Segments: 8
-Progress: 5
+Progress: 6
 tags:
   - incomplete
-ClockImage: "[[progress-clock-8-5.svg]]"
+ClockImage: "[[progress-clock-8-6.svg]]"
 forgedkind: clock
 ---
 
