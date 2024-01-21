@@ -1,18 +1,9 @@
 import { App, Editor, MarkdownView } from "obsidian";
-import { ForgedPluginSettings, advanceProgressTemplate } from "settings/ui";
-import { CustomSuggestModal } from "utils/suggest";
-import { updater, vaultProcess } from "utils/update";
-import { ProgressIndex, ProgressTrackFileAdapter } from "./progress";
+import { ForgedPluginSettings, advanceProgressTemplate } from "../settings/ui";
+import { vaultProcess } from "../utils/obsidian";
+import { CustomSuggestModal } from "../utils/suggest";
+import { ProgressIndex, progressTrackUpdater } from "./progress";
 import { selectProgressTrack } from "./select";
-
-const progressTrackUpdater = updater<ProgressTrackFileAdapter>(
-  (data) =>
-    ProgressTrackFileAdapter.create(
-      data,
-      (track) => `[[progress-track-${track.progress}.svg]]`,
-    ).expect("could not parse"),
-  (tracker) => tracker.raw,
-);
 
 export async function advanceProgressTrack(
   app: App,

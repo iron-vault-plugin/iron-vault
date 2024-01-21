@@ -1,7 +1,7 @@
 import { Patch } from "immer";
 import { Either } from "../utils/either";
 
-class StateMonad<S, A> {
+export class StateMonad<S, A> {
   constructor(public runState: (s: S) => { s: S; a: A }) {}
 
   static return_<S, A>(a: A): StateMonad<S, A> {
@@ -39,8 +39,6 @@ export type WithPatches<T> = {
   patches: Patch[];
   inversePatches: Patch[];
 };
-
-const ProgressOps = {};
 
 export type Lens<A, B, Err> = {
   project(a: A): Either<Err, B>;

@@ -3,6 +3,7 @@ import { CachedMetadata } from "obsidian";
 import { ZodError, z } from "zod";
 import { BaseIndexer } from "../indexer/indexer";
 import { Either, Left, Right } from "../utils/either";
+import { updater } from "../utils/update";
 
 export enum ChallengeRanks {
   /** 12 ticks per step */
@@ -247,5 +248,16 @@ export class ProgressIndexer extends BaseIndexer<ProgressTrackFileAdapter> {
     ).unwrap();
   }
 }
+
+// TODO: feels like this could be merged into some class that provides the same config to
+//       ProgressIndexer
+export const progressTrackUpdater = updater<ProgressTrackFileAdapter>(
+  (data) =>
+    ProgressTrackFileAdapter.create(
+      data,
+      (track) => `[[progress-track-${track.progress}.svg]]`,
+    ).expect("could not parse"),
+  (tracker) => tracker.raw,
+);
 
 export type ProgressIndex = Map<string, ProgressTrackFileAdapter>;
