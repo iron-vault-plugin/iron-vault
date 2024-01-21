@@ -1,6 +1,7 @@
 import Handlebars from "handlebars";
 import ForgedPlugin from "index";
 import { PluginSettingTab, Setting, type App } from "obsidian";
+import { ClockFileAdapter } from "tracks/clock-file";
 import { ProgressTrackInfo } from "tracks/progress";
 
 export class ForgedSettingTab extends PluginSettingTab {
@@ -35,6 +36,7 @@ export interface ForgedPluginSettings {
   momentumResetTemplate: string;
   meterAdjTemplate: string;
   advanceProgressTemplate: string;
+  advanceClockTemplate: string;
 }
 export const DEFAULT_SETTINGS: ForgedPluginSettings = {
   oraclesFolder: "",
@@ -44,6 +46,8 @@ export const DEFAULT_SETTINGS: ForgedPluginSettings = {
     "> [!mechanics] {{character.name}} old {{measure.definition.label}}: {{measure.value}}; new {{measure.definition.label}}: {{newValue}}\n\n",
   advanceProgressTemplate:
     "> [!progress] [[{{trackPath}}|{{trackInfo.name}}]], {{steps}} progress marked ({{trackInfo.track.boxesFilled}} ![[progress-box-4.svg|15]] total)\n> \n> Milestone: \n\n",
+  advanceClockTemplate:
+    "> [!progress] [[{{clockPath}}|{{clockInfo.name}}]] clock advanced\n>**Progress:** {{clockInfo.clock.progress}} out of {{clockInfo.clock.segments}} segments filled\n> \n> **Cause of Advance:**\n\n",
 };
 
 export type AdvanceProgressTemplateParams = {
@@ -54,11 +58,30 @@ export type AdvanceProgressTemplateParams = {
 
 export function advanceProgressTemplate(
   settings: ForgedPluginSettings,
-): HandlebarsTemplateDelegate<AdvanceProgressTemplateParams> {
-  return Handlebars.compile<AdvanceProgressTemplateParams>(
-    settings.advanceProgressTemplate,
-    {
-      noEscape: true,
-    },
-  );
+): (context: AdvanceProgressTemplateParams) => string {
+  return (context) =>
+    Handlebars.compile<AdvanceProgressTemplateParams>(
+      settings.advanceProgressTemplate,
+      {
+        noEscape: true,
+      },
+    )(context, { allowProtoPropertiesByDefault: true });
+}
+
+export type AdvanceClockTemplateParams = {
+  clockPath: string;
+  clockInfo: ClockFileAdapter;
+  ticks: number;
+};
+
+export function advanceClockTemplate(
+  settings: ForgedPluginSettings,
+): (context: AdvanceClockTemplateParams) => string {
+  return (context) =>
+    Handlebars.compile<AdvanceClockTemplateParams>(
+      settings.advanceClockTemplate,
+      {
+        noEscape: true,
+      },
+    )(context, { allowProtoPropertiesByDefault: true });
 }

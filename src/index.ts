@@ -19,18 +19,20 @@ import {
   ForgedPluginSettings,
   ForgedSettingTab,
 } from "./settings/ui";
-import { advanceProgressTrack } from "./tracks/commands";
+import { ClockIndex, ClockIndexer } from "./tracks/clock-file";
+import { advanceClock, advanceProgressTrack } from "./tracks/commands";
 import { ProgressIndex, ProgressIndexer } from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
 import { CustomSuggestModal } from "./utils/suggest";
 
 export default class ForgedPlugin extends Plugin {
-  settings: ForgedPluginSettings;
-  datastore: Datastore;
-  characters: CharacterTracker;
-  progressIndex: ProgressIndex;
-  indexManager: IndexManager;
-  api: ForgedAPI;
+  settings!: ForgedPluginSettings;
+  datastore!: Datastore;
+  characters!: CharacterTracker;
+  progressIndex!: ProgressIndex;
+  clockIndex!: ClockIndex;
+  indexManager!: IndexManager;
+  api!: ForgedAPI;
 
   private initialize(): void {
     this.indexManager.initialize();
@@ -47,6 +49,7 @@ export default class ForgedPlugin extends Plugin {
     this.datastore = this.addChild(new Datastore(this));
     this.characters = new CharacterTracker();
     this.progressIndex = new Map();
+    this.clockIndex = new Map();
     this.indexManager = this.addChild(
       new IndexManager(this.app, this.datastore.index),
     );
@@ -54,6 +57,7 @@ export default class ForgedPlugin extends Plugin {
       new CharacterIndexer(this.characters, this.datastore.index),
     );
     this.indexManager.registerHandler(new ProgressIndexer(this.progressIndex));
+    this.indexManager.registerHandler(new ClockIndexer(this.clockIndex));
 
     if (this.app.workspace.layoutReady) {
       this.initialize();
@@ -154,6 +158,20 @@ export default class ForgedPlugin extends Plugin {
           editor,
           ctx as MarkdownView,
           this.progressIndex,
+        );
+      },
+    });
+
+    this.addCommand({
+      id: "clock-advance",
+      name: "Advance a Clock",
+      editorCallback: async (editor, ctx) => {
+        await advanceClock(
+          this.app,
+          this.settings,
+          editor,
+          ctx as MarkdownView,
+          this.clockIndex,
         );
       },
     });
