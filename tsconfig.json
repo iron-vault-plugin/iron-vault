@@ -19,7 +19,7 @@
     "downlevelIteration": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "lib": ["dom", "es5", "scripthost", "ES2022", "DOM.Iterable"]
+    "lib": ["dom", "es5", "scripthost", "ES2022", "DOM.Iterable"],
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
 }

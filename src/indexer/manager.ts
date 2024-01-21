@@ -8,7 +8,12 @@ import {
   type Vault,
 } from "obsidian";
 import { DataIndex } from "../datastore/data-index";
-import { IndexUpdateResult, Indexer, IndexerId } from "./indexer";
+import {
+  IndexUpdateResult,
+  Indexer,
+  IndexerId,
+  wrapIndexUpdateError,
+} from "./indexer";
 
 // function isCharacterFile(
 //   md: CachedMetadata,
@@ -117,7 +122,7 @@ export class IndexManager extends Component {
       try {
         result = indexer.onDeleted(fileKey);
       } catch (error) {
-        result = { type: "error", error };
+        result = wrapIndexUpdateError(error);
       }
       if (result.type != "removed") {
         console.warn(
@@ -179,7 +184,7 @@ export class IndexManager extends Component {
       try {
         result = newIndexer.onChanged(file.path, cache);
       } catch (error) {
-        result = { type: "error", error };
+        result = wrapIndexUpdateError(error);
       }
       switch (result.type) {
         case "indexed":

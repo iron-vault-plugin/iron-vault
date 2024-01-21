@@ -1,12 +1,23 @@
 import { type CachedMetadata } from "obsidian";
 
+export type IndexUpdateErrorResult = { type: "error"; error: Error };
 export type IndexUpdateResult =
   | {
       type: "indexed";
     }
   | { type: "removed" }
   | { type: "not_indexable" }
-  | { type: "error"; error: Error };
+  | IndexUpdateErrorResult;
+
+export function wrapIndexUpdateError(error: unknown): IndexUpdateErrorResult {
+  return {
+    type: "error",
+    error:
+      error instanceof Error
+        ? error
+        : new Error("indexing error", { cause: error }),
+  };
+}
 
 export interface Indexer {
   readonly id: IndexerId;
@@ -46,11 +57,7 @@ export abstract class BaseIndexer<T> implements Indexer {
           path,
         );
       }
-      return {
-        type: "error",
-        error:
-          error instanceof Error ? error : new Error("error", { cause: error }),
-      };
+      return wrapIndexUpdateError(error);
     }
   }
 

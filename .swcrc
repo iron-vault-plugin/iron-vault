@@ -6,7 +6,8 @@
       "decorators": false,
       "dynamicImport": false
     },
-    "target": "es2022"
+    "target": "es2022",
+    "baseUrl": "src"
   },
   "module": {
     "type": "commonjs"
