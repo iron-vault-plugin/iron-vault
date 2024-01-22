@@ -175,7 +175,7 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
   private constructor(
     public readonly raw: Readonly<ProgressTrackerSchema>,
     public readonly track: Readonly<ProgressTrack>,
-    protected readonly trackImageGenerator: (track: ProgressTrack) => string,
+    protected readonly settings: ProgressTrackSettings,
   ) {}
 
   get name(): string {
@@ -186,9 +186,31 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     return this.raw.tracktype;
   }
 
+  static newFromTrack(
+    {
+      name,
+      tracktype,
+      track,
+    }: { name: string; tracktype: string; track: ProgressTrack },
+    settings: ProgressTrackSettings,
+  ): Either<ZodError, ProgressTrackFileAdapter> {
+    return this.create(
+      {
+        Name: name,
+        Difficulty: track.difficulty,
+        Progress: track.progress,
+        tags: track.complete ? ["complete"] : ["incomplete"],
+        TrackImage: settings.generateTrackImage(track),
+        tracktype,
+        forgedkind: "progress",
+      } as ProgressTrackerInputSchema,
+      settings,
+    );
+  }
+
   static create(
     data: unknown,
-    trackImageGenerator: (track: ProgressTrack) => string,
+    settings: ProgressTrackSettings,
   ): Either<ZodError, ProgressTrackFileAdapter> {
     const result = progressTrackerSchema.safeParse(data);
     if (result.success) {
@@ -198,7 +220,7 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
         progress: raw.Progress,
         complete: raw.tags.includes("complete"),
         unbounded: false,
-      }).map((track) => new this(raw, track, trackImageGenerator));
+      }).map((track) => new this(raw, track, settings));
     } else {
       return Left.create(result.error);
     }
@@ -215,7 +237,7 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     return new ProgressTrackFileAdapter(
       produce(this.raw, (data) => {
         data.Progress = other.progress;
-        data.TrackImage = this.trackImageGenerator(other);
+        data.TrackImage = this.settings.generateTrackImage(other);
         data.Difficulty = other.difficulty;
         const [tagToRemove, tagToAdd] = other.complete
           ? ["incomplete", "complete"]
@@ -228,13 +250,24 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
         );
       }),
       other,
-      this.trackImageGenerator,
+      this.settings,
     );
   }
 }
 
+export interface ProgressTrackSettings {
+  generateTrackImage: (track: ProgressTrack) => string;
+}
+
 export class ProgressIndexer extends BaseIndexer<ProgressTrackFileAdapter> {
   readonly id: string = "progress";
+
+  constructor(
+    index: ProgressIndex,
+    protected readonly settings: ProgressTrackSettings,
+  ) {
+    super(index);
+  }
 
   processFile(
     path: string,
@@ -244,20 +277,18 @@ export class ProgressIndexer extends BaseIndexer<ProgressTrackFileAdapter> {
     // TODO: customize track image gen
     return ProgressTrackFileAdapter.create(
       cache.frontmatter,
-      (track) => `[[progress-track-${track.progress}.svg]]`,
+      this.settings,
     ).unwrap();
   }
 }
 
 // TODO: feels like this could be merged into some class that provides the same config to
 //       ProgressIndexer
-export const progressTrackUpdater = updater<ProgressTrackFileAdapter>(
-  (data) =>
-    ProgressTrackFileAdapter.create(
-      data,
-      (track) => `[[progress-track-${track.progress}.svg]]`,
-    ).expect("could not parse"),
-  (tracker) => tracker.raw,
-);
+export const progressTrackUpdater = (settings: ProgressTrackSettings) =>
+  updater<ProgressTrackFileAdapter>(
+    (data) =>
+      ProgressTrackFileAdapter.create(data, settings).expect("could not parse"),
+    (tracker) => tracker.raw,
+  );
 
 export type ProgressIndex = Map<string, ProgressTrackFileAdapter>;

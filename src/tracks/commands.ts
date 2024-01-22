@@ -1,13 +1,22 @@
-import { App, Editor, MarkdownView } from "obsidian";
+import ForgedPlugin from "index";
+import { App, Editor, MarkdownView, TFolder, stringifyYaml } from "obsidian";
 import {
   ForgedPluginSettings,
   advanceClockTemplate,
   advanceProgressTemplate,
+  createProgressTemplate,
 } from "../settings/ui";
 import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ClockIndex, clockUpdater } from "./clock-file";
-import { ProgressIndex, progressTrackUpdater } from "./progress";
+import {
+  ProgressIndex,
+  ProgressTrack,
+  ProgressTrackFileAdapter,
+  ProgressTrackSettings,
+  progressTrackUpdater,
+} from "./progress";
+import { ProgressTrackCreateModal } from "./progress-create";
 import { selectProgressTrack } from "./select";
 import { selectClock } from "./select-clock";
 
@@ -17,6 +26,7 @@ export async function advanceProgressTrack(
   editor: Editor,
   view: MarkdownView,
   progressIndex: ProgressIndex,
+  progressSettings: ProgressTrackSettings,
 ) {
   // if (!datastore.ready) {
   //   console.warn("data not ready");
@@ -39,7 +49,7 @@ export async function advanceProgressTrack(
     "Select number of times to advance the progress track.",
   );
 
-  const newTrack = await progressTrackUpdater(
+  const newTrack = await progressTrackUpdater(progressSettings)(
     vaultProcess(app, trackPath),
     (trackAdapter) => {
       return trackAdapter.updatingTrack((track) => track.advanced(steps));
@@ -95,6 +105,46 @@ export async function advanceClock(
       clockInfo: newClock,
       clockPath: clockPath,
       ticks,
+    }),
+  );
+}
+
+export async function createProgressTrack(
+  plugin: ForgedPlugin,
+  editor: Editor,
+): Promise<void> {
+  const trackInput: {
+    fileName: string;
+    name: string;
+    tracktype: string;
+    track: ProgressTrack;
+  } = await new Promise((onAccept, onReject) => {
+    new ProgressTrackCreateModal(plugin.app, onAccept, onReject).open();
+  });
+
+  const track = ProgressTrackFileAdapter.newFromTrack(
+    trackInput,
+    plugin.progressTrackSettings,
+  ).expect("invalid track");
+
+  // TODO: where these are created should be configurable
+  const progressFolder = plugin.app.vault.getAbstractFileByPath("Progress");
+  if (!(progressFolder instanceof TFolder)) {
+    throw new Error("Expected 'Progress' to be folder");
+  }
+
+  // TODO: figure out the templating for this
+  const file = await plugin.app.fileManager.createNewFile(
+    progressFolder,
+    trackInput.fileName,
+    "md",
+    `---\n${stringifyYaml(track.raw)}\n---\n\n# ${track.name}\n\n`,
+  );
+
+  editor.replaceSelection(
+    createProgressTemplate(plugin.settings)({
+      trackInfo: track,
+      trackPath: file.path,
     }),
   );
 }

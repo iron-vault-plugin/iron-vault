@@ -117,7 +117,10 @@ describe("ProgressTrackFileAdapter", () => {
         ...TEST_DATA,
         ...overrides,
       },
-      (track) => `[[progress-track-${track.progress}.svg]]`,
+      {
+        generateTrackImage: (track) =>
+          `[[progress-track-${track.progress}.svg]]`,
+      },
     );
   }
 

@@ -20,8 +20,16 @@ import {
   ForgedSettingTab,
 } from "./settings/ui";
 import { ClockIndex, ClockIndexer } from "./tracks/clock-file";
-import { advanceClock, advanceProgressTrack } from "./tracks/commands";
-import { ProgressIndex, ProgressIndexer } from "./tracks/progress";
+import {
+  advanceClock,
+  advanceProgressTrack,
+  createProgressTrack,
+} from "./tracks/commands";
+import {
+  ProgressIndex,
+  ProgressIndexer,
+  ProgressTrackSettings,
+} from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
 import { CustomSuggestModal } from "./utils/suggest";
 
@@ -29,6 +37,9 @@ export default class ForgedPlugin extends Plugin {
   settings!: ForgedPluginSettings;
   datastore!: Datastore;
   characters!: CharacterTracker;
+  progressTrackSettings: ProgressTrackSettings = {
+    generateTrackImage: (track) => `[[progress-track-${track.progress}.svg]]`,
+  };
   progressIndex!: ProgressIndex;
   clockIndex!: ClockIndex;
   indexManager!: IndexManager;
@@ -56,7 +67,9 @@ export default class ForgedPlugin extends Plugin {
     this.indexManager.registerHandler(
       new CharacterIndexer(this.characters, this.datastore.index),
     );
-    this.indexManager.registerHandler(new ProgressIndexer(this.progressIndex));
+    this.indexManager.registerHandler(
+      new ProgressIndexer(this.progressIndex, this.progressTrackSettings),
+    );
     this.indexManager.registerHandler(new ClockIndexer(this.clockIndex));
 
     if (this.app.workspace.layoutReady) {
@@ -149,6 +162,18 @@ export default class ForgedPlugin extends Plugin {
     });
 
     this.addCommand({
+      id: "progress-create",
+      name: "Progress Track: Create a Progress Track",
+      editorCallback: async (editor, ctx) => {
+        await createProgressTrack(
+          this,
+          editor,
+          // ctx as MarkdownView,
+        );
+      },
+    });
+
+    this.addCommand({
       id: "progress-advance",
       name: "Advance a Progress Track",
       editorCallback: async (editor, ctx) => {
@@ -158,6 +183,7 @@ export default class ForgedPlugin extends Plugin {
           editor,
           ctx as MarkdownView,
           this.progressIndex,
+          this.progressTrackSettings,
         );
       },
     });
