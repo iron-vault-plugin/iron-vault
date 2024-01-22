@@ -1,3 +1,4 @@
+import { generateEntityCommand } from "entity/command";
 import Handlebars from "handlebars";
 import { IndexManager } from "indexer/manager";
 import {
@@ -199,6 +200,14 @@ export default class ForgedPlugin extends Plugin {
           ctx as MarkdownView,
           this.clockIndex,
         );
+      },
+    });
+
+    this.addCommand({
+      id: "entity-gen",
+      name: "Generate an entity",
+      editorCallback: async (editor, ctx) => {
+        await generateEntityCommand(this, editor);
       },
     });
 
