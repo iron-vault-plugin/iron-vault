@@ -105,7 +105,7 @@ export class ProgressTrackCreateModal extends Modal {
       }),
     );
 
-    const fileNameSetting = new Setting(contentEl).setName("File name").addText(
+    new Setting(contentEl).setName("File name").addText(
       (text) =>
         (fileNameText = text.onChange((value) => {
           this.result.fileName = value;
