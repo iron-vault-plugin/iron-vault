@@ -16,7 +16,7 @@ Oracles:
       So like a modal that displays different variants after you select it. Or maybe suggestions?
   Formatting:
     ☐ Prompt for a question -- maybe after the result dialog?
-    ☐ Include full path in oracle block (Derelicts: Access: Feature vs Feature)
+    ✔ Include full path in oracle block (Derelicts: Access: Feature vs Feature) @done(24-01-22 23:13)
 
 Entity generation:
   ☐ Create a faction from a template? Maybe the ability to include oracle rolls in a template using templater? @high
