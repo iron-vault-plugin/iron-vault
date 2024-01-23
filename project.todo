@@ -19,7 +19,13 @@ Oracles:
     ✔ Include full path in oracle block (Derelicts: Access: Feature vs Feature) @done(24-01-22 23:13)
 
 Entity generation:
-  ☐ Create a faction from a template? Maybe the ability to include oracle rolls in a template using templater? @high
+  Add additional entity specs:
+    ☐ Faction
+  ☐ Handle multi-valued (recommended roll count)
+  What to do with result:
+    ☐ Some model of generating a templater page? (use as an API?)
+    ☐ Allow providing a template for the inline value
+    ☐ Allow options on dialog: create page; create page and insert link; insert directly as callout
 
 Moves:
   Move modal:
