@@ -101,9 +101,7 @@ export async function runOracleCommand(
       if (USE_ORACLE_BLOCK) {
         editor.replaceSelection(prefix + formatOracleBlock({ roll }));
       } else {
-        editor.replaceSelection(
-          prefix + renderOracleCallout({ roll: roll.dehydrate() }),
-        );
+        editor.replaceSelection(prefix + renderOracleCallout(roll));
       }
     },
     () => {},

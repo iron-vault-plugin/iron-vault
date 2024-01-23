@@ -8,6 +8,8 @@ import {
   type MarkdownPostProcessorContext,
   type Plugin,
 } from "obsidian";
+import { Oracle, OracleGroupingType } from "../model/oracle";
+import { RollWrapper } from "../model/rolls";
 import { formatOracleBlock } from "./command";
 import { OracleRoller } from "./roller";
 import { oracleSchema, type OracleSchema, type RollSchema } from "./schema";
@@ -85,11 +87,21 @@ export function renderRollPath(roll: RollSchema): string {
   return result;
 }
 
-export function renderOracleCallout(oracle: OracleSchema): string {
-  const { roll, question } = oracle;
-  return `> [!oracle] ${question ?? "Ask the Oracle"} (${
-    roll.tableName
-  }): ${roll.results.join("; ")} %%${renderRollPath(roll)}%%\n>\n\n`;
+export function oracleNameWithParents(oracle: Oracle): string {
+  const steps = [oracle.name];
+  let next = oracle.parent;
+  while (next && next.grouping_type != OracleGroupingType.Ruleset) {
+    steps.unshift(next.name);
+    next = next.parent;
+  }
+  return steps.join(" / ");
+}
+
+export function renderOracleCallout(rollWrapper: RollWrapper): string {
+  const roll = rollWrapper.dehydrate();
+  return `> [!oracle] ${"Ask the Oracle"} (${oracleNameWithParents(
+    rollWrapper.oracle,
+  )}): ${roll.results.join("; ")} %%${renderRollPath(roll)}%%\n>\n\n`;
 }
 
 export function renderDetailedOracleCallout(oracle: OracleSchema): string {
