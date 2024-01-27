@@ -52,9 +52,12 @@ export class OracleRollerModal extends Modal {
 
     rollSetting
       .addExtraButton((btn) =>
-        btn.setIcon("refresh-cw").onClick(() => {
-          setRoll(this.currentRoll.reroll());
-        }),
+        btn
+          .setIcon("refresh-cw")
+          .onClick(() => {
+            setRoll(this.currentRoll.reroll());
+          })
+          .setTooltip("Re-roll (r)"),
       )
       .addButton((btn) => {
         btn
@@ -64,6 +67,11 @@ export class OracleRollerModal extends Modal {
             this.accept(this.currentRoll);
           });
       });
+
+    this.scope.register([], "r", (evt, ctx) => {
+      setRoll(this.currentRoll.reroll());
+      return false;
+    });
 
     flipSetting.addButton((btn) => {
       btn.setButtonText("Select").onClick(() => {
