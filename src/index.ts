@@ -93,6 +93,7 @@ export default class ForgedPlugin extends Plugin {
     this.addCommand({
       id: "make-a-move",
       name: "Make a Move",
+      icon: "zap",
       editorCallback: async (
         editor: Editor,
         view: MarkdownView | MarkdownFileInfo,
@@ -112,6 +113,7 @@ export default class ForgedPlugin extends Plugin {
     this.addCommand({
       id: "ask-the-oracle",
       name: "Ask the Oracle",
+      icon: "message-circle-question",
       editorCallback: async (
         editor: Editor,
         view: MarkdownView | MarkdownFileInfo,
