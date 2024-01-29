@@ -113,7 +113,7 @@ export default class ForgedPlugin extends Plugin {
     this.addCommand({
       id: "ask-the-oracle",
       name: "Ask the Oracle",
-      icon: "message-circle-question",
+      icon: "help-circle",
       editorCallback: async (
         editor: Editor,
         view: MarkdownView | MarkdownFileInfo,
