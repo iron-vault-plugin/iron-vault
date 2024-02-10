@@ -7,6 +7,7 @@ import {
   OracleGroupingType,
   OracleRulesetGrouping,
 } from "../../model/oracle";
+import { Ruleset } from "../../rules/ruleset";
 import { DataswornOracle } from "./datasworn/oracles";
 
 export function indexDataForgedData(
@@ -28,6 +29,11 @@ export function indexDataForgedData(
           asset,
         ]),
     ),
+    // TODO: we should also be able to index ruleset expansions, but that's not currently supported by this
+    rulesets:
+      ruleset.package_type == "ruleset"
+        ? { [ruleset.id]: new Ruleset(ruleset.rules) }
+        : {},
   });
 }
 

@@ -2,7 +2,7 @@ import { Move, RulesPackage } from "@datasworn/core";
 import { DataIndex } from "datastore/data-index";
 import { indexDataForgedData } from "datastore/parsers/dataforged";
 import { ParserReturn, parserForFrontmatter } from "datastore/parsers/markdown";
-import { PriorityIndexer } from "datastore/priority-index";
+import { StandardIndex } from "datastore/priority-index";
 import ForgedPlugin from "index";
 import { Oracle } from "model/oracle";
 import {
@@ -14,11 +14,15 @@ import {
   type App,
 } from "obsidian";
 import { OracleRoller } from "oracles/roller";
+import { Ruleset } from "rules/ruleset";
 import { breadthFirstTraversal } from "utils/traversal";
 
 export class Datastore extends Component {
   _ready: boolean;
   readonly index: DataIndex;
+
+  // TODO: wtf
+  activeRuleset: string = "starforged";
 
   constructor(public readonly plugin: ForgedPlugin) {
     super();
@@ -185,13 +189,22 @@ export class Datastore extends Component {
     return [...this.index._moveIndex.values()];
   }
 
-  get oracles(): PriorityIndexer<string, Oracle> {
+  get oracles(): StandardIndex<Oracle> {
     this.assertReady();
     return this.index._oracleIndex;
   }
 
   get roller(): OracleRoller {
     return new OracleRoller(this.oracles);
+  }
+
+  get ruleset(): Ruleset {
+    this.assertReady();
+    const ruleset = this.index._rulesetIndex.get(this.activeRuleset);
+    if (!ruleset) {
+      throw new Error(`missing ruleset ${this.activeRuleset}`);
+    }
+    return ruleset;
   }
 
   private assertReady(): void {
