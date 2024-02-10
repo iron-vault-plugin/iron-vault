@@ -1,8 +1,10 @@
 import { Move, RulesPackage } from "@datasworn/core";
-import { DataIndex, OracleIndex } from "datastore/data-index";
+import { DataIndex } from "datastore/data-index";
 import { indexDataForgedData } from "datastore/parsers/dataforged";
 import { ParserReturn, parserForFrontmatter } from "datastore/parsers/markdown";
+import { PriorityIndexer } from "datastore/priority-index";
 import ForgedPlugin from "index";
+import { Oracle } from "model/oracle";
 import {
   Component,
   TAbstractFile,
@@ -183,7 +185,7 @@ export class Datastore extends Component {
     return [...this.index._moveIndex.values()];
   }
 
-  get oracles(): OracleIndex {
+  get oracles(): PriorityIndexer<string, Oracle> {
     this.assertReady();
     return this.index._oracleIndex;
   }

@@ -1,38 +1,23 @@
 import { Asset, type Move } from "@datasworn/core";
 import { Oracle } from "model/oracle";
+import { Ruleset } from "rules/ruleset";
 import { IndexableData, PriorityIndexer } from "./priority-index";
 
-export class OracleIndex extends PriorityIndexer<string, Oracle> {
-  /** @deprecated */
-  *tables(): IterableIterator<Oracle> {
-    for (const table of this.values()) {
-      yield table;
-    }
-  }
-
-  /**
-   * Retrieve an oracle table from the index.
-   * @param id ID of oracle table
-   * @returns oracle table or undefined if the table is missing or is an OracleSet
-   */
-  getTable(id: string): Oracle | undefined {
-    return this.get(id);
-  }
-}
-
 export class DataIndex {
-  _oracleIndex: OracleIndex;
+  _oracleIndex: PriorityIndexer<string, Oracle>;
   _moveIndex: PriorityIndexer<string, Move>;
   _assetIndex: PriorityIndexer<string, Asset>;
+  _rulesetIndex: PriorityIndexer<string, Ruleset>;
 
   /** Tracks "groups" of sources that should be updated together.  */
   _indexGroups: Map<string, Set<string>>;
 
   constructor() {
-    this._oracleIndex = new OracleIndex();
+    this._oracleIndex = new PriorityIndexer();
     this._moveIndex = new PriorityIndexer();
     this._assetIndex = new PriorityIndexer();
     this._indexGroups = new Map();
+    this._rulesetIndex = new PriorityIndexer();
   }
 
   updateIndexGroup(group: string, indexedPaths: Set<string>): Set<string> {
@@ -54,19 +39,26 @@ export class DataIndex {
     this._oracleIndex.removeSource(pathToRemove);
     this._moveIndex.removeSource(pathToRemove);
     this._assetIndex.removeSource(pathToRemove);
+    this._rulesetIndex.removeSource(pathToRemove);
   }
 
   indexSource(
     normalizedPath: string,
     priority: number,
     data: {
-      oracles: IndexableData<string, Oracle>;
-      moves: IndexableData<string, Move>;
-      assets: IndexableData<string, Asset>;
+      oracles?: IndexableData<string, Oracle>;
+      moves?: IndexableData<string, Move>;
+      assets?: IndexableData<string, Asset>;
+      rulesets?: IndexableData<string, Ruleset>;
     },
   ): void {
-    this._oracleIndex.indexSource(normalizedPath, priority, data.oracles);
-    this._moveIndex.indexSource(normalizedPath, priority, data.moves);
-    this._assetIndex.indexSource(normalizedPath, priority, data.assets);
+    this._oracleIndex.indexSource(normalizedPath, priority, data.oracles || {});
+    this._moveIndex.indexSource(normalizedPath, priority, data.moves || {});
+    this._assetIndex.indexSource(normalizedPath, priority, data.assets || {});
+    this._rulesetIndex.indexSource(
+      normalizedPath,
+      priority,
+      data.rulesets || {},
+    );
   }
 }

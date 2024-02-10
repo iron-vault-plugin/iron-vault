@@ -1,9 +1,9 @@
-import { type OracleIndex } from "datastore/data-index";
+import { StandardIndex } from "datastore/priority-index";
 import { Oracle, RollContext } from "model/oracle";
 import { RollWrapper } from "model/rolls";
 
 export class OracleRoller implements RollContext {
-  constructor(protected index: OracleIndex) {}
+  constructor(protected index: StandardIndex<Oracle>) {}
 
   lookup(id: string): Oracle | undefined {
     return this.index.get(id);

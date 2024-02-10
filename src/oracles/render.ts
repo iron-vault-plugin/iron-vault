@@ -158,7 +158,7 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
         const oracles = this.datastore.oracles;
         const result = new OracleRoller(oracles).roll(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          oracles.getTable(this.oracle.roll.tableId)!,
+          oracles.get(this.oracle.roll.tableId)!,
         );
 
         editor.replaceRange(

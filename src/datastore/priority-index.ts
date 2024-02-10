@@ -44,6 +44,8 @@ export type IndexableData<K extends string, V> =
   | Record<K, V>
   | Iterable<[K, V]>;
 
+export type StandardIndex<V> = ReadonlyMap<string, V>;
+
 export class PriorityIndexer<K extends string, V> implements ReadonlyMap<K, V> {
   /** Maps keys to source path */
   public readonly dataMap: Map<K, Array<Sourced<K, V>>>;
