@@ -77,7 +77,10 @@ export class Ruleset {
   readonly stats: Record<string, StatDefinition>;
   // TODO: impacts
 
-  constructor(rules: Rules) {
+  constructor(
+    public readonly id: string,
+    rules: Rules,
+  ) {
     this.condition_meters = Object.fromEntries(
       Object.entries(rules.condition_meters).map(([key, meter]) => [
         key,
