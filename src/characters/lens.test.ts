@@ -1,5 +1,12 @@
 import { Ruleset } from "../rules/ruleset";
-import { Lens, characterLens, prop, validatedAgainst } from "./lens";
+import {
+  ForgedSheetAssetSchema,
+  ImpactStatus,
+  Lens,
+  characterLens,
+  prop,
+  validatedAgainst,
+} from "./lens";
 
 const TEST_RULESET = new Ruleset("test", {
   condition_meters: {
@@ -16,7 +23,21 @@ const TEST_RULESET = new Ruleset("test", {
   stats: {
     wits: { description: "thinking", label: "wits" },
   },
-  impacts: {},
+  impacts: {
+    misfortunes: {
+      label: "misfortunes",
+      description: "Oh no",
+      contents: {
+        wounded: {
+          label: "wounded",
+          prevents_recovery: ["health"],
+          permanent: false,
+          shared: false,
+          description: "You are severely injured.",
+        },
+      },
+    },
+  },
   special_tracks: {},
   tags: {},
 });
@@ -65,8 +86,8 @@ describe("validater", () => {
 });
 
 function actsLikeLens<T, U>(lens: Lens<T, U>, input: T, testVal: U) {
-  it("returns the same object if value is unchanged", () => {
-    expect(lens.update(input, lens.get(input))).toBe(input);
+  it("returns an equivalent object if value is unchanged", () => {
+    expect(lens.update(input, lens.get(input))).toStrictEqual(input);
   });
 
   it("returns the correct value after updating", () => {
@@ -114,6 +135,62 @@ describe("characterLens", () => {
       expect(() => lens.condition_meters.health.update(character, 6)).toThrow(
         /too_big/,
       );
+    });
+  });
+
+  describe("#assets", () => {
+    const character = validater({
+      ...VALID_INPUT,
+      assets: [
+        { id: "asset_id", condition_meter: 3 },
+      ] as ForgedSheetAssetSchema[],
+    });
+    actsLikeLens(lens.assets, character, [{ id: "new_asset" }]);
+
+    it("requires a valid asset definition", () => {
+      expect(() =>
+        lens.assets.update(character, [{ foo: "bar" }] as any),
+      ).toThrow(/invalid_type/);
+    });
+
+    it("get returns an empty array if missing in source", () => {
+      expect(lens.assets.get(validater({ ...VALID_INPUT }))).toStrictEqual([]);
+    });
+  });
+
+  describe("#impacts", () => {
+    const character = validater({
+      ...VALID_INPUT,
+      wounded: "a",
+    });
+
+    actsLikeLens(lens.impacts, character, { wounded: ImpactStatus.Marked });
+
+    it("treats any string other than ⬢ as unmarked", () => {
+      expect(lens.impacts.get(character)).toEqual({
+        wounded: ImpactStatus.Unmarked,
+      });
+    });
+
+    it("treats a missing key as unmarked", () => {
+      const character = validater({ ...VALID_INPUT });
+      expect(lens.impacts.get(character)).toEqual({
+        wounded: ImpactStatus.Unmarked,
+      });
+    });
+
+    it("treats ⬢ as marked", () => {
+      expect(
+        lens.impacts.get(
+          lens.impacts.update(character, { wounded: ImpactStatus.Marked }),
+        ),
+      ).toEqual({ wounded: ImpactStatus.Marked });
+    });
+
+    it("rejects an invalid impact type", () => {
+      expect(() =>
+        lens.impacts.update(character, { foobar: ImpactStatus.Marked }),
+      ).toThrow("unexpected key in impacts: foobar");
     });
   });
 });

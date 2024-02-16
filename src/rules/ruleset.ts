@@ -1,5 +1,13 @@
-import { Rules, RulesExpansion } from "@datasworn/core";
+import {
+  Rules,
+  RulesExpansion,
+  ImpactCategory as SourceImpactCategory,
+  ImpactRule as SourceImpactRule,
+} from "@datasworn/core";
 import { z } from "zod";
+
+export type ImpactCategory = Omit<SourceImpactCategory, "contents">;
+export type ImpactRule = SourceImpactRule & { category: ImpactCategory };
 
 export function mergeRules(rules: Rules, expansions: RulesExpansion[]): Rules {
   return {
@@ -75,7 +83,7 @@ export class ConditionMeterDefinition implements Readonly<MeterCommon> {
 export class Ruleset {
   readonly condition_meters: Record<string, ConditionMeterDefinition>;
   readonly stats: Record<string, StatDefinition>;
-  // TODO: impacts
+  readonly impacts: Record<string, ImpactRule>;
 
   constructor(
     public readonly id: string,
@@ -92,6 +100,17 @@ export class Ruleset {
         key,
         new StatDefinition({ ...stat, min: 0, max: 5 }),
       ]),
+    );
+    this.impacts = Object.fromEntries(
+      Object.entries(rules.impacts).flatMap(([categoryKey, source]) => {
+        const category: ImpactCategory = {
+          label: source.label,
+          description: source.description,
+        };
+        return Object.entries(source.contents).map(
+          ([impactKey, impactDefn]) => [impactKey, { ...impactDefn, category }],
+        );
+      }),
     );
   }
 }
