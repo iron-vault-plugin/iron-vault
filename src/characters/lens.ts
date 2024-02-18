@@ -187,6 +187,102 @@ function createImpactLens(
   };
 }
 
+// TODO: not all impacts are always active (mainly the vehicle ones)
+export class MomentumTracker {
+  public readonly momentum: number;
+  public readonly maxMomentum: number;
+
+  static readonly MIN_MOMENTUM: number = -6;
+  static readonly MAX_MOMENTUM: number = 10;
+
+  public constructor(
+    momentum: number,
+    public readonly impactsMarked: number,
+  ) {
+    this.maxMomentum = Math.max(0, 10 - impactsMarked);
+
+    if (momentum < MomentumTracker.MIN_MOMENTUM) {
+      this.momentum = MomentumTracker.MIN_MOMENTUM;
+    } else if (momentum > this.maxMomentum) {
+      this.momentum = this.maxMomentum;
+    } else {
+      this.momentum = momentum;
+    }
+  }
+
+  get momentumReset(): number {
+    return Math.max(0, 2 - this.impactsMarked);
+  }
+
+  updating(op: (mom: number) => number): MomentumTracker {
+    return new MomentumTracker(op(this.momentum), this.impactsMarked);
+  }
+
+  take(amount: number): MomentumTracker {
+    return this.updating((mom) => mom + amount);
+  }
+
+  suffer(amount: number): MomentumTracker {
+    return this.updating((mom) => mom - amount);
+  }
+
+  reset(): MomentumTracker {
+    return this.updating(() => this.momentumReset);
+  }
+}
+
+export function updating<A, B>(
+  lens: Lens<A, B>,
+  op: (val: B) => B,
+): (source: A) => A {
+  return (source: A) => {
+    return lens.update(source, op(lens.get(source)));
+  };
+}
+
+export function momentumOps(characterLens: CharacterLens<ValidatedCharacter>) {
+  return {
+    reset: updating(momentumTrackerLens(characterLens), (mom) => mom.reset()),
+    take(amount: number) {
+      return updating(momentumTrackerLens(characterLens), (mom) =>
+        mom.take(amount),
+      );
+    },
+    suffer(amount: number) {
+      return updating(momentumTrackerLens(characterLens), (mom) =>
+        mom.suffer(amount),
+      );
+    },
+  };
+}
+
+function momentumTrackerLens(
+  characterLens: CharacterLens<ValidatedCharacter>,
+): Lens<ValidatedCharacter, MomentumTracker> {
+  return {
+    get(character) {
+      const markedImpacts = countMarked(characterLens.impacts.get(character));
+      return new MomentumTracker(
+        characterLens.momentum.get(character),
+        markedImpacts,
+      );
+    },
+    update(character, newval) {
+      // TODO: should we validate that we have the same markedImpacts etc? for now, just trust
+      // the transactional nature.
+      return characterLens.momentum.update(character, newval.momentum);
+    },
+  };
+}
+
+export function countMarked(impacts: Record<string, ImpactStatus>): number {
+  return Object.values(impacts).reduce(
+    (count, impactStatus) =>
+      count + (impactStatus === ImpactStatus.Marked ? 1 : 0),
+    0,
+  );
+}
+
 export function characterLens(ruleset: Ruleset): {
   validater: (data: unknown) => ValidatedCharacter;
   lens: CharacterLens<ValidatedCharacter>;

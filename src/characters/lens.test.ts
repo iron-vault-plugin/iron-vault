@@ -4,6 +4,7 @@ import {
   ImpactStatus,
   Lens,
   characterLens,
+  momentumOps,
   prop,
   validatedAgainst,
 } from "./lens";
@@ -34,6 +35,13 @@ const TEST_RULESET = new Ruleset("test", {
           permanent: false,
           shared: false,
           description: "You are severely injured.",
+        },
+        disappointed: {
+          label: "disappointed",
+          description: "You are disappointed",
+          permanent: false,
+          shared: false,
+          prevents_recovery: [],
         },
       },
     },
@@ -164,11 +172,15 @@ describe("characterLens", () => {
       wounded: "a",
     });
 
-    actsLikeLens(lens.impacts, character, { wounded: ImpactStatus.Marked });
+    actsLikeLens(lens.impacts, character, {
+      wounded: ImpactStatus.Marked,
+      disappointed: ImpactStatus.Unmarked,
+    });
 
     it("treats any string other than ⬢ as unmarked", () => {
       expect(lens.impacts.get(character)).toEqual({
         wounded: ImpactStatus.Unmarked,
+        disappointed: ImpactStatus.Unmarked,
       });
     });
 
@@ -176,6 +188,7 @@ describe("characterLens", () => {
       const character = validater({ ...VALID_INPUT });
       expect(lens.impacts.get(character)).toEqual({
         wounded: ImpactStatus.Unmarked,
+        disappointed: ImpactStatus.Unmarked,
       });
     });
 
@@ -184,13 +197,69 @@ describe("characterLens", () => {
         lens.impacts.get(
           lens.impacts.update(character, { wounded: ImpactStatus.Marked }),
         ),
-      ).toEqual({ wounded: ImpactStatus.Marked });
+      ).toEqual({
+        wounded: ImpactStatus.Marked,
+        disappointed: ImpactStatus.Unmarked,
+      });
     });
 
     it("rejects an invalid impact type", () => {
       expect(() =>
         lens.impacts.update(character, { foobar: ImpactStatus.Marked }),
       ).toThrow("unexpected key in impacts: foobar");
+    });
+  });
+});
+
+describe("momentumOps", () => {
+  const { validater, lens } = characterLens(TEST_RULESET);
+  const { reset, take, suffer } = momentumOps(lens);
+
+  describe("with no impacts marked", () => {
+    describe("take", () => {
+      it("adds momentum", () => {
+        const character = validater({ ...VALID_INPUT, momentum: 3 });
+        expect(lens.momentum.get(take(3)(character))).toBe(6);
+      });
+
+      it("enforces a maximum", () => {
+        const character = validater({ ...VALID_INPUT, momentum: 3 });
+        expect(lens.momentum.get(take(8)(character))).toBe(10);
+      });
+    });
+
+    describe("suffer", () => {
+      it("removes momentum", () => {
+        const character = validater({ ...VALID_INPUT, momentum: 3 });
+        expect(lens.momentum.get(suffer(3)(character))).toBe(0);
+      });
+      it("enforces a minimum of -6", () => {
+        const character = validater({ ...VALID_INPUT, momentum: 3 });
+        expect(lens.momentum.get(suffer(10)(character))).toBe(-6);
+      });
+    });
+  });
+
+  describe.each([
+    [0, 10, 2],
+    [1, 10 - 1, 1],
+    [2, 10 - 2, 0],
+    // [4, 10 - 4], // TODO: add more test impacts?
+  ])("when %d impacts marked", (impacts, max, momentumReset) => {
+    const impactKeys = Object.keys(TEST_RULESET.impacts).slice(0, impacts);
+    const character = validater({
+      ...VALID_INPUT,
+      momentum: 3,
+      ...Object.fromEntries(
+        impactKeys.map((key) => [key, ImpactStatus.Marked]),
+      ),
+    });
+    it(`caps momentum to ${max}`, () => {
+      expect(lens.momentum.get(take(8)(character))).toBe(max);
+    });
+
+    it(`resets momentum to ${momentumReset}`, () => {
+      expect(lens.momentum.get(reset(character))).toBe(momentumReset);
     });
   });
 });
