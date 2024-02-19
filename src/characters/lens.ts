@@ -11,6 +11,10 @@ export type Lens<A, B> = {
   update(source: A, newval: B): A;
 };
 
+export type Reader<A, B> = {
+  get(source: A): B;
+};
+
 const ValidationTag: unique symbol = Symbol("validated ruleset");
 
 export type ValidatedCharacter = {
@@ -42,14 +46,14 @@ export enum ImpactStatus {
   Marked = "⬢",
 }
 
-export type CharacterLens<ValidatedCharacter> = {
+export interface CharacterLens {
   name: Lens<ValidatedCharacter, string>;
   momentum: Lens<ValidatedCharacter, number>;
   stats: Record<string, Lens<ValidatedCharacter, number>>;
   condition_meters: Record<string, Lens<ValidatedCharacter, number>>;
   assets: Lens<ValidatedCharacter, ForgedSheetAssetSchema[]>;
   impacts: Lens<ValidatedCharacter, Record<string, ImpactStatus>>;
-};
+}
 
 export function validatedAgainst(
   ruleset: Ruleset,
@@ -240,7 +244,7 @@ export function updating<A, B>(
   };
 }
 
-export function momentumOps(characterLens: CharacterLens<ValidatedCharacter>) {
+export function momentumOps(characterLens: CharacterLens) {
   return {
     reset: updating(momentumTrackerLens(characterLens), (mom) => mom.reset()),
     take(amount: number) {
@@ -257,7 +261,7 @@ export function momentumOps(characterLens: CharacterLens<ValidatedCharacter>) {
 }
 
 function momentumTrackerLens(
-  characterLens: CharacterLens<ValidatedCharacter>,
+  characterLens: CharacterLens,
 ): Lens<ValidatedCharacter, MomentumTracker> {
   return {
     get(character) {
@@ -285,7 +289,7 @@ export function countMarked(impacts: Record<string, ImpactStatus>): number {
 
 export function characterLens(ruleset: Ruleset): {
   validater: (data: unknown) => ValidatedCharacter;
-  lens: CharacterLens<ValidatedCharacter>;
+  lens: CharacterLens;
 } {
   const v = validated(ruleset);
   const stats = objectMap(ruleset.stats, (defn, key) => ({
@@ -307,7 +311,7 @@ export function characterLens(ruleset: Ruleset): {
       [ValidationTag]: ruleset.id,
     };
   }
-  const lens: CharacterLens<ValidatedCharacter> = {
+  const lens: CharacterLens = {
     name: v(
       lensForSchemaProp({ path: "name", schema: baseForgedSchema.shape.name }),
     ),
