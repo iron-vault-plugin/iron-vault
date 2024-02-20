@@ -1,11 +1,15 @@
+import { Asset } from "@datasworn/core";
+import { DataIndex } from "../datastore/data-index";
 import { Ruleset } from "../rules/ruleset";
+import { Right } from "../utils/either";
+import { Lens } from "../utils/lens";
 import {
+  BaseForgedSchema,
   ForgedSheetAssetSchema,
   ImpactStatus,
-  Lens,
   characterLens,
   momentumOps,
-  prop,
+  movesReader,
   validatedAgainst,
 } from "./lens";
 
@@ -56,24 +60,6 @@ const VALID_INPUT = {
   health: 3,
   wits: 2,
 };
-
-describe("prop", () => {
-  it("gets a key from an object", () => {
-    const lens = prop<number>("foo");
-    expect(lens.get({ foo: 3 })).toBe(3);
-  });
-
-  it("updates a key if new value", () => {
-    const lens = prop<number>("foo");
-    expect(lens.update({ foo: 3 }, 4)).toEqual({ foo: 4 });
-  });
-
-  it("returns the original object if update passed the original value", () => {
-    const lens = prop<number>("foo");
-    const obj = { foo: 3 };
-    expect(lens.update(obj, 3)).toBe(obj);
-  });
-});
 
 describe("validater", () => {
   const { validater } = characterLens(TEST_RULESET);
@@ -260,6 +246,185 @@ describe("momentumOps", () => {
 
     it(`resets momentum to ${momentumReset}`, () => {
       expect(lens.momentum.get(reset(character))).toBe(momentumReset);
+    });
+  });
+});
+
+// TODO: generate an actual test asset
+const TestAsset: Asset = {
+  id: "starforged/assets/path/empath",
+  name: "Empath",
+  category: "Path",
+  color: "#3f7faa",
+  count_as_impact: false,
+  shared: false,
+  abilities: [
+    {
+      id: "starforged/assets/path/empath/abilities/0",
+      enabled: true,
+      text: "When you read the intent, emotions, or memories of a nearby being, roll +heart. On a strong hit, you glimpse a helpful aspect of their inner self. Envision what you learn, take +2 momentum, and add +1 when you make moves to interact with them in this scene. On a weak hit, the visions are murky; take +1 momentum. On a miss, you reveal a troubling motive or secret; [Pay the Price](id:starforged/moves/fate/pay_the_price).",
+      moves: {
+        read_heart: {
+          id: "starforged/assets/path/empath/abilities/0/moves/read_heart",
+          name: "Read Heart",
+          roll_type: "action_roll",
+          trigger: {
+            conditions: [
+              {
+                method: "player_choice",
+                roll_options: [
+                  {
+                    using: "stat",
+                    stat: "heart",
+                  },
+                ],
+              },
+            ],
+            text: "When you read the intent, emotions, or memories of a nearby being...",
+          },
+          text: "When you read the intent, emotions, or memories of a nearby being, roll +heart. On a strong hit, you glimpse a helpful aspect of their inner self. Envision what you learn, take +2 momentum, and add +1 when you make moves to interact with them in this scene. On a weak hit, the visions are murky; take +1 momentum. On a miss, you reveal a troubling motive or secret; [Pay the Price](id:starforged/moves/fate/pay_the_price).",
+          outcomes: {
+            strong_hit: {
+              text: "On a __strong hit__, you glimpse a helpful aspect of their inner self. Envision what you learn, take +2 momentum, and add +1 when you make moves to interact with them in this scene.",
+            },
+            weak_hit: {
+              text: "On a __weak hit__, the visions are murky; take +1 momentum.",
+            },
+            miss: {
+              text: "On a __miss__, you reveal a troubling motive or secret; [Pay the Price](id:starforged/moves/fate/pay_the_price).",
+            },
+          },
+          source: {
+            title: "Ironsworn: Starforged Assets",
+            authors: [
+              {
+                name: "Shawn Tomkin",
+              },
+            ],
+            date: "2022-05-06",
+            url: "https://ironswornrpg.com",
+            license: "https://creativecommons.org/licenses/by/4.0",
+          },
+        },
+      },
+    },
+    {
+      id: "starforged/assets/path/empath/abilities/1",
+      enabled: false,
+      text: "As above, and if you score a hit as you read them, you may subtly influence their attitude or actions, such as making a hostile being hesitate. Take another +1 momentum. If in a fight, mark progress.",
+      enhance_moves: [
+        {
+          roll_type: "action_roll",
+          enhances: [
+            "starforged/assets/path/empath/abilities/0/moves/read_heart",
+          ],
+        },
+      ],
+    },
+    {
+      id: "starforged/assets/path/empath/abilities/2",
+      enabled: false,
+      text: "When you [Face Danger](id:starforged/moves/adventure/face_danger) to soothe a being’s distress by creating an empathic bond, roll +spirit and take +1 momentum on a hit. If they are an ally, also give them +2 spirit on a hit.",
+      enhance_moves: [
+        {
+          roll_type: "action_roll",
+          enhances: ["starforged/moves/*/face_danger"],
+          trigger: {
+            conditions: [
+              {
+                method: "player_choice",
+                roll_options: [
+                  {
+                    using: "condition_meter",
+                    condition_meter: "spirit",
+                  },
+                ],
+                text: "To soothe a being's distress by creating an empathic bond",
+              },
+            ],
+          },
+        },
+      ],
+    },
+  ],
+  source: {
+    title: "Ironsworn: Starforged Assets",
+    authors: [
+      {
+        name: "Shawn Tomkin",
+      },
+    ],
+    date: "2022-05-06",
+    url: "https://ironswornrpg.com",
+    license: "https://creativecommons.org/licenses/by/4.0",
+  },
+};
+
+describe("IronswornCharacterMetadata", () => {
+  const mockIndex = new DataIndex();
+
+  beforeAll(() => {
+    mockIndex.indexSource("test", 1, {
+      oracles: {},
+      moves: {},
+      assets: {
+        "starforged/assets/path/empath": TestAsset,
+      },
+    });
+  });
+
+  describe("moves", () => {
+    const { validater, lens } = characterLens(TEST_RULESET);
+
+    it("is empty if no assets", () => {
+      expect(
+        movesReader(lens, mockIndex).get(validater({ ...VALID_INPUT })),
+      ).toEqual(Right.create([]));
+    });
+
+    it("does not include moves for unmarked asset abilities", () => {
+      expect(
+        movesReader(lens, mockIndex).get(
+          validater({
+            ...VALID_INPUT,
+            assets: [{ id: "starforged/assets/path/empath" }],
+          } satisfies BaseForgedSchema),
+        ),
+      ).toEqual(Right.create([]));
+    });
+    it("includes moves for marked asset abilities", () => {
+      // This ability has no additional moves.
+      expect(
+        movesReader(lens, mockIndex)
+          .get(
+            validater({
+              ...VALID_INPUT,
+              assets: [
+                { id: "starforged/assets/path/empath", marked_abilities: [2] },
+              ],
+            } satisfies BaseForgedSchema),
+          )
+          .unwrap(),
+      ).toHaveLength(0);
+
+      // This ability adds one extra move.
+      expect(
+        movesReader(lens, mockIndex)
+          .get(
+            validater({
+              ...VALID_INPUT,
+              assets: [
+                {
+                  id: "starforged/assets/path/empath",
+                  marked_abilities: [1, 2],
+                },
+              ],
+            } satisfies BaseForgedSchema),
+          )
+          .unwrap(),
+      ).toMatchObject([
+        { id: "starforged/assets/path/empath/abilities/0/moves/read_heart" },
+      ]);
     });
   });
 });

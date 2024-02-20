@@ -1,19 +1,16 @@
-import { Ruleset } from "rules/ruleset";
+import { Asset, Move } from "@datasworn/core";
 import { z } from "zod";
-
-// const characterSchema = z.object({
-//   name: z.string(),
-//   momentum: z.number().optional(),
-// });
-
-export type Lens<A, B> = {
-  get(source: A): B;
-  update(source: A, newval: B): A;
-};
-
-export type Reader<A, B> = {
-  get(source: A): B;
-};
+import { DataIndex } from "../datastore/data-index";
+import { Ruleset } from "../rules/ruleset";
+import { Either, Left, Right, collectEither } from "../utils/either";
+import {
+  Lens,
+  Reader,
+  lensForSchemaProp,
+  objectMap,
+  reader,
+  updating,
+} from "../utils/lens";
 
 const ValidationTag: unique symbol = Symbol("validated ruleset");
 
@@ -40,6 +37,8 @@ export const baseForgedSchema = z
     assets: z.array(characterAssetSchema).optional(),
   })
   .passthrough();
+
+export type BaseForgedSchema = z.input<typeof baseForgedSchema>;
 
 export enum ImpactStatus {
   Unmarked = "⬡",
@@ -90,61 +89,6 @@ export function validated(
       return { [ValidationTag]: ruleset.id, raw: updated };
     },
   });
-}
-
-export function prop<T, K extends string = string>(
-  key: K,
-): Lens<Record<string, unknown>, T> {
-  return {
-    get(source) {
-      return source[key] as T;
-    },
-    update(source, newval) {
-      if ((source[key] as T) === newval) return source;
-      return { ...source, [key]: newval };
-    },
-  };
-}
-
-export type SchemaProp<
-  Output,
-  Def extends z.ZodTypeDef = z.ZodTypeDef,
-  Input = Output,
-> = {
-  schema: z.ZodType<Output, Def, Input>;
-  path: string;
-};
-
-export function lensForSchemaProp<
-  Output,
-  Def extends z.ZodTypeDef = z.ZodTypeDef,
-  Input = Output,
->({
-  schema,
-  path,
-}: SchemaProp<Output, Def, Input>): Lens<Record<string, unknown>, Output> {
-  return {
-    get(source) {
-      return schema.parse(source[path]);
-    },
-    update(source, newval) {
-      if (source[path] === newval) return source;
-      // TODO: because we discard the value of parsed here, we will ignore any schema transformations
-      // but we aren't handling those transformations in the get either... so...
-      const parsed = schema.parse(newval);
-      if (source[path] === parsed) return source;
-      return { ...source, [path]: parsed };
-    },
-  };
-}
-
-function objectMap<K extends string, U, V>(
-  obj: Record<K, U>,
-  fn: (val: U, key: K) => V,
-): Record<K, V> {
-  return Object.fromEntries(
-    Object.entries<U>(obj).map(([key, val]) => [key, fn(val, key as K)]),
-  ) as Record<K, V>;
 }
 
 function createImpactLens(
@@ -235,15 +179,6 @@ export class MomentumTracker {
   }
 }
 
-export function updating<A, B>(
-  lens: Lens<A, B>,
-  op: (val: B) => B,
-): (source: A) => A {
-  return (source: A) => {
-    return lens.update(source, op(lens.get(source)));
-  };
-}
-
 export function momentumOps(characterLens: CharacterLens) {
   return {
     reset: updating(momentumTrackerLens(characterLens), (mom) => mom.reset()),
@@ -287,6 +222,50 @@ export function countMarked(impacts: Record<string, ImpactStatus>): number {
   );
 }
 
+export class AssetError extends Error {}
+
+export type CharLens<T> = Lens<ValidatedCharacter, T>;
+export type CharReader<T> = Reader<ValidatedCharacter, T>;
+
+export function assetWithDefnReader(
+  charLens: CharacterLens,
+  index: DataIndex,
+): CharReader<
+  Array<Either<AssetError, { asset: ForgedSheetAssetSchema; defn: Asset }>>
+> {
+  return reader((source) => {
+    return charLens.assets.get(source).map((asset) => {
+      const defn = index._assetIndex.get(asset.id);
+      if (defn) {
+        return Right.create({ asset, defn });
+      } else {
+        return Left.create(new AssetError(`missing asset with id ${asset.id}`));
+      }
+    });
+  });
+}
+
+export function movesReader(
+  charLens: CharacterLens,
+  index: DataIndex,
+): CharReader<Either<AssetError[], Move[]>> {
+  const assetReader = assetWithDefnReader(charLens, index);
+  return reader((source) => {
+    return collectEither(assetReader.get(source)).map((assets) =>
+      assets.flatMap(({ asset, defn }) => {
+        const moveList = [];
+        const marked_abilities = asset.marked_abilities ?? [];
+        for (const [idx, ability] of defn.abilities.entries()) {
+          if (marked_abilities.includes(idx + 1)) {
+            moveList.push(...Object.values(ability.moves ?? {}));
+          }
+        }
+        return moveList;
+      }),
+    );
+  });
+}
+
 export function characterLens(ruleset: Ruleset): {
   validater: (data: unknown) => ValidatedCharacter;
   lens: CharacterLens;
@@ -304,13 +283,7 @@ export function characterLens(ruleset: Ruleset): {
     ...objectMap(stats, ({ schema }) => schema),
     ...objectMap(condition_meters, ({ schema }) => schema),
   });
-  function validater(data: unknown): ValidatedCharacter {
-    const raw = schema.parse(data);
-    return {
-      raw,
-      [ValidationTag]: ruleset.id,
-    };
-  }
+
   const lens: CharacterLens = {
     name: v(
       lensForSchemaProp({ path: "name", schema: baseForgedSchema.shape.name }),
@@ -333,5 +306,14 @@ export function characterLens(ruleset: Ruleset): {
     ),
     impacts: v(createImpactLens(ruleset)),
   };
+
+  function validater(data: unknown): ValidatedCharacter {
+    const raw = schema.parse(data);
+    return {
+      raw,
+      [ValidationTag]: ruleset.id,
+    };
+  }
+
   return { validater, lens };
 }

@@ -68,3 +68,24 @@ export class Right<U> {
     return this.expect("expected a value");
   }
 }
+
+export function collectEither<L, R>(
+  iterable: Iterable<Either<L, R>>,
+): Either<L[], R[]> {
+  const errors: L[] = [];
+  const results: R[] = [];
+
+  for (const result of iterable) {
+    if (result.isLeft()) {
+      errors.push(result.error);
+    } else if (result.isRight()) {
+      results.push(result.value);
+    }
+  }
+
+  if (errors.length > 0) {
+    return Left.create(errors);
+  } else {
+    return Right.create(results);
+  }
+}
