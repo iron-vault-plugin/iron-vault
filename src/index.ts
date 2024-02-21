@@ -47,9 +47,9 @@ export default class ForgedPlugin extends Plugin {
   indexManager!: IndexManager;
   api!: ForgedAPI;
 
-  private initialize(): void {
+  private async initialize(): Promise<void> {
+    await this.datastore.initialize();
     this.indexManager.initialize();
-    this.datastore.initialize();
   }
 
   public assetFilePath(assetPath: string) {
@@ -75,7 +75,7 @@ export default class ForgedPlugin extends Plugin {
     this.indexManager.registerHandler(new ClockIndexer(this.clockIndex));
 
     if (this.app.workspace.layoutReady) {
-      this.initialize();
+      await this.initialize();
     } else {
       this.app.workspace.onLayoutReady(() => this.initialize());
     }
