@@ -219,6 +219,12 @@ function momentumTrackerLens(
   };
 }
 
+export function momentumTrackerReader(
+  characterLens: CharacterLens,
+): CharReader<MomentumTracker> {
+  return { get: momentumTrackerLens(characterLens).get };
+}
+
 export function countMarked(impacts: Record<string, ImpactStatus>): number {
   return Object.values(impacts).reduce(
     (count, impactStatus) =>

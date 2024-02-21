@@ -1,6 +1,7 @@
 import { MoveActionRoll } from "@datasworn/core";
-import { IronswornCharacterMetadata } from "character";
 import { App, Modal, Setting } from "obsidian";
+import { CharacterContext } from "../character-tracker";
+import { MomentumTracker, momentumTrackerReader } from "../characters/lens";
 import { ActionMoveDescription } from "./desc";
 import { ActionMoveWrapper, formatRollResult } from "./wrapper";
 
@@ -8,26 +9,23 @@ export async function checkForMomentumBurn(
   app: App,
   move: MoveActionRoll,
   roll: ActionMoveWrapper,
-  character: IronswornCharacterMetadata,
+  charContext: CharacterContext,
 ): Promise<ActionMoveDescription> {
   const currentResult = roll.result();
-  const measures = character.measures;
-  const reset = character.momentumReset;
-  if (roll.resultWithActionScore(measures.momentum) > currentResult) {
+  const { lens, character } = charContext;
+  const momentumTracker = momentumTrackerReader(lens).get(character);
+  if (roll.resultWithActionScore(momentumTracker.momentum) > currentResult) {
     const shouldBurn: boolean = await new Promise((resolve, reject) => {
-      new ActionModal(
-        app,
-        move,
-        roll,
-        measures.momentum,
-        reset,
-        resolve,
-        reject,
-      ).open();
+      new ActionModal(app, move, roll, momentumTracker, resolve, reject).open();
     });
     if (shouldBurn) {
+      // TODO: if this is true, maybe I should use momentumTracker.reset or something like that?
+      // or do the reset and then look at the new values?
       return Object.assign({}, roll.move, {
-        burn: { orig: measures.momentum, reset },
+        burn: {
+          orig: momentumTracker.momentum,
+          reset: momentumTracker.momentumReset,
+        },
       } satisfies Pick<ActionMoveDescription, "burn">);
     }
   }
@@ -42,8 +40,7 @@ export class ActionModal extends Modal {
     app: App,
     readonly move: MoveActionRoll,
     readonly roll: ActionMoveWrapper,
-    readonly currentMomentum: number,
-    readonly momentumReset: number,
+    readonly momentumTracker: MomentumTracker,
     protected readonly onAccept: (shouldBurn: boolean) => void,
     protected readonly onCancel: () => void,
   ) {
@@ -60,13 +57,15 @@ export class ActionModal extends Modal {
       )}. Would you like to burn momentum?`,
     });
 
-    const newResult = this.roll.resultWithActionScore(this.currentMomentum);
+    const newResult = this.roll.resultWithActionScore(
+      this.momentumTracker.momentum,
+    );
 
     contentEl.createEl("p", {
       text: `Your current momentum is ${
-        this.currentMomentum
+        this.momentumTracker.momentum
       }. If you burn, you will have ${
-        this.momentumReset
+        this.momentumTracker.momentumReset
       } momentum and the result will become ${formatRollResult(newResult)}.`,
     });
 

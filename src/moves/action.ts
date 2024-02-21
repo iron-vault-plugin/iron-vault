@@ -1,5 +1,4 @@
 import { Move, MoveActionRoll, MoveProgressRoll } from "@datasworn/core";
-import { movesReader, rollablesReader } from "characters/lens";
 import {
   stringifyYaml,
   type App,
@@ -7,12 +6,13 @@ import {
   type FuzzyMatch,
   type MarkdownView,
 } from "obsidian";
-import { IronswornCharacterMetadata } from "../character";
 import { CharacterContext, type CharacterTracker } from "../character-tracker";
+import { momentumOps, movesReader, rollablesReader } from "../characters/lens";
 import { type Datastore } from "../datastore";
 import { ProgressIndex, ProgressTrackFileAdapter } from "../tracks/progress";
 import { selectProgressTrack } from "../tracks/select";
 import { randomInt } from "../utils/dice";
+import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { checkForMomentumBurn } from "./action-modal";
 import {
@@ -215,16 +215,12 @@ async function handleActionRoll(
     app,
     move as MoveActionRoll,
     wrapper,
-    character,
+    charContext,
   );
   if (description.burn) {
-    await characterWrapper.update(
-      app,
-      characterPath,
-      IronswornCharacterMetadata,
-      (character) => {
-        return character.measures.set("momentum", character.momentumReset);
-      },
+    await charContext.updater(
+      vaultProcess(app, characterPath),
+      (character, { lens }) => momentumOps(lens).reset(character),
     );
   }
   editor.replaceSelection(moveTemplate(description));
