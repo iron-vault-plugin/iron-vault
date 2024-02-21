@@ -1,3 +1,4 @@
+import { conditionMetersReader, momentumOps } from "characters/lens";
 import { generateEntityCommand } from "entity/command";
 import Handlebars from "handlebars";
 import { IndexManager } from "indexer/manager";
@@ -7,8 +8,8 @@ import {
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
+import { updating } from "utils/lens";
 import { ForgedAPI } from "./api";
-import { IronswornCharacterMetadata } from "./character";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
 import { runMoveCommand } from "./moves/action";
@@ -31,7 +32,7 @@ import {
   ProgressIndexer,
   ProgressTrackSettings,
 } from "./tracks/progress";
-import { pluginAsset } from "./utils/obsidian";
+import { pluginAsset, vaultProcess } from "./utils/obsidian";
 import { CustomSuggestModal } from "./utils/suggest";
 
 export default class ForgedPlugin extends Plugin {
@@ -66,7 +67,7 @@ export default class ForgedPlugin extends Plugin {
       new IndexManager(this.app, this.datastore.index),
     );
     this.indexManager.registerHandler(
-      new CharacterIndexer(this.characters, this.datastore.index),
+      new CharacterIndexer(this.characters, this.datastore),
     );
     this.indexManager.registerHandler(
       new ProgressIndexer(this.progressIndex, this.progressTrackSettings),
@@ -134,19 +135,15 @@ export default class ForgedPlugin extends Plugin {
         editor: Editor,
         _view: MarkdownView | MarkdownFileInfo,
       ) => {
-        const [[path, character]] = this.characters.entries();
-        const sheet = character.as(IronswornCharacterMetadata);
-        const oldValue = sheet.measures.momentum;
+        const [[path, charContext]] = this.characters.validCharacterEntries();
+        const { lens, character } = charContext;
+        const oldValue = lens.momentum.get(character);
         if (oldValue > 0) {
-          const updated = await character.update(
-            this.app,
-            path,
-            IronswornCharacterMetadata,
-            (character) => {
-              return character.measures.set(
-                "momentum",
-                character.momentumReset,
-              );
+          // TODO: is the move here to straight-up throw an error if there isn't enough momentum?
+          const updated = await charContext.updater(
+            vaultProcess(this.app, path),
+            (character, { lens }) => {
+              return momentumOps(lens).reset(character);
             },
           );
           const template = Handlebars.compile(
@@ -155,9 +152,9 @@ export default class ForgedPlugin extends Plugin {
           );
           editor.replaceSelection(
             template({
-              character: { name: sheet.name },
+              character: { name: lens.name.get(updated) },
               oldValue,
-              newValue: updated.measures.momentum,
+              newValue: lens.momentum.get(updated),
             }),
           );
         }
@@ -221,12 +218,11 @@ export default class ForgedPlugin extends Plugin {
         _view: MarkdownView | MarkdownFileInfo,
       ) => {
         // todo: multichar
-        const [[path, character]] = this.characters.entries();
-        const sheet = character.as(IronswornCharacterMetadata);
-        const measures = sheet.measures;
+        const [[path, context]] = this.characters.validCharacterEntries();
+        const { character, lens } = context;
         const measure = await CustomSuggestModal.select(
           this.app,
-          measures.entries(),
+          conditionMetersReader(lens).get(character),
           ({ key, value, definition }) => definition.label,
           (match, el) => {
             el.createEl("small", { text: `${match.item.value}` });
@@ -237,14 +233,13 @@ export default class ForgedPlugin extends Plugin {
           [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
           (n) => n.toString(),
         );
-        const updated = await character.update(
-          this.app,
-          path,
-          IronswornCharacterMetadata,
-          (character) => {
-            const measures = character.measures;
-            const newValue = (measures.value(measure.key) ?? 0) + modifier;
-            return measures.set(measure.key, newValue);
+        const updated = await context.updater(
+          vaultProcess(this.app, path),
+          (character, { lens }) => {
+            return updating(
+              lens.condition_meters[measure.key],
+              (startVal) => startVal + modifier,
+            )(character);
           },
         );
         const template = Handlebars.compile(this.settings.meterAdjTemplate, {
@@ -252,9 +247,9 @@ export default class ForgedPlugin extends Plugin {
         });
         editor.replaceSelection(
           template({
-            character: { name: sheet.name },
+            character: { name: lens.name.get(character) },
             measure,
-            newValue: updated.measures.value(measure.key),
+            newValue: lens.condition_meters[measure.key].get(updated),
           }),
         );
       },

@@ -34,6 +34,7 @@ export interface MeterCommon {
   min: number;
   max: number;
   default?: number;
+  rollable: boolean;
 }
 
 // function addMinMaxConstraint<T extends z.ZodType<U>, U extends {min: number; max: number}>(schema: T): z.ZodEffects<T, U, U> {
@@ -47,6 +48,7 @@ const statDefinitionValidator = z
     label: z.string(),
     min: z.number().int().nonnegative(),
     max: z.number().int().positive(),
+    rollable: z.boolean().default(true),
   })
   .refine(({ min, max }) => min < max, {
     message: "min must be greater than max",
@@ -57,6 +59,7 @@ export class StatDefinition implements Readonly<MeterCommon> {
   readonly label: string;
   readonly min: number;
   readonly max: number;
+  readonly rollable: boolean = true;
 
   constructor(data: z.input<typeof statDefinitionValidator>) {
     const { label, min, max } = statDefinitionValidator.parse(data);
@@ -71,12 +74,14 @@ export class ConditionMeterDefinition implements Readonly<MeterCommon> {
   readonly label: string;
   readonly min: number;
   readonly max: number;
+  readonly rollable: boolean;
 
   constructor(data: z.input<typeof statDefinitionValidator>) {
-    const { label, min, max } = statDefinitionValidator.parse(data);
+    const { label, min, max, rollable } = statDefinitionValidator.parse(data);
     this.label = label;
     this.min = min;
     this.max = max;
+    this.rollable = rollable;
   }
 }
 

@@ -1,34 +1,30 @@
-import { enableMapSet, enablePatches, freeze } from "immer";
-import { TFile, type App, type CachedMetadata } from "obsidian";
+import { type CachedMetadata } from "obsidian";
+import { updaterWithContext } from "utils/update";
 import {
-  CharacterMetadata,
-  CharacterMetadataFactory,
-  IronswornCharacterMetadata,
-} from "./character";
-import { DataIndex } from "./datastore/data-index";
+  CharacterLens,
+  ValidatedCharacter,
+  characterLens,
+} from "./characters/lens";
+import { Datastore } from "./datastore";
 import { BaseIndexer } from "./indexer/indexer";
+import { Either, Left, Right } from "./utils/either";
 
-enableMapSet();
-enablePatches();
-
-type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
-
-export class CharacterTracker implements ReadonlyMap<string, CharacterWrapper> {
+export class CharacterTracker implements ReadonlyMap<string, CharacterResult> {
   constructor(
-    public readonly index: Map<string, CharacterWrapper> = new Map(),
+    public readonly index: Map<string, CharacterResult> = new Map(),
   ) {}
 
   forEach(
     callbackfn: (
-      value: CharacterWrapper,
+      value: CharacterResult,
       key: string,
-      map: ReadonlyMap<string, CharacterWrapper>,
+      map: ReadonlyMap<string, CharacterResult>,
     ) => void,
     thisArg?: any,
   ): void {
     this.index.forEach(callbackfn, thisArg);
   }
-  get(key: string): CharacterWrapper | undefined {
+  get(key: string): CharacterResult | undefined {
     return this.index.get(key);
   }
   has(key: string): boolean {
@@ -37,108 +33,76 @@ export class CharacterTracker implements ReadonlyMap<string, CharacterWrapper> {
   get size(): number {
     return this.index.size;
   }
-  entries(): IterableIterator<[string, CharacterWrapper]> {
+  entries(): IterableIterator<[string, CharacterResult]> {
     return this.index.entries();
   }
   keys(): IterableIterator<string> {
     return this.index.keys();
   }
-  values(): IterableIterator<CharacterWrapper> {
+  values(): IterableIterator<CharacterResult> {
     return this.index.values();
   }
-  [Symbol.iterator](): IterableIterator<[string, CharacterWrapper]> {
+  [Symbol.iterator](): IterableIterator<[string, CharacterResult]> {
     return this.index[Symbol.iterator]();
+  }
+
+  *validCharacterEntries(): Generator<[string, CharacterContext]> {
+    for (const [key, val] of this.entries()) {
+      if (val.isRight()) {
+        yield [key, val.value];
+      }
+    }
   }
 }
 
-export class CharacterIndexer extends BaseIndexer<CharacterWrapper> {
+export class CharacterIndexer extends BaseIndexer<CharacterResult> {
   readonly id: string = "character";
 
   constructor(
     tracker: CharacterTracker,
-    protected readonly dataIndex: DataIndex,
+    protected readonly dataStore: Datastore,
   ) {
     super(tracker.index);
-  }
-
-  determineSheetClass(
-    path: string,
-    cache: WithRequired<CachedMetadata, "frontmatter">,
-  ): CharacterMetadataFactory<CharacterMetadata> {
-    return IronswornCharacterMetadata;
   }
 
   processFile(
     path: string,
     cache: CachedMetadata,
-  ): CharacterWrapper | undefined {
+  ): CharacterResult | undefined {
     if (cache.frontmatter == null) {
       throw new Error("missing frontmatter cache");
     }
-    return new CharacterWrapper(
-      freeze(cache.frontmatter, true),
-      this.dataIndex,
-      new Set([IronswornCharacterMetadata]), // TODO: right now we're just using ironsworn
-    );
+    const { validater, lens } = characterLens(this.dataStore.ruleset);
+    try {
+      const result = validater(cache.frontmatter);
+      return Right.create(new CharacterContext(result, lens, validater));
+    } catch (e) {
+      return Left.create(
+        e instanceof Error ? e : new Error("unexpected error", { cause: e }),
+      );
+    }
   }
 }
-// class UnwritableMap<K, V> extends Map<K, V> {
-//   set(key: K, value: V): this {
-//     throw new Error(`attempt to write key ${key} to unwritable map`);
-//   }
-//   clear(): void {
-//     throw new Error("attempt to clear unwritable map");
-//   }
-//   delete(key: K): boolean {
-//     throw new Error(`attempt to delete key ${key} to unwritable map`);
-//   }
-// }
 
-export class CharacterWrapper {
+// TODO: this type is really weird. should a validatedcharacter carry around all of the context
+//   used to produce it here? Or should that be coming from the datastore as needed?
+export type CharacterResult<E extends Error = Error> = Either<
+  E,
+  CharacterContext
+>;
+
+export class CharacterContext {
   constructor(
-    protected readonly _data: Readonly<Record<string, any>>,
-    protected readonly _index: DataIndex,
-    protected readonly _validatedSheets: Set<
-      CharacterMetadataFactory<CharacterMetadata>
-    >,
+    public readonly character: ValidatedCharacter,
+    public readonly lens: CharacterLens,
+    public readonly validater: (data: unknown) => ValidatedCharacter,
   ) {}
 
-  as<T extends CharacterMetadata>(
-    kls: CharacterMetadataFactory<T>,
-  ): Readonly<T> {
-    return this.forUpdates(kls, this._data);
-  }
-
-  protected forUpdates<T extends CharacterMetadata>(
-    kls: CharacterMetadataFactory<T>,
-    data: Record<string, any>,
-  ): T {
-    if (!this._validatedSheets.has(kls)) {
-      throw new Error(`requested character sheet ${kls} not in validated list`);
-    }
-    return new kls(data, this._index);
-  }
-
-  public async update<T extends CharacterMetadata>(
-    app: App,
-    path: string,
-    kls: CharacterMetadataFactory<T>,
-    updater: (character: InstanceType<typeof kls>) => InstanceType<typeof kls>,
-  ): Promise<T> {
-    const file = app.vault.getAbstractFileByPath(path);
-    if (!(file instanceof TFile)) {
-      throw new Error(`invalid character file ${path}`);
-    }
-    let updated: T | undefined;
-    await app.fileManager.processFrontMatter(file, (frontmatter: any) => {
-      updated = updater(
-        this.forUpdates(kls, Object.freeze(Object.assign({}, frontmatter))),
-      );
-
-      // TODO: this isn't actually going to work right... for deletes
-      Object.assign(frontmatter, updated.data);
-    });
-    // SAFETY: if we get here, we should have set updated.
-    return updated!;
+  get updater() {
+    return updaterWithContext<ValidatedCharacter, CharacterContext>(
+      (data) => this.validater(data),
+      (character) => character.raw,
+      this,
+    );
   }
 }

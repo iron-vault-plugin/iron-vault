@@ -1,7 +1,11 @@
 import { Asset, Move } from "@datasworn/core";
 import { z } from "zod";
 import { DataIndex } from "../datastore/data-index";
-import { Ruleset } from "../rules/ruleset";
+import {
+  ConditionMeterDefinition,
+  MeterCommon,
+  Ruleset,
+} from "../rules/ruleset";
 import { Either, Left, Right, collectEither } from "../utils/either";
 import {
   Lens,
@@ -52,6 +56,7 @@ export interface CharacterLens {
   condition_meters: Record<string, Lens<ValidatedCharacter, number>>;
   assets: Lens<ValidatedCharacter, ForgedSheetAssetSchema[]>;
   impacts: Lens<ValidatedCharacter, Record<string, ImpactStatus>>;
+  ruleset: Ruleset;
 }
 
 export function validatedAgainst(
@@ -266,6 +271,39 @@ export function movesReader(
   });
 }
 
+export function conditionMetersReader(
+  charLens: CharacterLens,
+): CharReader<
+  { key: string; value: number; definition: ConditionMeterDefinition }[]
+> {
+  return reader((character) => {
+    return Object.entries(charLens.condition_meters).map(([key, lens]) => ({
+      key,
+      value: lens.get(character),
+      definition: charLens.ruleset.condition_meters[key],
+    }));
+  });
+}
+
+export function rollablesReader(
+  charLens: CharacterLens,
+): CharReader<{ key: string; value: number; definition: MeterCommon }[]> {
+  return reader((character) => {
+    return [
+      ...Object.entries(charLens.condition_meters).map(([key, lens]) => ({
+        key,
+        value: lens.get(character),
+        definition: charLens.ruleset.condition_meters[key],
+      })),
+      ...Object.entries(charLens.stats).map(([key, lens]) => ({
+        key,
+        value: lens.get(character),
+        definition: charLens.ruleset.stats[key],
+      })),
+    ];
+  });
+}
+
 export function characterLens(ruleset: Ruleset): {
   validater: (data: unknown) => ValidatedCharacter;
   lens: CharacterLens;
@@ -305,6 +343,7 @@ export function characterLens(ruleset: Ruleset): {
       v(lensForSchemaProp(defn)),
     ),
     impacts: v(createImpactLens(ruleset)),
+    ruleset,
   };
 
   function validater(data: unknown): ValidatedCharacter {

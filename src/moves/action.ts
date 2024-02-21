@@ -1,4 +1,5 @@
 import { Move, MoveActionRoll, MoveProgressRoll } from "@datasworn/core";
+import { movesReader, rollablesReader } from "characters/lens";
 import {
   stringifyYaml,
   type App,
@@ -6,11 +7,11 @@ import {
   type FuzzyMatch,
   type MarkdownView,
 } from "obsidian";
-import { ProgressIndex, ProgressTrackFileAdapter } from "tracks/progress";
-import { selectProgressTrack } from "tracks/select";
 import { IronswornCharacterMetadata } from "../character";
-import { CharacterWrapper, type CharacterTracker } from "../character-tracker";
+import { CharacterContext, type CharacterTracker } from "../character-tracker";
 import { type Datastore } from "../datastore";
+import { ProgressIndex, ProgressTrackFileAdapter } from "../tracks/progress";
+import { selectProgressTrack } from "../tracks/select";
 import { randomInt } from "../utils/dice";
 import { CustomSuggestModal } from "../utils/suggest";
 import { checkForMomentumBurn } from "./action-modal";
@@ -133,11 +134,15 @@ export async function runMoveCommand(
     console.error("No characters found");
     return;
   }
-  const [[characterPath, rawCharacter]] = characters.entries();
+  const [[characterPath, context]] = characters.validCharacterEntries();
 
-  const character = rawCharacter.as(IronswornCharacterMetadata);
+  const { character, lens } = context;
 
-  const allMoves = datastore.moves.concat(character.moves);
+  const characterMoves = movesReader(lens, datastore.index)
+    .get(character)
+    .expect("unexpected failure finding assets for moves");
+
+  const allMoves = datastore.moves.concat(characterMoves);
 
   const move = await promptForMove(
     app,
@@ -145,7 +150,7 @@ export async function runMoveCommand(
   );
   switch (move.roll_type) {
     case "action_roll": {
-      await handleActionRoll(rawCharacter, app, move, characterPath, editor);
+      await handleActionRoll(context, app, move, characterPath, editor);
       break;
     }
     case "progress_roll": {
@@ -186,17 +191,16 @@ async function handleProgressRoll(
 
 // TODO: refactor this so it returns the description and handle the other parts separately?
 async function handleActionRoll(
-  characterWrapper: CharacterWrapper,
+  charContext: CharacterContext,
   app: App,
   move: MoveActionRoll,
   characterPath: string,
   editor: Editor,
 ) {
-  const character = characterWrapper.as(IronswornCharacterMetadata);
-  const measures = character.measures;
+  const { lens, character } = charContext;
   const stat = await CustomSuggestModal.select(
     app,
-    measures.entries(),
+    rollablesReader(lens).get(character),
     (m) => `${m.definition.label}: ${m.value ?? "missing (defaults to 0)"}`,
   );
 
