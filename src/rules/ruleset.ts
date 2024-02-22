@@ -46,7 +46,7 @@ export interface MeterCommon {
 const statDefinitionValidator = z
   .object({
     label: z.string(),
-    min: z.number().int().nonnegative(),
+    min: z.number().int(),
     max: z.number().int().positive(),
     rollable: z.boolean().default(true),
   })

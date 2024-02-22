@@ -1,4 +1,4 @@
-import { conditionMetersReader, momentumOps } from "characters/lens";
+import { meterLenses, momentumOps } from "characters/lens";
 import { generateEntityCommand } from "entity/command";
 import Handlebars from "handlebars";
 import { IndexManager } from "indexer/manager";
@@ -8,6 +8,7 @@ import {
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
+import { ConditionMeterDefinition } from "rules/ruleset";
 import { updating } from "utils/lens";
 import { ForgedAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
@@ -210,49 +211,98 @@ export default class ForgedPlugin extends Plugin {
       },
     });
 
+    const modifyMeterCommand = async (
+      editor: Editor,
+      verb: string,
+      meterFilter: (meter: {
+        value: number;
+        definition: ConditionMeterDefinition;
+      }) => boolean,
+      allowableValues: (measure: {
+        value: number;
+        definition: ConditionMeterDefinition;
+      }) => number[],
+    ) => {
+      // todo: multichar
+      const [[path, context]] = this.characters.validCharacterEntries();
+      const { character, lens } = context;
+      const measure = await CustomSuggestModal.select(
+        this.app,
+        Object.values(meterLenses(lens))
+          .map(({ key, definition, lens }) => ({
+            key,
+            definition,
+            lens,
+            value: lens.get(character),
+          }))
+          .filter(meterFilter),
+        ({ definition }) => definition.label,
+        (match, el) => {
+          el.createEl("small", { text: `${match.item.value}` });
+        },
+      );
+      const modifier = await CustomSuggestModal.select(
+        this.app,
+        allowableValues(measure),
+        (n) => n.toString(),
+        undefined,
+        `${verb} ${measure.definition.label}`,
+      );
+      const updated = await context.updater(
+        vaultProcess(this.app, path),
+        (character) => {
+          return updating(
+            measure.lens,
+            (startVal) => startVal + modifier,
+          )(character);
+        },
+      );
+      const template = Handlebars.compile(this.settings.meterAdjTemplate, {
+        noEscape: true,
+      });
+      editor.replaceSelection(
+        template({
+          character: { name: lens.name.get(character) },
+          measure,
+          newValue: measure.lens.get(updated),
+        }),
+      );
+    };
+
     this.addCommand({
       id: "take-meter",
       name: "Take on a Meter",
       editorCallback: async (
         editor: Editor,
         _view: MarkdownView | MarkdownFileInfo,
-      ) => {
-        // todo: multichar
-        const [[path, context]] = this.characters.validCharacterEntries();
-        const { character, lens } = context;
-        const measure = await CustomSuggestModal.select(
-          this.app,
-          conditionMetersReader(lens).get(character),
-          ({ key, value, definition }) => definition.label,
-          (match, el) => {
-            el.createEl("small", { text: `${match.item.value}` });
-          },
-        );
-        const modifier = await CustomSuggestModal.select(
-          this.app,
-          [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-          (n) => n.toString(),
-        );
-        const updated = await context.updater(
-          vaultProcess(this.app, path),
-          (character, { lens }) => {
-            return updating(
-              lens.condition_meters[measure.key],
-              (startVal) => startVal + modifier,
-            )(character);
-          },
-        );
-        const template = Handlebars.compile(this.settings.meterAdjTemplate, {
-          noEscape: true,
-        });
-        editor.replaceSelection(
-          template({
-            character: { name: lens.name.get(character) },
-            measure,
-            newValue: lens.condition_meters[measure.key].get(updated),
-          }),
-        );
-      },
+      ) =>
+        modifyMeterCommand(
+          editor,
+          "take",
+          ({ value, definition: { max } }) => value < max,
+          (measure) =>
+            Array(measure.definition.max - measure.value)
+              .fill(0)
+              .map((_, i) => i + 1),
+        ),
+    });
+
+    this.addCommand({
+      id: "suffer-meter",
+      name: "Suffer on a Meter",
+      editorCallback: async (
+        editor: Editor,
+        _view: MarkdownView | MarkdownFileInfo,
+      ) =>
+        modifyMeterCommand(
+          editor,
+          "suffer",
+          ({ value, definition: { min } }) => value > min,
+          (measure) =>
+            Array(measure.value - measure.definition.min)
+              .fill(0)
+              .map((_, i) => -1 * (i + 1)),
+        ),
     });
 
     // This adds a settings tab so the user can configure various aspects of the plugin

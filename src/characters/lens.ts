@@ -283,12 +283,44 @@ export function conditionMetersReader(
   { key: string; value: number; definition: ConditionMeterDefinition }[]
 > {
   return reader((character) => {
-    return Object.entries(charLens.condition_meters).map(([key, lens]) => ({
-      key,
-      value: lens.get(character),
-      definition: charLens.ruleset.condition_meters[key],
-    }));
+    return [
+      ...Object.entries(charLens.condition_meters).map(([key, lens]) => ({
+        key,
+        value: lens.get(character),
+        definition: charLens.ruleset.condition_meters[key],
+      })),
+    ];
   });
+}
+
+export function meterLenses(
+  charLens: CharacterLens,
+): Record<
+  string,
+  { key: string; definition: ConditionMeterDefinition; lens: CharLens<number> }
+> {
+  return {
+    ...Object.fromEntries(
+      Object.entries(charLens.condition_meters).map(([key, lens]) => [
+        key,
+        {
+          key,
+          lens,
+          definition: charLens.ruleset.condition_meters[key],
+        },
+      ]),
+    ),
+    momentum: {
+      key: "momentum",
+      lens: charLens.momentum,
+      definition: new ConditionMeterDefinition({
+        label: "momentum",
+        min: -6,
+        max: 10,
+        rollable: true,
+      }),
+    },
+  };
 }
 
 export function rollablesReader(

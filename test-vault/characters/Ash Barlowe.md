@@ -7,7 +7,7 @@ iron: 3
 shadow: 1
 tags:
   - character
-momentum: 2
+momentum: 6
 health: 5
 forgedkind: character
 assets:
