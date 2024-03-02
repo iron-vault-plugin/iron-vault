@@ -28,10 +28,12 @@ Entity generation:
     ☐ Allow options on dialog: create page; create page and insert link; insert directly as callout
 
 Moves:
+  Move list:
+    ☐ Indicate which asset a move comes from (when it comes from an asset)
   Move modal:
     ✔ Burn momentum @done(23-12-27 05:49)
   Move stats:
-    ☐ Highlight suggested stats (based on move triggers)
+    ✔ Highlight suggested stats (based on move triggers) @done(24-03-02 15:11)
     ☐ Incorporate asset modifications into suggested stats
   Move render:
     ☐ Display outcome information in move renderer (or make it possible to show it on mouseover?)
