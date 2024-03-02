@@ -1,4 +1,9 @@
-import { Move, MoveActionRoll, MoveProgressRoll } from "@datasworn/core";
+import {
+  Move,
+  MoveActionRoll,
+  MoveProgressRoll,
+  TriggerActionRollCondition,
+} from "@datasworn/core";
 import {
   stringifyYaml,
   type App,
@@ -189,17 +194,77 @@ async function handleActionRoll(
   editor: Editor,
 ) {
   const { lens, character } = charContext;
+
+  const suggestedRollables: Record<
+    string,
+    Array<Omit<TriggerActionRollCondition, "roll_options">>
+  > = {};
+
+  for (const condition of move.trigger.conditions) {
+    const { roll_options, ...conditionSpec } = condition;
+    for (const rollable of roll_options) {
+      let rollableToAdd;
+      switch (rollable.using) {
+        case "stat":
+          rollableToAdd = rollable.stat;
+          break;
+        case "condition_meter":
+          rollableToAdd = rollable.condition_meter;
+          break;
+        default:
+          console.warn(
+            "unhandled rollable scenario %o %o",
+            condition,
+            rollable,
+          );
+      }
+      if (!rollableToAdd) continue;
+      if (!(rollableToAdd in suggestedRollables)) {
+        suggestedRollables[rollableToAdd] = [];
+      }
+      suggestedRollables[rollableToAdd].push(conditionSpec);
+    }
+  }
+
   const stat = await CustomSuggestModal.select(
     app,
-    rollablesReader(lens).get(character),
+    rollablesReader(lens)
+      .get(character)
+      .map((meter) => {
+        return { ...meter, condition: suggestedRollables[meter.key] ?? [] };
+      })
+      .sort((a, b) => {
+        if (a.condition.length > 0 && b.condition.length == 0) {
+          return -1;
+        } else if (a.condition.length == 0 && b.condition.length > 0) {
+          return 1;
+        } else {
+          return (
+            b.value - a.value ||
+            a.definition.label.localeCompare(b.definition.label)
+          );
+        }
+      }),
     (m) => `${m.definition.label}: ${m.value ?? "missing (defaults to 0)"}`,
+    ({ item, match }, el) => {
+      if (item.condition.length > 0) {
+        el.createEl("small", {
+          text: `Trigger: ${item.condition.flatMap((cond) => cond.text ?? []).join("; ")}`,
+          cls: "forged-suggest-hint",
+        });
+      }
+    },
+    move.trigger.text,
   );
 
   const adds = await CustomSuggestModal.select(
     app,
     validAdds(stat.value ?? 0),
     (n) => n.toString(10),
+    undefined,
+    "Adds",
   );
+
   let description = processActionMove(move, stat.key, stat.value ?? 0, adds);
   const wrapper = new ActionMoveWrapper(description);
   description = await checkForMomentumBurn(
