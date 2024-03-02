@@ -1,8 +1,9 @@
 import { Asset } from "@datasworn/core";
 import { DataIndex } from "../datastore/data-index";
 import { Ruleset } from "../rules/ruleset";
+import { ChallengeRanks, ProgressTrackSettings } from "../tracks/progress";
 import { Right } from "../utils/either";
-import { Lens } from "../utils/lens";
+import { Lens, updating } from "../utils/lens";
 import {
   BaseForgedSchema,
   ForgedSheetAssetSchema,
@@ -54,6 +55,12 @@ const TEST_RULESET = new Ruleset("test", {
   tags: {},
 });
 
+const DEFAULT_TRACK_SETTINGS: ProgressTrackSettings = {
+  generateTrackImage(track) {
+    return `[[track-${track.progress}]]`;
+  },
+};
+
 const VALID_INPUT = {
   name: "Bob",
   momentum: 5,
@@ -62,7 +69,7 @@ const VALID_INPUT = {
 };
 
 describe("validater", () => {
-  const { validater } = characterLens(TEST_RULESET);
+  const { validater } = characterLens(TEST_RULESET, DEFAULT_TRACK_SETTINGS);
 
   it("returns a validated character on valid input", () => {
     expect(validatedAgainst(TEST_RULESET, validater(VALID_INPUT))).toBeTruthy();
@@ -91,7 +98,10 @@ function actsLikeLens<T, U>(lens: Lens<T, U>, input: T, testVal: U) {
 }
 
 describe("characterLens", () => {
-  const { validater, lens } = characterLens(TEST_RULESET);
+  const { validater, lens } = characterLens(
+    TEST_RULESET,
+    DEFAULT_TRACK_SETTINGS,
+  );
 
   describe("#name", () => {
     const character = validater({
@@ -198,7 +208,10 @@ describe("characterLens", () => {
 });
 
 describe("momentumOps", () => {
-  const { validater, lens } = characterLens(TEST_RULESET);
+  const { validater, lens } = characterLens(
+    TEST_RULESET,
+    DEFAULT_TRACK_SETTINGS,
+  );
   const { reset, take, suffer } = momentumOps(lens);
 
   describe("with no impacts marked", () => {
@@ -360,7 +373,7 @@ const TestAsset: Asset = {
   },
 };
 
-describe("IronswornCharacterMetadata", () => {
+describe("movesReader", () => {
   const mockIndex = new DataIndex();
 
   beforeAll(() => {
@@ -374,7 +387,10 @@ describe("IronswornCharacterMetadata", () => {
   });
 
   describe("moves", () => {
-    const { validater, lens } = characterLens(TEST_RULESET);
+    const { validater, lens } = characterLens(
+      TEST_RULESET,
+      DEFAULT_TRACK_SETTINGS,
+    );
 
     it("is empty if no assets", () => {
       expect(
@@ -425,6 +441,83 @@ describe("IronswornCharacterMetadata", () => {
       ).toMatchObject([
         { id: "starforged/assets/path/empath/abilities/0/moves/read_heart" },
       ]);
+    });
+  });
+});
+
+describe("Special Tracks", () => {
+  const { validater, lens } = characterLens(
+    {
+      ...TEST_RULESET,
+      special_tracks: {
+        quests_legacy: {
+          label: "quests",
+          optional: false,
+          shared: false,
+          description: "Swear vows and do what you must to see them fulfilled.",
+        },
+      },
+    },
+    DEFAULT_TRACK_SETTINGS,
+  );
+
+  it("requires Progress field", () => {
+    expect(() => validater({ ...VALID_INPUT, Quests_XPEarned: 0 })).toThrow(
+      /Quests_Progress/,
+    );
+  });
+
+  it("requires XPEarned field", () => {
+    expect(() => validater({ ...VALID_INPUT, Quests_Progress: 0 })).toThrow(
+      /Quests_XPEarned/,
+    );
+  });
+
+  it("extracts a progress track", () => {
+    const character = validater({
+      ...VALID_INPUT,
+      Quests_Progress: 4,
+      Quests_XPEarned: 2,
+    });
+    const track = lens.special_tracks["quests_legacy"].get(character);
+    expect(track).toMatchObject({
+      progress: 4,
+      unbounded: true,
+      complete: false,
+      difficulty: ChallengeRanks.Epic,
+    });
+  });
+
+  it("updates a progress track", () => {
+    const character = validater({
+      ...VALID_INPUT,
+      Quests_Progress: 4,
+      Quests_XPEarned: 2,
+    });
+    expect(
+      updating(lens.special_tracks["quests_legacy"], (track) =>
+        track.advanced(2),
+      )(character).raw,
+    ).toMatchObject({
+      Quests_Progress: 6,
+      Quests_XPEarned: 2,
+      Quests_TrackImage: "[[track-6]]",
+    });
+  });
+
+  it("advances xp earned", () => {
+    const character = validater({
+      ...VALID_INPUT,
+      Quests_Progress: 4,
+      Quests_XPEarned: 2,
+    });
+    expect(
+      updating(lens.special_tracks["quests_legacy"], (track) =>
+        track.advanced(4),
+      )(character).raw,
+    ).toMatchObject({
+      Quests_Progress: 8,
+      Quests_XPEarned: 4,
     });
   });
 });

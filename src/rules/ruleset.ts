@@ -1,13 +1,10 @@
-import {
-  Rules,
-  RulesExpansion,
-  ImpactCategory as SourceImpactCategory,
-  ImpactRule as SourceImpactRule,
-} from "@datasworn/core";
+import * as ds from "@datasworn/core";
+import { Rules, RulesExpansion } from "@datasworn/core";
 import { z } from "zod";
 
-export type ImpactCategory = Omit<SourceImpactCategory, "contents">;
-export type ImpactRule = SourceImpactRule & { category: ImpactCategory };
+export type ImpactCategory = Omit<ds.ImpactCategory, "contents">;
+export type ImpactRule = ds.ImpactRule & { category: ImpactCategory };
+export type SpecialTrackRule = ds.SpecialTrackRule;
 
 export function mergeRules(rules: Rules, expansions: RulesExpansion[]): Rules {
   return {
@@ -89,6 +86,7 @@ export class Ruleset {
   readonly condition_meters: Record<string, ConditionMeterDefinition>;
   readonly stats: Record<string, StatDefinition>;
   readonly impacts: Record<string, ImpactRule>;
+  readonly special_tracks: Record<string, SpecialTrackRule>;
 
   constructor(
     public readonly id: string,
@@ -117,5 +115,6 @@ export class Ruleset {
         );
       }),
     );
+    this.special_tracks = rules.special_tracks;
   }
 }

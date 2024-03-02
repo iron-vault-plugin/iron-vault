@@ -38,10 +38,10 @@ Moves:
 
 Characters:
   Core:
-    ☐ Validate schema
+    ✔ Validate schema @done(24-02-21 21:42)
   ☐ deal with multiple characters (find all of the places where i just hardcode to taking first)
   ✔ Manage momentum @done(23-10-02 16:23)
-  ☐ Abstract out deriving stats and meters from the datasworn ruleset information
+  ✔ Abstract out deriving stats and meters from the datasworn ruleset information @done(24-02-21 21:43)
     This might mean we remove the static compile time stat info, but tbh that's fine. Only momentum
     is special, and the datasworn info doesn't even include momentum.
   Assets:
@@ -57,8 +57,8 @@ Progress Tracks Refactor:
   ✔ Add hint to "advance track" steps suggest dialog that explains what you are typing @done(24-01-20 22:47)
   ☐ Create a clock
   Special tracks:
-    ☐ Support legacy tracks on character
-    ☐ Initial command initially -- but maybe combine later?
+    ✔ Support legacy tracks on character @done(24-03-01 22:37)
+    ✔ Initial command initially -- but maybe combine later? @done(24-03-01 22:37)
 
 Refactors:
   ☐ Move indexes/indexers? into datastore?

@@ -9,13 +9,8 @@ import {
 import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ClockIndex, clockUpdater } from "./clock-file";
-import {
-  ProgressIndex,
-  ProgressTrack,
-  ProgressTrackFileAdapter,
-  ProgressTrackSettings,
-  progressTrackUpdater,
-} from "./progress";
+import { ProgressContext } from "./context";
+import { ProgressTrack, ProgressTrackFileAdapter } from "./progress";
 import { ProgressTrackCreateModal } from "./progress-create";
 import { selectProgressTrack } from "./select";
 import { selectClock } from "./select-clock";
@@ -25,23 +20,21 @@ export async function advanceProgressTrack(
   settings: ForgedPluginSettings,
   editor: Editor,
   view: MarkdownView,
-  progressIndex: ProgressIndex,
-  progressSettings: ProgressTrackSettings,
+  progressContext: ProgressContext,
 ) {
   // if (!datastore.ready) {
   //   console.warn("data not ready");
   //   return;
   // }
-  const [trackPath, trackInfo] = await selectProgressTrack(
-    progressIndex,
+  const trackWriter = await selectProgressTrack(
+    progressContext,
     app,
-    ([, trackInfo]) =>
-      !trackInfo.track.complete && trackInfo.track.ticksRemaining > 0,
+    ({ track }) => !track.complete && track.ticksRemaining > 0,
   );
 
   const steps = await CustomSuggestModal.select(
     app,
-    Array(trackInfo.track.stepsRemaining)
+    Array(trackWriter.track.stepsRemaining)
       .fill(0)
       .map((_, i) => i + 1),
     (num) => num.toString(),
@@ -49,17 +42,14 @@ export async function advanceProgressTrack(
     "Select number of times to advance the progress track.",
   );
 
-  const newTrack = await progressTrackUpdater(progressSettings)(
-    vaultProcess(app, trackPath),
-    (trackAdapter) => {
-      return trackAdapter.updatingTrack((track) => track.advanced(steps));
-    },
+  const newTrack = await trackWriter.process((trackAdapter) =>
+    trackAdapter.advanced(steps),
   );
 
   editor.replaceSelection(
     advanceProgressTemplate(settings)({
       trackInfo: newTrack,
-      trackPath,
+      trackPath: trackWriter.location,
       steps,
     }),
   );

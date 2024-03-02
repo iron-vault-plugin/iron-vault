@@ -1,4 +1,5 @@
 import { type CachedMetadata } from "obsidian";
+import { ProgressTrackSettings } from "tracks/progress";
 import { updaterWithContext } from "utils/update";
 import {
   CharacterLens,
@@ -53,6 +54,21 @@ export class CharacterTracker implements ReadonlyMap<string, CharacterResult> {
       }
     }
   }
+
+  activeCharacter(): [string, CharacterContext] {
+    if (this.size == 0) {
+      throw new Error("no valid characters found");
+    } else if (this.size > 1) {
+      throw new Error("we don't yet support multiple characters");
+    }
+
+    const [[key, val]] = this.entries();
+    if (val.isLeft()) {
+      throw new Error("character is invalid", { cause: val.error });
+    }
+
+    return [key, val.value];
+  }
 }
 
 export class CharacterIndexer extends BaseIndexer<CharacterResult> {
@@ -61,6 +77,7 @@ export class CharacterIndexer extends BaseIndexer<CharacterResult> {
   constructor(
     tracker: CharacterTracker,
     protected readonly dataStore: Datastore,
+    protected readonly trackSettings: ProgressTrackSettings,
   ) {
     super(tracker.index);
   }
@@ -72,7 +89,10 @@ export class CharacterIndexer extends BaseIndexer<CharacterResult> {
     if (cache.frontmatter == null) {
       throw new Error("missing frontmatter cache");
     }
-    const { validater, lens } = characterLens(this.dataStore.ruleset);
+    const { validater, lens } = characterLens(
+      this.dataStore.ruleset,
+      this.trackSettings,
+    );
     try {
       const result = validater(cache.frontmatter);
       return Right.create(new CharacterContext(result, lens, validater));

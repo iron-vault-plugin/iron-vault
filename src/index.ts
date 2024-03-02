@@ -9,6 +9,7 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { ConditionMeterDefinition } from "rules/ruleset";
+import { ProgressContext } from "tracks/context";
 import { updating } from "utils/lens";
 import { ForgedAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
@@ -68,7 +69,11 @@ export default class ForgedPlugin extends Plugin {
       new IndexManager(this.app, this.datastore.index),
     );
     this.indexManager.registerHandler(
-      new CharacterIndexer(this.characters, this.datastore),
+      new CharacterIndexer(
+        this.characters,
+        this.datastore,
+        this.progressTrackSettings,
+      ),
     );
     this.indexManager.registerHandler(
       new ProgressIndexer(this.progressIndex, this.progressTrackSettings),
@@ -104,7 +109,7 @@ export default class ForgedPlugin extends Plugin {
         await runMoveCommand(
           this.app,
           this.datastore,
-          this.progressIndex,
+          new ProgressContext(this),
           this.characters,
           editor,
           view as MarkdownView,
@@ -136,7 +141,7 @@ export default class ForgedPlugin extends Plugin {
         editor: Editor,
         _view: MarkdownView | MarkdownFileInfo,
       ) => {
-        const [[path, charContext]] = this.characters.validCharacterEntries();
+        const [path, charContext] = this.characters.activeCharacter();
         const { lens, character } = charContext;
         const oldValue = lens.momentum.get(character);
         if (oldValue > 0) {
@@ -183,8 +188,7 @@ export default class ForgedPlugin extends Plugin {
           this.settings,
           editor,
           ctx as MarkdownView,
-          this.progressIndex,
-          this.progressTrackSettings,
+          new ProgressContext(this),
         );
       },
     });
@@ -224,7 +228,7 @@ export default class ForgedPlugin extends Plugin {
       }) => number[],
     ) => {
       // todo: multichar
-      const [[path, context]] = this.characters.validCharacterEntries();
+      const [path, context] = this.characters.activeCharacter();
       const { character, lens } = context;
       const measure = await CustomSuggestModal.select(
         this.app,

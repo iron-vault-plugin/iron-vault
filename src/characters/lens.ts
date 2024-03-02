@@ -5,7 +5,14 @@ import {
   ConditionMeterDefinition,
   MeterCommon,
   Ruleset,
+  SpecialTrackRule,
 } from "../rules/ruleset";
+import {
+  ChallengeRanks,
+  ProgressTrack,
+  ProgressTrackSettings,
+  legacyTrackXpEarned,
+} from "../tracks/progress";
 import { Either, Left, Right, collectEither } from "../utils/either";
 import {
   Lens,
@@ -56,7 +63,60 @@ export interface CharacterLens {
   condition_meters: Record<string, Lens<ValidatedCharacter, number>>;
   assets: Lens<ValidatedCharacter, ForgedSheetAssetSchema[]>;
   impacts: Lens<ValidatedCharacter, Record<string, ImpactStatus>>;
+  special_tracks: Record<string, Lens<ValidatedCharacter, ProgressTrack>>;
   ruleset: Ruleset;
+}
+
+function camelCase(str: string): string {
+  return str
+    .split(/[-_ ]+/g)
+    .filter((part) => part.length > 0)
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join("");
+}
+
+function legacyTrack(
+  specialTrackRule: SpecialTrackRule,
+  trackSettings: ProgressTrackSettings,
+) {
+  const formattedLabel = camelCase(specialTrackRule.label);
+  const trackImageKey = `${formattedLabel}_TrackImage`;
+  const progressKey = `${formattedLabel}_Progress`;
+  const xpEarnedKey = `${formattedLabel}_XPEarned`;
+  return {
+    schema: {
+      [trackImageKey]: z.string().optional(),
+      [progressKey]: z.number().int().nonnegative(),
+      [xpEarnedKey]: z.number().int().nonnegative(),
+    },
+    lens: {
+      get(source) {
+        return ProgressTrack.create_({
+          difficulty: ChallengeRanks.Epic,
+          // SAFE: a validated character will satisfy the above schema
+          progress: source[progressKey] as number,
+          complete: false,
+          unbounded: true,
+        });
+      },
+      update(source, newval) {
+        const orig = this.get(source);
+
+        if (orig.progress === newval.progress) return source;
+        if (legacyTrackXpEarned(orig) !== source[xpEarnedKey]) {
+          throw new Error(
+            `unexpected XP amount ${source[xpEarnedKey]} for track with ${source[progressKey]} progress (expected: ${legacyTrackXpEarned(orig)})`,
+          );
+        }
+        return {
+          ...source,
+          [trackImageKey]: trackSettings.generateTrackImage(newval),
+          [progressKey]: newval.progress,
+          [xpEarnedKey]: legacyTrackXpEarned(newval),
+        };
+      },
+    } satisfies Lens<Record<string, unknown>, ProgressTrack>,
+  };
 }
 
 export function validatedAgainst(
@@ -342,7 +402,10 @@ export function rollablesReader(
   });
 }
 
-export function characterLens(ruleset: Ruleset): {
+export function characterLens(
+  ruleset: Ruleset,
+  trackSettings: ProgressTrackSettings,
+): {
   validater: (data: unknown) => ValidatedCharacter;
   lens: CharacterLens;
 } {
@@ -355,9 +418,17 @@ export function characterLens(ruleset: Ruleset): {
     schema: z.number().int().gte(defn.min).lte(defn.max),
     path: key,
   }));
+  const specialTracks = objectMap(ruleset.special_tracks, (rule) =>
+    legacyTrack(rule, trackSettings),
+  );
   const schema = baseForgedSchema.extend({
     ...objectMap(stats, ({ schema }) => schema),
     ...objectMap(condition_meters, ({ schema }) => schema),
+    ...Object.fromEntries(
+      Object.values(specialTracks).flatMap(({ schema }) =>
+        Object.entries(schema),
+      ),
+    ),
   });
 
   const lens: CharacterLens = {
@@ -381,6 +452,7 @@ export function characterLens(ruleset: Ruleset): {
       v(lensForSchemaProp(defn)),
     ),
     impacts: v(createImpactLens(ruleset)),
+    special_tracks: objectMap(specialTracks, ({ lens }) => v(lens)),
     ruleset,
   };
 

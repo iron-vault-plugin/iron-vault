@@ -9,8 +9,9 @@ import {
 import { CharacterContext, type CharacterTracker } from "../character-tracker";
 import { momentumOps, movesReader, rollablesReader } from "../characters/lens";
 import { type Datastore } from "../datastore";
-import { ProgressIndex, ProgressTrackFileAdapter } from "../tracks/progress";
+import { ProgressContext } from "../tracks/context";
 import { selectProgressTrack } from "../tracks/select";
+import { ProgressTrackWriterContext } from "../tracks/writer";
 import { randomInt } from "../utils/dice";
 import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
@@ -93,12 +94,11 @@ function processActionMove(
 
 function processProgressMove(
   move: Move,
-  trackerPath: string,
-  tracker: ProgressTrackFileAdapter,
+  tracker: ProgressTrackWriterContext,
 ): ProgressMoveDescription {
   return {
     name: move.name,
-    progressTrack: `[[${trackerPath}]]`,
+    progressTrack: `[[${tracker.location}]]`,
     progressTicks: tracker.track.progress,
     challenge1: randomInt(1, 10),
     challenge2: randomInt(1, 10),
@@ -120,7 +120,7 @@ export function validAdds(baseStat: number): number[] {
 export async function runMoveCommand(
   app: App,
   datastore: Datastore,
-  progressIndex: ProgressIndex,
+  progressContext: ProgressContext,
   characters: CharacterTracker,
   editor: Editor,
   view: MarkdownView,
@@ -130,11 +130,7 @@ export async function runMoveCommand(
     return;
   }
 
-  if (characters.size === 0) {
-    console.error("No characters found");
-    return;
-  }
-  const [[characterPath, context]] = characters.validCharacterEntries();
+  const [characterPath, context] = characters.activeCharacter();
 
   const { character, lens } = context;
 
@@ -154,7 +150,7 @@ export async function runMoveCommand(
       break;
     }
     case "progress_roll": {
-      await handleProgressRoll(app, progressIndex, move, editor);
+      await handleProgressRoll(app, progressContext, move, editor);
       break;
     }
     case "no_roll":
@@ -170,21 +166,16 @@ export async function runMoveCommand(
 
 async function handleProgressRoll(
   app: App,
-  progressIndex: ProgressIndex,
+  progressContext: ProgressContext,
   move: MoveProgressRoll,
   editor: Editor,
 ) {
   const progressTrack = await selectProgressTrack(
-    progressIndex,
+    progressContext,
     app,
-    ([, prog]) =>
-      prog.trackType == move.tracks.category && !prog.track.complete,
+    (prog) => prog.trackType == move.tracks.category && !prog.track.complete,
   );
-  const description = processProgressMove(
-    move,
-    progressTrack[0],
-    progressTrack[1],
-  );
+  const description = processProgressMove(move, progressTrack);
   // TODO: when would we mark complete? should we prompt on a hit?
   editor.replaceSelection(moveTemplate(description));
 }

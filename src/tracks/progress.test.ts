@@ -7,6 +7,7 @@ import {
   ProgressTrackFileAdapter,
   ProgressTrackSchema,
   ProgressTrackerInputSchema,
+  legacyTrackXpEarned,
 } from "./progress";
 
 describe("ProgressTrack", () => {
@@ -227,5 +228,24 @@ describe("ProgressTrackFileAdapter", () => {
         ).raw,
       ).toMatchObject({ Progress: 18, foo: "bar", baz: { bop: 1 } });
     });
+  });
+});
+
+describe("legacyTrackXpEarned", () => {
+  it.each([
+    [0, 0],
+    [4, 8],
+    [12, 22],
+  ])("calculates %d boxes is %d xp", (boxes, xpEarned) => {
+    expect(
+      legacyTrackXpEarned(
+        ProgressTrack.create_({
+          difficulty: ChallengeRanks.Epic,
+          progress: boxes * 4,
+          complete: false,
+          unbounded: true,
+        }),
+      ),
+    ).toEqual(xpEarned);
   });
 });

@@ -3,7 +3,6 @@ import { CachedMetadata } from "obsidian";
 import { ZodError, z } from "zod";
 import { BaseIndexer } from "../indexer/indexer";
 import { Either, Left, Right } from "../utils/either";
-import { updater } from "../utils/update";
 
 export enum ChallengeRanks {
   /** 12 ticks per step */
@@ -75,6 +74,7 @@ export const progressTrackSchema = z
 
 export type ProgressTrackSchema = z.output<typeof progressTrackSchema>;
 
+// TODO: need to handle progress rolls on unbounded track
 export class ProgressTrack {
   /**
    * Challenge rank for this track
@@ -128,6 +128,13 @@ export class ProgressTrack {
     return Math.floor(this.progress / 4);
   }
 
+  /** Number of boxes filled to count for progress rolls.
+   *
+   * For unbounded (legacy) tracks, caps at 10 boxes. */
+  get progressRollBoxesFilled(): number {
+    return Math.min(10, this.boxesFilled);
+  }
+
   get ticksRemaining(): number {
     return MAX_TICKS - this.progress;
   }
@@ -163,6 +170,13 @@ export class ProgressTrack {
       this.unbounded === other.unbounded
     );
   }
+}
+
+export function legacyTrackXpEarned(track: ProgressTrack) {
+  const baseBoxes = Math.min(10, track.boxesFilled);
+  const addlBoxes = track.boxesFilled - baseBoxes;
+
+  return baseBoxes * 2 + addlBoxes;
 }
 
 export interface ProgressTrackInfo {
@@ -281,14 +295,5 @@ export class ProgressIndexer extends BaseIndexer<ProgressTrackFileAdapter> {
     ).unwrap();
   }
 }
-
-// TODO: feels like this could be merged into some class that provides the same config to
-//       ProgressIndexer
-export const progressTrackUpdater = (settings: ProgressTrackSettings) =>
-  updater<ProgressTrackFileAdapter>(
-    (data) =>
-      ProgressTrackFileAdapter.create(data, settings).expect("could not parse"),
-    (tracker) => tracker.raw,
-  );
 
 export type ProgressIndex = Map<string, ProgressTrackFileAdapter>;
