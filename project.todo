@@ -37,6 +37,9 @@ Moves:
     ☐ Incorporate asset modifications into suggested stats
   Move render:
     ☐ Display outcome information in move renderer (or make it possible to show it on mouseover?)
+  Move block:
+    ☐ Store moves by id instead of name? Or both?
+    ☐ Create compact spec
 
 Characters:
   Core:

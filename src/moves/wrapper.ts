@@ -1,3 +1,4 @@
+import { MoveOutcome, MoveOutcomes } from "@datasworn/core";
 import {
   moveIsAction,
   moveIsProgress,
@@ -10,6 +11,20 @@ export enum RollResult {
   Miss,
   WeakHit,
   StrongHit,
+}
+
+export function lookupOutcome(
+  result: RollResult,
+  outcomes: MoveOutcomes,
+): MoveOutcome {
+  switch (result) {
+    case RollResult.Miss:
+      return outcomes.miss;
+    case RollResult.WeakHit:
+      return outcomes.weak_hit;
+    case RollResult.StrongHit:
+      return outcomes.strong_hit;
+  }
 }
 
 export enum MoveKind {
