@@ -1,10 +1,12 @@
+import { Move } from "@datasworn/core";
+import { Datastore } from "datastore";
 import {
   MarkdownRenderChild,
   MarkdownRenderer,
   parseYaml,
   type App,
-  type Plugin,
 } from "obsidian";
+import ForgedPlugin from "../index";
 import {
   MoveDescriptionSchema,
   moveIsAction,
@@ -19,16 +21,23 @@ import {
   ProgressMoveWrapper,
   RollResult,
   formatRollResult,
+  lookupOutcome,
 } from "./wrapper";
 
-export function registerMoveBlock(plugin: Plugin): void {
+export function registerMoveBlock(plugin: ForgedPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor("move", async (source, el, ctx) => {
     const doc = parseYaml(source);
     const validatedMove = MoveDescriptionSchema.safeParse(doc);
 
     if (validatedMove.success) {
       ctx.addChild(
-        new MoveMarkdownRenderChild(el, plugin.app, ctx.sourcePath, doc),
+        new MoveMarkdownRenderChild(
+          el,
+          plugin.app,
+          ctx.sourcePath,
+          doc,
+          plugin.datastore,
+        ),
       );
     } else {
       el.createEl("pre", {
@@ -40,20 +49,29 @@ export function registerMoveBlock(plugin: Plugin): void {
 }
 
 class MoveMarkdownRenderChild extends MarkdownRenderChild {
-  app: App;
-  doc: MoveDescription;
-  sourcePath: string;
+  protected readonly moveDefinition?: Move;
 
   constructor(
     containerEl: HTMLElement,
-    app: App,
-    sourcePath: string,
-    doc: MoveDescription,
+    protected readonly app: App,
+    protected readonly sourcePath: string,
+    protected readonly doc: MoveDescription,
+    protected readonly datastore: Datastore,
   ) {
     super(containerEl);
-    this.app = app;
-    this.sourcePath = sourcePath;
-    this.doc = doc;
+
+    const moves = datastore.moves.filter((move) => move.name === doc.name);
+    if (moves.length != 1) {
+      console.warn(
+        "Expected only one move named %s, found %d: %o",
+        doc.name,
+        moves.length,
+        moves,
+      );
+      this.moveDefinition = undefined;
+    } else {
+      this.moveDefinition = moves[0];
+    }
   }
 
   calloutForResult(result: RollResult): string {
@@ -102,6 +120,11 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
         move.burn.reset
       }) to upgrade from ${formatRollResult(wrap.originalResult())}\n>`;
     }
+
+    if (this.moveDefinition?.outcomes) {
+      display += `\n>\n> ${lookupOutcome(wrap.result(), this.moveDefinition.outcomes).text}\n>`;
+    }
+
     return display;
   }
 
