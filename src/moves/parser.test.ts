@@ -1,5 +1,6 @@
 import { Either, Left, Right } from "../utils/either";
-import { ActionMoveDescription, parseMove } from "./desc";
+import { ActionMoveDescription } from "./desc";
+import { parseMove } from "./parser";
 
 describe("parseMove", () => {
   it.each<{ line: string; result: Either<string, ActionMoveDescription> }>([
