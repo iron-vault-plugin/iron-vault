@@ -21,6 +21,7 @@ import { randomInt } from "../utils/dice";
 import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { checkForMomentumBurn } from "./action-modal";
+import { AddsModal } from "./adds-modal";
 import {
   type ActionMoveDescription,
   type MoveDescription,
@@ -143,12 +144,18 @@ export async function runMoveCommand(
     .get(character)
     .expect("unexpected failure finding assets for moves");
 
-  const allMoves = datastore.moves.concat(characterMoves);
+  const allMoves = datastore.moves
+    .concat(characterMoves)
+    .filter(
+      (move) =>
+        move.roll_type == "action_roll" || move.roll_type == "progress_roll",
+    );
 
   const move = await promptForMove(
     app,
     allMoves.sort((a, b) => a.name.localeCompare(b.name)),
   );
+  console.log(move);
   switch (move.roll_type) {
     case "action_roll": {
       await handleActionRoll(context, app, move, characterPath, editor);
@@ -264,6 +271,10 @@ async function handleActionRoll(
     undefined,
     "Adds",
   );
+  if (adds != 0) {
+    const reason = await AddsModal.show(app);
+    console.log(reason);
+  }
 
   let description = processActionMove(move, stat.key, stat.value ?? 0, adds);
   const wrapper = new ActionMoveWrapper(description);
