@@ -45,6 +45,7 @@
   "dependencies": {
     "@datasworn/core": "^0.0.5",
     "@datasworn/starforged": "0.0.5",
+    "@nrsk/sigma": "^3.8.0",
     "@popperjs/core": "^2.11.8",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.11.5",
