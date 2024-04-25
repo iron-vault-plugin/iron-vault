@@ -1,8 +1,8 @@
 import { Either, Left, Right } from "../utils/either";
 import { ActionMoveDescription } from "./desc";
-import { parseMove } from "./parser";
+import { parseMoveLine } from "./move-line-parser";
 
-describe("parseMove", () => {
+describe("parseMoveLine", () => {
   it.each<{ line: string; result: Either<string, ActionMoveDescription> }>([
     {
       line: "starforged/foo/bar: 3 +2{wits} vs 1, 3",
@@ -13,7 +13,7 @@ describe("parseMove", () => {
         statVal: 2,
         challenge1: 1,
         challenge2: 3,
-        adds: 0,
+        adds: [],
       }),
     },
     {
@@ -25,18 +25,18 @@ describe("parseMove", () => {
         statVal: 2,
         challenge1: 1,
         challenge2: 3,
-        adds: 1,
+        adds: [{ amount: 1, desc: "a long description (i did this)" }],
       }),
     },
   ])("parses a standard move line '$line'", ({ line, result }) => {
-    expect(parseMove(line)).toEqual(result);
+    expect(parseMoveLine(line)).toEqual(result);
   });
 
   it.each`
     line                                  | msg
     ${"starforged/foo/bar: 3 +2 vs 1, 3"} | ${"Expected: {"}
   `("rejects invalid line '$line'", ({ line, msg }) => {
-    const result = parseMove(line);
+    const result = parseMoveLine(line);
     expect(result).toMatchObject(Left.create(expect.stringMatching(msg)));
   });
 });
