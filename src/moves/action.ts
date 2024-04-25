@@ -193,6 +193,20 @@ async function handleProgressRoll(
   editor.replaceSelection(moveTemplate(description));
 }
 
+const ORDINALS = [
+  "zeroth",
+  "first",
+  "second",
+  "third",
+  "fourth",
+  "fifth",
+  "sixth",
+  "seventh",
+  "eighth",
+  "ninth",
+  "tenth",
+];
+
 // TODO: refactor this so it returns the description and handle the other parts separately?
 async function handleActionRoll(
   charContext: CharacterContext,
@@ -273,10 +287,10 @@ async function handleActionRoll(
       validAdds(stat.value ?? 0),
       (n) => n.toString(10),
       undefined,
-      "Adds",
+      `Choose an amount for the ${ORDINALS[adds.length + 1]} add.`,
     );
     if (addValue == 0) break;
-    const addReason = await AddsModal.show(app);
+    const addReason = await AddsModal.show(app, `+${addValue}`);
     const add: { amount: number; desc?: string } = { amount: addValue };
     if ((addReason ?? "").length > 0) {
       add.desc = addReason;
