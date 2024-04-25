@@ -32,12 +32,12 @@ export function processMatches(
 export class AddsModal extends SuggestModal<FuzzyMatch<string>> {
   private resolved: boolean = false;
 
-  static async show(app: App): Promise<string> {
+  static async show(app: App, addAmount: string): Promise<string> {
     return this.select(
       app,
       [],
       (x) => x,
-      "(Optional) Provide a reason for this add and press enter.",
+      `(Optional) Provide a reason for this ${addAmount} add and press enter.`,
     );
   }
 
@@ -112,8 +112,6 @@ export class AddsModal extends SuggestModal<FuzzyMatch<string>> {
     if (placeholder) {
       this.setPlaceholder(placeholder);
     }
-    console.log(this);
-    this.onEnter = this.onEnter.bind(this);
   }
 
   getSuggestions(
@@ -145,22 +143,12 @@ export class AddsModal extends SuggestModal<FuzzyMatch<string>> {
   }
 
   onNoSuggestion(): void {
-    this.resultContainerEl.empty();
-    const div = this.resultContainerEl.createDiv();
-    div.createEl("em", { text: `Press ⏎ to record reason or ␛ to cancel.` });
-    this.inputEl.addEventListener("keyup", this.onEnter);
-  }
-
-  onEnter(evt: KeyboardEvent): any {
-    if (evt.key == "Enter") {
-      const match: FuzzyMatch<string> = {
-        item: this.inputEl.value,
-        match: { score: 0, matches: [] },
-      };
-      if (match.item) {
-        this.selectSuggestion(match, evt);
-      }
-    }
+    this.chooser.setSuggestions([
+      { item: this.inputEl.value, match: { matches: [], score: 0 } },
+    ]);
+    // this.resultContainerEl.empty();
+    // const div = this.resultContainerEl.createDiv();
+    // div.createEl("em", { text: `Press ⏎ to record reason or ␛ to cancel.` });
   }
 
   onChooseSuggestion(
