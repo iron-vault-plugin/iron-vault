@@ -32,7 +32,6 @@ import { ActionMoveDescription } from "./desc";
 // - roll: 3
 // - meter: 2 wits
 // - add: +1
-const SIGNED_INTEGER_RE = /(\+|-)(0|[1-9][0-9]*)/g;
 function signedInteger(): Parser<number> {
   return error(
     choice(
