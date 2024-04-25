@@ -85,8 +85,15 @@ export class ActionMoveWrapper extends MoveWrapper<ActionMoveDescription> {
     return this.move.burn?.orig ?? this.actionScore;
   }
 
+  /**
+   * Gets the total value of all adds.
+   */
+  public get totalAdds(): number {
+    return (this.move.adds ?? []).reduce((acc, { amount }) => acc + amount, 0);
+  }
+
   public get actionScore(): number {
-    return Math.min(this.move.action + this.move.statVal + this.move.adds, 10);
+    return Math.min(this.move.action + this.move.statVal + this.totalAdds, 10);
   }
 
   public originalResult(): RollResult {

@@ -13,7 +13,7 @@ describe("ActionMoveWrapper", () => {
         action,
         stat: "wits",
         statVal: 0,
-        adds: 0,
+        adds: [],
         challenge1,
         challenge2,
       });
@@ -32,7 +32,7 @@ describe("ActionMoveWrapper", () => {
         action,
         stat: "wits",
         statVal: 1,
-        adds: 0,
+        adds: [],
         challenge1,
         challenge2,
         burn: { orig: momentum, reset: 2 },
@@ -41,4 +41,30 @@ describe("ActionMoveWrapper", () => {
       expect(roll.result()).toBe(newResult);
     },
   );
+
+  it("correctly accounts for adds in total", () => {
+    expect(
+      new ActionMoveWrapper({
+        name: "test",
+        action: 1,
+        stat: "wits",
+        statVal: 1,
+        adds: [],
+        challenge1: 1,
+        challenge2: 2,
+      }).actionScore,
+    ).toBe(2);
+
+    expect(
+      new ActionMoveWrapper({
+        name: "test",
+        action: 1,
+        stat: "wits",
+        statVal: 1,
+        adds: [{ amount: 1 }, { amount: 2 }],
+        challenge1: 1,
+        challenge2: 2,
+      }).actionScore,
+    ).toBe(5);
+  });
 });
