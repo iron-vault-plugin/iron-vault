@@ -47,7 +47,7 @@ function modifierWithDesc(): Parser<{ amount: number; desc: string }> {
 }
 function modifier(
   requireDesc: boolean = false,
-): Parser<{ amount: number; desc: string | null }> {
+): Parser<{ amount: number; desc: string | undefined }> {
   const descParser = takeMid(
     string("{"),
     regexp(/[^\}\{]+/g, "string without curly braces"),
@@ -57,7 +57,7 @@ function modifier(
     sequence(signedInteger(), requireDesc ? descParser : optional(descParser)),
     ([amount, desc]) => ({
       amount,
-      desc,
+      desc: desc === null ? undefined : desc,
     }),
   );
 }
@@ -91,7 +91,7 @@ const moveGrammar = grammar({
           action,
           stat: statMod.desc,
           statVal: statMod.amount,
-          adds: adds.reduce((prev, { amount }) => prev + amount, 0),
+          adds,
           challenge1,
           challenge2,
         };
@@ -104,7 +104,9 @@ const moveGrammar = grammar({
   },
 });
 
-export function parseMove(line: string): Either<string, ActionMoveDescription> {
+export function parseMoveLine(
+  line: string,
+): Either<string, ActionMoveDescription> {
   const result = run(moveGrammar.moveExp).with(line);
   if (result.isOk) {
     return Right.create(result.value);
