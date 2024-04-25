@@ -1,20 +1,15 @@
 import { Move } from "@datasworn/core";
 import { Datastore } from "datastore";
-import {
-  MarkdownRenderChild,
-  MarkdownRenderer,
-  parseYaml,
-  type App,
-} from "obsidian";
+import { MarkdownRenderChild, MarkdownRenderer, type App } from "obsidian";
 import ForgedPlugin from "../index";
 import {
-  MoveDescriptionSchema,
   moveIsAction,
   moveIsProgress,
   type ActionMoveDescription,
   type MoveDescription,
   type ProgressMoveDescription,
 } from "./desc";
+import { parseMoveBlock } from "./serde";
 import {
   ActionMoveWrapper,
   MoveWrapper,
@@ -26,26 +21,33 @@ import {
 
 export function registerMoveBlock(plugin: ForgedPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor("move", async (source, el, ctx) => {
-    const doc = parseYaml(source);
-    const validatedMove = MoveDescriptionSchema.safeParse(doc);
+    const validatedMove = parseMoveBlock(source);
 
-    if (validatedMove.success) {
+    if (validatedMove.isRight()) {
       ctx.addChild(
         new MoveMarkdownRenderChild(
           el,
           plugin.app,
           ctx.sourcePath,
-          doc,
+          validatedMove.value,
           plugin.datastore,
         ),
       );
     } else {
       el.createEl("pre", {
-        text:
-          "Error parsing move\n" + JSON.stringify(validatedMove.error.format()),
+        text: `Error parsing move\n${validatedMove.error.toString()}\n${JSON.stringify(validatedMove.error.cause)}`,
       });
     }
   });
+}
+
+function formatAdds(adds: { amount: number; desc?: string }[]): string {
+  if (adds.length == 0) {
+    return "0";
+  }
+  return adds
+    .map(({ amount, desc }) => `${amount}` + (desc ? `(${desc})` : ""))
+    .join(" + ");
 }
 
 class MoveMarkdownRenderChild extends MarkdownRenderChild {
@@ -109,10 +111,8 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
     const wrap = new ActionMoveWrapper(move);
     let display = `> [!${this.calloutForResult(wrap.result())}] ${move.name}: ${
       move.stat
-    } + ${move.adds}: ${this.labelForResult(wrap)}
-> ${move.action} + ${move.statVal} + ${move.adds} = ${
-      move.action + move.statVal + move.adds
-    }
+    } + ${wrap.totalAdds}: ${this.labelForResult(wrap)}
+> ${move.action} + ${move.statVal} + ${formatAdds(move.adds)} = ${wrap.actionScore}
 > vs ${move.challenge1} and ${move.challenge2}
 >`;
     if (move.burn) {

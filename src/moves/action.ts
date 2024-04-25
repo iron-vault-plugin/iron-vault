@@ -23,6 +23,7 @@ import { CustomSuggestModal } from "../utils/suggest";
 import { checkForMomentumBurn } from "./action-modal";
 import { AddsModal } from "./adds-modal";
 import {
+  ActionMoveAdd,
   type ActionMoveDescription,
   type MoveDescription,
   type ProgressMoveDescription,
@@ -85,7 +86,7 @@ function processActionMove(
   move: Move,
   stat: string,
   statVal: number,
-  adds: number,
+  adds: ActionMoveAdd[],
 ): ActionMoveDescription {
   return {
     name: move.name,
@@ -264,16 +265,23 @@ async function handleActionRoll(
     move.trigger.text,
   );
 
-  const adds = await CustomSuggestModal.select(
-    app,
-    validAdds(stat.value ?? 0),
-    (n) => n.toString(10),
-    undefined,
-    "Adds",
-  );
-  if (adds != 0) {
-    const reason = await AddsModal.show(app);
-    console.log(reason);
+  const adds = [];
+  // TODO: do we need this arbitrary cutoff on adds? just wanted to avoid a kinda infinite loop
+  while (adds.length < 5) {
+    const addValue = await CustomSuggestModal.select(
+      app,
+      validAdds(stat.value ?? 0),
+      (n) => n.toString(10),
+      undefined,
+      "Adds",
+    );
+    if (addValue == 0) break;
+    const addReason = await AddsModal.show(app);
+    const add: { amount: number; desc?: string } = { amount: addValue };
+    if ((addReason ?? "").length > 0) {
+      add.desc = addReason;
+    }
+    adds.push(add);
   }
 
   let description = processActionMove(move, stat.key, stat.value ?? 0, adds);
