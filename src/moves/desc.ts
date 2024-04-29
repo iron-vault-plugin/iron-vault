@@ -6,7 +6,7 @@ const BaseMoveDescriptionSchema = z.object({
 
 // type BaseMoveDescription = z.infer<typeof BaseMoveDescriptionSchema>;
 
-const BurnSchema = z.object({
+const BurnDescriptorSchema = z.object({
   orig: z.number().int(),
   reset: z.number().int(),
 });
@@ -18,7 +18,7 @@ export const ActionMoveDescriptionSchemaV1 = BaseMoveDescriptionSchema.extend({
   adds: z.number().int(),
   challenge1: z.number().int(),
   challenge2: z.number().int(),
-  burn: z.optional(BurnSchema),
+  burn: z.optional(BurnDescriptorSchema),
 });
 
 export type ActionMoveDescriptionV1 = z.output<
@@ -42,6 +42,8 @@ export type ActionMoveDescriptionV2 = z.output<
 >;
 
 export type ActionMoveDescription = ActionMoveDescriptionV2;
+
+export type BurnDescriptor = z.infer<typeof BurnDescriptorSchema>;
 
 const ProgressMoveDescriptionSchema = BaseMoveDescriptionSchema.extend({
   progressTrack: z.string(),
@@ -76,6 +78,6 @@ export function moveIsAction(
 
 export function moveIsProgress(
   move: MoveDescription,
-): move is ActionMoveDescription {
+): move is ProgressMoveDescription {
   return (move as ProgressMoveDescription).progressTrack !== undefined;
 }
