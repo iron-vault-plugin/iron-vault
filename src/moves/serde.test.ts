@@ -4,14 +4,14 @@ describe("parseMoveBlock", () => {
   it("Parses a move line with newline", () => {
     expect(
       parseMoveBlock(
-        `example: 2 +3{wits} vs 1, 2
+        `example: action 2 +3{wits} vs 1, 2
 `,
       ),
     ).toMatchObject({ value: { name: "example" } });
   });
 
   it("Parses a move line with no newline", () => {
-    expect(parseMoveBlock(`example: 2 +3{wits} vs 1, 2`)).toMatchObject({
+    expect(parseMoveBlock(`example: action 2 +3{wits} vs 1, 2`)).toMatchObject({
       value: { name: "example" },
     });
   });
