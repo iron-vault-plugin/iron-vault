@@ -1,17 +1,12 @@
 import { z } from "zod";
 
-const BaseMoveDescriptionSchema = z.object({
-  name: z.string(),
-});
-
-// type BaseMoveDescription = z.infer<typeof BaseMoveDescriptionSchema>;
-
 const BurnDescriptorSchema = z.object({
   orig: z.number().int(),
   reset: z.number().int(),
 });
 
-export const ActionMoveDescriptionSchemaV1 = BaseMoveDescriptionSchema.extend({
+export const ActionMoveDescriptionSchemaV1 = z.object({
+  name: z.string(),
   action: z.number().int(),
   stat: z.string(),
   statVal: z.number().int(),
@@ -45,7 +40,8 @@ export type ActionMoveDescription = ActionMoveDescriptionV2;
 
 export type BurnDescriptor = z.infer<typeof BurnDescriptorSchema>;
 
-const ProgressMoveDescriptionSchema = BaseMoveDescriptionSchema.extend({
+const ProgressMoveDescriptionSchema = z.object({
+  name: z.string(),
   progressTrack: z.string(),
   progressTicks: z.number(),
   challenge1: z.number().int(),
