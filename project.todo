@@ -36,10 +36,10 @@ Moves:
     ✔ Highlight suggested stats (based on move triggers) @done(24-03-02 15:11)
     ☐ Incorporate asset modifications into suggested stats
   Move render:
-    ☐ Display outcome information in move renderer (or make it possible to show it on mouseover?)
+    ✔ Display outcome information in move renderer (or make it possible to show it on mouseover?) @done(24-04-29 14:09)
   Move block:
     ☐ Store moves by id instead of name? Or both?
-    ☐ Create compact spec
+    ✔ Create compact spec @done(24-04-29 14:09)
 
 Characters:
   Core:
