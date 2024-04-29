@@ -11,6 +11,7 @@ import {
   type FuzzyMatch,
   type MarkdownView,
 } from "obsidian";
+import { ForgedPluginSettings, MoveBlockFormat } from "settings/ui";
 import { CharacterContext, type CharacterTracker } from "../character-tracker";
 import { momentumOps, movesReader, rollablesReader } from "../characters/lens";
 import { type Datastore } from "../datastore";
@@ -28,6 +29,7 @@ import {
   type MoveDescription,
   type ProgressMoveDescription,
 } from "./desc";
+import { generateMoveLine } from "./move-line-parser";
 import { ActionMoveWrapper } from "./wrapper";
 
 enum MoveKind {
@@ -112,9 +114,13 @@ function processProgressMove(
   };
 }
 
-function moveTemplate(move: MoveDescription): string {
+const yamlMoveRenderer = (move: MoveDescription): string => {
   return `\`\`\`move\n${stringifyYaml(move)}\n\`\`\`\n\n`;
-}
+};
+
+const moveLineMoveRenderer = (move: MoveDescription): string => {
+  return `\`\`\`move\n${generateMoveLine(move)}\n\`\`\`\n\n`;
+};
 
 export function validAdds(baseStat: number): number[] {
   const adds = [];
@@ -131,6 +137,7 @@ export async function runMoveCommand(
   characters: CharacterTracker,
   editor: Editor,
   view: MarkdownView,
+  settings: ForgedPluginSettings,
 ): Promise<void> {
   if (view.file?.path == null) {
     console.error("No file for view. Why?");
@@ -152,6 +159,11 @@ export async function runMoveCommand(
         move.roll_type == "action_roll" || move.roll_type == "progress_roll",
     );
 
+  const moveRenderer: (move: MoveDescription) => string =
+    settings.moveBlockFormat == MoveBlockFormat.MoveLine
+      ? moveLineMoveRenderer
+      : yamlMoveRenderer;
+
   const move = await promptForMove(
     app,
     allMoves.sort((a, b) => a.name.localeCompare(b.name)),
@@ -159,11 +171,24 @@ export async function runMoveCommand(
   console.log(move);
   switch (move.roll_type) {
     case "action_roll": {
-      await handleActionRoll(context, app, move, characterPath, editor);
+      await handleActionRoll(
+        context,
+        app,
+        move,
+        characterPath,
+        editor,
+        moveRenderer,
+      );
       break;
     }
     case "progress_roll": {
-      await handleProgressRoll(app, progressContext, move, editor);
+      await handleProgressRoll(
+        app,
+        progressContext,
+        move,
+        editor,
+        moveRenderer,
+      );
       break;
     }
     case "no_roll":
@@ -182,6 +207,7 @@ async function handleProgressRoll(
   progressContext: ProgressContext,
   move: MoveProgressRoll,
   editor: Editor,
+  moveRenderer: (move: MoveDescription) => string,
 ) {
   const progressTrack = await selectProgressTrack(
     progressContext,
@@ -190,7 +216,7 @@ async function handleProgressRoll(
   );
   const description = processProgressMove(move, progressTrack);
   // TODO: when would we mark complete? should we prompt on a hit?
-  editor.replaceSelection(moveTemplate(description));
+  editor.replaceSelection(moveRenderer(description));
 }
 
 const ORDINALS = [
@@ -214,6 +240,7 @@ async function handleActionRoll(
   move: MoveActionRoll,
   characterPath: string,
   editor: Editor,
+  moveRenderer: (move: MoveDescription) => string,
 ) {
   const { lens, character } = charContext;
 
@@ -312,5 +339,5 @@ async function handleActionRoll(
       (character, { lens }) => momentumOps(lens).reset(character),
     );
   }
-  editor.replaceSelection(moveTemplate(description));
+  editor.replaceSelection(moveRenderer(description));
 }

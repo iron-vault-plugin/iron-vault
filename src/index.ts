@@ -113,6 +113,7 @@ export default class ForgedPlugin extends Plugin {
           this.characters,
           editor,
           view as MarkdownView,
+          this.settings,
         );
       },
     });

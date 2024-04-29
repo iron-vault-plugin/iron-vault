@@ -31,13 +31,26 @@ export class ForgedSettingTab extends PluginSettingTab {
       );
   }
 }
+
+export enum MoveBlockFormat {
+  /** Use the original YAML format for generating action blocks. */
+  YAML = "yaml",
+
+  /** Use the new one-line move format */
+  MoveLine = "move-line",
+}
+
 export interface ForgedPluginSettings
   extends Record<keyof TEMPLATE_TYPES, string> {
   oraclesFolder: string;
   momentumResetTemplate: string;
   meterAdjTemplate: string;
+
+  /** Which format should the move block be rendered with? */
+  moveBlockFormat: MoveBlockFormat;
 }
 export const DEFAULT_SETTINGS: ForgedPluginSettings = {
+  moveBlockFormat: MoveBlockFormat.YAML,
   oraclesFolder: "",
   momentumResetTemplate:
     "> [!mechanics] {{character.name}} burned momentum: {{oldValue}} -> {{newValue}}\n\n",
