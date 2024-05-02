@@ -1,9 +1,10 @@
 ---
 Name: Example vow
 Difficulty: Troublesome
-Progress: 36
-tags: complete
-TrackImage: "[[progress-track-36.svg]]"
+Progress: 24
+tags:
+  - incomplete
+TrackImage: "[[progress-track-24.svg]]"
 forgedkind: progress
 tracktype: Vow
 ---

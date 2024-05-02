@@ -26,7 +26,7 @@ export async function advanceProgressTrack(
   //   console.warn("data not ready");
   //   return;
   // }
-  const trackWriter = await selectProgressTrack(
+  const trackContext = await selectProgressTrack(
     progressContext,
     app,
     ({ track }) => !track.complete && track.ticksRemaining > 0,
@@ -34,7 +34,7 @@ export async function advanceProgressTrack(
 
   const steps = await CustomSuggestModal.select(
     app,
-    Array(trackWriter.track.stepsRemaining)
+    Array(trackContext.track.stepsRemaining)
       .fill(0)
       .map((_, i) => i + 1),
     (num) => num.toString(),
@@ -42,15 +42,17 @@ export async function advanceProgressTrack(
     "Select number of times to advance the progress track.",
   );
 
-  const newTrack = await trackWriter.process((trackAdapter) =>
+  const newTrack = await trackContext.process((trackAdapter) =>
     trackAdapter.advanced(steps),
   );
 
   editor.replaceSelection(
     advanceProgressTemplate(settings)({
       trackInfo: newTrack,
-      trackPath: trackWriter.location,
+      trackPath: trackContext.location,
       steps,
+      ticks: newTrack.track.progress - trackContext.track.progress,
+      originalInfo: trackContext,
     }),
   );
 }

@@ -57,7 +57,7 @@ export const DEFAULT_SETTINGS: ForgedPluginSettings = {
   meterAdjTemplate:
     "> [!mechanics] {{character.name}} old {{measure.definition.label}}: {{measure.value}}; new {{measure.definition.label}}: {{newValue}}\n\n",
   advanceProgressTemplate:
-    "> [!progress] [[{{trackPath}}|{{trackInfo.name}}]], {{steps}} progress marked ({{trackInfo.track.boxesFilled}} ![[progress-box-4.svg|15]] total)\n> \n> Milestone: \n\n",
+    "> [!progress] [[{{trackPath}}|{{trackInfo.name}}]]: Marked {{steps}} progress ({{trackInfo.track.boxesFilled}} ![[progress-box-4.svg|15]] total)\n> Ticks: {{originalInfo.track.progress}} + {{ticks}} -> {{trackInfo.track.progress}}\n> Milestone: \n\n",
   createProgressTemplate:
     "> [!progress] New {{trackInfo.trackType}} track: [[{{trackPath}}|{{trackInfo.name}}]]\n> **Difficulty**: {{trackInfo.track.difficulty}}\n> **Additional details**: \n\n",
   advanceClockTemplate:
@@ -77,6 +77,8 @@ export type AdvanceProgressTemplateParams = {
   trackPath: string;
   trackInfo: ProgressTrackInfo;
   steps: number;
+  ticks: number;
+  originalInfo: ProgressTrackInfo;
 };
 
 export type CreateProgressTemplateParams = {
