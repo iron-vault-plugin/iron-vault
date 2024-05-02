@@ -97,9 +97,12 @@ export function oracleNameWithParents(oracle: Oracle): string {
   return steps.join(" / ");
 }
 
-export function renderOracleCallout(rollWrapper: RollWrapper): string {
+export function renderOracleCallout(
+  question: string | undefined,
+  rollWrapper: RollWrapper,
+): string {
   const roll = rollWrapper.dehydrate();
-  return `> [!oracle] ${"Ask the Oracle"} (${oracleNameWithParents(
+  return `> [!oracle] ${question ?? "Ask the Oracle"} (${oracleNameWithParents(
     rollWrapper.oracle,
   )}): ${roll.results.join("; ")} %%${renderRollPath(roll)}%%\n>\n\n`;
 }
