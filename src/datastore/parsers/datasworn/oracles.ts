@@ -3,14 +3,34 @@ import {
   OracleTableRowDetails,
   OracleTableRowSimple,
 } from "@datasworn/core";
+import { NoSuchOracleError } from "../../../model/errors";
 import {
   Oracle,
   OracleGrouping,
+  OracleRollableRow,
   OracleRow,
   RollContext,
 } from "../../../model/oracle";
 import { Roll, RollResultKind, Subroll, sameRoll } from "../../../model/rolls";
 import { Dice } from "../../../utils/dice";
+
+function asOracleRow(
+  rawRow: OracleTableRowSimple | OracleTableRowDetails,
+): OracleRow {
+  return Object.freeze({
+    id: rawRow.id,
+    result: rawRow.result,
+    template: rawRow.template,
+    range:
+      rawRow.min != null && rawRow.max != null
+        ? { min: rawRow.min, max: rawRow.max }
+        : null,
+  });
+}
+
+export function isRollableOracleRow(row: OracleRow): row is OracleRollableRow {
+  return row.range != null;
+}
 
 export class DataswornOracle implements Oracle {
   constructor(
@@ -18,13 +38,12 @@ export class DataswornOracle implements Oracle {
     public readonly parent: OracleGrouping,
   ) {}
 
+  get rollableRows(): OracleRollableRow[] {
+    return this.table.rows.map(asOracleRow).filter(isRollableOracleRow);
+  }
+
   row(id: string): OracleRow {
-    const rawRow = this.internalRow(id);
-    return Object.freeze({
-      id,
-      result: rawRow.result,
-      template: rawRow.template,
-    });
+    return asOracleRow(this.internalRow(id));
   }
 
   protected internalRow(
@@ -86,7 +105,10 @@ export class DataswornOracle implements Oracle {
         if (!prevRoll) {
           const subTable = context.lookup(id);
           if (subTable == null) {
-            throw new Error(`missing subtable ${id} in ${this.table.id}`);
+            throw new NoSuchOracleError(
+              id,
+              `missing subtable in ${this.table.id}`,
+            );
           }
           subrolls[id] = {
             rolls: [subTable.roll(context)],

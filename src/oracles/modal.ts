@@ -19,7 +19,7 @@ export class OracleRollerModal extends Modal {
     this.accepted = false;
 
     const { contentEl } = this;
-    contentEl.createEl("h1", { text: this.oracle.name });
+    new Setting(contentEl).setName(this.oracle.name).setHeading();
 
     // new Setting(contentEl).addButton((btn) =>
     //   btn

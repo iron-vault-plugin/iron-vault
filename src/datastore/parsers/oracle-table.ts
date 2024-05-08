@@ -3,14 +3,10 @@ import {
   OracleTableRowSimple,
   OracleTableSimple,
 } from "@datasworn/core";
+import { NumberRange } from "../../model/rolls";
 import { matchTables } from "./table";
 
-export interface Range {
-  min: number;
-  max: number;
-}
-
-export function parseRange(input: string): Range | undefined {
+export function parseRange(input: string): NumberRange | undefined {
   const results = input.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
   if (!results) {
     return undefined;

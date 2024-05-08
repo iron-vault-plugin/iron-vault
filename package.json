@@ -40,7 +40,7 @@
     "obsidian-dataview": "^0.5.64",
     "prettier": "^3.2.4",
     "turbowatch": "^2.29.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   },
   "dependencies": {
     "@datasworn/core": "^0.0.5",

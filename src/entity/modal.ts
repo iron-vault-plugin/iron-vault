@@ -1,16 +1,81 @@
-import { Oracle, RollContext } from "model/oracle";
-import { RollWrapper } from "model/rolls";
 import { App, Modal, Setting } from "obsidian";
+import { partition } from "utils/partition";
+import { Oracle, RollContext } from "../model/oracle";
+import { RollWrapper } from "../model/rolls";
 
 export type EntityDescriptor<T extends EntitySpec> = {
   label: string;
   nameGen?: (ent: EntityResults<T>) => string;
   spec: T;
 };
-export type EntitySpec = Record<string, { id: string; firstLook: boolean }>;
+
+export enum AttributeMechanism {
+  /** Snake case the result. (e.g., Creature Environment) */
+  Snakecase = "Snakecase",
+  /** Take the last segment of the id: link (e.g., Planet Class) */
+  ParseId = "parse-id",
+}
+
+export type DefinesAttribute = {
+  order: number;
+  mechanism: AttributeMechanism;
+};
+export type EntitySpec = Record<string, EntityFieldSpec>;
+
+export type EntityBaseFieldSpec = {
+  /** Oracle ID. Can use templates with `{{asdf}}` */
+  id: string;
+
+  /** True if this should be rolled as part of first look. */
+  firstLook?: boolean;
+
+  /** Label to use. If null, will use oracle name. */
+  name?: string;
+};
+export type EntityAttributeFieldSpec = EntityBaseFieldSpec & {
+  definesAttribute: DefinesAttribute;
+};
+
+export type EntityFieldSpec = EntityBaseFieldSpec | EntityAttributeFieldSpec;
+
+export function isEntityAttributeSpec(
+  spec: EntityFieldSpec,
+): spec is EntityAttributeFieldSpec {
+  return (spec as EntityAttributeFieldSpec).definesAttribute != null;
+}
+
 export type EntityResults<T extends EntitySpec> = {
   [key in keyof T]: RollWrapper[];
 };
+
+const SAFE_SNAKECASE_RESULT = /^[a-z0-9\s]+$/i;
+// [Rocky World](id:starforged/collections/oracles/planets/rocky)
+const ATTRIBUTE_LINK = /\[([\w ]*)\]\(id:([\w/:]+)\)/;
+
+function evaluateAttribute(
+  spec: EntityAttributeFieldSpec,
+  roll: RollWrapper[],
+): string {
+  if (roll.length != 1) {
+    throw new Error(`unexpected number of rolls for attribute: ${roll.length}`);
+  }
+  const rawResult = roll[0].simpleResult;
+  switch (spec.definesAttribute.mechanism) {
+    case AttributeMechanism.Snakecase:
+      if (!rawResult.match(SAFE_SNAKECASE_RESULT))
+        throw new Error(
+          `attribute value did not have snakecase-compatible result: ${rawResult}`,
+        );
+      return rawResult.replaceAll(/\s+/g, "_").toLowerCase();
+    case AttributeMechanism.ParseId: {
+      const match = rawResult.match(ATTRIBUTE_LINK);
+      if (!match) throw new Error(`no id link found: ${rawResult}`);
+      const parts = match[2].split("/");
+      if (parts.length < 2) throw new Error(`no / separator in ${rawResult}`);
+      return parts.last()!;
+    }
+  }
+}
 
 export class EntityModal<T extends EntitySpec> extends Modal {
   public accepted: boolean = false;
@@ -20,19 +85,29 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     app,
     entityDesc,
     rollContext,
+    initialEntity,
   }: {
     app: App;
     entityDesc: EntityDescriptor<T>;
     rollContext: RollContext;
+    initialEntity: Partial<EntityResults<T>>;
   }): Promise<EntityResults<T>> {
     return new Promise((onAccept, onCancel) => {
-      new this(app, entityDesc, rollContext, onAccept, onCancel).open();
+      new this(
+        app,
+        entityDesc,
+        initialEntity,
+        rollContext,
+        onAccept,
+        onCancel,
+      ).open();
     });
   }
 
   protected constructor(
     app: App,
     public readonly entityDesc: EntityDescriptor<T>,
+    public readonly initialEntity: Partial<EntityResults<T>>,
     public readonly rollContext: RollContext,
     public readonly onAccept: (results: EntityResults<T>) => void,
     public readonly onCancel: () => void,
@@ -41,7 +116,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     this.results = Object.fromEntries(
       Object.entries(entityDesc.spec).map(([key]) => [
         key,
-        [] as RollWrapper[],
+        initialEntity[key] ?? [],
       ]),
     ) as Record<keyof T, RollWrapper[]>;
     console.log("init results: %o", this.results);
@@ -55,7 +130,11 @@ export class EntityModal<T extends EntitySpec> extends Modal {
 
     const render = (roll: RollWrapper): string => {
       const evaledRoll = roll.dehydrate();
-      return `${evaledRoll.roll}: ${evaledRoll.results.join("; ")}`;
+      return `${evaledRoll.roll}: ${evaledRoll.results.join(", ")}`;
+    };
+
+    const renderRolls = (rolls: RollWrapper[]): string => {
+      return rolls.map(render).join("; ");
     };
 
     // const getTextComponent = (key: string): TextComponent | undefined => {
@@ -69,8 +148,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
       const { setting, table } = settings[key];
       this.results[key] = [new RollWrapper(table, this.rollContext)];
       // getTextComponent(key)?.setValue(render(this.results[key][0]));
-      setting.setName(render(this.results[key][0]));
-      setting.setDesc(table.name);
+      setting.setName(renderRolls(this.results[key]));
     };
 
     const clearKey = (key: keyof T): void => {
@@ -83,19 +161,56 @@ export class EntityModal<T extends EntitySpec> extends Modal {
 
     const { spec: entitySpec } = this.entityDesc;
 
-    contentEl.createEl("h1", { text: this.entityDesc.label });
+    new Setting(contentEl).setName(this.entityDesc.label).setHeading();
 
-    for (const key in entitySpec) {
-      const { id } = entitySpec[key];
+    const [attributes, slots] = partition(
+      Object.entries(entitySpec) as [keyof T, EntityFieldSpec][],
+      (elem): elem is [keyof T, EntityAttributeFieldSpec] =>
+        isEntityAttributeSpec(elem[1]),
+    );
+
+    attributes.sort(
+      ([_a, specA], [_b, specB]) =>
+        specA.definesAttribute.order - specB.definesAttribute.order,
+    );
+
+    const attributeValues: Partial<Record<keyof T, string>> = {};
+
+    for (const [key, spec] of attributes) {
+      const { id } = spec;
       const table = this.rollContext.lookup(id);
       if (!table) {
-        this.close();
+        // this.close();
         throw new Error("missing table " + id);
+      }
+      const setting = new Setting(contentEl)
+        .setName(renderRolls(this.results[key]))
+        .setDesc(spec.name ?? table.name);
+
+      setting.descEl.ariaLabel = `(id: ${table.id})`;
+
+      attributeValues[key] = evaluateAttribute(spec, this.results[key]);
+
+      settings[key] = { setting, table };
+    }
+
+    for (const [key, { id, name }] of slots) {
+      const formattedId = id.replaceAll(/\{\{(\w+)\}\}/g, (_, attribute) => {
+        const val = attributeValues[attribute];
+        if (!val) {
+          throw new Error(`unexpected attribute '${attribute}' in id '${id}'`);
+        }
+        return val;
+      });
+
+      const table = this.rollContext.lookup(formattedId);
+      if (!table) {
+        throw new Error("missing table " + formattedId);
       }
 
       const setting = new Setting(contentEl)
         .setName("")
-        .setDesc(table.name)
+        .setDesc(name ?? table.name)
         // .addText((text) => text.setDisabled(true).setValue(""))
         .addExtraButton((btn) =>
           btn.setIcon("dices").onClick(() => {
@@ -107,13 +222,14 @@ export class EntityModal<T extends EntitySpec> extends Modal {
             clearKey(key);
           }),
         );
+      setting.descEl.ariaLabel = `(id: ${table.id})`;
       settings[key] = { setting, table };
     }
 
     new Setting(contentEl)
       .addButton((btn) =>
         btn.setButtonText("Roll First Look").onClick(() => {
-          for (const [key, spec] of Object.entries(this.entityDesc.spec)) {
+          for (const [key, spec] of slots) {
             if (spec.firstLook) {
               rollForKey(key);
             } else {

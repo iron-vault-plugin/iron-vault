@@ -1,5 +1,5 @@
 import { OracleRollTemplate } from "@datasworn/core";
-import { Roll } from "./rolls";
+import { NumberRange, Roll } from "./rolls";
 
 export interface RollContext {
   lookup(id: string): Oracle | undefined;
@@ -29,6 +29,7 @@ export interface Oracle {
   readonly id: string;
   readonly name: string;
   readonly parent: OracleGrouping;
+  readonly rollableRows: OracleRollableRow[];
 
   row(id: string): OracleRow;
 
@@ -45,4 +46,13 @@ export interface OracleRow {
   readonly template: OracleRollTemplate | undefined;
   readonly id: string;
   readonly result: string;
+
+  /** The roll range corresponding to this row. A null range corresponds to an unrollable row,
+   * included for display purposes only.
+   */
+  readonly range: NumberRange | null;
 }
+
+export type OracleRollableRow = OracleRow & {
+  readonly range: NonNullable<OracleRow["range"]>;
+};

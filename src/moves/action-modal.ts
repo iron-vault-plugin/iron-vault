@@ -49,7 +49,7 @@ export class ActionModal extends Modal {
 
   onOpen(): void {
     const { contentEl } = this;
-    contentEl.createEl("h1", { text: this.move.name });
+    new Setting(contentEl).setName(this.move.name).setHeading();
 
     contentEl.createEl("p", {
       text: `You scored a ${formatRollResult(

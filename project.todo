@@ -15,7 +15,7 @@ Oracles:
     ✔ Some sort of mechanism for seeing different options for a roll instead of putting it directly into the document. @high @done(23-11-15 21:32)
       So like a modal that displays different variants after you select it. Or maybe suggestions?
   Formatting:
-    ☐ Prompt for a question -- maybe after the result dialog?
+    ✔ Prompt for a question -- maybe after the result dialog? @done(24-05-02 11:43)
     ✔ Include full path in oracle block (Derelicts: Access: Feature vs Feature) @done(24-01-22 23:13)
 
 Entity generation:

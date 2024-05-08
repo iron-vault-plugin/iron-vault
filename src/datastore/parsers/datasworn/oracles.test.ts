@@ -51,6 +51,7 @@ describe("DataswornOracle", () => {
       ).toEqual({
         id: "starforged/oracles/factions/fringe_group/16-25",
         result: "Gangsters",
+        range: { min: 16, max: 25 },
         template: undefined,
       });
     });

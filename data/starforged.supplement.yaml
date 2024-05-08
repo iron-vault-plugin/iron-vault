@@ -60,3 +60,31 @@ oracles:
             result: "[[⏵Descriptor](id:starforged/oracles/core/descriptor)] [[⏵Focus](id:starforged/oracles/core/focus)]"
             template:
               result: "{{result:starforged/oracles/core/descriptor}} {{result:starforged/oracles/core/focus}}"
+      "region":
+        id: starforgedsupp/oracles/templates/region
+        name: Region of the Forge
+        dice: "1d100"
+        oracle_type: table_simple
+        source:
+          title: Original
+          authors:
+            - name: Shawn Tomkin
+          date: "1234-12-12"
+          url: "https://example.com"
+          license: "???"
+        column_labels:
+          roll: Roll
+          result: Result
+        rows:
+          - min: 1
+            max: 33
+            id: "starforgedsupp/oracles/templates/region/1-33"
+            result: "Terminus"
+          - min: 34
+            max: 66
+            id: "starforgedsupp/oracles/templates/region/34-66"
+            result: "Outlands"
+          - min: 67
+            max: 100
+            id: "starforgedsupp/oracles/templates/region/67-100"
+            result: "Expanse"
