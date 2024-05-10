@@ -6,7 +6,7 @@ import { Right } from "../utils/either";
 import { Lens, updating } from "../utils/lens";
 import {
   BaseForgedSchema,
-  ForgedSheetAssetSchema,
+  ForgedSheetAssetInput,
   ImpactStatus,
   characterLens,
   momentumOps,
@@ -146,10 +146,12 @@ describe("characterLens", () => {
     const character = validater({
       ...VALID_INPUT,
       assets: [
-        { id: "asset_id", condition_meter: 3 },
-      ] as ForgedSheetAssetSchema[],
+        { id: "asset_id", controls: { integrity: 2 } },
+      ] as ForgedSheetAssetInput[],
     });
-    actsLikeLens(lens.assets, character, [{ id: "new_asset" }]);
+    actsLikeLens(lens.assets, character, [
+      { id: "new_asset", controls: { integrity: 3 }, options: {} },
+    ]);
 
     it("requires a valid asset definition", () => {
       expect(() =>

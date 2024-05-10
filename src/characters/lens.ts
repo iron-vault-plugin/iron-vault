@@ -1,4 +1,4 @@
-import { Asset, Move } from "@datasworn/core";
+import { Move } from "@datasworn/core";
 import { z } from "zod";
 import { DataIndex } from "../datastore/data-index";
 import {
@@ -13,15 +13,17 @@ import {
   ProgressTrackSettings,
   legacyTrackXpEarned,
 } from "../tracks/progress";
-import { Either, Left, Right, collectEither } from "../utils/either";
+import { Either, collectEither } from "../utils/either";
 import {
   Lens,
   Reader,
+  Writer,
   lensForSchemaProp,
   objectMap,
   reader,
   updating,
 } from "../utils/lens";
+import { AssetError, assetWithDefnReader } from "./assets";
 
 const ValidationTag: unique symbol = Symbol("validated ruleset");
 
@@ -33,12 +35,15 @@ export type ValidatedCharacter = {
 export const characterAssetSchema = z.object({
   id: z.string(),
   marked_abilities: z.array(z.number().int().positive()).optional(),
-  condition_meter: z.number().int().nonnegative().optional(),
-  marked_conditions: z.array(z.string()).optional(),
-  marked_states: z.array(z.string()).optional(),
-  inputs: z.record(z.any()).optional(),
+  controls: z
+    .record(z.union([z.string(), z.number().int(), z.boolean()]).nullable())
+    .default({}),
+  options: z
+    .record(z.union([z.string(), z.number().int(), z.boolean()]).nullable())
+    .default({}),
 });
 
+export type ForgedSheetAssetInput = z.input<typeof characterAssetSchema>;
 export type ForgedSheetAssetSchema = z.output<typeof characterAssetSchema>;
 
 export const baseForgedSchema = z
@@ -293,29 +298,6 @@ export function countMarked(impacts: Record<string, ImpactStatus>): number {
   );
 }
 
-export class AssetError extends Error {}
-
-export type CharLens<T> = Lens<ValidatedCharacter, T>;
-export type CharReader<T> = Reader<ValidatedCharacter, T>;
-
-export function assetWithDefnReader(
-  charLens: CharacterLens,
-  index: DataIndex,
-): CharReader<
-  Array<Either<AssetError, { asset: ForgedSheetAssetSchema; defn: Asset }>>
-> {
-  return reader((source) => {
-    return charLens.assets.get(source).map((asset) => {
-      const defn = index._assetIndex.get(asset.id);
-      if (defn) {
-        return Right.create({ asset, defn });
-      } else {
-        return Left.create(new AssetError(`missing asset with id ${asset.id}`));
-      }
-    });
-  });
-}
-
 export function movesReader(
   charLens: CharacterLens,
   index: DataIndex,
@@ -466,3 +448,6 @@ export function characterLens(
 
   return { validater, lens };
 }
+export type CharLens<T> = Lens<ValidatedCharacter, T>;
+export type CharReader<T> = Reader<ValidatedCharacter, T>;
+export type CharWriter<T> = Writer<ValidatedCharacter, T>;
