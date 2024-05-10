@@ -1,4 +1,4 @@
-import { Move, RulesPackage } from "@datasworn/core";
+import { Asset, Move, RulesPackage } from "@datasworn/core";
 import { DataIndex } from "datastore/data-index";
 import { indexDataForgedData } from "datastore/parsers/dataforged";
 import { ParserReturn, parserForFrontmatter } from "datastore/parsers/markdown";
@@ -192,6 +192,11 @@ export class Datastore extends Component {
   get oracles(): StandardIndex<Oracle> {
     this.assertReady();
     return this.index._oracleIndex;
+  }
+
+  get assets(): StandardIndex<Asset> {
+    this.assertReady();
+    return this.index._assetIndex;
   }
 
   get roller(): OracleRoller {

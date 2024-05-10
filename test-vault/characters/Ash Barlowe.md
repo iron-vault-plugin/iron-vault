@@ -14,6 +14,17 @@ assets:
   - id: starforged/assets/path/empath
     marked_abilities:
       - 1
+    controls: {}
+    options: {}
+  - id: starforged/assets/command_vehicle/starship
+    marked_abilities:
+      - 1
+    controls:
+      integrity: 5
+      integrity/battered: false
+      integrity/cursed: false
+    options:
+      label: Arclight
 spirit: 5
 supply: 5
 Quests_Progress: 4

@@ -1,3 +1,4 @@
+import { addAssetToCharacter } from "characters/commands";
 import { meterLenses, momentumOps } from "characters/lens";
 import { generateEntityCommand } from "entity/command";
 import Handlebars from "handlebars";
@@ -213,6 +214,14 @@ export default class ForgedPlugin extends Plugin {
       name: "Generate an entity",
       editorCallback: async (editor, ctx) => {
         await generateEntityCommand(this, editor);
+      },
+    });
+
+    this.addCommand({
+      id: "character-add-asset",
+      name: "Add asset to character",
+      editorCallback: async (editor, ctx) => {
+        await addAssetToCharacter(this, editor, ctx as MarkdownView);
       },
     });
 

@@ -8,6 +8,11 @@ export type Lens<A, B> = {
 export type Reader<A, B> = {
   get(source: A): B;
 };
+
+export type Writer<A, B> = {
+  update(source: A, newval: B): A;
+};
+
 export function prop<T, K extends string = string>(
   key: K,
 ): Lens<Record<string, unknown>, T> {
@@ -61,6 +66,7 @@ export function objectMap<K extends string, U, V>(
     Object.entries<U>(obj).map(([key, val]) => [key, fn(val, key as K)]),
   ) as Record<K, V>;
 }
+
 export function updating<A, B>(
   lens: Lens<A, B>,
   op: (val: B) => B,
@@ -69,8 +75,15 @@ export function updating<A, B>(
     return lens.update(source, op(lens.get(source)));
   };
 }
+
 export function reader<A, B>(get: (source: A) => B): Reader<A, B> {
   return {
     get,
   };
+}
+
+export function writer<A, B>(
+  update: (source: A, newval: B) => A,
+): Writer<A, B> {
+  return { update };
 }
