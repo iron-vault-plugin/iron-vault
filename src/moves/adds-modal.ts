@@ -7,7 +7,7 @@ import {
   type SearchResult,
 } from "obsidian";
 
-export function processMatches(
+function processMatches(
   text: string,
   search: SearchResult,
   onPlain: (text: string) => void,
