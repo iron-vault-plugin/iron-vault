@@ -10,7 +10,7 @@
     color: var(--color-base-50);
 }
 
-/* New Callout Types Start Here */
+/* Callouts originally from https://github.com/ericbright2002/Forged_in_Obsidian */
 
 .callout[data-callout="challenge-strong"] {
     --callout-color: 62, 180, 32;
