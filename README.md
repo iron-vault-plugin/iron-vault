@@ -7,6 +7,29 @@ This owes a lot to [Eric Bright's Forged_in_Obsidian](https://github.com/ericbri
 template vault. I started with that vault and then gradually replaced functionality
 with this plugin.
 
+## Features
+
+See the test vault for examples of characters, progress tracks, clocks, etc. Also
+see the [caveats](#caveats) for known issues/missing functionality.
+
+- Pulls oracle, move, and asset data from datasworn files
+  - Supplemental files can be added to the repo, to, e.g., add custom oracles
+- Oracles
+  - Roll on oracle tables with "Ask the Oracle" command
+  - Generate complete entities (planets, NPCs, etc) using the "Generate an Entity" command
+- Characters
+  - Currently only supports one character (but built to eventually support multiple)
+  - All character attributes are in YAML frontmatter
+  - Use "Take on a Meter" / "Suffer on a Meter" commands to modify meters
+- Moves
+  - Trigger a move with the "Make a Move" command
+    - Action rolls and progress rolls both supported and pull from character/progres track
+      metadata
+    - If your momentum could improve an action roll, you'll be prompted to burn momentum
+  - Moves are rendered into custom move blocks as YAML/custom DSL
+- Progress Tracks and Clocks: Each clock / progress track is kept in a file, using frontmatter
+  to record progress, etc.
+
 ## Using the plugin
 
 I don't yet have good instructions on setting things up-- but you'll basically
