@@ -1,0 +1,43 @@
+.forged-move dl.reroll {
+  & dt {
+    margin: auto;
+    width: 30px;
+    flex-basis: 1em;
+    &:has(+ .action-die ~ .action-die) {
+      width: 0;
+      height: 0;
+      display: none;
+    }
+    &:has(+ .action-die),
+    &:has(+ .challenge-die) {
+      text-indent: 0;
+      visibility: hidden;
+      &:before {
+        content: "➡️";
+        text-align: center;
+        visibility: visible;
+        position: absolute;
+        margin: 0.5em;
+        max-width: 2em;
+      }
+    }
+    &:has(+ .challenge-die ~ .challenge-die) {
+      width: 100%;
+      flex-basis: initial;
+      height: 0.2em;
+      &:before {
+        content: none;
+      }
+    }
+    &:has(+ .score) {
+      background-image: url("img/Words/equals-t.svg");
+      width: 100%;
+      flex-basis: initial;
+    }
+    &:has(+ .outcome) {
+      background-image: url("img/Words/equals-t.svg");
+      width: 100%;
+      flex-basis: initial;
+    }
+  }
+}

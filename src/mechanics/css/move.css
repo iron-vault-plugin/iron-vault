@@ -1,0 +1,20 @@
+@import url("summary.css");
+@import url("dlist-shared.css");
+@import url("dlist-roll.css");
+@import url("dlist-reroll.css");
+@import url("paragraphs.css");
+
+.forged-move {
+  cursor: default;
+  margin: 0.5em auto;
+  border: 1px solid var(--color-base-30);
+  border-radius: 10px;
+  max-width: 400px;
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.25),
+    0 10px 10px rgba(0, 0, 0, 0.22);
+
+  & > :not(:nth-child(1)) {
+    margin: 1em 2em;
+  }
+}

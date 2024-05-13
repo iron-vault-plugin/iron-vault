@@ -1,0 +1,69 @@
+.forged-move dl {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: calc(50px * 5);
+  & dt,
+  & dd {
+    display: inline-block;
+    margin: auto;
+    height: 30px;
+    text-indent: -9999px;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    text-align: center;
+  }
+  &:after {
+    font-weight: var(--font-semibold);
+    text-align: center;
+    margin: auto;
+  }
+  &.strong-hit {
+    &:after {
+      content: "Strong Hit";
+      color: var(--text-success);
+    }
+    &.match:after {
+      content: "Strong Hit (Match)";
+    }
+    & dd.outcome {
+      background-image: url("img/Outcomes/outcome-strong-hit.svg");
+    }
+  }
+  &.weak-hit {
+    &:after {
+      content: "Weak Hit";
+      color: var(--text-warning);
+    }
+    &.match:after {
+      content: "Weak Hit (Match)";
+    }
+    & dd.outcome {
+      background-image: url("img/Outcomes/outcome-weak-hit.svg");
+    }
+  }
+  &.miss {
+    &:after {
+      content: "Miss";
+      color: var(--text-error);
+    }
+    &.match:after {
+      content: "Miss (Match)";
+    }
+    & dd.outcome {
+      background-image: url("img/Outcomes/outcome-miss.svg");
+    }
+  }
+
+  /* TODO: render this somewhere */
+  & dt {
+    &:has(+ .stat-name) {
+      display: none;
+    }
+  }
+  & dd.stat-name {
+    display: none;
+  }
+}

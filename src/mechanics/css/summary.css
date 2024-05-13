@@ -1,0 +1,31 @@
+.forged-move {
+  &[open] summary:has(+ *) {
+    border-bottom: 1px dashed var(--color-base-50);
+  }
+  &.strong-hit summary:after {
+    background-image: url("img/Outcomes/outcome-strong-hit.svg");
+  }
+  &.weak-hit summary:after {
+    background-image: url("img/Outcomes/outcome-weak-hit.svg");
+  }
+  &.miss summary:after {
+    background-image: url("img/Outcomes/outcome-miss.svg");
+  }
+  & summary {
+    display: block;
+    border: none;
+    width: 100%;
+    padding: 0.5em 1em;
+    text-align: left;
+    font-weight: var(--font-extrabold);
+    &:after {
+      content: " ";
+      float: right;
+      margin-left: auto;
+      background-repeat: no-repeat;
+      height: 30px;
+      width: 50px;
+    }
+  }
+
+}

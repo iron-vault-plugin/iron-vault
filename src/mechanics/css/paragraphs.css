@@ -1,0 +1,30 @@
+.forged-move p {
+  font-weight: var(--font-semibold);
+
+  &:before {
+    margin-right: 0.5em;
+  }
+
+  &.detail:before {
+    content: "➡️";
+  }
+
+  &.roll,
+  &.progress-roll,
+  &.reroll {
+    &:before {
+      content: "🎲";
+    }
+  }
+
+  &.error {
+    opacity: 0.825;
+    &:before {
+      content: "❌";
+    }
+  }
+
+  &.add:before {
+    content: "➕";
+  }
+}
