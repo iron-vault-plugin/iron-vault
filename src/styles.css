@@ -1,21 +1,3 @@
-/* Theme colors */
-:root {
-  /* TODO: use proper Obsidian theme colors */
-  --forged-color-gray-20: #e0e0e0;
-  --forged-color-gray-50: #c0c0c0;
-  --forged-color-gray-90: #333;
-  --forged-color-gray-30: #dad8d8;
-
-  --forged-background-color: #fff;
-
-  --forged-text-color: var(--forged-color-gray-90);
-  --forged-text-color-link: #082840;
-  --forged-text-color-link-active: #5f2b48;
-  --forged-text-color-link-visited: #17050f;
-
-  --forged-syntax-tab-size: 2;
-}
-
 .theme-light {
   --color-code: 0, 0, 0;
 }
@@ -31,14 +13,14 @@
 .forged-move {
   cursor: default;
   margin: 0.5em auto;
-  border: 1px solid var(--forged-color-gray-90);
+  border: 1px solid var(--color-base-30);
   border-radius: 10px;
   max-width: 400px;
   box-shadow:
     0 14px 28px rgba(0, 0, 0, 0.25),
     0 10px 10px rgba(0, 0, 0, 0.22);
   &[open] summary:has(+ *) {
-    border-bottom: 1px dashed var(--forged-color-gray-50);
+    border-bottom: 1px dashed var(--color-base-50);
   }
   &.strong-hit summary:after {
     background-image: url("img/Outcomes/outcome-strong-hit.svg");
@@ -55,7 +37,7 @@
     width: 100%;
     padding: 0.5em 1em;
     text-align: left;
-    font-weight: bolder;
+    font-weight: var(--font-extrabold);
     &:after {
       content: " ";
       float: right;
@@ -71,7 +53,7 @@
   }
 
   & p.detail {
-    font-weight: bold;
+    font-weight: var(--font-semibold);
     &:before {
       content: "➡️";
       margin-right: 0.5em;
@@ -81,7 +63,7 @@
   & p.roll,
   & p.progress-roll,
   & p.reroll {
-    font-weight: bold;
+    font-weight: var(--font-semibold);
     &:before {
       content: "🎲";
       margin-right: 0.5em;
@@ -89,7 +71,7 @@
   }
 
   & p.error {
-    font-weight: bold;
+    font-weight: var(--font-semibold);
     opacity: 0.825;
     &:before {
       content: "❌";
@@ -98,7 +80,7 @@
   }
 
   & p.add {
-    font-weight: bold;
+    font-weight: var(--font-semibold);
     &:before {
       content: "➕";
       margin-right: 0.5em;
@@ -123,14 +105,14 @@
       text-align: center;
     }
     &:after {
-      font-weight: bold;
+      font-weight: var(--font-semibold);
       text-align: center;
       margin: auto;
     }
     &.strong-hit {
       &:after {
         content: "Strong Hit";
-        color: green;
+        color: var(--text-success);
       }
       &.match:after {
         content: "Strong Hit (Match)";
@@ -142,7 +124,7 @@
     &.weak-hit {
       &:after {
         content: "Weak Hit";
-        color: goldenrod;
+        color: var(--text-warning);
       }
       &.match:after {
         content: "Weak Hit (Match)";
@@ -154,7 +136,7 @@
     &.miss {
       &:after {
         content: "Miss";
-        color: red;
+        color: var(--text-error);
       }
       &.match:after {
         content: "Miss (Match)";
