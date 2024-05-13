@@ -15,6 +15,6 @@
     0 10px 10px rgba(0, 0, 0, 0.22);
 
   & > :not(:nth-child(1)) {
-    margin: 1em 2em;
+    margin: 1em;
   }
 }

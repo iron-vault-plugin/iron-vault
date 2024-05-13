@@ -14,7 +14,7 @@
         }
       }
       &:not(:has(~ .action-die)):after {
-        content: ")";
+        content: ") ";
       }
     }
     &.challenge-die {
@@ -24,11 +24,11 @@
           content: "(challenge: ";
         }
         &:after {
-          content: " →";
+          content: " → ";
         }
       }
       &:not(:has(~ .challenge-die)):after {
-        content: ")";
+        content: ") ";
       }
     }
     &.score:before {
