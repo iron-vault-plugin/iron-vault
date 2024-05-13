@@ -15,7 +15,9 @@ import { updating } from "utils/lens";
 import { ForgedAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
+import registerMechanicsBlock from "./mechanics/mechanics-blocks";
 import { runMoveCommand } from "./moves/action";
+import { registerMoveBlock } from "./moves/block";
 import { runOracleCommand } from "./oracles/command";
 import { registerOracleBlock } from "./oracles/render";
 import {
@@ -36,8 +38,6 @@ import {
 } from "./tracks/progress";
 import { pluginAsset, vaultProcess } from "./utils/obsidian";
 import { CustomSuggestModal } from "./utils/suggest";
-import { registerMoveBlock } from "./moves/block";
-import registerMechanicsBlock from "./mechanics/mechanics-blocks";
 
 export default class ForgedPlugin extends Plugin {
   settings!: ForgedPluginSettings;
