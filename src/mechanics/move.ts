@@ -135,17 +135,6 @@ function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
     rollNode.addClass("match");
     outcome += " (Match)";
   }
-  if (statName) {
-    rollNode.createEl("dt", {
-      text: "Stat Name",
-    });
-    rollNode
-      .createEl("dd", {
-        cls: "stat-name",
-        text: statName,
-      })
-      .setAttribute("data-value", statName);
-  }
   rollNode.createEl("dt", {
     text: "Action Die",
   });
@@ -164,6 +153,17 @@ function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
       text: "" + stat,
     })
     .setAttribute("data-value", "" + stat);
+  if (statName) {
+    rollNode.createEl("dt", {
+      text: "Stat Name",
+    });
+    rollNode
+      .createEl("dd", {
+        cls: "stat-name",
+        text: statName,
+      })
+      .setAttribute("data-value", statName);
+  }
   rollNode.createEl("dt", {
     text: "Adds",
   });

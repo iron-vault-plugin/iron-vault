@@ -21,9 +21,10 @@ function parseMechanicsBlocks(source: string, el: HTMLElement) {
   const doc = res.output;
   for (const node of doc) {
     switch (node.name.toLowerCase()) {
-      case "move":
+      case "move": {
         renderMove(el, node);
         break;
+      }
     }
   }
 }

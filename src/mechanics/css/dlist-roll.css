@@ -7,26 +7,28 @@
     &.action-die {
     }
     &.stat:before {
-      content: "+ "
+      content: " + "
     }
     &.stat-name {
       color: var(--text-faint);
       &:before {
-        content: "(+";
+        content: " (";
       }
       &:after {
         content: ")";
+        padding-right: 0;
+        margin-right: 0;
       }
     }
     &.adds:before {
-      content: "+ ";
+      content: " + ";
     }
     &.score {
       &:before {
-        content: "= ";
+        content: " = ";
       }
       &:after {
-        content: " vs";
+        content: " vs ";
       }
     }
     &.challenge-die {
@@ -36,13 +38,13 @@
       }
       &:has(~ .challenge-die) {
         &:after {
-          content: " |";
+          content: " | ";
         }
       }
     }
     &.progress-score {
       &:after {
-        content: " vs";
+        content: " vs ";
       }
     }
     &.outcome {

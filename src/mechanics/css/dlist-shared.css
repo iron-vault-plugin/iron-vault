@@ -4,7 +4,7 @@
   }
   & dd {
     margin: 0;
-    padding: 0 0.2em;
+    padding: 0;
     display: inline;
     font-weight: var(--font-semibold);
     &:before, &:after {
