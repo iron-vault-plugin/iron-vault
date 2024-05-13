@@ -13,7 +13,7 @@
     "swc:build": "swc src --out-dir dist --copy-files",
     "dev": "turbowatch ./turbowatch.js",
     "_dev": "swc src --out-dir dist --copy-files --watch",
-    "bump": "node ./scripts/update_manifest.js ${npm_config_tag} && git commit -a -m 'bumping manifest version to ${npm_config_tag}' && git tag -a ${npm_config_tag} -m ${npm_config_tag} && git push --follow-tags"
+    "bump": "node ./scripts/update_manifest.js ${npm_config_tag} && git commit -a -m \"bumping manifest version to ${npm_config_tag}\" && git tag -a ${npm_config_tag} -m ${npm_config_tag} && git push --follow-tags"
   },
   "keywords": [],
   "author": "",
