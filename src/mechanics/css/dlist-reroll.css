@@ -19,7 +19,7 @@
     }
     &.challenge-die {
       color: var(--text-accent);
-      &:has(~ .challenge-die) {
+      &:nth-child(2n + 1 of .challenge-die) {
         &:before {
           content: "(challenge: ";
         }
@@ -27,7 +27,7 @@
           content: " → ";
         }
       }
-      &:not(:has(~ .challenge-die)):after {
+      &:nth-child(2n + 2 of .challenge-die):after {
         content: ") ";
       }
     }

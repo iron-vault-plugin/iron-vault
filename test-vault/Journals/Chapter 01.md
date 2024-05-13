@@ -15,7 +15,7 @@ move "Undertake an Expedition" {
     - "testing"
     roll action=3 stat=1 adds=0 vs1=3 vs2=5
     reroll action=1 vs1=6
-    reroll vs2=1
+    reroll vs2=1 vs1=3
     unknown "hahahah"
 }
 ```
