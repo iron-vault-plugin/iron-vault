@@ -6,12 +6,15 @@ import {
   AssetConditionMeterControlField,
   AssetControlField,
   AssetOptionField,
+  ConditionMeterField,
 } from "@datasworn/core";
 import { produce } from "immer";
+import { ConditionMeterDefinition } from "rules/ruleset";
 import { DataIndex } from "../datastore/data-index";
 import { Either, Left, Right } from "../utils/either";
 import { reader, writer } from "../utils/lens";
 import {
+  CharLens,
   CharReader,
   CharWriter,
   CharacterLens,
@@ -178,4 +181,22 @@ export function addAsset(charLens: CharacterLens): CharWriter<Asset> {
       { id: newAsset.id, marked_abilities, controls, options },
     ]);
   });
+}
+
+export function assetMeters(
+  charLens: CharacterLens,
+  asset: Asset,
+  markedAbilities: number[],
+): {
+  key: string;
+  definition: ConditionMeterDefinition;
+  lens: CharLens<number>;
+}[] {
+  const meters = traverseAssetControls(
+    asset,
+    markedAbilities ?? defaultMarkedAbilitiesForAsset(asset),
+  ).filter(
+    (pathed): pathed is Pathed<ConditionMeterField> =>
+      pathed.value.field_type == "condition_meter",
+  );
 }

@@ -306,7 +306,7 @@ export function movesReader(
   return reader((source) => {
     return collectEither(assetReader.get(source)).map((assets) =>
       assets.flatMap(({ asset, defn }) => {
-        const moveList = [];
+        const moveList: Move[] = [];
         const marked_abilities = asset.marked_abilities ?? [];
         for (const [idx, ability] of defn.abilities.entries()) {
           if (marked_abilities.includes(idx + 1)) {
@@ -337,21 +337,25 @@ export function conditionMetersReader(
 
 export function meterLenses(
   charLens: CharacterLens,
+  character: ValidatedCharacter,
+  dataIndex: DataIndex,
 ): Record<
   string,
   { key: string; definition: ConditionMeterDefinition; lens: CharLens<number> }
 > {
-  return {
-    ...Object.fromEntries(
-      Object.entries(charLens.condition_meters).map(([key, lens]) => [
+  const baseMeters = Object.fromEntries(
+    Object.entries(charLens.condition_meters).map(([key, lens]) => [
+      key,
+      {
         key,
-        {
-          key,
-          lens,
-          definition: charLens.ruleset.condition_meters[key],
-        },
-      ]),
-    ),
+        lens,
+        definition: charLens.ruleset.condition_meters[key],
+      },
+    ]),
+  );
+  const assetMeters: typeof baseMeters = {};
+  return {
+    ...baseMeters,
     momentum: {
       key: "momentum",
       lens: charLens.momentum,
@@ -362,6 +366,7 @@ export function meterLenses(
         rollable: true,
       }),
     },
+    ...assetMeters,
   };
 }
 
