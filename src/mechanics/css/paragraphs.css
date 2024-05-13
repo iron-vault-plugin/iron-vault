@@ -9,14 +9,6 @@
     content: "➡️";
   }
 
-  &.roll,
-  &.progress-roll,
-  &.reroll {
-    &:before {
-      content: "🎲";
-    }
-  }
-
   &.error {
     opacity: 0.825;
     &:before {

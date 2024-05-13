@@ -1,69 +1,36 @@
 .forged-move dl {
-  display: flex;
-  flex-wrap: wrap;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  max-width: calc(50px * 5);
-  & dt,
+  & dt {
+    display: none;
+  }
   & dd {
-    display: inline-block;
-    margin: auto;
-    height: 30px;
-    text-indent: -9999px;
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    text-align: center;
+    margin: 0;
+    padding: 0 0.2em;
+    display: inline;
+    font-weight: var(--font-semibold);
+    &:before, &:after {
+      color: var(--text-faint);
+    }
   }
   &:after {
     font-weight: var(--font-semibold);
-    text-align: center;
-    margin: auto;
+    padding-left: 0.5em;
+  }
+  &.match:after {
+    content: "✅";
   }
   &.strong-hit {
-    &:after {
-      content: "Strong Hit";
+    & .score, & .progress-score {
       color: var(--text-success);
-    }
-    &.match:after {
-      content: "Strong Hit (Match)";
-    }
-    & dd.outcome {
-      background-image: url("img/Outcomes/outcome-strong-hit.svg");
     }
   }
   &.weak-hit {
-    &:after {
-      content: "Weak Hit";
+    & .score, & .progress-score {
       color: var(--text-warning);
-    }
-    &.match:after {
-      content: "Weak Hit (Match)";
-    }
-    & dd.outcome {
-      background-image: url("img/Outcomes/outcome-weak-hit.svg");
     }
   }
   &.miss {
-    &:after {
-      content: "Miss";
+    & .score, & .progress-score {
       color: var(--text-error);
     }
-    &.match:after {
-      content: "Miss (Match)";
-    }
-    & dd.outcome {
-      background-image: url("img/Outcomes/outcome-miss.svg");
-    }
-  }
-
-  /* TODO: render this somewhere */
-  & dt {
-    &:has(+ .stat-name) {
-      display: none;
-    }
-  }
-  & dd.stat-name {
-    display: none;
   }
 }

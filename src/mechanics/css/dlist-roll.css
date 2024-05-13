@@ -1,220 +1,52 @@
 .forged-move dl.roll {
-  & dt {
-    margin: auto;
-    width: 30px;
-    flex-basis: 1em;
-    &:has(+ .action-die) {
-      width: 0;
-      height: 0;
-      display: none;
-    }
-    &:has(+ .progress-score) {
-      width: 0;
-      height: 0;
-      display: none;
-    }
-    &:has(+ .stat) {
-      background-image: url("img/Words/plus-t.svg");
-    }
-    &:has(+ .adds) {
-      background-image: url("img/Words/plus-t.svg");
-    }
-    &:has(+ .score) {
-      background-image: url("img/Words/equals-t.svg");
-      width: 100%;
-      flex-basis: initial;
-      &:before {
-        display: inline;
-        content: "\A";
-      }
-    }
-    &:has(+ .challenge-die) {
-      &:before {
-        display: inline;
-        content: "\A";
-      }
-      flex-basis: initial;
-      background-image: url("img/Words/vs-t.svg");
-      width: 100%;
-      & ~ dt:has(+ .challenge-die) {
-        &:before {
-          content: none;
-        }
-        background-image: url("img/Words/and-t.svg");
-        width: 60px;
-      }
-    }
-    &:has(+ .outcome) {
-      background-image: url("img/Words/equals-t.svg");
-      width: 100%;
-      flex-basis: initial;
-      &:before {
-        display: inline;
-        content: "\A";
-      }
-    }
+  &:before {
+    content: "🎲";
+    margin-right: 0.5em;
   }
   & dd {
-    width: 60px;
     &.action-die {
-      grid-column-start: 1;
-      &[data-value="1"] {
-        background-image: url("img/D6/d6-1-t.svg");
+    }
+    &.stat:before {
+      content: "+ "
+    }
+    &.stat-name {
+      color: var(--text-faint);
+      &:before {
+        content: "(+";
       }
-      &[data-value="2"] {
-        background-image: url("img/D6/d6-2-t.svg");
-      }
-      &[data-value="3"] {
-        background-image: url("img/D6/d6-3-t.svg");
-      }
-      &[data-value="4"] {
-        background-image: url("img/D6/d6-4-t.svg");
-      }
-      &[data-value="5"] {
-        background-image: url("img/D6/d6-5-t.svg");
-      }
-      &[data-value="6"] {
-        background-image: url("img/D6/d6-6-t.svg");
+      &:after {
+        content: ")";
       }
     }
-    &.stat {
-      &[data-value="1"] {
-        background-image: url("img/Stat/stat-1-t.svg");
-      }
-      &[data-value="2"] {
-        background-image: url("img/Stat/stat-2-t.svg");
-      }
-      &[data-value="3"] {
-        background-image: url("img/Stat/stat-3-t.svg");
-      }
-      &[data-value="4"] {
-        background-image: url("img/Stat/stat-4-t.svg");
-      }
-      &[data-value="5"] {
-        background-image: url("img/Stat/stat-5-t.svg");
-      }
-    }
-    &.adds {
-      &[data-value="0"] {
-        background-image: url("img/Add/add-0-t.svg");
-      }
-      &[data-value="1"] {
-        background-image: url("img/Add/add-1-t.svg");
-      }
-      &[data-value="2"] {
-        background-image: url("img/Add/add-2-t.svg");
-      }
-      &[data-value="3"] {
-        background-image: url("img/Add/add-3-t.svg");
-      }
-      &[data-value="4"] {
-        background-image: url("img/Add/add-4-t.svg");
-      }
-      &[data-value="5"] {
-        background-image: url("img/Add/add-5-t.svg");
-      }
+    &.adds:before {
+      content: "+ ";
     }
     &.score {
-      &[data-value="0"] {
-        background-image: url("img/Total/total-0-t.svg");
+      &:before {
+        content: "= ";
       }
-      &[data-value="1"] {
-        background-image: url("img/Total/total-1-t.svg");
-      }
-      &[data-value="2"] {
-        background-image: url("img/Total/total-2-t.svg");
-      }
-      &[data-value="3"] {
-        background-image: url("img/Total/total-3-t.svg");
-      }
-      &[data-value="4"] {
-        background-image: url("img/Total/total-4-t.svg");
-      }
-      &[data-value="5"] {
-        background-image: url("img/Total/total-5-t.svg");
-      }
-      &[data-value="6"] {
-        background-image: url("img/Total/total-6-t.svg");
-      }
-      &[data-value="7"] {
-        background-image: url("img/Total/total-7-t.svg");
-      }
-      &[data-value="8"] {
-        background-image: url("img/Total/total-8-t.svg");
-      }
-      &[data-value="9"] {
-        background-image: url("img/Total/total-9-t.svg");
-      }
-      &[data-value="10"] {
-        background-image: url("img/Total/total-10-t.svg");
+      &:after {
+        content: " vs";
       }
     }
     &.challenge-die {
-      &[data-value="1"] {
-        background-image: url("img/D10/d10-1-t.svg");
+      color: var(--text-accent);
+      &:not(:has(~ .challenge-die)) {
+        padding: 0;
       }
-      &[data-value="2"] {
-        background-image: url("img/D10/d10-2-t.svg");
-      }
-      &[data-value="3"] {
-        background-image: url("img/D10/d10-3-t.svg");
-      }
-      &[data-value="4"] {
-        background-image: url("img/D10/d10-4-t.svg");
-      }
-      &[data-value="5"] {
-        background-image: url("img/D10/d10-5-t.svg");
-      }
-      &[data-value="6"] {
-        background-image: url("img/D10/d10-6-t.svg");
-      }
-      &[data-value="7"] {
-        background-image: url("img/D10/d10-7-t.svg");
-      }
-      &[data-value="8"] {
-        background-image: url("img/D10/d10-8-t.svg");
-      }
-      &[data-value="9"] {
-        background-image: url("img/D10/d10-9-t.svg");
-      }
-      &[data-value="10"] {
-        background-image: url("img/D10/d10-10-t.svg");
+      &:has(~ .challenge-die) {
+        &:after {
+          content: " |";
+        }
       }
     }
     &.progress-score {
-      &[data-value="0"] {
-        background-image: url("img/Progress/progress-0-t.svg");
+      &:after {
+        content: " vs";
       }
-      &[data-value="1"] {
-        background-image: url("img/Progress/progress-1-t.svg");
-      }
-      &[data-value="2"] {
-        background-image: url("img/Progress/progress-2-t.svg");
-      }
-      &[data-value="3"] {
-        background-image: url("img/Progress/progress-3-t.svg");
-      }
-      &[data-value="4"] {
-        background-image: url("img/Progress/progress-4-t.svg");
-      }
-      &[data-value="5"] {
-        background-image: url("img/Progress/progress-5-t.svg");
-      }
-      &[data-value="6"] {
-        background-image: url("img/Progress/progress-6-t.svg");
-      }
-      &[data-value="7"] {
-        background-image: url("img/Progress/progress-7-t.svg");
-      }
-      &[data-value="8"] {
-        background-image: url("img/Progress/progress-8-t.svg");
-      }
-      &[data-value="9"] {
-        background-image: url("img/Progress/progress-9-t.svg");
-      }
-      &[data-value="10"] {
-        background-image: url("img/Progress/progress-10-t.svg");
-      }
+    }
+    &.outcome {
+      display: none;
     }
   }
 }

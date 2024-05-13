@@ -67,11 +67,11 @@ Ironsworn/Starforged mechanics block, with nice styling and all that.
 
 It takes an Obsidian note that looks like this:
 
-<img src="src/img/mechanics-raw.png" width="800">
+<img src="img/mechanics-raw.png" width="800">
 
 and turns it into this:
 
-<img src="src/img/mechanics-rendered.png" width="800">
+<img src="img/mechanics-rendered.png" width="800">
 
 #### `move`
 

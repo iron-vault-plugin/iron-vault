@@ -1,5 +1,4 @@
 import { Node as KdlNode } from "kdljs";
-import { renderDetailedOracleCallout } from "oracles/render";
 
 export default function renderMove(el: HTMLElement, node: KdlNode) {
   const moveName = node.values[0] as string;
@@ -115,10 +114,6 @@ function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
   const score = Math.min(10, action + stat + adds);
   const challenge1 = roll.properties["vs1"] as number;
   const challenge2 = roll.properties["vs2"] as number;
-  moveNode.createEl("p", {
-    cls: "roll",
-    text: "Roll",
-  });
   const rollNode = moveNode.createEl("dl", {
     cls: "roll",
   });
@@ -140,6 +135,17 @@ function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
     rollNode.addClass("match");
     outcome += " (Match)";
   }
+  if (statName) {
+    rollNode.createEl("dt", {
+      text: "Stat Name",
+    });
+    rollNode
+      .createEl("dd", {
+        cls: "stat-name",
+        text: statName,
+      })
+      .setAttribute("data-value", statName);
+  }
   rollNode.createEl("dt", {
     text: "Action Die",
   });
@@ -149,15 +155,6 @@ function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
       text: "" + action,
     })
     .setAttribute("data-value", "" + action);
-  rollNode.createEl("dt", {
-    text: "Stat Name",
-  });
-  rollNode
-    .createEl("dd", {
-      cls: "stat-name",
-      text: statName,
-    })
-    .setAttribute("data-value", statName);
   rollNode.createEl("dt", {
     text: "Stat",
   });
@@ -295,23 +292,16 @@ function renderDieRoll(moveNode: HTMLElement, roll: KdlNode) {
 }
 
 function renderReroll(moveNode: HTMLElement, roll: KdlNode, lastRoll: KdlNode) {
-  moveNode.createEl("p", {
-    cls: "reroll",
-    text: "Reroll",
-  });
   const rerollNode = moveNode.createEl("dl", {
     cls: "reroll",
   });
   const action = lastRoll.properties.action as number | undefined;
-  const newScore =
-    roll.properties.action != null
-      ? Math.min(
-          (roll.properties.action as number) +
-            (lastRoll.properties.stat as number) +
-            (lastRoll.properties.adds as number),
-          10,
-        )
-      : (lastRoll.properties.score as number);
+  const newScore = Math.min(
+    ((roll.properties.action ?? action) as number) +
+      (lastRoll.properties.stat as number) +
+      (lastRoll.properties.adds as number),
+    10,
+  );
   const lastVs1 = lastRoll.properties.vs1 as number;
   const lastVs2 = lastRoll.properties.vs2 as number;
   const newVs1 = (roll.properties.vs1 ?? lastRoll.properties.vs1) as number;
@@ -386,7 +376,7 @@ function renderReroll(moveNode: HTMLElement, roll: KdlNode, lastRoll: KdlNode) {
     });
     rerollNode
       .createEl("dd", {
-        cls: "old-challenge2",
+        cls: "challenge-die",
         text: "" + lastVs2,
       })
       .setAttribute("data-value", "" + lastVs2);
@@ -395,7 +385,7 @@ function renderReroll(moveNode: HTMLElement, roll: KdlNode, lastRoll: KdlNode) {
     });
     rerollNode
       .createEl("dd", {
-        cls: "new-challenge2",
+        cls: "challenge-die",
         text: "" + newVs2,
       })
       .setAttribute("data-value", "" + newVs2);
