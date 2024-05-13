@@ -55,9 +55,19 @@ const context = await esbuild.context({
   //     ],
 });
 
+const cssCtx = await esbuild.context({
+	entryPoints: ["src/styles.css"],
+	bundle: true,
+	sourcemap: prod ? false : "inline",
+  outfile: prod ? "styles.css" : "test-vault/.obsidian/plugins/forged/styles.css",
+	loader: {
+		".svg": "dataurl",
+	},
+});
+
 if (prod) {
-  await context.rebuild();
-  process.exit(0);
+	await Promise.all([context.rebuild(), cssCtx.rebuild()]);
+	process.exit(0);
 } else {
-  await context.watch();
+	await Promise.all([context.watch(), cssCtx.watch()]);
 }
