@@ -159,10 +159,10 @@ function generateMechanicsNode(move: MoveDescription): string {
   if (moveIsAction(move)) {
     const adds = (move.adds ?? []).reduce((acc, { amount }) => acc + amount, 0);
     roll = node("roll", {
+      values: [move.stat],
       properties: {
         action: move.action,
         stat: move.statVal,
-        // TODO: move.stat
         adds,
         vs1: move.challenge1,
         vs2: move.challenge2,
