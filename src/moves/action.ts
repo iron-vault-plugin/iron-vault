@@ -4,27 +4,32 @@ import {
   MoveProgressRoll,
   TriggerActionRollCondition,
 } from "@datasworn/core";
+import { Document, Node, format } from "kdljs";
 import {
+  EditorRange,
   stringifyYaml,
   type App,
   type Editor,
   type FuzzyMatch,
   type MarkdownView,
 } from "obsidian";
-import { ForgedPluginSettings, MoveBlockFormat } from "settings/ui";
 import { CharacterContext, type CharacterTracker } from "../character-tracker";
 import { momentumOps, movesReader, rollablesReader } from "../characters/lens";
 import { type Datastore } from "../datastore";
+import { ForgedPluginSettings, MoveBlockFormat } from "../settings/ui";
 import { ProgressContext } from "../tracks/context";
 import { selectProgressTrack } from "../tracks/select";
 import { ProgressTrackWriterContext } from "../tracks/writer";
 import { randomInt } from "../utils/dice";
+import { findAdjacentCodeBlock, reverseLineIterator } from "../utils/editor";
 import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { checkForMomentumBurn } from "./action-modal";
 import { AddsModal } from "./adds-modal";
 import {
   ActionMoveAdd,
+  moveIsAction,
+  moveIsProgress,
   type ActionMoveDescription,
   type MoveDescription,
   type ProgressMoveDescription,
@@ -114,13 +119,19 @@ function processProgressMove(
   };
 }
 
-const yamlMoveRenderer = (move: MoveDescription): string => {
-  return `\`\`\`move\n${stringifyYaml(move)}\n\`\`\`\n\n`;
-};
+function yamlMoveRenderer(editor: Editor): (move: MoveDescription) => void {
+  return (move) => {
+    editor.replaceSelection(`\`\`\`move\n${stringifyYaml(move)}\n\`\`\`\n\n`);
+  };
+}
 
-const moveLineMoveRenderer = (move: MoveDescription): string => {
-  return `\`\`\`move\n${generateMoveLine(move)}\n\`\`\`\n\n`;
-};
+function moveLineMoveRenderer(editor: Editor): (move: MoveDescription) => void {
+  return (move) => {
+    editor.replaceSelection(
+      `\`\`\`move\n${generateMoveLine(move)}\n\`\`\`\n\n`,
+    );
+  };
+}
 
 export function validAdds(baseStat: number): number[] {
   const adds = [];
@@ -128,6 +139,106 @@ export function validAdds(baseStat: number): number[] {
     adds.push(add);
   }
   return adds;
+}
+
+function node(name: string, data: Omit<Partial<Node>, "name">): Node {
+  return {
+    name,
+    properties: {},
+    values: [],
+    children: [],
+    ...data,
+    // TODO: the `as any` is a hack because the name field is not optional currently but should be
+    tags: { properties: {}, values: [], ...data.tags } as any,
+  };
+}
+
+function generateMechanicsNode(move: MoveDescription): string {
+  let roll: Node;
+  let addDesc: Node[] = [];
+  if (moveIsAction(move)) {
+    const adds = (move.adds ?? []).reduce((acc, { amount }) => acc + amount, 0);
+    roll = node("roll", {
+      properties: {
+        action: move.action,
+        stat: move.statVal,
+        // TODO: move.stat
+        adds,
+        vs1: move.challenge1,
+        vs2: move.challenge2,
+      },
+    });
+    addDesc = (move.adds ?? [])
+      .filter(({ amount }) => amount != 0)
+      .map(({ amount, desc }) =>
+        node("add", { values: [amount, ...(desc ? [desc] : [])] }),
+      );
+  } else if (moveIsProgress(move)) {
+    roll = node("progress-roll", {
+      properties: {
+        // TODO: what about progress track id?
+        // TODO: use a ticks prop instead... or at least use a helper to get this
+        score: Math.floor(move.progressTicks / 4),
+        vs1: move.challenge1,
+        vs2: move.challenge2,
+      },
+    });
+  } else {
+    throw new Error("what kind of move is this?");
+  }
+
+  // TODO: move name vs move id
+  const doc: Document = [
+    node("move", {
+      values: [move.name],
+      children: [...addDesc, roll],
+    }),
+  ];
+  return format(doc);
+}
+
+const MECHANICS_CODE_BLOCK_TAG = "mechanics";
+
+function mechanicsMoveRenderer(
+  editor: Editor,
+): (move: MoveDescription) => void {
+  return (move) => {
+    // TODO: right now, if something is selected, we just replace it, and skip the block merging logic. Should we do something else?
+    let existingBlockRange: EditorRange | null = null;
+    if (!editor.somethingSelected()) {
+      existingBlockRange = findAdjacentCodeBlock(
+        reverseLineIterator(editor, editor.getCursor()),
+        MECHANICS_CODE_BLOCK_TAG,
+      );
+    }
+
+    if (existingBlockRange) {
+      // Insert additional node at the end of the existing block
+      editor.replaceRange(`${generateMechanicsNode(move)}\n`, {
+        line: existingBlockRange.to.line - 1,
+        ch: 0,
+      });
+    } else {
+      const extraLine = editor.getCursor("from").ch > 0 ? "\n\n" : "";
+      editor.replaceSelection(
+        `${extraLine}\`\`\`${MECHANICS_CODE_BLOCK_TAG}\n${generateMechanicsNode(move)}\`\`\`\n\n`,
+      );
+    }
+  };
+}
+
+export function getMoveRenderer(
+  format: MoveBlockFormat,
+  editor: Editor,
+): (move: MoveDescription) => void {
+  switch (format) {
+    case MoveBlockFormat.MoveLine:
+      return moveLineMoveRenderer(editor);
+    case MoveBlockFormat.YAML:
+      return yamlMoveRenderer(editor);
+    case MoveBlockFormat.Mechanics:
+      return mechanicsMoveRenderer(editor);
+  }
 }
 
 export async function runMoveCommand(
@@ -159,47 +270,50 @@ export async function runMoveCommand(
         move.roll_type == "action_roll" || move.roll_type == "progress_roll",
     );
 
-  const moveRenderer: (move: MoveDescription) => string =
-    settings.moveBlockFormat == MoveBlockFormat.MoveLine
-      ? moveLineMoveRenderer
-      : yamlMoveRenderer;
+  const moveRenderer: (move: MoveDescription) => void = getMoveRenderer(
+    settings.moveBlockFormat,
+    editor,
+  );
 
   const move = await promptForMove(
     app,
     allMoves.sort((a, b) => a.name.localeCompare(b.name)),
   );
-  console.log(move);
+
+  let moveDescription: MoveDescription;
   switch (move.roll_type) {
     case "action_roll": {
-      await handleActionRoll(
+      moveDescription = await handleActionRoll(
         context,
         app,
         move,
         characterPath,
         editor,
-        moveRenderer,
       );
       break;
     }
     case "progress_roll": {
-      await handleProgressRoll(
+      moveDescription = await handleProgressRoll(
         app,
         progressContext,
         move,
         editor,
-        moveRenderer,
       );
       break;
     }
     case "no_roll":
     case "special_track":
     default:
+      // TODO: this probably makes sense with new mechanics format?
       console.warn(
         "Teach me how to handle a move with roll type %s: %o",
         move.roll_type,
         move,
       );
+      return;
   }
+
+  moveRenderer(moveDescription);
 }
 
 async function handleProgressRoll(
@@ -207,16 +321,14 @@ async function handleProgressRoll(
   progressContext: ProgressContext,
   move: MoveProgressRoll,
   editor: Editor,
-  moveRenderer: (move: MoveDescription) => string,
-) {
+): Promise<MoveDescription> {
   const progressTrack = await selectProgressTrack(
     progressContext,
     app,
     (prog) => prog.trackType == move.tracks.category && !prog.track.complete,
   );
-  const description = processProgressMove(move, progressTrack);
   // TODO: when would we mark complete? should we prompt on a hit?
-  editor.replaceSelection(moveRenderer(description));
+  return processProgressMove(move, progressTrack);
 }
 
 const ORDINALS = [
@@ -240,7 +352,6 @@ async function handleActionRoll(
   move: MoveActionRoll,
   characterPath: string,
   editor: Editor,
-  moveRenderer: (move: MoveDescription) => string,
 ) {
   const { lens, character } = charContext;
 
@@ -333,11 +444,13 @@ async function handleActionRoll(
     wrapper,
     charContext,
   );
+  // TODO: maybe this should be pulled up into the other function (even though it only
+  // applies for action moves.
   if (description.burn) {
     await charContext.updater(
       vaultProcess(app, characterPath),
       (character, { lens }) => momentumOps(lens).reset(character),
     );
   }
-  editor.replaceSelection(moveRenderer(description));
+  return description;
 }

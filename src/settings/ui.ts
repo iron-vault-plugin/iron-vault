@@ -38,6 +38,9 @@ export enum MoveBlockFormat {
 
   /** Use the new one-line move format */
   MoveLine = "move-line",
+
+  /** The newer KDL mechanics format */
+  Mechanics = "mechanics",
 }
 
 export interface ForgedPluginSettings
@@ -50,7 +53,7 @@ export interface ForgedPluginSettings
   moveBlockFormat: MoveBlockFormat;
 }
 export const DEFAULT_SETTINGS: ForgedPluginSettings = {
-  moveBlockFormat: MoveBlockFormat.YAML,
+  moveBlockFormat: MoveBlockFormat.Mechanics,
   oraclesFolder: "",
   momentumResetTemplate:
     "> [!mechanics] {{character.name}} burned momentum: {{oldValue}} -> {{newValue}}\n\n",
