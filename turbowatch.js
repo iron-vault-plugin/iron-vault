@@ -1,6 +1,6 @@
 import { watch } from "turbowatch";
 
-const ASSETS = ["styles.css", "manifest.json"];
+const ASSETS = ["manifest.json"];
 
 void watch({
   project: __dirname,
