@@ -12,7 +12,8 @@
     "copy:target": "pnpm build && ./scripts/deploy.sh",
     "swc:build": "swc src --out-dir dist --copy-files",
     "dev": "turbowatch ./turbowatch.js",
-    "_dev": "swc src --out-dir dist --copy-files --watch"
+    "_dev": "swc src --out-dir dist --copy-files --watch",
+    "bump": "git tag -a ${npm_config_tag} -m ${npm_config_tag} && git push origin ${npm_config_tag}"
   },
   "keywords": [],
   "author": "",
@@ -25,7 +26,6 @@
     "@types/obsidian-typings": "npm:obsidian-typings@^1.1.0",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "builtin-modules": "^3.3.0",
-    "bumpp": "^9.4.1",
     "chokidar": "^3.5.3",
     "esbuild": "^0.19.11",
     "esbuild-plugin-copy": "^2.1.1",
