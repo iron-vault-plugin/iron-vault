@@ -8,8 +8,8 @@ move "Face Danger" {
 	- "ouch"
 }
 move "Endure Harm" {
-    - "-1 health"
-    roll action=3 stat=4 adds=0 vs1=3 vs2=5
+    meter "health" -1
+    roll action=3 stat=4 adds=0 vs1=3 vs2=8
 }
 move "Undertake an Expedition" {
     - "testing"

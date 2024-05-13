@@ -42,7 +42,19 @@ export default function renderMove(el: HTMLElement, node: KdlNode) {
         // TODO
         break;
       }
+      case "clock": {
+        // TODO
+        break;
+      }
+      case "progress": {
+        // TODO
+        break;
+      }
       case "oracle": {
+        // TODO
+        break;
+      }
+      case "meter": {
         // TODO
         break;
       }
@@ -97,6 +109,7 @@ function renderAdd(moveNode: HTMLElement, add: KdlNode) {
 
 function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
   const action = roll.properties["action"] as number;
+  const statName = roll.values[0] as string;
   const stat = roll.properties.stat as number;
   const adds = roll.properties.adds as number;
   const score = Math.min(10, action + stat + adds);
@@ -136,6 +149,15 @@ function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
       text: "" + action,
     })
     .setAttribute("data-value", "" + action);
+  rollNode.createEl("dt", {
+    text: "Stat Name",
+  });
+  rollNode
+    .createEl("dd", {
+      cls: "stat-name",
+      text: statName,
+    })
+    .setAttribute("data-value", statName);
   rollNode.createEl("dt", {
     text: "Stat",
   });

@@ -163,6 +163,17 @@
         background-image: url("img/Outcomes/outcome-miss.svg");
       }
     }
+
+    /* TODO: render this somewhere */
+    & dt {
+      &:has(+ .stat-name) {
+        display: none;
+      }
+    }
+    & dd.stat-name {
+      display: none;
+    }
+
     &.reroll dt {
       margin: auto;
       width: 30px;
