@@ -18,6 +18,9 @@ move "Undertake an Expedition" {
     reroll vs2=1 vs1=3
     unknown "hahahah"
 }
+move "Finish an Expedition" {
+    progress-roll score=2 vs1=1 vs2=3
+}
 ```
 And then the rest of the fiction happened
 ```move

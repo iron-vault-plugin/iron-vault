@@ -213,12 +213,8 @@ function renderProgress(moveNode: HTMLElement, roll: KdlNode) {
   const score = roll.properties.score as number;
   const challenge1 = roll.properties["vs1"] as number;
   const challenge2 = roll.properties["vs2"] as number;
-  moveNode.createEl("p", {
-    cls: "roll",
-    text: "Progress Roll",
-  });
   const rollNode = moveNode.createEl("dl", {
-    cls: "roll",
+    cls: "roll progress",
   });
   let outcome;
   if (score > challenge1 && score > challenge2) {
