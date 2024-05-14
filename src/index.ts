@@ -50,7 +50,6 @@ export default class ForgedPlugin extends Plugin {
   private async initialize(): Promise<void> {
     await this.datastore.initialize();
     this.indexManager.initialize();
-    registerMechanicsBlock(this);
   }
 
   public assetFilePath(assetPath: string) {
@@ -224,6 +223,7 @@ export default class ForgedPlugin extends Plugin {
 
     registerMoveBlock(this);
     registerOracleBlock(this, this.datastore);
+    registerMechanicsBlock(this);
   }
 
   onunload(): void {}

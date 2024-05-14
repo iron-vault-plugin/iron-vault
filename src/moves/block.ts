@@ -21,6 +21,7 @@ import {
 
 export function registerMoveBlock(plugin: ForgedPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor("move", async (source, el, ctx) => {
+    await plugin.datastore.waitForReady;
     const validatedMove = parseMoveBlock(source);
 
     if (validatedMove.isRight()) {

@@ -8,6 +8,8 @@ export default function registerMechanicsBlock(plugin: ForgedPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
     "mechanics",
     async (source, el, ctx) => {
+      // We can't render blocks until datastore is ready.
+      await plugin.datastore.waitForReady;
       await parseMechanicsBlocks(plugin, source, el, ctx.sourcePath);
     },
   );

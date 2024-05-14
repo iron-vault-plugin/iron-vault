@@ -21,6 +21,10 @@ export class Datastore extends Component {
   _ready: boolean;
   readonly index: DataIndex;
 
+  readonly waitForReady: Promise<void>;
+
+  #readyNow!: () => void;
+
   // TODO: wtf
   activeRuleset: string = "starforged";
 
@@ -29,6 +33,9 @@ export class Datastore extends Component {
     this._ready = false;
 
     this.index = new DataIndex();
+    this.waitForReady = new Promise((resolve) => {
+      this.#readyNow = resolve;
+    });
   }
 
   get app(): App {
@@ -73,6 +80,7 @@ export class Datastore extends Component {
       this.index._assetIndex.size,
     );
     this._ready = true;
+    this.#readyNow();
   }
 
   async indexOraclesFolder(folder: TFolder): Promise<void> {
