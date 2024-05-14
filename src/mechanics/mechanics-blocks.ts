@@ -1,6 +1,6 @@
 import { parse } from "kdljs";
+import { MarkdownRenderer } from "obsidian";
 
-import { MarkdownRenderChild, MarkdownRenderer } from "obsidian";
 import ForgedPlugin from "../index";
 import renderMove from "./move";
 
@@ -8,13 +8,7 @@ export default function registerMechanicsBlock(plugin: ForgedPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
     "mechanics",
     async (source, el, ctx) => {
-      await parseMechanicsBlocks(
-        plugin,
-        source,
-        el,
-        ctx.sourcePath,
-        new MarkdownRenderChild(el),
-      );
+      await parseMechanicsBlocks(plugin, source, el, ctx.sourcePath);
     },
   );
 }
@@ -24,7 +18,6 @@ async function parseMechanicsBlocks(
   source: string,
   el: HTMLElement,
   sourcePath: string,
-  parent: MarkdownRenderChild,
 ) {
   const res = parse(source);
   if (!res.output) {
@@ -48,7 +41,7 @@ async function parseMechanicsBlocks(
           (node.values[0] as string).replaceAll(/^/g, "> "),
           aside,
           sourcePath,
-          parent,
+          plugin,
         );
       }
     }

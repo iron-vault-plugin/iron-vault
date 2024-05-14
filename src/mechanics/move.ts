@@ -370,7 +370,7 @@ export class MoveModal extends Modal {
   }
 
   openMove(move: Move) {
-    let { contentEl } = this;
+    const { contentEl } = this;
     (async () => {
       await MarkdownRenderer.render(
         this.app,
@@ -383,7 +383,9 @@ export class MoveModal extends Modal {
         child.addEventListener("click", (ev) => {
           const id = child.getAttribute("href")?.slice(3);
           ev.preventDefault();
-          const move = this.plugin.datastore.moves.find(move => move.id === id);
+          const move = this.plugin.datastore.moves.find(
+            (move) => move.id === id,
+          );
           if (move) {
             contentEl.empty();
             this.openMove(move);
@@ -398,7 +400,7 @@ export class MoveModal extends Modal {
   }
 
   onClose() {
-    let { contentEl } = this;
+    const { contentEl } = this;
     contentEl.empty();
   }
 }

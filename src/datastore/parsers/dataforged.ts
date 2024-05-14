@@ -42,7 +42,7 @@ type OracleMap = Map<string, Oracle>;
 export function indexIntoOracleMap(data: RulesPackage): OracleMap {
   const index: OracleMap = new Map();
   function expand(collection: OracleCollection, parent: OracleGrouping): void {
-    let newParent: OracleCollectionGrouping = {
+    const newParent: OracleCollectionGrouping = {
       grouping_type: OracleGroupingType.Collection,
       name: collection.name,
       parent,
@@ -58,7 +58,7 @@ export function indexIntoOracleMap(data: RulesPackage): OracleMap {
       case "table_shared_rolls":
       case "table_shared_details":
         if (collection.contents != null) {
-          for (const [_name, oracle] of Object.entries(collection.contents)) {
+          for (const oracle of Object.values(collection.contents)) {
             index.set(oracle.id, new DataswornOracle(oracle, newParent));
           }
         }
