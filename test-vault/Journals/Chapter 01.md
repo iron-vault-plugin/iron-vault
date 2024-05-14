@@ -34,6 +34,16 @@ move "Endure Stress" {
     roll "spirit" action=1 adds=0 stat=5 vs1=1 vs2=10
 }
 
+move "Battle" {
+    roll "iron" action=6 adds=0 stat=3 vs1=4 vs2=3
+}
+
+move "Endure Harm" {
+    add 2 "this got added"
+    add 2 "also this"
+    roll "iron" action=4 adds=4 stat=3 vs1=10 vs2=8
+}
+
 ```
 
 
