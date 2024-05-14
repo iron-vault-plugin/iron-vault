@@ -23,6 +23,13 @@
     padding: 0.5em 1em;
     text-align: left;
     font-weight: var(--font-extrabold);
+    & > button:last-child {
+      margin-left: 1em;
+      margin-top: -0.2em;
+    }
+    & * {
+      display: inline;
+    }
     & > :first-child {
       padding: 0;
       margin: 0;

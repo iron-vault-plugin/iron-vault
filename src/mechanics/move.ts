@@ -1,6 +1,7 @@
+import { Move } from "@datasworn/core";
 import ForgedPlugin from "index";
 import { Node as KdlNode } from "kdljs";
-import { MarkdownRenderer } from "obsidian";
+import { App, ButtonComponent, MarkdownRenderer, Modal } from "obsidian";
 
 export default async function renderMove(
   plugin: ForgedPlugin,
@@ -8,14 +9,25 @@ export default async function renderMove(
   node: KdlNode,
   sourcePath: string,
 ) {
-  const id = node.properties.id as string;
-  const moveName =
-    (node.values[0] as (string | undefined)) ??
-    (id && plugin.datastore.moves.find((x) => x.id === id)?.name);
+  const moves = plugin.datastore.moves;
+  const id = node.properties.id as string | undefined;
+  const name = node.values[0] as string | undefined;
+  const move = id
+    ? moves.find((x) => x.id === id) ?? moves.find((x) => x.name === name)
+    : moves.find((x) => x.name === name);
+  const moveName = name ?? move?.name;
   const moveNode = el.createEl("details", { cls: "forged-move" });
   const summary = moveNode.createEl("summary");
   if (moveName) {
     await renderMarkdown(summary, moveName);
+    if (move) {
+      const modal = new MoveModal(plugin.app, plugin, sourcePath, move);
+      const btn = new ButtonComponent(summary);
+      btn
+        .setButtonText("?")
+        .setTooltip("View move text.")
+        .onClick(() => modal.open());
+    }
   }
   let lastRoll = undefined;
   for (const item of node.children) {
@@ -343,4 +355,50 @@ function moveOutcome(
     text: outcome,
     match: challenge1 === challenge2,
   };
+}
+
+export class MoveModal extends Modal {
+  plugin: ForgedPlugin;
+  move: Move;
+  sourcePath: string;
+
+  constructor(app: App, plugin: ForgedPlugin, sourcePath: string, move: Move) {
+    super(app);
+    this.plugin = plugin;
+    this.move = move;
+    this.sourcePath = sourcePath;
+  }
+
+  openMove(move: Move) {
+    let { contentEl } = this;
+    (async () => {
+      await MarkdownRenderer.render(
+        this.app,
+        `# ${move.name}\n${move.text}`,
+        contentEl,
+        this.sourcePath,
+        this.plugin,
+      );
+      for (const child of contentEl.querySelectorAll('a[href^="id:"]')) {
+        child.addEventListener("click", (ev) => {
+          const id = child.getAttribute("href")?.slice(3);
+          ev.preventDefault();
+          const move = this.plugin.datastore.moves.find(move => move.id === id);
+          if (move) {
+            contentEl.empty();
+            this.openMove(move);
+          }
+        });
+      }
+    })();
+  }
+
+  onOpen() {
+    this.openMove(this.move);
+  }
+
+  onClose() {
+    let { contentEl } = this;
+    contentEl.empty();
+  }
 }
