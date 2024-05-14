@@ -4,7 +4,8 @@
   "description": "",
   "main": "main.js",
   "engines": {
-    "node": ">=16"
+    "node": ">=16",
+    "pnpm": ">=9"
   },
   "scripts": {
     "test": "jest",
