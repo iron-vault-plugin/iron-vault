@@ -1,12 +1,18 @@
 I'm telling my story here.
 
 Suddenly, a trap! Oh no!
+
+#character 
+> #character 
+
+
 ```mechanics
 move "Face Danger" {
 	add 1 "because I'm cool"
-	roll "shadow" action=6 stat=3 adds=1 vs1=9 vs2=9
+	roll "shadow" action=1 stat=3 adds=1 vs1=9 vs2=9
 	- "coooool"
 }
+- "Oh nooo [[Test]]. This is gonna hurt. Time to [[Endure Harm]]."
 move "Endure Harm" {
     meter "health" -1
     roll "health" action=3 stat=4 adds=0 vs1=3 vs2=8

@@ -7,9 +7,9 @@
 .forged-move {
   cursor: default;
   margin: 0.5em auto;
+  max-width: 460px;
   border: 1px solid var(--color-base-30);
   border-radius: 10px;
-  max-width: 460px;
   box-shadow:
     0 14px 28px rgba(0, 0, 0, 0.25),
     0 10px 10px rgba(0, 0, 0, 0.22);
