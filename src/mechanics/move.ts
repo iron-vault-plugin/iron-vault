@@ -50,7 +50,7 @@ export default async function renderMove(
         break;
       }
       case "burn": {
-        // TODO
+        renderBurn(moveNode, item, lastRoll);
         break;
       }
       case "clock": {
@@ -116,6 +116,43 @@ function renderMeter(moveNode: HTMLElement, meter: KdlNode) {
   });
 }
 
+function renderBurn(
+  moveNode: HTMLElement,
+  burn: KdlNode,
+  lastRoll: KdlNode | undefined,
+) {
+  const def: DataList = {
+    From: { cls: "from", value: burn.properties.from },
+    To: { cls: "to", value: burn.properties.to },
+  };
+  let nodeCls = "burn";
+  if (lastRoll && lastRoll.name === "progress-roll") {
+    moveNode.createEl("p", {
+      text: "Can't burn momentum on progress rolls.",
+      cls: "error",
+    });
+    return;
+  } else if (lastRoll) {
+    const newScore = Math.min(burn.properties.from as number, 10);
+    const vs1 = lastRoll.properties.vs1 as number;
+    const vs2 = lastRoll.properties.vs2 as number;
+    def["New Score"] = { cls: "score", value: newScore };
+    def["Challenge Die 1"] = {
+      cls: "challenge-die",
+      value: vs1,
+    };
+    def["Challenge Die 2"] = {
+      cls: "challenge-die",
+      value: vs2,
+    };
+    const { cls, text, match } = moveOutcome(newScore, vs1, vs2);
+    setMoveHit(moveNode, cls, match);
+    def["Outcome"] = { cls: "outcome", value: text, dataProp: false };
+    nodeCls += " " + cls;
+  }
+  renderDlist(moveNode, nodeCls, def);
+}
+
 function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
   const action = roll.properties["action"] as number;
   const statName = roll.values[0] as string;
@@ -130,16 +167,19 @@ function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
     match,
   } = moveOutcome(score, challenge1, challenge2);
   setMoveHit(moveNode, outcomeClass, match);
-  renderDlist(moveNode, "roll", {
+  const def: DataList = {
     "Action Die": { cls: "action-die", value: action },
     Stat: { cls: "stat", value: stat },
-    "Stat Name": { cls: "stat-name", value: statName },
     Adds: { cls: "adds", value: adds },
     Score: { cls: "score", value: score },
     "Challenge Die 1": { cls: "challenge-die", value: challenge1 },
     "Challenge Die 2": { cls: "challenge-die", value: challenge2 },
     Outcome: { cls: "outcome", value: outcome, dataProp: false },
-  });
+  }
+  if (statName) {
+    def["Stat Name"] = { cls: "stat-name", value: statName };
+  }
+  renderDlist(moveNode, "roll " + outcomeClass, def);
 }
 
 function renderProgress(moveNode: HTMLElement, roll: KdlNode) {
@@ -152,7 +192,7 @@ function renderProgress(moveNode: HTMLElement, roll: KdlNode) {
     match,
   } = moveOutcome(score, challenge1, challenge2);
   setMoveHit(moveNode, outcomeClass, match);
-  renderDlist(moveNode, "roll progress", {
+  renderDlist(moveNode, "roll progress " + outcomeClass, {
     "Progress Score": { cls: "progress-score", value: score },
     "Challenge Die 1": { cls: "challenge-die", value: challenge1 },
     "Challenge Die 2": { cls: "challenge-die", value: challenge2 },
@@ -207,7 +247,7 @@ function renderReroll(moveNode: HTMLElement, roll: KdlNode, lastRoll: KdlNode) {
   def["New Score"] = { cls: "score", value: newScore };
   def["Outcome"] = { cls: "outcome", value: outcome, dataProp: false };
   setMoveHit(moveNode, outcomeClass, match);
-  renderDlist(moveNode, "reroll", def);
+  renderDlist(moveNode, "reroll " + outcomeClass, def);
 }
 
 function renderUnknown(moveNode: HTMLElement, name: string) {

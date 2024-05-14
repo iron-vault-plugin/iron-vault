@@ -35,7 +35,6 @@
       }
     }
     &.challenge-die {
-      color: var(--text-accent);
       &:not(:has(~ .challenge-die)) {
         padding: 0;
       }

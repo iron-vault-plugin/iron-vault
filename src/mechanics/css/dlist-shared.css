@@ -7,7 +7,11 @@
     padding: 0;
     display: inline;
     font-weight: var(--font-semibold);
-    &:before, &:after {
+    &.challenge-die {
+      color: var(--text-accent);
+    }
+    &:before,
+    &:after {
       color: var(--text-faint);
     }
   }
@@ -19,17 +23,20 @@
     content: "✅";
   }
   &.strong-hit {
-    & .score, & .progress-score {
+    & dd.score,
+    & dd.progress-score {
       color: var(--text-success);
     }
   }
   &.weak-hit {
-    & .score, & .progress-score {
+    & dd.score,
+    & dd.progress-score {
       color: var(--text-warning);
     }
   }
   &.miss {
-    & .score, & .progress-score {
+    & dd.score,
+    & dd.progress-score {
       color: var(--text-error);
     }
   }
