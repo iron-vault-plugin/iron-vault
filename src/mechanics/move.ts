@@ -19,8 +19,9 @@ export default async function renderMove(
   const id = node.properties.id as string | undefined;
   const name = node.values[0] as string | undefined;
   const move = id
-    ? moves.find((x) => x.id === id) ?? moves.find((x) => x.name === name)
-    : moves.find((x) => x.name === name);
+    ? moves.find((x) => x.id === id) ??
+      moves.find((x) => x.name.toLowerCase() === name?.toLowerCase())
+    : moves.find((x) => x.name.toLowerCase() === name?.toLowerCase());
   const moveName = name ?? move?.name;
   const moveNode = el.createEl("details", { cls: "forged-move" });
   const summary = moveNode.createEl("summary");
