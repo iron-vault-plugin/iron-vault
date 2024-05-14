@@ -10,13 +10,13 @@ Suddenly, a trap! Oh no!
 move "Face Danger" {
 	add 1 "because I'm cool"
 	roll "shadow" action=1 stat=3 adds=1 vs1=9 vs2=9
-	- "coooool"
 }
-- "Oh nooo [[Test]]. This is gonna hurt. Time to [[Endure Harm]]."
-- "and another"
+- "Oh nooo. This is gonna hurt. Time to [[Endure Harm]]."
 move "Endure Harm" {
-    meter "health" -1
+    meter "health" from=3 to=2
     roll "health" action=3 stat=4 adds=0 vs1=3 vs2=8
+    meter "momentum" from=7 to=6
+    meter "health" from=2 to=3
 }
 move "Undertake an Expedition" {
     - "testing"
