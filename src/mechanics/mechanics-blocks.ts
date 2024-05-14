@@ -9,22 +9,20 @@ export default function registerMechanicsBlock(plugin: ForgedPlugin): void {
     "mechanics",
     async (source, el, ctx) => {
       await parseMechanicsBlocks(
-        plugin.app,
+        plugin,
         source,
         el,
         ctx.sourcePath,
-        plugin,
       );
     },
   );
 }
 
 async function parseMechanicsBlocks(
-  app: App,
+  plugin: ForgedPlugin,
   source: string,
   el: HTMLElement,
   sourcePath: string,
-  parent: Component,
 ) {
   const res = parse(source);
   if (!res.output) {
@@ -38,7 +36,7 @@ async function parseMechanicsBlocks(
   for (const node of doc) {
     switch (node.name.toLowerCase()) {
       case "move": {
-        await renderMove(app, el, node, sourcePath, parent);
+        await renderMove(plugin, el, node, sourcePath);
         break;
       }
       case "-": {

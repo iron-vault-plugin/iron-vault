@@ -1,17 +1,22 @@
+import ForgedPlugin from "index";
 import { Node as KdlNode } from "kdljs";
-import { App, Component, MarkdownRenderer } from "obsidian";
+import { MarkdownRenderer } from "obsidian";
 
 export default async function renderMove(
-  app: App,
+  plugin: ForgedPlugin,
   el: HTMLElement,
   node: KdlNode,
   sourcePath: string,
-  parent: Component,
 ) {
-  const moveName = node.values[0] as string;
+  const id = node.properties.id as string;
+  const moveName =
+    (node.values[0] as (string | undefined)) ??
+    (id && plugin.datastore.moves.find((x) => x.id === id)?.name);
   const moveNode = el.createEl("details", { cls: "forged-move" });
   const summary = moveNode.createEl("summary");
-  await renderMarkdown(summary, moveName);
+  if (moveName) {
+    await renderMarkdown(summary, moveName);
+  }
   let lastRoll = undefined;
   for (const item of node.children) {
     const name = item.name.toLowerCase();
@@ -71,7 +76,7 @@ export default async function renderMove(
     }
   }
   async function renderMarkdown(el: HTMLElement, md: string) {
-    await MarkdownRenderer.render(app, md, el, sourcePath, parent);
+    await MarkdownRenderer.render(plugin.app, md, el, sourcePath, plugin);
   }
 }
 

@@ -7,7 +7,7 @@ Suddenly, a trap! Oh no!
 
 
 ```mechanics
-move "Face Danger" {
+move id="starforged/moves/adventure/face_danger" {
 	add 1 "because I'm cool"
 	roll "shadow" action=1 stat=3 adds=1 vs1=9 vs2=9
 }
