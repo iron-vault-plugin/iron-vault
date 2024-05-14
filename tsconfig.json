@@ -21,6 +21,7 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "lib": ["dom", "es5", "scripthost", "ES2022", "DOM.Iterable"],
+    "resolveJsonModule": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
 }

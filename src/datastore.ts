@@ -1,4 +1,9 @@
-import { Asset, Move, RulesPackage } from "@datasworn/core";
+import {
+  Asset,
+  Move,
+  RulesPackage,
+  Ruleset as DsRuleset,
+} from "@datasworn/core";
 import { DataIndex } from "datastore/data-index";
 import { indexDataForgedData } from "datastore/parsers/dataforged";
 import { ParserReturn, parserForFrontmatter } from "datastore/parsers/markdown";
@@ -16,6 +21,7 @@ import {
 import { OracleRoller } from "oracles/roller";
 import { Ruleset } from "rules/ruleset";
 import { breadthFirstTraversal } from "utils/traversal";
+import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
 
 export class Datastore extends Component {
   _ready: boolean;
@@ -43,36 +49,47 @@ export class Datastore extends Component {
   }
 
   async initialize(): Promise<void> {
-    // todo: also handle folders
-    const dataFiles = await this.app.vault.adapter.list(
-      this.plugin.assetFilePath("data"),
+    // TODO: properly support this.
+    const mainPath = this.plugin.assetFilePath("main.js");
+    indexDataForgedData(
+      this.index,
+      mainPath,
+      0,
+      starforgedRuleset as DsRuleset,
     );
-    for (const dataFilePath of dataFiles.files) {
-      let extension = dataFilePath.split(".").pop();
-      if (extension === "yml") {
-        extension = "yaml";
-      }
-      if (extension === "yml" || extension === "yaml" || extension === "json") {
-        await this.indexPluginFile(dataFilePath, 0, extension);
-      }
-    }
+    this.index.updateIndexGroup(mainPath, new Set([mainPath]));
+    this.app.metadataCache.trigger("forged:index-changed");
 
-    if (this.plugin.settings.oraclesFolder != "") {
-      const oraclesFolderFile = this.app.vault.getAbstractFileByPath(
-        this.plugin.settings.oraclesFolder,
-      );
-      if (
-        oraclesFolderFile == null ||
-        !(oraclesFolderFile instanceof TFolder)
-      ) {
-        console.error(
-          "oracle folders: expected '%s' to be folder",
-          oraclesFolderFile,
-        );
-      } else {
-        this.indexOraclesFolder(oraclesFolderFile);
-      }
-    }
+    // TODO: also handle folders
+    // const dataFiles = await this.app.vault.adapter.list(
+    //   this.plugin.assetFilePath("data"),
+    // );
+    // for (const dataFilePath of dataFiles.files) {
+    //   let extension = dataFilePath.split(".").pop();
+    //   if (extension === "yml") {
+    //     extension = "yaml";
+    //   }
+    //   if (extension === "yml" || extension === "yaml" || extension === "json") {
+    //     await this.indexPluginFile(dataFilePath, 0, extension);
+    //   }
+    // }
+
+    // if (this.plugin.settings.oraclesFolder != "") {
+    //   const oraclesFolderFile = this.app.vault.getAbstractFileByPath(
+    //     this.plugin.settings.oraclesFolder,
+    //   );
+    //   if (
+    //     oraclesFolderFile == null ||
+    //     !(oraclesFolderFile instanceof TFolder)
+    //   ) {
+    //     console.error(
+    //       "oracle folders: expected '%s' to be folder",
+    //       oraclesFolderFile,
+    //     );
+    //   } else {
+    //     this.indexOraclesFolder(oraclesFolderFile);
+    //   }
+    // }
     console.log(
       "forged: init complete. loaded: %d oracles, %d moves, %d assets",
       this.index._oracleIndex.size,
