@@ -45,6 +45,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@codemirror/language": "^6.10.1",
     "@datasworn/core": "^0.0.5",
     "@datasworn/starforged": "0.0.5",
     "@nrsk/sigma": "^3.8.0",

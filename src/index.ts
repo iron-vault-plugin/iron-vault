@@ -88,11 +88,7 @@ export default class ForgedPlugin extends Plugin {
       this.app.workspace.onLayoutReady(() => this.initialize());
     }
 
-    window.ForgedAPI = this.api = new ForgedAPI(
-      this.datastore,
-      this.characters,
-      this.progressIndex,
-    );
+    window.ForgedAPI = this.api = new ForgedAPI(this);
     this.register(() => delete window.ForgedAPI);
 
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.

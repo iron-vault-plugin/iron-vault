@@ -1,20 +1,30 @@
-import { CharacterTracker } from "character-tracker";
-import { Datastore } from "datastore";
-import { RollWrapper } from "model/rolls";
+import { syntaxTree } from "@codemirror/language";
 import { App } from "obsidian";
-import { formatOracleBlock } from "oracles/command";
-import { ProgressIndex } from "tracks/progress";
+import { CharacterTracker } from "./character-tracker";
+import { Datastore } from "./datastore";
+import ForgedPlugin from "./index";
+import { RollWrapper } from "./model/rolls";
+import { formatOracleBlock } from "./oracles/command";
+import { ProgressIndex } from "./tracks/progress";
 
 function stripLinks(input: string): string {
   return input.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
 }
 
 export class ForgedAPI {
-  constructor(
-    public readonly datastore: Datastore,
-    public readonly tracker: CharacterTracker,
-    public readonly progress: ProgressIndex,
-  ) {}
+  constructor(public readonly plugin: ForgedPlugin) {}
+
+  get datastore(): Datastore {
+    return this.plugin.datastore;
+  }
+
+  get tracker(): CharacterTracker {
+    return this.plugin.characters;
+  }
+
+  get progress(): ProgressIndex {
+    return this.plugin.progressIndex;
+  }
 
   public roll(oracle: string): RollWrapper {
     return this.datastore.roller.roll(oracle);
@@ -29,6 +39,11 @@ export class ForgedAPI {
 
   public stripLinks(input: string): string {
     return stripLinks(input);
+  }
+
+  public getSyntaxTree() {
+    const state = this.plugin.app.workspace.activeEditor?.editor?.cm.state;
+    return state && syntaxTree(state);
   }
 }
 
