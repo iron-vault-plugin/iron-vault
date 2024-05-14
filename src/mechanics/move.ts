@@ -1,7 +1,13 @@
 import { Node as KdlNode } from "kdljs";
 import { App, Component, MarkdownRenderer } from "obsidian";
 
-export default async function renderMove(app: App, el: HTMLElement, node: KdlNode, sourcePath: string, parent: Component) {
+export default async function renderMove(
+  app: App,
+  el: HTMLElement,
+  node: KdlNode,
+  sourcePath: string,
+  parent: Component,
+) {
   const moveName = node.values[0] as string;
   const moveNode = el.createEl("details", { cls: "forged-move" });
   const summary = moveNode.createEl("summary");
@@ -39,6 +45,10 @@ export default async function renderMove(app: App, el: HTMLElement, node: KdlNod
         }
         break;
       }
+      case "meter": {
+        renderMeter(moveNode, item);
+        break;
+      }
       case "burn": {
         // TODO
         break;
@@ -52,10 +62,6 @@ export default async function renderMove(app: App, el: HTMLElement, node: KdlNod
         break;
       }
       case "oracle": {
-        // TODO
-        break;
-      }
-      case "meter": {
         // TODO
         break;
       }
@@ -97,11 +103,18 @@ function setMoveHit(moveEl: HTMLElement, hitKind: string, match: boolean) {
 
 // --- Renderers ---
 
-async function renderDetail(moveNode: HTMLElement, item: KdlNode, renderMarkdown: (el: HTMLElement, md: string) => Promise<void>) {
+async function renderDetail(
+  moveNode: HTMLElement,
+  item: KdlNode,
+  renderMarkdown: (el: HTMLElement, md: string) => Promise<void>,
+) {
   const detailNode = moveNode.createEl("p", {
     cls: "detail",
   });
-  await renderMarkdown(detailNode, (item.values[0] as string).replaceAll(/^/g, "> "));
+  await renderMarkdown(
+    detailNode,
+    (item.values[0] as string).replaceAll(/^/g, "> "),
+  );
 }
 
 function renderAdd(moveNode: HTMLElement, add: KdlNode) {
@@ -111,11 +124,56 @@ function renderAdd(moveNode: HTMLElement, add: KdlNode) {
   });
 }
 
+function renderMeter(moveNode: HTMLElement, meter: KdlNode) {
+  const name = meter.values[0] as string;
+  const from = meter.properties.from as number;
+  const to = meter.properties.to as number;
+  const delta = to - from;
+  const neg = delta < 0;
+  const meterNode = moveNode.createEl("dl", {
+    cls: "meter",
+  });
+  meterNode.createEl("dt", {
+    text: "Meter",
+  });
+  meterNode.createEl("dd", {
+    cls: "meter-name",
+    text: name,
+  });
+  meterNode.createEl("dt", {
+    text: "Delta",
+  });
+  meterNode
+    .createEl("dd", {
+      cls: "delta" + " " + (neg ? "negative" : "positive"),
+      text: "" + Math.abs(delta),
+    })
+    .setAttribute("data-value", "" + delta);
+  meterNode.createEl("dt", {
+    text: "From",
+  });
+  meterNode
+    .createEl("dd", {
+      cls: "from",
+      text: "" + from,
+    })
+    .setAttribute("data-value", "" + from);
+  meterNode.createEl("dt", {
+    text: "To",
+  });
+  meterNode
+    .createEl("dd", {
+      cls: "to",
+      text: "" + to,
+    })
+    .setAttribute("data-value", "" + to);
+}
+
 function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
   const action = roll.properties["action"] as number;
   const statName = roll.values[0] as string;
   const stat = roll.properties.stat as number;
-  const adds = roll.properties.adds as number ?? 0;
+  const adds = (roll.properties.adds as number) ?? 0;
   const score = Math.min(10, action + stat + adds);
   const challenge1 = roll.properties["vs1"] as number;
   const challenge2 = roll.properties["vs2"] as number;
@@ -300,7 +358,7 @@ function renderReroll(moveNode: HTMLElement, roll: KdlNode, lastRoll: KdlNode) {
   const newScore = Math.min(
     ((roll.properties.action ?? action) as number) +
       (lastRoll.properties.stat as number) +
-      (lastRoll.properties.adds as number ?? 0),
+      ((lastRoll.properties.adds as number) ?? 0),
     10,
   );
   const lastVs1 = lastRoll.properties.vs1 as number;

@@ -1,0 +1,43 @@
+.forged-move dl.meter {
+  &:before {
+    content: "📊";
+    margin-right: 0.5em;
+  }
+  & dd {
+    &.delta {
+      &:before {
+        color: var(--text-faint);
+      }
+      &.positive {
+        color: var(--text-success);
+        &:before {
+          content: " + ";
+        }
+      }
+      &.negative {
+        color: var(--text-error);
+        &:before {
+          content: " - ";
+        }
+      }
+    }
+    &.from {
+      &:before {
+        content: " (";
+      }
+      &:after {
+        content: " → ";
+      }
+    }
+    &.to:after {
+      content: ")";
+    }
+    &.action-die {
+      &:has(~ .action-die) {
+      }
+      &:not(:has(~ .action-die)):after {
+        content: ") ";
+      }
+    }
+  }
+}
