@@ -5,8 +5,13 @@
     margin-right: 0.5em;
   }
 
-  &.detail:before {
-    content: "➡️";
+  &.detail {
+    & > :first-child {
+      display: inline;
+    }
+    &:before {
+      content: "➡️";
+    }
   }
 
   &.error {

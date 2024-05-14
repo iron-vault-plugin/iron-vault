@@ -1,15 +1,17 @@
 import { Node as KdlNode } from "kdljs";
+import { App, Component, MarkdownRenderer } from "obsidian";
 
-export default function renderMove(el: HTMLElement, node: KdlNode) {
+export default async function renderMove(app: App, el: HTMLElement, node: KdlNode, sourcePath: string, parent: Component) {
   const moveName = node.values[0] as string;
   const moveNode = el.createEl("details", { cls: "forged-move" });
-  moveNode.createEl("summary", { text: moveName });
+  const summary = moveNode.createEl("summary");
+  await renderMarkdown(summary, moveName);
   let lastRoll = undefined;
   for (const item of node.children) {
     const name = item.name.toLowerCase();
     switch (name) {
       case "-": {
-        renderDetail(moveNode, item);
+        await renderDetail(moveNode, item, renderMarkdown);
         break;
       }
       case "add": {
@@ -62,6 +64,9 @@ export default function renderMove(el: HTMLElement, node: KdlNode) {
       }
     }
   }
+  async function renderMarkdown(el: HTMLElement, md: string) {
+    await MarkdownRenderer.render(app, md, el, sourcePath, parent);
+  }
 }
 
 // --- Util ---
@@ -92,11 +97,11 @@ function setMoveHit(moveEl: HTMLElement, hitKind: string, match: boolean) {
 
 // --- Renderers ---
 
-function renderDetail(moveNode: HTMLElement, item: KdlNode) {
-  moveNode.createEl("p", {
-    text: item.values[0] as string,
+async function renderDetail(moveNode: HTMLElement, item: KdlNode, renderMarkdown: (el: HTMLElement, md: string) => Promise<void>) {
+  const detailNode = moveNode.createEl("p", {
     cls: "detail",
   });
+  await renderMarkdown(detailNode, item.values[0] as string);
 }
 
 function renderAdd(moveNode: HTMLElement, add: KdlNode) {

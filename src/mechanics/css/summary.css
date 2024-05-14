@@ -2,23 +2,23 @@
   &[open] summary:has(+ *) {
     border-bottom: 1px dashed var(--color-base-50);
   }
-  &.strong-hit summary:after {
+  &.strong-hit summary > :first-child:after {
     background-image: url("img/Outcomes/outcome-strong-hit.svg");
   }
-  &.weak-hit summary:after {
+  &.weak-hit summary > :first-child:after {
     background-image: url("img/Outcomes/outcome-weak-hit.svg");
   }
-  &.miss summary:after {
+  &.miss summary > :first-child:after {
     background-image: url("img/Outcomes/outcome-miss.svg");
   }
   & summary {
     display: block;
     border: none;
     width: 100%;
-    padding: 0.5em 1em;
+    padding: 0 1em;
     text-align: left;
     font-weight: var(--font-extrabold);
-    &:after {
+    & > :first-child:after {
       content: " ";
       float: right;
       margin-left: auto;

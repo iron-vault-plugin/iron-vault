@@ -21,6 +21,9 @@ move "Undertake an Expedition" {
 move "Finish an Expedition" {
     progress-roll score=2 vs1=1 vs2=3
 }
+move "[[Chapter 02]]" {
+  - "**bold text** *italic* [[README]]"
+}
 ```
 And then the rest of the fiction happened
 ```move

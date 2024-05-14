@@ -2,14 +2,21 @@ import { parse } from "kdljs";
 
 import ForgedPlugin from "../index";
 import renderMove from "./move";
+import { App, Component } from "obsidian";
 
 export default function registerMechanicsBlock(plugin: ForgedPlugin): void {
-  plugin.registerMarkdownCodeBlockProcessor("mechanics", async (source, el) => {
-    parseMechanicsBlocks(source, el);
+  plugin.registerMarkdownCodeBlockProcessor("mechanics", async (source, el, ctx) => {
+    await parseMechanicsBlocks(plugin.app, source, el, ctx.sourcePath, plugin);
   });
 }
 
-function parseMechanicsBlocks(source: string, el: HTMLElement) {
+async function parseMechanicsBlocks(
+  app: App,
+  source: string,
+  el: HTMLElement,
+  sourcePath: string,
+  parent: Component
+) {
   const res = parse(source);
   if (!res.output) {
     // TODO: give line/column information for errors.
@@ -22,7 +29,7 @@ function parseMechanicsBlocks(source: string, el: HTMLElement) {
   for (const node of doc) {
     switch (node.name.toLowerCase()) {
       case "move": {
-        renderMove(el, node);
+        await renderMove(app, el, node, sourcePath, parent);
         break;
       }
     }
