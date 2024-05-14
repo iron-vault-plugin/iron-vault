@@ -37,6 +37,14 @@ move "[[Chapter 02]]" {
 }
 ```
 And then the rest of the fiction happened
+
+```mechanics
+move "Clash" {
+    roll "iron" action=1 adds=0 stat=3 vs1=8 vs2=7
+}
+```
+
+
 ```mechanics
 move "Compel" {
     roll "iron" action=2 adds=0 stat=3 vs1=4 vs2=1
