@@ -1,7 +1,5 @@
 import { addAssetToCharacter } from "characters/commands";
-import { meterLenses, momentumOps } from "characters/lens";
 import { generateEntityCommand } from "entity/command";
-import Handlebars from "handlebars";
 import { IndexManager } from "indexer/manager";
 import {
   Plugin,
@@ -9,11 +7,10 @@ import {
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
-import { ConditionMeterDefinition } from "rules/ruleset";
 import { ProgressContext } from "tracks/context";
-import { updating } from "utils/lens";
 import { ForgedAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
+import * as meterCommands from "./characters/meter-commands";
 import { Datastore } from "./datastore";
 import registerMechanicsBlock from "./mechanics/mechanics-blocks";
 import { runMoveCommand } from "./moves/action";
@@ -36,8 +33,7 @@ import {
   ProgressIndexer,
   ProgressTrackSettings,
 } from "./tracks/progress";
-import { pluginAsset, vaultProcess } from "./utils/obsidian";
-import { CustomSuggestModal } from "./utils/suggest";
+import { pluginAsset } from "./utils/obsidian";
 
 export default class ForgedPlugin extends Plugin {
   settings!: ForgedPluginSettings;
@@ -136,46 +132,14 @@ export default class ForgedPlugin extends Plugin {
     this.addCommand({
       id: "burn-momentum",
       name: "Burn Momentum",
-      editorCallback: async (
-        editor: Editor,
-        _view: MarkdownView | MarkdownFileInfo,
-      ) => {
-        const [path, charContext] = this.characters.activeCharacter();
-        const { lens, character } = charContext;
-        const oldValue = lens.momentum.get(character);
-        if (oldValue > 0) {
-          // TODO: is the move here to straight-up throw an error if there isn't enough momentum?
-          const updated = await charContext.updater(
-            vaultProcess(this.app, path),
-            (character, { lens }) => {
-              return momentumOps(lens).reset(character);
-            },
-          );
-          const template = Handlebars.compile(
-            this.settings.momentumResetTemplate,
-            { noEscape: true },
-          );
-          editor.replaceSelection(
-            template({
-              character: { name: lens.name.get(updated) },
-              oldValue,
-              newValue: lens.momentum.get(updated),
-            }),
-          );
-        }
-      },
+      editorCallback: (editor: Editor) =>
+        meterCommands.burnMomentum(this, editor),
     });
 
     this.addCommand({
       id: "progress-create",
       name: "Progress Track: Create a Progress Track",
-      editorCallback: async (editor, ctx) => {
-        await createProgressTrack(
-          this,
-          editor,
-          // ctx as MarkdownView,
-        );
-      },
+      editorCallback: (editor) => createProgressTrack(this, editor),
     });
 
     this.addCommand({
@@ -209,7 +173,7 @@ export default class ForgedPlugin extends Plugin {
     this.addCommand({
       id: "entity-gen",
       name: "Generate an entity",
-      editorCallback: async (editor, ctx) => {
+      editorCallback: async (editor) => {
         await generateEntityCommand(this, editor);
       },
     });
@@ -222,72 +186,12 @@ export default class ForgedPlugin extends Plugin {
       },
     });
 
-    const modifyMeterCommand = async (
-      editor: Editor,
-      verb: string,
-      meterFilter: (meter: {
-        value: number;
-        definition: ConditionMeterDefinition;
-      }) => boolean,
-      allowableValues: (measure: {
-        value: number;
-        definition: ConditionMeterDefinition;
-      }) => number[],
-    ) => {
-      // todo: multichar
-      const [path, context] = this.characters.activeCharacter();
-      const { character, lens } = context;
-      const measure = await CustomSuggestModal.select(
-        this.app,
-        Object.values(meterLenses(lens))
-          .map(({ key, definition, lens }) => ({
-            key,
-            definition,
-            lens,
-            value: lens.get(character),
-          }))
-          .filter(meterFilter),
-        ({ definition }) => definition.label,
-        (match, el) => {
-          el.createEl("small", { text: `${match.item.value}` });
-        },
-      );
-      const modifier = await CustomSuggestModal.select(
-        this.app,
-        allowableValues(measure),
-        (n) => n.toString(),
-        undefined,
-        `${verb} ${measure.definition.label}`,
-      );
-      const updated = await context.updater(
-        vaultProcess(this.app, path),
-        (character) => {
-          return updating(
-            measure.lens,
-            (startVal) => startVal + modifier,
-          )(character);
-        },
-      );
-      const template = Handlebars.compile(this.settings.meterAdjTemplate, {
-        noEscape: true,
-      });
-      editor.replaceSelection(
-        template({
-          character: { name: lens.name.get(character) },
-          measure,
-          newValue: measure.lens.get(updated),
-        }),
-      );
-    };
-
     this.addCommand({
       id: "take-meter",
       name: "Take on a Meter",
-      editorCallback: async (
-        editor: Editor,
-        _view: MarkdownView | MarkdownFileInfo,
-      ) =>
-        modifyMeterCommand(
+      editorCallback: async (editor: Editor) =>
+        meterCommands.modifyMeterCommand(
+          this,
           editor,
           "take",
           ({ value, definition: { max } }) => value < max,
@@ -301,11 +205,9 @@ export default class ForgedPlugin extends Plugin {
     this.addCommand({
       id: "suffer-meter",
       name: "Suffer on a Meter",
-      editorCallback: async (
-        editor: Editor,
-        _view: MarkdownView | MarkdownFileInfo,
-      ) =>
-        modifyMeterCommand(
+      editorCallback: async (editor: Editor) =>
+        meterCommands.modifyMeterCommand(
+          this,
           editor,
           "suffer",
           ({ value, definition: { min } }) => value > min,
@@ -319,16 +221,6 @@ export default class ForgedPlugin extends Plugin {
     // This adds a settings tab so the user can configure various aspects of the plugin
     this.addSettingTab(new ForgedSettingTab(this.app, this));
 
-    // If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-    // Using this function will automatically remove the event listener when this plugin is disabled.
-    // this.registerDomEvent(document, "click", (evt: MouseEvent) => {
-    //   console.log("click", evt);
-    // });
-
-    // When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-    // this.registerInterval(
-    //   window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000),
-    // );
     registerMechanicsBlock(this);
     registerMoveBlock(this);
     registerOracleBlock(this, this.datastore);
