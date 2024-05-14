@@ -173,7 +173,7 @@ function renderBurn(
   } else if (lastRoll) {
     const vs1 = lastRoll.properties.vs1 as number;
     const vs2 = lastRoll.properties.vs2 as number;
-    def["New Score"] = { cls: "score", value: to };
+    def["New Score"] = { cls: "score", value: from };
     def["Challenge Die 1"] = {
       cls: "challenge-die",
       value: vs1,
@@ -182,7 +182,7 @@ function renderBurn(
       cls: "challenge-die",
       value: vs2,
     };
-    const { cls, text, match } = moveOutcome(to, vs1, vs2);
+    const { cls, text, match } = moveOutcome(from, vs1, vs2);
     setMoveHit(moveNode, cls, match);
     def["Outcome"] = { cls: "outcome", value: text, dataProp: false };
     nodeCls += " " + cls;
