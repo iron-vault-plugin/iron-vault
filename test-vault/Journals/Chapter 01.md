@@ -26,6 +26,18 @@ move "[[Chapter 02]]" {
 }
 ```
 And then the rest of the fiction happened
+```mechanics
+move "Compel" {
+    roll "iron" action=2 adds=0 stat=3 vs1=4 vs2=1
+}
+move "Endure Stress" {
+    roll "spirit" action=1 adds=0 stat=5 vs1=1 vs2=10
+}
+
+```
+
+
+
 ```move
 name: Compel
 action: 3
