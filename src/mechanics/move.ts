@@ -115,7 +115,7 @@ function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
   const action = roll.properties["action"] as number;
   const statName = roll.values[0] as string;
   const stat = roll.properties.stat as number;
-  const adds = roll.properties.adds as number;
+  const adds = roll.properties.adds as number ?? 0;
   const score = Math.min(10, action + stat + adds);
   const challenge1 = roll.properties["vs1"] as number;
   const challenge2 = roll.properties["vs2"] as number;
@@ -300,7 +300,7 @@ function renderReroll(moveNode: HTMLElement, roll: KdlNode, lastRoll: KdlNode) {
   const newScore = Math.min(
     ((roll.properties.action ?? action) as number) +
       (lastRoll.properties.stat as number) +
-      (lastRoll.properties.adds as number),
+      (lastRoll.properties.adds as number ?? 0),
     10,
   );
   const lastVs1 = lastRoll.properties.vs1 as number;
