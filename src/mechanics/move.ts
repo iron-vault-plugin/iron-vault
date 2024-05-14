@@ -101,7 +101,7 @@ async function renderDetail(moveNode: HTMLElement, item: KdlNode, renderMarkdown
   const detailNode = moveNode.createEl("p", {
     cls: "detail",
   });
-  await renderMarkdown(detailNode, item.values[0] as string);
+  await renderMarkdown(detailNode, (item.values[0] as string).replaceAll(/^/g, "> "));
 }
 
 function renderAdd(moveNode: HTMLElement, add: KdlNode) {

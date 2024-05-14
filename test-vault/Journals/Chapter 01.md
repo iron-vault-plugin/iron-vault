@@ -13,6 +13,7 @@ move "Face Danger" {
 	- "coooool"
 }
 - "Oh nooo [[Test]]. This is gonna hurt. Time to [[Endure Harm]]."
+- "and another"
 move "Endure Harm" {
     meter "health" -1
     roll "health" action=3 stat=4 adds=0 vs1=3 vs2=8
