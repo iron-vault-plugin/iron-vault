@@ -7,8 +7,7 @@
     "node": ">=16"
   },
   "scripts": {
-    "test": "jest --watch",
-    "test:ci": "jest",
+    "test": "jest",
     "build": "tsc --noEmit && node esbuild.config.mjs production",
     "copy:target": "pnpm build && ./scripts/deploy.sh",
     "swc:build": "swc src --out-dir dist --copy-files",
