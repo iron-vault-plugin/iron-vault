@@ -4,9 +4,8 @@ import {
   MoveProgressRoll,
   TriggerActionRollCondition,
 } from "@datasworn/core";
-import { Document, Node, format } from "kdljs";
+import { Document, Node } from "kdljs";
 import {
-  EditorRange,
   stringifyYaml,
   type App,
   type Editor,
@@ -16,12 +15,13 @@ import {
 import { CharacterContext, type CharacterTracker } from "../character-tracker";
 import { momentumOps, movesReader, rollablesReader } from "../characters/lens";
 import { type Datastore } from "../datastore";
+import { createOrAppendMechanics } from "../mechanics/editor";
 import { ForgedPluginSettings, MoveBlockFormat } from "../settings/ui";
 import { ProgressContext } from "../tracks/context";
 import { selectProgressTrack } from "../tracks/select";
 import { ProgressTrackWriterContext } from "../tracks/writer";
 import { randomInt } from "../utils/dice";
-import { findAdjacentCodeBlock, reverseLineIterator } from "../utils/editor";
+import { node } from "../utils/kdl";
 import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { checkForMomentumBurn } from "./action-modal";
@@ -42,21 +42,6 @@ enum MoveKind {
   Action = "Action",
   Other = "Other",
 }
-
-// interface BaseMoveSpecifier {
-//   move: Move;
-//   kind: MoveKind;
-// }
-
-// interface ProgressMoveSpecifier extends BaseMoveSpecifier {
-//   kind: MoveKind.Progress;
-//   progressTrack: string;
-// }
-
-// interface ActionMoveSpecifier extends BaseMoveSpecifier {
-//   kind: MoveKind.Action;
-//   stat: string;
-// }
 
 function getMoveKind(move: Move): MoveKind {
   switch (move.roll_type) {
@@ -80,7 +65,7 @@ const promptForMove = async (app: App, moves: Move[]): Promise<Move> =>
     app,
     moves,
     (move) => move.name,
-    ({ item: move, match }: FuzzyMatch<Move>, el: HTMLElement) => {
+    ({ item: move }: FuzzyMatch<Move>, el: HTMLElement) => {
       const moveKind = getMoveKind(move);
       el.createEl("small", {
         text: `(${moveKind}) ${move.trigger.text}`,
@@ -141,19 +126,7 @@ export function validAdds(baseStat: number): number[] {
   return adds;
 }
 
-function node(name: string, data: Omit<Partial<Node>, "name">): Node {
-  return {
-    name,
-    properties: {},
-    values: [],
-    children: [],
-    ...data,
-    // TODO: the `as any` is a hack because the name field is not optional currently but should be
-    tags: { properties: {}, values: [], ...data.tags } as any,
-  };
-}
-
-function generateMechanicsNode(move: MoveDescription): string {
+function generateMechanicsNode(move: MoveDescription): Document {
   let roll: Node;
   let addDesc: Node[] = [];
   if (moveIsAction(move)) {
@@ -194,37 +167,13 @@ function generateMechanicsNode(move: MoveDescription): string {
       children: [...addDesc, roll],
     }),
   ];
-  return format(doc);
+  return doc;
 }
-
-const MECHANICS_CODE_BLOCK_TAG = "mechanics";
 
 function mechanicsMoveRenderer(
   editor: Editor,
 ): (move: MoveDescription) => void {
-  return (move) => {
-    // TODO: right now, if something is selected, we just replace it, and skip the block merging logic. Should we do something else?
-    let existingBlockRange: EditorRange | null = null;
-    if (!editor.somethingSelected()) {
-      existingBlockRange = findAdjacentCodeBlock(
-        reverseLineIterator(editor, editor.getCursor()),
-        MECHANICS_CODE_BLOCK_TAG,
-      );
-    }
-
-    if (existingBlockRange) {
-      // Insert additional node at the end of the existing block
-      editor.replaceRange(`${generateMechanicsNode(move)}\n`, {
-        line: existingBlockRange.to.line - 1,
-        ch: 0,
-      });
-    } else {
-      const extraLine = editor.getCursor("from").ch > 0 ? "\n\n" : "";
-      editor.replaceSelection(
-        `${extraLine}\`\`\`${MECHANICS_CODE_BLOCK_TAG}\n${generateMechanicsNode(move)}\`\`\`\n\n`,
-      );
-    }
-  };
+  return (move) => createOrAppendMechanics(editor, generateMechanicsNode(move));
 }
 
 export function getMoveRenderer(
@@ -288,17 +237,11 @@ export async function runMoveCommand(
         app,
         move,
         characterPath,
-        editor,
       );
       break;
     }
     case "progress_roll": {
-      moveDescription = await handleProgressRoll(
-        app,
-        progressContext,
-        move,
-        editor,
-      );
+      moveDescription = await handleProgressRoll(app, progressContext, move);
       break;
     }
     case "no_roll":
@@ -320,7 +263,6 @@ async function handleProgressRoll(
   app: App,
   progressContext: ProgressContext,
   move: MoveProgressRoll,
-  editor: Editor,
 ): Promise<MoveDescription> {
   const progressTrack = await selectProgressTrack(
     progressContext,
@@ -351,7 +293,6 @@ async function handleActionRoll(
   app: App,
   move: MoveActionRoll,
   characterPath: string,
-  editor: Editor,
 ) {
   const { lens, character } = charContext;
 
@@ -406,7 +347,7 @@ async function handleActionRoll(
         }
       }),
     (m) => `${m.definition.label}: ${m.value ?? "missing (defaults to 0)"}`,
-    ({ item, match }, el) => {
+    ({ item }, el) => {
       if (item.condition.length > 0) {
         el.createEl("small", {
           text: `Trigger: ${item.condition.flatMap((cond) => cond.text ?? []).join("; ")}`,
