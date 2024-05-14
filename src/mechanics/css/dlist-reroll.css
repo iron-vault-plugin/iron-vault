@@ -1,6 +1,6 @@
 .forged-move dl.reroll {
   &:before {
-    content: "🎲🔁";
+    content: "🔁";
     margin-right: 0.5em;
   }
   & dd {
