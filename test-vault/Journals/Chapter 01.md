@@ -8,7 +8,7 @@ Suddenly, a trap! Oh no!
 
 ```mechanics
 move id="starforged/moves/adventure/face_danger" {
-	add 1 "because I'm cool"
+	add 1 "because I'm cool [[Ash Barlowe]]"
 	roll "shadow" action=1 stat=3 adds=1 vs1=9 vs2=9
 }
 - "Oh nooo. This is gonna hurt. Time to [[Endure Harm]]."

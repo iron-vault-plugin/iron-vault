@@ -38,7 +38,7 @@ export default async function renderMove(
         break;
       }
       case "add": {
-        renderAdd(moveNode, item);
+        await renderAdd(moveNode, item, renderMarkdown);
         break;
       }
       case "roll": {
@@ -108,12 +108,17 @@ async function renderDetail(
   );
 }
 
-function renderAdd(moveNode: HTMLElement, add: KdlNode) {
+async function renderAdd(
+  moveNode: HTMLElement,
+  add: KdlNode,
+  renderMarkdown: (el: HTMLElement, md: string) => Promise<void>,
+) {
   // TODO: probably turn this into a dlist, too?
-  moveNode.createEl("p", {
+  const addNode = moveNode.createEl("p", {
     cls: "add",
-    text: `Add +${add.values[0]}${add.values[1] ? " (" + add.values[1] + ")" : ""}`,
   });
+  const text = `Add +${add.values[0]}${add.values[1] ? " (" + add.values[1] + ")" : ""}`;
+  await renderMarkdown(addNode, text);
 }
 
 function renderMeter(moveNode: HTMLElement, meter: KdlNode) {
