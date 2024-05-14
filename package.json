@@ -8,12 +8,15 @@
   },
   "scripts": {
     "test": "jest --watch",
+    "test:ci": "jest",
     "build": "tsc --noEmit && node esbuild.config.mjs production",
     "copy:target": "pnpm build && ./scripts/deploy.sh",
     "swc:build": "swc src --out-dir dist --copy-files",
     "dev": "turbowatch ./turbowatch.js",
     "_dev": "swc src --out-dir dist --copy-files --watch",
-    "bump": "node ./scripts/update_manifest.js ${npm_config_tag} && npm version --no-git-tag-version ${npm_config_tag} && git commit -a -m \"bumping manifest version to ${npm_config_tag}\" && git tag -a ${npm_config_tag} -m ${npm_config_tag} && git push --follow-tags"
+    "bump": "node ./scripts/update_manifest.js ${npm_config_tag} && npm version --no-git-tag-version ${npm_config_tag} && git commit -a -m \"bumping manifest version to ${npm_config_tag}\" && git tag -a ${npm_config_tag} -m ${npm_config_tag} && git push --follow-tags",
+    "lint": "pnpm run '/^lint:.*/'",
+    "lint:js": "eslint src"
   },
   "keywords": [],
   "author": "",

@@ -4,7 +4,6 @@
     "browser": true,
     "es2021": true
   },
-  "_extends": ["standard-with-typescript", "plugin:prettier/recommended"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
