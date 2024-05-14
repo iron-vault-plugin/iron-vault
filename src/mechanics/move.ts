@@ -1,7 +1,13 @@
 import { Move } from "@datasworn/core";
 import ForgedPlugin from "index";
 import { Node as KdlNode } from "kdljs";
-import { App, ButtonComponent, MarkdownRenderer, Modal } from "obsidian";
+import {
+  App,
+  ButtonComponent,
+  MarkdownRenderChild,
+  MarkdownRenderer,
+  Modal,
+} from "obsidian";
 
 export default async function renderMove(
   plugin: ForgedPlugin,
@@ -96,7 +102,13 @@ export default async function renderMove(
     }
   }
   async function renderMarkdown(el: HTMLElement, md: string) {
-    await MarkdownRenderer.render(plugin.app, md, el, sourcePath, plugin);
+    await MarkdownRenderer.render(
+      plugin.app,
+      md,
+      el,
+      sourcePath,
+      new MarkdownRenderChild(el),
+    );
   }
 }
 
