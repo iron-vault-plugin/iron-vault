@@ -11,6 +11,10 @@
   &.miss summary > :first-child:after {
     background-image: url("img/Outcomes/outcome-miss.svg");
   }
+  &.match summary > :first-child:after {
+    content: "✅";
+  }
+
   & summary {
     display: block;
     border: none;
@@ -23,9 +27,9 @@
       float: right;
       margin-left: auto;
       background-repeat: no-repeat;
-      height: 30px;
-      width: 50px;
+      background-position: right;
+      height: 1.5em;
+      width: 4.2em;
     }
   }
-
 }
