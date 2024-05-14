@@ -75,10 +75,177 @@ export default async function renderMove(
   }
 }
 
+// --- Renderers ---
+
+async function renderDetail(
+  moveNode: HTMLElement,
+  item: KdlNode,
+  renderMarkdown: (el: HTMLElement, md: string) => Promise<void>,
+) {
+  const detailNode = moveNode.createEl("p", {
+    cls: "detail",
+  });
+  await renderMarkdown(
+    detailNode,
+    (item.values[0] as string).replaceAll(/^/g, "> "),
+  );
+}
+
+function renderAdd(moveNode: HTMLElement, add: KdlNode) {
+  // TODO: probably turn this into a dlist, too?
+  moveNode.createEl("p", {
+    cls: "add",
+    text: `Add +${add.values[0]}${add.values[1] ? " (" + add.values[1] + ")" : ""}`,
+  });
+}
+
+function renderMeter(moveNode: HTMLElement, meter: KdlNode) {
+  const name = meter.values[0] as string;
+  const from = meter.properties.from as number;
+  const to = meter.properties.to as number;
+  const delta = to - from;
+  const neg = delta < 0;
+  renderDlist(moveNode, "meter", {
+    Meter: { cls: "meter-name", value: name },
+    Delta: {
+      cls: "delta" + " " + (neg ? "negative" : "positive"),
+      value: Math.abs(delta),
+    },
+    From: { cls: "from", value: from },
+    To: { cls: "to", value: to },
+  });
+}
+
+function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
+  const action = roll.properties["action"] as number;
+  const statName = roll.values[0] as string;
+  const stat = roll.properties.stat as number;
+  const adds = (roll.properties.adds as number) ?? 0;
+  const score = Math.min(10, action + stat + adds);
+  const challenge1 = roll.properties["vs1"] as number;
+  const challenge2 = roll.properties["vs2"] as number;
+  const {
+    cls: outcomeClass,
+    text: outcome,
+    match,
+  } = moveOutcome(score, challenge1, challenge2);
+  setMoveHit(moveNode, outcomeClass, match);
+  renderDlist(moveNode, "roll", {
+    "Action Die": { cls: "action-die", value: action },
+    Stat: { cls: "stat", value: stat },
+    "Stat Name": { cls: "stat-name", value: statName },
+    Adds: { cls: "adds", value: adds },
+    Score: { cls: "score", value: score },
+    "Challenge Die 1": { cls: "challenge-die", value: challenge1 },
+    "Challenge Die 2": { cls: "challenge-die", value: challenge2 },
+    Outcome: { cls: "outcome", value: outcome, dataProp: false },
+  });
+}
+
+function renderProgress(moveNode: HTMLElement, roll: KdlNode) {
+  const score = roll.properties.score as number;
+  const challenge1 = roll.properties["vs1"] as number;
+  const challenge2 = roll.properties["vs2"] as number;
+  const {
+    cls: outcomeClass,
+    text: outcome,
+    match,
+  } = moveOutcome(score, challenge1, challenge2);
+  setMoveHit(moveNode, outcomeClass, match);
+  renderDlist(moveNode, "roll progress", {
+    "Progress Score": { cls: "progress-score", value: score },
+    "Challenge Die 1": { cls: "challenge-die", value: challenge1 },
+    "Challenge Die 2": { cls: "challenge-die", value: challenge2 },
+    Outcome: { cls: "outcome", value: outcome, dataProp: false },
+  });
+}
+
+function renderDieRoll(moveNode: HTMLElement, roll: KdlNode) {
+  const reason = roll.values[0] as string;
+  const value = roll.values[1] as number;
+  renderDlist(moveNode, "die-roll", {
+    [reason]: { cls: "die", value },
+  });
+}
+
+function renderReroll(moveNode: HTMLElement, roll: KdlNode, lastRoll: KdlNode) {
+  const action = lastRoll.properties.action as number | undefined;
+  const newScore = Math.min(
+    ((roll.properties.action ?? action) as number) +
+      (lastRoll.properties.stat as number) +
+      ((lastRoll.properties.adds as number) ?? 0),
+    10,
+  );
+  const lastVs1 = lastRoll.properties.vs1 as number;
+  const lastVs2 = lastRoll.properties.vs2 as number;
+  const newVs1 = (roll.properties.vs1 ?? lastRoll.properties.vs1) as number;
+  const newVs2 = (roll.properties.vs2 ?? lastRoll.properties.vs2) as number;
+  const {
+    cls: outcomeClass,
+    text: outcome,
+    match,
+  } = moveOutcome(newScore, newVs1, newVs2);
+  const def: DataList = {};
+  if (roll.properties.action != null) {
+    const newAction = roll.properties.action as number;
+    lastRoll.properties.action = newAction;
+    def["Old Action Die"] = { cls: "action-die", value: action ?? 0 };
+    def["New Action Die"] = { cls: "action-die", value: newAction };
+  }
+  if (roll.properties.vs1 != null) {
+    const newVs1 = roll.properties.vs1 as number;
+    lastRoll.properties.vs1 = newVs1;
+    def["Old Challenge Die 1"] = { cls: "challenge-die", value: lastVs1 };
+    def["New Challenge Die 1"] = { cls: "challenge-die", value: newVs1 };
+  }
+  if (roll.properties.vs2 != null) {
+    const newVs2 = roll.properties.vs2 as number;
+    lastRoll.properties.vs2 = newVs2;
+    def["Old Challenge Die 2"] = { cls: "challenge-die", value: lastVs2 };
+    def["New Challenge Die 2"] = { cls: "challenge-die", value: newVs2 };
+  }
+  def["New Score"] = { cls: "score", value: newScore };
+  def["Outcome"] = { cls: "outcome", value: outcome, dataProp: false };
+  setMoveHit(moveNode, outcomeClass, match);
+  renderDlist(moveNode, "reroll", def);
+}
+
+function renderUnknown(moveNode: HTMLElement, name: string) {
+  moveNode.createEl("p", {
+    text: `Unknown move node: "${name}"`,
+    cls: "error",
+  });
+}
+
 // --- Util ---
 
+type DataList = Record<string, DataDef>;
+
+interface DataDef {
+  cls: string;
+  value: string | number | boolean | null;
+  dataProp?: boolean;
+}
+
+function renderDlist(el: HTMLElement, cls: string, data: DataList) {
+  const dl = el.createEl("dl", { cls });
+  for (const [key, { cls, value, dataProp }] of Object.entries(data)) {
+    dl.createEl("dt", {
+      text: key,
+    });
+    const dd = dl.createEl("dd", {
+      cls,
+      text: "" + value,
+    });
+    if (dataProp !== false) {
+      dd.setAttribute("data-value", "" + value);
+    }
+  }
+  return dl;
+}
+
 function setMoveHit(moveEl: HTMLElement, hitKind: string, match: boolean) {
-  switch (hitKind) {
+  switch (hitKind.split(" ")[0]) {
     case "strong-hit": {
       moveEl.classList.toggle("strong-hit", true);
       moveEl.classList.toggle("weak-hit", false);
@@ -101,375 +268,30 @@ function setMoveHit(moveEl: HTMLElement, hitKind: string, match: boolean) {
   moveEl.classList.toggle("match", match);
 }
 
-// --- Renderers ---
-
-async function renderDetail(
-  moveNode: HTMLElement,
-  item: KdlNode,
-  renderMarkdown: (el: HTMLElement, md: string) => Promise<void>,
-) {
-  const detailNode = moveNode.createEl("p", {
-    cls: "detail",
-  });
-  await renderMarkdown(
-    detailNode,
-    (item.values[0] as string).replaceAll(/^/g, "> "),
-  );
-}
-
-function renderAdd(moveNode: HTMLElement, add: KdlNode) {
-  moveNode.createEl("p", {
-    cls: "add",
-    text: `Add +${add.values[0]}${add.values[1] ? " (" + add.values[1] + ")" : ""}`,
-  });
-}
-
-function renderMeter(moveNode: HTMLElement, meter: KdlNode) {
-  const name = meter.values[0] as string;
-  const from = meter.properties.from as number;
-  const to = meter.properties.to as number;
-  const delta = to - from;
-  const neg = delta < 0;
-  const meterNode = moveNode.createEl("dl", {
-    cls: "meter",
-  });
-  meterNode.createEl("dt", {
-    text: "Meter",
-  });
-  meterNode.createEl("dd", {
-    cls: "meter-name",
-    text: name,
-  });
-  meterNode.createEl("dt", {
-    text: "Delta",
-  });
-  meterNode
-    .createEl("dd", {
-      cls: "delta" + " " + (neg ? "negative" : "positive"),
-      text: "" + Math.abs(delta),
-    })
-    .setAttribute("data-value", "" + delta);
-  meterNode.createEl("dt", {
-    text: "From",
-  });
-  meterNode
-    .createEl("dd", {
-      cls: "from",
-      text: "" + from,
-    })
-    .setAttribute("data-value", "" + from);
-  meterNode.createEl("dt", {
-    text: "To",
-  });
-  meterNode
-    .createEl("dd", {
-      cls: "to",
-      text: "" + to,
-    })
-    .setAttribute("data-value", "" + to);
-}
-
-function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
-  const action = roll.properties["action"] as number;
-  const statName = roll.values[0] as string;
-  const stat = roll.properties.stat as number;
-  const adds = (roll.properties.adds as number) ?? 0;
-  const score = Math.min(10, action + stat + adds);
-  const challenge1 = roll.properties["vs1"] as number;
-  const challenge2 = roll.properties["vs2"] as number;
-  const rollNode = moveNode.createEl("dl", {
-    cls: "roll",
-  });
+function moveOutcome(
+  score: number,
+  challenge1: number,
+  challenge2: number,
+): { cls: string; text: string; match: boolean } {
+  let outcomeClass;
   let outcome;
   if (score > challenge1 && score > challenge2) {
-    rollNode.addClass("strong-hit");
-    setMoveHit(moveNode, "strong-hit", challenge1 === challenge2);
+    outcomeClass = "strong-hit";
     outcome = "Strong Hit";
   } else if (score > challenge1 || score > challenge2) {
-    rollNode.addClass("weak-hit");
-    setMoveHit(moveNode, "weak-hit", challenge1 === challenge2);
+    outcomeClass = "weak-hit";
     outcome = "Weak Hit";
   } else {
-    rollNode.addClass("miss");
-    setMoveHit(moveNode, "miss", challenge1 === challenge2);
+    outcomeClass = "miss";
     outcome = "Miss";
   }
   if (challenge1 === challenge2) {
-    rollNode.addClass("match");
+    outcomeClass += " match";
     outcome += " (Match)";
   }
-  rollNode.createEl("dt", {
-    text: "Action Die",
-  });
-  rollNode
-    .createEl("dd", {
-      cls: "action-die",
-      text: "" + action,
-    })
-    .setAttribute("data-value", "" + action);
-  rollNode.createEl("dt", {
-    text: "Stat",
-  });
-  rollNode
-    .createEl("dd", {
-      cls: "stat",
-      text: "" + stat,
-    })
-    .setAttribute("data-value", "" + stat);
-  if (statName) {
-    rollNode.createEl("dt", {
-      text: "Stat Name",
-    });
-    rollNode
-      .createEl("dd", {
-        cls: "stat-name",
-        text: statName,
-      })
-      .setAttribute("data-value", statName);
-  }
-  rollNode.createEl("dt", {
-    text: "Adds",
-  });
-  rollNode
-    .createEl("dd", {
-      cls: "adds",
-      text: "" + adds,
-    })
-    .setAttribute("data-value", "" + adds);
-  rollNode.createEl("dt", {
-    text: "Score",
-  });
-  rollNode
-    .createEl("dd", {
-      cls: "score",
-      text: "" + score,
-    })
-    .setAttribute("data-value", "" + score);
-  rollNode.createEl("dt", {
-    text: "Challenge Die 1",
-  });
-  rollNode
-    .createEl("dd", {
-      cls: "challenge-die",
-      text: "" + challenge1,
-    })
-    .setAttribute("data-value", "" + challenge1);
-  rollNode.createEl("dt", {
-    text: "Challenge Die 2",
-  });
-  rollNode
-    .createEl("dd", {
-      cls: "challenge-die",
-      text: "" + challenge2,
-    })
-    .setAttribute("data-value", "" + challenge2);
-  rollNode.createEl("dt", {
-    text: "Outcome",
-  });
-  rollNode.createEl("dd", {
-    cls: "outcome",
+  return {
+    cls: outcomeClass,
     text: outcome,
-  });
-}
-
-function renderProgress(moveNode: HTMLElement, roll: KdlNode) {
-  const score = roll.properties.score as number;
-  const challenge1 = roll.properties["vs1"] as number;
-  const challenge2 = roll.properties["vs2"] as number;
-  const rollNode = moveNode.createEl("dl", {
-    cls: "roll progress",
-  });
-  let outcome;
-  if (score > challenge1 && score > challenge2) {
-    rollNode.addClass("strong-hit");
-    setMoveHit(moveNode, "strong-hit", challenge1 === challenge2);
-    outcome = "Strong Hit";
-  } else if (score > challenge1 || score > challenge2) {
-    rollNode.addClass("weak-hit");
-    setMoveHit(moveNode, "weak-hit", challenge1 === challenge2);
-    outcome = "Weak Hit";
-  } else {
-    rollNode.addClass("miss");
-    setMoveHit(moveNode, "miss", challenge1 === challenge2);
-    outcome = "Miss";
-  }
-  if (challenge1 === challenge2) {
-    rollNode.addClass("match");
-    outcome += " (Match)";
-  }
-  rollNode.createEl("dt", {
-    text: "Progress Score",
-  });
-  rollNode
-    .createEl("dd", {
-      cls: "progress-score",
-      text: "" + score,
-    })
-    .setAttribute("data-value", "" + score);
-  rollNode.createEl("dt", {
-    text: "Challenge Die 1",
-  });
-  rollNode
-    .createEl("dd", {
-      cls: "challenge-die",
-      text: "" + challenge1,
-    })
-    .setAttribute("data-value", "" + challenge1);
-  rollNode.createEl("dt", {
-    text: "Challenge Die 2",
-  });
-  rollNode
-    .createEl("dd", {
-      cls: "challenge-die",
-      text: "" + challenge2,
-    })
-    .setAttribute("data-value", "" + challenge2);
-  rollNode.createEl("dt", {
-    text: "Outcome",
-  });
-  rollNode.createEl("dd", {
-    cls: "outcome",
-    text: outcome,
-  });
-}
-
-function renderDieRoll(moveNode: HTMLElement, roll: KdlNode) {
-  const rollNode = moveNode.createEl("dl", {
-    cls: "die-roll",
-  });
-  const reason = roll.values[0] as string;
-  const value = roll.values[1] as number;
-  rollNode.createEl("dt", {
-    text: reason,
-  });
-  rollNode
-    .createEl("dd", {
-      cls: "",
-      text: "" + value,
-    })
-    .setAttribute("data-value", "" + value);
-}
-
-function renderReroll(moveNode: HTMLElement, roll: KdlNode, lastRoll: KdlNode) {
-  const rerollNode = moveNode.createEl("dl", {
-    cls: "reroll",
-  });
-  const action = lastRoll.properties.action as number | undefined;
-  const newScore = Math.min(
-    ((roll.properties.action ?? action) as number) +
-      (lastRoll.properties.stat as number) +
-      ((lastRoll.properties.adds as number) ?? 0),
-    10,
-  );
-  const lastVs1 = lastRoll.properties.vs1 as number;
-  const lastVs2 = lastRoll.properties.vs2 as number;
-  const newVs1 = (roll.properties.vs1 ?? lastRoll.properties.vs1) as number;
-  const newVs2 = (roll.properties.vs2 ?? lastRoll.properties.vs2) as number;
-  let outcome;
-  if (newScore > newVs1 && newScore > newVs2) {
-    rerollNode.addClass("strong-hit");
-    setMoveHit(moveNode, "strong-hit", newVs1 === newVs2);
-    outcome = "Strong Hit";
-  } else if (newScore > newVs1 || newScore > newVs2) {
-    rerollNode.addClass("weak-hit");
-    setMoveHit(moveNode, "weak-hit", newVs1 === newVs2);
-    outcome = "Weak Hit";
-  } else {
-    rerollNode.addClass("miss");
-    setMoveHit(moveNode, "miss", newVs1 === newVs2);
-    outcome = "Miss";
-  }
-  if (newVs1 === newVs2) {
-    rerollNode.addClass("match");
-    outcome += " (Match)";
-  }
-  if (roll.properties.action != null) {
-    const newAction = roll.properties.action as number;
-    lastRoll.properties.action = newAction;
-    rerollNode.createEl("dt", {
-      text: "Old Action Die",
-    });
-    rerollNode
-      .createEl("dd", {
-        cls: "action-die",
-        text: "" + action,
-      })
-      .setAttribute("data-value", "" + action);
-    rerollNode.createEl("dt", {
-      text: "New Action Die",
-    });
-    rerollNode
-      .createEl("dd", {
-        cls: "action-die",
-        text: "" + newAction,
-      })
-      .setAttribute("data-value", "" + newAction);
-  }
-  if (roll.properties.vs1 != null) {
-    const newVs1 = roll.properties.vs1 as number;
-    lastRoll.properties.vs1 = newVs1;
-    rerollNode.createEl("dt", {
-      text: "Old Challenge Die 1",
-    });
-    rerollNode
-      .createEl("dd", {
-        cls: "challenge-die",
-        text: "" + lastVs1,
-      })
-      .setAttribute("data-value", "" + lastVs1);
-    rerollNode.createEl("dt", {
-      text: "New Challenge Die 1",
-    });
-    rerollNode
-      .createEl("dd", {
-        cls: "challenge-die",
-        text: "" + newVs1,
-      })
-      .setAttribute("data-value", "" + newVs1);
-  }
-  if (roll.properties.vs2 != null) {
-    const newVs2 = roll.properties.vs2 as number;
-    lastRoll.properties.vs2 = newVs2;
-    rerollNode.createEl("dt", {
-      text: "Old Challenge Die 2",
-    });
-    rerollNode
-      .createEl("dd", {
-        cls: "challenge-die",
-        text: "" + lastVs2,
-      })
-      .setAttribute("data-value", "" + lastVs2);
-    rerollNode.createEl("dt", {
-      text: "New Challenge Die 2",
-    });
-    rerollNode
-      .createEl("dd", {
-        cls: "challenge-die",
-        text: "" + newVs2,
-      })
-      .setAttribute("data-value", "" + newVs2);
-  }
-  rerollNode.createEl("dt", {
-    text: "New Score",
-  });
-  rerollNode
-    .createEl("dd", {
-      cls: "score",
-      text: "" + newScore,
-    })
-    .setAttribute("data-value", "" + newScore);
-  rerollNode.createEl("dt", {
-    text: "Outcome",
-  });
-  rerollNode.createEl("dd", {
-    cls: "outcome",
-    text: outcome,
-  });
-}
-
-function renderUnknown(moveNode: HTMLElement, name: string) {
-  moveNode.createEl("p", {
-    text: `Unknown move node: "${name}"`,
-    cls: "error",
-  });
+    match: challenge1 === challenge2,
+  };
 }
