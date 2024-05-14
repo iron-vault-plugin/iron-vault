@@ -9,11 +9,12 @@ Suddenly, a trap! Oh no!
 ```mechanics
 move id="starforged/moves/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"
-	roll "shadow" action=1 stat=3 adds=1 vs1=9 vs2=9
+	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
 }
 - "Oh nooo. This is gonna hurt. Time to [[Endure Harm]]."
 move "Endure Harm" {
     meter "health" from=3 to=2
+	meter "health" 3 2 // <meter> <from> <to>
     roll "health" action=3 stat=4 adds=0 vs1=3 vs2=8
     meter "momentum" from=7 to=6
     meter "health" from=2 to=3
@@ -24,10 +25,12 @@ move "Undertake an Expedition" {
     reroll action=1 vs1=6
     reroll vs2=7 vs1=8
     burn from=10 to=2
+    burn 10 2 // <from> <to>
     unknown "hahahah"
 }
 move "Finish an Expedition" {
     progress-roll score=2 vs1=1 vs2=3
+    progress-roll 2 1 3 // <score> <vs1> <vs2>
 }
 move "[[Chapter 02]]" {
   - "**bold text** *italic* [[README]]"

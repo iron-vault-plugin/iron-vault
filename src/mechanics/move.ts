@@ -43,11 +43,19 @@ export default async function renderMove(
       }
       case "roll": {
         lastRoll = item;
+        lastRoll.properties.action = item.properties.action ?? item.values[1];
+        lastRoll.properties.stat = item.properties.stat ?? item.values[2];
+        lastRoll.properties.adds = item.properties.adds ?? item.values[3];
+        lastRoll.properties.vs1 = item.properties.vs1 ?? item.values[4];
+        lastRoll.properties.vs2 = item.properties.vs2 ?? item.values[5];
         renderRoll(moveNode, item);
         break;
       }
       case "progress-roll": {
         lastRoll = item;
+        lastRoll.properties.score = item.properties.score ?? item.values[0];
+        lastRoll.properties.vs1 = item.properties.vs1 ?? item.values[1];
+        lastRoll.properties.vs2 = item.properties.vs2 ?? item.values[2];
         renderProgress(moveNode, item);
         break;
       }
@@ -123,8 +131,8 @@ async function renderAdd(
 
 function renderMeter(moveNode: HTMLElement, meter: KdlNode) {
   const name = meter.values[0] as string;
-  const from = meter.properties.from as number;
-  const to = meter.properties.to as number;
+  const from = (meter.properties.from ?? meter.values[1]) as number;
+  const to = (meter.properties.to ?? meter.values[2]) as number;
   const delta = to - from;
   const neg = delta < 0;
   renderDlist(moveNode, "meter", {
@@ -143,9 +151,17 @@ function renderBurn(
   burn: KdlNode,
   lastRoll: KdlNode | undefined,
 ) {
+  const from = Math.max(
+    -6,
+    Math.min((burn.properties.from ?? burn.values[0]) as number, 10),
+  );
+  const to = Math.max(
+    -6,
+    Math.min((burn.properties.to ?? burn.values[1]) as number, 10),
+  );
   const def: DataList = {
-    From: { cls: "from", value: burn.properties.from },
-    To: { cls: "to", value: burn.properties.to },
+    From: { cls: "from", value: from },
+    To: { cls: "to", value: to },
   };
   let nodeCls = "burn";
   if (lastRoll && lastRoll.name === "progress-roll") {
@@ -155,10 +171,9 @@ function renderBurn(
     });
     return;
   } else if (lastRoll) {
-    const newScore = Math.min(burn.properties.from as number, 10);
     const vs1 = lastRoll.properties.vs1 as number;
     const vs2 = lastRoll.properties.vs2 as number;
-    def["New Score"] = { cls: "score", value: newScore };
+    def["New Score"] = { cls: "score", value: to };
     def["Challenge Die 1"] = {
       cls: "challenge-die",
       value: vs1,
@@ -167,7 +182,7 @@ function renderBurn(
       cls: "challenge-die",
       value: vs2,
     };
-    const { cls, text, match } = moveOutcome(newScore, vs1, vs2);
+    const { cls, text, match } = moveOutcome(to, vs1, vs2);
     setMoveHit(moveNode, cls, match);
     def["Outcome"] = { cls: "outcome", value: text, dataProp: false };
     nodeCls += " " + cls;
@@ -176,13 +191,13 @@ function renderBurn(
 }
 
 function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
-  const action = roll.properties["action"] as number;
   const statName = roll.values[0] as string;
-  const stat = roll.properties.stat as number;
-  const adds = (roll.properties.adds as number) ?? 0;
+  const action = (roll.properties.action ?? roll.values[1]) as number;
+  const stat = (roll.properties.stat ?? roll.values[2]) as number;
+  const adds = (roll.properties.adds ?? roll.values[3] ?? 0) as number;
   const score = Math.min(10, action + stat + adds);
-  const challenge1 = roll.properties["vs1"] as number;
-  const challenge2 = roll.properties["vs2"] as number;
+  const challenge1 = (roll.properties.vs1 ?? roll.values[4]) as number;
+  const challenge2 = (roll.properties.vs2 ?? roll.values[5]) as number;
   const {
     cls: outcomeClass,
     text: outcome,
@@ -207,9 +222,9 @@ function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
 }
 
 function renderProgress(moveNode: HTMLElement, roll: KdlNode) {
-  const score = roll.properties.score as number;
-  const challenge1 = roll.properties["vs1"] as number;
-  const challenge2 = roll.properties["vs2"] as number;
+  const score = (roll.properties.score ?? roll.values[0]) as number;
+  const challenge1 = (roll.properties.vs1 ?? roll.values[1]) as number;
+  const challenge2 = (roll.properties.vs2 ?? roll.values[2]) as number;
   const {
     cls: outcomeClass,
     text: outcome,
@@ -233,9 +248,8 @@ function renderDieRoll(moveNode: HTMLElement, roll: KdlNode) {
 }
 
 function renderReroll(moveNode: HTMLElement, roll: KdlNode, lastRoll: KdlNode) {
-  const action = lastRoll.properties.action as number | undefined;
   const newScore = Math.min(
-    ((roll.properties.action ?? action) as number) +
+    ((roll.properties.action ?? lastRoll.properties.action) as number) +
       (lastRoll.properties.stat as number) +
       ((lastRoll.properties.adds as number) ?? 0),
     10,
@@ -252,8 +266,9 @@ function renderReroll(moveNode: HTMLElement, roll: KdlNode, lastRoll: KdlNode) {
   const def: DataList = {};
   if (roll.properties.action != null) {
     const newAction = roll.properties.action as number;
+    const lastAction = lastRoll.properties.action as number;
     lastRoll.properties.action = newAction;
-    def["Old Action Die"] = { cls: "action-die from", value: action ?? 0 };
+    def["Old Action Die"] = { cls: "action-die from", value: lastAction ?? 0 };
     def["New Action Die"] = { cls: "action-die to", value: newAction };
   }
   if (roll.properties.vs1 != null) {
