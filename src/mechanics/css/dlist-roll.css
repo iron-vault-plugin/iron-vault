@@ -7,8 +7,6 @@
     content: "(progress) ";
   }
   & dd {
-    &.action-die {
-    }
     &.stat:before {
       content: " + "
     }
@@ -26,27 +24,9 @@
     &.adds:before {
       content: " + ";
     }
-    &.score {
-      &:before {
-        content: " = ";
-      }
-      &:after {
-        content: " vs ";
-      }
-    }
     &.challenge-die {
       &:not(:has(~ .challenge-die)) {
         padding: 0;
-      }
-      &:has(~ .challenge-die) {
-        &:after {
-          content: " | ";
-        }
-      }
-    }
-    &.progress-score {
-      &:after {
-        content: " vs ";
       }
     }
     &.outcome {

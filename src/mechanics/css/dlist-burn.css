@@ -4,24 +4,8 @@
     margin-right: 0.5em;
   }
   & dd {
-    &:before, &:after {
-      color: var(--text-faint);
-    }
     &.from:after {
       content: " → ";
-    }
-    &.score {
-      &:before {
-        content: " = ";
-      }
-      &:after {
-        content: " vs ";
-      }
-    }
-    &.challenge-die:has(~ .challenge-die) {
-      &:after {
-        content: " | ";
-      }
     }
     &.outcome {
       display: none;

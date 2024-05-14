@@ -1,4 +1,11 @@
 .forged-move dl {
+  &:after {
+    font-weight: var(--font-semibold);
+    padding-left: 0.5em;
+  }
+  &.match:after {
+    content: "✅";
+  }
   & dt {
     display: none;
   }
@@ -9,18 +16,25 @@
     font-weight: var(--font-semibold);
     &.challenge-die {
       color: var(--text-accent);
+      &:has(~ .challenge-die):before {
+        content: " vs ";
+      }
+      &:not(:has(~ .challenge-die)):before {
+        content: " | ";
+      }
+    }
+    &.score, &.progress-score {
+      &:before {
+        content: " = ";
+      }
+    }
+    &.from:after {
+      content: " → ";
     }
     &:before,
     &:after {
       color: var(--text-faint);
     }
-  }
-  &:after {
-    font-weight: var(--font-semibold);
-    padding-left: 0.5em;
-  }
-  &.match:after {
-    content: "✅";
   }
   &.strong-hit {
     & dd.score,

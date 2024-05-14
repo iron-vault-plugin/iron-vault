@@ -7,10 +7,7 @@
     &.action-die {
       &:has(~ .action-die) {
         &:before {
-          content: "(action: ";
-        }
-        &:after {
-          content: " → ";
+          content: "(act: ";
         }
       }
       &:not(:has(~ .action-die)):after {
@@ -18,20 +15,17 @@
       }
     }
     &.challenge-die {
-      &:nth-child(2n + 1 of .challenge-die) {
+      &.from:before {
+        content: "(vs: ";
+      }
+      &.to {
         &:before {
-          content: "(challenge: ";
+          content: none;
         }
         &:after {
-          content: " → ";
+          content: ") ";
         }
       }
-      &:nth-child(2n + 2 of .challenge-die):after {
-        content: ") ";
-      }
-    }
-    &.score:before {
-      content: "= ";
     }
     &.outcome {
       display: none;

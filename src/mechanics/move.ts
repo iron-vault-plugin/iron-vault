@@ -170,15 +170,17 @@ function renderRoll(moveNode: HTMLElement, roll: KdlNode) {
   const def: DataList = {
     "Action Die": { cls: "action-die", value: action },
     Stat: { cls: "stat", value: stat },
+  };
+  if (statName) {
+    def["Stat Name"] = { cls: "stat-name", value: statName };
+  }
+  Object.assign(def, {
     Adds: { cls: "adds", value: adds },
     Score: { cls: "score", value: score },
     "Challenge Die 1": { cls: "challenge-die", value: challenge1 },
     "Challenge Die 2": { cls: "challenge-die", value: challenge2 },
     Outcome: { cls: "outcome", value: outcome, dataProp: false },
-  }
-  if (statName) {
-    def["Stat Name"] = { cls: "stat-name", value: statName };
-  }
+  });
   renderDlist(moveNode, "roll " + outcomeClass, def);
 }
 
@@ -229,22 +231,24 @@ function renderReroll(moveNode: HTMLElement, roll: KdlNode, lastRoll: KdlNode) {
   if (roll.properties.action != null) {
     const newAction = roll.properties.action as number;
     lastRoll.properties.action = newAction;
-    def["Old Action Die"] = { cls: "action-die", value: action ?? 0 };
-    def["New Action Die"] = { cls: "action-die", value: newAction };
+    def["Old Action Die"] = { cls: "action-die from", value: action ?? 0 };
+    def["New Action Die"] = { cls: "action-die to", value: newAction };
   }
   if (roll.properties.vs1 != null) {
     const newVs1 = roll.properties.vs1 as number;
     lastRoll.properties.vs1 = newVs1;
-    def["Old Challenge Die 1"] = { cls: "challenge-die", value: lastVs1 };
-    def["New Challenge Die 1"] = { cls: "challenge-die", value: newVs1 };
+    def["Old Challenge Die 1"] = { cls: "challenge-die from", value: lastVs1 };
+    def["New Challenge Die 1"] = { cls: "challenge-die to", value: newVs1 };
   }
   if (roll.properties.vs2 != null) {
     const newVs2 = roll.properties.vs2 as number;
     lastRoll.properties.vs2 = newVs2;
-    def["Old Challenge Die 2"] = { cls: "challenge-die", value: lastVs2 };
-    def["New Challenge Die 2"] = { cls: "challenge-die", value: newVs2 };
+    def["Old Challenge Die 2"] = { cls: "challenge-die from", value: lastVs2 };
+    def["New Challenge Die 2"] = { cls: "challenge-die to", value: newVs2 };
   }
   def["New Score"] = { cls: "score", value: newScore };
+  def["Challenge Die 1"] = { cls: "challenge-die", value: newVs1 };
+  def["Challenge Die 2"] = { cls: "challenge-die", value: newVs2 };
   def["Outcome"] = { cls: "outcome", value: outcome, dataProp: false };
   setMoveHit(moveNode, outcomeClass, match);
   renderDlist(moveNode, "reroll " + outcomeClass, def);
