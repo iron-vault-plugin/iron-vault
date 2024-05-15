@@ -6,4 +6,5 @@ module.exports = {
   },
   testEnvironment: "jsdom",
   rootDir: "src",
+  modulePaths: ["<rootDir>"],
 };

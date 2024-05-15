@@ -1,4 +1,4 @@
-import { Either, Left, Right } from "../utils/either";
+import { Either, Left, Right } from "utils/either";
 import { MoveDescription } from "./desc";
 import { generateMoveLine, parseMoveLine } from "./move-line-parser";
 
