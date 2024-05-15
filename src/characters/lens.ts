@@ -23,7 +23,12 @@ import {
   reader,
   updating,
 } from "../utils/lens";
-import { AssetError, assetWithDefnReader } from "./assets";
+import {
+  AssetError,
+  assetMeters,
+  assetWithDefnReader,
+  defaultMarkedAbilitiesForAsset,
+} from "./assets";
 
 const ValidationTag: unique symbol = Symbol("validated ruleset");
 
@@ -353,7 +358,23 @@ export function meterLenses(
       },
     ]),
   );
-  const assetMeters: typeof baseMeters = {};
+  const allAssetMeters = assetWithDefnReader(charLens, dataIndex)
+    .get(character)
+    .flatMap((assetResult) => {
+      if (assetResult.isLeft()) {
+        // TODO: should we handle this error differently? pass it up?
+        console.warn("Missing asset: %o", assetResult.error);
+        return [];
+      } else {
+        const { asset, defn } = assetResult.value;
+        return assetMeters(
+          charLens,
+          defn,
+          asset.marked_abilities ?? defaultMarkedAbilitiesForAsset(defn),
+        );
+      }
+    })
+    .map((val) => [val.key, val]);
   return {
     ...baseMeters,
     momentum: {
@@ -366,7 +387,7 @@ export function meterLenses(
         rollable: true,
       }),
     },
-    ...assetMeters,
+    ...Object.fromEntries(allAssetMeters),
   };
 }
 

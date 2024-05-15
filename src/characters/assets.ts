@@ -183,6 +183,8 @@ export function addAsset(charLens: CharacterLens): CharWriter<Asset> {
   });
 }
 
+export class MissingAssetError extends Error {}
+
 export function assetMeters(
   charLens: CharacterLens,
   asset: Asset,
@@ -199,4 +201,45 @@ export function assetMeters(
     (pathed): pathed is Pathed<ConditionMeterField> =>
       pathed.value.field_type == "condition_meter",
   );
+
+  return meters.map((pathed) => {
+    const { value: control } = pathed;
+    const key = getPathLabel(pathed);
+
+    return {
+      key,
+      definition: {
+        kind: "condition_meter",
+        label: control.label,
+        min: control.min,
+        max: control.max,
+        rollable: control.rollable,
+      },
+      lens: {
+        get(source) {
+          const assets = charLens.assets.get(source);
+          const thisAsset = assets.find(({ id }) => id === asset.id);
+          if (!thisAsset) {
+            // should probably use a lens type that has concept of errors
+            throw new MissingAssetError(`expected asset with id ${asset.id}`);
+          }
+          // TODO: should this raise an error if not a number?
+          return typeof thisAsset.controls[key] === "number"
+            ? (thisAsset.controls[key] as number)
+            : control.value;
+        },
+        update(source, newval) {
+          const assets = charLens.assets.get(source);
+          const thisAsset = assets.find(({ id }) => id === asset.id);
+          if (!thisAsset) {
+            // should probably use a lens type that has concept of errors
+            throw new MissingAssetError(`expected asset with id ${asset.id}`);
+          }
+          if (thisAsset.controls[key] === newval) return source;
+          thisAsset.controls[key] = newval;
+          return charLens.assets.update(source, assets);
+        },
+      },
+    };
+  });
 }
