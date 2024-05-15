@@ -4,24 +4,22 @@ import {
   MoveProgressRoll,
   TriggerActionRollCondition,
 } from "@datasworn/core";
-import { DataIndex } from "datastore/data-index";
+import ForgedPlugin from "index";
 import {
   type App,
   type Editor,
   type FuzzyMatch,
   type MarkdownView,
 } from "obsidian";
-import {
-  CharacterContext,
-  type CharacterTracker,
-} from "../../character-tracker";
+import { MeterCommon } from "rules/ruleset";
+import { InfoModal } from "utils/ui/info";
+import { CharacterContext } from "../../character-tracker";
 import {
   momentumOps,
   movesReader,
   rollablesReader,
 } from "../../characters/lens";
 import { type Datastore } from "../../datastore";
-import { ForgedPluginSettings } from "../../settings/ui";
 import { ProgressContext } from "../../tracks/context";
 import { selectProgressTrack } from "../../tracks/select";
 import { ProgressTrackWriterContext } from "../../tracks/writer";
@@ -114,59 +112,139 @@ export function validAdds(baseStat: number): number[] {
   return adds;
 }
 
+interface ActionContext {
+  readonly moves: Move[];
+  readonly rollables: {
+    key: string;
+    value?: number | undefined;
+    definition: MeterCommon;
+  }[];
+  readonly momentum?: number;
+}
+
+class NoCharacterActionConext implements ActionContext {
+  constructor(public readonly datastore: Datastore) {}
+
+  get moves(): Move[] {
+    return this.datastore.moves;
+  }
+
+  get rollables(): {
+    key: string;
+    value?: number | undefined;
+    definition: MeterCommon;
+  }[] {
+    return Object.entries(this.datastore.ruleset.stats).map(([key, stat]) => ({
+      key,
+      definition: stat,
+    }));
+  }
+
+  get momentum() {
+    return undefined;
+  }
+}
+
+class CharacterActionContext implements ActionContext {
+  constructor(
+    public readonly datastore: Datastore,
+    public readonly characterPath: string,
+    public readonly characterContext: CharacterContext,
+  ) {}
+
+  get moves() {
+    const characterMoves = movesReader(
+      this.characterContext.lens,
+      this.datastore.index,
+    )
+      .get(this.characterContext.character)
+      .expect("unexpected failure finding assets for moves");
+
+    return this.datastore.moves.concat(characterMoves);
+  }
+
+  get rollables(): { key: string; value?: number; definition: MeterCommon }[] {
+    return rollablesReader(
+      this.characterContext.lens,
+      this.datastore.index,
+    ).get(this.characterContext.character);
+  }
+
+  get momentum() {
+    return this.characterContext.lens.momentum.get(
+      this.characterContext.character,
+    );
+  }
+}
+
+async function determineCharacterActionContext(
+  plugin: ForgedPlugin,
+): Promise<ActionContext | undefined> {
+  if (plugin.settings.useCharacterSystem) {
+    try {
+      const [characterPath, characterContext] =
+        plugin.characters.activeCharacter();
+      return new CharacterActionContext(
+        plugin.datastore,
+        characterPath,
+        characterContext,
+      );
+    } catch (e) {
+      // TODO: probably want to show character parse errors in full glory
+      await InfoModal.show(
+        plugin.app,
+        `An error occurred while finding your active character.\n\n${e}`,
+      );
+      return undefined;
+    }
+  } else {
+    return new NoCharacterActionConext(plugin.datastore);
+  }
+}
+
 export async function runMoveCommand(
-  app: App,
-  datastore: Datastore,
-  progressContext: ProgressContext,
-  characters: CharacterTracker,
+  plugin: ForgedPlugin,
   editor: Editor,
   view: MarkdownView,
-  settings: ForgedPluginSettings,
 ): Promise<void> {
   if (view.file?.path == null) {
     console.error("No file for view. Why?");
     return;
   }
 
-  const [characterPath, context] = characters.activeCharacter();
+  const context = await determineCharacterActionContext(plugin);
+  if (!context) {
+    // No available/selected character
+    return;
+  }
 
-  const { character, lens } = context;
-
-  const characterMoves = movesReader(lens, datastore.index)
-    .get(character)
-    .expect("unexpected failure finding assets for moves");
-
-  const allMoves = datastore.moves
-    .concat(characterMoves)
-    .filter(
-      (move) =>
-        move.roll_type == "action_roll" || move.roll_type == "progress_roll",
-    );
-
-  const moveRenderer: (move: MoveDescription) => void = getMoveRenderer(
-    settings.moveBlockFormat,
-    editor,
+  const allMoves = context.moves.filter(
+    (move) =>
+      move.roll_type == "action_roll" || move.roll_type == "progress_roll",
   );
 
   const move = await promptForMove(
-    app,
+    plugin.app,
     allMoves.sort((a, b) => a.name.localeCompare(b.name)),
+  );
+
+  const moveRenderer: (move: MoveDescription) => void = getMoveRenderer(
+    plugin.settings.moveBlockFormat,
+    editor,
   );
 
   let moveDescription: MoveDescription;
   switch (move.roll_type) {
     case "action_roll": {
-      moveDescription = await handleActionRoll(
-        context,
-        app,
-        move,
-        characterPath,
-        datastore.index,
-      );
+      moveDescription = await handleActionRoll(context, plugin.app, move);
       break;
     }
     case "progress_roll": {
-      moveDescription = await handleProgressRoll(app, progressContext, move);
+      moveDescription = await handleProgressRoll(
+        plugin.app,
+        new ProgressContext(plugin),
+        move,
+      );
       break;
     }
     case "no_roll":
@@ -212,15 +290,9 @@ const ORDINALS = [
   "tenth",
 ];
 
-async function handleActionRoll(
-  charContext: CharacterContext,
-  app: App,
+function suggestedRollablesForMove(
   move: MoveActionRoll,
-  characterPath: string,
-  dataIndex: DataIndex,
-) {
-  const { lens, character } = charContext;
-
+): Record<string, Array<Omit<TriggerActionRollCondition, "roll_options">>> {
   const suggestedRollables: Record<
     string,
     Array<Omit<TriggerActionRollCondition, "roll_options">>
@@ -251,11 +323,21 @@ async function handleActionRoll(
       suggestedRollables[rollableToAdd].push(conditionSpec);
     }
   }
+  return suggestedRollables;
+}
 
+async function handleActionRoll(
+  actionContext: ActionContext,
+  app: App,
+  move: MoveActionRoll,
+) {
+  const suggestedRollables = suggestedRollablesForMove(move);
+  const availableRollables = actionContext.rollables;
+
+  // TODO: add support for entering custom rollable name
   const stat = await CustomSuggestModal.select(
     app,
-    rollablesReader(lens, dataIndex)
-      .get(character)
+    availableRollables
       .map((meter) => {
         return { ...meter, condition: suggestedRollables[meter.key] ?? [] };
       })
@@ -266,12 +348,12 @@ async function handleActionRoll(
           return 1;
         } else {
           return (
-            b.value - a.value ||
+            (b.value ?? 0) - (a.value ?? 0) ||
             a.definition.label.localeCompare(b.definition.label)
           );
         }
       }),
-    (m) => `${m.definition.label}: ${m.value ?? "missing (defaults to 0)"}`,
+    (m) => `${m.definition.label}: ${m.value ?? "unknown"}`,
     ({ item }, el) => {
       if (item.condition.length > 0) {
         el.createEl("small", {
@@ -282,6 +364,17 @@ async function handleActionRoll(
     },
     move.trigger.text,
   );
+
+  // This stat has an unknown value, so we need to prompt the user for a value.
+  if (!stat.value) {
+    stat.value = await CustomSuggestModal.select(
+      app,
+      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      (n) => n.toString(10),
+      undefined,
+      `What is the value of ${stat.definition.label}?`,
+    );
+  }
 
   const adds = [];
   // TODO: do we need this arbitrary cutoff on adds? just wanted to avoid a kinda infinite loop
@@ -304,19 +397,23 @@ async function handleActionRoll(
 
   let description = processActionMove(move, stat.key, stat.value ?? 0, adds);
   const wrapper = new ActionMoveWrapper(description);
-  description = await checkForMomentumBurn(
-    app,
-    move as MoveActionRoll,
-    wrapper,
-    charContext,
-  );
-  // TODO: maybe this should be pulled up into the other function (even though it only
-  // applies for action moves.
-  if (description.burn) {
-    await charContext.updater(
-      vaultProcess(app, characterPath),
-      (character, { lens }) => momentumOps(lens).reset(character),
+  if (actionContext instanceof CharacterActionContext) {
+    const { characterContext } = actionContext;
+    description = await checkForMomentumBurn(
+      app,
+      move as MoveActionRoll,
+      wrapper,
+      characterContext,
     );
+    // TODO: maybe this should be pulled up into the other function (even though it only
+    // applies for action moves.
+    if (description.burn) {
+      await characterContext.updater(
+        vaultProcess(app, actionContext.characterPath),
+        (character, { lens }) => momentumOps(lens).reset(character),
+      );
+    }
   }
+
   return description;
 }
