@@ -70,7 +70,7 @@ export function updatePreviousMoveOrCreateBlock(
 
       // If the last node is a move, update it. Otherwise, create a new top-level node.
       const lastIndex = output.length - 1;
-      if (lastIndex > 0 && output[lastIndex].name == "move") {
+      if (lastIndex >= 0 && output[lastIndex].name == "move") {
         output[lastIndex] = update(output[lastIndex]);
       } else {
         output.push(createTopLevel());
