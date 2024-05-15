@@ -13,20 +13,25 @@ import {
   type FuzzyMatch,
   type MarkdownView,
 } from "obsidian";
-import { CharacterContext, type CharacterTracker } from "../character-tracker";
-import { momentumOps, movesReader, rollablesReader } from "../characters/lens";
-import { type Datastore } from "../datastore";
-import { createOrAppendMechanics } from "../mechanics/editor";
-import { ForgedPluginSettings, MoveBlockFormat } from "../settings/ui";
-import { ProgressContext } from "../tracks/context";
-import { selectProgressTrack } from "../tracks/select";
-import { ProgressTrackWriterContext } from "../tracks/writer";
-import { randomInt } from "../utils/dice";
-import { node } from "../utils/kdl";
-import { vaultProcess } from "../utils/obsidian";
-import { CustomSuggestModal } from "../utils/suggest";
-import { checkForMomentumBurn } from "./action-modal";
-import { AddsModal } from "./adds-modal";
+import {
+  CharacterContext,
+  type CharacterTracker,
+} from "../../character-tracker";
+import {
+  momentumOps,
+  movesReader,
+  rollablesReader,
+} from "../../characters/lens";
+import { type Datastore } from "../../datastore";
+import { createOrAppendMechanics } from "../../mechanics/editor";
+import { ForgedPluginSettings, MoveBlockFormat } from "../../settings/ui";
+import { ProgressContext } from "../../tracks/context";
+import { selectProgressTrack } from "../../tracks/select";
+import { ProgressTrackWriterContext } from "../../tracks/writer";
+import { randomInt } from "../../utils/dice";
+import { node } from "../../utils/kdl";
+import { vaultProcess } from "../../utils/obsidian";
+import { CustomSuggestModal } from "../../utils/suggest";
 import {
   ActionMoveAdd,
   moveIsAction,
@@ -34,9 +39,11 @@ import {
   type ActionMoveDescription,
   type MoveDescription,
   type ProgressMoveDescription,
-} from "./desc";
-import { generateMoveLine } from "./move-line-parser";
-import { ActionMoveWrapper } from "./wrapper";
+} from "../desc";
+import { generateMoveLine } from "../move-line-parser";
+import { ActionMoveWrapper } from "../wrapper";
+import { checkForMomentumBurn } from "./action-modal";
+import { AddsModal } from "./adds-modal";
 
 enum MoveKind {
   Progress = "Progress",
@@ -307,7 +314,6 @@ const ORDINALS = [
   "tenth",
 ];
 
-// TODO: refactor this so it returns the description and handle the other parts separately?
 async function handleActionRoll(
   charContext: CharacterContext,
   app: App,

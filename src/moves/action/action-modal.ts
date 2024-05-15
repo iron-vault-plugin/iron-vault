@@ -1,9 +1,9 @@
 import { MoveActionRoll } from "@datasworn/core";
 import { App, Modal, Setting } from "obsidian";
-import { CharacterContext } from "../character-tracker";
-import { MomentumTracker, momentumTrackerReader } from "../characters/lens";
-import { ActionMoveDescription } from "./desc";
-import { ActionMoveWrapper, formatRollResult } from "./wrapper";
+import { CharacterContext } from "../../character-tracker";
+import { MomentumTracker, momentumTrackerReader } from "../../characters/lens";
+import { ActionMoveDescription } from "../desc";
+import { ActionMoveWrapper, formatRollResult } from "../wrapper";
 
 export async function checkForMomentumBurn(
   app: App,
