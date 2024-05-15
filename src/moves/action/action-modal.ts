@@ -19,8 +19,10 @@ export async function checkForMomentumBurn(
       new ActionModal(app, move, roll, momentumTracker, resolve, reject).open();
     });
     if (shouldBurn) {
-      // TODO: if this is true, maybe I should use momentumTracker.reset or something like that?
-      // or do the reset and then look at the new values?
+      // Instead of generating this value here, an alternative would be for this function
+      // to return its _intent_ to burn momentum. And then it could use the actual
+      // character lens command to reset it and then record the results. That _should_
+      // yield the same result, but would eliminate one possible source of divergence.
       return Object.assign({}, roll.move, {
         burn: {
           orig: momentumTracker.momentum,
