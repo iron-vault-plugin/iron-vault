@@ -6,12 +6,15 @@ import {
   AssetConditionMeterControlField,
   AssetControlField,
   AssetOptionField,
+  ConditionMeterField,
 } from "@datasworn/core";
 import { produce } from "immer";
+import { ConditionMeterDefinition } from "rules/ruleset";
 import { DataIndex } from "../datastore/data-index";
 import { Either, Left, Right } from "../utils/either";
 import { reader, writer } from "../utils/lens";
 import {
+  CharLens,
   CharReader,
   CharWriter,
   CharacterLens,
@@ -177,5 +180,66 @@ export function addAsset(charLens: CharacterLens): CharWriter<Asset> {
       ...currentAssets,
       { id: newAsset.id, marked_abilities, controls, options },
     ]);
+  });
+}
+
+export class MissingAssetError extends Error {}
+
+export function assetMeters(
+  charLens: CharacterLens,
+  asset: Asset,
+  markedAbilities: number[],
+): {
+  key: string;
+  definition: ConditionMeterDefinition;
+  lens: CharLens<number>;
+}[] {
+  const meters = traverseAssetControls(
+    asset,
+    markedAbilities ?? defaultMarkedAbilitiesForAsset(asset),
+  ).filter(
+    (pathed): pathed is Pathed<ConditionMeterField> =>
+      pathed.value.field_type == "condition_meter",
+  );
+
+  return meters.map((pathed) => {
+    const { value: control } = pathed;
+    const key = getPathLabel(pathed);
+
+    return {
+      key,
+      definition: {
+        kind: "condition_meter",
+        label: control.label,
+        min: control.min,
+        max: control.max,
+        rollable: control.rollable,
+      },
+      lens: {
+        get(source) {
+          const assets = charLens.assets.get(source);
+          const thisAsset = assets.find(({ id }) => id === asset.id);
+          if (!thisAsset) {
+            // should probably use a lens type that has concept of errors
+            throw new MissingAssetError(`expected asset with id ${asset.id}`);
+          }
+          // TODO: should this raise an error if not a number?
+          return typeof thisAsset.controls[key] === "number"
+            ? (thisAsset.controls[key] as number)
+            : control.value;
+        },
+        update(source, newval) {
+          const assets = charLens.assets.get(source);
+          const thisAsset = assets.find(({ id }) => id === asset.id);
+          if (!thisAsset) {
+            // should probably use a lens type that has concept of errors
+            throw new MissingAssetError(`expected asset with id ${asset.id}`);
+          }
+          if (thisAsset.controls[key] === newval) return source;
+          thisAsset.controls[key] = newval;
+          return charLens.assets.update(source, assets);
+        },
+      },
+    };
   });
 }

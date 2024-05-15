@@ -23,7 +23,12 @@ import {
   reader,
   updating,
 } from "../utils/lens";
-import { AssetError, assetWithDefnReader } from "./assets";
+import {
+  AssetError,
+  assetMeters,
+  assetWithDefnReader,
+  defaultMarkedAbilitiesForAsset,
+} from "./assets";
 
 const ValidationTag: unique symbol = Symbol("validated ruleset");
 
@@ -306,7 +311,7 @@ export function movesReader(
   return reader((source) => {
     return collectEither(assetReader.get(source)).map((assets) =>
       assets.flatMap(({ asset, defn }) => {
-        const moveList = [];
+        const moveList: Move[] = [];
         const marked_abilities = asset.marked_abilities ?? [];
         for (const [idx, ability] of defn.abilities.entries()) {
           if (marked_abilities.includes(idx + 1)) {
@@ -337,21 +342,41 @@ export function conditionMetersReader(
 
 export function meterLenses(
   charLens: CharacterLens,
+  character: ValidatedCharacter,
+  dataIndex: DataIndex,
 ): Record<
   string,
   { key: string; definition: ConditionMeterDefinition; lens: CharLens<number> }
 > {
-  return {
-    ...Object.fromEntries(
-      Object.entries(charLens.condition_meters).map(([key, lens]) => [
+  const baseMeters = Object.fromEntries(
+    Object.entries(charLens.condition_meters).map(([key, lens]) => [
+      key,
+      {
         key,
-        {
-          key,
-          lens,
-          definition: charLens.ruleset.condition_meters[key],
-        },
-      ]),
-    ),
+        lens,
+        definition: charLens.ruleset.condition_meters[key],
+      },
+    ]),
+  );
+  const allAssetMeters = assetWithDefnReader(charLens, dataIndex)
+    .get(character)
+    .flatMap((assetResult) => {
+      if (assetResult.isLeft()) {
+        // TODO: should we handle this error differently? pass it up?
+        console.warn("Missing asset: %o", assetResult.error);
+        return [];
+      } else {
+        const { asset, defn } = assetResult.value;
+        return assetMeters(
+          charLens,
+          defn,
+          asset.marked_abilities ?? defaultMarkedAbilitiesForAsset(defn),
+        );
+      }
+    })
+    .map((val) => [val.key, val]);
+  return {
+    ...baseMeters,
     momentum: {
       key: "momentum",
       lens: charLens.momentum,
@@ -362,6 +387,7 @@ export function meterLenses(
         rollable: true,
       }),
     },
+    ...Object.fromEntries(allAssetMeters),
   };
 }
 

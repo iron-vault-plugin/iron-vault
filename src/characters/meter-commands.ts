@@ -75,7 +75,7 @@ export const modifyMeterCommand = async (
   const { character, lens } = context;
   const measure = await CustomSuggestModal.select(
     plugin.app,
-    Object.values(meterLenses(lens))
+    Object.values(meterLenses(lens, character, plugin.datastore.index))
       .map(({ key, definition, lens }) => ({
         key,
         definition,
