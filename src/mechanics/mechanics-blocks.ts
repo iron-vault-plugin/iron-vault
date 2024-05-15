@@ -13,12 +13,24 @@ import ForgedPlugin from "../index";
 export default function registerMechanicsBlock(plugin: ForgedPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
     "mechanics",
-    async (source, el, ctx) => {
+    async (source, el: MechanicsContainerEl, ctx) => {
       // We can't render blocks until datastore is ready.
       await plugin.datastore.waitForReady;
-      await new MechanicsRenderer(el, source, plugin, ctx.sourcePath).render();
+      if (!el.mechanicsRenderer) {
+        el.mechanicsRenderer = new MechanicsRenderer(
+          el,
+          source,
+          plugin,
+          ctx.sourcePath,
+        );
+      }
+      await el.mechanicsRenderer.render();
     },
   );
+}
+
+interface MechanicsContainerEl extends HTMLElement {
+  mechanicsRenderer?: MechanicsRenderer;
 }
 
 export class MechanicsRenderer {
@@ -30,6 +42,7 @@ export class MechanicsRenderer {
   contentEl: HTMLElement;
   source: string;
   mechNode?: HTMLElement;
+  hideMechanics = false;
 
   constructor(
     contentEl: HTMLElement,
@@ -56,7 +69,27 @@ export class MechanicsRenderer {
     this.mechNode = this.contentEl.createEl("article", {
       cls: "forged-mechanics",
     });
+    this.mechNode.classList.toggle("collapsed", this.hideMechanics);
     await this.renderChildren(this.mechNode, doc);
+    await this.renderToggleButton();
+  }
+
+  async renderToggleButton() {
+    if (!this.mechNode) {
+      return;
+    }
+    const btn = new ButtonComponent(this.mechNode);
+    btn
+      .setButtonText("Hide Mechanics")
+      .setClass("toggle")
+      .setTooltip("Toggle displaying mechanics")
+      .onClick(() => {
+        this.hideMechanics = !this.hideMechanics;
+        this.mechNode?.classList.toggle("collapsed", this.hideMechanics);
+        btn.setButtonText(
+          this.hideMechanics ? "Show Mechanics" : "Hide Mechanics",
+        );
+      });
   }
 
   async renderChildren(

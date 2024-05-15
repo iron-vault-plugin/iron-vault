@@ -218,6 +218,16 @@ export default class ForgedPlugin extends Plugin {
         ),
     });
 
+    this.addCommand({
+      id: "toggle-mechanics",
+      name: "Toggle Displaying Mechanics",
+      editorCallback: async (editor: Editor) => {
+        editor.containerEl.ownerDocument.body.classList.toggle(
+          "collapse-forged-mechanics",
+        );
+      },
+    });
+
     // This adds a settings tab so the user can configure various aspects of the plugin
     this.addSettingTab(new ForgedSettingTab(this.app, this));
 
