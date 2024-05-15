@@ -1,12 +1,4 @@
-@import url("summary.css");
-@import url("dlist-shared.css");
-@import url("dlist-roll.css");
-@import url("dlist-reroll.css");
-@import url("dlist-meter.css");
-@import url("dlist-burn.css");
-@import url("paragraphs.css");
-
-.forged-move {
+.forged-mechanics details.move {
   cursor: default;
   margin: 0.5em auto;
   max-width: 460px;
@@ -15,10 +7,6 @@
   box-shadow:
     0 14px 28px rgba(0, 0, 0, 0.25),
     0 10px 10px rgba(0, 0, 0, 0.22);
-
-  --blockquote-background-color: var(--background-primary);
-  --blockquote-color: var(--text-normal);
-
   & > :not(:nth-child(1)) {
     margin: 1em;
   }

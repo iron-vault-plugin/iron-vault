@@ -1,11 +1,8 @@
-.forged-move dl.burn {
+.forged-mechanics dl.burn {
   &:before {
     content: "🔥";
   }
   & dd {
-    &.from:after {
-      content: " → ";
-    }
     &.outcome {
       display: none;
     }

@@ -1,4 +1,4 @@
-.forged-move {
+.forged-mechanics .move {
   &[open] summary:has(+ *) {
     border-bottom: 1px dashed var(--color-base-50);
   }

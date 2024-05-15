@@ -1,4 +1,4 @@
-.forged-move p {
+.forged-mechanics p {
   &:before {
     margin-right: 0.5em;
   }
@@ -20,7 +20,12 @@
     }
   }
 
-  &.add:before {
-    content: "➕";
+  &.add {
+    & > :first-child {
+      display: inline;
+    }
+    &:before {
+      content: "➕";
+    }
   }
 }

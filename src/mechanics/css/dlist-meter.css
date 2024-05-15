@@ -1,4 +1,4 @@
-.forged-move dl.meter {
+.forged-mechanics dl.meter {
   &:before {
     content: "📊";
   }

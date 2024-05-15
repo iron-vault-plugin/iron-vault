@@ -1,4 +1,4 @@
-.forged-move dl.reroll {
+.forged-mechanics dl.reroll {
   &:before {
     content: "🔁";
   }

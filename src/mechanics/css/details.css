@@ -1,7 +1,14 @@
-.forged-details {
+.forged-mechanics .details {
   margin: 0.5em auto;
   max-width: 460px;
   color: var(--text-muted);
   --blockquote-background-color: var(--background-primary);
   --blockquote-color: var(--text-muted);
+  & > :first-child {
+    margin-left: 0.5em;
+    padding-left: 1.2em;
+  }
+  & *:first-child:not(blockquote) {
+    display: inline;
+  }
 }
