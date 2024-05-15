@@ -1,6 +1,4 @@
-.forged-mechanics .details {
-  margin: 0.5em auto;
-  max-width: 460px;
+.forged-mechanics .detail {
   color: var(--text-muted);
   --blockquote-background-color: var(--background-primary);
   --blockquote-color: var(--text-muted);
