@@ -5,9 +5,7 @@ import {
   TriggerActionRollCondition,
 } from "@datasworn/core";
 import { DataIndex } from "datastore/data-index";
-import { Document, Node } from "kdljs";
 import {
-  stringifyYaml,
   type App,
   type Editor,
   type FuzzyMatch,
@@ -23,27 +21,23 @@ import {
   rollablesReader,
 } from "../../characters/lens";
 import { type Datastore } from "../../datastore";
-import { createOrAppendMechanics } from "../../mechanics/editor";
-import { ForgedPluginSettings, MoveBlockFormat } from "../../settings/ui";
+import { ForgedPluginSettings } from "../../settings/ui";
 import { ProgressContext } from "../../tracks/context";
 import { selectProgressTrack } from "../../tracks/select";
 import { ProgressTrackWriterContext } from "../../tracks/writer";
 import { randomInt } from "../../utils/dice";
-import { node } from "../../utils/kdl";
 import { vaultProcess } from "../../utils/obsidian";
 import { CustomSuggestModal } from "../../utils/suggest";
 import {
   ActionMoveAdd,
-  moveIsAction,
-  moveIsProgress,
   type ActionMoveDescription,
   type MoveDescription,
   type ProgressMoveDescription,
 } from "../desc";
-import { generateMoveLine } from "../move-line-parser";
 import { ActionMoveWrapper } from "../wrapper";
 import { checkForMomentumBurn } from "./action-modal";
 import { AddsModal } from "./adds-modal";
+import { getMoveRenderer } from "./format";
 
 enum MoveKind {
   Progress = "Progress",
@@ -112,108 +106,12 @@ function processProgressMove(
   };
 }
 
-function yamlMoveRenderer(editor: Editor): (move: MoveDescription) => void {
-  return (move) => {
-    editor.replaceSelection(`\`\`\`move\n${stringifyYaml(move)}\n\`\`\`\n\n`);
-  };
-}
-
-function moveLineMoveRenderer(editor: Editor): (move: MoveDescription) => void {
-  return (move) => {
-    editor.replaceSelection(
-      `\`\`\`move\n${generateMoveLine(move)}\n\`\`\`\n\n`,
-    );
-  };
-}
-
 export function validAdds(baseStat: number): number[] {
   const adds = [];
   for (let add = 0; 1 + baseStat + add <= 10; add++) {
     adds.push(add);
   }
   return adds;
-}
-
-function generateMechanicsNode(move: MoveDescription): Document {
-  const children: Node[] = [];
-  if (moveIsAction(move)) {
-    const adds = (move.adds ?? []).reduce((acc, { amount }) => acc + amount, 0);
-
-    // Add "add" nodes for each non-zero add
-    children.push(
-      ...(move.adds ?? [])
-        .filter(({ amount }) => amount != 0)
-        .map(({ amount, desc }) =>
-          node("add", { values: [amount, ...(desc ? [desc] : [])] }),
-        ),
-    );
-
-    // Main roll node
-    children.push(
-      node("roll", {
-        values: [move.stat],
-        properties: {
-          action: move.action,
-          stat: move.statVal,
-          adds,
-          vs1: move.challenge1,
-          vs2: move.challenge2,
-        },
-      }),
-    );
-
-    // Momentum burn
-    if (move.burn) {
-      children.push(
-        node("burn", {
-          properties: { from: move.burn.orig, to: move.burn.reset },
-        }),
-      );
-    }
-  } else if (moveIsProgress(move)) {
-    children.push(
-      node("progress-roll", {
-        properties: {
-          // TODO: what about progress track id?
-          // TODO: use a ticks prop instead... or at least use a helper to get this
-          score: Math.floor(move.progressTicks / 4),
-          vs1: move.challenge1,
-          vs2: move.challenge2,
-        },
-      }),
-    );
-  } else {
-    throw new Error("what kind of move is this?");
-  }
-
-  // TODO: move name vs move id
-  const doc: Document = [
-    node("move", {
-      values: [move.name],
-      children,
-    }),
-  ];
-  return doc;
-}
-
-function mechanicsMoveRenderer(
-  editor: Editor,
-): (move: MoveDescription) => void {
-  return (move) => createOrAppendMechanics(editor, generateMechanicsNode(move));
-}
-
-export function getMoveRenderer(
-  format: MoveBlockFormat,
-  editor: Editor,
-): (move: MoveDescription) => void {
-  switch (format) {
-    case MoveBlockFormat.MoveLine:
-      return moveLineMoveRenderer(editor);
-    case MoveBlockFormat.YAML:
-      return yamlMoveRenderer(editor);
-    case MoveBlockFormat.Mechanics:
-      return mechanicsMoveRenderer(editor);
-  }
 }
 
 export async function runMoveCommand(
