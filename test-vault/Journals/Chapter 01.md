@@ -12,6 +12,7 @@ move id="starforged/moves/adventure/face_danger" {
 	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
 }
 - "Oh nooo. This is gonna hurt. Time to [[Endure Harm]]. bla bla bla bla bla bla bla bla bla bla"
+- "Another one here"
 move "Endure Harm" {
     meter "health" from=3 to=2
 	meter "health" 3 2 // <meter> <from> <to>
@@ -91,3 +92,22 @@ challenge2: 5
 
 ```
 
+```mechanics
+- "line1"
+- "line2"
+- "multiline
+string"
+move "Do the Thing" {
+  - "# Header"
+  - "second thing"
+  - "
+### H3
+
+This is part of
+
+a single multiline string.
+"
+}
+- "trailing"
+- "here"
+```

@@ -37,11 +37,16 @@ export default async function renderMove(
     }
   }
   let lastRoll = undefined;
+  let details: string[] = [];
   for (const item of node.children) {
     const name = item.name.toLowerCase();
+    if (details.length && name !== "-") {
+      await renderDetail(moveNode, details, renderMarkdown);
+      details = [];
+    }
     switch (name) {
       case "-": {
-        await renderDetail(moveNode, item, renderMarkdown);
+        details.push(...(item.values[0] as string).split("\n"));
         break;
       }
       case "add": {
@@ -102,6 +107,9 @@ export default async function renderMove(
       }
     }
   }
+  if (details.length) {
+    await renderDetail(moveNode, details, renderMarkdown);
+  }
   async function renderMarkdown(el: HTMLElement, md: string) {
     await MarkdownRenderer.render(
       plugin.app,
@@ -117,16 +125,11 @@ export default async function renderMove(
 
 async function renderDetail(
   moveNode: HTMLElement,
-  item: KdlNode,
+  details: string[],
   renderMarkdown: (el: HTMLElement, md: string) => Promise<void>,
 ) {
-  const detailNode = moveNode.createEl("p", {
-    cls: "detail",
-  });
-  await renderMarkdown(
-    detailNode,
-    (item.values[0] as string).replaceAll(/^/g, "> "),
-  );
+  const aside = moveNode.createEl("p", { cls: "detail" });
+  renderMarkdown(aside, "> " + details.join("\n> "));
 }
 
 async function renderAdd(

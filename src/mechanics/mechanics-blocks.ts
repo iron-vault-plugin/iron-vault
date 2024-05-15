@@ -30,23 +30,35 @@ async function parseMechanicsBlocks(
     return;
   }
   const doc = res.output;
+  let details: string[] = [];
   for (const node of doc) {
+    const name = node.name.toLowerCase();
+    if (details.length && name !== "-") {
+      await renderDetails();
+      details = [];
+    }
     switch (node.name.toLowerCase()) {
       case "move": {
         await renderMove(plugin, el, node, sourcePath);
         break;
       }
       case "-": {
-        const aside = el.createEl("aside", { cls: "forged-details" });
-        await MarkdownRenderer.render(
-          plugin.app,
-          (node.values[0] as string).replaceAll(/^/g, "> "),
-          aside,
-          sourcePath,
-          new MarkdownRenderChild(aside),
-        );
+        details.push(...(node.values[0] as string).split("\n"));
         break;
       }
     }
+  }
+  if (details.length) {
+    await renderDetails();
+  }
+  async function renderDetails() {
+    const aside = el.createEl("aside", { cls: "forged-details" });
+    await MarkdownRenderer.render(
+      plugin.app,
+      "> " + details.join("\n> "),
+      aside,
+      sourcePath,
+      new MarkdownRenderChild(aside),
+    );
   }
 }
