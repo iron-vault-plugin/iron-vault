@@ -13,6 +13,7 @@ move id="starforged/moves/adventure/face_danger" {
 }
 - "Oh nooo. This is gonna hurt. Time to [[Endure Harm]]. bla bla bla bla bla bla bla bla bla bla"
 - "Another one here"
+roll "toplevel" 1 2 3 4 5
 move "Endure Harm" {
     meter "health" from=3 to=2
 	meter "health" 3 2 // <meter> <from> <to>
