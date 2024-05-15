@@ -1,7 +1,6 @@
 .forged-move dl.meter {
   &:before {
     content: "📊";
-    margin-right: 0.5em;
   }
   & dd {
     &.delta {

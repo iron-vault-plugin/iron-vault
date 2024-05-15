@@ -1,7 +1,6 @@
 .forged-move dl.roll {
   &:before {
     content: "🎲";
-    margin-right: 0.5em;
   }
   &.progress .progress-score:before {
     content: "(progress) ";

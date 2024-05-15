@@ -1,4 +1,7 @@
 .forged-move dl {
+  &:before {
+    margin-right: 0.5em;
+  }
   &:after {
     font-weight: var(--font-semibold);
     padding-left: 0.5em;

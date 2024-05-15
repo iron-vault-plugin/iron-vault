@@ -1,6 +1,4 @@
 .forged-move p {
-  font-weight: var(--font-semibold);
-
   &:before {
     margin-right: 0.5em;
   }
