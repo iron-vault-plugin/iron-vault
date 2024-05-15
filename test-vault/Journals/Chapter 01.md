@@ -11,7 +11,7 @@ move id="starforged/moves/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"
 	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
 }
-- "Oh nooo. This is gonna hurt. Time to [[Endure Harm]]."
+- "Oh nooo. This is gonna hurt. Time to [[Endure Harm]]. bla bla bla bla bla bla bla bla bla bla"
 move "Endure Harm" {
     meter "health" from=3 to=2
 	meter "health" 3 2 // <meter> <from> <to>
