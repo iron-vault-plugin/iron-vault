@@ -30,16 +30,32 @@ see the [caveats](#caveats) for known issues/missing functionality.
 - Progress Tracks and Clocks: Each clock / progress track is kept in a file, using frontmatter
   to record progress, etc.
 
-## Using the plugin
+## Installing the plugin
 
-I don't yet have good instructions on setting things up-- but you'll basically
-want a repository similar to the included `test-vault`.
+For now, the easiest way to install is via [BRAT](https://tfthacker.com/brat-plugins).
+You should be able to add this repo to BRAT, and it will install the latest release
+of this plugin.
 
-To build the code and copy it to your vault, put the vault path in a `.targetdir`
-file and then run: `pnpm install && pnpm copy:target`
+If you want to install from source,
+
+To build the code and copy it to your vault, put the vault's plugin path
+(`path/to/vault/.obsidian/plugins`) in a `.targetdir` file, and then run:
+
+```bash
+pnpm install && pnpm copy:target
+```
 
 You should then be able to enable the plugin in your vault (after
 restarting/reloading Obsidian)
+
+## Using the plugin
+
+The mechanics renderer works regardless of how your vault is set up. For now, to
+use the commands for mechanics (make a move, take/suffer on a meter, etc), you
+also need a character. See [the example character](./test-vault/characters/Ash%20Barlowe.md)
+for a template.
+
+Other functionality (such as custom oracles) also have examples in the [test vault](./test-vault/).
 
 ## Development
 
@@ -75,7 +91,7 @@ and turns it into this:
 
 #### `move`
 
-Declares a new move. A single ``mechanics`` block can contain multiple of
+Declares a new move. A single `mechanics` block can contain multiple of
 these nodes.
 
 ##### Arguments
