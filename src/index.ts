@@ -1,27 +1,24 @@
 import { addAssetToCharacter } from "characters/commands";
 import { generateEntityCommand } from "entity/command";
 import { IndexManager } from "indexer/manager";
+import { runMoveCommand } from "moves/action";
 import {
   Plugin,
   type Editor,
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
+import { DEFAULT_SETTINGS, ForgedPluginSettings } from "settings";
 import { ProgressContext } from "tracks/context";
 import { ForgedAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
 import * as meterCommands from "./characters/meter-commands";
 import { Datastore } from "./datastore";
 import registerMechanicsBlock from "./mechanics/mechanics-blocks";
-import { runMoveCommand } from "./moves/action";
 import { registerMoveBlock } from "./moves/block";
 import { runOracleCommand } from "./oracles/command";
 import { registerOracleBlock } from "./oracles/render";
-import {
-  DEFAULT_SETTINGS,
-  ForgedPluginSettings,
-  ForgedSettingTab,
-} from "./settings/ui";
+import { ForgedSettingTab } from "./settings/ui";
 import { ClockIndex, ClockIndexer } from "./tracks/clock-file";
 import {
   advanceClock,
@@ -95,38 +92,22 @@ export default class ForgedPlugin extends Plugin {
       id: "make-a-move",
       name: "Make a Move",
       icon: "zap",
-      editorCallback: async (
-        editor: Editor,
-        view: MarkdownView | MarkdownFileInfo,
-      ) => {
-        // TODO: what if it is just a fileinfo?
-        await runMoveCommand(
-          this.app,
-          this.datastore,
-          new ProgressContext(this),
-          this.characters,
-          editor,
-          view as MarkdownView,
-          this.settings,
-        );
-      },
+      editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
+        // TODO: what if view is just a fileinfo?
+        runMoveCommand(this, editor, view as MarkdownView),
     });
 
     this.addCommand({
       id: "ask-the-oracle",
       name: "Ask the Oracle",
       icon: "help-circle",
-      editorCallback: async (
-        editor: Editor,
-        view: MarkdownView | MarkdownFileInfo,
-      ) => {
-        await runOracleCommand(
+      editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
+        runOracleCommand(
           this.app,
           this.datastore,
           editor,
           view as MarkdownView,
-        );
-      },
+        ),
     });
 
     this.addCommand({

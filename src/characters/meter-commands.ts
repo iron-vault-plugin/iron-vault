@@ -1,7 +1,7 @@
 import { updatePreviousMoveOrCreateBlock } from "mechanics/editor";
 import { Editor } from "obsidian";
 import { ConditionMeterDefinition } from "rules/ruleset";
-import { MoveBlockFormat } from "settings/ui";
+import { MoveBlockFormat } from "settings";
 import { node } from "utils/kdl";
 import { updating } from "utils/lens";
 import { vaultProcess } from "utils/obsidian";

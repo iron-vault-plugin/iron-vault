@@ -46,7 +46,7 @@ export class PromptModal extends SuggestModal<FuzzyMatch<string>> {
   }
 
   getSuggestions(
-    query: string,
+    _query: string,
   ): Array<FuzzyMatch<string>> | Promise<Array<FuzzyMatch<string>>> {
     return [];
   }

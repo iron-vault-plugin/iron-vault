@@ -5,7 +5,7 @@ import {
   advanceClockTemplate,
   advanceProgressTemplate,
   createProgressTemplate,
-} from "../settings/ui";
+} from "settings";
 import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ClockIndex, clockUpdater } from "./clock-file";

@@ -1,7 +1,7 @@
 import { Document, Node } from "kdljs";
 import { Editor, stringifyYaml } from "obsidian";
+import { MoveBlockFormat } from "settings";
 import { createOrAppendMechanics } from "../../mechanics/editor";
-import { MoveBlockFormat } from "../../settings/ui";
 import { node } from "../../utils/kdl";
 import { MoveDescription, moveIsAction, moveIsProgress } from "../desc";
 import { generateMoveLine } from "../move-line-parser";
