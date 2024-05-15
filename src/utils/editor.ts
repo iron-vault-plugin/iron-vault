@@ -8,7 +8,7 @@ export function* reverseLineIterator(
   let lineNum = startPos.line;
   // Hmm-- should this start at the cursor in the middle of the line or not?
   //let line = editor.getLine(startPos.line).slice(0, startPos.ch);
-  let line = editor.getLine(lineNum);
+  const line = editor.getLine(lineNum);
 
   yield [line, lineNum];
 
@@ -35,7 +35,7 @@ const CODE_BLOCK_START_REGEX = /^\s*```\s*(\w*)\s*[^`]*$/;
 // Note that this does not currently look for code blocks in callouts (grimace)
 /** Searches for a whitespace-separated code block.
  * @param lines line and line number in reverse order
- * @returns the start and end of the code block, or null if no adjacent code block exists
+ * @returns the start and end of the code block (including start and end lines entirely), or null if no adjacent code block exists
  */
 export function findAdjacentCodeBlock(
   lines: Iterable<[string, number]>,
@@ -72,6 +72,36 @@ export function findAdjacentCodeBlock(
   // We never found the start of this code block, huh
   // TODO: we might be in one? hrm.
   return null;
+}
+
+/** Returns the interior of a code block range.
+ * When replacing this range, ALWAYS include a newline.
+ */
+export function interiorRange(codeBlockRange: EditorRange): EditorRange {
+  const fromLine = codeBlockRange.from.line + 1;
+  const toLine = codeBlockRange.to.line - 1;
+  if (fromLine > toLine) {
+    throw new Error(`Invalid code block range ${codeBlockRange}`);
+  }
+  return {
+    from: { line: fromLine, ch: 0 },
+    to: { line: toLine, ch: 0 },
+  };
+}
+
+export function updateCodeBlockInterior(
+  editor: Editor,
+  codeBlockRange: EditorRange,
+  updating: (current: string) => string,
+) {
+  const interior = interiorRange(codeBlockRange);
+  const current = editor.getRange(interior.from, interior.to);
+  const updated = updating(current);
+  editor.replaceRange(
+    updated ? updated + "\n" : "",
+    interior.from,
+    interior.to,
+  );
 }
 
 export function splitTextIntoReverseLineIterator(
