@@ -8,8 +8,33 @@
 @import url("dlist-burn.css");
 @import url("paragraphs.css");
 
+.collapse-forged-mechanics .forged-mechanics {
+  display: none;
+}
+
 .forged-mechanics {
   cursor: default;
   margin: 0.5em auto;
   max-width: 460px;
+  &.collapsed > :not(.toggle) {
+    display: none;
+  }
+  > .toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0 auto;
+    width: 100%;
+    font-size: 0.8em;
+    color: var(--link-color);
+    text-decoration: var(--link-decoration);
+    text-decoration-thickness: var(--link-decoration-thickness);
+    box-shadow: none;
+    text-align: center;
+    &:hover {
+      color: var(--link-color-hover);
+      text-decoration: var(--link-decoration-hover);
+      text-decoration-thickness: var(--link-decoration-thickness-hover);
+    }
+  }
 }
