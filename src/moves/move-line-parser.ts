@@ -21,7 +21,7 @@ import {
   whitespace,
   whole,
 } from "@nrsk/sigma";
-import { Either, Left, Right } from "../utils/either";
+import { Either, Left, Right } from "utils/either";
 import {
   ActionMoveDescription,
   BurnDescriptor,
