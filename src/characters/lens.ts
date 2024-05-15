@@ -393,14 +393,17 @@ export function meterLenses(
 
 export function rollablesReader(
   charLens: CharacterLens,
+  dataIndex: DataIndex,
 ): CharReader<{ key: string; value: number; definition: MeterCommon }[]> {
   return reader((character) => {
     return [
-      ...Object.entries(charLens.condition_meters).map(([key, lens]) => ({
-        key,
-        value: lens.get(character),
-        definition: charLens.ruleset.condition_meters[key],
-      })),
+      ...Object.values(meterLenses(charLens, character, dataIndex)).map(
+        ({ key, definition, lens }) => ({
+          key,
+          definition,
+          value: lens.get(character),
+        }),
+      ),
       ...Object.entries(charLens.stats).map(([key, lens]) => ({
         key,
         value: lens.get(character),

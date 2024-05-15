@@ -4,6 +4,7 @@ import {
   MoveProgressRoll,
   TriggerActionRollCondition,
 } from "@datasworn/core";
+import { DataIndex } from "datastore/data-index";
 import { Document, Node } from "kdljs";
 import {
   stringifyYaml,
@@ -255,6 +256,7 @@ export async function runMoveCommand(
         app,
         move,
         characterPath,
+        datastore.index,
       );
       break;
     }
@@ -311,6 +313,7 @@ async function handleActionRoll(
   app: App,
   move: MoveActionRoll,
   characterPath: string,
+  dataIndex: DataIndex,
 ) {
   const { lens, character } = charContext;
 
@@ -347,7 +350,7 @@ async function handleActionRoll(
 
   const stat = await CustomSuggestModal.select(
     app,
-    rollablesReader(lens)
+    rollablesReader(lens, dataIndex)
       .get(character)
       .map((meter) => {
         return { ...meter, condition: suggestedRollables[meter.key] ?? [] };
