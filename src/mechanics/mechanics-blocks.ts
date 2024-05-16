@@ -134,7 +134,7 @@ export class MechanicsRenderer {
         this.lastRoll.properties.adds = node.properties.adds ?? node.values[3];
         this.lastRoll.properties.vs1 = node.properties.vs1 ?? node.values[4];
         this.lastRoll.properties.vs2 = node.properties.vs2 ?? node.values[5];
-        this.renderRoll(target, node);
+        await this.renderRoll(target, node);
         break;
       }
       case "progress-roll": {
@@ -143,42 +143,40 @@ export class MechanicsRenderer {
           node.properties.score ?? node.values[0];
         this.lastRoll.properties.vs1 = node.properties.vs1 ?? node.values[1];
         this.lastRoll.properties.vs2 = node.properties.vs2 ?? node.values[2];
-        this.renderProgressRoll(target, node);
+        await this.renderProgressRoll(target, node);
         break;
       }
       case "die-roll": {
         // TODO: actually style these.
-        this.renderDieRoll(target, node);
+        await this.renderDieRoll(target, node);
         break;
       }
       case "reroll": {
-        if (this.lastRoll) {
-          this.renderReroll(target, node);
-        }
+        await this.renderReroll(target, node);
         break;
       }
       case "meter": {
-        this.renderMeter(target, node);
+        await this.renderMeter(target, node);
         break;
       }
       case "burn": {
-        this.renderBurn(target, node);
+        await this.renderBurn(target, node);
         break;
       }
       case "progress": {
-        this.renderProgress(target, node);
+        await this.renderProgress(target, node);
         break;
       }
       case "track": {
-        this.renderTrack(target, node);
+        await this.renderTrack(target, node);
         break;
       }
       case "xp": {
-        this.renderXp(target, node);
+        await this.renderXp(target, node);
         break;
       }
       case "clock": {
-        this.renderClock(target, node);
+        await this.renderClock(target, node);
         break;
       }
       case "oracle": {
@@ -246,13 +244,13 @@ export class MechanicsRenderer {
     await this.renderMarkdown(addEl, text);
   }
 
-  renderMeter(target: HTMLElement, node: KdlNode) {
+  async renderMeter(target: HTMLElement, node: KdlNode) {
     const name = node.values[0] as string;
     const from = (node.properties.from ?? node.values[1]) as number;
     const to = (node.properties.to ?? node.values[2]) as number;
     const delta = to - from;
     const neg = delta < 0;
-    this.renderDlist(target, "meter", {
+    await this.renderDlist(target, "meter", {
       Meter: { cls: "meter-name", value: name, md: true },
       Delta: {
         cls: "delta" + " " + (neg ? "negative" : "positive"),
@@ -263,7 +261,7 @@ export class MechanicsRenderer {
     });
   }
 
-  renderBurn(target: HTMLElement, node: KdlNode) {
+  async renderBurn(target: HTMLElement, node: KdlNode) {
     const from = Math.max(
       -6,
       Math.min((node.properties.from ?? node.values[0]) as number, 10),
@@ -300,10 +298,10 @@ export class MechanicsRenderer {
       def["Outcome"] = { cls: "outcome", value: text, dataProp: false };
       nodeCls += " " + cls;
     }
-    this.renderDlist(target, nodeCls, def);
+    await this.renderDlist(target, nodeCls, def);
   }
 
-  renderProgress(target: HTMLElement, node: KdlNode) {
+  async renderProgress(target: HTMLElement, node: KdlNode) {
     const trackName = node.values[0] as string;
     let from = node.properties.from as number;
     const fromBoxes =
@@ -321,7 +319,7 @@ export class MechanicsRenderer {
     const to = from + delta;
     const toBoxes = Math.floor(to / 4);
     const toTicks = to % 4;
-    this.renderDlist(target, "progress", {
+    await this.renderDlist(target, "progress", {
       "Track Name": { cls: "track-name", value: trackName, md: true },
       Steps: {
         cls: "steps " + (steps < 0 ? "negative" : "positive"),
@@ -335,7 +333,7 @@ export class MechanicsRenderer {
     });
   }
 
-  renderTrack(target: HTMLElement, node: KdlNode) {
+  async renderTrack(target: HTMLElement, node: KdlNode) {
     const trackName = node.values[0] as string;
     let from = node.properties.from as number;
     const fromBoxes =
@@ -356,7 +354,7 @@ export class MechanicsRenderer {
     if (to == null) {
       to = toBoxes * 4 + toTicks;
     }
-    this.renderDlist(target, "track", {
+    await this.renderDlist(target, "track", {
       "Track Name": { cls: "track-name", value: trackName, md: true },
       "From Boxes": { cls: "from-boxes", value: fromBoxes },
       "From Ticks": { cls: "from-ticks", value: fromTicks },
@@ -365,12 +363,12 @@ export class MechanicsRenderer {
     });
   }
 
-  renderXp(target: HTMLElement, node: KdlNode) {
+  async renderXp(target: HTMLElement, node: KdlNode) {
     const from = (node.properties.from ?? node.values[0]) as number;
     const to = (node.properties.to ?? node.values[1]) as number;
     const delta = to - from;
     const neg = delta < 0;
-    this.renderDlist(target, "xp", {
+    await this.renderDlist(target, "xp", {
       Delta: {
         cls: "delta" + " " + (neg ? "negative" : "positive"),
         value: Math.abs(delta),
@@ -380,12 +378,12 @@ export class MechanicsRenderer {
     });
   }
 
-  renderClock(target: HTMLElement, node: KdlNode) {
+  async renderClock(target: HTMLElement, node: KdlNode) {
     const name = node.values[0] as string;
     const from = (node.properties.from ?? node.values[1]) as number;
     const to = (node.properties.to ?? node.values[2]) as number;
     const outOf = (node.properties["out-of"] ?? node.values[3]) as number;
-    this.renderDlist(target, "clock", {
+    await this.renderDlist(target, "clock", {
       Clock: { cls: "clock-name", value: name, md: true },
       From: { cls: "from", value: from },
       OutOfFrom: { cls: "out-of", value: outOf },
@@ -394,7 +392,7 @@ export class MechanicsRenderer {
     });
   }
 
-  renderRoll(target: HTMLElement, node: KdlNode) {
+  async renderRoll(target: HTMLElement, node: KdlNode) {
     const statName = node.values[0] as string;
     const action = (node.properties.action ?? node.values[1]) as number;
     const stat = (node.properties.stat ?? node.values[2]) as number;
@@ -422,10 +420,10 @@ export class MechanicsRenderer {
       "Challenge Die 2": { cls: "challenge-die", value: challenge2 },
       Outcome: { cls: "outcome", value: outcome, dataProp: false },
     });
-    this.renderDlist(target, "roll " + outcomeClass, def);
+    await this.renderDlist(target, "roll " + outcomeClass, def);
   }
 
-  renderProgressRoll(target: HTMLElement, node: KdlNode) {
+  async renderProgressRoll(target: HTMLElement, node: KdlNode) {
     const score = (node.properties.score ?? node.values[0]) as number;
     const challenge1 = (node.properties.vs1 ?? node.values[1]) as number;
     const challenge2 = (node.properties.vs2 ?? node.values[2]) as number;
@@ -435,7 +433,7 @@ export class MechanicsRenderer {
       match,
     } = rollOutcome(score, challenge1, challenge2);
     this.setMoveHit(outcomeClass, match);
-    this.renderDlist(target, "roll progress " + outcomeClass, {
+    await this.renderDlist(target, "roll progress " + outcomeClass, {
       "Progress Score": { cls: "progress-score", value: score },
       "Challenge Die 1": { cls: "challenge-die", value: challenge1 },
       "Challenge Die 2": { cls: "challenge-die", value: challenge2 },
@@ -443,16 +441,16 @@ export class MechanicsRenderer {
     });
   }
 
-  renderDieRoll(target: HTMLElement, node: KdlNode) {
+  async renderDieRoll(target: HTMLElement, node: KdlNode) {
     const reason = node.values[0] as string;
     const value = node.values[1] as number;
-    this.renderDlist(target, "die-roll", {
+    await this.renderDlist(target, "die-roll", {
       Reason: { cls: "reason", value: reason, md: true },
       Result: { cls: "result", value },
     });
   }
 
-  renderReroll(target: HTMLElement, node: KdlNode) {
+  async renderReroll(target: HTMLElement, node: KdlNode) {
     if (!this.lastRoll) {
       target.createEl("p", {
         text: "No previous roll to reroll.",
@@ -512,7 +510,7 @@ export class MechanicsRenderer {
     def["Challenge Die 2"] = { cls: "challenge-die", value: newVs2 };
     def["Outcome"] = { cls: "outcome", value: outcome, dataProp: false };
     this.setMoveHit(outcomeClass, match);
-    this.renderDlist(target, "reroll " + outcomeClass, def);
+    await this.renderDlist(target, "reroll " + outcomeClass, def);
   }
 
   renderUnknown(target: HTMLElement, name: string) {
