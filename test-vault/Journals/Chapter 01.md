@@ -15,10 +15,8 @@ move id="starforged/moves/adventure/face_danger" {
 }
 - "Oh nooo. This is gonna hurt. Time to [[Endure Harm]]. bla bla bla bla bla bla bla bla bla bla"
 - "Another one here"
-roll "toplevel" 1 2 3 4 5
 move "Endure Harm" {
     meter "health" from=3 to=2
-	meter "health" 3 2 // <meter> <from> <to>
     roll "health" action=3 stat=4 adds=0 vs1=3 vs2=8
     meter "momentum" from=7 to=6
     meter "health" from=2 to=3
