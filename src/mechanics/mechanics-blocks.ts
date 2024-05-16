@@ -202,7 +202,7 @@ export class MechanicsRenderer {
   async renderMove(target: HTMLElement, node: KdlNode) {
     const moves = this.plugin.datastore.moves;
     const id = node.properties.id as string | undefined;
-    const name = node.values[0] as string | undefined;
+    const name = (node.properties.name ?? node.values[0]) as string | undefined;
     const move = id
       ? moves.find((x) => x.id === id) ??
         moves.find((x) => x.name.toLowerCase() === name?.toLowerCase())
@@ -252,7 +252,7 @@ export class MechanicsRenderer {
   }
 
   async renderMeter(target: HTMLElement, node: KdlNode) {
-    const name = node.values[0] as string;
+    const name = (node.properties.name ?? node.values[0]) as string;
     const from = (node.properties.from ?? node.values[1]) as number;
     const to = (node.properties.to ?? node.values[2]) as number;
     const delta = to - from;
@@ -309,7 +309,7 @@ export class MechanicsRenderer {
   }
 
   async renderProgress(target: HTMLElement, node: KdlNode) {
-    const trackName = node.values[0] as string;
+    const trackName = (node.properties.name ?? node.values[0]) as string;
     let from = node.properties.from as number;
     const fromBoxes =
       (node.properties["from-boxes"] as number) ??
@@ -341,7 +341,7 @@ export class MechanicsRenderer {
   }
 
   async renderTrack(target: HTMLElement, node: KdlNode) {
-    const trackName = node.values[0] as string;
+    const trackName = (node.properties.name ?? node.values[0]) as string;
     let from = node.properties.from as number;
     const fromBoxes =
       (node.properties["from-boxes"] as number) ??
@@ -386,7 +386,7 @@ export class MechanicsRenderer {
   }
 
   async renderClock(target: HTMLElement, node: KdlNode) {
-    const name = node.values[0] as string;
+    const name = (node.properties.name ?? node.values[0]) as string;
     const from = (node.properties.from ?? node.values[1]) as number;
     const to = (node.properties.to ?? node.values[2]) as number;
     const outOf = (node.properties["out-of"] ?? node.values[3]) as number;
@@ -400,7 +400,7 @@ export class MechanicsRenderer {
   }
 
   async renderRoll(target: HTMLElement, node: KdlNode) {
-    const statName = node.values[0] as string;
+    const statName = (node.properties["stat-name"] ?? node.values[0]) as string;
     const action = (node.properties.action ?? node.values[1]) as number;
     const stat = (node.properties.stat ?? node.values[2]) as number;
     const adds = (node.properties.adds ?? node.values[3] ?? 0) as number;
