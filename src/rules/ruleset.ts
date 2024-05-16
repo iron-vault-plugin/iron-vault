@@ -105,7 +105,7 @@ export class Ruleset {
       ]),
     );
     this.impacts = Object.fromEntries(
-      Object.entries(rules.impacts).flatMap(([categoryKey, source]) => {
+      Object.entries(rules.impacts).flatMap(([_categoryKey, source]) => {
         const category: ImpactCategory = {
           label: source.label,
           description: source.description,
