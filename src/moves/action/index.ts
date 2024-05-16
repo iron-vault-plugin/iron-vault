@@ -334,8 +334,7 @@ async function handleActionRoll(
   const suggestedRollables = suggestedRollablesForMove(move);
   const availableRollables = actionContext.rollables;
 
-  // TODO: add support for entering custom rollable name
-  const stat = await CustomSuggestModal.select(
+  const choice = await CustomSuggestModal.selectWithUserEntry(
     app,
     availableRollables
       .map((meter) => {
@@ -354,6 +353,9 @@ async function handleActionRoll(
         }
       }),
     (m) => `${m.definition.label}: ${m.value ?? "unknown"}`,
+    (input, el) => {
+      el.setText(`Use custom meter '${input}'`);
+    },
     ({ item }, el) => {
       if (item.condition.length > 0) {
         el.createEl("small", {
@@ -364,6 +366,22 @@ async function handleActionRoll(
     },
     move.trigger.text,
   );
+
+  const stat =
+    choice.kind == "pick"
+      ? choice.value
+      : {
+          key: choice.custom,
+          value: undefined,
+          condition: [],
+          definition: {
+            kind: "stat",
+            label: choice.custom,
+            min: 0,
+            max: 10,
+            rollable: true,
+          } satisfies MeterCommon,
+        };
 
   // This stat has an unknown value, so we need to prompt the user for a value.
   if (!stat.value) {
