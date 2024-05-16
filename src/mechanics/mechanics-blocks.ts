@@ -143,7 +143,7 @@ export class MechanicsRenderer {
           node.properties.score ?? node.values[0];
         this.lastRoll.properties.vs1 = node.properties.vs1 ?? node.values[1];
         this.lastRoll.properties.vs2 = node.properties.vs2 ?? node.values[2];
-        this.renderProgress(target, node);
+        this.renderProgressRoll(target, node);
         break;
       }
       case "die-roll": {
@@ -165,11 +165,11 @@ export class MechanicsRenderer {
         this.renderBurn(target, node);
         break;
       }
-      case "clock": {
-        // TODO
+      case "progress": {
+        this.renderProgress(target, node);
         break;
       }
-      case "progress": {
+      case "clock": {
         // TODO
         break;
       }
@@ -295,6 +295,38 @@ export class MechanicsRenderer {
     this.renderDlist(target, nodeCls, def);
   }
 
+  renderProgress(target: HTMLElement, node: KdlNode) {
+    const trackName = node.values[0] as string;
+    let from = node.properties.from as number;
+    const fromBoxes =
+      (node.properties["from-boxes"] as number) ??
+      (from != null ? Math.floor(from / 4) : 0);
+    const fromTicks =
+      (node.properties["from-ticks"] as number) ??
+      (from != null ? from % 4 : 0);
+    if (from == null) {
+      from = fromBoxes * 4 + fromTicks;
+    }
+    const level = (node.properties.level ?? node.values[2]) as string;
+    const steps = (node.properties.steps ?? node.values[3] ?? 1) as number;
+    const delta = levelTicks(level) * steps;
+    const to = from + delta;
+    const toBoxes = Math.floor(to / 4);
+    const toTicks = to % 4;
+    this.renderDlist(target, "progress", {
+      "Track Name": { cls: "track-name", value: trackName },
+      Steps: {
+        cls: "steps " + (steps < 0 ? "negative" : "positive"),
+        value: steps,
+      },
+      Level: { cls: "level", value: level },
+      "From Boxes": { cls: "from-boxes", value: fromBoxes },
+      "From Ticks": { cls: "from-ticks", value: fromTicks },
+      "To Boxes": { cls: "to-boxes", value: toBoxes },
+      "To Ticks": { cls: "to-ticks", value: toTicks },
+    });
+  }
+
   renderRoll(target: HTMLElement, node: KdlNode) {
     const statName = node.values[0] as string;
     const action = (node.properties.action ?? node.values[1]) as number;
@@ -326,7 +358,7 @@ export class MechanicsRenderer {
     this.renderDlist(target, "roll " + outcomeClass, def);
   }
 
-  renderProgress(target: HTMLElement, node: KdlNode) {
+  renderProgressRoll(target: HTMLElement, node: KdlNode) {
     const score = (node.properties.score ?? node.values[0]) as number;
     const challenge1 = (node.properties.vs1 ?? node.values[1]) as number;
     const challenge2 = (node.properties.vs2 ?? node.values[2]) as number;
@@ -501,6 +533,31 @@ function rollOutcome(
     text: outcome,
     match: challenge1 === challenge2,
   };
+}
+
+enum Level {
+  Troublesome = 12,
+  Dangerous = 8,
+  Formidable = 4,
+  Extreme = 2,
+  Epic = 1,
+}
+
+function levelTicks(level: string): number {
+  switch (level.toLowerCase()) {
+    case "troublesome":
+      return Level.Troublesome;
+    case "dangerous":
+      return Level.Dangerous;
+    case "formidable":
+      return Level.Formidable;
+    case "extreme":
+      return Level.Extreme;
+    case "epic":
+      return Level.Epic;
+    default:
+      return 0;
+  }
 }
 
 export class MoveModal extends Modal {

@@ -7,6 +7,7 @@
 @import url("dlist-meter.css");
 @import url("dlist-burn.css");
 @import url("paragraphs.css");
+@import url("progress.css");
 
 .collapse-forged-mechanics .forged-mechanics {
   display: none;
