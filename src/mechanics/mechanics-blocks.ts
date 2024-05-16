@@ -178,7 +178,7 @@ export class MechanicsRenderer {
         break;
       }
       case "clock": {
-        // TODO
+        this.renderClock(target, node);
         break;
       }
       case "oracle": {
@@ -377,6 +377,20 @@ export class MechanicsRenderer {
       },
       From: { cls: "from", value: from },
       To: { cls: "to", value: to },
+    });
+  }
+
+  renderClock(target: HTMLElement, node: KdlNode) {
+    const name = node.values[0] as string;
+    const from = (node.properties.from ?? node.values[1]) as number;
+    const to = (node.properties.to ?? node.values[2]) as number;
+    const outOf = (node.properties["out-of"] ?? node.values[3]) as number;
+    this.renderDlist(target, "clock", {
+      Clock: { cls: "clock-name", value: name },
+      From: { cls: "from", value: from },
+      OutOfFrom: { cls: "out-of", value: outOf },
+      To: { cls: "to", value: to },
+      OutOfTo: { cls: "out-of", value: outOf },
     });
   }
 

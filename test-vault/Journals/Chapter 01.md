@@ -42,6 +42,7 @@ move "[[Chapter 02]]" {
 progress "Defeat the enemiez" from-boxes=2 from-ticks=1 level="dangerous" steps=2
 track "Quests" from=12 to=18
 xp 1 2
+clock "The End Comes" from=1 to=2 out-of=4
 ```
 And then a fight broke out!
 ```mechanics

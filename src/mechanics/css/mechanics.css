@@ -10,6 +10,7 @@
 @import url("dlist-progress.css");
 @import url("dlist-track.css");
 @import url("dlist-xp.css");
+@import url("dlist-clock.css");
 
 .collapse-forged-mechanics .forged-mechanics {
   display: none;
