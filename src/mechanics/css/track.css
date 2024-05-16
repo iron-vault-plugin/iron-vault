@@ -1,0 +1,33 @@
+.forged-mechanics .track {
+  &:before {
+    content: "❎";
+  }
+  & dd {
+    &.track-name {
+      &:after {
+        content: ": ";
+      }
+    }
+
+    &.from-boxes,
+    &.from-ticks,
+    &.to-boxes,
+    &.to-ticks {
+      color: var(--text-accent);
+    }
+
+    &.from-boxes:after,
+    &.to-boxes:after {
+      content: "b/";
+    }
+
+    &.from-ticks:after {
+      content: "t → ";
+    }
+
+    &.to-ticks:after {
+      content: "t";
+    }
+  }
+}
+

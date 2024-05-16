@@ -40,6 +40,7 @@ move "[[Chapter 02]]" {
   - "**bold text** *italic* [[README]]"
 }
 progress "Defeat the enemiez" from-boxes=2 from-ticks=1 level="dangerous" steps=2
+track "Quests" from=12 to=18
 ```
 And then a fight broke out!
 ```mechanics

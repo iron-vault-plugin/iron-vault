@@ -169,6 +169,14 @@ export class MechanicsRenderer {
         this.renderProgress(target, node);
         break;
       }
+      case "track": {
+        this.renderTrack(target, node);
+        break;
+      }
+      case "xp": {
+        // TODO
+        break;
+      }
       case "clock": {
         // TODO
         break;
@@ -320,6 +328,36 @@ export class MechanicsRenderer {
         value: steps,
       },
       Level: { cls: "level", value: level },
+      "From Boxes": { cls: "from-boxes", value: fromBoxes },
+      "From Ticks": { cls: "from-ticks", value: fromTicks },
+      "To Boxes": { cls: "to-boxes", value: toBoxes },
+      "To Ticks": { cls: "to-ticks", value: toTicks },
+    });
+  }
+
+  renderTrack(target: HTMLElement, node: KdlNode) {
+    const trackName = node.values[0] as string;
+    let from = node.properties.from as number;
+    const fromBoxes =
+      (node.properties["from-boxes"] as number) ??
+      (from != null ? Math.floor(from / 4) : 0);
+    const fromTicks =
+      (node.properties["from-ticks"] as number) ??
+      (from != null ? from % 4 : 0);
+    if (from == null) {
+      from = fromBoxes * 4 + fromTicks;
+    }
+    let to = node.properties.to as number;
+    const toBoxes =
+      (node.properties["to-boxes"] as number) ??
+      (to != null ? Math.floor(to / 4) : 0);
+    const toTicks =
+      (node.properties["to-ticks"] as number) ?? (to != null ? to % 4 : 0);
+    if (to == null) {
+      to = toBoxes * 4 + toTicks;
+    }
+    this.renderDlist(target, "track", {
+      "Track Name": { cls: "track-name", value: trackName },
       "From Boxes": { cls: "from-boxes", value: fromBoxes },
       "From Ticks": { cls: "from-ticks", value: fromTicks },
       "To Boxes": { cls: "to-boxes", value: toBoxes },
