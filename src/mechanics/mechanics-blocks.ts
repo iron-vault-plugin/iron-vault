@@ -236,12 +236,19 @@ export class MechanicsRenderer {
   }
 
   async renderAdd(target: HTMLElement, node: KdlNode) {
-    // TODO: probably turn this into a dlist, too?
-    const addEl = target.createEl("p", {
-      cls: "add",
-    });
-    const text = `Add +${node.values[0]}${node.values[1] ? " (" + node.values[1] + ")" : ""}`;
-    await this.renderMarkdown(addEl, text);
+    const amount = (node.properties.amount ?? node.values[0]) as number;
+    const from = (node.properties.from ?? node.values[1]) as number;
+    const neg = amount < 0;
+    const def: DataList = {
+      Amount: {
+        cls: "amount" + " " + (neg ? "negative" : "positive"),
+        value: Math.abs(amount),
+      },
+    };
+    if (from) {
+      def["From"] = { cls: "from", value: from, md: true };
+    }
+    await this.renderDlist(target, "add", def);
   }
 
   async renderMeter(target: HTMLElement, node: KdlNode) {
