@@ -1,14 +1,15 @@
 @import url("move.css");
 @import url("details.css");
 @import url("summary.css");
+@import url("paragraphs.css");
 @import url("dlist-shared.css");
 @import url("dlist-roll.css");
 @import url("dlist-reroll.css");
 @import url("dlist-meter.css");
 @import url("dlist-burn.css");
-@import url("paragraphs.css");
-@import url("progress.css");
-@import url("track.css");
+@import url("dlist-progress.css");
+@import url("dlist-track.css");
+@import url("dlist-xp.css");
 
 .collapse-forged-mechanics .forged-mechanics {
   display: none;

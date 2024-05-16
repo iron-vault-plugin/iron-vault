@@ -174,7 +174,7 @@ export class MechanicsRenderer {
         break;
       }
       case "xp": {
-        // TODO
+        this.renderXp(target, node);
         break;
       }
       case "clock": {
@@ -362,6 +362,21 @@ export class MechanicsRenderer {
       "From Ticks": { cls: "from-ticks", value: fromTicks },
       "To Boxes": { cls: "to-boxes", value: toBoxes },
       "To Ticks": { cls: "to-ticks", value: toTicks },
+    });
+  }
+
+  renderXp(target: HTMLElement, node: KdlNode) {
+    const from = (node.properties.from ?? node.values[0]) as number;
+    const to = (node.properties.to ?? node.values[1]) as number;
+    const delta = to - from;
+    const neg = delta < 0;
+    this.renderDlist(target, "xp", {
+      Delta: {
+        cls: "delta" + " " + (neg ? "negative" : "positive"),
+        value: Math.abs(delta),
+      },
+      From: { cls: "from", value: from },
+      To: { cls: "to", value: to },
     });
   }
 
