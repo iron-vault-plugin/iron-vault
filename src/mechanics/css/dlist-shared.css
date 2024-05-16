@@ -17,6 +17,9 @@
     padding: 0;
     display: inline;
     font-weight: var(--font-semibold);
+    & * {
+      display: inline;
+    }
     &.challenge-die {
       color: var(--text-accent);
       &:has(~ .challenge-die):before {

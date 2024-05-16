@@ -253,7 +253,7 @@ export class MechanicsRenderer {
     const delta = to - from;
     const neg = delta < 0;
     this.renderDlist(target, "meter", {
-      Meter: { cls: "meter-name", value: name },
+      Meter: { cls: "meter-name", value: name, md: true },
       Delta: {
         cls: "delta" + " " + (neg ? "negative" : "positive"),
         value: Math.abs(delta),
@@ -322,7 +322,7 @@ export class MechanicsRenderer {
     const toBoxes = Math.floor(to / 4);
     const toTicks = to % 4;
     this.renderDlist(target, "progress", {
-      "Track Name": { cls: "track-name", value: trackName },
+      "Track Name": { cls: "track-name", value: trackName, md: true },
       Steps: {
         cls: "steps " + (steps < 0 ? "negative" : "positive"),
         value: steps,
@@ -357,7 +357,7 @@ export class MechanicsRenderer {
       to = toBoxes * 4 + toTicks;
     }
     this.renderDlist(target, "track", {
-      "Track Name": { cls: "track-name", value: trackName },
+      "Track Name": { cls: "track-name", value: trackName, md: true },
       "From Boxes": { cls: "from-boxes", value: fromBoxes },
       "From Ticks": { cls: "from-ticks", value: fromTicks },
       "To Boxes": { cls: "to-boxes", value: toBoxes },
@@ -386,7 +386,7 @@ export class MechanicsRenderer {
     const to = (node.properties.to ?? node.values[2]) as number;
     const outOf = (node.properties["out-of"] ?? node.values[3]) as number;
     this.renderDlist(target, "clock", {
-      Clock: { cls: "clock-name", value: name },
+      Clock: { cls: "clock-name", value: name, md: true },
       From: { cls: "from", value: from },
       OutOfFrom: { cls: "out-of", value: outOf },
       To: { cls: "to", value: to },
@@ -447,7 +447,8 @@ export class MechanicsRenderer {
     const reason = node.values[0] as string;
     const value = node.values[1] as number;
     this.renderDlist(target, "die-roll", {
-      [reason]: { cls: "die", value },
+      Reason: { cls: "reason", value: reason, md: true },
+      Result: { cls: "result", value },
     });
   }
 
@@ -523,14 +524,22 @@ export class MechanicsRenderer {
 
   async renderDlist(target: HTMLElement, cls: string, data: DataList) {
     const dl = target.createEl("dl", { cls });
-    for (const [key, { cls, value, dataProp }] of Object.entries(data)) {
+    for (const [key, { cls, value, dataProp, md }] of Object.entries(data)) {
       dl.createEl("dt", {
         text: key,
       });
-      const dd = dl.createEl("dd", {
-        cls,
-        text: "" + value,
-      });
+      let dd;
+      if (md) {
+        dd = dl.createEl("dd", {
+          cls,
+        });
+        await this.renderMarkdown(dd, value as string);
+      } else {
+        dd = dl.createEl("dd", {
+          cls,
+          text: "" + value,
+        });
+      }
       if (dataProp !== false) {
         dd.setAttribute("data-value", "" + value);
       }
@@ -572,6 +581,7 @@ interface DataDef {
   cls: string;
   value: string | number | boolean | null;
   dataProp?: boolean;
+  md?: boolean;
 }
 
 function rollOutcome(
