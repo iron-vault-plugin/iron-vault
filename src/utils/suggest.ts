@@ -27,6 +27,10 @@ export function processMatches(
   }
 }
 
+export type UserChoice<T> =
+  | { kind: "custom"; custom: string }
+  | { kind: "pick"; value: T };
+
 export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
   private resolved: boolean = false;
 
@@ -66,6 +70,50 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     });
   }
 
+  /** Allow user to select from a list or a custom option. */
+  static async selectWithUserEntry<T>(
+    app: App,
+    items: T[],
+    getItemText: (item: T) => string,
+    renderUserEntry: (input: string, el: HTMLElement) => void,
+    renderExtras?: (match: FuzzyMatch<T>, el: HTMLElement) => void,
+    placeholder?: string,
+  ): Promise<UserChoice<T>> {
+    return await new Promise((resolve, reject) => {
+      new this<UserChoice<T>>(
+        app,
+        items.map((value) => ({ kind: "pick", value })),
+        (choice) =>
+          choice.kind == "custom" ? choice.custom : getItemText(choice.value),
+        ({ item, match }, el) => {
+          if (item.kind == "custom") {
+            el.createDiv(undefined, (div) => renderUserEntry(item.custom, div));
+          } else {
+            el.createDiv(undefined, (div) => {
+              processMatches(
+                getItemText(item.value),
+                match,
+                (text) => {
+                  div.appendText(text);
+                },
+                (text) => {
+                  div.createEl("strong", { text });
+                },
+              );
+            });
+            if (renderExtras != null) {
+              renderExtras({ match, item: item.value }, el);
+            }
+          }
+        },
+        resolve,
+        reject,
+        placeholder,
+        (custom) => ({ kind: "custom", custom }),
+      ).open();
+    });
+  }
+
   static async selectCustom<T>(
     app: App,
     items: T[],
@@ -97,6 +145,7 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     protected readonly onSelect: (item: T) => void,
     protected readonly onCancel: () => void,
     placeholder?: string,
+    protected readonly customItem?: (input: string) => T,
   ) {
     super(app);
     if (placeholder) {
@@ -108,7 +157,7 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     query: string,
   ): Array<FuzzyMatch<T>> | Promise<Array<FuzzyMatch<T>>> {
     const fuzzyScore = prepareFuzzySearch(query);
-    const results = this.items.flatMap((item) => {
+    const results: FuzzyMatch<T>[] = this.items.flatMap((item) => {
       const match = fuzzyScore(this.getTtemText(item));
       return match != null
         ? [
@@ -119,6 +168,13 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
           ]
         : [];
     });
+    if (query != "" && this.customItem) {
+      results.push({
+        item: this.customItem(query),
+        match: { score: Number.NEGATIVE_INFINITY, matches: [] },
+      });
+    }
+    console.log(results);
     sortSearchResults(results);
     return results;
   }
