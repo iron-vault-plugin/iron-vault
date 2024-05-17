@@ -21,7 +21,7 @@ export class CharacterTracker implements ReadonlyMap<string, CharacterResult> {
       key: string,
       map: ReadonlyMap<string, CharacterResult>,
     ) => void,
-    thisArg?: any,
+    thisArg?: unknown,
   ): void {
     this.index.forEach(callbackfn, thisArg);
   }
@@ -57,19 +57,27 @@ export class CharacterTracker implements ReadonlyMap<string, CharacterResult> {
 
   activeCharacter(): [string, CharacterContext] {
     if (this.size == 0) {
-      throw new Error("no valid characters found");
+      throw new MissingCharacterError("no valid characters found");
     } else if (this.size > 1) {
-      throw new Error("we don't yet support multiple characters");
+      throw new MissingCharacterError(
+        "we don't yet support multiple characters",
+      );
     }
 
     const [[key, val]] = this.entries();
     if (val.isLeft()) {
-      throw new Error("character is invalid", { cause: val.error });
+      throw val.error;
     }
 
     return [key, val.value];
   }
 }
+
+export class CharacterError extends Error {}
+
+export class MissingCharacterError extends Error {}
+
+export class InvalidCharacterError extends Error {}
 
 export class CharacterIndexer extends BaseIndexer<CharacterResult> {
   readonly id: string = "character";

@@ -134,6 +134,14 @@ export class CharacterActionContext implements IActionContext {
 
 export type ActionContext = CharacterActionContext | NoCharacterActionConext;
 
+function renderError(e: Error, el: HTMLElement): void {
+  el.createEl("pre", { text: `${e.name}: ${e.message}` });
+  if (e.cause instanceof Error) {
+    el.createEl("p", { text: "Caused by:" });
+    renderError(e.cause, el);
+  }
+}
+
 export async function determineCharacterActionContext(
   plugin: ForgedPlugin,
 ): Promise<ActionContext | undefined> {
@@ -147,11 +155,19 @@ export async function determineCharacterActionContext(
         characterContext,
       );
     } catch (e) {
-      // TODO: probably want to show character parse errors in full glory
-      await InfoModal.show(
-        plugin.app,
-        `An error occurred while finding your active character.\n\n${e}`,
-      );
+      const div = document.createElement("div");
+      div.createEl("p", {
+        text: `An error occurred while finding your active character`,
+      });
+      if (e instanceof Error) {
+        renderError(e, div);
+      } else {
+        div.createEl("pre", {
+          text: `${e}`,
+        });
+      }
+
+      await InfoModal.show(plugin.app, div);
       return undefined;
     }
   } else {

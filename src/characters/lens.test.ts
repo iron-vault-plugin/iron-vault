@@ -146,16 +146,25 @@ describe("characterLens", () => {
     const character = validater({
       ...VALID_INPUT,
       assets: [
-        { id: "asset_id", controls: { integrity: 2 } },
+        {
+          id: "asset_id",
+          abilities: [true, false, false],
+          controls: { integrity: 2 },
+        },
       ] as ForgedSheetAssetInput[],
     });
     actsLikeLens(lens.assets, character, [
-      { id: "new_asset", controls: { integrity: 3 }, options: {} },
+      {
+        id: "new_asset",
+        abilities: [true, false, false],
+        controls: { integrity: 3 },
+        options: {},
+      },
     ]);
 
     it("requires a valid asset definition", () => {
       expect(() =>
-        lens.assets.update(character, [{ foo: "bar" }] as any),
+        lens.assets.update(character, [{ foo: "bar" }] as never),
       ).toThrow(/invalid_type/);
     });
 
@@ -405,11 +414,17 @@ describe("movesReader", () => {
         movesReader(lens, mockIndex).get(
           validater({
             ...VALID_INPUT,
-            assets: [{ id: "starforged/assets/path/empath" }],
+            assets: [
+              {
+                id: "starforged/assets/path/empath",
+                abilities: [false, false, false],
+              },
+            ],
           } satisfies BaseForgedSchema),
         ),
       ).toEqual(Right.create([]));
     });
+
     it("includes moves for marked asset abilities", () => {
       // This ability has no additional moves.
       expect(
@@ -418,7 +433,10 @@ describe("movesReader", () => {
             validater({
               ...VALID_INPUT,
               assets: [
-                { id: "starforged/assets/path/empath", marked_abilities: [2] },
+                {
+                  id: "starforged/assets/path/empath",
+                  abilities: [false, true, false],
+                },
               ],
             } satisfies BaseForgedSchema),
           )
@@ -434,7 +452,7 @@ describe("movesReader", () => {
               assets: [
                 {
                   id: "starforged/assets/path/empath",
-                  marked_abilities: [1, 2],
+                  abilities: [true, true, false],
                 },
               ],
             } satisfies BaseForgedSchema),

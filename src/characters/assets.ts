@@ -63,7 +63,7 @@ type AnyOptionField = AssetOptionField | AssetAbilityOptionField;
 
 function traverseAssetControls(
   asset: Asset,
-  markedAbilities?: number[],
+  markedAbilities: boolean[],
 ): Pathed<AnyControlField>[] {
   function conditionMeterControls(
     controls: AssetConditionMeter["controls"],
@@ -84,8 +84,14 @@ function traverseAssetControls(
     return [curControl, ...conditionMeterFields];
   });
 
-  const abilityControls: Pathed<AnyControlField>[] = (markedAbilities ?? [])
-    .map((abilityNum) => asset.abilities[abilityNum - 1]) // TODO: marked abilities 0-indexing FOR-13
+  if (markedAbilities.length != asset.abilities.length) {
+    throw new Error(
+      `Asset has ${asset.abilities.length} abilities, but marked abilities only ${markedAbilities.length}`,
+    );
+  }
+
+  const abilityControls: Pathed<AnyControlField>[] = asset.abilities
+    .filter((_ability, index) => markedAbilities[index])
     .flatMap((ability) => {
       return Object.entries(ability.controls ?? {}).map(([key, field]) =>
         pathed([ability.id, key], field),
@@ -97,14 +103,20 @@ function traverseAssetControls(
 
 export function traverseAssetOptions(
   asset: Asset,
-  markedAbilities?: number[],
+  markedAbilities: boolean[],
 ): Pathed<AnyOptionField>[] {
   const baseControls: Pathed<AnyOptionField>[] = Object.entries(
     asset.options ?? {},
   ).map(([key, field]) => pathed([asset.id, key], field));
 
-  const abilityOptions: Pathed<AnyOptionField>[] = (markedAbilities ?? [])
-    .map((abilityNum) => asset.abilities[abilityNum - 1]) // TODO: marked abilities 0-indexing FOR-13
+  if (markedAbilities.length != asset.abilities.length) {
+    throw new Error(
+      `Asset has ${asset.abilities.length} abilities, but marked abilities only ${markedAbilities.length}`,
+    );
+  }
+
+  const abilityOptions: Pathed<AnyOptionField>[] = asset.abilities
+    .filter((_ability, index) => markedAbilities[index])
     .flatMap((ability) => {
       return Object.entries(ability.options ?? {}).map(([key, field]) =>
         pathed([ability.id, key], field),
@@ -114,7 +126,10 @@ export function traverseAssetOptions(
   return [...baseControls, ...abilityOptions];
 }
 
-export function samePath(left: Pathed<any>, right: Pathed<any>): boolean {
+export function samePath(
+  left: Pathed<unknown>,
+  right: Pathed<unknown>,
+): boolean {
   if (left.path == right.path) return true;
   if (left.path.length != right.path.length) return false;
 
@@ -125,21 +140,18 @@ export function samePath(left: Pathed<any>, right: Pathed<any>): boolean {
   return true;
 }
 
-export function getPathLabel(pathed: Pathed<any>): string {
+export function getPathLabel(pathed: Pathed<unknown>): string {
   // Skip first element (which is asset/ability id)
   return pathed.path.slice(1).join("/");
 }
 
-export function defaultMarkedAbilitiesForAsset(asset: Asset): number[] {
-  // TODO: 0-index FOR-13
-  return asset.abilities.flatMap(({ enabled }, index) =>
-    enabled ? [index + 1] : [],
-  );
+export function defaultMarkedAbilitiesForAsset(asset: Asset): boolean[] {
+  return asset.abilities.map(({ enabled }) => enabled);
 }
 
 export function updateAssetWithOptions(
   asset: Asset,
-  options: Record<string, any>,
+  options: Record<string, string>,
 ): Asset {
   return produce(asset, (draft) => {
     for (const pathed of traverseAssetOptions(
@@ -178,7 +190,7 @@ export function addAsset(charLens: CharacterLens): CharWriter<Asset> {
 
     return charLens.assets.update(character, [
       ...currentAssets,
-      { id: newAsset.id, marked_abilities, controls, options },
+      { id: newAsset.id, abilities: marked_abilities, controls, options },
     ]);
   });
 }
@@ -188,7 +200,7 @@ export class MissingAssetError extends Error {}
 export function assetMeters(
   charLens: CharacterLens,
   asset: Asset,
-  markedAbilities: number[],
+  markedAbilities: boolean[],
 ): {
   key: string;
   definition: ConditionMeterDefinition;
