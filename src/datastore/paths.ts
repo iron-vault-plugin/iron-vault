@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// NOTE: This whole thing is a currently unused experiment.
 import {
   Asset,
   AssetAbility,

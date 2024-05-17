@@ -67,15 +67,7 @@ export function matchTable(content: string): MarkdownTable {
 export function matchTables(content: string): MarkdownTable[] {
   const tables: Array<MarkdownTable> = [];
   for (const tableMatch of content.matchAll(TABLE_REGEX)) {
-    let table;
-    // try {
-    table = parseTable(tableMatch);
-    // } catch {
-    //   table = null;
-    // }
-    if (table) {
-      tables.push(table);
-    }
+    tables.push(parseTable(tableMatch));
   }
 
   return tables;

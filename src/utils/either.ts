@@ -25,7 +25,7 @@ export class Left<T> {
     return Left.create(fn(this.error));
   }
 
-  map<V>(fn: (val: never) => V): Left<T> {
+  map<V>(_fn: (val: never) => V): Left<T> {
     return this;
   }
 
@@ -52,7 +52,7 @@ export class Right<U> {
     return new Right(value);
   }
 
-  mapError<V>(fn: (err: any) => V): Right<U> {
+  mapError<V>(_fn: (err: unknown) => V): Right<U> {
     return this;
   }
 
@@ -60,7 +60,7 @@ export class Right<U> {
     return Right.create<V>(fn(this.value));
   }
 
-  expect(msg: string): U {
+  expect(_msg: string): U {
     return this.value;
   }
 

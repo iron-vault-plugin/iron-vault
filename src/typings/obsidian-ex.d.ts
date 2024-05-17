@@ -24,7 +24,11 @@ declare module "obsidian" {
 
 declare module "obsidian" {
   interface MetadataCache {
-    on(name: "forged:index-changed", callback: () => any, ctx?: any): EventRef;
+    on(
+      name: "forged:index-changed",
+      callback: () => unknown,
+      ctx?: unknown,
+    ): EventRef;
   }
 
   interface App {

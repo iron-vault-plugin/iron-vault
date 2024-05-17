@@ -30,7 +30,7 @@ export function parseRange(input: string): NumberRange | undefined {
   };
 }
 
-const TEMPLATE_REGEX = /\[[^\[\]]+\]\(id:([\w_\-/]+)\)/gi;
+const TEMPLATE_REGEX = /\[[^[\]]+\]\(id:([\w_\-/]+)\)/gi;
 
 export function parseResultTemplate(
   input: string,

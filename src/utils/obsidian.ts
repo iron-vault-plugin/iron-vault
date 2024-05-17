@@ -31,13 +31,13 @@ export function pluginAsset(plug: Plugin, assetPath: string): string {
 export function vaultProcess(
   app: App,
   path: string,
-): (processor: (data: any) => object) => Promise<void> {
+): (processor: (data: unknown) => object) => Promise<void> {
   return async (processor) => {
     const file = app.vault.getAbstractFileByPath(path);
     if (!(file instanceof TFile)) {
       throw new Error(`invalid character file ${path}`);
     }
-    await app.fileManager.processFrontMatter(file, (frontmatter: any) => {
+    await app.fileManager.processFrontMatter(file, (frontmatter: object) => {
       const updated = processor(frontmatter);
       // TODO: this isn't actually going to work right... for deletes
       Object.assign(frontmatter, updated);

@@ -57,7 +57,7 @@ class GenericTextSuggest extends TextInputSuggest<FuzzyMatch<string>> {
   }
 }
 
-const OBSIDIAN_ILLEGAL_FILENAME_CHARS = /[/\\:*?"<>|#^\[\]]/g;
+const OBSIDIAN_ILLEGAL_FILENAME_CHARS = /[/\\:*?"<>|#^[\]]/g;
 
 function generateTrackName(name: string): string {
   return name
