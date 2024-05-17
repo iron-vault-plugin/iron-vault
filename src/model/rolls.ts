@@ -192,7 +192,7 @@ export class RollWrapper {
         return [this.row.result];
       case RollResultKind.Multi:
         return this.selfRolls.flatMap((r) => r.results);
-      case RollResultKind.Templated:
+      case RollResultKind.Templated: {
         const templateString = this.row.template?.result;
         if (templateString == null) {
           throw new Error(
@@ -202,7 +202,7 @@ export class RollWrapper {
         return [
           templateString.replace(
             /\{\{result:([^{}]+)\}\}/g,
-            (_: any, id: string) => {
+            (_, id: string) => {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const templateRolls = this.subrolls[id];
               if (templateRolls == null) {
@@ -212,6 +212,7 @@ export class RollWrapper {
             },
           ),
         ];
+      }
     }
   }
 }

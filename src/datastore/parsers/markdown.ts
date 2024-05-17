@@ -30,7 +30,7 @@ export function parserForFrontmatter(
 }
 
 export function dataforgedInlineParser(content: string): ParserReturn {
-  let matches = content.match(
+  const matches = content.match(
     /^```[^\S\r\n]*data(forged|sworn)\s?\n([\s\S]+?)^```/m,
   );
   if (matches == null) {

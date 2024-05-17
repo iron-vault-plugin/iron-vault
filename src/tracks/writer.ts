@@ -20,7 +20,7 @@ export class ProgressTrackFileWriter implements ProgressTrackWriterContext {
     public readonly adapter: ProgressTrackFileAdapter,
     public readonly settings: ProgressTrackSettings,
     public readonly processor: (
-      process: (data: any) => object,
+      process: (data: unknown) => object,
     ) => Promise<void>,
     public readonly location: string,
   ) {}
@@ -47,7 +47,7 @@ export class LegacyTrackWriter implements ProgressTrackWriterContext {
   constructor(
     public readonly character: CharacterContext,
     public readonly processor: (
-      process: (data: any) => object,
+      process: (data: unknown) => object,
     ) => Promise<void>,
     public readonly trackKey: string,
     public readonly location: string,

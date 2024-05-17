@@ -144,7 +144,7 @@ const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
 
   creature: {
     label: "Creature",
-    nameGen: (ent) => "TBD",
+    nameGen: (_ent) => "TBD",
     spec: {
       environment: {
         id: "starforged/oracles/creatures/environment",
@@ -222,7 +222,7 @@ export async function generateEntityCommand(
   plugin: ForgedPlugin,
   editor: Editor,
 ): Promise<void> {
-  const [_key, entityDesc] = await CustomSuggestModal.select(
+  const [, entityDesc] = await CustomSuggestModal.select(
     plugin.app,
     Object.entries(ENTITIES),
     ([_key, { label }]) => label,

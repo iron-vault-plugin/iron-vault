@@ -25,6 +25,7 @@ function getHighestPriorityChecked<K extends string, V>(
 function getHighestPriority<K extends string, V>(
   entries: Array<Sourced<K, V>>,
 ): Sourced<K, V> | undefined {
+  // eslint-disable-next-line prefer-const
   let [first, ...rest] = entries;
   if (first === undefined) {
     return undefined;
@@ -59,8 +60,8 @@ export class PriorityIndexer<K extends string, V> implements ReadonlyMap<K, V> {
   }
 
   forEach(
-    callbackfn: (value: V, key: K, map: ReadonlyMap<K, V>) => void,
-    thisArg?: any,
+    _callbackfn: (value: V, key: K, map: ReadonlyMap<K, V>) => void,
+    _thisArg?: unknown,
   ): void {
     throw new Error("Method not implemented.");
   }

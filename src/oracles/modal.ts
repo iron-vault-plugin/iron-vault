@@ -68,7 +68,7 @@ export class OracleRollerModal extends Modal {
           });
       });
 
-    this.scope.register([], "r", (evt, ctx) => {
+    this.scope.register([], "r", () => {
       setRoll(this.currentRoll.reroll());
       return false;
     });

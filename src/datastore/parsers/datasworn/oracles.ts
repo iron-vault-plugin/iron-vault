@@ -101,7 +101,7 @@ export class DataswornOracle implements Oracle {
       for (const [, id] of template.result.matchAll(
         /\{\{result:([^{}]+)\}\}/g,
       )) {
-        let prevRoll = subrolls[id];
+        const prevRoll = subrolls[id];
         if (!prevRoll) {
           const subTable = context.lookup(id);
           if (subTable == null) {
@@ -151,7 +151,7 @@ export class DataswornOracle implements Oracle {
           }
         }
 
-        let subrollable: Oracle | undefined =
+        const subrollable: Oracle | undefined =
           subOracle.oracle == null ? this : context.lookup(subOracle.oracle);
         if (!subrollable)
           throw new Error(
@@ -186,6 +186,8 @@ export class DataswornOracle implements Oracle {
                 this.id,
                 subOracle.oracle,
               );
+              results.push(roll);
+              break;
             case "keep":
               results.push(roll);
               break;

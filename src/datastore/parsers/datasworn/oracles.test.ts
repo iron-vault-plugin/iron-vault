@@ -3,7 +3,9 @@ import assert from "assert";
 import { OracleGrouping, OracleGroupingType } from "../../../model/oracle";
 import { DataswornOracle } from "./oracles";
 
-const data = require("@datasworn/starforged/json/starforged.json") as Ruleset;
+import rawSfData from "@datasworn/starforged/json/starforged.json";
+
+const data: Ruleset = rawSfData as Ruleset;
 
 function loadOracle(...[first, ...rest]: string[]): DataswornOracle {
   let collection: OracleCollection = data.oracles[first];

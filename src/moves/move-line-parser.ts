@@ -49,7 +49,7 @@ function modifierWithDesc(): Parser<{ amount: number; desc: string }> {
 function descriptor(): Parser<string> {
   return takeMid(
     string("{"),
-    regexp(/[^\}\{]+/g, "string without curly braces"),
+    regexp(/[^}{]+/g, "string without curly braces"),
     string("}"),
   );
 }
