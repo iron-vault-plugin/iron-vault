@@ -12,13 +12,11 @@ health: 5
 forgedkind: character
 assets:
   - id: starforged/assets/path/empath
-    marked_abilities:
-      - 1
+    abilities: [true, false, false]
     controls: {}
     options: {}
   - id: starforged/assets/command_vehicle/starship
-    marked_abilities:
-      - 1
+    abilities: [true, false, false]
     controls:
       integrity: 5
       integrity/battered: false
