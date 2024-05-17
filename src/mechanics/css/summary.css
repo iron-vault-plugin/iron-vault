@@ -23,6 +23,9 @@
     padding: 0.5em 1em;
     text-align: left;
     font-weight: var(--font-extrabold);
+    &::marker {
+      content: none;
+    }
     & > button:last-child {
       margin-left: 1em;
       margin-top: -0.2em;
