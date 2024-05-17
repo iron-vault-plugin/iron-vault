@@ -2,6 +2,7 @@ import { Asset } from "@datasworn/core";
 import ForgedPlugin from "index";
 import { Editor, FuzzyMatch, MarkdownView } from "obsidian";
 import { vaultProcess } from "utils/obsidian";
+import { titleCase } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
 import {
@@ -12,14 +13,10 @@ import {
   updateAssetWithOptions,
 } from "./assets";
 
-export function titleCase(str: string): string {
-  return str.slice(0, 1).toUpperCase() + str.slice(1);
-}
-
 export async function addAssetToCharacter(
   plugin: ForgedPlugin,
-  editor: Editor,
-  view: MarkdownView,
+  _editor: Editor,
+  _view: MarkdownView,
 ): Promise<void> {
   const [path, context] = plugin.characters.activeCharacter();
   const { character, lens } = context;
@@ -37,7 +34,7 @@ export async function addAssetToCharacter(
     plugin.app,
     availableAssets,
     (asset) => asset.name,
-    ({ item: asset, match }: FuzzyMatch<Asset>, el: HTMLElement) => {
+    ({ item: asset }: FuzzyMatch<Asset>, el: HTMLElement) => {
       el.createEl("small", {
         text:
           asset.category +
@@ -61,7 +58,7 @@ export async function addAssetToCharacter(
         const choice = await CustomSuggestModal.select(
           plugin.app,
           Object.entries(optionControl.choices),
-          ([choiceKey, choice]) => choice.label,
+          ([_choiceKey, choice]) => choice.label,
           undefined,
           titleCase(optionControl.label),
         );

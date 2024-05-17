@@ -175,7 +175,8 @@ export default class ForgedPlugin extends Plugin {
           this,
           editor,
           "take",
-          ({ value, definition: { max } }) => value < max,
+          ({ value, definition: { max } }) =>
+            value === undefined || value < max,
           (measure) =>
             Array(measure.definition.max - measure.value)
               .fill(0)
@@ -191,7 +192,8 @@ export default class ForgedPlugin extends Plugin {
           this,
           editor,
           "suffer",
-          ({ value, definition: { min } }) => value > min,
+          ({ value, definition: { min } }) =>
+            value === undefined || value > min,
           (measure) =>
             Array(measure.value - measure.definition.min)
               .fill(0)

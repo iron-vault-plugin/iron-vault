@@ -17,7 +17,11 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { MeterCommon } from "rules/ruleset";
-import { momentumOps } from "../../characters/lens";
+import {
+  MeterWithLens,
+  MeterWithoutLens,
+  momentumOps,
+} from "../../characters/lens";
 import { ProgressContext } from "../../tracks/context";
 import { selectProgressTrack } from "../../tracks/select";
 import { ProgressTrackWriterContext } from "../../tracks/writer";
@@ -240,56 +244,13 @@ async function handleActionRoll(
   move: MoveActionRoll,
 ) {
   const suggestedRollables = suggestedRollablesForMove(move);
-  const availableRollables = actionContext.rollables;
 
-  const choice = await CustomSuggestModal.selectWithUserEntry(
+  const stat = await promptForRollable(
     app,
-    availableRollables
-      .map((meter) => {
-        return { ...meter, condition: suggestedRollables[meter.key] ?? [] };
-      })
-      .sort((a, b) => {
-        if (a.condition.length > 0 && b.condition.length == 0) {
-          return -1;
-        } else if (a.condition.length == 0 && b.condition.length > 0) {
-          return 1;
-        } else {
-          return (
-            (b.value ?? 0) - (a.value ?? 0) ||
-            a.definition.label.localeCompare(b.definition.label)
-          );
-        }
-      }),
-    (m) => `${m.definition.label}: ${m.value ?? "unknown"}`,
-    (input, el) => {
-      el.setText(`Use custom meter '${input}'`);
-    },
-    ({ item }, el) => {
-      if (item.condition.length > 0) {
-        el.createEl("small", {
-          text: `Trigger: ${item.condition.flatMap((cond) => cond.text ?? []).join("; ")}`,
-          cls: "forged-suggest-hint",
-        });
-      }
-    },
-    move.trigger.text,
+    actionContext,
+    suggestedRollables,
+    move,
   );
-
-  const stat =
-    choice.kind == "pick"
-      ? choice.value
-      : {
-          key: choice.custom,
-          value: undefined,
-          condition: [],
-          definition: {
-            kind: "stat",
-            label: choice.custom,
-            min: 0,
-            max: 10,
-            rollable: true,
-          } satisfies MeterCommon,
-        };
 
   // This stat has an unknown value, so we need to prompt the user for a value.
   if (!stat.value) {
@@ -342,4 +303,68 @@ async function handleActionRoll(
   }
 
   return description;
+}
+
+async function promptForRollable(
+  app: App,
+  actionContext: ActionContext,
+  suggestedRollables: Record<
+    string,
+    Omit<TriggerActionRollCondition, "roll_options">[]
+  >,
+  move: MoveActionRoll,
+): Promise<
+  (MeterWithLens | MeterWithoutLens) & {
+    condition: Omit<TriggerActionRollCondition, "roll_options">[];
+  }
+> {
+  const availableRollables = actionContext.rollables;
+
+  const { value: stat } = await CustomSuggestModal.selectWithUserEntry(
+    app,
+    availableRollables
+      .map((meter) => ({
+        ...meter,
+        condition: suggestedRollables[meter.key] ?? [],
+      }))
+      .sort((a, b) => {
+        if (a.condition.length > 0 && b.condition.length == 0) {
+          return -1;
+        } else if (a.condition.length == 0 && b.condition.length > 0) {
+          return 1;
+        } else {
+          return (
+            (b.value ?? 0) - (a.value ?? 0) ||
+            a.definition.label.localeCompare(b.definition.label)
+          );
+        }
+      }),
+    (m) => `${m.definition.label}: ${m.value ?? "unknown"}`,
+    (input, el) => {
+      el.setText(`Use custom meter '${input}'`);
+    },
+    ({ item }, el) => {
+      if (item.condition.length > 0) {
+        el.createEl("small", {
+          text: `Trigger: ${item.condition.flatMap((cond) => cond.text ?? []).join("; ")}`,
+          cls: "forged-suggest-hint",
+        });
+      }
+    },
+    move.trigger.text,
+    (custom) => ({
+      key: custom,
+      value: undefined,
+      lens: undefined,
+      condition: [],
+      definition: {
+        kind: "stat",
+        label: custom,
+        min: 0,
+        max: 10,
+        rollable: true,
+      } satisfies MeterCommon,
+    }),
+  );
+  return stat;
 }

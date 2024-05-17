@@ -27,8 +27,8 @@ export function processMatches(
   }
 }
 
-export type UserChoice<T> =
-  | { kind: "custom"; custom: string }
+export type UserChoice<T, U = undefined> =
+  | { kind: "custom"; custom: string; value: U }
   | { kind: "pick"; value: T };
 
 export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
@@ -76,11 +76,29 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     items: T[],
     getItemText: (item: T) => string,
     renderUserEntry: (input: string, el: HTMLElement) => void,
-    renderExtras?: (match: FuzzyMatch<T>, el: HTMLElement) => void,
-    placeholder?: string,
-  ): Promise<UserChoice<T>> {
+    renderExtras: (match: FuzzyMatch<T>, el: HTMLElement) => void,
+    placeholder: string,
+  ): Promise<UserChoice<T, undefined>>;
+  static async selectWithUserEntry<T, U = T>(
+    app: App,
+    items: T[],
+    getItemText: (item: T) => string,
+    renderUserEntry: (input: string, el: HTMLElement) => void,
+    renderExtras: (match: FuzzyMatch<T>, el: HTMLElement) => void,
+    placeholder: string,
+    createUserValue: (input: string) => U,
+  ): Promise<UserChoice<T, U>>;
+  static async selectWithUserEntry<T>(
+    app: App,
+    items: T[],
+    getItemText: (item: T) => string,
+    renderUserEntry: (input: string, el: HTMLElement) => void,
+    renderExtras: (match: FuzzyMatch<T>, el: HTMLElement) => void,
+    placeholder: string,
+    createUserValue?: (input: string) => unknown,
+  ): Promise<UserChoice<T, unknown>> {
     return await new Promise((resolve, reject) => {
-      new this<UserChoice<T>>(
+      new this<UserChoice<T, unknown>>(
         app,
         items.map((value) => ({ kind: "pick", value })),
         (choice) =>
@@ -109,7 +127,11 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
         resolve,
         reject,
         placeholder,
-        (custom) => ({ kind: "custom", custom }),
+        (custom) => ({
+          kind: "custom",
+          custom,
+          value: createUserValue ? createUserValue(custom) : undefined,
+        }),
       ).open();
     });
   }
@@ -174,7 +196,6 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
         match: { score: Number.NEGATIVE_INFINITY, matches: [] },
       });
     }
-    console.log(results);
     sortSearchResults(results);
     return results;
   }

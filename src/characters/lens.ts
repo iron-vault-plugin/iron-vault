@@ -340,14 +340,24 @@ export function conditionMetersReader(
   });
 }
 
+export const MOMENTUM_METER_DEFINITION: MeterWithoutLens<ConditionMeterDefinition> =
+  {
+    key: "momentum",
+    lens: undefined,
+    value: undefined,
+    definition: new ConditionMeterDefinition({
+      label: "momentum",
+      min: -6,
+      max: 10,
+      rollable: true,
+    }),
+  };
+
 export function meterLenses(
   charLens: CharacterLens,
   character: ValidatedCharacter,
   dataIndex: DataIndex,
-): Record<
-  string,
-  { key: string; definition: ConditionMeterDefinition; lens: CharLens<number> }
-> {
+): Record<string, MeterWithLens<ConditionMeterDefinition>> {
   const baseMeters = Object.fromEntries(
     Object.entries(charLens.condition_meters).map(([key, lens]) => [
       key,
@@ -377,37 +387,46 @@ export function meterLenses(
     .map((val) => [val.key, val]);
   return {
     ...baseMeters,
-    momentum: {
-      key: "momentum",
-      lens: charLens.momentum,
-      definition: new ConditionMeterDefinition({
-        label: "momentum",
-        min: -6,
-        max: 10,
-        rollable: true,
-      }),
-    },
+    momentum: { ...MOMENTUM_METER_DEFINITION, lens: charLens.momentum },
     ...Object.fromEntries(allAssetMeters),
   };
 }
 
+export type KeyWithDefinition<T> = { key: string; definition: T };
+
+export type WithCharLens<Base, T> = Base & { lens: CharLens<T>; value: T };
+export type WithoutCharLens<Base> = Base & {
+  lens: undefined;
+  value: undefined;
+};
+
+export type MeterWithoutLens<T extends MeterCommon = MeterCommon> =
+  WithoutCharLens<KeyWithDefinition<T>>;
+
+export type MeterWithLens<T extends MeterCommon = MeterCommon> = WithCharLens<
+  KeyWithDefinition<T>,
+  number
+>;
+
 export function rollablesReader(
   charLens: CharacterLens,
   dataIndex: DataIndex,
-): CharReader<{ key: string; value: number; definition: MeterCommon }[]> {
+): CharReader<MeterWithLens[]> {
   return reader((character) => {
     return [
       ...Object.values(meterLenses(charLens, character, dataIndex)).map(
         ({ key, definition, lens }) => ({
           key,
           definition,
+          lens,
           value: lens.get(character),
         }),
       ),
       ...Object.entries(charLens.stats).map(([key, lens]) => ({
         key,
-        value: lens.get(character),
         definition: charLens.ruleset.stats[key],
+        lens,
+        value: lens.get(character),
       })),
     ];
   });
