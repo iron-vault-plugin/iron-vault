@@ -23,12 +23,7 @@ import {
   reader,
   updating,
 } from "../utils/lens";
-import {
-  AssetError,
-  assetMeters,
-  assetWithDefnReader,
-  defaultMarkedAbilitiesForAsset,
-} from "./assets";
+import { AssetError, assetMeters, assetWithDefnReader } from "./assets";
 
 const ValidationTag: unique symbol = Symbol("validated ruleset");
 
@@ -39,7 +34,7 @@ export type ValidatedCharacter = {
 
 export const characterAssetSchema = z.object({
   id: z.string(),
-  marked_abilities: z.array(z.number().int().positive()).optional(),
+  abilities: z.array(z.boolean()),
   controls: z
     .record(z.union([z.string(), z.number().int(), z.boolean()]).nullable())
     .default({}),
@@ -310,16 +305,13 @@ export function movesReader(
   const assetReader = assetWithDefnReader(charLens, index);
   return reader((source) => {
     return collectEither(assetReader.get(source)).map((assets) =>
-      assets.flatMap(({ asset, defn }) => {
-        const moveList: Move[] = [];
-        const marked_abilities = asset.marked_abilities ?? [];
-        for (const [idx, ability] of defn.abilities.entries()) {
-          if (marked_abilities.includes(idx + 1)) {
-            moveList.push(...Object.values(ability.moves ?? {}));
-          }
-        }
-        return moveList;
-      }),
+      assets.flatMap(({ asset: assetConfig, defn }) =>
+        defn.abilities
+          // Take only enabled abilities
+          .filter((_ability, index) => assetConfig.abilities[index])
+          // Gather moves
+          .flatMap((ability) => Object.values(ability.moves ?? {})),
+      ),
     );
   });
 }
@@ -377,11 +369,7 @@ export function meterLenses(
         return [];
       } else {
         const { asset, defn } = assetResult.value;
-        return assetMeters(
-          charLens,
-          defn,
-          asset.marked_abilities ?? defaultMarkedAbilitiesForAsset(defn),
-        );
+        return assetMeters(charLens, defn, asset.abilities);
       }
     })
     .map((val) => [val.key, val]);
