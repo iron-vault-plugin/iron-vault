@@ -29,7 +29,7 @@
         content: " | ";
       }
     }
-    &.score, &.progress-score {
+    &.score {
       &:before {
         content: " = ";
       }

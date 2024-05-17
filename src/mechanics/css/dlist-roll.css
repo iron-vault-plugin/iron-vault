@@ -2,7 +2,7 @@
   &:before {
     content: "🎲";
   }
-  &.progress .progress-score:before {
+  &.progress .track-name:before {
     content: "(progress) ";
   }
   & dd {

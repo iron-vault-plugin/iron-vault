@@ -140,9 +140,9 @@ export class MechanicsRenderer {
       case "progress-roll": {
         this.lastRoll = node;
         this.lastRoll.properties.score =
-          node.properties.score ?? node.values[0];
-        this.lastRoll.properties.vs1 = node.properties.vs1 ?? node.values[1];
-        this.lastRoll.properties.vs2 = node.properties.vs2 ?? node.values[2];
+          node.properties.score ?? node.values[1];
+        this.lastRoll.properties.vs1 = node.properties.vs1 ?? node.values[2];
+        this.lastRoll.properties.vs2 = node.properties.vs2 ?? node.values[3];
         await this.renderProgressRoll(target, node);
         break;
       }
@@ -434,9 +434,10 @@ export class MechanicsRenderer {
   }
 
   async renderProgressRoll(target: HTMLElement, node: KdlNode) {
-    const score = (node.properties.score ?? node.values[0]) as number;
-    const challenge1 = (node.properties.vs1 ?? node.values[1]) as number;
-    const challenge2 = (node.properties.vs2 ?? node.values[2]) as number;
+    const trackName = (node.properties.name ?? node.values[0]) as string;
+    const score = (node.properties.score ?? node.values[1]) as number;
+    const challenge1 = (node.properties.vs1 ?? node.values[2]) as number;
+    const challenge2 = (node.properties.vs2 ?? node.values[3]) as number;
     const {
       cls: outcomeClass,
       text: outcome,
@@ -444,6 +445,7 @@ export class MechanicsRenderer {
     } = rollOutcome(score, challenge1, challenge2);
     this.setMoveHit(outcomeClass, match);
     await this.renderDlist(target, "roll progress " + outcomeClass, {
+      "Track Name": { cls: "track-name", value: trackName, md: true },
       "Progress Score": { cls: "progress-score", value: score },
       "Challenge Die 1": { cls: "challenge-die", value: challenge1 },
       "Challenge Die 2": { cls: "challenge-die", value: challenge2 },

@@ -31,8 +31,8 @@ move "Undertake an Expedition" {
     unknown "hahahah"
 }
 move "Finish an Expedition" {
-    progress-roll score=2 vs1=1 vs2=3
-    progress-roll 2 1 3 // <score> <vs1> <vs2>
+    progress-roll "Deep into the Vault" score=2 vs1=1 vs2=3
+    progress-roll "Deep into the Vault" 2 1 3 // <name> <score> <vs1> <vs2>
 }
 move "[[Chapter 02]]" {
   - "**bold text** *italic* [[README]]"
