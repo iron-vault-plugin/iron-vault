@@ -44,5 +44,33 @@ export class ForgedSettingTab extends PluginSettingTab {
           .setValue(settings.useCharacterSystem)
           .onChange((value) => this.updateSetting("useCharacterSystem", value)),
       );
+
+    //--- Mechanics blocks
+
+    new Setting(containerEl).setName("Mechanics blocks").setHeading();
+
+    new Setting(containerEl)
+      .setName("Collapse move blocks")
+      .setDesc(
+        "If enabled (default), moves in mechanics blocks will only show the move name and result by default, and you'll need to click on them to see move details.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.collapseMoves)
+          .onChange((value) => this.updateSetting("collapseMoves", value)),
+      );
+
+    new Setting(containerEl)
+      .setName("Show mechanics toggle")
+      .setDesc(
+        "If enabled (default), mechanics blocks will show a small 'Hide mechanics' toggle underneath the mechanics items.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.showMechanicsToggle)
+          .onChange((value) =>
+            this.updateSetting("showMechanicsToggle", value),
+          ),
+      );
   }
 }

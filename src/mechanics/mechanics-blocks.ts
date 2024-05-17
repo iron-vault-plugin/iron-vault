@@ -75,7 +75,7 @@ export class MechanicsRenderer {
   }
 
   async renderToggleButton() {
-    if (!this.mechNode) {
+    if (!this.mechNode || !this.plugin.settings.showMechanicsToggle) {
       return;
     }
     const btn = new ButtonComponent(this.mechNode);
@@ -209,6 +209,9 @@ export class MechanicsRenderer {
       : moves.find((x) => x.name.toLowerCase() === name?.toLowerCase());
     const moveName = name ?? move?.name;
     this.moveEl = target.createEl("details", { cls: "move" });
+    if (!this.plugin.settings.collapseMoves) {
+      this.moveEl.setAttribute("open", "open");
+    }
     const summary = this.moveEl.createEl("summary");
     if (moveName) {
       await this.renderMarkdown(summary, moveName);

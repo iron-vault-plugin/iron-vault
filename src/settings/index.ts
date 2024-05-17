@@ -24,11 +24,19 @@ export interface ForgedPluginSettings
 
   /** Use the character system */
   useCharacterSystem: boolean;
+
+  /** Set moves in mechanics blocks to be collapsed initially */
+  collapseMoves: boolean;
+
+  /** Hide "Hide mechanics" toggle */
+  showMechanicsToggle: boolean;
 }
 
 export const DEFAULT_SETTINGS: ForgedPluginSettings = {
   moveBlockFormat: MoveBlockFormat.Mechanics,
   useCharacterSystem: true,
+  collapseMoves: true,
+  showMechanicsToggle: true,
   oraclesFolder: "",
   momentumResetTemplate:
     "> [!mechanics] {{character.name}} burned momentum: {{oldValue}} -> {{newValue}}\n\n",
