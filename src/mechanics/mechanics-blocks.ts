@@ -1,4 +1,5 @@
-import { parse, Node as KdlNode } from "kdljs";
+import { type Datasworn } from "@datasworn/core";
+import { Node as KdlNode, parse } from "kdljs";
 import {
   App,
   ButtonComponent,
@@ -6,7 +7,6 @@ import {
   MarkdownRenderer,
   Modal,
 } from "obsidian";
-import { Move } from "@datasworn/core";
 
 import ForgedPlugin from "../index";
 
@@ -204,7 +204,7 @@ export class MechanicsRenderer {
     const id = node.properties.id as string | undefined;
     const name = (node.properties.name ?? node.values[0]) as string | undefined;
     const move = id
-      ? moves.find((x) => x.id === id) ??
+      ? moves.find((x) => x._id === id) ??
         moves.find((x) => x.name.toLowerCase() === name?.toLowerCase())
       : moves.find((x) => x.name.toLowerCase() === name?.toLowerCase());
     const moveName = name ?? move?.name;
@@ -649,17 +649,22 @@ function levelTicks(level: string): number {
 
 export class MoveModal extends Modal {
   plugin: ForgedPlugin;
-  move: Move;
+  move: Datasworn.Move;
   sourcePath: string;
 
-  constructor(app: App, plugin: ForgedPlugin, sourcePath: string, move: Move) {
+  constructor(
+    app: App,
+    plugin: ForgedPlugin,
+    sourcePath: string,
+    move: Datasworn.Move,
+  ) {
     super(app);
     this.plugin = plugin;
     this.move = move;
     this.sourcePath = sourcePath;
   }
 
-  openMove(move: Move) {
+  openMove(move: Datasworn.Move) {
     const { contentEl } = this;
     (async () => {
       await MarkdownRenderer.render(
@@ -674,7 +679,7 @@ export class MoveModal extends Modal {
           const id = child.getAttribute("href")?.slice(3);
           ev.preventDefault();
           const move = this.plugin.datastore.moves.find(
-            (move) => move.id === id,
+            (move) => move._id === id,
           );
           if (move) {
             contentEl.empty();

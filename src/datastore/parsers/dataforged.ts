@@ -1,4 +1,4 @@
-import { Asset, Move, OracleCollection, RulesPackage } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { DataIndex } from "../../datastore/data-index";
 import {
   Oracle,
@@ -14,39 +14,42 @@ export function indexDataForgedData(
   index: DataIndex,
   normalizedPath: string,
   priority: number,
-  ruleset: RulesPackage,
+  ruleset: Datasworn.RulesPackage,
 ): void {
   index.indexSource(normalizedPath, priority, {
     oracles: indexIntoOracleMap(ruleset),
     moves: Object.values(ruleset.moves ?? {}).flatMap(
-      (category): Array<[string, Move]> =>
-        Object.values(category.contents ?? {}).map((m) => [m.id, m]),
+      (category): Array<[string, Datasworn.Move]> =>
+        Object.values(category.contents ?? {}).map((m) => [m._id, m]),
     ),
     assets: Object.values(ruleset.assets ?? {}).flatMap(
-      (category): Array<[string, Asset]> =>
+      (category): Array<[string, Datasworn.Asset]> =>
         Object.values(category.contents ?? {}).map((asset) => [
-          asset.id,
+          asset._id,
           asset,
         ]),
     ),
     // TODO: we should also be able to index ruleset expansions, but that's not currently supported by this
     rulesets:
-      ruleset.package_type == "ruleset"
-        ? { [ruleset.id]: new Ruleset(ruleset.id, ruleset.rules) }
+      ruleset.type == "ruleset"
+        ? { [ruleset._id]: new Ruleset(ruleset._id, ruleset.rules) }
         : {},
   });
 }
 
 type OracleMap = Map<string, Oracle>;
 
-export function indexIntoOracleMap(data: RulesPackage): OracleMap {
+export function indexIntoOracleMap(data: Datasworn.RulesPackage): OracleMap {
   const index: OracleMap = new Map();
-  function expand(collection: OracleCollection, parent: OracleGrouping): void {
+  function expand(
+    collection: Datasworn.OracleCollection,
+    parent: OracleGrouping,
+  ): void {
     const newParent: OracleCollectionGrouping = {
       grouping_type: OracleGroupingType.Collection,
       name: collection.name,
       parent,
-      id: collection.id,
+      id: collection._id,
     };
     // TODO: do we need/want to handle any of these differently? Main thing might be
     // different grouping types, so we can adjust display in some cases?
@@ -54,16 +57,24 @@ export function indexIntoOracleMap(data: RulesPackage): OracleMap {
     // instead of the individual tables
     switch (collection.oracle_type) {
       case "tables":
-      case "table_shared_results":
       case "table_shared_rolls":
-      case "table_shared_details":
+      case "table_shared_text":
+      case "table_shared_text2":
+      case "table_shared_text3":
         if (collection.contents != null) {
-          for (const oracle of Object.values(collection.contents)) {
-            index.set(oracle.id, new DataswornOracle(oracle, newParent));
+          for (const oracle of Object.values<Datasworn.OracleRollable>(
+            collection.contents,
+          )) {
+            index.set(oracle._id, new DataswornOracle(oracle, newParent));
           }
         }
 
         break;
+      default: {
+        const invalid: never = collection;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        throw new Error(`unexpected type ${(invalid as any).oracle_type}`);
+      }
     }
 
     if ("collections" in collection) {
@@ -73,8 +84,8 @@ export function indexIntoOracleMap(data: RulesPackage): OracleMap {
     }
   }
   const rootGrouping: OracleRulesetGrouping = {
-    id: data.id,
-    name: data.title ?? data.id,
+    id: data._id,
+    name: data.title ?? data._id,
     grouping_type: OracleGroupingType.Ruleset,
   };
 

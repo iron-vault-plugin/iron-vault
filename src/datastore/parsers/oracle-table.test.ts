@@ -1,4 +1,4 @@
-import { OracleTableSimple } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { extractOracleTable, parseResultTemplate } from "./oracle-table";
 
 describe("extractOracleTable", () => {
@@ -10,8 +10,8 @@ describe("extractOracleTable", () => {
     | 3-5       | [Theme](id:starforged/oracles/core/theme) |
     | 6       | Just foo |
     `;
-    const expectedOracle: Partial<OracleTableSimple> = {
-      id: "custom/oracles/foo",
+    const expectedOracle: Partial<Datasworn.OracleTableText> = {
+      _id: "custom/oracles/foo",
       //name: "Foo",
       dice: "1d6",
       // source: {
@@ -21,30 +21,28 @@ describe("extractOracleTable", () => {
       //   title: "Tests",
       //   url: "https://example.com",
       // },
-      column_labels: { roll: "Roll", result: "Something special" },
-      oracle_type: "table_simple",
+      column_labels: { roll: "Roll", text: "Something special" },
+      type: "oracle_rollable",
+      oracle_type: "table_text",
       rows: [
         {
-          id: "custom/oracles/foo/1-2",
           min: 1,
           max: 2,
-          result: "[Action](id:starforged/oracles/core/action)",
-          template: { result: "{{result:starforged/oracles/core/action}}" },
+          text: "[Action](id:starforged/oracles/core/action)",
+          template: { text: "{{text:starforged/oracles/core/action}}" },
         },
         {
-          id: "custom/oracles/foo/3-5",
           min: 3,
           max: 5,
-          result: "[Theme](id:starforged/oracles/core/theme)",
+          text: "[Theme](id:starforged/oracles/core/theme)",
           template: {
-            result: "{{result:starforged/oracles/core/theme}}",
+            text: "{{text:starforged/oracles/core/theme}}",
           },
         },
         {
-          id: "custom/oracles/foo/6-6",
           min: 6,
           max: 6,
-          result: "Just foo",
+          text: "Just foo",
         },
       ],
     };
@@ -58,8 +56,8 @@ describe("parseResultTemplate", () => {
   it("parses a result template", () => {
     expect(
       parseResultTemplate("[Action](id:starforged/oracles/core/action)"),
-    ).toEqual({
-      result: "{{result:starforged/oracles/core/action}}",
+    ).toEqual<Datasworn.OracleRollTemplate>({
+      text: "{{text:starforged/oracles/core/action}}",
     });
   });
 
@@ -68,9 +66,8 @@ describe("parseResultTemplate", () => {
       parseResultTemplate(
         "[Action](id:starforged/oracles/core/action) [Theme](id:starforged/oracles/core/theme)",
       ),
-    ).toEqual({
-      result:
-        "{{result:starforged/oracles/core/action}} {{result:starforged/oracles/core/theme}}",
+    ).toEqual<Datasworn.OracleRollTemplate>({
+      text: "{{text:starforged/oracles/core/action}} {{text:starforged/oracles/core/theme}}",
     });
   });
 

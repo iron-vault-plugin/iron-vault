@@ -1,4 +1,4 @@
-import { Move } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { App } from "obsidian";
 import { ConditionMeterDefinition } from "rules/ruleset";
 import { vaultProcess } from "utils/obsidian";
@@ -19,7 +19,7 @@ import { InfoModal } from "../utils/ui/info";
 
 export interface IActionContext {
   readonly kind: "no_character" | "character";
-  readonly moves: Move[];
+  readonly moves: Datasworn.Move[];
   readonly rollables: (MeterWithLens | MeterWithoutLens)[];
   readonly conditionMeters: (
     | MeterWithLens<ConditionMeterDefinition>
@@ -37,7 +37,7 @@ export class NoCharacterActionConext implements IActionContext {
 
   constructor(public readonly datastore: Datastore) {}
 
-  get moves(): Move[] {
+  get moves(): Datasworn.Move[] {
     return this.datastore.moves;
   }
 

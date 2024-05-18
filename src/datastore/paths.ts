@@ -1,12 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // NOTE: This whole thing is a currently unused experiment.
-import {
-  Asset,
-  AssetAbility,
-  AssetAbilityControlField,
-  AssetConditionMeterControlField,
-  AssetControlField,
-} from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 
 export type ResourceKinds = "ability" | "asset" | "condition_meter";
 export type ResourcePathSegment<
@@ -20,14 +14,14 @@ export type ResourcePathTagged<T extends ResourcePathSegment<any, any>, U> = {
   value: U;
 };
 
-export type ResourceKindOf<T> = T extends AssetAbility
+export type ResourceKindOf<T> = T extends Datasworn.AssetAbility
   ? "ability"
-  : T extends Asset
+  : T extends Datasworn.Asset
     ? "asset"
     : never;
-export type ResourceParentPathOf<T> = T extends AssetAbility
-  ? ResourcePath<Asset>
-  : T extends Asset
+export type ResourceParentPathOf<T> = T extends Datasworn.AssetAbility
+  ? ResourcePath<Datasworn.Asset>
+  : T extends Datasworn.Asset
     ? null
     : never;
 
@@ -38,13 +32,19 @@ export type ResourcePath<T> = ResourcePathSegment<
 
 export type AssetConditionMeterResourcePath = ResourcePathSegment<
   "condition_meter",
-  ResourcePath<Asset>
+  ResourcePath<Datasworn.Asset>
 >;
 
 export type AssetControlFieldReference =
-  | ResourcePathTagged<ResourcePath<Asset>, AssetControlField>
-  | ResourcePathTagged<ResourcePath<AssetAbility>, AssetAbilityControlField>
+  | ResourcePathTagged<
+      ResourcePath<Datasworn.Asset>,
+      Datasworn.AssetControlField
+    >
+  | ResourcePathTagged<
+      ResourcePath<Datasworn.AssetAbility>,
+      Datasworn.AssetAbilityControlField
+    >
   | ResourcePathTagged<
       AssetConditionMeterResourcePath,
-      AssetConditionMeterControlField
+      Datasworn.AssetConditionMeterControlField
     >;

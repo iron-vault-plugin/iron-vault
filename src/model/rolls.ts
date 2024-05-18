@@ -10,7 +10,6 @@ export interface Roll {
    */
   roll: number;
   tableId: string;
-  rowId: string;
 
   /**
    * Subsidiary result rolls
@@ -70,7 +69,7 @@ export function subrollsEqual(
 
 export function sameRoll(roll1: Roll, roll2: Roll): boolean {
   // Rolls must have the same table, row
-  if (roll1.tableId !== roll2.tableId || roll1.rowId !== roll2.rowId)
+  if (roll1.tableId !== roll2.tableId || roll1.roll !== roll2.roll)
     return false;
 
   // If subrolls are present, rolls are the same if they have the same number of subrolls
@@ -87,7 +86,7 @@ export class RollWrapper {
     public readonly context: RollContext,
     public readonly roll: Roll = oracle.roll(context),
   ) {
-    this.row = oracle.row(roll.rowId);
+    this.row = oracle.row(roll.roll);
   }
 
   get variants(): Readonly<Record<string, RollWrapper>> {
@@ -99,7 +98,7 @@ export class RollWrapper {
   }
 
   dehydrate(): RollSchema {
-    const { kind, tableId, rowId, roll } = this.roll;
+    const { kind, tableId, roll } = this.roll;
     const subrolls = Object.values(this.subrolls).flatMap((subroll) => {
       return subroll.rolls.map((r) => r.dehydrate());
     });
@@ -124,10 +123,10 @@ export class RollWrapper {
         };
       }
       case RollResultKind.Templated: {
-        const templateString = this.row.template?.result;
+        const templateString = this.row.template?.text;
         if (templateString == null) {
           throw new Error(
-            `expected template result for ${rowId} of ${tableId}`,
+            `expected template result for ${tableId}/${this.row.range}`,
           );
         }
         return {
@@ -193,16 +192,16 @@ export class RollWrapper {
       case RollResultKind.Multi:
         return this.selfRolls.flatMap((r) => r.results);
       case RollResultKind.Templated: {
-        const templateString = this.row.template?.result;
+        const templateString = this.row.template?.text;
         if (templateString == null) {
           throw new Error(
-            `expected template result for ${this.row.id} of ${this.oracle.id}`,
+            `expected template result for ${this.oracle.id}/${this.row.range}`,
           );
         }
         return [
           templateString.replace(
-            /\{\{result:([^{}]+)\}\}/g,
-            (_, id: string) => {
+            /\{\{text:([^{}]+)\}\}/g,
+            (_: unknown, id: string) => {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const templateRolls = this.subrolls[id];
               if (templateRolls == null) {

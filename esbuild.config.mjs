@@ -10,7 +10,7 @@ if you want to view the source, please visit the github repository of this plugi
 
 const prod = process.argv[2] === "production";
 
-const ASSETS = ["styles.css", "starforged.json", "manifest.json"];
+const ASSETS = ["styles.css", "manifest.json"];
 
 const context = await esbuild.context({
   banner: {
@@ -56,18 +56,20 @@ const context = await esbuild.context({
 });
 
 const cssCtx = await esbuild.context({
-	entryPoints: ["src/styles.css"],
-	bundle: true,
-	sourcemap: prod ? false : "inline",
-  outfile: prod ? "styles.css" : "test-vault/.obsidian/plugins/forged/styles.css",
-	loader: {
-		".svg": "dataurl",
-	},
+  entryPoints: ["src/styles.css"],
+  bundle: true,
+  sourcemap: prod ? false : "inline",
+  outfile: prod
+    ? "styles.css"
+    : "test-vault/.obsidian/plugins/forged/styles.css",
+  loader: {
+    ".svg": "dataurl",
+  },
 });
 
 if (prod) {
-	await Promise.all([context.rebuild(), cssCtx.rebuild()]);
-	process.exit(0);
+  await Promise.all([context.rebuild(), cssCtx.rebuild()]);
+  process.exit(0);
 } else {
-	await Promise.all([context.watch(), cssCtx.watch()]);
+  await Promise.all([context.watch(), cssCtx.watch()]);
 }

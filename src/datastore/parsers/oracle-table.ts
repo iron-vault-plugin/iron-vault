@@ -1,8 +1,4 @@
-import {
-  OracleRollTemplate,
-  OracleTableRowSimple,
-  OracleTableSimple,
-} from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { NumberRange } from "../../model/rolls";
 import { matchTables } from "./table";
 
@@ -34,12 +30,12 @@ const TEMPLATE_REGEX = /\[[^[\]]+\]\(id:([\w_\-/]+)\)/gi;
 
 export function parseResultTemplate(
   input: string,
-): OracleRollTemplate | undefined {
+): Datasworn.OracleRollTemplate | undefined {
   const templateString = input.replace(TEMPLATE_REGEX, (_match, tableId) => {
-    return `{{result:${tableId}}}`;
+    return `{{text:${tableId}}}`;
   });
   if (input !== templateString) {
-    return { result: templateString };
+    return { text: templateString };
   } else {
     return undefined;
   }
@@ -48,7 +44,7 @@ export function parseResultTemplate(
 export function extractOracleTable(
   id: string,
   content: string,
-): Omit<OracleTableSimple, "name" | "source"> {
+): Omit<Datasworn.OracleTableText, "name" | "_source"> {
   const tables = matchTables(content);
   if (tables.length != 1) {
     throw new Error(`expected 1 table, found ${tables.length}`);
@@ -66,9 +62,10 @@ export function extractOracleTable(
     );
   }
   return {
-    oracle_type: "table_simple",
-    id,
-    column_labels: { roll: "Roll", result: header[1] },
+    _id: id,
+    type: "oracle_rollable",
+    oracle_type: "table_text",
+    column_labels: { roll: "Roll", text: header[1] },
     dice: dice[1].trim(),
     rows: body.map(([range, result], index) => {
       const parsedRange = parseRange(range);
@@ -76,11 +73,10 @@ export function extractOracleTable(
         throw new Error(`invalid range ${range} in row ${index}`);
       }
       const { min, max } = parsedRange;
-      const row: OracleTableRowSimple = {
-        id: `${id}/${min}-${max}`,
+      const row: Datasworn.OracleTableRowText = {
         min,
         max,
-        result: result,
+        text: result,
       };
       const template = parseResultTemplate(result);
       if (template) {

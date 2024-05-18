@@ -1,4 +1,4 @@
-import { Asset } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { DataIndex } from "../datastore/data-index";
 import { Ruleset } from "../rules/ruleset";
 import { ChallengeRanks, ProgressTrackSettings } from "../tracks/progress";
@@ -275,8 +275,9 @@ describe("momentumOps", () => {
 });
 
 // TODO: generate an actual test asset
-const TestAsset: Asset = {
-  id: "starforged/assets/path/empath",
+const TestAsset: Datasworn.Asset = {
+  _id: "starforged/assets/path/empath",
+  type: "asset",
   name: "Empath",
   category: "Path",
   color: "#3f7faa",
@@ -284,12 +285,13 @@ const TestAsset: Asset = {
   shared: false,
   abilities: [
     {
-      id: "starforged/assets/path/empath/abilities/0",
+      _id: "starforged/assets/path/empath/abilities/0",
       enabled: true,
       text: "When you read the intent, emotions, or memories of a nearby being, roll +heart. On a strong hit, you glimpse a helpful aspect of their inner self. Envision what you learn, take +2 momentum, and add +1 when you make moves to interact with them in this scene. On a weak hit, the visions are murky; take +1 momentum. On a miss, you reveal a troubling motive or secret; [Pay the Price](id:starforged/moves/fate/pay_the_price).",
       moves: {
         read_heart: {
-          id: "starforged/assets/path/empath/abilities/0/moves/read_heart",
+          _id: "starforged/assets/path/empath/abilities/0/moves/read_heart",
+          type: "move",
           name: "Read Heart",
           roll_type: "action_roll",
           trigger: {
@@ -318,7 +320,7 @@ const TestAsset: Asset = {
               text: "On a __miss__, you reveal a troubling motive or secret; [Pay the Price](id:starforged/moves/fate/pay_the_price).",
             },
           },
-          source: {
+          _source: {
             title: "Ironsworn: Starforged Assets",
             authors: [
               {
@@ -333,7 +335,7 @@ const TestAsset: Asset = {
       },
     },
     {
-      id: "starforged/assets/path/empath/abilities/1",
+      _id: "starforged/assets/path/empath/abilities/1",
       enabled: false,
       text: "As above, and if you score a hit as you read them, you may subtly influence their attitude or actions, such as making a hostile being hesitate. Take another +1 momentum. If in a fight, mark progress.",
       enhance_moves: [
@@ -346,7 +348,7 @@ const TestAsset: Asset = {
       ],
     },
     {
-      id: "starforged/assets/path/empath/abilities/2",
+      _id: "starforged/assets/path/empath/abilities/2",
       enabled: false,
       text: "When you [Face Danger](id:starforged/moves/adventure/face_danger) to soothe a being’s distress by creating an empathic bond, roll +spirit and take +1 momentum on a hit. If they are an ally, also give them +2 spirit on a hit.",
       enhance_moves: [
@@ -371,7 +373,7 @@ const TestAsset: Asset = {
       ],
     },
   ],
-  source: {
+  _source: {
     title: "Ironsworn: Starforged Assets",
     authors: [
       {
@@ -459,7 +461,7 @@ describe("movesReader", () => {
           )
           .unwrap(),
       ).toMatchObject([
-        { id: "starforged/assets/path/empath/abilities/0/moves/read_heart" },
+        { _id: "starforged/assets/path/empath/abilities/0/moves/read_heart" },
       ]);
     });
   });

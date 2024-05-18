@@ -1,14 +1,15 @@
 ---
-package_type: expansion
-id: delve
-datasworn_version: 0.0.5
+type: expansion
+_id: delve
+datasworn_version: 0.0.10
 ruleset: starforged
 oracles:
   templates:
-    id: starforgedsupp/collections/oracles/templates
+    _id: starforgedsupp/collections/oracles/templates
     name: Templates
+    type: oracle_collection
     oracle_type: tables
-    source:
+    _source:
       title: Original
       authors:
         - name: Shawn Tomkin
@@ -17,11 +18,12 @@ oracles:
       license: "???"
     contents:
       "actiontheme":
-        id: starforgedsupp/oracles/templates/actiontheme
-        oracle_type: table_simple
+        _id: starforgedsupp/oracles/templates/actiontheme
+        type: oracle_rollable
+        oracle_type: table_text
         name: "Action + Theme"
         dice: "1d100"
-        source:
+        _source:
           title: Original
           authors:
             - name: Shawn Tomkin
@@ -30,20 +32,20 @@ oracles:
           license: "???"
         column_labels:
           roll: Roll
-          result: Result
+          text: Result
         rows:
           - min: 1
             max: 100
-            id: "starforgedsupp/oracles/templates/actiontheme/1-100"
-            result: "[[⏵Action](id:starforged/oracles/core/action)] [[⏵Theme](id:starforged/oracles/core/theme)]"
+            text: "[[⏵Action](id:starforged/oracles/core/action)] [[⏵Theme](id:starforged/oracles/core/theme)]"
             template:
-              result: "{{result:starforged/oracles/core/action}} {{result:starforged/oracles/core/theme}}"
+              text: "{{text:starforged/oracles/core/action}} {{text:starforged/oracles/core/theme}}"
       "descriptorfocus":
-        id: starforgedsupp/oracles/templates/descriptorfocus
+        _id: starforgedsupp/oracles/templates/descriptorfocus
         name: Descriptor+Focus
         dice: "1d100"
-        oracle_type: table_simple
-        source:
+        type: oracle_rollable
+        oracle_type: table_text
+        _source:
           title: Original
           authors:
             - name: Shawn Tomkin
@@ -52,20 +54,20 @@ oracles:
           license: "???"
         column_labels:
           roll: Roll
-          result: Result
+          text: Result
         rows:
           - min: 1
             max: 100
-            id: "starforgedsupp/oracles/templates/descriptorfocus/1-100"
-            result: "[[⏵Descriptor](id:starforged/oracles/core/descriptor)] [[⏵Focus](id:starforged/oracles/core/focus)]"
+            text: "[[⏵Descriptor](id:starforged/oracles/core/descriptor)] [[⏵Focus](id:starforged/oracles/core/focus)]"
             template:
-              result: "{{result:starforged/oracles/core/descriptor}} {{result:starforged/oracles/core/focus}}"
+              text: "{{text:starforged/oracles/core/descriptor}} {{text:starforged/oracles/core/focus}}"
       "region":
-        id: starforgedsupp/oracles/templates/region
+        _id: starforgedsupp/oracles/templates/region
         name: Region of the Forge
         dice: "1d100"
-        oracle_type: table_simple
-        source:
+        type: oracle_rollable
+        oracle_type: table_text
+        _source:
           title: Original
           authors:
             - name: Shawn Tomkin
@@ -74,17 +76,14 @@ oracles:
           license: "???"
         column_labels:
           roll: Roll
-          result: Result
+          text: Result
         rows:
           - min: 1
             max: 33
-            id: "starforgedsupp/oracles/templates/region/1-33"
-            result: "Terminus"
+            text: "Terminus"
           - min: 34
             max: 66
-            id: "starforgedsupp/oracles/templates/region/34-66"
-            result: "Outlands"
+            text: "Outlands"
           - min: 67
             max: 100
-            id: "starforgedsupp/oracles/templates/region/67-100"
-            result: "Expanse"
+            text: "Expanse"

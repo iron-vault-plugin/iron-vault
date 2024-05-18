@@ -1,4 +1,4 @@
-import { Move } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { z } from "zod";
 import { DataIndex } from "../datastore/data-index";
 import {
@@ -301,7 +301,7 @@ export function countMarked(impacts: Record<string, ImpactStatus>): number {
 export function movesReader(
   charLens: CharacterLens,
   index: DataIndex,
-): CharReader<Either<AssetError[], Move[]>> {
+): CharReader<Either<AssetError[], Datasworn.Move[]>> {
   const assetReader = assetWithDefnReader(charLens, index);
   return reader((source) => {
     return collectEither(assetReader.get(source)).map((assets) =>

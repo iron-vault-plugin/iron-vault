@@ -1,13 +1,4 @@
-import {
-  Asset,
-  AssetAbilityControlField,
-  AssetAbilityOptionField,
-  AssetConditionMeter,
-  AssetConditionMeterControlField,
-  AssetControlField,
-  AssetOptionField,
-  ConditionMeterField,
-} from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { produce } from "immer";
 import { ConditionMeterDefinition } from "rules/ruleset";
 import { DataIndex } from "../datastore/data-index";
@@ -27,7 +18,9 @@ export function assetWithDefnReader(
   charLens: CharacterLens,
   index: DataIndex,
 ): CharReader<
-  Array<Either<AssetError, { asset: ForgedSheetAssetSchema; defn: Asset }>>
+  Array<
+    Either<AssetError, { asset: ForgedSheetAssetSchema; defn: Datasworn.Asset }>
+  >
 > {
   return reader((source) => {
     return charLens.assets.get(source).map((asset) => {
@@ -55,18 +48,20 @@ export function extendPathed<T>(
 }
 
 type AnyControlField =
-  | AssetControlField
-  | AssetAbilityControlField
-  | AssetConditionMeterControlField;
+  | Datasworn.AssetControlField
+  | Datasworn.AssetAbilityControlField
+  | Datasworn.AssetConditionMeterControlField;
 
-type AnyOptionField = AssetOptionField | AssetAbilityOptionField;
+type AnyOptionField =
+  | Datasworn.AssetOptionField
+  | Datasworn.AssetAbilityOptionField;
 
 function traverseAssetControls(
-  asset: Asset,
+  asset: Datasworn.Asset,
   markedAbilities: boolean[],
 ): Pathed<AnyControlField>[] {
   function conditionMeterControls(
-    controls: AssetConditionMeter["controls"],
+    controls: Datasworn.AssetConditionMeter["controls"],
     parent: Pathed<AnyControlField>,
   ): Pathed<AnyControlField>[] {
     return Object.entries(controls ?? {}).map(([key, field]) => {
@@ -76,7 +71,7 @@ function traverseAssetControls(
   const baseControls: Pathed<AnyControlField>[] = Object.entries(
     asset.controls ?? {},
   ).flatMap(([key, field]) => {
-    const curControl = pathed([asset.id, key], field);
+    const curControl = pathed([asset._id, key], field);
     const conditionMeterFields =
       field.field_type == "condition_meter"
         ? conditionMeterControls(field.controls, curControl)
@@ -94,7 +89,7 @@ function traverseAssetControls(
     .filter((_ability, index) => markedAbilities[index])
     .flatMap((ability) => {
       return Object.entries(ability.controls ?? {}).map(([key, field]) =>
-        pathed([ability.id, key], field),
+        pathed([ability._id, key], field),
       );
     });
 
@@ -102,12 +97,12 @@ function traverseAssetControls(
 }
 
 export function traverseAssetOptions(
-  asset: Asset,
+  asset: Datasworn.Asset,
   markedAbilities: boolean[],
 ): Pathed<AnyOptionField>[] {
   const baseControls: Pathed<AnyOptionField>[] = Object.entries(
     asset.options ?? {},
-  ).map(([key, field]) => pathed([asset.id, key], field));
+  ).map(([key, field]) => pathed([asset._id, key], field));
 
   if (markedAbilities.length != asset.abilities.length) {
     throw new Error(
@@ -119,7 +114,7 @@ export function traverseAssetOptions(
     .filter((_ability, index) => markedAbilities[index])
     .flatMap((ability) => {
       return Object.entries(ability.options ?? {}).map(([key, field]) =>
-        pathed([ability.id, key], field),
+        pathed([ability._id, key], field),
       );
     });
 
@@ -145,14 +140,16 @@ export function getPathLabel(pathed: Pathed<unknown>): string {
   return pathed.path.slice(1).join("/");
 }
 
-export function defaultMarkedAbilitiesForAsset(asset: Asset): boolean[] {
+export function defaultMarkedAbilitiesForAsset(
+  asset: Datasworn.Asset,
+): boolean[] {
   return asset.abilities.map(({ enabled }) => enabled);
 }
 
 export function updateAssetWithOptions(
-  asset: Asset,
+  asset: Datasworn.Asset,
   options: Record<string, string>,
-): Asset {
+): Datasworn.Asset {
   return produce(asset, (draft) => {
     for (const pathed of traverseAssetOptions(
       draft,
@@ -166,12 +163,12 @@ export function updateAssetWithOptions(
   });
 }
 
-export function addAsset(charLens: CharacterLens): CharWriter<Asset> {
+export function addAsset(charLens: CharacterLens): CharWriter<Datasworn.Asset> {
   return writer((character, newAsset) => {
     const currentAssets = charLens.assets.get(character);
 
     // If character already has asset, this is a no-op
-    if (currentAssets.find(({ id }) => id == newAsset.id)) return character;
+    if (currentAssets.find(({ id }) => id == newAsset._id)) return character;
 
     const marked_abilities = defaultMarkedAbilitiesForAsset(newAsset);
     const controls = Object.fromEntries(
@@ -190,7 +187,7 @@ export function addAsset(charLens: CharacterLens): CharWriter<Asset> {
 
     return charLens.assets.update(character, [
       ...currentAssets,
-      { id: newAsset.id, abilities: marked_abilities, controls, options },
+      { id: newAsset._id, abilities: marked_abilities, controls, options },
     ]);
   });
 }
@@ -199,7 +196,7 @@ export class MissingAssetError extends Error {}
 
 export function assetMeters(
   charLens: CharacterLens,
-  asset: Asset,
+  asset: Datasworn.Asset,
   markedAbilities: boolean[],
 ): {
   key: string;
@@ -210,7 +207,7 @@ export function assetMeters(
     asset,
     markedAbilities ?? defaultMarkedAbilitiesForAsset(asset),
   ).filter(
-    (pathed): pathed is Pathed<ConditionMeterField> =>
+    (pathed): pathed is Pathed<Datasworn.ConditionMeterField> =>
       pathed.value.field_type == "condition_meter",
   );
 
@@ -230,10 +227,10 @@ export function assetMeters(
       lens: {
         get(source) {
           const assets = charLens.assets.get(source);
-          const thisAsset = assets.find(({ id }) => id === asset.id);
+          const thisAsset = assets.find(({ id }) => id === asset._id);
           if (!thisAsset) {
             // should probably use a lens type that has concept of errors
-            throw new MissingAssetError(`expected asset with id ${asset.id}`);
+            throw new MissingAssetError(`expected asset with id ${asset._id}`);
           }
           // TODO: should this raise an error if not a number?
           return typeof thisAsset.controls[key] === "number"
@@ -242,10 +239,10 @@ export function assetMeters(
         },
         update(source, newval) {
           const assets = charLens.assets.get(source);
-          const thisAsset = assets.find(({ id }) => id === asset.id);
+          const thisAsset = assets.find(({ id }) => id === asset._id);
           if (!thisAsset) {
             // should probably use a lens type that has concept of errors
-            throw new MissingAssetError(`expected asset with id ${asset.id}`);
+            throw new MissingAssetError(`expected asset with id ${asset._id}`);
           }
           if (thisAsset.controls[key] === newval) return source;
           thisAsset.controls[key] = newval;

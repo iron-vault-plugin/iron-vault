@@ -1,11 +1,4 @@
-import {
-  Move,
-  MoveActionRoll,
-  MoveNoRoll,
-  MoveProgressRoll,
-  MoveSpecialTrack,
-  TriggerActionRollCondition,
-} from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import {
   ActionContext,
   CharacterActionContext,
@@ -48,7 +41,7 @@ enum MoveKind {
   Other = "Other",
 }
 
-function getMoveKind(move: Move): MoveKind {
+function getMoveKind(move: Datasworn.Move): MoveKind {
   switch (move.roll_type) {
     case "action_roll":
       return MoveKind.Action;
@@ -59,21 +52,24 @@ function getMoveKind(move: Move): MoveKind {
       return MoveKind.Other;
     default:
       throw new Error(
-        `unexpected roll type ${(move as Move).roll_type} on move id ${
-          (move as Move).id
+        `unexpected roll type ${(move as Datasworn.Move).roll_type} on move id ${
+          (move as Datasworn.Move)._id
         }`,
       );
   }
 }
 
-const ROLL_TYPES: Record<Move["roll_type"], string> = {
+const ROLL_TYPES: Record<Datasworn.Move["roll_type"], string> = {
   action_roll: "Action roll",
   progress_roll: "Progress roll",
   no_roll: "No roll",
   special_track: "Special track roll",
 };
 
-const promptForMove = async (app: App, moves: Move[]): Promise<Move> => {
+const promptForMove = async (
+  app: App,
+  moves: Datasworn.Move[],
+): Promise<Datasworn.Move> => {
   const choice = await CustomSuggestModal.selectWithUserEntry(
     app,
     moves,
@@ -81,7 +77,7 @@ const promptForMove = async (app: App, moves: Move[]): Promise<Move> => {
     (input, el) => {
       el.setText(`Use custom move '${input}'`);
     },
-    ({ item: move }: FuzzyMatch<Move>, el: HTMLElement) => {
+    ({ item: move }: FuzzyMatch<Datasworn.Move>, el: HTMLElement) => {
       const moveKind = getMoveKind(move);
       el.createEl("small", {
         text: `(${moveKind}) ${move.trigger.text}`,
@@ -97,7 +93,7 @@ const promptForMove = async (app: App, moves: Move[]): Promise<Move> => {
 
   const roll_type = await CustomSuggestModal.select(
     app,
-    Object.keys(ROLL_TYPES) as Move["roll_type"][],
+    Object.keys(ROLL_TYPES) as Datasworn.Move["roll_type"][],
     (item) => ROLL_TYPES[item],
     undefined,
     "Select a roll type for this move",
@@ -105,9 +101,10 @@ const promptForMove = async (app: App, moves: Move[]): Promise<Move> => {
 
   const baseMove = {
     roll_type,
-    id: `adhoc/moves/custom/${makeSafeForId(choice.custom)}`,
+    type: "move",
+    _id: `adhoc/moves/custom/${makeSafeForId(choice.custom)}`,
     name: choice.custom,
-    source: {
+    _source: {
       title: "Adhoc",
       authors: [],
       date: "0000-00-00",
@@ -115,7 +112,7 @@ const promptForMove = async (app: App, moves: Move[]): Promise<Move> => {
       url: "",
     },
     text: "",
-  } satisfies Partial<Move>;
+  } satisfies Partial<Datasworn.Move>;
 
   switch (baseMove.roll_type) {
     case "action_roll":
@@ -128,14 +125,14 @@ const promptForMove = async (app: App, moves: Move[]): Promise<Move> => {
           weak_hit: { text: "" },
           miss: { text: "" },
         },
-      } satisfies MoveActionRoll;
+      } satisfies Datasworn.MoveActionRoll;
     case "no_roll":
       return {
         ...baseMove,
         roll_type: baseMove.roll_type,
         trigger: { conditions: [], text: "" },
         outcomes: null,
-      } satisfies MoveNoRoll;
+      } satisfies Datasworn.MoveNoRoll;
     case "progress_roll":
       return {
         ...baseMove,
@@ -147,7 +144,7 @@ const promptForMove = async (app: App, moves: Move[]): Promise<Move> => {
           miss: { text: "" },
         },
         tracks: { category: "*" },
-      } satisfies MoveProgressRoll;
+      } satisfies Datasworn.MoveProgressRoll;
     case "special_track":
       return {
         ...baseMove,
@@ -158,11 +155,11 @@ const promptForMove = async (app: App, moves: Move[]): Promise<Move> => {
           weak_hit: { text: "" },
           miss: { text: "" },
         },
-      } satisfies MoveSpecialTrack;
+      } satisfies Datasworn.MoveSpecialTrack;
   }
 };
 function processActionMove(
-  move: Move,
+  move: Datasworn.Move,
   stat: string,
   statVal: number,
   adds: ActionMoveAdd[],
@@ -179,7 +176,7 @@ function processActionMove(
 }
 
 function processProgressMove(
-  move: Move,
+  move: Datasworn.Move,
   tracker: ProgressTrackWriterContext,
 ): ProgressMoveDescription {
   return {
@@ -258,7 +255,7 @@ export async function runMoveCommand(
 async function handleProgressRoll(
   app: App,
   progressContext: ProgressContext,
-  move: MoveProgressRoll,
+  move: Datasworn.MoveProgressRoll,
 ): Promise<MoveDescription> {
   const progressTrack = await selectProgressTrack(
     progressContext,
@@ -286,11 +283,14 @@ const ORDINALS = [
 ];
 
 function suggestedRollablesForMove(
-  move: MoveActionRoll,
-): Record<string, Array<Omit<TriggerActionRollCondition, "roll_options">>> {
+  move: Datasworn.MoveActionRoll,
+): Record<
+  string,
+  Array<Omit<Datasworn.TriggerActionRollCondition, "roll_options">>
+> {
   const suggestedRollables: Record<
     string,
-    Array<Omit<TriggerActionRollCondition, "roll_options">>
+    Array<Omit<Datasworn.TriggerActionRollCondition, "roll_options">>
   > = {};
 
   for (const condition of move.trigger.conditions) {
@@ -324,7 +324,7 @@ function suggestedRollablesForMove(
 async function handleActionRoll(
   actionContext: ActionContext,
   app: App,
-  move: MoveActionRoll,
+  move: Datasworn.MoveActionRoll,
 ) {
   const suggestedRollables = suggestedRollablesForMove(move);
 
@@ -371,7 +371,7 @@ async function handleActionRoll(
     const { characterContext } = actionContext;
     description = await checkForMomentumBurn(
       app,
-      move as MoveActionRoll,
+      move as Datasworn.MoveActionRoll,
       wrapper,
       characterContext,
     );
@@ -393,12 +393,12 @@ async function promptForRollable(
   actionContext: ActionContext,
   suggestedRollables: Record<
     string,
-    Omit<TriggerActionRollCondition, "roll_options">[]
+    Omit<Datasworn.TriggerActionRollCondition, "roll_options">[]
   >,
-  move: MoveActionRoll,
+  move: Datasworn.MoveActionRoll,
 ): Promise<
   (MeterWithLens | MeterWithoutLens) & {
-    condition: Omit<TriggerActionRollCondition, "roll_options">[];
+    condition: Omit<Datasworn.TriggerActionRollCondition, "roll_options">[];
   }
 > {
   const availableRollables = actionContext.rollables;

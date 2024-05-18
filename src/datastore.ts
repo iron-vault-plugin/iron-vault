@@ -1,9 +1,5 @@
-import {
-  Asset,
-  Move,
-  RulesPackage,
-  Ruleset as DsRuleset,
-} from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
+import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
 import { DataIndex } from "datastore/data-index";
 import { indexDataForgedData } from "datastore/parsers/dataforged";
 import { ParserReturn, parserForFrontmatter } from "datastore/parsers/markdown";
@@ -21,7 +17,6 @@ import {
 import { OracleRoller } from "oracles/roller";
 import { Ruleset } from "rules/ruleset";
 import { breadthFirstTraversal } from "utils/traversal";
-import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
 
 export class Datastore extends Component {
   _ready: boolean;
@@ -55,7 +50,7 @@ export class Datastore extends Component {
       this.index,
       mainPath,
       0,
-      starforgedRuleset as DsRuleset,
+      starforgedRuleset as Datasworn.Ruleset,
     );
     this.index.updateIndexGroup(mainPath, new Set([mainPath]));
     this.app.metadataCache.trigger("forged:index-changed");
@@ -187,11 +182,11 @@ export class Datastore extends Component {
     );
     const content = await this.app.vault.adapter.read(normalizedPath);
     // TODO: validate
-    let data: RulesPackage;
+    let data: Datasworn.RulesPackage;
     if (format === "json") {
-      data = JSON.parse(content) as RulesPackage;
+      data = JSON.parse(content) as Datasworn.RulesPackage;
     } else if (format === "yaml") {
-      data = parseYaml(content) as RulesPackage;
+      data = parseYaml(content) as Datasworn.RulesPackage;
     } else {
       throw new Error(`unknown file type ${format}`);
     }
@@ -209,7 +204,7 @@ export class Datastore extends Component {
   //   return this._data;
   // }
 
-  get moves(): Move[] {
+  get moves(): Datasworn.Move[] {
     this.assertReady();
     return [...this.index._moveIndex.values()];
   }
@@ -219,7 +214,7 @@ export class Datastore extends Component {
     return this.index._oracleIndex;
   }
 
-  get assets(): StandardIndex<Asset> {
+  get assets(): StandardIndex<Datasworn.Asset> {
     this.assertReady();
     return this.index._assetIndex;
   }

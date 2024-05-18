@@ -1,4 +1,4 @@
-import { OracleRollTemplate } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { NumberRange, Roll } from "./rolls";
 
 export interface RollContext {
@@ -31,7 +31,7 @@ export interface Oracle {
   readonly parent: OracleGrouping;
   readonly rollableRows: OracleRollableRow[];
 
-  row(id: string): OracleRow;
+  row(value: number): OracleRow;
 
   roll(context: RollContext): Roll;
   // TODO: with variants, can we eliminate this? or is there a better way to deal with the
@@ -43,8 +43,7 @@ export interface Oracle {
 
 // TODO: template currently relies on re-exporting datasworn
 export interface OracleRow {
-  readonly template: OracleRollTemplate | undefined;
-  readonly id: string;
+  readonly template: Datasworn.OracleRollTemplate | undefined;
   readonly result: string;
 
   /** The roll range corresponding to this row. A null range corresponds to an unrollable row,
