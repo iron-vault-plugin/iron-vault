@@ -3,9 +3,11 @@ I'm telling my story here.
 Suddenly, a trap! Oh no!
 
 #character 
-> #character 
+> #character
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales sollicitudin enim, vestibulum mollis quam pretium ultrices. Quisque convallis, turpis eget ullamcorper consequat, justo leo vestibulum arcu, ut rutrum massa velit a orci. Sed et convallis neque. Donec laoreet orci at maximus iaculis. Mauris quis enim et ipsum mattis sodales. Etiam lacus felis, consectetur id semper eu, placerat eu odio. Ut consectetur lorem semper, interdum magna quis, tristique nisi. Nunc tempus a elit sed posuere. Proin sodales ornare tortor, sit amet ultricies ipsum pharetra et. Sed a nibh augue. Phasellus risus est, pharetra a lacus ut, placerat vulputate augue. Pellentesque volutpat tempor augue ac posuere. In vitae aliquam enim, ut auctor nibh. Mauris condimentum luctus placerat. Vivamus dapibus neque nisi, in facilisis nisi mattis ac.
+[Testing](oracle:GivenName)
+
+In sodales sollicitudin enim, vestibulum mollis quam pretium ultrices. Quisque convallis, turpis eget ullamcorper consequat, justo leo vestibulum arcu, ut rutrum massa velit a orci. Sed et convallis neque. Donec laoreet orci at maximus iaculis. Mauris quis enim et ipsum mattis sodales. Etiam lacus felis, consectetur id semper eu, placerat eu odio. Ut consectetur lorem semper, interdum magna quis, tristique nisi. Nunc tempus a elit sed posuere. Proin sodales ornare tortor, sit amet ultricies ipsum pharetra et. Sed a nibh augue. Phasellus risus est, pharetra a lacus ut, placerat vulputate augue. Pellentesque volutpat tempor augue ac posuere. In vitae aliquam enim, ut auctor nibh. Mauris condimentum luctus placerat. Vivamus dapibus neque nisi, in facilisis nisi mattis ac.
 
 Proin maximus, odio non interdum hendrerit, dolor lectus accumsan mauris, id semper neque est sed nulla. Pellentesque tortor velit, ultrices eu feugiat et, commodo nec tortor. Nulla non dui eleifend eros efficitur semper. Morbi suscipit euismod erat, eget accumsan elit commodo at. Maecenas sed lacus sit amet massa imperdiet molestie in at dui. Donec sit amet malesuada ante, lacinia sodales est. Aliquam pretium, felis id pellentesque consectetur, turpis justo sollicitudin tortor, sit amet convallis mi risus sed justo. Cras vulputate purus ac enim laoreet, eget pellentesque nisi malesuada.
 ```mechanics

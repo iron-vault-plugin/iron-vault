@@ -12,14 +12,12 @@ import {
 export class MoveModal extends Modal {
   plugin: ForgedPlugin;
   move: Move;
-  sourcePath: string;
   moveHistory: Move[] = [];
 
-  constructor(app: App, plugin: ForgedPlugin, sourcePath: string, move: Move) {
+  constructor(app: App, plugin: ForgedPlugin, move: Move) {
     super(app);
     this.plugin = plugin;
     this.move = move;
-    this.sourcePath = sourcePath;
   }
 
   openMove(move: Move) {
@@ -43,7 +41,7 @@ export class MoveModal extends Modal {
         this.app,
         move.text,
         contentEl,
-        this.sourcePath,
+        ".",
         this.plugin,
       );
       if (this.moveHistory.length) {

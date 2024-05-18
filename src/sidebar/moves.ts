@@ -37,7 +37,7 @@ function renderMoveList(cont: Element, plugin: ForgedPlugin) {
         new MarkdownRenderChild(li),
       );
       // TODO(@zkat): Figure out how to get the right sourcePath here. Will probably need to get the view/editor.
-      const modal = new MoveModal(plugin.app, plugin, ".", move);
+      const modal = new MoveModal(plugin.app, plugin, move);
       li.addEventListener("click", (ev) => {
         ev.preventDefault();
         ev.stopPropagation();

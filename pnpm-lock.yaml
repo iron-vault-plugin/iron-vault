@@ -45,6 +45,9 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
+      '@codemirror/view':
+        specifier: ^6.26.3
+        version: 6.26.3
       '@swc/cli':
         specifier: ^0.3.12
         version: 0.3.12(@swc/core@1.5.7)(chokidar@3.6.0)

@@ -32,6 +32,11 @@ import {
 } from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
 import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
+import installMoveLinkHandler from "moves/link-override";
+import installOracleLinkHandler from "oracles/link-override";
+import { OracleModal } from "oracles/oracle-modal";
+import { MoveModal } from "moves/move-modal";
+import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 
 export default class ForgedPlugin extends Plugin {
   settings!: ForgedPluginSettings;
@@ -85,6 +90,9 @@ export default class ForgedPlugin extends Plugin {
 
     window.ForgedAPI = this.api = new ForgedAPI(this);
     this.register(() => delete window.ForgedAPI);
+    installMoveLinkHandler(this);
+    installOracleLinkHandler(this);
+    this.installIdLinkHandler(this);
 
     this.registerView(VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
     this.addRibbonIcon("dice", "Forged", () => {
@@ -257,5 +265,79 @@ export default class ForgedPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+  }
+
+  installIdLinkHandler(plugin: ForgedPlugin) {
+    const handler = (ev: MouseEvent) => {
+      if (
+        !(ev.target instanceof HTMLAnchorElement) ||
+        ev.target.href !== "app://obsidian.md/index.html#"
+      )
+        return;
+      const editor = plugin.app.workspace.activeEditor?.editor;
+      if (editor) {
+        const token = editor.getClickableTokenAt(editor.posAtMouse(ev));
+        if (token && token.text.toLowerCase().startsWith("id:")) {
+          ev.stopPropagation();
+          ev.preventDefault();
+          const id = token.text
+            .slice("id:".length)
+            .replace(/\s*/g, "")
+            .toLowerCase();
+          const oracle = plugin.datastore.oracles.get(id);
+          const move =
+            !oracle &&
+            plugin.datastore.moves.find(
+              (m) =>
+                m._id === id || m.name.replace(/\s*/g, "").toLowerCase() === id,
+            );
+          if (oracle) {
+            new OracleModal(plugin.app, plugin, oracle).open();
+          } else if (move) {
+            new MoveModal(plugin.app, plugin, move).open();
+          }
+        }
+      }
+    };
+    const cmPlugin = ViewPlugin.fromClass(
+      class LinkOverride {
+        update(update: ViewUpdate) {
+          const el = update.view.contentDOM;
+          el.removeEventListener("click", handler);
+          el.addEventListener("click", handler);
+          plugin.register(() => el.removeEventListener("click", handler));
+        }
+      },
+    );
+    plugin.registerEditorExtension([cmPlugin]);
+    plugin.app.workspace.updateOptions();
+    plugin.registerMarkdownPostProcessor((el) => {
+      el.querySelectorAll("a").forEach((a) => {
+        if (a.href.startsWith("id:")) {
+          const id = a.href
+            .slice("id:".length)
+            .replace(/\s*/g, "")
+            .toLowerCase();
+          const oracle = plugin.datastore.oracles.get(id);
+          const move =
+            !oracle &&
+            plugin.datastore.moves.find(
+              (m) =>
+                m._id === id || m.name.replace(/\s*/g, "").toLowerCase() === id,
+            );
+          const handler = (ev: MouseEvent) => {
+            ev.stopPropagation();
+            ev.preventDefault();
+            if (oracle) {
+              new OracleModal(plugin.app, plugin, oracle).open();
+            } else if (move) {
+              new MoveModal(plugin.app, plugin, move).open();
+            }
+          };
+          a.addEventListener("click", handler);
+          plugin.register(() => a.removeEventListener("click", handler));
+        }
+      });
+    });
   }
 }

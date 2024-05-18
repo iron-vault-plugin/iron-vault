@@ -214,12 +214,7 @@ export class MechanicsRenderer {
     if (moveName) {
       await this.renderMarkdown(summary, moveName);
       if (move) {
-        const modal = new MoveModal(
-          this.plugin.app,
-          this.plugin,
-          this.sourcePath,
-          move,
-        );
+        const modal = new MoveModal(this.plugin.app, this.plugin, move);
         const btn = new ButtonComponent(summary);
         btn
           .setButtonText("?")
