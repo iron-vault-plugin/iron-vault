@@ -31,6 +31,7 @@ import {
   ProgressTrackSettings,
 } from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
+import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
 
 export default class ForgedPlugin extends Plugin {
   settings!: ForgedPluginSettings;
@@ -47,6 +48,7 @@ export default class ForgedPlugin extends Plugin {
   private async initialize(): Promise<void> {
     await this.datastore.initialize();
     this.indexManager.initialize();
+    await this.initLeaf();
   }
 
   public assetFilePath(assetPath: string) {
@@ -84,6 +86,10 @@ export default class ForgedPlugin extends Plugin {
     window.ForgedAPI = this.api = new ForgedAPI(this);
     this.register(() => delete window.ForgedAPI);
 
+    this.registerView(VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
+    this.addRibbonIcon("dice", "Forged", () => {
+      return this.activateView();
+    });
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
     // const statusBarItemEl = this.addStatusBarItem();
     // statusBarItemEl.setText("Status Bar Text");
@@ -217,6 +223,23 @@ export default class ForgedPlugin extends Plugin {
     registerMoveBlock(this);
     registerOracleBlock(this, this.datastore);
     registerMechanicsBlock(this);
+  }
+
+  async activateView() {
+    const { workspace } = this.app;
+    const leaf = await this.initLeaf();
+    leaf && workspace.revealLeaf(leaf);
+  }
+
+  async initLeaf() {
+    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE)) {
+      return leaf;
+    }
+    const leaf = this.app.workspace.getRightLeaf(false);
+    await leaf?.setViewState({
+      type: VIEW_TYPE,
+    });
+    return leaf;
   }
 
   onunload(): void {}

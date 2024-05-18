@@ -1,0 +1,111 @@
+[data-type="forged-sidebar-view"] {
+  & .view-content {
+    padding: 0;
+    & > :first-child {
+      padding: 0.5em;
+    }
+  }
+}
+
+.forged-sidebar-view {
+  & ul,
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+  }
+  & summary > span {
+    transition: background-color 200ms ease;
+    &:hover {
+      background-color: var(--background-modifier-hover);
+    }
+    &:active {
+      background-color: var(--background-modifier-active-hover);
+    }
+  }
+  & .ruleset {
+    & > .wrapper > details span {
+      font-size: 1.4em;
+      border-bottom: 1px solid var(--background-secondary);
+    }
+    background-color: var(--background-secondary);
+    & > .wrapper {
+      & > .content {
+        padding: 0;
+      }
+    }
+    & li:has(+ li) {
+      border-bottom: 1px solid var(--background-secondary);
+    }
+  }
+  & .oracle-group li {
+    display: flex;
+    flex-direction: row;
+    padding: 0.5em;
+    border-radius: 10px;
+    transition: background-color 200ms ease;
+    &:hover {
+      background-color: var(--background-modifier-hover);
+    }
+    &:active {
+      background-color: var(--background-modifier-active-hover);
+    }
+    & span {
+      flex-grow: 1;
+    }
+  }
+  & details:has(+ .content) {
+    max-width: 100%;
+    overflow: hidden;
+    & > summary {
+      background: var(--background-secondary-alt);
+      display: block;
+      &::-webkit-details-marker {
+        display: none;
+      }
+    }
+    & span {
+      position: relative;
+      padding: 0.5em;
+      display: flex;
+      align-items: center;
+      &:hover {
+        cursor: pointer;
+      }
+      &::before {
+        content: "►";
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        margin-right: 0.5rem;
+        transition: rotate 100ms 100ms ease-out;
+      }
+    }
+  }
+
+  & .ruleset & .content {
+    padding: 0 !important;
+  }
+  & details + .content {
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0 0.5em;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 100ms ease-out;
+  }
+
+  & details[open] {
+    & + .content {
+      max-height: 100%;
+      transition:
+        max-height 250ms ease-out,
+        border 0ms linear;
+      padding: 0.5em;
+    }
+    & span::before {
+      rotate: 90deg;
+      transition: rotate 100ms ease-out;
+    }
+  }
+}
