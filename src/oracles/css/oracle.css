@@ -1,0 +1,12 @@
+.forged-oracle-modal {
+  & table {
+    width: 100%;
+    & td {
+      padding: 0.2em;
+    }
+    & td:has(+ td) {
+      width: 0.1%;
+      white-space: nowrap;
+    }
+  }
+}

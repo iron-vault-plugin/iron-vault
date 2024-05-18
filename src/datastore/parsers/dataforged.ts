@@ -18,6 +18,7 @@ export function indexDataForgedData(
 ): void {
   index.indexSource(normalizedPath, priority, {
     oracles: indexIntoOracleMap(ruleset),
+    moveCategories: Object.entries(ruleset.moves ?? {}),
     moves: Object.values(ruleset.moves ?? {}).flatMap(
       (category): Array<[string, Datasworn.Move]> =>
         Object.values(category.contents ?? {}).map((m) => [m._id, m]),

@@ -1,14 +1,12 @@
-import { type Datasworn } from "@datasworn/core";
 import { Node as KdlNode, parse } from "kdljs";
 import {
-  App,
   ButtonComponent,
   MarkdownRenderChild,
   MarkdownRenderer,
-  Modal,
 } from "obsidian";
 
 import ForgedPlugin from "../index";
+import { MoveModal } from "moves/move-modal";
 
 export default function registerMechanicsBlock(plugin: ForgedPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -644,58 +642,5 @@ function levelTicks(level: string): number {
       return Level.Epic;
     default:
       return 0;
-  }
-}
-
-export class MoveModal extends Modal {
-  plugin: ForgedPlugin;
-  move: Datasworn.Move;
-  sourcePath: string;
-
-  constructor(
-    app: App,
-    plugin: ForgedPlugin,
-    sourcePath: string,
-    move: Datasworn.Move,
-  ) {
-    super(app);
-    this.plugin = plugin;
-    this.move = move;
-    this.sourcePath = sourcePath;
-  }
-
-  openMove(move: Datasworn.Move) {
-    const { contentEl } = this;
-    (async () => {
-      await MarkdownRenderer.render(
-        this.app,
-        `# ${move.name}\n${move.text}`,
-        contentEl,
-        this.sourcePath,
-        this.plugin,
-      );
-      for (const child of contentEl.querySelectorAll('a[href^="id:"]')) {
-        child.addEventListener("click", (ev) => {
-          const id = child.getAttribute("href")?.slice(3);
-          ev.preventDefault();
-          const move = this.plugin.datastore.moves.find(
-            (move) => move._id === id,
-          );
-          if (move) {
-            contentEl.empty();
-            this.openMove(move);
-          }
-        });
-      }
-    })();
-  }
-
-  onOpen() {
-    this.openMove(this.move);
-  }
-
-  onClose() {
-    const { contentEl } = this;
-    contentEl.empty();
   }
 }

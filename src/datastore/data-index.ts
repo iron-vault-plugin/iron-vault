@@ -6,6 +6,7 @@ import { IndexableData, PriorityIndexer } from "./priority-index";
 export class DataIndex {
   _oracleIndex: PriorityIndexer<string, Oracle>;
   _moveIndex: PriorityIndexer<string, Datasworn.Move>;
+  _moveCategoryIndex: PriorityIndexer<string, Datasworn.MoveCategory>;
   _assetIndex: PriorityIndexer<string, Datasworn.Asset>;
   _rulesetIndex: PriorityIndexer<string, Ruleset>;
 
@@ -15,6 +16,7 @@ export class DataIndex {
   constructor() {
     this._oracleIndex = new PriorityIndexer();
     this._moveIndex = new PriorityIndexer();
+    this._moveCategoryIndex = new PriorityIndexer();
     this._assetIndex = new PriorityIndexer();
     this._indexGroups = new Map();
     this._rulesetIndex = new PriorityIndexer();
@@ -38,6 +40,7 @@ export class DataIndex {
   removeSource(pathToRemove: string) {
     this._oracleIndex.removeSource(pathToRemove);
     this._moveIndex.removeSource(pathToRemove);
+    this._moveCategoryIndex.removeSource(pathToRemove);
     this._assetIndex.removeSource(pathToRemove);
     this._rulesetIndex.removeSource(pathToRemove);
   }
@@ -48,12 +51,18 @@ export class DataIndex {
     data: {
       oracles?: IndexableData<string, Oracle>;
       moves?: IndexableData<string, Datasworn.Move>;
+      moveCategories?: IndexableData<string, Datasworn.MoveCategory>;
       assets?: IndexableData<string, Datasworn.Asset>;
       rulesets?: IndexableData<string, Ruleset>;
     },
   ): void {
     this._oracleIndex.indexSource(normalizedPath, priority, data.oracles || {});
     this._moveIndex.indexSource(normalizedPath, priority, data.moves || {});
+    this._moveCategoryIndex.indexSource(
+      normalizedPath,
+      priority,
+      data.moveCategories || {},
+    );
     this._assetIndex.indexSource(normalizedPath, priority, data.assets || {});
     this._rulesetIndex.indexSource(
       normalizedPath,

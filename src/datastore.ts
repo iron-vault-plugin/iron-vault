@@ -209,6 +209,10 @@ export class Datastore extends Component {
     return [...this.index._moveIndex.values()];
   }
 
+  get moveCategories(): StandardIndex<Datasworn.MoveCategory> {
+    this.assertReady();
+    return this.index._moveCategoryIndex;
+  }
   get oracles(): StandardIndex<Oracle> {
     this.assertReady();
     return this.index._oracleIndex;

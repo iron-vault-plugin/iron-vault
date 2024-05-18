@@ -1,0 +1,36 @@
+.forged-sidebar-view .oracle-tab {
+  & .ruleset {
+    & > .wrapper > details span {
+      font-size: 1.4em;
+      border-bottom: 1px solid var(--background-secondary);
+    }
+    background-color: var(--background-secondary);
+    & > .wrapper {
+      & > .content {
+        padding: 0;
+      }
+    }
+    & li:has(+ li) {
+      border-bottom: 1px solid var(--background-secondary);
+    }
+  }
+  & .oracle-group li {
+    display: flex;
+    flex-direction: row;
+    padding: 0.5em;
+    border-radius: 10px;
+    transition: background-color 200ms ease;
+    &:hover {
+      background-color: var(--background-modifier-hover);
+    }
+    &:active {
+      background-color: var(--background-modifier-active-hover);
+    }
+    & span {
+      flex-grow: 1;
+    }
+  }
+  & .ruleset > .wrapper > .content {
+    padding: 0 !important;
+  }
+}

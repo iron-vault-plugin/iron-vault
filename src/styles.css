@@ -1,5 +1,6 @@
 @import url("mechanics/css/mechanics.css");
 @import url("sidebar/css/sidebar.css");
+@import url("oracle/css/oracle.css");
 
 .theme-light {
   --color-code: 0, 0, 0;

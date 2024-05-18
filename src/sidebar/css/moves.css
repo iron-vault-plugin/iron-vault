@@ -1,0 +1,34 @@
+.forged-sidebar-view .move-tab {
+  & summary span {
+    font-size: 1.4em;
+    font-weight: var(--font-semibold);
+  }
+  & .content {
+    padding: 0;
+  }
+  & .category li {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5em;
+    border-radius: 10px;
+    transition: background-color 200ms ease;
+    & > p {
+      margin: 0;
+      margin-top: 0.2em;
+      color: var(--text-muted);
+    }
+    & > :first-child {
+      font-size: 1.2em;
+      font-weight: var(--font-semibold);
+    }
+    &:has(+ li) {
+      border-bottom: 1px solid var(--background-secondary-alt);
+    }
+    &:hover {
+      background-color: var(--background-modifier-hover);
+    }
+    &:active {
+      background-color: var(--background-modifier-active-hover);
+    }
+  }
+}
