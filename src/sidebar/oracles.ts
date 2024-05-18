@@ -98,8 +98,9 @@ export class OracleModal extends Modal {
 
   openOracle(oracle: Oracle) {
     const { contentEl } = this;
+    this.setTitle(oracle.name);
+    contentEl.classList.toggle("forged-oracle-modal", true);
     (async () => {
-      contentEl.createEl("h1", { text: oracle.name });
       const btn = new ButtonComponent(contentEl);
       btn
         .setIcon("dice")

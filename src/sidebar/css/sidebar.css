@@ -7,6 +7,22 @@
   }
 }
 
+.forged-oracle-modal {
+  & table {
+    width: 100%;
+    & tr {
+      border-bottom: 4px solid orange;
+    }
+    & td {
+      padding: 0.2em;
+    }
+    & td:has(+ td) {
+      width: 0.1%;
+      white-space: nowrap;
+    }
+  }
+}
+
 .forged-sidebar-view {
   & ul,
   ol {
