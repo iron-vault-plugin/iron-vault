@@ -2,25 +2,11 @@ import Handlebars from "handlebars";
 import { ClockFileAdapter } from "tracks/clock-file";
 import { ProgressTrackFileAdapter, ProgressTrackInfo } from "tracks/progress";
 
-export enum MoveBlockFormat {
-  /** Use the original YAML format for generating action blocks. */
-  YAML = "yaml",
-
-  /** Use the new one-line move format */
-  MoveLine = "move-line",
-
-  /** The newer KDL mechanics format */
-  Mechanics = "mechanics",
-}
-
 export interface ForgedPluginSettings
   extends Record<keyof TEMPLATE_TYPES, string> {
   oraclesFolder: string;
   momentumResetTemplate: string;
   meterAdjTemplate: string;
-
-  /** Which format should the move block be rendered with? */
-  moveBlockFormat: MoveBlockFormat;
 
   /** Use the character system */
   useCharacterSystem: boolean;
@@ -33,7 +19,6 @@ export interface ForgedPluginSettings
 }
 
 export const DEFAULT_SETTINGS: ForgedPluginSettings = {
-  moveBlockFormat: MoveBlockFormat.Mechanics,
   useCharacterSystem: true,
   collapseMoves: true,
   showMechanicsToggle: true,
