@@ -1,7 +1,9 @@
 import {
   Move,
   MoveActionRoll,
+  MoveNoRoll,
   MoveProgressRoll,
+  MoveSpecialTrack,
   TriggerActionRollCondition,
 } from "@datasworn/core";
 import {
@@ -17,6 +19,7 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { MeterCommon } from "rules/ruleset";
+import { makeSafeForId } from "utils/strings";
 import {
   MeterWithLens,
   MeterWithoutLens,
@@ -62,11 +65,22 @@ function getMoveKind(move: Move): MoveKind {
       );
   }
 }
-const promptForMove = async (app: App, moves: Move[]): Promise<Move> =>
-  await CustomSuggestModal.select(
+
+const ROLL_TYPES: Record<Move["roll_type"], string> = {
+  action_roll: "Action roll",
+  progress_roll: "Progress roll",
+  no_roll: "No roll",
+  special_track: "Special track roll",
+};
+
+const promptForMove = async (app: App, moves: Move[]): Promise<Move> => {
+  const choice = await CustomSuggestModal.selectWithUserEntry(
     app,
     moves,
     (move) => move.name,
+    (input, el) => {
+      el.setText(`Use custom move '${input}'`);
+    },
     ({ item: move }: FuzzyMatch<Move>, el: HTMLElement) => {
       const moveKind = getMoveKind(move);
       el.createEl("small", {
@@ -74,8 +88,79 @@ const promptForMove = async (app: App, moves: Move[]): Promise<Move> =>
         cls: "forged-suggest-hint",
       });
     },
+    `Select a move`,
   );
 
+  if (choice.kind == "pick") {
+    return choice.value;
+  }
+
+  const roll_type = await CustomSuggestModal.select(
+    app,
+    Object.keys(ROLL_TYPES) as Move["roll_type"][],
+    (item) => ROLL_TYPES[item],
+    undefined,
+    "Select a roll type for this move",
+  );
+
+  const baseMove = {
+    roll_type,
+    id: `adhoc/moves/custom/${makeSafeForId(choice.custom)}`,
+    name: choice.custom,
+    source: {
+      title: "Adhoc",
+      authors: [],
+      date: "0000-00-00",
+      license: null,
+      url: "",
+    },
+    text: "",
+  } satisfies Partial<Move>;
+
+  switch (baseMove.roll_type) {
+    case "action_roll":
+      return {
+        ...baseMove,
+        roll_type: baseMove.roll_type,
+        trigger: { conditions: [], text: "" },
+        outcomes: {
+          strong_hit: { text: "" },
+          weak_hit: { text: "" },
+          miss: { text: "" },
+        },
+      } satisfies MoveActionRoll;
+    case "no_roll":
+      return {
+        ...baseMove,
+        roll_type: baseMove.roll_type,
+        trigger: { conditions: [], text: "" },
+        outcomes: null,
+      } satisfies MoveNoRoll;
+    case "progress_roll":
+      return {
+        ...baseMove,
+        roll_type: baseMove.roll_type,
+        trigger: { conditions: [], text: "" },
+        outcomes: {
+          strong_hit: { text: "" },
+          weak_hit: { text: "" },
+          miss: { text: "" },
+        },
+        tracks: { category: "*" },
+      } satisfies MoveProgressRoll;
+    case "special_track":
+      return {
+        ...baseMove,
+        roll_type: baseMove.roll_type,
+        trigger: { conditions: [], text: "" },
+        outcomes: {
+          strong_hit: { text: "" },
+          weak_hit: { text: "" },
+          miss: { text: "" },
+        },
+      } satisfies MoveSpecialTrack;
+  }
+};
 function processActionMove(
   move: Move,
   stat: string,
@@ -130,15 +215,11 @@ export async function runMoveCommand(
     return;
   }
 
-  const allMoves = context.moves.filter(
-    (move) =>
-      move.roll_type == "action_roll" || move.roll_type == "progress_roll",
+  const allMoves = [...context.moves].sort((a, b) =>
+    a.name.localeCompare(b.name),
   );
 
-  const move = await promptForMove(
-    plugin.app,
-    allMoves.sort((a, b) => a.name.localeCompare(b.name)),
-  );
+  const move = await promptForMove(plugin.app, allMoves);
 
   const moveRenderer: (move: MoveDescription) => void = getMoveRenderer(
     plugin.settings.moveBlockFormat,
@@ -182,7 +263,9 @@ async function handleProgressRoll(
   const progressTrack = await selectProgressTrack(
     progressContext,
     app,
-    (prog) => prog.trackType == move.tracks.category && !prog.track.complete,
+    (prog) =>
+      (move.tracks.category == "*" || prog.trackType == move.tracks.category) &&
+      !prog.track.complete,
   );
   // TODO: when would we mark complete? should we prompt on a hit?
   return processProgressMove(move, progressTrack);
