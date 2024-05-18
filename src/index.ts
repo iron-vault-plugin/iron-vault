@@ -222,7 +222,14 @@ export default class ForgedPlugin extends Plugin {
   onunload(): void {}
 
   async loadSettings(): Promise<void> {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    const settings = Object.assign(
+      {},
+      DEFAULT_SETTINGS,
+      await this.loadData(),
+      // Remove unused old variables
+      { moveBlockFormat: undefined },
+    );
+    this.settings = settings;
   }
 
   async saveSettings(): Promise<void> {

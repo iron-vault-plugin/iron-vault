@@ -1,7 +1,6 @@
 import { updatePreviousMoveOrCreateBlock } from "mechanics/editor";
 import { App, Editor } from "obsidian";
 import { ConditionMeterDefinition } from "rules/ruleset";
-import { MoveBlockFormat } from "settings";
 import { node } from "utils/kdl";
 import { updating } from "utils/lens";
 import { numberRange } from "utils/numbers";
@@ -30,36 +29,20 @@ export async function burnMomentum(
         return momentumOps(lens).reset(character);
       },
     );
-    if (plugin.settings.moveBlockFormat == MoveBlockFormat.Mechanics) {
-      const newValue = lens.momentum.get(updated);
-      const burnNode = node("burn", {
-        properties: { from: oldValue, to: newValue },
-      });
-      updatePreviousMoveOrCreateBlock(
-        editor,
-        (move) => {
-          return {
-            ...move,
-            children: [...move.children, burnNode],
-          };
-        },
-        () => burnNode,
-      );
-    } else {
-      const template = Handlebars.compile(
-        plugin.settings.momentumResetTemplate,
-        {
-          noEscape: true,
-        },
-      );
-      editor.replaceSelection(
-        template({
-          character: { name: lens.name.get(updated) },
-          oldValue,
-          newValue: lens.momentum.get(updated),
-        }),
-      );
-    }
+    const newValue = lens.momentum.get(updated);
+    const burnNode = node("burn", {
+      properties: { from: oldValue, to: newValue },
+    });
+    updatePreviousMoveOrCreateBlock(
+      editor,
+      (move) => {
+        return {
+          ...move,
+          children: [...move.children, burnNode],
+        };
+      },
+      () => burnNode,
+    );
   }
 }
 
@@ -161,38 +144,18 @@ export const modifyMeterCommand = async (
     newValue = measure.value + modifier;
   }
 
-  if (plugin.settings.moveBlockFormat == MoveBlockFormat.Mechanics) {
-    const meterNode = node("meter", {
-      values: [measure.key],
-      properties: { from: measure.value, to: newValue },
-    });
-    updatePreviousMoveOrCreateBlock(
-      editor,
-      (move) => {
-        return {
-          ...move,
-          children: [...move.children, meterNode],
-        };
-      },
-      () => meterNode,
-    );
-  } else {
-    const template = Handlebars.compile(plugin.settings.meterAdjTemplate, {
-      noEscape: true,
-    });
-    editor.replaceSelection(
-      template({
-        character: {
-          name:
-            actionContext instanceof CharacterActionContext
-              ? actionContext.getWithLens(
-                  actionContext.characterContext.lens.name,
-                )
-              : "Unknown",
-        },
-        measure,
-        newValue,
-      }),
-    );
-  }
+  const meterNode = node("meter", {
+    values: [measure.key],
+    properties: { from: measure.value, to: newValue },
+  });
+  updatePreviousMoveOrCreateBlock(
+    editor,
+    (move) => {
+      return {
+        ...move,
+        children: [...move.children, meterNode],
+      };
+    },
+    () => meterNode,
+  );
 };

@@ -33,7 +33,7 @@ import {
 import { ActionMoveWrapper } from "../wrapper";
 import { checkForMomentumBurn } from "./action-modal";
 import { AddsModal } from "./adds-modal";
-import { getMoveRenderer } from "./format";
+import { renderMechanics } from "./format";
 
 enum MoveKind {
   Progress = "Progress",
@@ -218,11 +218,6 @@ export async function runMoveCommand(
 
   const move = await promptForMove(plugin.app, allMoves);
 
-  const moveRenderer: (move: MoveDescription) => void = getMoveRenderer(
-    plugin.settings.moveBlockFormat,
-    editor,
-  );
-
   let moveDescription: MoveDescription;
   switch (move.roll_type) {
     case "action_roll": {
@@ -249,7 +244,7 @@ export async function runMoveCommand(
       return;
   }
 
-  moveRenderer(moveDescription);
+  renderMechanics(editor, moveDescription);
 }
 
 async function handleProgressRoll(

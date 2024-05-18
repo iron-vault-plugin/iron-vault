@@ -7,7 +7,6 @@ import {
   AllMoveDescriptions,
   MoveDescription,
 } from "./desc";
-import { parseMoveLine } from "./move-line-parser";
 
 export class MoveParseError extends Error {}
 
@@ -22,10 +21,6 @@ export function parseMoveBlock(
       new MoveParseError(
         "move block should start with move line or YAML; found empty line",
       ),
-    );
-  } else if (dataLines.length == 1) {
-    return parseMoveLine(dataLines[0]).mapError(
-      (msg) => new MoveParseError(`Error parsing move line: ${msg}`),
     );
   } else {
     return parseMoveYaml(dataLines.join("\n"));

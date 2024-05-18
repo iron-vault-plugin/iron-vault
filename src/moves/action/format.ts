@@ -1,10 +1,8 @@
 import { Document, Node } from "kdljs";
-import { Editor, stringifyYaml } from "obsidian";
-import { MoveBlockFormat } from "settings";
-import { createOrAppendMechanics } from "../../mechanics/editor";
+import { createOrAppendMechanics } from "mechanics/editor";
+import { Editor } from "obsidian";
 import { node } from "../../utils/kdl";
 import { MoveDescription, moveIsAction, moveIsProgress } from "../desc";
-import { generateMoveLine } from "../move-line-parser";
 
 function generateMechanicsNode(move: MoveDescription): Document {
   const children: Node[] = [];
@@ -67,39 +65,7 @@ function generateMechanicsNode(move: MoveDescription): Document {
   ];
   return doc;
 }
-function mechanicsMoveRenderer(
-  editor: Editor,
-): (move: MoveDescription) => void {
-  return (move) => createOrAppendMechanics(editor, generateMechanicsNode(move));
-}
 
-export function getMoveRenderer(
-  format: MoveBlockFormat,
-  editor: Editor,
-): (move: MoveDescription) => void {
-  switch (format) {
-    case MoveBlockFormat.MoveLine:
-      return moveLineMoveRenderer(editor);
-    case MoveBlockFormat.YAML:
-      return yamlMoveRenderer(editor);
-    case MoveBlockFormat.Mechanics:
-      return mechanicsMoveRenderer(editor);
-  }
-}
-export function yamlMoveRenderer(
-  editor: Editor,
-): (move: MoveDescription) => void {
-  return (move) => {
-    editor.replaceSelection(`\`\`\`move\n${stringifyYaml(move)}\n\`\`\`\n\n`);
-  };
-}
-
-export function moveLineMoveRenderer(
-  editor: Editor,
-): (move: MoveDescription) => void {
-  return (move) => {
-    editor.replaceSelection(
-      `\`\`\`move\n${generateMoveLine(move)}\n\`\`\`\n\n`,
-    );
-  };
+export function renderMechanics(editor: Editor, move: MoveDescription): void {
+  createOrAppendMechanics(editor, generateMechanicsNode(move));
 }
