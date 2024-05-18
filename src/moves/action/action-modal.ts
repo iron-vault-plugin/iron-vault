@@ -1,4 +1,4 @@
-import { MoveActionRoll } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { App, Modal, Setting } from "obsidian";
 import { CharacterContext } from "../../character-tracker";
 import { MomentumTracker, momentumTrackerReader } from "../../characters/lens";
@@ -7,7 +7,7 @@ import { ActionMoveWrapper, formatRollResult } from "../wrapper";
 
 export async function checkForMomentumBurn(
   app: App,
-  move: MoveActionRoll,
+  move: Datasworn.MoveActionRoll,
   roll: ActionMoveWrapper,
   charContext: CharacterContext,
 ): Promise<ActionMoveDescription> {
@@ -40,7 +40,7 @@ export class ActionModal extends Modal {
 
   constructor(
     app: App,
-    readonly move: MoveActionRoll,
+    readonly move: Datasworn.MoveActionRoll,
     readonly roll: ActionMoveWrapper,
     readonly momentumTracker: MomentumTracker,
     protected readonly onAccept: (shouldBurn: boolean) => void,

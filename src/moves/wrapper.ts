@@ -1,4 +1,4 @@
-import { MoveOutcome, MoveOutcomes } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import {
   moveIsAction,
   moveIsProgress,
@@ -15,8 +15,8 @@ export enum RollResult {
 
 export function lookupOutcome(
   result: RollResult,
-  outcomes: MoveOutcomes,
-): MoveOutcome {
+  outcomes: Datasworn.MoveOutcomes,
+): Datasworn.MoveOutcome {
   switch (result) {
     case RollResult.Miss:
       return outcomes.miss;

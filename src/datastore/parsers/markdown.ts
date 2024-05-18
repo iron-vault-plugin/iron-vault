@@ -1,9 +1,9 @@
-import { OracleTableSimple, RulesPackage } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { CachedMetadata, TFile, parseYaml } from "obsidian";
 import { extractOracleTable } from "./oracle-table";
 
 export type ParserReturn =
-  | { success: true; priority?: number; rules: RulesPackage }
+  | { success: true; priority?: number; rules: Datasworn.RulesPackage }
   | { success: false; error: Error };
 export type MarkdownDataParser = (content: string) => ParserReturn;
 
@@ -44,7 +44,7 @@ export function dataforgedInlineParser(content: string): ParserReturn {
     const data = parseYaml(matches[1]);
     // TODO: priority
     // TODO: validation?
-    return { success: true, rules: data as RulesPackage };
+    return { success: true, rules: data as Datasworn.RulesPackage };
   } catch (e) {
     return {
       success: false,
@@ -70,18 +70,23 @@ export function inlineOracleParser(baseName: string): MarkdownDataParser {
         `user/collections/oracles/${id}`,
         content,
       );
-      const fullTable: OracleTableSimple = { ...table, name: baseName, source };
+      const fullTable: Datasworn.OracleTableText = {
+        ...table,
+        name: baseName,
+        _source: source,
+      };
       return {
         success: true,
         rules: {
-          datasworn_version: "0.0.5",
-          id,
-          package_type: "expansion",
+          datasworn_version: "0.0.10",
+          _id: id,
+          type: "expansion",
           ruleset: "starforged", // TODO: not sure how to handle this
           oracles: {
             user: {
-              id: "user/collections/oracles/user",
-              source,
+              _id: "user/collections/oracles/user",
+              _source: source,
+              type: "oracle_collection",
               oracle_type: "tables",
               name: "User",
               contents: {
@@ -89,7 +94,7 @@ export function inlineOracleParser(baseName: string): MarkdownDataParser {
               },
             },
           },
-        },
+        } satisfies Datasworn.RulesPackage,
       };
     } catch (error) {
       return {

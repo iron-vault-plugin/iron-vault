@@ -1,8 +1,4 @@
-import {
-  OracleRollable,
-  OracleTableRowDetails,
-  OracleTableRowSimple,
-} from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { NoSuchOracleError } from "../../../model/errors";
 import {
   Oracle,
@@ -14,12 +10,9 @@ import {
 import { Roll, RollResultKind, Subroll, sameRoll } from "../../../model/rolls";
 import { Dice } from "../../../utils/dice";
 
-function asOracleRow(
-  rawRow: OracleTableRowSimple | OracleTableRowDetails,
-): OracleRow {
+function asOracleRow(rawRow: Datasworn.OracleTableRow): OracleRow {
   return Object.freeze({
-    id: rawRow.id,
-    result: rawRow.result,
+    result: rawRow.text,
     template: rawRow.template,
     range:
       rawRow.min != null && rawRow.max != null
@@ -34,7 +27,7 @@ export function isRollableOracleRow(row: OracleRow): row is OracleRollableRow {
 
 export class DataswornOracle implements Oracle {
   constructor(
-    protected table: OracleRollable,
+    protected table: Datasworn.OracleRollable,
     public readonly parent: OracleGrouping,
   ) {}
 
@@ -42,16 +35,20 @@ export class DataswornOracle implements Oracle {
     return this.table.rows.map(asOracleRow).filter(isRollableOracleRow);
   }
 
-  row(id: string): OracleRow {
-    return asOracleRow(this.internalRow(id));
+  row(value: number): OracleRow {
+    return asOracleRow(this.rowFor(value));
   }
 
-  protected internalRow(
-    id: string,
-  ): OracleTableRowSimple | OracleTableRowDetails {
-    const row = this.table.rows.find((row) => row.id === id);
+  protected rowFor(roll: number): Datasworn.OracleTableRow {
+    const row = this.table.rows.find(
+      (row) =>
+        row.min != null &&
+        row.min <= roll &&
+        row.max != null &&
+        roll <= row.max,
+    );
     if (row == null) {
-      throw new Error(`[table ${this.id}] missing row ${id}`);
+      throw new Error(`roll ${roll} is off the charts for ${this.id}`);
     }
     return row;
   }
@@ -61,7 +58,7 @@ export class DataswornOracle implements Oracle {
   }
 
   get id(): string {
-    return this.table.id;
+    return this.table._id;
   }
 
   dice(): Dice {
@@ -74,18 +71,7 @@ export class DataswornOracle implements Oracle {
   }
 
   evaluate(context: RollContext, roll: number): Roll {
-    const row = this.table.rows.find(
-      (row) =>
-        row.min != null &&
-        row.min <= roll &&
-        row.max != null &&
-        roll <= row.max,
-    );
-    if (row == null) {
-      throw new Error(`roll ${roll} is off the charts for ${this.table.id}`);
-    }
-
-    console.log(row);
+    const row = this.rowFor(roll);
 
     const subrolls: Record<string, Subroll<Roll>> = {};
 
@@ -94,21 +80,16 @@ export class DataswornOracle implements Oracle {
     if (row.template != null) {
       const template = row.template;
       // TODO: apparently also description and summary
-      if (template.result == null) {
-        throw new Error(`unhandled template for ${this.table.id}`);
+      if (template.text == null) {
+        throw new Error(`unhandled template for ${this.id}`);
       }
       kind = RollResultKind.Templated;
-      for (const [, id] of template.result.matchAll(
-        /\{\{result:([^{}]+)\}\}/g,
-      )) {
+      for (const [, id] of template.text.matchAll(/\{\{text:([^{}]+)\}\}/g)) {
         const prevRoll = subrolls[id];
         if (!prevRoll) {
           const subTable = context.lookup(id);
           if (subTable == null) {
-            throw new NoSuchOracleError(
-              id,
-              `missing subtable in ${this.table.id}`,
-            );
+            throw new NoSuchOracleError(id, `missing subtable in ${this.id}`);
           }
           subrolls[id] = {
             rolls: [subTable.roll(context)],
@@ -204,7 +185,6 @@ export class DataswornOracle implements Oracle {
       kind: kind ?? RollResultKind.Simple,
       roll,
       tableId: this.id,
-      rowId: row.id,
       subrolls,
     };
   }

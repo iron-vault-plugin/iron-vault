@@ -1,12 +1,14 @@
-import * as ds from "@datasworn/core";
-import { Rules, RulesExpansion } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { z } from "zod";
 
-export type ImpactCategory = Omit<ds.ImpactCategory, "contents">;
-export type ImpactRule = ds.ImpactRule & { category: ImpactCategory };
-export type SpecialTrackRule = ds.SpecialTrackRule;
+export type ImpactCategory = Omit<Datasworn.ImpactCategory, "contents">;
+export type ImpactRule = Datasworn.ImpactRule & { category: ImpactCategory };
+export type SpecialTrackRule = Datasworn.SpecialTrackRule;
 
-export function mergeRules(rules: Rules, expansions: RulesExpansion[]): Rules {
+export function mergeRules(
+  rules: Datasworn.Rules,
+  expansions: Datasworn.RulesExpansion[],
+): Datasworn.Rules {
   return {
     stats: Object.assign(rules.stats, ...expansions.map((exp) => exp.stats)),
     condition_meters: Object.assign(
@@ -90,7 +92,7 @@ export class Ruleset {
 
   constructor(
     public readonly id: string,
-    rules: Rules,
+    rules: Datasworn.Rules,
   ) {
     this.condition_meters = Object.fromEntries(
       Object.entries(rules.condition_meters).map(([key, meter]) => [

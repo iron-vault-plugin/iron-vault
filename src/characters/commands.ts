@@ -1,4 +1,4 @@
-import { Asset } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import ForgedPlugin from "index";
 import { Editor, FuzzyMatch, MarkdownView } from "obsidian";
 import { vaultProcess } from "utils/obsidian";
@@ -22,9 +22,9 @@ export async function addAssetToCharacter(
   const { character, lens } = context;
   const characterAssets = lens.assets.get(character);
 
-  const availableAssets: Asset[] = [];
+  const availableAssets: Datasworn.Asset[] = [];
   for (const asset of plugin.datastore.assets.values()) {
-    if (!characterAssets.find(({ id }) => id === asset.id)) {
+    if (!characterAssets.find(({ id }) => id === asset._id)) {
       // Character does not have this asset
       availableAssets.push(asset);
     }
@@ -34,7 +34,7 @@ export async function addAssetToCharacter(
     plugin.app,
     availableAssets,
     (asset) => asset.name,
-    ({ item: asset }: FuzzyMatch<Asset>, el: HTMLElement) => {
+    ({ item: asset }: FuzzyMatch<Datasworn.Asset>, el: HTMLElement) => {
       el.createEl("small", {
         text:
           asset.category +

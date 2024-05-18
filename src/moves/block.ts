@@ -1,4 +1,4 @@
-import { Move } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { Datastore } from "datastore";
 import { MarkdownRenderChild, MarkdownRenderer, type App } from "obsidian";
 import ForgedPlugin from "../index";
@@ -52,7 +52,7 @@ function formatAdds(adds: { amount: number; desc?: string }[]): string {
 }
 
 class MoveMarkdownRenderChild extends MarkdownRenderChild {
-  protected readonly moveDefinition?: Move;
+  protected readonly moveDefinition?: Datasworn.Move;
 
   constructor(
     containerEl: HTMLElement,

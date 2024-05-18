@@ -1,21 +1,21 @@
-import { OracleCollection, Ruleset } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import assert from "assert";
 import { OracleGrouping, OracleGroupingType } from "../../../model/oracle";
 import { DataswornOracle } from "./oracles";
 
-import rawSfData from "@datasworn/starforged/json/starforged.json";
+import rawSfData from "@datasworn/starforged/json/starforged.json" with { type: "json" };
 
-const data: Ruleset = rawSfData as Ruleset;
+const data = rawSfData as Datasworn.Ruleset;
 
 function loadOracle(...[first, ...rest]: string[]): DataswornOracle {
-  let collection: OracleCollection = data.oracles[first];
+  let collection: Datasworn.OracleCollection = data.oracles[first];
   const tableName = rest.pop();
   assert(tableName != null);
 
   let grouping: OracleGrouping = {
     grouping_type: OracleGroupingType.Ruleset,
-    id: data.id,
-    name: data.id,
+    id: data._id,
+    name: data._id,
   };
 
   let name: string | undefined;
@@ -29,7 +29,7 @@ function loadOracle(...[first, ...rest]: string[]): DataswornOracle {
     grouping = {
       grouping_type: OracleGroupingType.Collection,
       name: collection.name,
-      id: collection.id,
+      id: collection._id,
       parent: grouping,
     };
     collection = collection.collections[name];
@@ -48,10 +48,7 @@ describe("DataswornOracle", () => {
   describe(".row", () => {
     it("returns a row of the oracle", () => {
       const fringeOracle = loadOracle("factions", "fringe_group");
-      expect(
-        fringeOracle.row("starforged/oracles/factions/fringe_group/16-25"),
-      ).toEqual({
-        id: "starforged/oracles/factions/fringe_group/16-25",
+      expect(fringeOracle.row(18)).toEqual({
         result: "Gangsters",
         range: { min: 16, max: 25 },
         template: undefined,
@@ -59,9 +56,9 @@ describe("DataswornOracle", () => {
     });
     it("throws error for missing row", () => {
       const fringeOracle = loadOracle("factions", "fringe_group");
-      expect(() =>
-        fringeOracle.row("starforged/oracles/factions/fringe_group/101-102"),
-      ).toThrow("missing row starforged/oracles/factions/fringe_group/101-102");
+      expect(() => fringeOracle.row(101)).toThrow(
+        "roll 101 is off the charts for starforged/oracles/factions/fringe_group",
+      );
     });
   });
 

@@ -1,12 +1,12 @@
-import { Asset, type Move } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import { Oracle } from "model/oracle";
 import { Ruleset } from "rules/ruleset";
 import { IndexableData, PriorityIndexer } from "./priority-index";
 
 export class DataIndex {
   _oracleIndex: PriorityIndexer<string, Oracle>;
-  _moveIndex: PriorityIndexer<string, Move>;
-  _assetIndex: PriorityIndexer<string, Asset>;
+  _moveIndex: PriorityIndexer<string, Datasworn.Move>;
+  _assetIndex: PriorityIndexer<string, Datasworn.Asset>;
   _rulesetIndex: PriorityIndexer<string, Ruleset>;
 
   /** Tracks "groups" of sources that should be updated together.  */
@@ -47,8 +47,8 @@ export class DataIndex {
     priority: number,
     data: {
       oracles?: IndexableData<string, Oracle>;
-      moves?: IndexableData<string, Move>;
-      assets?: IndexableData<string, Asset>;
+      moves?: IndexableData<string, Datasworn.Move>;
+      assets?: IndexableData<string, Datasworn.Asset>;
       rulesets?: IndexableData<string, Ruleset>;
     },
   ): void {

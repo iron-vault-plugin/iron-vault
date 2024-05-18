@@ -1,4 +1,4 @@
-import { Asset } from "@datasworn/core";
+import { type Datasworn } from "@datasworn/core";
 import {
   getPathLabel,
   pathed,
@@ -34,8 +34,9 @@ describe("samePath", () => {
 });
 
 describe("updateAssetWithOptions", () => {
-  const starship: Asset = {
-    id: "starforged/assets/command_vehicle/starship",
+  const starship: Datasworn.Asset = {
+    _id: "starforged/assets/command_vehicle/starship",
+    type: "asset",
     name: "Starship",
     category: "Command Vehicle",
     color: "#9aa3ad",
@@ -54,7 +55,7 @@ describe("updateAssetWithOptions", () => {
     },
     abilities: [
       {
-        id: "starforged/assets/command_vehicle/starship/abilities/0",
+        _id: "starforged/assets/command_vehicle/starship/abilities/0",
         enabled: true,
         text: "Your armed, multipurpose starship is suited for interstellar and atmospheric flight. It can comfortably transport several people, has space for cargo, and can carry and launch support vehicles. When you [Advance](id:starforged/moves/legacy/advance), you may spend experience to equip this vehicle with module assets.",
         enhance_moves: [
@@ -65,7 +66,7 @@ describe("updateAssetWithOptions", () => {
         ],
       },
       {
-        id: "starforged/assets/command_vehicle/starship/abilities/1",
+        _id: "starforged/assets/command_vehicle/starship/abilities/1",
         enabled: false,
         text: "When you [Finish an Expedition](id:starforged/moves/exploration/finish_an_expedition) (dangerous or greater) in your starship and score a hit, this journey strengthened your ties to your ship and any fellow travelers. You and your allies may mark 1 tick on your bonds legacy track.",
         enhance_moves: [
@@ -85,7 +86,7 @@ describe("updateAssetWithOptions", () => {
         ],
       },
       {
-        id: "starforged/assets/command_vehicle/starship/abilities/2",
+        _id: "starforged/assets/command_vehicle/starship/abilities/2",
         enabled: false,
         text: "When you [Withstand Damage](id:starforged/moves/suffer/withstand_damage), you may roll +heart. If you do, [Endure Stress](id:starforged/moves/suffer/endure_stress) (-1) on a weak hit or miss.",
         enhance_moves: [
@@ -140,7 +141,7 @@ describe("updateAssetWithOptions", () => {
         },
       },
     },
-    source: {
+    _source: {
       title: "Ironsworn: Starforged Assets",
       authors: [
         {

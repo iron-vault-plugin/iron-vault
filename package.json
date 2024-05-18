@@ -49,8 +49,8 @@
   },
   "dependencies": {
     "@codemirror/language": "^6.10.1",
-    "@datasworn/core": "^0.0.5",
-    "@datasworn/starforged": "0.0.5",
+    "@datasworn/core": "0.0.10",
+    "@datasworn/starforged": "0.0.10",
     "@nrsk/sigma": "^3.8.0",
     "@popperjs/core": "^2.11.8",
     "@types/js-yaml": "^4.0.9",
