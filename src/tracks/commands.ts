@@ -1,11 +1,8 @@
 import ForgedPlugin from "index";
+import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
+import { createClockNode, createProgressNode } from "mechanics/node-builders";
 import { App, Editor, MarkdownView, TFolder, stringifyYaml } from "obsidian";
-import {
-  ForgedPluginSettings,
-  advanceClockTemplate,
-  advanceProgressTemplate,
-  createProgressTemplate,
-} from "settings";
+import { ForgedPluginSettings, createProgressTemplate } from "settings";
 import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ClockIndex, clockUpdater } from "./clock-file";
@@ -42,18 +39,11 @@ export async function advanceProgressTrack(
     "Select number of times to advance the progress track.",
   );
 
-  const newTrack = await trackContext.process((trackAdapter) =>
-    trackAdapter.advanced(steps),
-  );
+  await trackContext.process((trackAdapter) => trackAdapter.advanced(steps));
 
-  editor.replaceSelection(
-    advanceProgressTemplate(settings)({
-      trackInfo: newTrack,
-      trackPath: trackContext.location,
-      steps,
-      ticks: newTrack.track.progress - trackContext.track.progress,
-      originalInfo: trackContext,
-    }),
+  appendNodesToMoveOrMechanicsBlock(
+    editor,
+    createProgressNode(trackContext, steps),
   );
 }
 
@@ -92,12 +82,9 @@ export async function advanceClock(
     },
   );
 
-  editor.replaceSelection(
-    advanceClockTemplate(settings)({
-      clockInfo: newClock,
-      clockPath: clockPath,
-      ticks,
-    }),
+  appendNodesToMoveOrMechanicsBlock(
+    editor,
+    createClockNode(clockPath, clockInfo, newClock.clock),
   );
 }
 

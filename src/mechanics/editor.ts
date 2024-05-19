@@ -81,3 +81,31 @@ export function updatePreviousMoveOrCreateBlock(
     }
   });
 }
+
+/** Adds nodes to the end of a preceding move or block, or creates a new block. */
+export function appendNodesToMoveOrMechanicsBlock(
+  editor: Editor,
+  ...nodes: kdl.Node[]
+) {
+  createOrUpdateBlock(editor, MECHANICS_CODE_BLOCK_TAG, (existing) => {
+    if (existing) {
+      const { errors, output } = kdl.parse(existing);
+      if (errors.length > 0 || !output) {
+        throw new Error(`Error while parsing mechanics block: ${existing}`, {
+          cause: errors,
+        });
+      }
+
+      // If the last node is a move, update it. Otherwise, create a new top-level node.
+      const lastIndex = output.length - 1;
+      if (lastIndex >= 0 && output[lastIndex].name == "move") {
+        output[lastIndex].children.push(...nodes);
+      } else {
+        output.push(...nodes);
+      }
+      return kdl.format(output);
+    } else {
+      return kdl.format(nodes);
+    }
+  });
+}
