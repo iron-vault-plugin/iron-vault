@@ -1,48 +1,56 @@
+import { Move, MoveCategory } from "@datasworn/core/dist/Datasworn";
+import { html, render } from "lit-html";
+import { map } from "lit-html/directives/map.js";
+
 import ForgedPlugin from "index";
 import { MoveModal } from "moves/move-modal";
-import { MarkdownRenderChild, MarkdownRenderer } from "obsidian";
+import { md } from "utils/ui/directives";
 
 export default async function renderForgedMoves(
-  cont: Element,
+  cont: HTMLElement,
   plugin: ForgedPlugin,
 ) {
   const loading = cont.createEl("p", { text: "Loading data..." });
   await plugin.datastore.waitForReady;
   loading.remove();
-  renderMoveList(cont, plugin);
+  litHtmlMoveList(cont, plugin);
 }
 
-function renderMoveList(cont: Element, plugin: ForgedPlugin) {
-  const cats = plugin.datastore.moveCategories;
-  const list = cont.createEl("ol", { cls: "move-list" });
-  for (const cat of cats.values()) {
-    const catEl = list.createEl("li", { cls: "category" });
-    const wrapper = catEl.createDiv("wrapper");
-    const details = wrapper.createEl("details");
-    const summary = details.createEl("summary");
-    if (cat.color) {
-      summary.style.backgroundColor = cat.color;
-    }
-    summary.createEl("span", { text: cat.canonical_name ?? cat.name });
-    const contents = wrapper.createEl("ol", { cls: "content" });
+function litHtmlMoveList(cont: HTMLElement, plugin: ForgedPlugin) {
+  const tpl = html`
+    <ol class="move-list">
+      ${map(plugin.datastore.moveCategories.values(), (cat) =>
+        renderCategory(plugin, cat),
+      )}
+    </ol>
+  `;
+  render(tpl, cont);
+}
 
-    for (const move of Object.values(cat.contents ?? {})) {
-      const li = contents.createEl("li");
-      li.createEl("header", { text: move.name });
-      MarkdownRenderer.render(
-        plugin.app,
-        move.trigger.text,
-        li,
-        "",
-        new MarkdownRenderChild(li),
-      );
-      // TODO(@zkat): Figure out how to get the right sourcePath here. Will probably need to get the view/editor.
-      const modal = new MoveModal(plugin.app, plugin, move);
-      li.addEventListener("click", (ev) => {
+function renderCategory(plugin: ForgedPlugin, category: MoveCategory) {
+  return html`
+  <li class="category">
+    <div class="wrapper">
+      <details>
+        <summary style=${category.color ? `border-bottom: 4px solid ${category.color}` : ""}><span>${category.canonical_name ?? category.name}</span></summary>
+      </details>
+      <ol class="content">
+        ${map(Object.values(category.contents ?? {}), (move) => html`${renderMove(plugin, move)}`)}
+      </ol>
+  </li>`;
+}
+
+function renderMove(plugin: ForgedPlugin, move: Move) {
+  return html`
+    <li
+      @click=${(ev: Event) => {
         ev.preventDefault();
         ev.stopPropagation();
-        modal.open();
-      });
-    }
-  }
+        new MoveModal(plugin.app, plugin, move).open();
+      }}
+    >
+      <header>${move.name}</header>
+      ${md(plugin, move.trigger.text)}
+    </li>
+  `;
 }

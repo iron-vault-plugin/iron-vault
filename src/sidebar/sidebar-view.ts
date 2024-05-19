@@ -1,4 +1,5 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
+import { render, html } from "lit-html";
 
 import ForgedPlugin from "index";
 import renderForgedOracles from "./oracles";
@@ -29,39 +30,28 @@ export class SidebarView extends ItemView {
   async onOpen() {
     const container = this.containerEl.children[1];
     container.empty();
-    // container.createEl("h4", { text: "Forged" });
-    const tabs = container.createEl("nav", { cls: "forged-sidebar-view tabs" });
-    const oracleTab = tabs.createDiv({ cls: "tab" });
-    oracleTab.createEl("input", {
-      attr: {
-        type: "radio",
-        name: "tab-group",
-        id: "oracle-tab",
-        checked: "checked",
-      },
-    });
-    oracleTab.createEl("label", {
-      attr: { for: "oracle-tab" },
-      text: "Oracles",
-    });
+    const tpl = html`
+      <nav class="forged-sidebar-view tabs">
+        <div class="tab">
+          <input type="radio" name="tab-group" id="oracle-tab" checked />
+          <label for="oracle-tab">Oracles</label>
+          <div class="content oracle-tab"></div>
+        </div>
+        <div class="tab">
+          <input type="radio" name="tab-group" id="move-tab" />
+          <label for="move-tab">Moves</label>
+          <div class="content move-tab"></div>
+        </div>
+      </nav>
+    `;
+    render(tpl, container as HTMLElement);
+    // We separate these out so they can do their own dynamic state stuff.
     renderForgedOracles(
-      oracleTab.createDiv({ cls: "content oracle-tab" }),
+      container.querySelector(".content.oracle-tab")!,
       this.plugin,
     );
-    const moveTab = tabs.createDiv({ cls: "tab" });
-    moveTab.createEl("input", {
-      attr: {
-        type: "radio",
-        name: "tab-group",
-        id: "move-tab",
-      },
-    });
-    moveTab.createEl("label", {
-      attr: { for: "move-tab" },
-      text: "Moves",
-    });
     renderForgedMoves(
-      moveTab.createDiv({ cls: "content move-tab" }),
+      container.querySelector(".content.move-tab")!,
       this.plugin,
     );
   }

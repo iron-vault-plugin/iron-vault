@@ -44,6 +44,13 @@
       }
       &:checked ~ label {
         z-index: 2;
+        background-color: var(--background-secondary-alt);
+        &:hover {
+          background-color: var(--background-modifier-hover);
+        }
+        &:active {
+          background-color: var(--background-modifier-active-hover);
+        }
         & ~ .content {
           z-index: 1;
           display: block;
