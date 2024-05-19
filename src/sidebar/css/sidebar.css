@@ -21,7 +21,7 @@
   & > .tab {
     float: left;
     & > label {
-      font-size: 1.2em;
+      font-size: 1.1em;
       font-weight: var(--font-semibold);
       background-color: var(--background-primary-alt);
       padding: 0.5em;
@@ -39,10 +39,14 @@
     }
     & > [type="radio"] {
       display: none;
+      & ~ .content {
+        display: none;
+      }
       &:checked ~ label {
         z-index: 2;
         & ~ .content {
           z-index: 1;
+          display: block;
         }
       }
     }
