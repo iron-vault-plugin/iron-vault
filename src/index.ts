@@ -262,6 +262,10 @@ export default class ForgedPlugin extends Plugin {
     this.settings = settings;
   }
 
+  async onExternalSettingsChange() {
+    Object.assign(this.settings, await this.loadData());
+  }
+
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
   }
