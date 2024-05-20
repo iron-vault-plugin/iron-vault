@@ -52,14 +52,16 @@ export class MechanicsRenderer {
     this.source = source;
     this.plugin = plugin;
     this.sourcePath = sourcePath;
-    plugin.settings.on("change", ({ key, oldValue, newValue }) => {
-      if (
-        oldValue !== newValue &&
-        (key === "showMechanicsToggle" || key === "collapseMoves")
-      ) {
-        this.render();
-      }
-    });
+    plugin.register(
+      plugin.settings.on("change", ({ key, oldValue, newValue }) => {
+        if (
+          oldValue !== newValue &&
+          (key === "showMechanicsToggle" || key === "collapseMoves")
+        ) {
+          this.render();
+        }
+      }),
+    );
   }
 
   async render(): Promise<void> {
