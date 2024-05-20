@@ -25,7 +25,6 @@ export class OracleModal extends Modal {
         .onClick(() => {
           const { workspace } = this.plugin.app;
           const view = workspace.getActiveFileView();
-          console.log({ view });
           if (view && view instanceof MarkdownView) {
             const editor = view.editor;
             runOracleCommand(
