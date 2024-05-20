@@ -24,16 +24,17 @@ export class OracleModal extends Modal {
         .setTooltip("Roll this Oracle")
         .onClick(() => {
           const { workspace } = this.plugin.app;
-          const editor = workspace.activeEditor?.editor;
-          const view = workspace.getActiveViewOfType(MarkdownView);
-          console.log({ editor, view });
-          if (editor && view) {
+          const view = workspace.getActiveFileView();
+          if (view && view instanceof MarkdownView) {
+            const editor = view.editor;
             runOracleCommand(
               this.plugin.app,
               this.plugin.datastore,
               editor,
               view,
+              oracle,
             );
+            this.close();
           }
         });
       const table = contentEl.createEl("table");

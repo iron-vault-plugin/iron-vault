@@ -60,6 +60,7 @@ export async function runOracleCommand(
   datastore: Datastore,
   editor: Editor,
   _view: MarkdownView,
+  chosenOracle?: Oracle,
 ): Promise<void> {
   if (!datastore.ready) {
     console.warn("data not ready");
@@ -101,17 +102,22 @@ export async function runOracleCommand(
     return;
   }
 
-  const oracles: Oracle[] = [...datastore.oracles.values()];
-  const oracle = await CustomSuggestModal.select(
-    app,
-    oracles,
-    formatOraclePath,
-    (match, el) => {
-      const ruleset = oracleRuleset(match.item);
-      el.createEl("small", { text: ruleset, cls: "forged-suggest-hint" });
-    },
-    prompt ? `Select an oracle to answer '${prompt}'` : "Select an oracle",
-  );
+  let oracle: Oracle;
+  if (chosenOracle) {
+    oracle = chosenOracle;
+  } else {
+    const oracles: Oracle[] = [...datastore.oracles.values()];
+    oracle = await CustomSuggestModal.select(
+      app,
+      oracles,
+      formatOraclePath,
+      (match, el) => {
+        const ruleset = oracleRuleset(match.item);
+        el.createEl("small", { text: ruleset, cls: "forged-suggest-hint" });
+      },
+      prompt ? `Select an oracle to answer '${prompt}'` : "Select an oracle",
+    );
+  }
   console.log(oracle);
   const rollContext = new OracleRoller(datastore.oracles);
   new OracleRollerModal(
