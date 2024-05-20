@@ -6,32 +6,35 @@ import { Either, Left, Right } from "../utils/either";
 
 export enum ChallengeRanks {
   /** 12 ticks per step */
-  Troublesome = "Troublesome",
+  Troublesome = "troublesome",
 
   /** 8 ticks per step */
-  Dangerous = "Dangerous",
+  Dangerous = "dangerous",
 
   /** 4 ticks per step */
-  Formidable = "Formidable",
+  Formidable = "formidable",
 
   /** 2 ticks per step */
-  Extreme = "Extreme",
+  Extreme = "extreme",
 
   /** 1 tick per step */
-  Epic = "Epic",
+  Epic = "epic",
 }
 
 export const CHALLENGE_STEPS: Record<ChallengeRanks, number> = {
-  Troublesome: 12,
-  Dangerous: 8,
-  Formidable: 4,
-  Extreme: 2,
-  Epic: 1,
+  [ChallengeRanks.Troublesome]: 12,
+  [ChallengeRanks.Dangerous]: 8,
+  [ChallengeRanks.Formidable]: 4,
+  [ChallengeRanks.Extreme]: 2,
+  [ChallengeRanks.Epic]: 1,
 };
 
 export const MAX_TICKS = 40;
 
-export const challengeRankSchema = z.nativeEnum(ChallengeRanks);
+export const challengeRankSchema = z.preprocess(
+  (val) => (typeof val === "string" ? val.toLowerCase() : val),
+  z.nativeEnum(ChallengeRanks),
+);
 
 export const progressTrackerSchema = z
   .object({
@@ -126,6 +129,10 @@ export class ProgressTrack {
 
   get boxesFilled(): number {
     return Math.floor(this.progress / 4);
+  }
+
+  boxesAndTicks(): [number, number] {
+    return [this.boxesFilled, this.progress - this.boxesFilled * 4];
   }
 
   /** Number of boxes filled to count for progress rolls.

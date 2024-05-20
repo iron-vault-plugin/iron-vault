@@ -34,6 +34,21 @@ describe("ProgressTrack", () => {
     });
   });
 
+  it("interprets the difficulty case insensitively", () => {
+    const result = ProgressTrack.create({
+      ...TEST_DATA,
+      difficulty: "DANGERous",
+    });
+    expect(result.isRight()).toBeTruthy();
+    const track = result.unwrap();
+    expect(track).toMatchObject<ProgressTrackSchema>({
+      difficulty: ChallengeRanks.Dangerous,
+      progress: 10,
+      complete: false,
+      unbounded: false,
+    });
+  });
+
   it.each([
     {
       rank: ChallengeRanks.Dangerous,
