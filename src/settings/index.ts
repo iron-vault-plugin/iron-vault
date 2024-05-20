@@ -1,40 +1,82 @@
 import Handlebars from "handlebars";
 import { ClockFileAdapter } from "tracks/clock-file";
 import { ProgressTrackFileAdapter, ProgressTrackInfo } from "tracks/progress";
+import Emittery from "emittery";
 
-export interface ForgedPluginSettings
-  extends Record<keyof TEMPLATE_TYPES, string> {
-  oraclesFolder: string;
-  momentumResetTemplate: string;
-  meterAdjTemplate: string;
+export class ForgedPluginSettings {
+  advanceProgressTemplate: string =
+    "> [!progress] [[{{trackPath}}|{{trackInfo.name}}]]: Marked {{steps}} progress ({{trackInfo.track.boxesFilled}} ![[progress-box-4.svg|15]] total)\n> Ticks: {{originalInfo.track.progress}} + {{ticks}} -> {{trackInfo.track.progress}}\n> Milestone: \n\n";
+  createProgressTemplate: string =
+    "> [!progress] New {{trackInfo.trackType}} track: [[{{trackPath}}|{{trackInfo.name}}]]\n> **Difficulty**: {{trackInfo.track.difficulty}}\n> **Additional details**: \n\n";
+  advanceClockTemplate: string =
+    "> [!progress] [[{{clockPath}}|{{clockInfo.name}}]] clock advanced\n>**Progress:** {{clockInfo.clock.progress}} out of {{clockInfo.clock.segments}} segments filled\n> \n> **Cause of Advance:**\n\n";
+  createClockTemplate: string =
+    "> [!progress] [[{{clockPath}}|{{clockInfo.name}}]] clock created\n>**Progress:** {{clockInfo.clock.progress}} out of {{clockInfo.clock.segments}} segments filled\n> \n> **Cause of Advance:**\n\n";
+  oraclesFolder: string = "";
+
+  momentumResetTemplate: string =
+    "> [!mechanics] {{character.name}} burned momentum: {{oldValue}} -> {{newValue}}\n\n";
+  meterAdjTemplate: string =
+    "> [!mechanics] {{character.name}} old {{measure.definition.label}}: {{measure.value}}; new {{measure.definition.label}}: {{newValue}}\n\n";
 
   /** Use the character system */
-  useCharacterSystem: boolean;
+  useCharacterSystem: boolean = true;
 
   /** Set moves in mechanics blocks to be collapsed initially */
-  collapseMoves: boolean;
+  collapseMoves: boolean = true;
 
   /** Hide "Hide mechanics" toggle */
-  showMechanicsToggle: boolean;
+  showMechanicsToggle: boolean = true;
+  emitter: Emittery;
+
+  constructor() {
+    this.emitter = new Emittery();
+    return new Proxy(this, {
+      set<K extends keyof ForgedPluginSettings>(
+        target: ForgedPluginSettings,
+        key: K,
+        newValue: ForgedPluginSettings[K],
+      ) {
+        if (key === "emitter") {
+          return true;
+        }
+        const oldValue = target[key];
+        target[key] = newValue;
+        target.emitter.emit("change", { key, oldValue, newValue });
+        return true;
+      },
+    });
+  }
+
+  on<K extends keyof EVENT_TYPES>(
+    event: K,
+    listener: (params: EVENT_TYPES[K]) => void,
+  ) {
+    return this.emitter.on(event, listener);
+  }
+
+  once<K extends keyof EVENT_TYPES>(event: K) {
+    return this.emitter.once(event);
+  }
+
+  off<K extends keyof EVENT_TYPES>(
+    event: K,
+    listener: (params: EVENT_TYPES[K]) => void,
+  ) {
+    return this.emitter.off(event, listener);
+  }
+
+  events<K extends keyof EVENT_TYPES>(event: K) {
+    return this.emitter.events(event);
+  }
 }
 
-export const DEFAULT_SETTINGS: ForgedPluginSettings = {
-  useCharacterSystem: true,
-  collapseMoves: true,
-  showMechanicsToggle: true,
-  oraclesFolder: "",
-  momentumResetTemplate:
-    "> [!mechanics] {{character.name}} burned momentum: {{oldValue}} -> {{newValue}}\n\n",
-  meterAdjTemplate:
-    "> [!mechanics] {{character.name}} old {{measure.definition.label}}: {{measure.value}}; new {{measure.definition.label}}: {{newValue}}\n\n",
-  advanceProgressTemplate:
-    "> [!progress] [[{{trackPath}}|{{trackInfo.name}}]]: Marked {{steps}} progress ({{trackInfo.track.boxesFilled}} ![[progress-box-4.svg|15]] total)\n> Ticks: {{originalInfo.track.progress}} + {{ticks}} -> {{trackInfo.track.progress}}\n> Milestone: \n\n",
-  createProgressTemplate:
-    "> [!progress] New {{trackInfo.trackType}} track: [[{{trackPath}}|{{trackInfo.name}}]]\n> **Difficulty**: {{trackInfo.track.difficulty}}\n> **Additional details**: \n\n",
-  advanceClockTemplate:
-    "> [!progress] [[{{clockPath}}|{{clockInfo.name}}]] clock advanced\n>**Progress:** {{clockInfo.clock.progress}} out of {{clockInfo.clock.segments}} segments filled\n> \n> **Cause of Advance:**\n\n",
-  createClockTemplate:
-    "> [!progress] [[{{clockPath}}|{{clockInfo.name}}]] clock created\n>**Progress:** {{clockInfo.clock.progress}} out of {{clockInfo.clock.segments}} segments filled\n> \n> **Cause of Advance:**\n\n",
+export type EVENT_TYPES = {
+  change: {
+    key: keyof ForgedPluginSettings;
+    oldValue: ForgedPluginSettings[keyof ForgedPluginSettings];
+    newValue: ForgedPluginSettings[keyof ForgedPluginSettings];
+  };
 };
 
 export type TEMPLATE_TYPES = {

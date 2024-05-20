@@ -8,7 +8,7 @@ import {
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
-import { DEFAULT_SETTINGS, ForgedPluginSettings } from "settings";
+import { ForgedPluginSettings } from "settings";
 import { ProgressContext } from "tracks/context";
 import { ForgedAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
@@ -254,8 +254,7 @@ export default class ForgedPlugin extends Plugin {
 
   async loadSettings(): Promise<void> {
     const settings = Object.assign(
-      {},
-      DEFAULT_SETTINGS,
+      new ForgedPluginSettings(),
       await this.loadData(),
       // Remove unused old variables
       { moveBlockFormat: undefined },

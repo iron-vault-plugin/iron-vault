@@ -26,6 +26,9 @@ importers:
       ajv:
         specifier: ^8.13.0
         version: 8.13.0
+      emittery:
+        specifier: ^1.0.3
+        version: 1.0.3
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -1334,6 +1337,10 @@ packages:
   emittery@0.13.1:
     resolution: {integrity: sha512-DeWwawk6r5yR9jFgnDKYt4sLS0LmHJJi3ZOnb5/JdbYwj3nW+FxQnHIjhBKz8YLC7oRNPVM9NQ47I3CVx34eqQ==}
     engines: {node: '>=12'}
+
+  emittery@1.0.3:
+    resolution: {integrity: sha512-tJdCJitoy2lrC2ldJcqN4vkqJ00lT+tOWNT1hBJjO/3FDMJa5TTIiYGCKGkn/WfCyOzUMObeohbVTj00fhiLiA==}
+    engines: {node: '>=14.16'}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -4451,6 +4458,8 @@ snapshots:
   electron-to-chromium@1.4.640: {}
 
   emittery@0.13.1: {}
+
+  emittery@1.0.3: {}
 
   emoji-regex@8.0.0: {}
 
