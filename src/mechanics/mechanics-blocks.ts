@@ -5,8 +5,9 @@ import {
   MarkdownRenderer,
 } from "obsidian";
 
-import ForgedPlugin from "../index";
 import { MoveModal } from "moves/move-modal";
+import { ProgressTrack } from "tracks/progress";
+import ForgedPlugin from "../index";
 
 export default function registerMechanicsBlock(plugin: ForgedPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -317,29 +318,38 @@ export class MechanicsRenderer {
 
   async renderProgress(target: HTMLElement, node: KdlNode) {
     const trackName = (node.properties.name ?? node.values[0]) as string;
-    let from = node.properties.from as number;
-    const fromBoxes =
-      (node.properties["from-boxes"] as number) ??
-      (from != null ? Math.floor(from / 4) : 0);
-    const fromTicks =
-      (node.properties["from-ticks"] as number) ??
-      (from != null ? from % 4 : 0);
-    if (from == null) {
-      from = fromBoxes * 4 + fromTicks;
+    const result = ProgressTrack.create({
+      progress:
+        node.properties.from ??
+        ((node.properties["from-boxes"] as number) ?? 0) * 4 +
+          ((node.properties["from-ticks"] as number) ?? 0),
+      rank: node.properties.rank ?? node.properties.level,
+      unbounded: (node.properties.unbounded ?? false) as boolean,
+      complete: false,
+    });
+    if (result.isLeft()) {
+      // todo: Better error display
+      target.createEl("pre", {
+        text: `Invalid track:\n${result.error.toString()}`,
+        cls: "error",
+      });
+      return;
     }
-    const level = (node.properties.level ?? node.values[2]) as string;
+    const startTrack = result.value;
+
+    const [fromBoxes, fromTicks] = startTrack.boxesAndTicks();
+    const rank = startTrack.rank;
     const steps = (node.properties.steps ?? node.values[3] ?? 1) as number;
-    const delta = levelTicks(level) * steps;
-    const to = from + delta;
-    const toBoxes = Math.floor(to / 4);
-    const toTicks = to % 4;
+
+    const endTrack = startTrack.advanced(steps);
+    const [toBoxes, toTicks] = endTrack.boxesAndTicks();
     await this.renderDlist(target, "progress", {
       "Track Name": { cls: "track-name", value: trackName, md: true },
       Steps: {
         cls: "steps " + (steps < 0 ? "negative" : "positive"),
         value: steps,
       },
-      Level: { cls: "level", value: level },
+      Rank: { cls: "rank", value: rank },
       "From Boxes": { cls: "from-boxes", value: fromBoxes },
       "From Ticks": { cls: "from-ticks", value: fromTicks },
       "To Boxes": { cls: "to-boxes", value: toBoxes },
@@ -624,29 +634,4 @@ function rollOutcome(
     text: outcome,
     match: challenge1 === challenge2,
   };
-}
-
-enum Level {
-  Troublesome = 12,
-  Dangerous = 8,
-  Formidable = 4,
-  Extreme = 2,
-  Epic = 1,
-}
-
-function levelTicks(level: string): number {
-  switch (level.toLowerCase()) {
-    case "troublesome":
-      return Level.Troublesome;
-    case "dangerous":
-      return Level.Dangerous;
-    case "formidable":
-      return Level.Formidable;
-    case "extreme":
-      return Level.Extreme;
-    case "epic":
-      return Level.Epic;
-    default:
-      return 0;
-  }
 }

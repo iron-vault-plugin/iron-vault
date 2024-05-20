@@ -12,7 +12,7 @@ export function createProgressNode(
     properties: {
       name: `[[${trackContext.location}|${trackContext.name}]]`,
       from: trackContext.track.progress,
-      level: trackContext.track.difficulty,
+      rank: trackContext.track.rank,
       steps,
     },
   });

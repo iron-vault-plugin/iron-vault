@@ -6,37 +6,41 @@ import { Either, Left, Right } from "../utils/either";
 
 export enum ChallengeRanks {
   /** 12 ticks per step */
-  Troublesome = "Troublesome",
+  Troublesome = "troublesome",
 
   /** 8 ticks per step */
-  Dangerous = "Dangerous",
+  Dangerous = "dangerous",
 
   /** 4 ticks per step */
-  Formidable = "Formidable",
+  Formidable = "formidable",
 
   /** 2 ticks per step */
-  Extreme = "Extreme",
+  Extreme = "extreme",
 
   /** 1 tick per step */
-  Epic = "Epic",
+  Epic = "epic",
 }
 
 export const CHALLENGE_STEPS: Record<ChallengeRanks, number> = {
-  Troublesome: 12,
-  Dangerous: 8,
-  Formidable: 4,
-  Extreme: 2,
-  Epic: 1,
+  [ChallengeRanks.Troublesome]: 12,
+  [ChallengeRanks.Dangerous]: 8,
+  [ChallengeRanks.Formidable]: 4,
+  [ChallengeRanks.Extreme]: 2,
+  [ChallengeRanks.Epic]: 1,
 };
 
 export const MAX_TICKS = 40;
 
-export const challengeRankSchema = z.nativeEnum(ChallengeRanks);
+export const challengeRankSchema = z.preprocess(
+  (val) => (typeof val === "string" ? val.toLowerCase() : val),
+  z.nativeEnum(ChallengeRanks),
+);
 
-export const progressTrackerSchema = z
+/** Schema for progress track files. */
+export const baseProgressTrackerSchema = z
   .object({
     Name: z.string(),
-    Difficulty: challengeRankSchema,
+    rank: challengeRankSchema,
     Progress: z.number().int().nonnegative().default(0),
     tags: z
       .union([z.string().transform((arg) => [arg]), z.array(z.string())])
@@ -58,12 +62,26 @@ export const progressTrackerSchema = z
   })
   .passthrough();
 
+export const progressTrackerSchema = z.union([
+  baseProgressTrackerSchema,
+  baseProgressTrackerSchema
+    .omit({ rank: true })
+    .merge(
+      z.object({
+        Difficulty: baseProgressTrackerSchema.shape.rank,
+      }),
+    )
+    .passthrough()
+    .transform(({ Difficulty, ...rest }) => ({ ...rest, rank: Difficulty })),
+]);
+
 export type ProgressTrackerInputSchema = z.input<typeof progressTrackerSchema>;
 export type ProgressTrackerSchema = z.infer<typeof progressTrackerSchema>;
 
+/** Validation for progress track domain model object. */
 export const progressTrackSchema = z
   .object({
-    difficulty: challengeRankSchema,
+    rank: challengeRankSchema,
     progress: z.number().int().nonnegative(),
     complete: z.boolean(),
     unbounded: z.boolean(),
@@ -79,7 +97,7 @@ export class ProgressTrack {
   /**
    * Challenge rank for this track
    */
-  readonly difficulty: ChallengeRanks;
+  readonly rank: ChallengeRanks;
 
   /**
    * Current progress (in ticks)
@@ -114,18 +132,22 @@ export class ProgressTrack {
   }
 
   private constructor(data: ProgressTrackSchema) {
-    this.difficulty = data.difficulty;
+    this.rank = data.rank;
     this.progress = data.progress;
     this.complete = data.complete;
     this.unbounded = data.unbounded;
   }
 
   get ticksPerStep(): number {
-    return CHALLENGE_STEPS[this.difficulty];
+    return CHALLENGE_STEPS[this.rank];
   }
 
   get boxesFilled(): number {
     return Math.floor(this.progress / 4);
+  }
+
+  boxesAndTicks(): [number, number] {
+    return [this.boxesFilled, this.progress - this.boxesFilled * 4];
   }
 
   /** Number of boxes filled to count for progress rolls.
@@ -166,7 +188,7 @@ export class ProgressTrack {
     return (
       this.progress === other.progress &&
       this.complete === other.complete &&
-      this.difficulty === other.difficulty &&
+      this.rank === other.rank &&
       this.unbounded === other.unbounded
     );
   }
@@ -211,7 +233,7 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     return this.create(
       {
         Name: name,
-        Difficulty: track.difficulty,
+        rank: track.rank,
         Progress: track.progress,
         tags: track.complete ? ["complete"] : ["incomplete"],
         TrackImage: settings.generateTrackImage(track),
@@ -230,7 +252,7 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     if (result.success) {
       const raw = result.data;
       return ProgressTrack.create({
-        difficulty: raw.Difficulty,
+        rank: raw.rank,
         progress: raw.Progress,
         complete: raw.tags.includes("complete"),
         unbounded: false,
@@ -252,7 +274,7 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
       produce(this.raw, (data) => {
         data.Progress = other.progress;
         data.TrackImage = this.settings.generateTrackImage(other);
-        data.Difficulty = other.difficulty;
+        data.rank = other.rank;
         const [tagToRemove, tagToAdd] = other.complete
           ? ["incomplete", "complete"]
           : ["complete", "incomplete"];

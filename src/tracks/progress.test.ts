@@ -12,7 +12,7 @@ import {
 
 describe("ProgressTrack", () => {
   const TEST_DATA: ProgressTrackSchema = {
-    difficulty: ChallengeRanks.Dangerous,
+    rank: ChallengeRanks.Dangerous,
     progress: 10,
     complete: false,
     unbounded: false,
@@ -27,7 +27,22 @@ describe("ProgressTrack", () => {
     expect(result.isRight()).toBeTruthy();
     const track = result.unwrap();
     expect(track).toMatchObject<ProgressTrackSchema>({
-      difficulty: ChallengeRanks.Dangerous,
+      rank: ChallengeRanks.Dangerous,
+      progress: 10,
+      complete: false,
+      unbounded: false,
+    });
+  });
+
+  it("interprets the rank case insensitively", () => {
+    const result = ProgressTrack.create({
+      ...TEST_DATA,
+      rank: "DANGERous",
+    });
+    expect(result.isRight()).toBeTruthy();
+    const track = result.unwrap();
+    expect(track).toMatchObject<ProgressTrackSchema>({
+      rank: ChallengeRanks.Dangerous,
       progress: 10,
       complete: false,
       unbounded: false,
@@ -46,7 +61,7 @@ describe("ProgressTrack", () => {
     { rank: ChallengeRanks.Extreme, steps: 1 },
     { rank: ChallengeRanks.Extreme, steps: 2 },
   ])("advances $rank track by $steps steps", ({ rank, steps }) => {
-    const start = make({ difficulty: rank });
+    const start = make({ rank: rank });
     const startingProgress = start.progress;
     expect(start.advanced(steps).progress).toBe(
       startingProgress + CHALLENGE_STEPS[rank] * steps,
@@ -91,9 +106,7 @@ describe("ProgressTrack", () => {
   ])(
     "#stepsRemaining calculates $steps steps from $ticks ticks for $rank",
     ({ ticks, steps, rank }) => {
-      expect(make({ progress: ticks, difficulty: rank }).stepsRemaining).toBe(
-        steps,
-      );
+      expect(make({ progress: ticks, rank: rank }).stepsRemaining).toBe(steps);
     },
   );
 });
@@ -101,7 +114,7 @@ describe("ProgressTrack", () => {
 describe("ProgressTrackFileAdapter", () => {
   const TEST_DATA = {
     Name: "Test",
-    Difficulty: "Dangerous",
+    rank: "Dangerous",
     Progress: 10,
     tags: "incomplete",
     TrackImage: "[[progress-track-10.svg]]",
@@ -109,8 +122,8 @@ describe("ProgressTrackFileAdapter", () => {
   };
 
   function make(
-    overrides: Omit<Partial<ProgressTrackerInputSchema>, "Difficulty"> & {
-      Difficulty?: ChallengeRanks | string;
+    overrides: Omit<Partial<ProgressTrackerInputSchema>, "rank"> & {
+      rank?: ChallengeRanks | string;
     } = {},
   ): Either<ZodError, ProgressTrackFileAdapter> {
     return ProgressTrackFileAdapter.create(
@@ -126,8 +139,8 @@ describe("ProgressTrackFileAdapter", () => {
   }
 
   function make_(
-    overrides: Omit<Partial<ProgressTrackerInputSchema>, "Difficulty"> & {
-      Difficulty?: ChallengeRanks | string;
+    overrides: Omit<Partial<ProgressTrackerInputSchema>, "rank"> & {
+      Rank?: ChallengeRanks | string;
     } = {},
   ): ProgressTrackFileAdapter {
     return make(overrides).unwrap();
@@ -136,12 +149,19 @@ describe("ProgressTrackFileAdapter", () => {
   it("#track extracts the progress track data", () => {
     expect(make_().track).toEqual(
       ProgressTrack.create_({
-        difficulty: ChallengeRanks.Dangerous,
+        rank: ChallengeRanks.Dangerous,
         progress: 10,
         complete: false,
         unbounded: false,
       }),
     );
+  });
+
+  it("parses a track with Difficulty instead of rank", () => {
+    expect(
+      make_({ rank: undefined, Difficulty: ChallengeRanks.Troublesome }).track
+        .rank,
+    ).toEqual(ChallengeRanks.Troublesome);
   });
 
   it("requires a completion tag", () => {
@@ -240,7 +260,7 @@ describe("legacyTrackXpEarned", () => {
     expect(
       legacyTrackXpEarned(
         ProgressTrack.create_({
-          difficulty: ChallengeRanks.Epic,
+          rank: ChallengeRanks.Epic,
           progress: boxes * 4,
           complete: false,
           unbounded: true,

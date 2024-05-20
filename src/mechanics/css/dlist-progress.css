@@ -29,7 +29,7 @@
       }
     }
 
-    &.level {
+    &.rank {
       text-transform: capitalize;
       color: var(--text-faint);
       &:before {

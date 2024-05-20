@@ -265,19 +265,19 @@ Box/tick amounts can be given either as a single `from` argument, or with
 - `from-boxes` (optional): the starting value of the progress track, in boxes.
 - `from-ticks` (optional): the starting value of the progress track, in ticks
   filled into the last unfilled box.
-- `level` - the difficulty level of the progress track (e.g. `"formidable"`, `"epic"`, etc).
+- `rank` - the challenge rank of the progress track (e.g. `"formidable"`, `"epic"`, etc).
 - `steps` (optional, default: 1) - number of times to mark progress.
 
 ##### Example
 
 ```kdl
-progress "My Background Vow" from-boxes=3 from-ticks=2 level="formidable" steps=2
+progress "My Background Vow" from-boxes=3 from-ticks=2 rank="formidable" steps=2
 ```
 
 #### `track`
 
 Marks progress on a progress track. Can be used interchangeably with
-`progress`, but doesn't encode the track difficulty level or the number of
+`progress`, but doesn't encode the track challenge rank or the number of
 times progress was marked. Most often, this node would be used for moves that
 say something like "erase two ticks from TKTK".
 

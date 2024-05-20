@@ -506,7 +506,7 @@ describe("Special Tracks", () => {
       progress: 4,
       unbounded: true,
       complete: false,
-      difficulty: ChallengeRanks.Epic,
+      rank: ChallengeRanks.Epic,
     });
   });
 
