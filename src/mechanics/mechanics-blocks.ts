@@ -312,7 +312,7 @@ export class MechanicsRenderer {
         node.properties.from ??
         ((node.properties["from-boxes"] as number) ?? 0) * 4 +
           ((node.properties["from-ticks"] as number) ?? 0),
-      difficulty: node.properties.level,
+      rank: node.properties.rank ?? node.properties.level,
       unbounded: (node.properties.unbounded ?? false) as boolean,
       complete: false,
     });
@@ -327,7 +327,7 @@ export class MechanicsRenderer {
     const startTrack = result.value;
 
     const [fromBoxes, fromTicks] = startTrack.boxesAndTicks();
-    const level = startTrack.difficulty;
+    const rank = startTrack.rank;
     const steps = (node.properties.steps ?? node.values[3] ?? 1) as number;
 
     const endTrack = startTrack.advanced(steps);
@@ -338,7 +338,7 @@ export class MechanicsRenderer {
         cls: "steps " + (steps < 0 ? "negative" : "positive"),
         value: steps,
       },
-      Level: { cls: "level", value: level },
+      Rank: { cls: "rank", value: rank },
       "From Boxes": { cls: "from-boxes", value: fromBoxes },
       "From Ticks": { cls: "from-ticks", value: fromTicks },
       "To Boxes": { cls: "to-boxes", value: toBoxes },

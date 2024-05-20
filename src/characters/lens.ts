@@ -97,7 +97,7 @@ function legacyTrack(
     lens: {
       get(source) {
         return ProgressTrack.create_({
-          difficulty: ChallengeRanks.Epic,
+          rank: ChallengeRanks.Epic,
           // SAFE: a validated character will satisfy the above schema
           progress: source[progressKey] as number,
           complete: false,

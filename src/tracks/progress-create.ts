@@ -67,7 +67,7 @@ function generateTrackName(name: string): string {
 
 export class ProgressTrackCreateModal extends Modal {
   public result = {
-    difficulty: ChallengeRanks.Dangerous,
+    rank: ChallengeRanks.Dangerous,
     progress: 0,
     name: "",
     tracktype: "",
@@ -114,13 +114,13 @@ export class ProgressTrackCreateModal extends Modal {
 
     // TODO: since the string value equals the display string, i don't actually know if this
     //   is working as intended with the options
-    new Setting(contentEl).setName("Difficulty").addDropdown((dropdown) =>
+    new Setting(contentEl).setName("Rank").addDropdown((dropdown) =>
       dropdown
         .addOptions(ChallengeRanks)
         .onChange((value) => {
-          this.result.difficulty = value as ChallengeRanks;
+          this.result.rank = value as ChallengeRanks;
         })
-        .setValue(this.result.difficulty),
+        .setValue(this.result.rank),
     );
 
     new Setting(contentEl).setName("Type").addSearch((search) => {
@@ -166,7 +166,7 @@ export class ProgressTrackCreateModal extends Modal {
       tracktype: this.result.tracktype,
       fileName: this.result.fileName,
       track: ProgressTrack.create_({
-        difficulty: this.result.difficulty,
+        rank: this.result.rank,
         progress: this.result.progress,
         complete: false,
         unbounded: false,
