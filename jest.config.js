@@ -1,6 +1,5 @@
 /** @type {import('jest').Config} */
-
-module.exports = {
+const config = {
   transform: {
     "^.+\\.(t|j)sx?$": ["@swc/jest"],
   },
@@ -8,3 +7,5 @@ module.exports = {
   rootDir: "src",
   modulePaths: ["<rootDir>"],
 };
+
+export default config;
