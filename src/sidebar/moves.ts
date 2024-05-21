@@ -29,10 +29,10 @@ function litHtmlMoveList(cont: HTMLElement, plugin: ForgedPlugin) {
 
 function renderCategory(plugin: ForgedPlugin, category: MoveCategory) {
   return html`
-  <li class="category">
+  <li class="category" style=${category.color ? `border-left: 6px solid ${category.color}` : ""}>
     <div class="wrapper">
       <details>
-        <summary style=${category.color ? `border-bottom: 4px solid ${category.color}` : ""}><span>${category.canonical_name ?? category.name}</span></summary>
+        <summary><span>${category.canonical_name ?? category.name}</span></summary>
       </details>
       <ol class="content">
         ${map(Object.values(category.contents ?? {}), (move) => html`${renderMove(plugin, move)}`)}
