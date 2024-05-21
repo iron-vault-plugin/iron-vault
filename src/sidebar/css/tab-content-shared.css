@@ -26,7 +26,8 @@
     & > summary {
       background-color: var(--background-secondary-alt);
       display: block;
-      &::-webkit-details-marker {
+      &::-webkit-details-marker,
+      &::marker {
         display: none;
       }
     }
