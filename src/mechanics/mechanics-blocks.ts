@@ -190,7 +190,11 @@ export class MechanicsRenderer {
         break;
       }
       case "oracle": {
-        // TODO
+        await this.renderOracle(target, node);
+        break;
+      }
+      case "oracle-group": {
+        await this.renderOracleGroup(target, node);
         break;
       }
       default: {
@@ -414,6 +418,36 @@ export class MechanicsRenderer {
       To: { cls: "to", value: to },
       OutOfTo: { cls: "out-of", value: outOf },
     });
+  }
+
+  async renderOracle(target: HTMLElement, node: KdlNode) {
+    const name = (node.properties.name ?? node.values[0]) as string;
+    const roll = (node.properties.roll ?? node.values[1]) as number;
+    const result = (node.properties.result ?? node.values[2]) as string;
+    const wrapper = target.createDiv("oracle-container");
+    await this.renderDlist(wrapper, "oracle", {
+      name: { cls: "name", value: name, md: true },
+      roll: { cls: "roll", value: roll },
+      result: { cls: "result", value: result, md: true },
+    });
+    if (node.children.length) {
+      const bq = wrapper.createEl("blockquote");
+      for (const child of node.children) {
+        await this.renderNode(bq, child);
+      }
+    }
+  }
+
+  async renderOracleGroup(target: HTMLElement, node: KdlNode) {
+    const name = (node.properties.name ?? node.values[0]) as string;
+    const wrapper = target.createEl("article", { cls: "oracle-group" });
+    await this.renderMarkdown(wrapper, name);
+    if (node.children.length) {
+      const bq = wrapper.createEl("blockquote");
+      for (const child of node.children) {
+        await this.renderNode(bq, child);
+      }
+    }
   }
 
   async renderRoll(target: HTMLElement, node: KdlNode) {

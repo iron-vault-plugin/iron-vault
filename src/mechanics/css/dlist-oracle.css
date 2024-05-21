@@ -1,0 +1,29 @@
+.forged-mechanics dl.oracle {
+  &:before {
+    content: "🔮";
+  }
+  & ~ blockquote {
+    margin-left: 0.5em;
+    padding-left: 1.2em;
+    border-left-style: dashed;
+  }
+  & dd {
+    &.name:after {
+      content: " ";
+    }
+    &.roll {
+      &:before {
+        content: "(=";
+      }
+      &:after {
+        content: ") ";
+      }
+    }
+    &.result {
+      &:before,
+      &:after {
+        content: '"';
+      }
+    }
+  }
+}

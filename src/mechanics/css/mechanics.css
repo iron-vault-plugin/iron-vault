@@ -2,6 +2,7 @@
 @import url("details.css");
 @import url("summary.css");
 @import url("paragraphs.css");
+@import url("oracle-group.css");
 @import url("dlist-shared.css");
 @import url("dlist-add.css");
 @import url("dlist-roll.css");
@@ -12,6 +13,7 @@
 @import url("dlist-track.css");
 @import url("dlist-xp.css");
 @import url("dlist-clock.css");
+@import url("dlist-oracle.css");
 
 .collapse-forged-mechanics .forged-mechanics {
   display: none;
