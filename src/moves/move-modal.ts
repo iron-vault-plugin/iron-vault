@@ -24,6 +24,7 @@ export class MoveModal extends Modal {
     this.setTitle(move.name);
     const { contentEl } = this;
     contentEl.empty();
+    contentEl.toggleClass("forged-modal-content", true);
     (async () => {
       if (move.roll_type !== "no_roll") {
         new ButtonComponent(contentEl)

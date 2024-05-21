@@ -15,6 +15,7 @@ export class OracleModal extends Modal {
 
   openOracle(oracle: Oracle) {
     const { contentEl } = this;
+    contentEl.toggleClass("forged-modal-content", true);
     this.setTitle(oracle.name);
     contentEl.classList.toggle("forged-oracle-modal", true);
     (async () => {
