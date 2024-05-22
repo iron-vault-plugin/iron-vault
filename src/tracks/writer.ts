@@ -1,4 +1,5 @@
 import { updating } from "utils/lens";
+import { ObjectProcessor } from "utils/obsidian";
 import { CharacterContext } from "../character-tracker";
 import { updater } from "../utils/update";
 import {
@@ -19,9 +20,7 @@ export class ProgressTrackFileWriter implements ProgressTrackWriterContext {
   constructor(
     public readonly adapter: ProgressTrackFileAdapter,
     public readonly settings: ProgressTrackSettings,
-    public readonly processor: (
-      process: (data: unknown) => object,
-    ) => Promise<void>,
+    public readonly processor: ObjectProcessor,
     public readonly location: string,
   ) {}
   async process(
@@ -46,9 +45,7 @@ export class ProgressTrackFileWriter implements ProgressTrackWriterContext {
 export class LegacyTrackWriter implements ProgressTrackWriterContext {
   constructor(
     public readonly character: CharacterContext,
-    public readonly processor: (
-      process: (data: unknown) => object,
-    ) => Promise<void>,
+    public readonly processor: ObjectProcessor,
     public readonly trackKey: string,
     public readonly location: string,
   ) {}

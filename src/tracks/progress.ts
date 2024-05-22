@@ -1,5 +1,6 @@
 import { produce } from "immer";
 import { CachedMetadata } from "obsidian";
+import { normalizeKeys } from "utils/zodutils";
 import { ZodError, z } from "zod";
 import { BaseIndexer } from "../indexer/indexer";
 import { Either, Left, Right } from "../utils/either";
@@ -37,42 +38,40 @@ export const challengeRankSchema = z.preprocess(
 );
 
 /** Schema for progress track files. */
-export const baseProgressTrackerSchema = z
-  .object({
-    Name: z.string(),
-    rank: challengeRankSchema,
-    Progress: z.number().int().nonnegative().default(0),
-    tags: z
-      .union([z.string().transform((arg) => [arg]), z.array(z.string())])
-      .refine(
-        (arg) => {
-          const hasComplete = arg.includes("complete");
-          const hasIncomplete = arg.includes("incomplete");
-          return (
-            (hasComplete && !hasIncomplete) || (hasIncomplete && !hasComplete)
-          );
-        },
-        {
-          message:
-            "Tags must contain exactly one of 'incomplete' or 'complete'",
-        },
-      ),
-    TrackImage: z.string(),
-    tracktype: z.string(),
-  })
-  .passthrough();
+export const baseProgressTrackerSchema = z.object({
+  name: z.string(),
+  rank: challengeRankSchema,
+  progress: z.number().int().nonnegative().default(0),
+  tags: z
+    .union([z.string().transform((arg) => [arg]), z.array(z.string())])
+    .refine(
+      (arg) => {
+        const hasComplete = arg.includes("complete");
+        const hasIncomplete = arg.includes("incomplete");
+        return (
+          (hasComplete && !hasIncomplete) || (hasIncomplete && !hasComplete)
+        );
+      },
+      {
+        message: "Tags must contain exactly one of 'incomplete' or 'complete'",
+      },
+    ),
+  trackimage: z.string(),
+  tracktype: z.string(),
+});
 
 export const progressTrackerSchema = z.union([
-  baseProgressTrackerSchema,
-  baseProgressTrackerSchema
-    .omit({ rank: true })
-    .merge(
-      z.object({
-        Difficulty: baseProgressTrackerSchema.shape.rank,
-      }),
-    )
-    .passthrough()
-    .transform(({ Difficulty, ...rest }) => ({ ...rest, rank: Difficulty })),
+  normalizeKeys(baseProgressTrackerSchema.passthrough()),
+  normalizeKeys(
+    baseProgressTrackerSchema
+      .omit({ rank: true })
+      .merge(
+        z.object({
+          difficulty: baseProgressTrackerSchema.shape.rank,
+        }),
+      )
+      .passthrough(),
+  ).transform(({ difficulty, ...rest }) => ({ ...rest, rank: difficulty })),
 ]);
 
 export type ProgressTrackerInputSchema = z.input<typeof progressTrackerSchema>;
@@ -224,7 +223,7 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
   ) {}
 
   get name(): string {
-    return this.raw.Name;
+    return this.raw.name;
   }
 
   get trackType(): string {
@@ -241,11 +240,11 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
   ): Either<ZodError, ProgressTrackFileAdapter> {
     return this.create(
       {
-        Name: name,
+        name,
         rank: track.rank,
-        Progress: track.progress,
+        progress: track.progress,
         tags: track.complete ? ["complete"] : ["incomplete"],
-        TrackImage: settings.generateTrackImage(track),
+        trackimage: settings.generateTrackImage(track),
         tracktype,
         forgedkind: "progress",
       } as ProgressTrackerInputSchema,
@@ -262,7 +261,7 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
       const raw = result.data;
       return ProgressTrack.create({
         rank: raw.rank,
-        progress: raw.Progress,
+        progress: raw.progress,
         complete: raw.tags.includes("complete"),
         unbounded: false,
       }).map((track) => new this(raw, track, settings));
@@ -281,8 +280,8 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     if (this.track == other || this.track.equals(other)) return this;
     return new ProgressTrackFileAdapter(
       produce(this.raw, (data) => {
-        data.Progress = other.progress;
-        data.TrackImage = this.settings.generateTrackImage(other);
+        data.progress = other.progress;
+        data.trackimage = this.settings.generateTrackImage(other);
         data.rank = other.rank;
         const [tagToRemove, tagToAdd] = other.complete
           ? ["incomplete", "complete"]
@@ -319,7 +318,6 @@ export class ProgressIndexer extends BaseIndexer<ProgressTrackFileAdapter> {
     cache: CachedMetadata,
   ): ProgressTrackFileAdapter | undefined {
     // TODO: we should use our Either support now to handle this
-    // TODO: customize track image gen
     return ProgressTrackFileAdapter.create(
       cache.frontmatter,
       this.settings,

@@ -1,5 +1,6 @@
 import { produce } from "immer";
 import { CachedMetadata } from "obsidian";
+import { normalizeKeys } from "utils/zodutils";
 import { z } from "zod";
 import { BaseIndexer } from "../indexer/indexer";
 import { Either, Left } from "../utils/either";
@@ -8,9 +9,9 @@ import { Clock } from "./clock";
 
 const clockSchema = z
   .object({
-    Name: z.string(),
-    Segments: z.number().positive(),
-    Progress: z.number().positive(),
+    name: z.string(),
+    segments: z.number().positive(),
+    progress: z.number().positive(),
     tags: z
       .union([z.string().transform((arg) => [arg]), z.array(z.string())])
       .refine(
@@ -26,9 +27,11 @@ const clockSchema = z
             "Tags must contain exactly one of 'incomplete' or 'complete'",
         },
       ),
-    ClockImage: z.string().optional(),
+    clockimage: z.string().optional(),
   })
   .passthrough();
+
+export const normalizedClockSchema = normalizeKeys(clockSchema);
 
 export type ClockSchema = z.output<typeof clockSchema>;
 
@@ -40,19 +43,19 @@ export class ClockFileAdapter {
   ) {}
 
   get name(): string {
-    return this.raw.Name;
+    return this.raw.name;
   }
 
   static create(
     data: unknown,
     clockImageGenerator: (track: Clock) => string,
   ): Either<z.ZodError, ClockFileAdapter> {
-    const result = clockSchema.safeParse(data);
+    const result = normalizedClockSchema.safeParse(data);
     if (result.success) {
       const raw = result.data;
       return Clock.create({
-        progress: raw.Progress,
-        segments: raw.Segments,
+        progress: raw.progress,
+        segments: raw.segments,
         active: !raw.tags.includes("complete"),
       }).map((clock) => new this(raw, clock, clockImageGenerator));
     } else {
@@ -68,9 +71,9 @@ export class ClockFileAdapter {
     if (this.clock == other || this.clock.equals(other)) return this;
     return new ClockFileAdapter(
       produce(this.raw, (data) => {
-        data.Progress = other.progress;
-        data.ClockImage = this.clockImageGenerator(other);
-        data.Segments = other.segments;
+        data.progress = other.progress;
+        data.clockimage = this.clockImageGenerator(other);
+        data.segments = other.segments;
         const [tagToRemove, tagToAdd] = !other.active
           ? ["incomplete", "complete"]
           : ["complete", "incomplete"];
