@@ -220,7 +220,7 @@ describe("ProgressTrackFileAdapter", () => {
       const updated = original.updatingTrack((track) =>
         track.advancedByTicks(10),
       );
-      expect(updated.raw.Progress).toBe(original.raw.Progress + 10);
+      expect(updated.raw.progress).toBe(original.raw.progress + 10);
     });
 
     it("updates the track image", () => {
@@ -228,8 +228,8 @@ describe("ProgressTrackFileAdapter", () => {
       const updated = original.updatingTrack((track) =>
         track.advancedByTicks(10),
       );
-      expect(updated.raw.TrackImage).toBe(
-        `[[progress-track-${original.raw.Progress + 10}.svg]]`,
+      expect(updated.raw.trackimage).toBe(
+        `[[progress-track-${original.raw.progress + 10}.svg]]`,
       );
     });
 
@@ -246,7 +246,7 @@ describe("ProgressTrackFileAdapter", () => {
         make_({ foo: "bar", baz: { bop: 1 } }).updatingTrack((track) =>
           track.advanced(1),
         ).raw,
-      ).toMatchObject({ Progress: 18, foo: "bar", baz: { bop: 1 } });
+      ).toMatchObject({ progress: 18, foo: "bar", baz: { bop: 1 } });
     });
   });
 });

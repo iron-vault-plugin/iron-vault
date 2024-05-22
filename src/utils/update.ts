@@ -1,10 +1,9 @@
+import { ObjectProcessor } from "./obsidian";
+
 export function updater<T>(
   fromData: (data: object) => T,
-  toData: (obj: T) => object,
-): (
-  process: (processer: (data: unknown) => object) => Promise<void>,
-  updater: (obj: T) => T,
-) => Promise<T> {
+  toData: (obj: T) => Record<string, any>,
+): (process: ObjectProcessor, updater: (obj: T) => T) => Promise<T> {
   return async (process, updater) => {
     let updated: T | undefined;
     await process((data: unknown) => {
@@ -21,7 +20,7 @@ export function updaterWithContext<T, U>(
   toData: (obj: T) => object,
   context: U,
 ): (
-  process: (processer: (data: unknown) => object) => Promise<void>,
+  process: ObjectProcessor,
   updater: (obj: T, context: U) => T,
 ) => Promise<T> {
   return async (process, updater) => {
