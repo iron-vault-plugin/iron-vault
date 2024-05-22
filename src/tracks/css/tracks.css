@@ -1,15 +1,20 @@
 .forged-track {
+  margin: 0.5em auto;
+  max-width: 460px;
   > div {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
   }
+  & input, button, li {
+    width: 20px;
+    height: 20px;
+  }
   & input {
     margin-left: 0.5em;
     margin-right: 0.5em;
     width: 30px;
-    height: 30px;
   }
   & ol {
     display: flex;
@@ -20,8 +25,6 @@
   }
   & li {
     text-indent: -9999px;
-    height: 30px;
-    width: 30px;
     background-repeat: no-repeat;
     list-style-type: none;
     &[data-value="0"] {
