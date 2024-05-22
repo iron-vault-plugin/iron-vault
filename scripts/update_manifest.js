@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+import { readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const manifestPath = path.resolve(__dirname, '../manifest.json');
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const manifestPath = resolve(__dirname, '../manifest.json');
 
-const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
 
 manifest.version = process.argv[2];
 
-fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
