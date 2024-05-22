@@ -25,8 +25,8 @@ export function normalizeKeys<
 ): z.ZodPipeline<
   z.ZodEffects<
     z.ZodRecord<z.ZodString, z.ZodAny>,
-    { [k: string]: any },
-    Record<string, any>
+    { [k: string]: unknown },
+    Record<string, unknown>
   >,
   z.ZodObject<T, UnknownKeys, Catchall, Output, Input>
 > {

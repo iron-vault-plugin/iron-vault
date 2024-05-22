@@ -29,7 +29,7 @@ export function pluginAsset(plug: Plugin, assetPath: string): string {
 // }
 
 export type ObjectProcessor = (
-  processor: (data: Record<string, any>) => Record<string, any>,
+  processor: (data: Record<string, unknown>) => Record<string, unknown>,
 ) => Promise<void>;
 
 export function vaultProcess(
@@ -44,7 +44,7 @@ export function vaultProcess(
     }
     await app.fileManager.processFrontMatter(
       file,
-      (frontmatter: Record<string, any>) => {
+      (frontmatter: Record<string, unknown>) => {
         const originalKeys = Object.keys(frontmatter);
         const updated = processor(frontmatter);
         if (frontmatter === updated) return;

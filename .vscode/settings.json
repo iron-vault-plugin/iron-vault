@@ -10,5 +10,6 @@
       "fileMatch": ["/data/*"],
       "url": "./node_modules/@datasworn/core/json/datasworn.schema.json"
     }
-  ]
+  ],
+  "eslint.experimental.useFlatConfig": true
 }
