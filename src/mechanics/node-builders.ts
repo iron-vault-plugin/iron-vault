@@ -35,25 +35,19 @@ export function createClockNode(
   });
 }
 
-export function createOracleNodes(
-  rootRoll: RollWrapper,
-  prompt?: string,
-): kdl.Node[] {
-  function oracleNode(roll: RollWrapper): kdl.Node {
-    return node("oracle", {
-      properties: {
-        name: `[${oracleNameWithParents(roll.oracle)}](oracle:${roll.oracle.id})`,
-        // TODO: this is preposterous
-        roll: roll.roll.roll,
-        result: roll.ownResult,
-      },
-      children: Object.values(roll.subrolls)
+export function createOracleNode(roll: RollWrapper, prompt?: string): kdl.Node {
+  return node("oracle", {
+    properties: {
+      name: `[${oracleNameWithParents(roll.oracle)}](oracle:${roll.oracle.id})`,
+      // TODO: this is preposterous
+      roll: roll.roll.roll,
+      result: roll.ownResult,
+    },
+    children: [
+      ...(prompt ? [node("-", { values: [prompt] })] : []),
+      ...Object.values(roll.subrolls)
         .flatMap((subroll) => subroll.rolls)
-        .map((subroll) => oracleNode(subroll)),
-    });
-  }
-  return [
-    ...(prompt ? [node("-", { values: [prompt] })] : []),
-    oracleNode(rootRoll),
-  ];
+        .map((subroll) => createOracleNode(subroll)),
+    ],
+  });
 }

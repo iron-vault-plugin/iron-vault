@@ -4,13 +4,13 @@ import {
   MarkdownRenderer,
   MarkdownView,
   parseYaml,
+  stringifyYaml,
   type App,
   type MarkdownPostProcessorContext,
   type Plugin,
 } from "obsidian";
 import { Oracle, OracleGroupingType } from "../model/oracle";
 import { RollWrapper } from "../model/rolls";
-import { formatOracleBlock } from "./command";
 import { OracleRoller } from "./roller";
 import { oracleSchema, type OracleSchema, type RollSchema } from "./schema";
 
@@ -182,4 +182,18 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
       }),
     );
   }
+}
+
+export function formatOracleBlock({
+  question,
+  roll,
+}: {
+  question?: string;
+  roll: RollWrapper;
+}): string {
+  const oracle: OracleSchema = {
+    question,
+    roll: roll.dehydrate(),
+  };
+  return `\`\`\`oracle\n${stringifyYaml(oracle)}\`\`\`\n\n`;
 }

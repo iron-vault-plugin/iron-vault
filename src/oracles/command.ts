@@ -1,8 +1,7 @@
 import { createOrAppendMechanics } from "mechanics/editor";
-import { createOracleNodes } from "mechanics/node-builders";
+import { createOracleNode } from "mechanics/node-builders";
 import {
   EditorSelection,
-  stringifyYaml,
   type App,
   type Editor,
   type MarkdownView,
@@ -13,21 +12,6 @@ import { RollWrapper } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
 import { OracleRoller } from "./roller";
-import { type OracleSchema } from "./schema";
-
-export function formatOracleBlock({
-  question,
-  roll,
-}: {
-  question?: string;
-  roll: RollWrapper;
-}): string {
-  const oracle: OracleSchema = {
-    question,
-    roll: roll.dehydrate(),
-  };
-  return `\`\`\`oracle\n${stringifyYaml(oracle)}\`\`\`\n\n`;
-}
 
 export function formatOraclePath(oracle: Oracle): string {
   let current = oracle.parent;
@@ -127,7 +111,7 @@ export async function runOracleCommand(
       // Delete the prompt and then inject the oracle node to a mechanics block
       editor.setSelection(replaceSelection.anchor, replaceSelection.head);
       editor.replaceSelection("");
-      createOrAppendMechanics(editor, createOracleNodes(roll, prompt));
+      createOrAppendMechanics(editor, [createOracleNode(roll, prompt)]);
     },
     () => {},
   ).open();
