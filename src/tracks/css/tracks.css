@@ -1,0 +1,43 @@
+.forged-track {
+  > div {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  & input {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    width: 30px;
+    height: 30px;
+  }
+  & ol {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding-inline-start: 0;
+  }
+  & li {
+    text-indent: -9999px;
+    height: 30px;
+    width: 30px;
+    background-repeat: no-repeat;
+    list-style-type: none;
+    &[data-value="0"] {
+      background-image: url("img/ProgressBoxes/progress-box-0.svg");
+    }
+    &[data-value="1"] {
+      background-image: url("img/ProgressBoxes/progress-box-1.svg");
+    }
+    &[data-value="2"] {
+      background-image: url("img/ProgressBoxes/progress-box-2.svg");
+    }
+    &[data-value="3"] {
+      background-image: url("img/ProgressBoxes/progress-box-3.svg");
+    }
+    &[data-value="4"] {
+      background-image: url("img/ProgressBoxes/progress-box-4.svg");
+    }
+  }
+}

@@ -14,7 +14,8 @@ Proin maximus, odio non interdum hendrerit, dolor lectus accumsan mauris, id sem
 > [!spoiler]- This is a secret
 > Oh no I've been found!
 
-
+- ![[Example Vow]]
+- ![[Example Vow]]
 ```mechanics
 move id="starforged/moves/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"

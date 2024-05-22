@@ -37,6 +37,7 @@ import installOracleLinkHandler from "oracles/link-override";
 import { OracleModal } from "oracles/oracle-modal";
 import { MoveModal } from "moves/move-modal";
 import { ViewPlugin, ViewUpdate } from "@codemirror/view";
+import registerTrackBlock from "tracks/track-block";
 
 export default class ForgedPlugin extends Plugin {
   settings!: ForgedPluginSettings;
@@ -231,6 +232,7 @@ export default class ForgedPlugin extends Plugin {
     registerMoveBlock(this);
     registerOracleBlock(this, this.datastore);
     registerMechanicsBlock(this);
+    registerTrackBlock(this);
   }
 
   async activateView() {

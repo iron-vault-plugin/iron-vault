@@ -165,6 +165,15 @@ export class ProgressTrack {
     return Math.ceil(this.ticksRemaining / this.ticksPerStep);
   }
 
+  withTicks(ticks: number): ProgressTrack {
+    const newProgress = Math.min(
+      this.unbounded ? Number.MAX_SAFE_INTEGER : MAX_TICKS,
+      ticks,
+    );
+    if (this.complete || newProgress === this.progress) return this;
+    return new ProgressTrack({ ...this, progress: newProgress });
+  }
+
   advanced(steps: number): ProgressTrack {
     return this.advancedByTicks(steps * this.ticksPerStep);
   }
