@@ -185,6 +185,34 @@ export class RollWrapper {
     return this.row.result;
   }
 
+  /** Result of just this roll. If a template, generate the substituted string, but if it is a non-template roll, return the original value. */
+  get ownResult(): string {
+    switch (this.roll.kind) {
+      case RollResultKind.Simple:
+      case RollResultKind.Multi:
+        return this.row.result;
+      case RollResultKind.Templated: {
+        const templateString = this.row.template?.text;
+        if (templateString == null) {
+          throw new Error(
+            `expected template result for ${this.oracle.id}/${this.row.range}`,
+          );
+        }
+        return templateString.replace(
+          /\{\{text:([^{}]+)\}\}/g,
+          (_: unknown, id: string) => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const templateRolls = this.subrolls[id];
+            if (templateRolls == null) {
+              throw new Error(`expected subroll of ${id}`);
+            }
+            return templateRolls.rolls.flatMap((r) => r.results).join("; ");
+          },
+        );
+      }
+    }
+  }
+
   get results(): string[] {
     switch (this.roll.kind) {
       case RollResultKind.Simple:

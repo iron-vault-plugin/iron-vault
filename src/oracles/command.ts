@@ -1,3 +1,5 @@
+import { createOrAppendMechanics } from "mechanics/editor";
+import { createOracleNodes } from "mechanics/node-builders";
 import {
   EditorSelection,
   stringifyYaml,
@@ -10,7 +12,6 @@ import { Oracle, OracleGroupingType } from "../model/oracle";
 import { RollWrapper } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
-import { renderOracleCallout } from "./render";
 import { OracleRoller } from "./roller";
 import { type OracleSchema } from "./schema";
 
@@ -27,8 +28,6 @@ export function formatOracleBlock({
   };
   return `\`\`\`oracle\n${stringifyYaml(oracle)}\`\`\`\n\n`;
 }
-
-const USE_ORACLE_BLOCK = false;
 
 export function formatOraclePath(oracle: Oracle): string {
   let current = oracle.parent;
@@ -125,24 +124,10 @@ export async function runOracleCommand(
     oracle,
     new RollWrapper(oracle, rollContext),
     (roll) => {
-      const earliestLineNo = Math.min(
-        replaceSelection.anchor.line,
-        replaceSelection.head.line,
-      );
-      let prefix = "";
-      if (earliestLineNo > 0) {
-        if (editor.getLine(earliestLineNo - 1) !== "") {
-          prefix = "\n";
-        }
-      }
+      // Delete the prompt and then inject the oracle node to a mechanics block
       editor.setSelection(replaceSelection.anchor, replaceSelection.head);
-      if (USE_ORACLE_BLOCK) {
-        editor.replaceSelection(
-          prefix + formatOracleBlock({ question: prompt, roll }),
-        );
-      } else {
-        editor.replaceSelection(prefix + renderOracleCallout(prompt, roll));
-      }
+      editor.replaceSelection("");
+      createOrAppendMechanics(editor, createOracleNodes(roll, prompt));
     },
     () => {},
   ).open();

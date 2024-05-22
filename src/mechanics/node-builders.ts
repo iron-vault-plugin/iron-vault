@@ -1,4 +1,6 @@
 import * as kdl from "kdljs";
+import { RollWrapper } from "model/rolls";
+import { oracleNameWithParents } from "oracles/render";
 import { Clock } from "tracks/clock";
 import { ClockFileAdapter } from "tracks/clock-file";
 import { ProgressTrackWriterContext } from "tracks/writer";
@@ -31,4 +33,27 @@ export function createClockNode(
       "out-of": endValue.segments,
     },
   });
+}
+
+export function createOracleNodes(
+  rootRoll: RollWrapper,
+  prompt?: string,
+): kdl.Node[] {
+  function oracleNode(roll: RollWrapper): kdl.Node {
+    return node("oracle", {
+      properties: {
+        name: `[${oracleNameWithParents(roll.oracle)}](oracle:${roll.oracle.id})`,
+        // TODO: this is preposterous
+        roll: roll.roll.roll,
+        result: roll.ownResult,
+      },
+      children: Object.values(roll.subrolls)
+        .flatMap((subroll) => subroll.rolls)
+        .map((subroll) => oracleNode(subroll)),
+    });
+  }
+  return [
+    ...(prompt ? [node("-", { values: [prompt] })] : []),
+    oracleNode(rootRoll),
+  ];
 }

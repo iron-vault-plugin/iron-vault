@@ -4,7 +4,6 @@ import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
 import ForgedPlugin from "./index";
 import { RollWrapper } from "./model/rolls";
-import { formatOracleBlock } from "./oracles/command";
 import { ProgressIndex } from "./tracks/progress";
 
 function stripLinks(input: string): string {
@@ -28,13 +27,6 @@ export class ForgedAPI {
 
   public roll(oracle: string): RollWrapper {
     return this.datastore.roller.roll(oracle);
-  }
-
-  public formatOracleBlock(params: {
-    question?: string;
-    roll: RollWrapper;
-  }): string {
-    return formatOracleBlock(params);
   }
 
   public stripLinks(input: string): string {
