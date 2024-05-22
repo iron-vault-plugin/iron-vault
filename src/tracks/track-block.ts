@@ -1,8 +1,10 @@
-import { render, html } from "lit-html";
+import { html, render } from "lit-html";
 
 import ForgedPlugin from "index";
-import { ChallengeRanks, ProgressTrack } from "./progress";
 import { EventRef, TFile } from "obsidian";
+import { vaultProcess } from "utils/obsidian";
+import { ProgressTrackFileAdapter } from "./progress";
+import { progressTrackUpdater } from "./writer";
 
 export default function registerTrackBlock(plugin: ForgedPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -17,16 +19,6 @@ export default function registerTrackBlock(plugin: ForgedPlugin): void {
       await el.trackRenderer.render(file);
     },
   );
-}
-
-interface TrackFrontmatter {
-  name?: string;
-  description?: string;
-  rank?: ChallengeRanks;
-  progress?: number;
-  tracktype?: string;
-  completed?: boolean;
-  unbounded?: boolean;
 }
 
 interface TrackContainerEl extends HTMLElement {
@@ -53,19 +45,12 @@ class TrackRenderer {
       );
       return;
     }
-    const cache = this.plugin.app.metadataCache.getFileCache(file);
-    const frontmatter = cache?.frontmatter;
-    if (!frontmatter) {
+    const track = this.plugin.progressIndex.get(file.path);
+    if (!track) {
       render(
-        html`<pre>Error rendering track: no frontmatter found.</pre>`,
-        this.contentEl,
-      );
-      return;
-    }
-    const res = ProgressTrack.create(frontmatter);
-    if (res.isLeft()) {
-      render(
-        html`<pre>Error rendering track: ${res.error.message}</pre>`,
+        // TODO: we should preserve the error?
+        //html`<pre>Error rendering track: ${res.error.message}</pre>`,
+        html`<pre>Error rendering track: track file is invalid</pre>`,
         this.contentEl,
       );
       return;
@@ -82,38 +67,23 @@ class TrackRenderer {
       },
     );
     this.plugin.registerEvent(this.fileWatcher);
-    await this.renderProgress(res.value, file);
-  }
-  getFrontMatter(file: TFile): TrackFrontmatter | undefined {
-    const fm = this.plugin.app.metadataCache.getFileCache(file)?.frontmatter;
-    if (!fm) {
-      render(
-        html`<pre>Error rendering track: no frontmatter found.</pre>`,
-        this.contentEl,
-      );
-      return;
-    }
-    return fm;
+    await this.renderProgress(track, file);
   }
 
-  async renderProgress(prog: ProgressTrack, file: TFile) {
-    const frontmatter = this.getFrontMatter(file);
-    if (!frontmatter) {
-      return;
-    }
+  async renderProgress(trackFile: ProgressTrackFileAdapter, file: TFile) {
     const items = [];
     for (let i = 0; i < 10; i++) {
-      const ticks = Math.max(Math.min(prog.progress - i * 4, 4), 0);
+      const ticks = Math.max(Math.min(trackFile.track.progress - i * 4, 4), 0);
       items.push(html`<li data-value="${ticks}">box ${ticks}</li>`);
     }
     const tpl = html`
       <article class="forged-track">
-        <h2>${frontmatter.name}</h2>
-        <h4>${frontmatter.rank?.toLowerCase()}</h4>
+        <h2>${trackFile.name}</h2>
+        <h4>${trackFile.track.rank}</h4>
         <div>
           <button
             type="button"
-            @click=${() => this.updateTrackTicks(file, prog, { steps: -1 })}
+            @click=${() => this.updateTrackTicks(file, { steps: -1 })}
           >
             -
           </button>
@@ -122,14 +92,14 @@ class TrackRenderer {
           </ol>
           <button
             type="button"
-            @click=${() => this.updateTrackTicks(file, prog, { steps: 1 })}
+            @click=${() => this.updateTrackTicks(file, { steps: 1 })}
           >
             +
           </button>
           <input
-            .value="${prog.progress}"
+            .value="${trackFile.track.progress}"
             @change=${(ev: Event) =>
-              this.updateTrackTicks(file, prog, {
+              this.updateTrackTicks(file, {
                 ticks: +(ev.target! as HTMLInputElement).value,
               })}
           />
@@ -142,13 +112,16 @@ class TrackRenderer {
 
   async updateTrackTicks(
     file: TFile,
-    prog: ProgressTrack,
     { steps, ticks }: { steps?: number; ticks?: number },
   ) {
-    const newProg = ticks ? prog.withTicks(ticks) : prog.advanced(steps!);
-    this.plugin.app.fileManager.processFrontMatter(file, (fm) => {
-      fm.progress = newProg.progress;
-    });
+    const newProg = await progressTrackUpdater(
+      this.plugin.progressTrackSettings,
+    )(vaultProcess(this.plugin.app, file.path), (trackFile) =>
+      trackFile.updatingTrack((track) =>
+        ticks ? track.withTicks(ticks) : track.advanced(steps!),
+      ),
+    );
+
     await this.renderProgress(newProg, file);
   }
 }
