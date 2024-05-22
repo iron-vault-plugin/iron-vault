@@ -1,5 +1,6 @@
 import { produce } from "immer";
 import { CachedMetadata } from "obsidian";
+import { normalizeKeys } from "utils/zodutils";
 import { z } from "zod";
 import { BaseIndexer } from "../indexer/indexer";
 import { Either, Left } from "../utils/either";
@@ -30,6 +31,8 @@ const clockSchema = z
   })
   .passthrough();
 
+export const normalizedClockSchema = normalizeKeys(clockSchema);
+
 export type ClockSchema = z.output<typeof clockSchema>;
 
 export class ClockFileAdapter {
@@ -47,7 +50,7 @@ export class ClockFileAdapter {
     data: unknown,
     clockImageGenerator: (track: Clock) => string,
   ): Either<z.ZodError, ClockFileAdapter> {
-    const result = clockSchema.safeParse(data);
+    const result = normalizedClockSchema.safeParse(data);
     if (result.success) {
       const raw = result.data;
       return Clock.create({

@@ -1,11 +1,11 @@
 ---
-Name: Destruction of Kresnik
-Segments: 8
-Progress: 6
 tags:
   - incomplete
-ClockImage: "[[progress-clock-8-6.svg]]"
 forgedkind: clock
+name: Destruction of Kresnik
+segments: 8
+progress: 7
+clockimage: "[[progress-clock-8-7.svg]]"
 ---
 
 # `=this.Name`
