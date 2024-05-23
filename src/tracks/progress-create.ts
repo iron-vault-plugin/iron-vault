@@ -6,6 +6,7 @@ import {
   TextComponent,
   prepareFuzzySearch,
 } from "obsidian";
+import { generateObsidianFilename } from "utils/filename";
 import { processMatches } from "../utils/suggest";
 import { TextInputSuggest } from "../utils/ui/suggest";
 import { ChallengeRanks, ProgressTrack } from "./progress";
@@ -57,14 +58,6 @@ class GenericTextSuggest extends TextInputSuggest<FuzzyMatch<string>> {
   }
 }
 
-const OBSIDIAN_ILLEGAL_FILENAME_CHARS = /[/\\:*?"<>|#^[\]]/g;
-
-function generateTrackName(name: string): string {
-  return name
-    .replaceAll(OBSIDIAN_ILLEGAL_FILENAME_CHARS, "")
-    .replaceAll(/ (\w)/g, (_match, ch) => ch.toUpperCase());
-}
-
 export class ProgressTrackCreateModal extends Modal {
   public result = {
     rank: ChallengeRanks.Dangerous,
@@ -101,7 +94,7 @@ export class ProgressTrackCreateModal extends Modal {
       text.onChange((value) => {
         this.result.name = value;
         // TODO: could add smarter logic to only update if user hasn't made a specific value
-        fileNameText.setValue(generateTrackName(value)).onChanged();
+        fileNameText.setValue(generateObsidianFilename(value)).onChanged();
       }),
     );
 

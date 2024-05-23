@@ -2,7 +2,7 @@ import { type Datasworn } from "@datasworn/core";
 import ForgedPlugin from "index";
 import { Editor, FuzzyMatch, MarkdownView } from "obsidian";
 import { vaultProcess } from "utils/obsidian";
-import { titleCase } from "utils/strings";
+import { firstUppercase } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
 import {
@@ -60,7 +60,7 @@ export async function addAssetToCharacter(
           Object.entries(optionControl.choices),
           ([_choiceKey, choice]) => choice.label,
           undefined,
-          titleCase(optionControl.label),
+          firstUppercase(optionControl.label),
         );
         value = choice[0];
         break;
@@ -74,7 +74,7 @@ export async function addAssetToCharacter(
       case "text": {
         value = await PromptModal.prompt(
           plugin.app,
-          titleCase(optionControl.label),
+          firstUppercase(optionControl.label),
         );
       }
     }
