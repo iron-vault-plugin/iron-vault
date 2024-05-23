@@ -14,14 +14,15 @@ Proin maximus, odio non interdum hendrerit, dolor lectus accumsan mauris, id sem
 > [!spoiler]- This is a secret
 > Oh no I've been found!
 
-- ![[Example Vow]]
-- ![[Example Vow]]
+Reglar link to [[Example Vow|the vow I swore]].
+
+![[Example Vow]]
 ```mechanics
 move id="starforged/moves/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"
 	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
 }
-- "Oh nooo. This is gonna hurt. Time to [[Endure Harm]]. bla bla bla bla bla bla bla bla bla bla"
+- "Oh nooo. This is gonna hurt. Time to [Endure Harm](move:EndureHarm). bla bla bla bla bla bla bla bla bla bla"
 - "Another one here"
 move "Endure Harm" {
     meter "health" from=3 to=2

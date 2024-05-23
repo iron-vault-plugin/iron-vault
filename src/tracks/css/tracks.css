@@ -1,46 +1,77 @@
+.block-language-forged-track {
+  container: forged-track / inline-size;
+}
 .forged-track {
   margin: 0.5em auto;
   max-width: 460px;
-  > div {
+  @container forged-track (min-width: 460px) {
+    max-width: 640px;
+  }
+  @container forged-track (min-width: 640px) {
+    max-width: 768px;
+  }
+  & .track-rank,
+  & .track-type {
+    color: var(--text-muted);
+  }
+  > .track-widget {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
-  }
-  & input, button, li {
-    width: 20px;
-    height: 20px;
-  }
-  & input {
-    margin-left: 0.5em;
-    margin-right: 0.5em;
-    width: 30px;
-  }
-  & ol {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
-    padding-inline-start: 0;
-  }
-  & li {
-    text-indent: -9999px;
-    background-repeat: no-repeat;
-    list-style-type: none;
-    &[data-value="0"] {
-      background-image: url("img/ProgressBoxes/progress-box-0.svg");
+    & input,
+    & button,
+    & li,
+    & span {
+      overflow-wrap: normal;
+      text-wrap: nowrap;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      @container forged-track (min-width: 460px) {
+        height: 32px;
+        width: 32px;
+        font-size: 16px;
+      }
+      @container forged-track (min-width: 640px) {
+        height: 42px;
+        width: 42px;
+        font-size: 25px;
+      }
     }
-    &[data-value="1"] {
-      background-image: url("img/ProgressBoxes/progress-box-1.svg");
+    & input {
+      margin-left: 0.3em;
+      margin-right: 0.3em;
+      text-align: center;
+      border-radius: 5px;
+      border: none;
     }
-    &[data-value="2"] {
-      background-image: url("img/ProgressBoxes/progress-box-2.svg");
+    & ol {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      padding-inline-start: 0;
     }
-    &[data-value="3"] {
-      background-image: url("img/ProgressBoxes/progress-box-3.svg");
-    }
-    &[data-value="4"] {
-      background-image: url("img/ProgressBoxes/progress-box-4.svg");
+    & li {
+      text-indent: -9999px;
+      background-repeat: no-repeat;
+      list-style-type: none;
+      &[data-value="0"] {
+        background-image: url("img/ProgressBoxes/progress-box-0.svg");
+      }
+      &[data-value="1"] {
+        background-image: url("img/ProgressBoxes/progress-box-1.svg");
+      }
+      &[data-value="2"] {
+        background-image: url("img/ProgressBoxes/progress-box-2.svg");
+      }
+      &[data-value="3"] {
+        background-image: url("img/ProgressBoxes/progress-box-3.svg");
+      }
+      &[data-value="4"] {
+        background-image: url("img/ProgressBoxes/progress-box-4.svg");
+      }
     }
   }
 }

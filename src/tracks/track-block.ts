@@ -1,4 +1,5 @@
 import { html, render } from "lit-html";
+import { md } from "utils/ui/directives";
 
 import ForgedPlugin from "index";
 import { EventRef, TFile } from "obsidian";
@@ -78,9 +79,12 @@ class TrackRenderer {
     }
     const tpl = html`
       <article class="forged-track">
-        <h2>${trackFile.name}</h2>
-        <h4>${trackFile.track.rank}</h4>
-        <div>
+        <h3 class="track-name">${md(this.plugin, trackFile.name)}</h3>
+        <h5>
+          <span class="track-rank">${capitalize(trackFile.track.rank)}</span>
+          <span class="track-type">${capitalize(trackFile.trackType)}</span>
+        </h5>
+        <div class="track-widget">
           <button
             type="button"
             @click=${() => this.updateTrackTicks(file, { steps: -1 })}
@@ -103,7 +107,7 @@ class TrackRenderer {
                 ticks: +(ev.target! as HTMLInputElement).value,
               })}
           />
-          ticks
+          <span>ticks</span>
         </div>
       </article>
     `;
@@ -124,4 +128,8 @@ class TrackRenderer {
 
     await this.renderProgress(newProg, file);
   }
+}
+
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
