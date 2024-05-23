@@ -164,26 +164,24 @@ export class ProgressTrack {
     return Math.ceil(this.ticksRemaining / this.ticksPerStep);
   }
 
+  /** Set the meter directly to a specific number of ticks, ensuring legal range for this meter. */
   withTicks(ticks: number): ProgressTrack {
-    const newProgress = Math.min(
-      this.unbounded ? Number.MAX_SAFE_INTEGER : MAX_TICKS,
-      ticks,
+    const newProgress = Math.max(
+      0,
+      Math.min(this.unbounded ? Number.MAX_SAFE_INTEGER : MAX_TICKS, ticks),
     );
     if (this.complete || newProgress === this.progress) return this;
     return new ProgressTrack({ ...this, progress: newProgress });
   }
 
+  /** Advance the meter by `steps`, ensuring legal range for this meter. */
   advanced(steps: number): ProgressTrack {
     return this.advancedByTicks(steps * this.ticksPerStep);
   }
 
+  /** Advance the meter by `ticks`, ensuring legal range for this meter. */
   advancedByTicks(ticks: number): ProgressTrack {
-    const newProgress = Math.min(
-      this.unbounded ? Number.MAX_SAFE_INTEGER : MAX_TICKS,
-      this.progress + ticks,
-    );
-    if (this.complete || newProgress === this.progress) return this;
-    return new ProgressTrack({ ...this, progress: newProgress });
+    return this.withTicks(this.progress + ticks);
   }
 
   completed(): ProgressTrack {

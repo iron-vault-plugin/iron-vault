@@ -74,6 +74,10 @@ describe("ProgressTrack", () => {
     expect(track.advancedByTicks(10)).toBe(track);
   });
 
+  it("won't advance negatively below 0 ticks", () => {
+    expect(make({ progress: 1 }).advancedByTicks(-2).progress).toBe(0);
+  });
+
   it("won't advance past 40 ticks", () => {
     expect(make({ progress: 39 }).advancedByTicks(2).progress).toBe(40);
   });
