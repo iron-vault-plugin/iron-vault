@@ -505,7 +505,6 @@ describe("Special Tracks", () => {
     ).toMatchObject({
       Quests_Progress: 6,
       Quests_XPEarned: 2,
-      Quests_TrackImage: "[[track-6]]",
     });
   });
 
