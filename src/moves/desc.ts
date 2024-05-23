@@ -29,6 +29,7 @@ export type ActionMoveAdd = z.output<typeof ActionMoveAddSchema>;
 
 export const ActionMoveDescriptionSchemaV2 =
   ActionMoveDescriptionSchemaV1.extend({
+    id: z.string().optional(),
     adds: z.array(ActionMoveAddSchema).default([]),
   });
 
@@ -41,6 +42,7 @@ export type ActionMoveDescription = ActionMoveDescriptionV2;
 export type BurnDescriptor = z.infer<typeof BurnDescriptorSchema>;
 
 const ProgressMoveDescriptionSchema = z.object({
+  id: z.string().optional(),
   name: z.string(),
   progressTrack: z.string(),
   progressTicks: z.number(),
@@ -52,10 +54,18 @@ export type ProgressMoveDescription = z.infer<
   typeof ProgressMoveDescriptionSchema
 >;
 
+export const NoRollMoveDescriptionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+});
+
+export type NoRollMoveDescription = z.infer<typeof NoRollMoveDescriptionSchema>;
+
 export const AllMoveDescriptionSchemas = z.union([
   ActionMoveDescriptionSchemaV2,
   ProgressMoveDescriptionSchema,
   ActionMoveDescriptionSchemaV1,
+  NoRollMoveDescriptionSchema,
 ]);
 
 export type AllMoveDescriptions = z.infer<typeof AllMoveDescriptionSchemas>;
@@ -63,6 +73,7 @@ export type AllMoveDescriptions = z.infer<typeof AllMoveDescriptionSchemas>;
 export const MoveDescriptionSchema = z.union([
   ActionMoveDescriptionSchemaV2,
   ProgressMoveDescriptionSchema,
+  NoRollMoveDescriptionSchema,
 ]);
 
 export type MoveDescription = z.infer<typeof MoveDescriptionSchema>;

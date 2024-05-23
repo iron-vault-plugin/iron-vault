@@ -12,7 +12,6 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { MeterCommon } from "rules/ruleset";
-import { makeSafeForId } from "utils/strings";
 import {
   MeterWithLens,
   MeterWithoutLens,
@@ -102,7 +101,7 @@ const promptForMove = async (
   const baseMove = {
     roll_type,
     type: "move",
-    _id: `adhoc/moves/custom/${makeSafeForId(choice.custom)}`,
+    _id: "",
     name: choice.custom,
     _source: {
       title: "Adhoc",
@@ -165,6 +164,7 @@ function processActionMove(
   adds: ActionMoveAdd[],
 ): ActionMoveDescription {
   return {
+    id: move._id,
     name: move.name,
     action: randomInt(1, 6),
     stat,
@@ -180,6 +180,7 @@ function processProgressMove(
   tracker: ProgressTrackWriterContext,
 ): ProgressMoveDescription {
   return {
+    id: move._id,
     name: move.name,
     progressTrack: `[[${tracker.location}]]`,
     progressTicks: tracker.track.progress,
