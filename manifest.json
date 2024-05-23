@@ -1,7 +1,7 @@
 {
   "id": "forged",
   "name": "Forged Plugin",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "minAppVersion": "0.15.0",
   "description": "Ironsworn/Starforged gameplay plugin",
   "author": "Chris Wegrzyn",
