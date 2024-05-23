@@ -1,6 +1,5 @@
 import { Move } from "@datasworn/core/dist/Datasworn";
 import ForgedPlugin from "index";
-import { runMoveCommand } from "moves/action";
 import {
   App,
   ButtonComponent,
@@ -8,6 +7,7 @@ import {
   MarkdownView,
   Modal,
 } from "obsidian";
+import { runMoveCommand } from "./action";
 
 export class MoveModal extends Modal {
   plugin: ForgedPlugin;
@@ -31,10 +31,11 @@ export class MoveModal extends Modal {
           .setButtonText("Roll this move")
           .onClick(() => {
             const { workspace } = this.plugin.app;
-            const editor = workspace.activeEditor?.editor;
-            const view = workspace.getActiveViewOfType(MarkdownView);
-            if (editor && view) {
-              runMoveCommand(this.plugin, editor, view);
+            const view = workspace.getActiveFileView();
+            if (view && view instanceof MarkdownView) {
+              const editor = view.editor;
+              runMoveCommand(this.plugin, editor, view, move);
+              this.close();
             }
           });
       }
