@@ -14,7 +14,7 @@ Proin maximus, odio non interdum hendrerit, dolor lectus accumsan mauris, id sem
 > [!spoiler]- This is a secret
 > Oh no I've been found!
 
-Reglar link to [[Example Vow|the vow I swore]].
+Reglar link to [[Example Vow|the vow I swor3e]].
 
 ![[Example Vow]]
 ```mechanics

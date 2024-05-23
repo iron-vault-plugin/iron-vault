@@ -40,19 +40,6 @@ const context = await esbuild.context({
   sourcemap: prod ? false : "inline",
   treeShaking: true,
   outfile: prod ? "main.js" : "test-vault/.obsidian/plugins/forged/main.js",
-  // plugins: prod
-  //   ? []
-  //   : [
-  //       copy({
-  //         // resolveFrom: "cwd",
-  //         verbose: true,
-  //         assets: ASSETS.map((filename) => ({
-  //           from: filename,
-  //           to: filename,
-  //         })),
-  //         watch: true,
-  //       }),
-  //     ],
 });
 
 const cssCtx = await esbuild.context({
