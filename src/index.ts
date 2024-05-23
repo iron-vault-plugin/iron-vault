@@ -1,5 +1,6 @@
 import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 import { determineCharacterActionContext } from "characters/action-context";
+import registerCharacterBlock from "characters/character-block";
 import { addAssetToCharacter } from "characters/commands";
 import registerClockBlock from "clocks/clock-block";
 import { advanceClock, createClock } from "clocks/commands";
@@ -34,7 +35,6 @@ import { IronVaultSettingTab } from "./settings/ui";
 import { advanceProgressTrack, createProgressTrack } from "./tracks/commands";
 import { ProgressIndex, ProgressIndexer } from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
-import registerCharacterBlock from "characters/character-block";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -107,7 +107,7 @@ export default class IronVaultPlugin extends Plugin {
 
     this.addCommand({
       id: "make-a-move",
-      name: "Make a Move",
+      name: "Make a move",
       icon: "zap",
       editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
         // TODO: what if view is just a fileinfo?
@@ -117,7 +117,7 @@ export default class IronVaultPlugin extends Plugin {
     this.addCommand({
       id: "ask-the-oracle",
       name: "Ask the Oracle",
-      icon: "help-circle",
+      icon: "message-circle-question",
       editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
         runOracleCommand(
           this.app,
@@ -129,7 +129,8 @@ export default class IronVaultPlugin extends Plugin {
 
     this.addCommand({
       id: "burn-momentum",
-      name: "Burn Momentum",
+      name: "Burn momentum",
+      icon: "flame",
       editorCallback: (editor: Editor) =>
         meterCommands.burnMomentum(this, editor),
     });
@@ -140,13 +141,15 @@ export default class IronVaultPlugin extends Plugin {
 
     this.addCommand({
       id: "progress-create",
-      name: "Progress Track: Create a Progress Track",
+      name: "Progress: Create a progress track",
+      icon: "square-pen",
       editorCallback: (editor) => createProgressTrack(this, editor),
     });
 
     this.addCommand({
       id: "progress-advance",
-      name: "Advance a Progress Track",
+      name: "Progress: Advance a progress track",
+      icon: "chevrons-right",
       editorCallback: async (editor, ctx) => {
         const actionContext = await determineCharacterActionContext(this);
         if (!actionContext) return;
@@ -167,12 +170,14 @@ export default class IronVaultPlugin extends Plugin {
     this.addCommand({
       id: "clock-create",
       name: "Clock: Create a clock",
+      icon: "alarm-clock",
       editorCallback: (editor) => createClock(this, editor),
     });
 
     this.addCommand({
       id: "clock-advance",
-      name: "Clock: Advance a Clock",
+      name: "Clock: Advance a clock",
+      icon: "alarm-clock-plus",
       editorCallback: (editor, ctx) =>
         advanceClock(
           this.app,
@@ -186,6 +191,7 @@ export default class IronVaultPlugin extends Plugin {
     this.addCommand({
       id: "entity-gen",
       name: "Generate an entity",
+      icon: "package-plus",
       editorCallback: async (editor) => {
         await generateEntityCommand(this, editor);
       },
@@ -194,6 +200,7 @@ export default class IronVaultPlugin extends Plugin {
     this.addCommand({
       id: "character-add-asset",
       name: "Add asset to character",
+      icon: "gem",
       editorCallback: async (editor, ctx) => {
         await addAssetToCharacter(this, editor, ctx as MarkdownView);
       },
@@ -201,7 +208,8 @@ export default class IronVaultPlugin extends Plugin {
 
     this.addCommand({
       id: "take-meter",
-      name: "Take on a Meter",
+      name: "Take on a meter",
+      icon: "trending-up",
       editorCallback: async (editor: Editor) =>
         meterCommands.modifyMeterCommand(
           this,
@@ -218,7 +226,8 @@ export default class IronVaultPlugin extends Plugin {
 
     this.addCommand({
       id: "suffer-meter",
-      name: "Suffer on a Meter",
+      name: "Suffer on a meter",
+      icon: "trending-down",
       editorCallback: async (editor: Editor) =>
         meterCommands.modifyMeterCommand(
           this,
@@ -235,7 +244,8 @@ export default class IronVaultPlugin extends Plugin {
 
     this.addCommand({
       id: "toggle-mechanics",
-      name: "Toggle Displaying Mechanics",
+      name: "Toggle displaying mechanics",
+      icon: "eye-off",
       editorCallback: async (editor: Editor) => {
         editor.containerEl.ownerDocument.body.classList.toggle(
           "collapse-iron-vault-mechanics",
