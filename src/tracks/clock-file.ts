@@ -11,7 +11,7 @@ const clockSchema = z
   .object({
     name: z.string(),
     segments: z.number().positive(),
-    progress: z.number().positive(),
+    progress: z.number().nonnegative(),
     tags: z
       .union([z.string().transform((arg) => [arg]), z.array(z.string())])
       .refine(
@@ -27,7 +27,6 @@ const clockSchema = z
             "Tags must contain exactly one of 'incomplete' or 'complete'",
         },
       ),
-    clockimage: z.string().optional(),
   })
   .passthrough();
 
@@ -39,17 +38,13 @@ export class ClockFileAdapter {
   private constructor(
     public readonly raw: Readonly<ClockSchema>,
     public readonly clock: Readonly<Clock>,
-    protected readonly clockImageGenerator: (clock: Clock) => string,
   ) {}
 
   get name(): string {
     return this.raw.name;
   }
 
-  static create(
-    data: unknown,
-    clockImageGenerator: (track: Clock) => string,
-  ): Either<z.ZodError, ClockFileAdapter> {
+  static create(data: unknown): Either<z.ZodError, ClockFileAdapter> {
     const result = normalizedClockSchema.safeParse(data);
     if (result.success) {
       const raw = result.data;
@@ -57,7 +52,7 @@ export class ClockFileAdapter {
         progress: raw.progress,
         segments: raw.segments,
         active: !raw.tags.includes("complete"),
-      }).map((clock) => new this(raw, clock, clockImageGenerator));
+      }).map((clock) => new this(raw, clock));
     } else {
       return Left.create(result.error);
     }
@@ -72,7 +67,6 @@ export class ClockFileAdapter {
     return new ClockFileAdapter(
       produce(this.raw, (data) => {
         data.progress = other.progress;
-        data.clockimage = this.clockImageGenerator(other);
         data.segments = other.segments;
         const [tagToRemove, tagToAdd] = !other.active
           ? ["incomplete", "complete"]
@@ -85,7 +79,6 @@ export class ClockFileAdapter {
         );
       }),
       other,
-      this.clockImageGenerator,
     );
   }
 }
@@ -99,21 +92,14 @@ export class ClockIndexer extends BaseIndexer<ClockFileAdapter> {
   ): ClockFileAdapter | undefined {
     // TODO: we should use our Either support now to handle this
     // TODO: customize track image gen
-    return ClockFileAdapter.create(
-      cache.frontmatter,
-      (clock) => `[[progress-clock-${clock.segments}-${clock.progress}.svg]]`,
-    ).unwrap();
+    return ClockFileAdapter.create(cache.frontmatter).unwrap();
   }
 }
 
 // TODO: feels like this could be merged into some class that provides the same config to
 //       ProgressIndexer
 export const clockUpdater = updater<ClockFileAdapter>(
-  (data) =>
-    ClockFileAdapter.create(
-      data,
-      (clock) => `[[progress-clock-${clock.segments}-${clock.progress}.svg]]`,
-    ).expect("could not parse"),
+  (data) => ClockFileAdapter.create(data).expect("could not parse"),
   (tracker) => tracker.raw,
 );
 

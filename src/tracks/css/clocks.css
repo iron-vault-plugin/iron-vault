@@ -1,0 +1,64 @@
+.block-language-forged-clock {
+  container: forged-clock / inline-size;
+}
+.forged-clock {
+  margin: 0.5em auto;
+  & .clock-widget {
+    & .clock-segment {
+      vector-effect: non-scaling-stroke;
+    }
+    max-width: 200px;
+    @container forged-clock (min-width: 300px) {
+      max-width: 300px;
+    }
+    pointer-events: none;
+    fill: orange;
+    fill: var(--background-secondary);
+    fill-opacity: 1;
+    stroke: orange;
+    stroke: var(--background-modifier-border);
+    stroke-width: 4;
+    aspect-ratio: 1;
+
+    &:hover {
+      fill-opacity: 0.8;
+
+      & .clock-segment {
+        &:hover {
+          fill: var(--background-modifier-hover);
+          & ~ .clock-segment {
+            fill-opacity: 0;
+          }
+        }
+      }
+    }
+
+    &:not(:hover) {
+      & .clock-segment {
+        fill-opacity: 1;
+
+        &[aria-selected="true"] {
+          & ~ .clock-segment {
+            fill-opacity: 0;
+          }
+        }
+      }
+    }
+
+    &[aria-valuenow="0"]:not(:hover) {
+      & .clock-segment {
+        fill-opacity: 0;
+      }
+    }
+
+    & .clock-segment {
+      transition: fill 0.3s ease;
+      cursor: pointer;
+      pointer-events: visible;
+
+      &:active {
+        fill-opacity: 1;
+      }
+    }
+  }
+}
