@@ -6,7 +6,6 @@ import {
   ProgressTrack,
   ProgressTrackFileAdapter,
   ProgressTrackInfo,
-  ProgressTrackSettings,
 } from "./progress";
 
 export interface ProgressTrackWriterContext extends ProgressTrackInfo {
@@ -19,14 +18,13 @@ export interface ProgressTrackWriterContext extends ProgressTrackInfo {
 export class ProgressTrackFileWriter implements ProgressTrackWriterContext {
   constructor(
     public readonly adapter: ProgressTrackFileAdapter,
-    public readonly settings: ProgressTrackSettings,
     public readonly processor: ObjectProcessor,
     public readonly location: string,
   ) {}
   async process(
     updatefn: (track: ProgressTrack) => ProgressTrack,
   ): Promise<ProgressTrackInfo> {
-    return progressTrackUpdater(this.settings)(this.processor, (adapter) => {
+    return progressTrackUpdater(this.processor, (adapter) => {
       return adapter.updatingTrack(updatefn);
     });
   }
@@ -82,9 +80,7 @@ export class LegacyTrackWriter implements ProgressTrackWriterContext {
 // TODO: feels like this could be merged into some class that provides the same config to
 //       ProgressIndexer
 
-export const progressTrackUpdater = (settings: ProgressTrackSettings) =>
-  updater<ProgressTrackFileAdapter>(
-    (data) =>
-      ProgressTrackFileAdapter.create(data, settings).expect("could not parse"),
-    (tracker) => tracker.raw,
-  );
+export const progressTrackUpdater = updater<ProgressTrackFileAdapter>(
+  (data) => ProgressTrackFileAdapter.create(data).expect("could not parse"),
+  (tracker) => tracker.raw,
+);

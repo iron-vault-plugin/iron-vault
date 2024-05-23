@@ -1,5 +1,4 @@
 import { type CachedMetadata } from "obsidian";
-import { ProgressTrackSettings } from "tracks/progress";
 import { updaterWithContext } from "utils/update";
 import {
   CharacterLens,
@@ -85,7 +84,6 @@ export class CharacterIndexer extends BaseIndexer<CharacterResult> {
   constructor(
     tracker: CharacterTracker,
     protected readonly dataStore: Datastore,
-    protected readonly trackSettings: ProgressTrackSettings,
   ) {
     super(tracker.index);
   }
@@ -97,10 +95,7 @@ export class CharacterIndexer extends BaseIndexer<CharacterResult> {
     if (cache.frontmatter == null) {
       throw new Error("missing frontmatter cache");
     }
-    const { validater, lens } = characterLens(
-      this.dataStore.ruleset,
-      this.trackSettings,
-    );
+    const { validater, lens } = characterLens(this.dataStore.ruleset);
     try {
       const result = validater(cache.frontmatter);
       return Right.create(new CharacterContext(result, lens, validater));

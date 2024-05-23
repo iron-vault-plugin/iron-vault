@@ -25,11 +25,7 @@ import {
   advanceProgressTrack,
   createProgressTrack,
 } from "./tracks/commands";
-import {
-  ProgressIndex,
-  ProgressIndexer,
-  ProgressTrackSettings,
-} from "./tracks/progress";
+import { ProgressIndex, ProgressIndexer } from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
 import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
 import installMoveLinkHandler from "moves/link-override";
@@ -43,9 +39,6 @@ export default class ForgedPlugin extends Plugin {
   settings!: ForgedPluginSettings;
   datastore!: Datastore;
   characters!: CharacterTracker;
-  progressTrackSettings: ProgressTrackSettings = {
-    generateTrackImage: (track) => `[[progress-track-${track.progress}.svg]]`,
-  };
   progressIndex!: ProgressIndex;
   clockIndex!: ClockIndex;
   indexManager!: IndexManager;
@@ -72,15 +65,9 @@ export default class ForgedPlugin extends Plugin {
       new IndexManager(this.app, this.datastore.index),
     );
     this.indexManager.registerHandler(
-      new CharacterIndexer(
-        this.characters,
-        this.datastore,
-        this.progressTrackSettings,
-      ),
+      new CharacterIndexer(this.characters, this.datastore),
     );
-    this.indexManager.registerHandler(
-      new ProgressIndexer(this.progressIndex, this.progressTrackSettings),
-    );
+    this.indexManager.registerHandler(new ProgressIndexer(this.progressIndex));
     this.indexManager.registerHandler(new ClockIndexer(this.clockIndex));
 
     if (this.app.workspace.layoutReady) {

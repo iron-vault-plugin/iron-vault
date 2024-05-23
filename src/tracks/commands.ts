@@ -101,10 +101,8 @@ export async function createProgressTrack(
     new ProgressTrackCreateModal(plugin.app, onAccept, onReject).open();
   });
 
-  const track = ProgressTrackFileAdapter.newFromTrack(
-    trackInput,
-    plugin.progressTrackSettings,
-  ).expect("invalid track");
+  const track =
+    ProgressTrackFileAdapter.newFromTrack(trackInput).expect("invalid track");
 
   // TODO: where these are created should be configurable
   const progressFolder = plugin.app.vault.getAbstractFileByPath("Progress");

@@ -35,6 +35,11 @@ export class Clock implements ClockLike {
     );
   }
 
+  public withSegments(segments: number): this {
+    if (this.segments === segments) return this;
+    return new Clock(this.progress, segments, this.active) as this;
+  }
+
   public tick(steps: number = 1): this {
     if (!this.active) return this;
 

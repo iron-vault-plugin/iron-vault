@@ -119,11 +119,11 @@ class TrackRenderer {
     { steps, ticks }: { steps?: number; ticks?: number },
   ) {
     const newProg = await progressTrackUpdater(
-      this.plugin.progressTrackSettings,
-    )(vaultProcess(this.plugin.app, file.path), (trackFile) =>
-      trackFile.updatingTrack((track) =>
-        ticks ? track.withTicks(ticks) : track.advanced(steps!),
-      ),
+      vaultProcess(this.plugin.app, file.path),
+      (trackFile) =>
+        trackFile.updatingTrack((track) =>
+          ticks ? track.withTicks(ticks) : track.advanced(steps!),
+        ),
     );
 
     await this.renderProgress(newProg, file);

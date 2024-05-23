@@ -130,16 +130,10 @@ describe("ProgressTrackFileAdapter", () => {
       rank?: ChallengeRanks | string;
     } = {},
   ): Either<ZodError, ProgressTrackFileAdapter> {
-    return ProgressTrackFileAdapter.create(
-      {
-        ...TEST_DATA,
-        ...overrides,
-      },
-      {
-        generateTrackImage: (track) =>
-          `[[progress-track-${track.progress}.svg]]`,
-      },
-    );
+    return ProgressTrackFileAdapter.create({
+      ...TEST_DATA,
+      ...overrides,
+    });
   }
 
   function make_(
@@ -225,16 +219,6 @@ describe("ProgressTrackFileAdapter", () => {
         track.advancedByTicks(10),
       );
       expect(updated.raw.progress).toBe(original.raw.progress + 10);
-    });
-
-    it("updates the track image", () => {
-      const original = make_();
-      const updated = original.updatingTrack((track) =>
-        track.advancedByTicks(10),
-      );
-      expect(updated.raw.trackimage).toBe(
-        `[[progress-track-${original.raw.progress + 10}.svg]]`,
-      );
     });
 
     it("updates completeness", () => {

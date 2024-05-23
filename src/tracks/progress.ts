@@ -56,7 +56,6 @@ export const baseProgressTrackerSchema = z.object({
         message: "Tags must contain exactly one of 'incomplete' or 'complete'",
       },
     ),
-  trackimage: z.string(),
   tracktype: z.string(),
 });
 
@@ -217,7 +216,6 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
   private constructor(
     public readonly raw: Readonly<ProgressTrackerSchema>,
     public readonly track: Readonly<ProgressTrack>,
-    protected readonly settings: ProgressTrackSettings,
   ) {}
 
   get name(): string {
@@ -228,32 +226,26 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     return this.raw.tracktype;
   }
 
-  static newFromTrack(
-    {
+  static newFromTrack({
+    name,
+    tracktype,
+    track,
+  }: {
+    name: string;
+    tracktype: string;
+    track: ProgressTrack;
+  }): Either<ZodError, ProgressTrackFileAdapter> {
+    return this.create({
       name,
+      rank: track.rank,
+      progress: track.progress,
+      tags: track.complete ? ["complete"] : ["incomplete"],
       tracktype,
-      track,
-    }: { name: string; tracktype: string; track: ProgressTrack },
-    settings: ProgressTrackSettings,
-  ): Either<ZodError, ProgressTrackFileAdapter> {
-    return this.create(
-      {
-        name,
-        rank: track.rank,
-        progress: track.progress,
-        tags: track.complete ? ["complete"] : ["incomplete"],
-        trackimage: settings.generateTrackImage(track),
-        tracktype,
-        forgedkind: "progress",
-      } as ProgressTrackerInputSchema,
-      settings,
-    );
+      forgedkind: "progress",
+    } as ProgressTrackerInputSchema);
   }
 
-  static create(
-    data: unknown,
-    settings: ProgressTrackSettings,
-  ): Either<ZodError, ProgressTrackFileAdapter> {
+  static create(data: unknown): Either<ZodError, ProgressTrackFileAdapter> {
     const result = progressTrackerSchema.safeParse(data);
     if (result.success) {
       const raw = result.data;
@@ -262,7 +254,7 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
         progress: raw.progress,
         complete: raw.tags.includes("complete"),
         unbounded: false,
-      }).map((track) => new this(raw, track, settings));
+      }).map((track) => new this(raw, track));
     } else {
       return Left.create(result.error);
     }
@@ -279,7 +271,6 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     return new ProgressTrackFileAdapter(
       produce(this.raw, (data) => {
         data.progress = other.progress;
-        data.trackimage = this.settings.generateTrackImage(other);
         data.rank = other.rank;
         const [tagToRemove, tagToAdd] = other.complete
           ? ["incomplete", "complete"]
@@ -292,22 +283,14 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
         );
       }),
       other,
-      this.settings,
     );
   }
-}
-
-export interface ProgressTrackSettings {
-  generateTrackImage: (track: ProgressTrack) => string;
 }
 
 export class ProgressIndexer extends BaseIndexer<ProgressTrackFileAdapter> {
   readonly id: string = "progress";
 
-  constructor(
-    index: ProgressIndex,
-    protected readonly settings: ProgressTrackSettings,
-  ) {
+  constructor(index: ProgressIndex) {
     super(index);
   }
 
@@ -316,10 +299,7 @@ export class ProgressIndexer extends BaseIndexer<ProgressTrackFileAdapter> {
     cache: CachedMetadata,
   ): ProgressTrackFileAdapter | undefined {
     // TODO: we should use our Either support now to handle this
-    return ProgressTrackFileAdapter.create(
-      cache.frontmatter,
-      this.settings,
-    ).unwrap();
+    return ProgressTrackFileAdapter.create(cache.frontmatter).unwrap();
   }
 }
 

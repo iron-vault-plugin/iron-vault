@@ -10,7 +10,6 @@ import {
 import {
   ChallengeRanks,
   ProgressTrack,
-  ProgressTrackSettings,
   legacyTrackXpEarned,
 } from "../tracks/progress";
 import { Either, collectEither } from "../utils/either";
@@ -80,10 +79,7 @@ function camelCase(str: string): string {
     .join("");
 }
 
-function legacyTrack(
-  specialTrackRule: SpecialTrackRule,
-  trackSettings: ProgressTrackSettings,
-) {
+function legacyTrack(specialTrackRule: SpecialTrackRule) {
   const formattedLabel = camelCase(specialTrackRule.label);
   const trackImageKey = `${formattedLabel}_TrackImage`;
   const progressKey = `${formattedLabel}_Progress`;
@@ -115,7 +111,6 @@ function legacyTrack(
         }
         return {
           ...source,
-          [trackImageKey]: trackSettings.generateTrackImage(newval),
           [progressKey]: newval.progress,
           [xpEarnedKey]: legacyTrackXpEarned(newval),
         };
@@ -420,10 +415,7 @@ export function rollablesReader(
   });
 }
 
-export function characterLens(
-  ruleset: Ruleset,
-  trackSettings: ProgressTrackSettings,
-): {
+export function characterLens(ruleset: Ruleset): {
   validater: (data: unknown) => ValidatedCharacter;
   lens: CharacterLens;
 } {
@@ -437,7 +429,7 @@ export function characterLens(
     path: key,
   }));
   const specialTracks = objectMap(ruleset.special_tracks, (rule) =>
-    legacyTrack(rule, trackSettings),
+    legacyTrack(rule),
   );
   const schema = baseForgedSchema.extend({
     ...objectMap(stats, ({ schema }) => schema),

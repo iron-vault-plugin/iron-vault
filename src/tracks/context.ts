@@ -2,11 +2,7 @@ import { App } from "obsidian";
 import { CharacterTracker } from "../character-tracker";
 import ForgedPlugin from "../index";
 import { vaultProcess } from "../utils/obsidian";
-import {
-  ProgressIndex,
-  ProgressTrackInfo,
-  ProgressTrackSettings,
-} from "./progress";
+import { ProgressIndex, ProgressTrackInfo } from "./progress";
 import {
   LegacyTrackWriter,
   ProgressTrackFileWriter,
@@ -16,13 +12,11 @@ import {
 export class ProgressContext {
   private app: App;
   private progressIndex: ProgressIndex;
-  private progressSettings: ProgressTrackSettings;
   private characterTracker: CharacterTracker;
 
   constructor(plugin: ForgedPlugin) {
     this.app = plugin.app;
     this.progressIndex = plugin.progressIndex;
-    this.progressSettings = plugin.progressTrackSettings;
     this.characterTracker = plugin.characters;
   }
 
@@ -34,7 +28,6 @@ export class ProgressContext {
       tracks.push(
         new ProgressTrackFileWriter(
           trackAdapter,
-          this.progressSettings,
           vaultProcess(this.app, trackPath),
           trackPath,
         ),
