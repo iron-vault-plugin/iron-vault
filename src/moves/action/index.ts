@@ -66,10 +66,11 @@ const ROLL_TYPES: Record<Datasworn.Move["roll_type"], string> = {
   special_track: "Special track roll",
 };
 
-const promptForMove = async (
+async function promptForMove(
   app: App,
-  moves: Datasworn.Move[],
-): Promise<Datasworn.Move> => {
+  context: ActionContext,
+): Promise<Datasworn.Move> {
+  const moves = [...context.moves].sort((a, b) => a.name.localeCompare(b.name));
   const choice = await CustomSuggestModal.selectWithUserEntry(
     app,
     moves,
@@ -157,7 +158,8 @@ const promptForMove = async (
         },
       } satisfies Datasworn.MoveSpecialTrack;
   }
-};
+}
+
 function processActionMove(
   move: Datasworn.Move,
   stat: string,
@@ -200,6 +202,7 @@ export async function runMoveCommand(
   plugin: ForgedPlugin,
   editor: Editor,
   view: MarkdownView,
+  chosenMove?: Datasworn.Move,
 ): Promise<void> {
   if (view.file?.path == null) {
     console.error("No file for view. Why?");
@@ -212,11 +215,9 @@ export async function runMoveCommand(
     return;
   }
 
-  const allMoves = [...context.moves].sort((a, b) =>
-    a.name.localeCompare(b.name),
-  );
-
-  const move = await promptForMove(plugin.app, allMoves);
+  // Use the provided move, or prompt the user for a move appropriate to the current action context.
+  const move: Datasworn.Move =
+    chosenMove ?? (await promptForMove(plugin.app, context));
 
   let moveDescription: MoveDescription;
   switch (move.roll_type) {
