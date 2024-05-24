@@ -25,6 +25,7 @@ import { vaultProcess } from "../../utils/obsidian";
 import { CustomSuggestModal } from "../../utils/suggest";
 import {
   ActionMoveAdd,
+  NoRollMoveDescription,
   type ActionMoveDescription,
   type MoveDescription,
   type ProgressMoveDescription,
@@ -235,6 +236,11 @@ export async function runMoveCommand(
       break;
     }
     case "no_roll":
+      moveDescription = {
+        id: move._id,
+        name: move.name,
+      } satisfies NoRollMoveDescription;
+      break;
     case "special_track":
     default:
       // TODO: this probably makes sense with new mechanics format?

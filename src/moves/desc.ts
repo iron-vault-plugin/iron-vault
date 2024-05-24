@@ -55,7 +55,7 @@ export type ProgressMoveDescription = z.infer<
 >;
 
 export const NoRollMoveDescriptionSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   name: z.string(),
 });
 
@@ -65,7 +65,7 @@ export const AllMoveDescriptionSchemas = z.union([
   ActionMoveDescriptionSchemaV2,
   ProgressMoveDescriptionSchema,
   ActionMoveDescriptionSchemaV1,
-  // NoRollMoveDescriptionSchema,
+  NoRollMoveDescriptionSchema,
 ]);
 
 export type AllMoveDescriptions = z.infer<typeof AllMoveDescriptionSchemas>;
@@ -73,7 +73,7 @@ export type AllMoveDescriptions = z.infer<typeof AllMoveDescriptionSchemas>;
 export const MoveDescriptionSchema = z.union([
   ActionMoveDescriptionSchemaV2,
   ProgressMoveDescriptionSchema,
-  // NoRollMoveDescriptionSchema,
+  NoRollMoveDescriptionSchema,
 ]);
 
 export type MoveDescription = z.infer<typeof MoveDescriptionSchema>;

@@ -26,19 +26,17 @@ export class MoveModal extends Modal {
     contentEl.empty();
     contentEl.toggleClass("forged-modal-content", true);
     (async () => {
-      if (move.roll_type !== "no_roll") {
-        new ButtonComponent(contentEl)
-          .setButtonText("Roll this move")
-          .onClick(() => {
-            const { workspace } = this.plugin.app;
-            const view = workspace.getActiveFileView();
-            if (view && view instanceof MarkdownView) {
-              const editor = view.editor;
-              runMoveCommand(this.plugin, editor, view, move);
-              this.close();
-            }
-          });
-      }
+      new ButtonComponent(contentEl)
+        .setButtonText("Make this move")
+        .onClick(() => {
+          const { workspace } = this.plugin.app;
+          const view = workspace.getActiveFileView();
+          if (view && view instanceof MarkdownView) {
+            const editor = view.editor;
+            runMoveCommand(this.plugin, editor, view, move);
+            this.close();
+          }
+        });
       await MarkdownRenderer.render(
         this.app,
         move.text,
