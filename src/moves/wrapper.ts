@@ -3,7 +3,6 @@ import {
   moveIsAction,
   moveIsProgress,
   type ActionMoveDescription,
-  type MoveDescription,
   type ProgressMoveDescription,
 } from "./desc";
 
@@ -32,9 +31,15 @@ export enum MoveKind {
   Progress,
 }
 
-export function wrapMove<T extends MoveDescription>(
-  move: T,
-): MoveWrapper<MoveDescription> {
+export function wrapMove<ActionMoveDescription>(
+  move: ActionMoveDescription,
+): ActionMoveWrapper;
+export function wrapMove<ProgressMoveDescription>(
+  move: ProgressMoveDescription,
+): ProgressMoveWrapper;
+export function wrapMove<
+  T extends ActionMoveDescription | ProgressMoveDescription,
+>(move: T): ActionMoveWrapper | ProgressMoveWrapper {
   if (moveIsAction(move)) {
     return new ActionMoveWrapper(move);
   } else if (moveIsProgress(move)) {
@@ -44,7 +49,9 @@ export function wrapMove<T extends MoveDescription>(
   }
 }
 
-export abstract class MoveWrapper<T extends MoveDescription> {
+export abstract class MoveWrapper<
+  T extends ActionMoveDescription | ProgressMoveDescription,
+> {
   public readonly move: T;
 
   public constructor(move: T) {

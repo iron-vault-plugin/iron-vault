@@ -3,6 +3,7 @@ import { Datastore } from "datastore";
 import { MarkdownRenderChild, MarkdownRenderer, type App } from "obsidian";
 import ForgedPlugin from "../index";
 import {
+  NoRollMoveDescription,
   moveIsAction,
   moveIsProgress,
   type ActionMoveDescription,
@@ -88,7 +89,9 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
     }
   }
 
-  labelForResult<T extends MoveDescription>(wrap: MoveWrapper<T>): string {
+  labelForResult<T extends ActionMoveDescription | ProgressMoveDescription>(
+    wrap: MoveWrapper<T>,
+  ): string {
     switch (wrap.result()) {
       case RollResult.Miss:
         return "Miss" + (wrap.isMatch() ? " with Match" : "");
@@ -104,8 +107,9 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
       return this.actionTemplate(move);
     } else if (moveIsProgress(move)) {
       return this.progressTemplate(move);
+    } else {
+      return this.noRollTemplate(move);
     }
-    throw new Error("What kind of bizarre move is this?");
   }
 
   actionTemplate(move: ActionMoveDescription): string {
@@ -137,6 +141,10 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
 > ${wrap.score} (${move.progressTicks} ticks)
 > vs ${move.challenge1} and ${move.challenge2}
 >`;
+  }
+
+  noRollTemplate(move: NoRollMoveDescription): string {
+    return `> [!challenge-strong] ${move.name}\n> \n`;
   }
 
   async onload(): Promise<void> {

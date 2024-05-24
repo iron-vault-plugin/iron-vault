@@ -102,7 +102,7 @@ export function generateMechanicsNode(move: MoveDescription): Document {
       }),
     );
   } else {
-    throw new Error("what kind of move is this?");
+    // Nothing to do for a no-roll move
   }
 
   const doc: Document = [
