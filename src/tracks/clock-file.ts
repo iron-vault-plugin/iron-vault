@@ -91,7 +91,6 @@ export class ClockIndexer extends BaseIndexer<ClockFileAdapter> {
     cache: CachedMetadata,
   ): ClockFileAdapter | undefined {
     // TODO: we should use our Either support now to handle this
-    // TODO: customize track image gen
     return ClockFileAdapter.create(cache.frontmatter).unwrap();
   }
 }

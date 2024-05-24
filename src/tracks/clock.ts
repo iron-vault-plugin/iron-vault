@@ -5,7 +5,7 @@ import { zodResultToEither } from "../utils/zodutils";
 export const clockValidator = z
   .object({
     /** Number of filled segments. */
-    progress: z.number().positive(),
+    progress: z.number().nonnegative(),
 
     /** Number of total segments */
     segments: z.number().positive(),
@@ -45,15 +45,7 @@ export class Clock implements ClockLike {
   }
 
   public tick(steps: number = 1): this {
-    if (!this.active) return this;
-
-    // TODO: should this give an error or something if we attempt to tick beyond the limit?
-    const newProgress = Math.max(
-      Math.min(this.segments, this.progress + steps),
-      0,
-    );
-    if (newProgress === this.progress) return this;
-    return new Clock(newProgress, this.segments, this.active) as this;
+    return this.withProgress(this.progress + steps);
   }
 
   public deactivate(): this {
