@@ -1,7 +1,7 @@
 import { type Datasworn } from "@datasworn/core";
 import { Datastore } from "datastore";
 import { MarkdownRenderChild, MarkdownRenderer, type App } from "obsidian";
-import ForgedPlugin from "../index";
+import IronVaultPlugin from "../index";
 import {
   NoRollMoveDescription,
   moveIsAction,
@@ -20,7 +20,7 @@ import {
   lookupOutcome,
 } from "./wrapper";
 
-export function registerMoveBlock(plugin: ForgedPlugin): void {
+export function registerMoveBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor("move", async (source, el, ctx) => {
     await plugin.datastore.waitForReady;
     const validatedMove = parseMoveBlock(source);

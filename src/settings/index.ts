@@ -3,7 +3,7 @@ import Handlebars from "handlebars";
 import { ClockFileAdapter } from "tracks/clock-file";
 import { ProgressTrackFileAdapter, ProgressTrackInfo } from "tracks/progress";
 
-export class ForgedPluginSettings {
+export class IronVaultPluginSettings {
   advanceProgressTemplate: string =
     "> [!progress] [[{{trackPath}}|{{trackInfo.name}}]]: Marked {{steps}} progress ({{trackInfo.track.boxesFilled}} ![[progress-box-4.svg|15]] total)\n> Ticks: {{originalInfo.track.progress}} + {{ticks}} -> {{trackInfo.track.progress}}\n> Milestone: \n\n";
   createProgressTemplate: string =
@@ -34,10 +34,10 @@ export class ForgedPluginSettings {
   constructor() {
     this.emitter = new Emittery();
     return new Proxy(this, {
-      set<K extends keyof ForgedPluginSettings>(
-        target: ForgedPluginSettings,
+      set<K extends keyof IronVaultPluginSettings>(
+        target: IronVaultPluginSettings,
         key: K,
-        newValue: ForgedPluginSettings[K],
+        newValue: IronVaultPluginSettings[K],
       ) {
         if (key === "emitter") {
           return true;
@@ -75,9 +75,9 @@ export class ForgedPluginSettings {
 
 export type EVENT_TYPES = {
   change: {
-    key: keyof ForgedPluginSettings;
-    oldValue: ForgedPluginSettings[keyof ForgedPluginSettings];
-    newValue: ForgedPluginSettings[keyof ForgedPluginSettings];
+    key: keyof IronVaultPluginSettings;
+    oldValue: IronVaultPluginSettings[keyof IronVaultPluginSettings];
+    newValue: IronVaultPluginSettings[keyof IronVaultPluginSettings];
   };
 };
 
@@ -102,7 +102,9 @@ export type CreateProgressTemplateParams = {
 };
 function compileTemplate<K extends keyof TEMPLATE_TYPES>(
   key: K,
-): (settings: ForgedPluginSettings) => (context: TEMPLATE_TYPES[K]) => string {
+): (
+  settings: IronVaultPluginSettings,
+) => (context: TEMPLATE_TYPES[K]) => string {
   return (settings) => (context) =>
     Handlebars.compile<TEMPLATE_TYPES[K]>(settings[key], {
       noEscape: true,

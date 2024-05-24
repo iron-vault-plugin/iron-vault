@@ -1,13 +1,13 @@
-.block-language-forged-track {
-  container: forged-track / inline-size;
+.block-language-iron-vault-track {
+  container: iron-vault-track / inline-size;
 }
-.forged-track {
+.iron-vault-track {
   margin: 0.5em auto;
   max-width: 460px;
-  @container forged-track (min-width: 460px) {
+  @container iron-vault-track (min-width: 460px) {
     max-width: 640px;
   }
-  @container forged-track (min-width: 640px) {
+  @container iron-vault-track (min-width: 640px) {
     max-width: 768px;
   }
   & .track-rank,
@@ -28,12 +28,12 @@
       width: 20px;
       height: 20px;
       font-size: 12px;
-      @container forged-track (min-width: 460px) {
+      @container iron-vault-track (min-width: 460px) {
         height: 32px;
         width: 32px;
         font-size: 16px;
       }
-      @container forged-track (min-width: 640px) {
+      @container iron-vault-track (min-width: 640px) {
         height: 42px;
         width: 42px;
         font-size: 25px;

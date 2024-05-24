@@ -146,14 +146,14 @@ export class IndexManager extends Component {
     // } else {
     //   return false;
     // }
-    const kind = cache.frontmatter?.forgedkind;
+    const kind = cache.frontmatter?.["iron-vault-kind"];
     if (kind) {
       const indexer = this.handlers.get(kind);
       if (indexer) {
         return indexer;
       } else {
         console.warn(
-          '[indexer] [file:%s] unknown forgedkind "%s"',
+          '[indexer] [file:%s] unknown iron-vault-kind "%s"',
           file.path,
           kind,
         );

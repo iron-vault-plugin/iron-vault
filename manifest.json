@@ -1,9 +1,9 @@
 {
-  "id": "forged",
-  "name": "Forged Plugin",
-  "version": "1.19.2",
+  "id": "iron-vault",
+  "name": "Iron Vault",
+  "version": "0.19.2",
   "minAppVersion": "0.15.0",
-  "description": "Ironsworn/Starforged gameplay plugin",
+  "description": "Gameplay plugin/VTT for the Ironsworn/Starforged family of tabletop RPGs",
   "author": "Chris Wegrzyn",
   "authorUrl": "https://github.com/cwegrzyn",
   "fundingUrl": "https://obsidian.md/pricing",

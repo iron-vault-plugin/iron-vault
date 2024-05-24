@@ -1,6 +1,6 @@
 ---
 <%*
-const api = window.ForgedAPI;
+const api = window.IronVaultAPI;
 const nameRoll = api.roll('starforged/oracles/factions/name/template');
 const name = nameRoll.simpleResult;
 await tp.file.rename(name)

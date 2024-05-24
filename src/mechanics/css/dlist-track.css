@@ -1,4 +1,4 @@
-.forged-mechanics .track {
+.iron-vault-mechanics .track {
   &:before {
     content: "❎";
   }
@@ -30,4 +30,3 @@
     }
   }
 }
-

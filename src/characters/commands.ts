@@ -1,5 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import { Editor, FuzzyMatch, MarkdownView } from "obsidian";
 import { vaultProcess } from "utils/obsidian";
 import { firstUppercase } from "utils/strings";
@@ -14,7 +14,7 @@ import {
 } from "./assets";
 
 export async function addAssetToCharacter(
-  plugin: ForgedPlugin,
+  plugin: IronVaultPlugin,
   _editor: Editor,
   _view: MarkdownView,
 ): Promise<void> {
@@ -39,7 +39,7 @@ export async function addAssetToCharacter(
         text:
           asset.category +
           (asset.requirement ? ` (requirement: ${asset.requirement})` : ""),
-        cls: "forged-suggest-hint",
+        cls: "iron-vault-suggest-hint",
       });
     },
     `Choose an asset to add to character ${lens.name.get(character)}.`,

@@ -1,8 +1,8 @@
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import { OracleModal } from "./oracle-modal";
 import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 
-export default function installOracleLinkHandler(plugin: ForgedPlugin) {
+export default function installOracleLinkHandler(plugin: IronVaultPlugin) {
   const handler = (ev: MouseEvent) => {
     if (
       !(ev.target instanceof HTMLAnchorElement) ||

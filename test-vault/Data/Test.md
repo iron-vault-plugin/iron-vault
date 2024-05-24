@@ -1,5 +1,5 @@
 ---
-forged: dataforged-inline
+iron-vault: dataforged-inline
 ---
 ```dataforged
 Oracle sets:

@@ -56,7 +56,7 @@ export const baseProgressTrackerSchema = z.object({
         message: "Tags must contain exactly one of 'incomplete' or 'complete'",
       },
     ),
-  tracktype: z.string(),
+  "track-type": z.string(),
 });
 
 export const progressTrackerSchema = z.union([
@@ -223,16 +223,16 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
   }
 
   get trackType(): string {
-    return this.raw.tracktype;
+    return this.raw["track-type"];
   }
 
   static newFromTrack({
     name,
-    tracktype,
+    trackType,
     track,
   }: {
     name: string;
-    tracktype: string;
+    trackType: string;
     track: ProgressTrack;
   }): Either<ZodError, ProgressTrackFileAdapter> {
     return this.create({
@@ -240,8 +240,8 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
       rank: track.rank,
       progress: track.progress,
       tags: track.complete ? ["complete"] : ["incomplete"],
-      tracktype,
-      forgedkind: "progress",
+      "track-type": trackType,
+      "iron-vault-kind": "progress",
     } as ProgressTrackerInputSchema);
   }
 

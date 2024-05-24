@@ -121,7 +121,7 @@ describe("ProgressTrackFileAdapter", () => {
     rank: "Dangerous",
     Progress: 10,
     tags: "incomplete",
-    tracktype: "Vow",
+    "track-type": "Vow",
   };
 
   function make(

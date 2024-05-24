@@ -1,6 +1,6 @@
 {
-  "name": "forged",
-  "version": "1.19.2",
+  "name": "iron-vault",
+  "version": "0.19.2",
   "description": "",
   "main": "main.js",
   "type": "module",
@@ -8,6 +8,7 @@
     "node": ">=16",
     "pnpm": ">=9"
   },
+  "private": true,
   "scripts": {
     "test": "jest",
     "build": "tsc --noEmit && node esbuild.config.js production",

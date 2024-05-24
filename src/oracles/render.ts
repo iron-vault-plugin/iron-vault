@@ -177,7 +177,7 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
       await this.render();
     }
     this.registerEvent(
-      this.app.metadataCache.on("forged:index-changed", async () => {
+      this.app.metadataCache.on("iron-vault:index-changed", async () => {
         await this.render();
       }),
     );

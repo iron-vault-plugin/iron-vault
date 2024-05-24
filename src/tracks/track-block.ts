@@ -1,15 +1,15 @@
 import { html, render } from "lit-html";
 import { md } from "utils/ui/directives";
 
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import { EventRef, TFile } from "obsidian";
 import { vaultProcess } from "utils/obsidian";
 import { ProgressTrackFileAdapter } from "./progress";
 import { progressTrackUpdater } from "./writer";
 
-export default function registerTrackBlock(plugin: ForgedPlugin): void {
+export default function registerTrackBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
-    "forged-track",
+    "iron-vault-track",
     async (source: string, el: TrackContainerEl, ctx) => {
       // We can't render blocks until datastore is ready.
       await plugin.datastore.waitForReady;
@@ -29,10 +29,10 @@ interface TrackContainerEl extends HTMLElement {
 class TrackRenderer {
   contentEl: HTMLElement;
   source: string;
-  plugin: ForgedPlugin;
+  plugin: IronVaultPlugin;
   fileWatcher?: EventRef;
 
-  constructor(contentEl: HTMLElement, source: string, plugin: ForgedPlugin) {
+  constructor(contentEl: HTMLElement, source: string, plugin: IronVaultPlugin) {
     this.contentEl = contentEl;
     this.source = source;
     this.plugin = plugin;
@@ -78,7 +78,7 @@ class TrackRenderer {
       items.push(html`<li data-value="${ticks}">box ${ticks}</li>`);
     }
     const tpl = html`
-      <article class="forged-track">
+      <article class="iron-vault-track">
         <h3 class="track-name">
           ${md(this.plugin, trackFile.name, file.path)}
         </h3>

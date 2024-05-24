@@ -1,4 +1,4 @@
-.forged-mechanics dl.roll {
+.iron-vault-mechanics dl.roll {
   &:before {
     content: "🎲";
   }
@@ -7,7 +7,7 @@
   }
   & dd {
     &.stat:before {
-      content: " + "
+      content: " + ";
     }
     &.stat-name {
       color: var(--text-faint);

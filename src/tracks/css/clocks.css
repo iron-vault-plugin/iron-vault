@@ -1,14 +1,14 @@
-.block-language-forged-clock {
-  container: forged-clock / inline-size;
+.block-language-iron-vault-clock {
+  container: iron-vault-clock / inline-size;
 }
-.forged-clock {
+.iron-vault-clock {
   margin: 0.5em auto;
   & .clock-widget {
     & .clock-segment {
       vector-effect: non-scaling-stroke;
     }
     max-width: 200px;
-    @container forged-clock (min-width: 300px) {
+    @container iron-vault-clock (min-width: 300px) {
       max-width: 300px;
     }
     pointer-events: none;

@@ -6,7 +6,7 @@ import { updating } from "utils/lens";
 import { numberRange } from "utils/numbers";
 import { vaultProcess } from "utils/obsidian";
 import { CustomSuggestModal } from "utils/suggest";
-import ForgedPlugin from "../index";
+import IronVaultPlugin from "../index";
 import {
   ActionContext,
   CharacterActionContext,
@@ -15,7 +15,7 @@ import {
 import { MeterWithLens, MeterWithoutLens, momentumOps } from "./lens";
 
 export async function burnMomentum(
-  plugin: ForgedPlugin,
+  plugin: IronVaultPlugin,
   editor: Editor,
 ): Promise<void> {
   const [path, charContext] = plugin.characters.activeCharacter();
@@ -86,7 +86,7 @@ export async function promptForMeter(
 }
 
 export const modifyMeterCommand = async (
-  plugin: ForgedPlugin,
+  plugin: IronVaultPlugin,
   editor: Editor,
   verb: string,
   meterFilter: (

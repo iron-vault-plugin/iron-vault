@@ -15,7 +15,7 @@ export type ProgressTrackCreateResultType = {
   rank: ChallengeRanks;
   progress: number;
   name: string;
-  tracktype: string;
+  trackType: string;
   fileName: string;
   targetFolder: string;
 };
@@ -25,7 +25,7 @@ export class ProgressTrackCreateModal extends Modal {
     rank: ChallengeRanks.Dangerous,
     progress: 0,
     name: "",
-    tracktype: "",
+    trackType: "",
     fileName: "",
     targetFolder: "",
   };
@@ -37,7 +37,7 @@ export class ProgressTrackCreateModal extends Modal {
     defaults: Partial<ProgressTrackCreateResultType> = {},
     protected readonly onAccept: (arg: {
       name: string;
-      tracktype: string;
+      trackType: string;
       targetFolder: string;
       fileName: string;
       track: ProgressTrack;
@@ -121,7 +121,7 @@ export class ProgressTrackCreateModal extends Modal {
       ]);
 
       search.onChange((value) => {
-        this.result.tracktype = value;
+        this.result.trackType = value;
       });
     });
 
@@ -147,7 +147,7 @@ export class ProgressTrackCreateModal extends Modal {
     this.close();
     this.onAccept({
       name: this.result.name,
-      tracktype: this.result.tracktype,
+      trackType: this.result.trackType,
       fileName: this.result.fileName,
       targetFolder: this.result.targetFolder,
       track: ProgressTrack.create_({

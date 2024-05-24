@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/method-signature-style */
-import { ForgedAPI } from "api";
+import { IronVaultAPI } from "api";
 import "obsidian";
 
 declare module "obsidian" {
@@ -25,7 +25,7 @@ declare module "obsidian" {
 declare module "obsidian" {
   interface MetadataCache {
     on(
-      name: "forged:index-changed",
+      name: "iron-vault:index-changed",
       callback: () => unknown,
       ctx?: unknown,
     ): EventRef;
@@ -36,8 +36,8 @@ declare module "obsidian" {
     plugins: {
       enabledPlugins: Set<string>;
       plugins: {
-        forged?: {
-          api: ForgedAPI;
+        ["iron-vault"]?: {
+          api: IronVaultAPI;
         };
       };
     };
@@ -46,6 +46,6 @@ declare module "obsidian" {
 
 declare global {
   interface Window {
-    ForgedAPI?: ForgedAPI;
+    IronVaultAPI?: IronVaultAPI;
   }
 }

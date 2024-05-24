@@ -2,7 +2,7 @@ import { syntaxTree } from "@codemirror/language";
 import { App } from "obsidian";
 import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
-import ForgedPlugin from "./index";
+import IronVaultPlugin from "./index";
 import { RollWrapper } from "./model/rolls";
 import { ProgressIndex } from "./tracks/progress";
 
@@ -10,8 +10,8 @@ function stripLinks(input: string): string {
   return input.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
 }
 
-export class ForgedAPI {
-  constructor(public readonly plugin: ForgedPlugin) {}
+export class IronVaultAPI {
+  constructor(public readonly plugin: IronVaultPlugin) {}
 
   get datastore(): Datastore {
     return this.plugin.datastore;
@@ -39,10 +39,10 @@ export class ForgedAPI {
   }
 }
 
-export const getAPI = (app?: App): ForgedAPI | undefined => {
-  if (app) return app.plugins.plugins.forged?.api;
-  else return window.ForgedAPI;
+export const getAPI = (app?: App): IronVaultAPI | undefined => {
+  if (app) return app.plugins.plugins["iron-vault"]?.api;
+  else return window.IronVaultAPI;
 };
 
 export const isPluginEnabled = (app: App) =>
-  app.plugins.enabledPlugins.has("forged");
+  app.plugins.enabledPlugins.has("iron-vault");

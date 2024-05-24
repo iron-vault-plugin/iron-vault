@@ -4,7 +4,7 @@ import { DataIndex } from "datastore/data-index";
 import { indexDataForgedData } from "datastore/parsers/dataforged";
 import { ParserReturn, parserForFrontmatter } from "datastore/parsers/markdown";
 import { StandardIndex } from "datastore/priority-index";
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import { Oracle } from "model/oracle";
 import {
   Component,
@@ -29,7 +29,7 @@ export class Datastore extends Component {
   // TODO: wtf
   activeRuleset: string = "starforged";
 
-  constructor(public readonly plugin: ForgedPlugin) {
+  constructor(public readonly plugin: IronVaultPlugin) {
     super();
     this._ready = false;
 
@@ -53,7 +53,7 @@ export class Datastore extends Component {
       starforgedRuleset as Datasworn.Ruleset,
     );
     this.index.updateIndexGroup(mainPath, new Set([mainPath]));
-    this.app.metadataCache.trigger("forged:index-changed");
+    this.app.metadataCache.trigger("iron-vault:index-changed");
 
     // TODO: also handle folders
     // const dataFiles = await this.app.vault.adapter.list(
@@ -86,7 +86,7 @@ export class Datastore extends Component {
     //   }
     // }
     console.log(
-      "forged: init complete. loaded: %d oracles, %d moves, %d assets",
+      "iron-vault: init complete. loaded: %d oracles, %d moves, %d assets",
       this.index._oracleIndex.size,
       this.index._moveIndex.size,
       this.index._assetIndex.size,
@@ -175,7 +175,7 @@ export class Datastore extends Component {
     format: string = "json",
   ): Promise<void> {
     console.log(
-      "forged: datastore: indexing plugin file %s (format: %s priority: %d)",
+      "iron-vault: datastore: indexing plugin file %s (format: %s priority: %d)",
       normalizedPath,
       format,
       priority,
@@ -193,7 +193,7 @@ export class Datastore extends Component {
     indexDataForgedData(this.index, normalizedPath, priority, data);
     this.index.updateIndexGroup(normalizedPath, new Set([normalizedPath]));
 
-    this.app.metadataCache.trigger("forged:index-changed");
+    this.app.metadataCache.trigger("iron-vault:index-changed");
   }
 
   get ready(): boolean {

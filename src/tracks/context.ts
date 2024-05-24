@@ -1,6 +1,6 @@
 import { App } from "obsidian";
 import { CharacterTracker } from "../character-tracker";
-import ForgedPlugin from "../index";
+import IronVaultPlugin from "../index";
 import { vaultProcess } from "../utils/obsidian";
 import { ProgressIndex, ProgressTrackInfo } from "./progress";
 import {
@@ -14,7 +14,7 @@ export class ProgressContext {
   private progressIndex: ProgressIndex;
   private characterTracker: CharacterTracker;
 
-  constructor(plugin: ForgedPlugin) {
+  constructor(plugin: IronVaultPlugin) {
     this.app = plugin.app;
     this.progressIndex = plugin.progressIndex;
     this.characterTracker = plugin.characters;

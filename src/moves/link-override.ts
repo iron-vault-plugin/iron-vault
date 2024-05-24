@@ -1,8 +1,8 @@
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import { MoveModal } from "./move-modal";
 import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 
-export default function installMoveLinkHandler(plugin: ForgedPlugin) {
+export default function installMoveLinkHandler(plugin: IronVaultPlugin) {
   const handler = (ev: MouseEvent) => {
     if (
       !(ev.target instanceof HTMLAnchorElement) ||

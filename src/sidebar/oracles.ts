@@ -1,4 +1,4 @@
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import { MarkdownView, getIcon } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { OracleModal } from "oracles/oracle-modal";
@@ -6,9 +6,9 @@ import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { Oracle, OracleRulesetGrouping } from "model/oracle";
 
-export default async function renderForgedOracles(
+export default async function renderIronVaultOracles(
   cont: HTMLElement,
-  plugin: ForgedPlugin,
+  plugin: IronVaultPlugin,
 ) {
   const loading = cont.createEl("p", { text: "Loading data..." });
   await plugin.datastore.waitForReady;
@@ -27,7 +27,7 @@ interface CollectionGrouping {
   children: Oracle[];
 }
 
-function getOracleTree(plugin: ForgedPlugin) {
+function getOracleTree(plugin: IronVaultPlugin) {
   const oracles = plugin.datastore.oracles;
   const rulesets: Map<string, RulesetGrouping> = new Map();
   const groupings: Map<string, CollectionGrouping> = new Map();
@@ -48,7 +48,7 @@ function getOracleTree(plugin: ForgedPlugin) {
         ? topGroup.parent
         : ({
             name: "Homebrew",
-            id: "forged_homebrew",
+            id: "iron_vault_homebrew",
           } as OracleRulesetGrouping);
 
     let ruleset = rulesets.get(top.id);
@@ -76,7 +76,7 @@ function getOracleTree(plugin: ForgedPlugin) {
   return rulesets.values();
 }
 
-function renderOracleList(plugin: ForgedPlugin) {
+function renderOracleList(plugin: IronVaultPlugin) {
   const rulesets = getOracleTree(plugin);
   return html`
     <ul class="oracles-list">
@@ -85,7 +85,7 @@ function renderOracleList(plugin: ForgedPlugin) {
   `;
 }
 
-function renderRuleset(plugin: ForgedPlugin, ruleset: RulesetGrouping) {
+function renderRuleset(plugin: IronVaultPlugin, ruleset: RulesetGrouping) {
   return html`
     <li class="ruleset">
       <div class="wrapper">
@@ -100,7 +100,7 @@ function renderRuleset(plugin: ForgedPlugin, ruleset: RulesetGrouping) {
   `;
 }
 
-function renderGroup(plugin: ForgedPlugin, group: CollectionGrouping) {
+function renderGroup(plugin: IronVaultPlugin, group: CollectionGrouping) {
   return html`
     <li class="oracle-group">
       <div class="wrapper">
@@ -123,7 +123,7 @@ function renderGroup(plugin: ForgedPlugin, group: CollectionGrouping) {
   `;
 }
 
-function renderOracle(plugin: ForgedPlugin, oracle: Oracle) {
+function renderOracle(plugin: IronVaultPlugin, oracle: Oracle) {
   return html`
     <li @click=${(ev: MouseEvent) => handleOracleRoll(ev, plugin, oracle)}>
       <span>${oracle.name}</span>
@@ -134,14 +134,14 @@ function renderOracle(plugin: ForgedPlugin, oracle: Oracle) {
   `;
 }
 
-function rollOracleBatch(plugin: ForgedPlugin, oracles: Oracle[]) {
+function rollOracleBatch(plugin: IronVaultPlugin, oracles: Oracle[]) {
   // TODO(@zkat): actually hook this up.
   console.log("Rolling all these oracles:", oracles);
 }
 
 function handleOracleRoll(
   ev: MouseEvent,
-  plugin: ForgedPlugin,
+  plugin: IronVaultPlugin,
   _oracle: Oracle,
 ) {
   ev.stopPropagation();
@@ -155,6 +155,6 @@ function handleOracleRoll(
   }
 }
 
-function openOracleModal(plugin: ForgedPlugin, oracle: Oracle) {
+function openOracleModal(plugin: IronVaultPlugin, oracle: Oracle) {
   new OracleModal(plugin.app, plugin, oracle).open();
 }

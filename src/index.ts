@@ -8,9 +8,9 @@ import {
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
-import { ForgedPluginSettings } from "settings";
+import { IronVaultPluginSettings } from "settings";
 import { ProgressContext } from "tracks/context";
-import { ForgedAPI } from "./api";
+import { IronVaultAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
 import * as meterCommands from "./characters/meter-commands";
 import { Datastore } from "./datastore";
@@ -18,7 +18,7 @@ import registerMechanicsBlock from "./mechanics/mechanics-blocks";
 import { registerMoveBlock } from "./moves/block";
 import { runOracleCommand } from "./oracles/command";
 import { registerOracleBlock } from "./oracles/render";
-import { ForgedSettingTab } from "./settings/ui";
+import { IronVaultSettingTab } from "./settings/ui";
 import { ClockIndex, ClockIndexer } from "./tracks/clock-file";
 import {
   advanceClock,
@@ -36,14 +36,14 @@ import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 import registerTrackBlock from "tracks/track-block";
 import registerClockBlock from "tracks/clock-block";
 
-export default class ForgedPlugin extends Plugin {
-  settings!: ForgedPluginSettings;
+export default class IronVaultPlugin extends Plugin {
+  settings!: IronVaultPluginSettings;
   datastore!: Datastore;
   characters!: CharacterTracker;
   progressIndex!: ProgressIndex;
   clockIndex!: ClockIndex;
   indexManager!: IndexManager;
-  api!: ForgedAPI;
+  api!: IronVaultAPI;
 
   private async initialize(): Promise<void> {
     await this.datastore.initialize();
@@ -77,14 +77,14 @@ export default class ForgedPlugin extends Plugin {
       this.app.workspace.onLayoutReady(() => this.initialize());
     }
 
-    window.ForgedAPI = this.api = new ForgedAPI(this);
-    this.register(() => delete window.ForgedAPI);
+    window.IronVaultAPI = this.api = new IronVaultAPI(this);
+    this.register(() => delete window.IronVaultAPI);
     installMoveLinkHandler(this);
     installOracleLinkHandler(this);
     this.installIdLinkHandler(this);
 
     this.registerView(VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
-    this.addRibbonIcon("dice", "Forged", () => {
+    this.addRibbonIcon("dice", "Iron Vault", () => {
       return this.activateView();
     });
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
@@ -209,13 +209,13 @@ export default class ForgedPlugin extends Plugin {
       name: "Toggle Displaying Mechanics",
       editorCallback: async (editor: Editor) => {
         editor.containerEl.ownerDocument.body.classList.toggle(
-          "collapse-forged-mechanics",
+          "collapse-iron-vault-mechanics",
         );
       },
     });
 
     // This adds a settings tab so the user can configure various aspects of the plugin
-    this.addSettingTab(new ForgedSettingTab(this.app, this));
+    this.addSettingTab(new IronVaultSettingTab(this.app, this));
 
     registerMoveBlock(this);
     registerOracleBlock(this, this.datastore);
@@ -245,7 +245,7 @@ export default class ForgedPlugin extends Plugin {
 
   async loadSettings(): Promise<void> {
     const settings = Object.assign(
-      new ForgedPluginSettings(),
+      new IronVaultPluginSettings(),
       await this.loadData(),
       // Remove unused old variables
       { moveBlockFormat: undefined },
@@ -261,7 +261,7 @@ export default class ForgedPlugin extends Plugin {
     await this.saveData(this.settings);
   }
 
-  installIdLinkHandler(plugin: ForgedPlugin) {
+  installIdLinkHandler(plugin: IronVaultPlugin) {
     const handler = (ev: MouseEvent) => {
       if (
         !(ev.target instanceof HTMLAnchorElement) ||
