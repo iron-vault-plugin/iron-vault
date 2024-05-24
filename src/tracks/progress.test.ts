@@ -121,7 +121,6 @@ describe("ProgressTrackFileAdapter", () => {
     rank: "Dangerous",
     Progress: 10,
     tags: "incomplete",
-    TrackImage: "[[progress-track-10.svg]]",
     tracktype: "Vow",
   };
 

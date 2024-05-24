@@ -37,7 +37,6 @@ Bonds_XPEarned: 0
 Bonds_Progress: 0
 Discoveries_XPEarned: 0
 Discoveries_Progress: 0
-Quests_TrackImage: "[[progress-track-4.svg]]"
 ---
 
 asdf
