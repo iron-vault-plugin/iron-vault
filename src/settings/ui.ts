@@ -1,6 +1,7 @@
 import ForgedPlugin from "index";
 import { PluginSettingTab, Setting, type App } from "obsidian";
 import { ForgedPluginSettings } from "settings";
+import { FolderTextSuggest } from "utils/ui/settings/folder";
 
 export class ForgedSettingTab extends PluginSettingTab {
   plugin: ForgedPlugin;
@@ -33,6 +34,19 @@ export class ForgedSettingTab extends PluginSettingTab {
           .setValue(settings.oraclesFolder)
           .onChange((value) => this.updateSetting("oraclesFolder", value)),
       );
+
+    new Setting(containerEl)
+      .setName("Default progress track folder")
+      .setDesc("Create progress tracks in this folder by default.")
+      .addSearch((search) => {
+        new FolderTextSuggest(this.app, search.inputEl);
+        search
+          .setPlaceholder("Type the name of a folder")
+          .setValue(settings.defaultProgressTrackFolder)
+          .onChange((value) =>
+            this.updateSetting("defaultProgressTrackFolder", value),
+          );
+      });
 
     new Setting(containerEl)
       .setName("Use character system")

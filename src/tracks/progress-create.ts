@@ -1,85 +1,51 @@
 import {
   App,
-  FuzzyMatch,
   Modal,
+  SearchComponent,
   Setting,
   TextComponent,
-  prepareFuzzySearch,
+  normalizePath,
 } from "obsidian";
 import { generateObsidianFilename } from "utils/filename";
-import { processMatches } from "../utils/suggest";
-import { TextInputSuggest } from "../utils/ui/suggest";
+import { FolderTextSuggest } from "utils/ui/settings/folder";
+import { GenericTextSuggest } from "utils/ui/settings/generic-text-suggest";
 import { ChallengeRanks, ProgressTrack } from "./progress";
 
-class GenericTextSuggest extends TextInputSuggest<FuzzyMatch<string>> {
-  constructor(
-    app: App,
-    inputEl: HTMLInputElement,
-    public readonly items: string[],
-  ) {
-    super(app, inputEl);
-  }
-  getSuggestions(inputStr: string): FuzzyMatch<string>[] {
-    const searchFn = prepareFuzzySearch(inputStr);
-    return this.items
-      .flatMap((item) => {
-        const match = searchFn(item);
-        if (match) {
-          return [{ item, match }];
-        } else {
-          return [];
-        }
-      })
-      .sort((a, b) => a.match.score - b.match.score);
-  }
-  renderSuggestion({ item, match }: FuzzyMatch<string>, el: HTMLElement): void {
-    if (item == null) return;
-
-    el.createDiv(undefined, (div) => {
-      processMatches(
-        item,
-        match,
-        (text) => {
-          div.appendText(text);
-        },
-        (text) => {
-          div.createEl("strong", { text });
-        },
-      );
-    });
-    // if (renderExtras != null) {
-    //   renderExtras(match, el);
-    // }
-  }
-  selectSuggestion({ item }: FuzzyMatch<string>): void {
-    this.inputEl.value = item;
-    this.inputEl.trigger("input");
-    this.close();
-  }
-}
+export type ProgressTrackCreateResultType = {
+  rank: ChallengeRanks;
+  progress: number;
+  name: string;
+  tracktype: string;
+  fileName: string;
+  targetFolder: string;
+};
 
 export class ProgressTrackCreateModal extends Modal {
-  public result = {
+  public result: ProgressTrackCreateResultType = {
     rank: ChallengeRanks.Dangerous,
     progress: 0,
     name: "",
     tracktype: "",
     fileName: "",
+    targetFolder: "",
   };
 
   public accepted: boolean = false;
 
   constructor(
     app: App,
+    defaults: Partial<ProgressTrackCreateResultType> = {},
     protected readonly onAccept: (arg: {
       name: string;
       tracktype: string;
+      targetFolder: string;
       fileName: string;
       track: ProgressTrack;
     }) => void,
     protected readonly onCancel: () => void,
   ) {
     super(app);
+    Object.assign(this.result, defaults);
   }
 
   onOpen(): void {
@@ -104,6 +70,31 @@ export class ProgressTrackCreateModal extends Modal {
           this.result.fileName = value;
         })),
     );
+
+    let folderComponent!: SearchComponent;
+    const folderSetting = new Setting(contentEl)
+      .setName("Target folder")
+      .addSearch((search) => {
+        new FolderTextSuggest(this.app, search.inputEl);
+        folderComponent = search
+          .setPlaceholder("Choose a folder")
+          .setValue(this.result.targetFolder)
+          .onChange((newFolder) => {
+            this.result.targetFolder = newFolder;
+            const normalized = normalizePath(newFolder);
+            if (this.app.vault.getFolderByPath(normalized)) {
+              folderSetting.setDesc(
+                `Creating track in existing folder '${normalized}'`,
+              );
+            } else {
+              folderSetting.setDesc(
+                `Creating track in new folder '${normalized}`,
+              );
+            }
+          });
+      });
+
+    folderComponent.onChanged();
 
     // TODO: since the string value equals the display string, i don't actually know if this
     //   is working as intended with the options
@@ -158,6 +149,7 @@ export class ProgressTrackCreateModal extends Modal {
       name: this.result.name,
       tracktype: this.result.tracktype,
       fileName: this.result.fileName,
+      targetFolder: this.result.targetFolder,
       track: ProgressTrack.create_({
         rank: this.result.rank,
         progress: this.result.progress,

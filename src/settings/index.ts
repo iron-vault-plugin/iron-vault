@@ -1,7 +1,7 @@
+import Emittery from "emittery";
 import Handlebars from "handlebars";
 import { ClockFileAdapter } from "tracks/clock-file";
 import { ProgressTrackFileAdapter, ProgressTrackInfo } from "tracks/progress";
-import Emittery from "emittery";
 
 export class ForgedPluginSettings {
   advanceProgressTemplate: string =
@@ -13,6 +13,8 @@ export class ForgedPluginSettings {
   createClockTemplate: string =
     "> [!progress] [[{{clockPath}}|{{clockInfo.name}}]] clock created\n>**Progress:** {{clockInfo.clock.progress}} out of {{clockInfo.clock.segments}} segments filled\n> \n> **Cause of Advance:**\n\n";
   oraclesFolder: string = "";
+
+  defaultProgressTrackFolder: string = "Progress";
 
   momentumResetTemplate: string =
     "> [!mechanics] {{character.name}} burned momentum: {{oldValue}} -> {{newValue}}\n\n";

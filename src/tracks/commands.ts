@@ -1,7 +1,7 @@
 import ForgedPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
 import { createClockNode, createProgressNode } from "mechanics/node-builders";
-import { App, Editor, MarkdownView, TFolder, stringifyYaml } from "obsidian";
+import { App, Editor, MarkdownView, stringifyYaml } from "obsidian";
 import { ForgedPluginSettings, createProgressTemplate } from "settings";
 import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
@@ -93,21 +93,30 @@ export async function createProgressTrack(
   editor: Editor,
 ): Promise<void> {
   const trackInput: {
+    targetFolder: string;
     fileName: string;
     name: string;
     tracktype: string;
     track: ProgressTrack;
   } = await new Promise((onAccept, onReject) => {
-    new ProgressTrackCreateModal(plugin.app, onAccept, onReject).open();
+    new ProgressTrackCreateModal(
+      plugin.app,
+      { targetFolder: plugin.settings.defaultProgressTrackFolder },
+      onAccept,
+      onReject,
+    ).open();
   });
 
   const track =
     ProgressTrackFileAdapter.newFromTrack(trackInput).expect("invalid track");
 
-  // TODO: where these are created should be configurable
-  const progressFolder = plugin.app.vault.getAbstractFileByPath("Progress");
-  if (!(progressFolder instanceof TFolder)) {
-    throw new Error("Expected 'Progress' to be folder");
+  let progressFolder = plugin.app.vault.getFolderByPath(
+    trackInput.targetFolder,
+  );
+  if (!progressFolder) {
+    progressFolder = await plugin.app.vault.createFolder(
+      trackInput.targetFolder,
+    );
   }
 
   // TODO: figure out the templating for this
