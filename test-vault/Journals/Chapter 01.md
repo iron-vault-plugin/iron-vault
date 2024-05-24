@@ -7,14 +7,13 @@ Suddenly, a trap! Oh no!
 
 [Testing](oracle:GivenName)
 
-In sodales sollicitudin enim, vestibulum mollis quam pretium ultrices. Quisque convallis, turpis eget ullamcorper consequat, justo leo vestibulum arcu, ut rutrum massa velit a orci. Sed et convallis neque. Donec laoreet orci at maximus iaculis. Mauris quis enim et ipsum mattis sodales. Etiam lacus felis, consectetur id semper eu, placerat eu odio. Ut consectetur lorem semper, interdum magna quis, tristique nisi. Nunc tempus a elit sed posuere. Proin sodales ornare tortor, sit amet ultricies ipsum pharetra et. Sed a nibh augue. Phasellus risus est, pharetra a lacus ut, placerat vulputate augue. Pellentesque volutpat tempor augue ac posuere. In vitae aliquam enim, ut auctor nibh. Mauris condimentum luctus placerat. Vivamus dapibus neque nisi, in facilisis nisi mattis ac.
-
 Proin maximus, odio non interdum hendrerit, dolor lectus accumsan mauris, id semper neque est sed nulla. Pellentesque tortor velit, ultrices eu feugiat et, commodo nec tortor. Nulla non dui eleifend eros efficitur semper. Morbi suscipit euismod erat, eget accumsan elit commodo at. Maecenas sed lacus sit amet massa imperdiet molestie in at dui. Donec sit amet malesuada ante, lacinia sodales est. Aliquam pretium, felis id pellentesque consectetur, turpis justo sollicitudin tortor, sit amet c4onvallis mi risus sed justo. Cras vulputate purus ac enim laoreet, eget pellentesque nisi malesuada.
 
 > [!spoiler]- This is a secret
 > Oh no I've been found!
 
 Reglar link to [[Example Vow|the vow I swor3e]].
+![[Test Clock]]
 
 ![[Example Vow]]
 ```mechanics
@@ -49,7 +48,7 @@ move "[[Chapter 02]]" {
 progress "[[Defeat]] the enemiez" from-boxes=2 from-ticks=1 level="dangerous" steps=2
 track "Qu*es*ts" from=12 to=18
 xp 1 2
-clock "The [[End]] Comes" from=1 to=2 out-of=4
+clock "[[Test Clock]]" from=1 to=2 out-of=4
 - "Plain oracle, with nested oracle:"
 oracle "[Character Name > Given Name](oracle:GivenName)" roll=34 result="Esana" {
   oracle "Something else" 2 "foo"

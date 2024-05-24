@@ -1,3 +1,4 @@
+import { typecheckPlugin } from "@jgoz/esbuild-plugin-typecheck";
 import builtins from "builtin-modules";
 import esbuild from "esbuild";
 import process from "process";
@@ -9,8 +10,6 @@ if you want to view the source, please visit the github repository of this plugi
 `;
 
 const prod = process.argv[2] === "production";
-
-const ASSETS = ["styles.css", "manifest.json"];
 
 const context = await esbuild.context({
   banner: {
@@ -40,6 +39,7 @@ const context = await esbuild.context({
   sourcemap: prod ? false : "inline",
   treeShaking: true,
   outfile: prod ? "main.js" : "test-vault/.obsidian/plugins/forged/main.js",
+  plugins: [typecheckPlugin({ watch: !prod })],
 });
 
 const cssCtx = await esbuild.context({

@@ -47,15 +47,6 @@ class TrackRenderer {
       return;
     }
     const track = this.plugin.progressIndex.get(file.path);
-    if (!track) {
-      render(
-        // TODO: we should preserve the error?
-        //html`<pre>Error rendering track: ${res.error.message}</pre>`,
-        html`<pre>Error rendering track: track file is invalid</pre>`,
-        this.contentEl,
-      );
-      return;
-    }
     if (this.fileWatcher) {
       this.plugin.app.metadataCache.offref(this.fileWatcher);
     }
@@ -68,6 +59,15 @@ class TrackRenderer {
       },
     );
     this.plugin.registerEvent(this.fileWatcher);
+    if (!track) {
+      render(
+        // TODO: we should preserve the error?
+        //html`<pre>Error rendering track: ${res.error.message}</pre>`,
+        html`<pre>Error rendering track: track file is invalid</pre>`,
+        this.contentEl,
+      );
+      return;
+    }
     await this.renderProgress(track, file);
   }
 
@@ -79,7 +79,9 @@ class TrackRenderer {
     }
     const tpl = html`
       <article class="forged-track">
-        <h3 class="track-name">${md(this.plugin, trackFile.name)}</h3>
+        <h3 class="track-name">
+          ${md(this.plugin, trackFile.name, file.path)}
+        </h3>
         <h5>
           <span class="track-rank">${capitalize(trackFile.track.rank)}</span>
           <span class="track-type">${capitalize(trackFile.trackType)}</span>

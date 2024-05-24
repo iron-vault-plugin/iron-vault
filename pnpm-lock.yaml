@@ -20,6 +20,9 @@ importers:
       '@datasworn/starforged':
         specifier: 0.0.10
         version: 0.0.10
+      '@jgoz/esbuild-plugin-typecheck':
+        specifier: ^4.0.0
+        version: 4.0.0(esbuild@0.21.3)(typescript@5.4.5)
       '@nrsk/sigma':
         specifier: ^3.8.0
         version: 3.8.0
@@ -548,6 +551,16 @@ packages:
   '@jest/types@29.6.3':
     resolution: {integrity: sha512-u3UPsIilWKOM3F9CXtrG8LEJmNxwoCQC/XVj4IKYXvvpx7QIi/Kg1LI5uDmDpKlac62NUtX7eLjRh+jVZcLOzw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+
+  '@jgoz/esbuild-plugin-typecheck@4.0.0':
+    resolution: {integrity: sha512-7yyamv/ahDr1INsPlkrmRxxa60haiGCvifcMniO9eVfSs37bz+f7yb588lNb52geUuzuPnY8Uo0LnbtFHr96BQ==}
+    peerDependencies:
+      '@jgoz/esbuild-plugin-livereload': '>=2.1.0'
+      esbuild: 0.17.x || 0.18.x || 0.19.x || 0.20.x || 0.21.x
+      typescript: '>= 3.5'
+    peerDependenciesMeta:
+      '@jgoz/esbuild-plugin-livereload':
+        optional: true
 
   '@jridgewell/gen-mapping@0.3.3':
     resolution: {integrity: sha512-HLhSWOLRi875zjjMG/r+Nv0oCW8umGb0BgEhyX3dDX3egwZtB8PqLnjz3yedt8R5StBrzcg4aBpnh8UA9D1BoQ==}
@@ -2698,6 +2711,11 @@ snapshots:
       '@types/node': 20.12.12
       '@types/yargs': 17.0.32
       chalk: 4.1.2
+
+  '@jgoz/esbuild-plugin-typecheck@4.0.0(esbuild@0.21.3)(typescript@5.4.5)':
+    dependencies:
+      esbuild: 0.21.3
+      typescript: 5.4.5
 
   '@jridgewell/gen-mapping@0.3.3':
     dependencies:

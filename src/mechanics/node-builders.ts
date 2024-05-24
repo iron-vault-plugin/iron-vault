@@ -1,5 +1,7 @@
 import * as kdl from "kdljs";
+import { Document, Node } from "kdljs";
 import { RollWrapper } from "model/rolls";
+import { MoveDescription, moveIsAction, moveIsProgress } from "moves/desc";
 import { oracleNameWithParents } from "oracles/render";
 import { Clock } from "tracks/clock";
 import { ClockFileAdapter } from "tracks/clock-file";
@@ -50,4 +52,67 @@ export function createOracleNode(roll: RollWrapper, prompt?: string): kdl.Node {
         .map((subroll) => createOracleNode(subroll)),
     ],
   });
+}
+export function generateMechanicsNode(move: MoveDescription): Document {
+  const children: Node[] = [];
+  if (moveIsAction(move)) {
+    const adds = (move.adds ?? []).reduce((acc, { amount }) => acc + amount, 0);
+
+    // Add "add" nodes for each non-zero add
+    children.push(
+      ...(move.adds ?? [])
+        .filter(({ amount }) => amount != 0)
+        .map(({ amount, desc }) =>
+          node("add", { values: [amount, ...(desc ? [desc] : [])] }),
+        ),
+    );
+
+    // Main roll node
+    children.push(
+      node("roll", {
+        values: [move.stat],
+        properties: {
+          action: move.action,
+          stat: move.statVal,
+          adds,
+          vs1: move.challenge1,
+          vs2: move.challenge2,
+        },
+      }),
+    );
+
+    // Momentum burn
+    if (move.burn) {
+      children.push(
+        node("burn", {
+          properties: { from: move.burn.orig, to: move.burn.reset },
+        }),
+      );
+    }
+  } else if (moveIsProgress(move)) {
+    children.push(
+      node("progress-roll", {
+        properties: {
+          // TODO: what about progress track id?
+          // TODO: use a ticks prop instead... or at least use a helper to get this
+          score: Math.floor(move.progressTicks / 4),
+          vs1: move.challenge1,
+          vs2: move.challenge2,
+        },
+      }),
+    );
+  } else {
+    throw new Error("what kind of move is this?");
+  }
+
+  const doc: Document = [
+    node("move", {
+      values: [generateMoveLink(move)],
+      children,
+    }),
+  ];
+  return doc;
+}
+function generateMoveLink(move: MoveDescription): string {
+  return move.id ? `[${move.name}](move:${move.id})` : move.name;
 }

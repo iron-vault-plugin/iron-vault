@@ -81,12 +81,10 @@ function camelCase(str: string): string {
 
 function legacyTrack(specialTrackRule: SpecialTrackRule) {
   const formattedLabel = camelCase(specialTrackRule.label);
-  const trackImageKey = `${formattedLabel}_TrackImage`;
   const progressKey = `${formattedLabel}_Progress`;
   const xpEarnedKey = `${formattedLabel}_XPEarned`;
   return {
     schema: {
-      [trackImageKey]: z.string().optional(),
       [progressKey]: z.number().int().nonnegative(),
       [xpEarnedKey]: z.number().int().nonnegative(),
     },

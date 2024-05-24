@@ -35,16 +35,23 @@ export class Clock implements ClockLike {
     );
   }
 
-  public withSegments(segments: number): this {
-    if (this.segments === segments) return this;
-    return new Clock(this.progress, segments, this.active) as this;
+  public withProgress(progress: number): this {
+    if (!this.active) return this;
+
+    // TODO: should this give an error or something if we attempt to tick beyond the limit?
+    const newProgress = Math.max(Math.min(this.segments, progress), 0);
+    if (newProgress === this.progress) return this;
+    return new Clock(newProgress, this.segments, this.active) as this;
   }
 
   public tick(steps: number = 1): this {
     if (!this.active) return this;
 
     // TODO: should this give an error or something if we attempt to tick beyond the limit?
-    const newProgress = Math.min(this.segments, this.progress + steps);
+    const newProgress = Math.max(
+      Math.min(this.segments, this.progress + steps),
+      0,
+    );
     if (newProgress === this.progress) return this;
     return new Clock(newProgress, this.segments, this.active) as this;
   }

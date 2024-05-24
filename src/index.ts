@@ -34,6 +34,7 @@ import { OracleModal } from "oracles/oracle-modal";
 import { MoveModal } from "moves/move-modal";
 import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 import registerTrackBlock from "tracks/track-block";
+import registerClockBlock from "tracks/clock-block";
 
 export default class ForgedPlugin extends Plugin {
   settings!: ForgedPluginSettings;
@@ -220,6 +221,7 @@ export default class ForgedPlugin extends Plugin {
     registerOracleBlock(this, this.datastore);
     registerMechanicsBlock(this);
     registerTrackBlock(this);
+    registerClockBlock(this);
   }
 
   async activateView() {
