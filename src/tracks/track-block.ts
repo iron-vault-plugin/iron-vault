@@ -79,7 +79,9 @@ class TrackRenderer {
     }
     const tpl = html`
       <article class="forged-track">
-        <h3 class="track-name">${md(this.plugin, trackFile.name)}</h3>
+        <h3 class="track-name">
+          ${md(this.plugin, trackFile.name, file.path)}
+        </h3>
         <h5>
           <span class="track-rank">${capitalize(trackFile.track.rank)}</span>
           <span class="track-type">${capitalize(trackFile.trackType)}</span>
