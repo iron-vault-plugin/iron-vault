@@ -11,8 +11,10 @@
 @import url("dlist-burn.css");
 @import url("dlist-progress.css");
 @import url("dlist-track.css");
+@import url("dlist-track-status.css");
 @import url("dlist-xp.css");
 @import url("dlist-clock.css");
+@import url("dlist-clock-status.css");
 @import url("dlist-oracle.css");
 
 .collapse-iron-vault-mechanics .iron-vault-mechanics {

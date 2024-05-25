@@ -363,6 +363,14 @@ export class MechanicsRenderer {
 
   async renderTrack(target: HTMLElement, node: KdlNode) {
     const trackName = (node.properties.name ?? node.values[0]) as string;
+    const status = node.properties.status as string | undefined;
+    if (status != null) {
+      await this.renderDlist(target, "track-status", {
+        Clock: { cls: "track-name", value: trackName, md: true },
+        Status: { cls: "track-status", value: status },
+      });
+      return;
+    }
     let from = node.properties.from as number;
     const fromBoxes =
       (node.properties["from-boxes"] as number) ??
@@ -408,6 +416,14 @@ export class MechanicsRenderer {
 
   async renderClock(target: HTMLElement, node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
+    const status = node.properties.status as string | undefined;
+    if (status != null) {
+      await this.renderDlist(target, "clock-status", {
+        Clock: { cls: "clock-name", value: name, md: true },
+        Status: { cls: "clock-status", value: status },
+      });
+      return;
+    }
     const from = (node.properties.from ?? node.values[1]) as number;
     const to = (node.properties.to ?? node.values[2]) as number;
     const outOf = (node.properties["out-of"] ?? node.values[3]) as number;

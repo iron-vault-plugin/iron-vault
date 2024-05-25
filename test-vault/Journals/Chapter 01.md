@@ -20,6 +20,7 @@ Reglar link to [[Example Vow|the vow I swor3e]].
 move id="starforged/moves/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"
 	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
+	clock "[[Test Clock]]" status="added"
 }
 - "Oh nooo. This is gonna hurt. Time to [Endure Harm](move:EndureHarm). bla bla bla bla bla bla bla bla bla bla"
 - "Another one here"
