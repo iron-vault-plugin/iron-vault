@@ -25,12 +25,12 @@ assets:
       - false
     controls:
       integrity: 5
-      integrity/battered: false
+      integrity/battered: true
       integrity/cursed: false
     options:
-      label: Arclight
+      name: Arclight
 spirit: 5
-supply: 5
+supply: 4
 Quests_Progress: 4
 Quests_XPEarned: 2
 Bonds_XPEarned: 0
@@ -38,5 +38,5 @@ Bonds_Progress: 0
 Discoveries_XPEarned: 0
 Discoveries_Progress: 0
 ---
-
-asdf
+```iron-vault-character
+```

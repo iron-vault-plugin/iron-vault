@@ -1,0 +1,46 @@
+.iron-vault-character .impact-categories {
+  flex-flow: row wrap;
+  &,
+  & ul {
+    padding-inline-start: 0;
+    display: flex;
+    align-items: start;
+    justify-content: start;
+    gap: 0.4em;
+    list-style: none;
+  }
+  & > li {
+    border: 2px solid var(--background-modifier-border);
+    border-radius: 8px;
+    background-color: var(--background-primary-alt);
+    margin: 0.5em;
+    & > header {
+      font-weight: var(--font-bold);
+      text-transform: uppercase;
+      font-size: 0.8em;
+      width: 100%;
+      text-align: center;
+      padding: 0.4em;
+      border-bottom: 2px solid var(--background-modifier-border);
+    }
+  }
+  & ul {
+    padding: 0.5em;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    flex-flow: column nowrap;
+    & > li {
+      height: 1.4em;
+      padding: 0;
+    }
+  }
+  & li:before {
+    /* Some themes (Like ITS Theme) try to be more clever than they deserve
+      to be with list bullets. Make that b.s. go away. */
+    display: none;
+  }
+  & label > span {
+    font-size: 0.8em;
+  }
+}

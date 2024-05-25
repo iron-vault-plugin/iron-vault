@@ -6,7 +6,6 @@ import { Right } from "../utils/either";
 import { Lens, updating } from "../utils/lens";
 import {
   BaseIronVaultSchema,
-  ImpactStatus,
   IronVaultSheetAssetInput,
   characterLens,
   momentumOps,
@@ -175,40 +174,22 @@ describe("characterLens", () => {
     }).unwrap();
 
     actsLikeLens(lens.impacts, character, {
-      wounded: ImpactStatus.Marked,
-      disappointed: ImpactStatus.Unmarked,
-    });
-
-    it("treats any string other than ⬢ as unmarked", () => {
-      expect(lens.impacts.get(character)).toEqual({
-        wounded: ImpactStatus.Unmarked,
-        disappointed: ImpactStatus.Unmarked,
-      });
+      wounded: true,
+      disappointed: false,
     });
 
     it("treats a missing key as unmarked", () => {
       const character = validater({ ...VALID_INPUT }).unwrap();
       expect(lens.impacts.get(character)).toEqual({
-        wounded: ImpactStatus.Unmarked,
-        disappointed: ImpactStatus.Unmarked,
-      });
-    });
-
-    it("treats ⬢ as marked", () => {
-      expect(
-        lens.impacts.get(
-          lens.impacts.update(character, { wounded: ImpactStatus.Marked }),
-        ),
-      ).toEqual({
-        wounded: ImpactStatus.Marked,
-        disappointed: ImpactStatus.Unmarked,
+        wounded: false,
+        disappointed: false,
       });
     });
 
     it("rejects an invalid impact type", () => {
-      expect(() =>
-        lens.impacts.update(character, { foobar: ImpactStatus.Marked }),
-      ).toThrow("unexpected key in impacts: foobar");
+      expect(() => lens.impacts.update(character, { foobar: true })).toThrow(
+        "unexpected key in impacts: foobar",
+      );
     });
   });
 });
@@ -252,9 +233,7 @@ describe("momentumOps", () => {
     const character = validater({
       ...VALID_INPUT,
       momentum: 3,
-      ...Object.fromEntries(
-        impactKeys.map((key) => [key, ImpactStatus.Marked]),
-      ),
+      ...Object.fromEntries(impactKeys.map((key) => [key, true])),
     }).unwrap();
     it(`caps momentum to ${max}`, () => {
       expect(lens.momentum.get(take(8)(character))).toBe(max);

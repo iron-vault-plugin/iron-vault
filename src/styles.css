@@ -3,6 +3,7 @@
 @import url("oracles/css/oracles.css");
 @import url("tracks/css/tracks.css");
 @import url("clocks/css/clocks.css");
+@import url("characters/css/characters.css");
 
 .theme-light {
   --color-code: 0, 0, 0;
