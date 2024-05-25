@@ -13,10 +13,10 @@
     }
     pointer-events: none;
     fill: orange;
-    fill: var(--background-secondary);
+    fill: var(--interactive-accent);
     fill-opacity: 1;
     stroke: orange;
-    stroke: var(--background-modifier-border);
+    stroke: var(--interactive-normal);
     stroke-width: 4;
     aspect-ratio: 1;
 
@@ -25,7 +25,7 @@
 
       & .clock-segment {
         &:hover {
-          fill: var(--background-modifier-hover);
+          fill: var(--interactive-accent-hover);
           & ~ .clock-segment {
             fill-opacity: 0;
           }
