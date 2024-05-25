@@ -9,7 +9,7 @@ tags:
   - character
 momentum: 6
 health: 5
-forgedkind: character
+iron-vault-kind: character
 assets:
   - id: starforged/assets/path/empath
     abilities:

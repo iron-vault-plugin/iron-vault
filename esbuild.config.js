@@ -38,7 +38,7 @@ const context = await esbuild.context({
   logLevel: "info",
   sourcemap: prod ? false : "inline",
   treeShaking: true,
-  outfile: prod ? "main.js" : "test-vault/.obsidian/plugins/forged/main.js",
+  outfile: prod ? "main.js" : "test-vault/.obsidian/plugins/iron-vault/main.js",
   plugins: [typecheckPlugin({ watch: !prod })],
 });
 
@@ -48,7 +48,7 @@ const cssCtx = await esbuild.context({
   sourcemap: prod ? false : "inline",
   outfile: prod
     ? "styles.css"
-    : "test-vault/.obsidian/plugins/forged/styles.css",
+    : "test-vault/.obsidian/plugins/iron-vault/styles.css",
   loader: {
     ".svg": "dataurl",
   },

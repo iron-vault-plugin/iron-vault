@@ -1,16 +1,16 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import { render, html } from "lit-html";
 
-import ForgedPlugin from "index";
-import renderForgedOracles from "./oracles";
-import renderForgedMoves from "./moves";
+import IronVaultPlugin from "index";
+import renderIronVaultOracles from "./oracles";
+import renderIronVaultMoves from "./moves";
 
-export const VIEW_TYPE = "forged-sidebar-view";
+export const VIEW_TYPE = "iron-vault-sidebar-view";
 
 export class SidebarView extends ItemView {
-  plugin: ForgedPlugin;
+  plugin: IronVaultPlugin;
 
-  constructor(leaf: WorkspaceLeaf, plugin: ForgedPlugin) {
+  constructor(leaf: WorkspaceLeaf, plugin: IronVaultPlugin) {
     super(leaf);
     this.plugin = plugin;
   }
@@ -20,7 +20,7 @@ export class SidebarView extends ItemView {
   }
 
   getDisplayText() {
-    return "Forged";
+    return "Iron Vault";
   }
 
   getIcon() {
@@ -31,7 +31,7 @@ export class SidebarView extends ItemView {
     const container = this.containerEl.children[1];
     container.empty();
     const tpl = html`
-      <nav class="forged-sidebar-view tabs">
+      <nav class="iron-vault-sidebar-view tabs">
         <div class="tab">
           <input type="radio" name="tab-group" id="oracle-tab" checked />
           <label for="oracle-tab">Oracles</label>
@@ -46,11 +46,11 @@ export class SidebarView extends ItemView {
     `;
     render(tpl, container as HTMLElement);
     // We separate these out so they can do their own dynamic state stuff.
-    renderForgedOracles(
+    renderIronVaultOracles(
       container.querySelector(".content.oracle-tab")!,
       this.plugin,
     );
-    renderForgedMoves(
+    renderIronVaultMoves(
       container.querySelector(".content.move-tab")!,
       this.plugin,
     );

@@ -1,13 +1,13 @@
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import { Oracle } from "model/oracle";
 import { App, ButtonComponent, MarkdownView, Modal } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 
 export class OracleModal extends Modal {
-  plugin: ForgedPlugin;
+  plugin: IronVaultPlugin;
   oracle: Oracle;
 
-  constructor(app: App, plugin: ForgedPlugin, oracle: Oracle) {
+  constructor(app: App, plugin: IronVaultPlugin, oracle: Oracle) {
     super(app);
     this.plugin = plugin;
     this.oracle = oracle;
@@ -15,9 +15,9 @@ export class OracleModal extends Modal {
 
   openOracle(oracle: Oracle) {
     const { contentEl } = this;
-    contentEl.toggleClass("forged-modal-content", true);
+    contentEl.toggleClass("iron-vault-modal-content", true);
     this.setTitle(oracle.name);
-    contentEl.classList.toggle("forged-oracle-modal", true);
+    contentEl.classList.toggle("iron-vault-oracle-modal", true);
     (async () => {
       const btn = new ButtonComponent(contentEl);
       btn

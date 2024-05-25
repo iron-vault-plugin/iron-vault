@@ -14,7 +14,7 @@ import {
   rollablesReader,
 } from "../characters/lens";
 import { type Datastore } from "../datastore";
-import ForgedPlugin from "../index";
+import IronVaultPlugin from "../index";
 import { InfoModal } from "../utils/ui/info";
 
 export interface IActionContext {
@@ -143,7 +143,7 @@ function renderError(e: Error, el: HTMLElement): void {
 }
 
 export async function determineCharacterActionContext(
-  plugin: ForgedPlugin,
+  plugin: IronVaultPlugin,
 ): Promise<ActionContext | undefined> {
   if (plugin.settings.useCharacterSystem) {
     try {

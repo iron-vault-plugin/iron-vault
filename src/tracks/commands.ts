@@ -1,8 +1,8 @@
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
 import { createClockNode, createProgressNode } from "mechanics/node-builders";
 import { App, Editor, MarkdownView, stringifyYaml } from "obsidian";
-import { ForgedPluginSettings, createProgressTemplate } from "settings";
+import { IronVaultPluginSettings, createProgressTemplate } from "settings";
 import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ClockIndex, clockUpdater } from "./clock-file";
@@ -14,7 +14,7 @@ import { selectClock } from "./select-clock";
 
 export async function advanceProgressTrack(
   app: App,
-  settings: ForgedPluginSettings,
+  settings: IronVaultPluginSettings,
   editor: Editor,
   view: MarkdownView,
   progressContext: ProgressContext,
@@ -49,7 +49,7 @@ export async function advanceProgressTrack(
 
 export async function advanceClock(
   app: App,
-  settings: ForgedPluginSettings,
+  settings: IronVaultPluginSettings,
   editor: Editor,
   view: MarkdownView,
   clockIndex: ClockIndex,
@@ -89,14 +89,14 @@ export async function advanceClock(
 }
 
 export async function createProgressTrack(
-  plugin: ForgedPlugin,
+  plugin: IronVaultPlugin,
   editor: Editor,
 ): Promise<void> {
   const trackInput: {
     targetFolder: string;
     fileName: string;
     name: string;
-    tracktype: string;
+    trackType: string;
     track: ProgressTrack;
   } = await new Promise((onAccept, onReject) => {
     new ProgressTrackCreateModal(

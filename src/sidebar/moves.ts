@@ -2,13 +2,13 @@ import { Move, MoveCategory } from "@datasworn/core/dist/Datasworn";
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import { MoveModal } from "moves/move-modal";
 import { md } from "utils/ui/directives";
 
-export default async function renderForgedMoves(
+export default async function renderIronVaultMoves(
   cont: HTMLElement,
-  plugin: ForgedPlugin,
+  plugin: IronVaultPlugin,
 ) {
   const loading = cont.createEl("p", { text: "Loading data..." });
   await plugin.datastore.waitForReady;
@@ -16,7 +16,7 @@ export default async function renderForgedMoves(
   litHtmlMoveList(cont, plugin);
 }
 
-function litHtmlMoveList(cont: HTMLElement, plugin: ForgedPlugin) {
+function litHtmlMoveList(cont: HTMLElement, plugin: IronVaultPlugin) {
   const tpl = html`
     <ol class="move-list">
       ${map(plugin.datastore.moveCategories.values(), (cat) =>
@@ -27,7 +27,7 @@ function litHtmlMoveList(cont: HTMLElement, plugin: ForgedPlugin) {
   render(tpl, cont);
 }
 
-function renderCategory(plugin: ForgedPlugin, category: MoveCategory) {
+function renderCategory(plugin: IronVaultPlugin, category: MoveCategory) {
   return html`
   <li class="category" style=${category.color ? `border-left: 6px solid ${category.color}` : ""}>
     <div class="wrapper">
@@ -40,7 +40,7 @@ function renderCategory(plugin: ForgedPlugin, category: MoveCategory) {
   </li>`;
 }
 
-function renderMove(plugin: ForgedPlugin, move: Move) {
+function renderMove(plugin: IronVaultPlugin, move: Move) {
   return html`
     <li
       @click=${(ev: Event) => {

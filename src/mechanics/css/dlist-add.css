@@ -1,4 +1,4 @@
-.forged-mechanics dl.add {
+.iron-vault-mechanics dl.add {
   &:before {
     content: "➕";
   }
@@ -30,4 +30,3 @@
     }
   }
 }
-

@@ -1,6 +1,6 @@
 import { NoSuchOracleError } from "model/errors";
 import { App, Editor } from "obsidian";
-import ForgedPlugin from "../index";
+import IronVaultPlugin from "../index";
 import { Oracle, OracleRollableRow, RollContext } from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
 import { OracleRoller } from "../oracles/roller";
@@ -55,7 +55,7 @@ export async function promptOracleRow(
 }
 
 export async function generateEntity(
-  plugin: ForgedPlugin,
+  plugin: IronVaultPlugin,
   entityDesc: EntityDescriptor<EntitySpec>,
 ): Promise<EntityResults<EntitySpec>> {
   const { datastore } = plugin;
@@ -219,7 +219,7 @@ const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
 };
 
 export async function generateEntityCommand(
-  plugin: ForgedPlugin,
+  plugin: IronVaultPlugin,
   editor: Editor,
 ): Promise<void> {
   const [, entityDesc] = await CustomSuggestModal.select(

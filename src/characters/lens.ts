@@ -42,10 +42,10 @@ export const characterAssetSchema = z.object({
     .default({}),
 });
 
-export type ForgedSheetAssetInput = z.input<typeof characterAssetSchema>;
-export type ForgedSheetAssetSchema = z.output<typeof characterAssetSchema>;
+export type IronVaultSheetAssetInput = z.input<typeof characterAssetSchema>;
+export type IronVaultSheetAssetSchema = z.output<typeof characterAssetSchema>;
 
-export const baseForgedSchema = z
+export const baseIronVaultSchema = z
   .object({
     name: z.string(),
     momentum: z.number().int().gte(-10).lte(10),
@@ -53,7 +53,7 @@ export const baseForgedSchema = z
   })
   .passthrough();
 
-export type BaseForgedSchema = z.input<typeof baseForgedSchema>;
+export type BaseIronVaultSchema = z.input<typeof baseIronVaultSchema>;
 
 export enum ImpactStatus {
   Unmarked = "⬡",
@@ -65,7 +65,7 @@ export interface CharacterLens {
   momentum: Lens<ValidatedCharacter, number>;
   stats: Record<string, Lens<ValidatedCharacter, number>>;
   condition_meters: Record<string, Lens<ValidatedCharacter, number>>;
-  assets: Lens<ValidatedCharacter, ForgedSheetAssetSchema[]>;
+  assets: Lens<ValidatedCharacter, IronVaultSheetAssetSchema[]>;
   impacts: Lens<ValidatedCharacter, Record<string, ImpactStatus>>;
   special_tracks: Record<string, Lens<ValidatedCharacter, ProgressTrack>>;
   ruleset: Ruleset;
@@ -429,7 +429,7 @@ export function characterLens(ruleset: Ruleset): {
   const specialTracks = objectMap(ruleset.special_tracks, (rule) =>
     legacyTrack(rule),
   );
-  const schema = baseForgedSchema.extend({
+  const schema = baseIronVaultSchema.extend({
     ...objectMap(stats, ({ schema }) => schema),
     ...objectMap(condition_meters, ({ schema }) => schema),
     ...Object.fromEntries(
@@ -441,18 +441,21 @@ export function characterLens(ruleset: Ruleset): {
 
   const lens: CharacterLens = {
     name: v(
-      lensForSchemaProp({ path: "name", schema: baseForgedSchema.shape.name }),
+      lensForSchemaProp({
+        path: "name",
+        schema: baseIronVaultSchema.shape.name,
+      }),
     ),
     momentum: v(
       lensForSchemaProp({
         path: "momentum",
-        schema: baseForgedSchema.shape.momentum,
+        schema: baseIronVaultSchema.shape.momentum,
       }),
     ),
     assets: v(
       lensForSchemaProp({
         path: "assets",
-        schema: baseForgedSchema.shape.assets.default([]),
+        schema: baseIronVaultSchema.shape.assets.default([]),
       }),
     ),
     stats: objectMap(stats, (defn) => v(lensForSchemaProp(defn))),

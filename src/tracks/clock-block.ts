@@ -2,15 +2,15 @@ import { html, render, svg } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { range } from "lit-html/directives/range.js";
 
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import { EventRef, TFile } from "obsidian";
 import { vaultProcess } from "utils/obsidian";
 import { ClockFileAdapter, clockUpdater } from "./clock-file";
 import { md } from "utils/ui/directives";
 
-export default function registerClockBlock(plugin: ForgedPlugin): void {
+export default function registerClockBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
-    "forged-clock",
+    "iron-vault-clock",
     async (source: string, el: ClockContainerEl, ctx) => {
       // We can't render blocks until datastore is ready.
       await plugin.datastore.waitForReady;
@@ -30,10 +30,10 @@ interface ClockContainerEl extends HTMLElement {
 class ClockRenderer {
   contentEl: HTMLElement;
   source: string;
-  plugin: ForgedPlugin;
+  plugin: IronVaultPlugin;
   fileWatcher?: EventRef;
 
-  constructor(contentEl: HTMLElement, source: string, plugin: ForgedPlugin) {
+  constructor(contentEl: HTMLElement, source: string, plugin: IronVaultPlugin) {
     this.contentEl = contentEl;
     this.source = source;
     this.plugin = plugin;
@@ -74,7 +74,7 @@ class ClockRenderer {
 
   async renderClock(clockFile: ClockFileAdapter, file: TFile) {
     const tpl = html`
-      <article class="forged-clock">
+      <article class="iron-vault-clock">
         <h3 class="clock-name">
           ${md(this.plugin, clockFile.name, file.path)}
         </h3>

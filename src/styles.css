@@ -12,11 +12,11 @@
   --color-code: 255, 255, 255;
 }
 
-.forged-suggest-hint {
+.iron-vault-suggest-hint {
   color: var(--color-base-50);
 }
 
-.is-phone .modal:has(.forged-modal-content) {
+.is-phone .modal:has(.iron-vault-modal-content) {
   /* Make modals actually closable on mobile. */
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
     env(safe-area-inset-bottom) env(safe-area-inset-left);

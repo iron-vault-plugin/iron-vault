@@ -1,19 +1,19 @@
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import { PluginSettingTab, Setting, type App } from "obsidian";
-import { ForgedPluginSettings } from "settings";
+import { IronVaultPluginSettings } from "settings";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
 
-export class ForgedSettingTab extends PluginSettingTab {
-  plugin: ForgedPlugin;
+export class IronVaultSettingTab extends PluginSettingTab {
+  plugin: IronVaultPlugin;
 
-  constructor(app: App, plugin: ForgedPlugin) {
+  constructor(app: App, plugin: IronVaultPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }
 
-  async updateSetting<K extends keyof ForgedPluginSettings>(
+  async updateSetting<K extends keyof IronVaultPluginSettings>(
     key: K,
-    value: ForgedPluginSettings[K],
+    value: IronVaultPluginSettings[K],
   ) {
     this.plugin.settings[key] = value;
     await this.plugin.saveSettings();

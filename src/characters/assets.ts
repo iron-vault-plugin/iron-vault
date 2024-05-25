@@ -9,7 +9,7 @@ import {
   CharReader,
   CharWriter,
   CharacterLens,
-  ForgedSheetAssetSchema,
+  IronVaultSheetAssetSchema,
 } from "./lens";
 
 export class AssetError extends Error {}
@@ -19,7 +19,10 @@ export function assetWithDefnReader(
   index: DataIndex,
 ): CharReader<
   Array<
-    Either<AssetError, { asset: ForgedSheetAssetSchema; defn: Datasworn.Asset }>
+    Either<
+      AssetError,
+      { asset: IronVaultSheetAssetSchema; defn: Datasworn.Asset }
+    >
   >
 > {
   return reader((source) => {

@@ -7,9 +7,9 @@ import {
 
 import { MoveModal } from "moves/move-modal";
 import { ProgressTrack } from "tracks/progress";
-import ForgedPlugin from "../index";
+import IronVaultPlugin from "../index";
 
-export default function registerMechanicsBlock(plugin: ForgedPlugin): void {
+export default function registerMechanicsBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
     "mechanics",
     async (source, el: MechanicsContainerEl, ctx) => {
@@ -33,7 +33,7 @@ interface MechanicsContainerEl extends HTMLElement {
 }
 
 export class MechanicsRenderer {
-  plugin: ForgedPlugin;
+  plugin: IronVaultPlugin;
   sourcePath: string;
   lastRoll: KdlNode | undefined;
   moveEl: HTMLElement | undefined;
@@ -46,7 +46,7 @@ export class MechanicsRenderer {
   constructor(
     contentEl: HTMLElement,
     source: string,
-    plugin: ForgedPlugin,
+    plugin: IronVaultPlugin,
     sourcePath: string,
   ) {
     this.contentEl = contentEl;
@@ -77,7 +77,7 @@ export class MechanicsRenderer {
     }
     const doc = res.output;
     this.mechNode = this.contentEl.createEl("article", {
-      cls: "forged-mechanics",
+      cls: "iron-vault-mechanics",
     });
     this.mechNode.classList.toggle("collapsed", this.hideMechanics);
     await this.renderChildren(this.mechNode, doc);

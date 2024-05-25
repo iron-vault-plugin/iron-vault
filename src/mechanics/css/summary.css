@@ -1,4 +1,4 @@
-.forged-mechanics .move {
+.iron-vault-mechanics .move {
   &[open] summary:has(+ *) {
     border-bottom: 1px dashed var(--color-base-50);
   }
@@ -23,7 +23,8 @@
     padding: 0.5em 1em;
     text-align: left;
     font-weight: var(--font-extrabold);
-    &::marker, &::-webkit-details-marker {
+    &::marker,
+    &::-webkit-details-marker {
       display: none;
     }
     & > button:last-child {

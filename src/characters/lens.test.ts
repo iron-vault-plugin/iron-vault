@@ -5,8 +5,8 @@ import { ChallengeRanks } from "../tracks/progress";
 import { Right } from "../utils/either";
 import { Lens, updating } from "../utils/lens";
 import {
-  BaseForgedSchema,
-  ForgedSheetAssetInput,
+  BaseIronVaultSchema,
+  IronVaultSheetAssetInput,
   ImpactStatus,
   characterLens,
   momentumOps,
@@ -142,7 +142,7 @@ describe("characterLens", () => {
           abilities: [true, false, false],
           controls: { integrity: 2 },
         },
-      ] as ForgedSheetAssetInput[],
+      ] as IronVaultSheetAssetInput[],
     });
     actsLikeLens(lens.assets, character, [
       {
@@ -407,7 +407,7 @@ describe("movesReader", () => {
                 abilities: [false, false, false],
               },
             ],
-          } satisfies BaseForgedSchema),
+          } satisfies BaseIronVaultSchema),
         ),
       ).toEqual(Right.create([]));
     });
@@ -425,7 +425,7 @@ describe("movesReader", () => {
                   abilities: [false, true, false],
                 },
               ],
-            } satisfies BaseForgedSchema),
+            } satisfies BaseIronVaultSchema),
           )
           .unwrap(),
       ).toHaveLength(0);
@@ -442,7 +442,7 @@ describe("movesReader", () => {
                   abilities: [true, true, false],
                 },
               ],
-            } satisfies BaseForgedSchema),
+            } satisfies BaseIronVaultSchema),
           )
           .unwrap(),
       ).toMatchObject([

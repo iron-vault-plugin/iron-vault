@@ -15,11 +15,11 @@
 @import url("dlist-clock.css");
 @import url("dlist-oracle.css");
 
-.collapse-forged-mechanics .forged-mechanics {
+.collapse-iron-vault-mechanics .iron-vault-mechanics {
   display: none;
 }
 
-.forged-mechanics {
+.iron-vault-mechanics {
   cursor: default;
   margin: 0.5em auto;
   max-width: 460px;

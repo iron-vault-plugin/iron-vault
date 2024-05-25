@@ -1,11 +1,12 @@
-# Obsidian Forged
+# Iron Vault
 
 Obsidian plugin to play Ironsworn/Starforged system games, using the data in
 [datasworn](https://github.com/rsek/datasworn) format.
 
-This owes a lot to [Eric Bright's Forged_in_Obsidian](https://github.com/ericbright2002/Forged_in_Obsidian)
-template vault. I started with that vault and then gradually replaced functionality
-with this plugin.
+This owes a lot to [Eric Bright's
+Forged_in_Obsidian](https://github.com/ericbright2002/Forged_in_Obsidian)
+template vault. I started with that vault and then gradually replaced
+functionality with this plugin.
 
 ## Features
 

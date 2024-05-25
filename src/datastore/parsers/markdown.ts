@@ -11,19 +11,19 @@ export function parserForFrontmatter(
   file: TFile,
   metadata: CachedMetadata | null,
 ): MarkdownDataParser | undefined {
-  if (metadata?.frontmatter?.forged == null) {
+  if (metadata?.frontmatter?.["iron-vault"] == null) {
     return undefined;
   }
-  switch (metadata.frontmatter.forged) {
+  switch (metadata.frontmatter["iron-vault"]) {
     case "dataforged-inline":
       return dataforgedInlineParser;
     case "inline-oracle":
       return inlineOracleParser(file.basename);
     default:
       console.warn(
-        "[file: %s] unexpected value for `forged` in frontmatter: %s",
+        "[file: %s] unexpected value for `iron-vault` in frontmatter: %s",
         file.path,
-        metadata.frontmatter?.forged,
+        metadata.frontmatter?.["iron-vault"],
       );
       return undefined;
   }

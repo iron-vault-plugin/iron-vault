@@ -1,5 +1,5 @@
 import { Move } from "@datasworn/core/dist/Datasworn";
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import {
   App,
   ButtonComponent,
@@ -10,11 +10,11 @@ import {
 import { runMoveCommand } from "./action";
 
 export class MoveModal extends Modal {
-  plugin: ForgedPlugin;
+  plugin: IronVaultPlugin;
   move: Move;
   moveHistory: Move[] = [];
 
-  constructor(app: App, plugin: ForgedPlugin, move: Move) {
+  constructor(app: App, plugin: IronVaultPlugin, move: Move) {
     super(app);
     this.plugin = plugin;
     this.move = move;
@@ -24,7 +24,7 @@ export class MoveModal extends Modal {
     this.setTitle(move.name);
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.toggleClass("forged-modal-content", true);
+    contentEl.toggleClass("iron-vault-modal-content", true);
     (async () => {
       new ButtonComponent(contentEl)
         .setButtonText("Make this move")

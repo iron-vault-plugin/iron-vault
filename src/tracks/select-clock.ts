@@ -20,7 +20,7 @@ export async function selectClock(
       const clock = clockInfo.clock;
       el.createEl("small", {
         text: `${clock.progress} filled of ${clock.segments} total; ${path}`,
-        cls: "forged-suggest-hint",
+        cls: "iron-vault-suggest-hint",
       });
     },
   );

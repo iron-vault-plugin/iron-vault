@@ -4,7 +4,7 @@ import {
   CharacterActionContext,
   determineCharacterActionContext,
 } from "characters/action-context";
-import ForgedPlugin from "index";
+import IronVaultPlugin from "index";
 import {
   type App,
   type Editor,
@@ -82,7 +82,7 @@ async function promptForMove(
       const moveKind = getMoveKind(move);
       el.createEl("small", {
         text: `(${moveKind}) ${move.trigger.text}`,
-        cls: "forged-suggest-hint",
+        cls: "iron-vault-suggest-hint",
       });
     },
     `Select a move`,
@@ -201,7 +201,7 @@ export function validAdds(baseStat: number): number[] {
 }
 
 export async function runMoveCommand(
-  plugin: ForgedPlugin,
+  plugin: IronVaultPlugin,
   editor: Editor,
   view: MarkdownView,
   chosenMove?: Datasworn.Move,
@@ -433,7 +433,7 @@ async function promptForRollable(
       if (item.condition.length > 0) {
         el.createEl("small", {
           text: `Trigger: ${item.condition.flatMap((cond) => cond.text ?? []).join("; ")}`,
-          cls: "forged-suggest-hint",
+          cls: "iron-vault-suggest-hint",
         });
       }
     },

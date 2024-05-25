@@ -17,7 +17,7 @@ export async function selectProgressTrack(
       const track = trackInfo.track;
       el.createEl("small", {
         text: `${trackInfo.trackType}; ${track.boxesFilled}/10 boxes (${track.progress}/40 ticks); ${trackInfo.location}`,
-        cls: "forged-suggest-hint",
+        cls: "iron-vault-suggest-hint",
       });
     },
   );

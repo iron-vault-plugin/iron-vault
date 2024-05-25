@@ -1,5 +1,5 @@
 ---
-forged: inline-oracle
+iron-vault: inline-oracle
 ---
 | dice: 1d6 | Result                                      |     |
 | --------- | ------------------------------------------- | --- |

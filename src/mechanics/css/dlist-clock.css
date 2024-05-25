@@ -1,4 +1,4 @@
-.forged-mechanics dl.clock {
+.iron-vault-mechanics dl.clock {
   &:before {
     content: "🕒";
   }
@@ -8,10 +8,13 @@
         content: ": ";
       }
     }
-    &.from, &.to, &.out-of {
+    &.from,
+    &.to,
+    &.out-of {
       color: var(--text-accent);
     }
-    &.from, &.to {
+    &.from,
+    &.to {
       &:before {
         content: none;
       }
