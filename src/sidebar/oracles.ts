@@ -79,7 +79,7 @@ function getOracleTree(plugin: IronVaultPlugin) {
 function renderOracleList(plugin: IronVaultPlugin) {
   const rulesets = getOracleTree(plugin);
   return html`
-    <ul class="oracles-list">
+    <ul class="iron-vault-oracles-list">
       ${map(rulesets, (r) => renderRuleset(plugin, r))}
     </ul>
   `;

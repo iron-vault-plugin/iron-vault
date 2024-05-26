@@ -1,4 +1,4 @@
-.iron-vault-sidebar-view .move-tab {
+.iron-vault-moves-list {
   & summary span {
     font-size: 1.4em;
     font-weight: var(--font-semibold);

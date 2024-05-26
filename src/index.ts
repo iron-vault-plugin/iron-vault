@@ -35,6 +35,7 @@ import { MoveModal } from "moves/move-modal";
 import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 import registerTrackBlock from "tracks/track-block";
 import registerClockBlock from "tracks/clock-block";
+import registerSidebarBlocks from "sidebar/sidebar-block";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -222,6 +223,7 @@ export default class IronVaultPlugin extends Plugin {
     registerMechanicsBlock(this);
     registerTrackBlock(this);
     registerClockBlock(this);
+    registerSidebarBlocks(this);
   }
 
   async activateView() {

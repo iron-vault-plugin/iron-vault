@@ -18,7 +18,7 @@ export default async function renderIronVaultMoves(
 
 function litHtmlMoveList(cont: HTMLElement, plugin: IronVaultPlugin) {
   const tpl = html`
-    <ol class="move-list">
+    <ol class="iron-vault-moves-list">
       ${map(plugin.datastore.moveCategories.values(), (cat) =>
         renderCategory(plugin, cat),
       )}

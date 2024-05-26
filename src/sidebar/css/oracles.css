@@ -1,4 +1,4 @@
-.iron-vault-sidebar-view .oracle-tab {
+.iron-vault-oracles-list {
   & .ruleset {
     & > .wrapper > details span {
       font-size: 1.4em;
