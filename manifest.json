@@ -1,7 +1,7 @@
 {
   "id": "iron-vault",
   "name": "Iron Vault",
-  "version": "1.20.0",
+  "version": "1.21.0",
   "minAppVersion": "0.15.0",
   "description": "Gameplay plugin/VTT for the Ironsworn/Starforged family of tabletop RPGs",
   "author": "Chris Wegrzyn",
