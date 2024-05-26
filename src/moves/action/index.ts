@@ -230,7 +230,7 @@ export async function runMoveCommand(
     case "progress_roll": {
       moveDescription = await handleProgressRoll(
         plugin.app,
-        new ProgressContext(plugin),
+        new ProgressContext(plugin, context),
         move,
       );
       break;

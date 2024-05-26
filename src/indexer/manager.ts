@@ -8,12 +8,7 @@ import {
   type Vault,
 } from "obsidian";
 import { DataIndex } from "../datastore/data-index";
-import {
-  IndexUpdateResult,
-  Indexer,
-  IndexerId,
-  wrapIndexUpdateError,
-} from "./indexer";
+import { Indexer, IndexerId } from "./indexer";
 
 // function isCharacterFile(
 //   md: CachedMetadata,
@@ -118,15 +113,10 @@ export class IndexManager extends Component {
         indexer.id,
         fileKey,
       );
-      let result: IndexUpdateResult;
-      try {
-        result = indexer.onDeleted(fileKey);
-      } catch (error) {
-        result = wrapIndexUpdateError(error);
-      }
-      if (result.type != "removed") {
+      const result = indexer.onDeleted(fileKey);
+      if (result.type == "not_found") {
         console.warn(
-          "[indexer:%s] [file:%s] unexpected result %o",
+          "[indexer:%s] [file:%s] requested file not found in index",
           indexer.id,
           fileKey,
           result,
@@ -180,13 +170,19 @@ export class IndexManager extends Component {
         newIndexer.id,
       );
 
-      let result: IndexUpdateResult;
+      let result: ReturnType<Indexer["onChanged"]>;
       try {
         result = newIndexer.onChanged(file.path, cache);
       } catch (error) {
-        result = wrapIndexUpdateError(error);
+        result = "error";
+        console.error(
+          "[indexer:%s] [file:%s] unexpected error or result while indexing %o",
+          newIndexer.id,
+          indexKey,
+          error,
+        );
       }
-      switch (result.type) {
+      switch (result) {
         case "indexed":
           console.log(
             "[indexer:%s] [file:%s] indexed",
@@ -195,7 +191,7 @@ export class IndexManager extends Component {
           );
           this.indexedFiles.set(indexKey, newIndexer.id);
           break;
-        case "not_indexable":
+        case "wont_index":
           console.log(
             "[indexer:%s] [file:%s] not indexable",
             newIndexer.id,
@@ -205,7 +201,7 @@ export class IndexManager extends Component {
         case "error":
         default:
           console.error(
-            "[indexer:%s] [file:%s] unexpected error or result while indexing %o",
+            "[indexer:%s] [file:%s] error while indexing",
             newIndexer.id,
             indexKey,
             result,

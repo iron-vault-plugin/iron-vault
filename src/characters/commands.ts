@@ -6,6 +6,10 @@ import { firstUppercase } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
 import {
+  NoCharacterActionConext as NoCharacterActionContext,
+  determineCharacterActionContext,
+} from "./action-context";
+import {
   addAsset,
   defaultMarkedAbilitiesForAsset,
   getPathLabel,
@@ -18,7 +22,14 @@ export async function addAssetToCharacter(
   _editor: Editor,
   _view: MarkdownView,
 ): Promise<void> {
-  const [path, context] = plugin.characters.activeCharacter();
+  const actionContext = await determineCharacterActionContext(plugin);
+  // TODO: maybe we could make this part of the checkCallback? (i.e., if we are in no character
+  // mode, don't even bother to list this command?)
+  if (!actionContext || actionContext instanceof NoCharacterActionContext) {
+    return;
+  }
+  const path = actionContext.characterPath;
+  const context = actionContext.characterContext;
   const { character, lens } = context;
   const characterAssets = lens.assets.get(character);
 

@@ -2,7 +2,7 @@ import { type Datasworn } from "@datasworn/core";
 import { App } from "obsidian";
 import { ConditionMeterDefinition } from "rules/ruleset";
 import { vaultProcess } from "utils/obsidian";
-import { CharacterContext } from "../character-tracker";
+import { CharacterContext, activeCharacter } from "../character-tracker";
 import {
   CharReader,
   MOMENTUM_METER_DEFINITION,
@@ -142,13 +142,31 @@ function renderError(e: Error, el: HTMLElement): void {
   }
 }
 
+export async function requireActiveCharacterContext(
+  plugin: IronVaultPlugin,
+): Promise<CharacterActionContext> {
+  const context = await determineCharacterActionContext(plugin);
+  if (!context || !(context instanceof CharacterActionContext)) {
+    await InfoModal.show(
+      plugin.app,
+      "Command requires an active character, but none was found.",
+    );
+    throw new Error(
+      "Command requires an active character, but none was found.",
+    );
+  }
+
+  return context;
+}
+
 export async function determineCharacterActionContext(
   plugin: IronVaultPlugin,
 ): Promise<ActionContext | undefined> {
   if (plugin.settings.useCharacterSystem) {
     try {
-      const [characterPath, characterContext] =
-        plugin.characters.activeCharacter();
+      const [characterPath, characterContext] = activeCharacter(
+        plugin.characters,
+      );
       return new CharacterActionContext(
         plugin.datastore,
         characterPath,
@@ -168,6 +186,7 @@ export async function determineCharacterActionContext(
       }
 
       await InfoModal.show(plugin.app, div);
+      // TODO: maybe this should just raise an exception because the alternative is boring.
       return undefined;
     }
   } else {

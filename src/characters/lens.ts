@@ -1,4 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
+import { zodResultToEither } from "utils/zodutils";
 import { z } from "zod";
 import { DataIndex } from "../datastore/data-index";
 import {
@@ -413,8 +414,12 @@ export function rollablesReader(
   });
 }
 
+export type CharacterValidater = (
+  data: unknown,
+) => Either<z.ZodError, ValidatedCharacter>;
+
 export function characterLens(ruleset: Ruleset): {
-  validater: (data: unknown) => ValidatedCharacter;
+  validater: CharacterValidater;
   lens: CharacterLens;
 } {
   const v = validated(ruleset);
@@ -467,12 +472,11 @@ export function characterLens(ruleset: Ruleset): {
     ruleset,
   };
 
-  function validater(data: unknown): ValidatedCharacter {
-    const raw = schema.parse(data);
-    return {
+  function validater(data: unknown): Either<z.ZodError, ValidatedCharacter> {
+    return zodResultToEither(schema.safeParse(data)).map((raw) => ({
       raw,
       [ValidationTag]: ruleset.id,
-    };
+    }));
   }
 
   return { validater, lens };

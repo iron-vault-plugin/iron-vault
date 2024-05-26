@@ -11,6 +11,7 @@ import {
   ActionContext,
   CharacterActionContext,
   determineCharacterActionContext,
+  requireActiveCharacterContext,
 } from "./action-context";
 import { MeterWithLens, MeterWithoutLens, momentumOps } from "./lens";
 
@@ -18,7 +19,11 @@ export async function burnMomentum(
   plugin: IronVaultPlugin,
   editor: Editor,
 ): Promise<void> {
-  const [path, charContext] = plugin.characters.activeCharacter();
+  const actionContext = await requireActiveCharacterContext(plugin);
+  const [path, charContext] = [
+    actionContext.characterPath,
+    actionContext.characterContext,
+  ];
   const { lens, character } = charContext;
   const oldValue = lens.momentum.get(character);
   if (oldValue > 0) {

@@ -2,7 +2,7 @@ import { produce } from "immer";
 import { CachedMetadata } from "obsidian";
 import { normalizeKeys } from "utils/zodutils";
 import { ZodError, z } from "zod";
-import { BaseIndexer } from "../indexer/indexer";
+import { BaseIndexer, IndexOf, IndexUpdate } from "../indexer/indexer";
 import { Either, Left, Right } from "../utils/either";
 
 export enum ChallengeRanks {
@@ -287,20 +287,18 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
   }
 }
 
-export class ProgressIndexer extends BaseIndexer<ProgressTrackFileAdapter> {
+export class ProgressIndexer extends BaseIndexer<
+  ProgressTrackFileAdapter,
+  z.ZodError
+> {
   readonly id: string = "progress";
-
-  constructor(index: ProgressIndex) {
-    super(index);
-  }
 
   processFile(
     path: string,
     cache: CachedMetadata,
-  ): ProgressTrackFileAdapter | undefined {
-    // TODO: we should use our Either support now to handle this
-    return ProgressTrackFileAdapter.create(cache.frontmatter).unwrap();
+  ): IndexUpdate<ProgressTrackFileAdapter, z.ZodError> {
+    return ProgressTrackFileAdapter.create(cache.frontmatter);
   }
 }
 
-export type ProgressIndex = Map<string, ProgressTrackFileAdapter>;
+export type ProgressIndex = IndexOf<ProgressIndexer>;

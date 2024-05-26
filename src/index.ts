@@ -1,15 +1,25 @@
+import { ViewPlugin, ViewUpdate } from "@codemirror/view";
+import { determineCharacterActionContext } from "characters/action-context";
 import { addAssetToCharacter } from "characters/commands";
 import { generateEntityCommand } from "entity/command";
 import { IndexManager } from "indexer/manager";
 import { runMoveCommand } from "moves/action";
+import installMoveLinkHandler from "moves/link-override";
+import { MoveModal } from "moves/move-modal";
 import {
   Plugin,
   type Editor,
   type MarkdownFileInfo,
   type MarkdownView,
 } from "obsidian";
+import installOracleLinkHandler from "oracles/link-override";
+import { OracleModal } from "oracles/oracle-modal";
 import { IronVaultPluginSettings } from "settings";
+import registerSidebarBlocks from "sidebar/sidebar-block";
+import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
+import registerClockBlock from "tracks/clock-block";
 import { ProgressContext } from "tracks/context";
+import registerTrackBlock from "tracks/track-block";
 import { IronVaultAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
 import * as meterCommands from "./characters/meter-commands";
@@ -27,22 +37,16 @@ import {
 } from "./tracks/commands";
 import { ProgressIndex, ProgressIndexer } from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
-import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
-import installMoveLinkHandler from "moves/link-override";
-import installOracleLinkHandler from "oracles/link-override";
-import { OracleModal } from "oracles/oracle-modal";
-import { MoveModal } from "moves/move-modal";
-import { ViewPlugin, ViewUpdate } from "@codemirror/view";
-import registerTrackBlock from "tracks/track-block";
-import registerClockBlock from "tracks/clock-block";
-import registerSidebarBlocks from "sidebar/sidebar-block";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
   datastore!: Datastore;
-  characters!: CharacterTracker;
-  progressIndex!: ProgressIndex;
-  clockIndex!: ClockIndex;
+  // characters!: CharacterTracker;
+  // progressIndex!: ProgressIndex;
+  // clockIndex!: ClockIndex;
+  characterIndexer!: CharacterIndexer;
+  progressIndexer!: ProgressIndexer;
+  clockIndexer!: ClockIndexer;
   indexManager!: IndexManager;
   api!: IronVaultAPI;
 
@@ -56,21 +60,32 @@ export default class IronVaultPlugin extends Plugin {
     return pluginAsset(this, assetPath);
   }
 
+  get characters(): CharacterTracker {
+    return this.characterIndexer.index;
+  }
+
+  get clockIndex(): ClockIndex {
+    return this.clockIndexer.index;
+  }
+
+  get progressIndex(): ProgressIndex {
+    return this.progressIndexer.index;
+  }
+
   async onload(): Promise<void> {
     await this.loadSettings();
 
     this.datastore = this.addChild(new Datastore(this));
-    this.characters = new CharacterTracker();
-    this.progressIndex = new Map();
-    this.clockIndex = new Map();
     this.indexManager = this.addChild(
       new IndexManager(this.app, this.datastore.index),
     );
     this.indexManager.registerHandler(
-      new CharacterIndexer(this.characters, this.datastore),
+      (this.characterIndexer = new CharacterIndexer(this.datastore)),
     );
-    this.indexManager.registerHandler(new ProgressIndexer(this.progressIndex));
-    this.indexManager.registerHandler(new ClockIndexer(this.clockIndex));
+    this.indexManager.registerHandler(
+      (this.progressIndexer = new ProgressIndexer()),
+    );
+    this.indexManager.registerHandler((this.clockIndexer = new ClockIndexer()));
 
     if (this.app.workspace.layoutReady) {
       await this.initialize();
@@ -131,12 +146,14 @@ export default class IronVaultPlugin extends Plugin {
       id: "progress-advance",
       name: "Advance a Progress Track",
       editorCallback: async (editor, ctx) => {
+        const actionContext = await determineCharacterActionContext(this);
+        if (!actionContext) return;
         await advanceProgressTrack(
           this.app,
           this.settings,
           editor,
           ctx as MarkdownView,
-          new ProgressContext(this),
+          new ProgressContext(this, actionContext),
         );
       },
     });

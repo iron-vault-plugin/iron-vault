@@ -3,6 +3,7 @@ import { md } from "utils/ui/directives";
 
 import IronVaultPlugin from "index";
 import { EventRef, TFile } from "obsidian";
+import { Left } from "utils/either";
 import { vaultProcess } from "utils/obsidian";
 import { ProgressTrackFileAdapter } from "./progress";
 import { progressTrackUpdater } from "./writer";
@@ -46,7 +47,6 @@ class TrackRenderer {
       );
       return;
     }
-    const track = this.plugin.progressIndex.get(file.path);
     if (this.fileWatcher) {
       this.plugin.app.metadataCache.offref(this.fileWatcher);
     }
@@ -59,16 +59,18 @@ class TrackRenderer {
       },
     );
     this.plugin.registerEvent(this.fileWatcher);
-    if (!track) {
+
+    const result =
+      this.plugin.progressIndex.get(file.path) ??
+      Left.create(new Error("track not indexed"));
+    if (result.isLeft()) {
       render(
-        // TODO: we should preserve the error?
-        //html`<pre>Error rendering track: ${res.error.message}</pre>`,
-        html`<pre>Error rendering track: track file is invalid</pre>`,
+        html`<pre>Error rendering track: ${result.error.message}</pre>`,
         this.contentEl,
       );
       return;
     }
-    await this.renderProgress(track, file);
+    await this.renderProgress(result.value, file);
   }
 
   async renderProgress(trackFile: ProgressTrackFileAdapter, file: TFile) {
