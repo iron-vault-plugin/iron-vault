@@ -1,6 +1,8 @@
 import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 import { determineCharacterActionContext } from "characters/action-context";
 import { addAssetToCharacter } from "characters/commands";
+import registerClockBlock from "clocks/clock-block";
+import { advanceClock } from "clocks/commands";
 import { generateEntityCommand } from "entity/command";
 import { IndexManager } from "indexer/manager";
 import { runMoveCommand } from "moves/action";
@@ -17,24 +19,19 @@ import { OracleModal } from "oracles/oracle-modal";
 import { IronVaultPluginSettings } from "settings";
 import registerSidebarBlocks from "sidebar/sidebar-block";
 import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
-import registerClockBlock from "tracks/clock-block";
 import { ProgressContext } from "tracks/context";
 import registerTrackBlock from "tracks/track-block";
 import { IronVaultAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
 import * as meterCommands from "./characters/meter-commands";
+import { ClockIndex, ClockIndexer } from "./clocks/clock-file";
 import { Datastore } from "./datastore";
 import registerMechanicsBlock from "./mechanics/mechanics-blocks";
 import { registerMoveBlock } from "./moves/block";
 import { runOracleCommand } from "./oracles/command";
 import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
-import { ClockIndex, ClockIndexer } from "./tracks/clock-file";
-import {
-  advanceClock,
-  advanceProgressTrack,
-  createProgressTrack,
-} from "./tracks/commands";
+import { advanceProgressTrack, createProgressTrack } from "./tracks/commands";
 import { ProgressIndex, ProgressIndexer } from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
 

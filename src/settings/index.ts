@@ -1,6 +1,6 @@
+import { ClockFileAdapter } from "clocks/clock-file";
 import Emittery from "emittery";
 import Handlebars from "handlebars";
-import { ClockFileAdapter } from "tracks/clock-file";
 import { ProgressTrackFileAdapter, ProgressTrackInfo } from "tracks/progress";
 
 export class IronVaultPluginSettings {

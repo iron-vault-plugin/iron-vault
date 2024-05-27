@@ -1,21 +1,17 @@
 import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
 import {
-  createClockNode,
   createProgressNode,
   createTrackCreationNode,
 } from "mechanics/node-builders";
 import { App, Editor, MarkdownView, stringifyYaml } from "obsidian";
 import { IronVaultPluginSettings } from "settings";
 import { BLOCK_TYPE__TRACK } from "../constants";
-import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
-import { ClockIndex, clockUpdater } from "./clock-file";
 import { ProgressContext } from "./context";
 import { ProgressTrack, ProgressTrackFileAdapter } from "./progress";
 import { ProgressTrackCreateModal } from "./progress-create";
 import { selectProgressTrack } from "./select";
-import { selectClock } from "./select-clock";
 
 export async function advanceProgressTrack(
   app: App,
@@ -49,47 +45,6 @@ export async function advanceProgressTrack(
   appendNodesToMoveOrMechanicsBlock(
     editor,
     createProgressNode(trackContext, steps),
-  );
-}
-
-export async function advanceClock(
-  app: App,
-  settings: IronVaultPluginSettings,
-  editor: Editor,
-  view: MarkdownView,
-  clockIndex: ClockIndex,
-) {
-  // TODO: clearly we should have something like this checking the indexer
-  // if (!datastore.ready) {
-  //   console.warn("data not ready");
-  //   return;
-  // }
-  const [clockPath, clockInfo] = await selectClock(
-    clockIndex,
-    app,
-    ([, clockInfo]) => clockInfo.clock.active && !clockInfo.clock.isFilled,
-  );
-
-  const ticks = await CustomSuggestModal.select(
-    app,
-    Array(clockInfo.clock.ticksRemaining())
-      .fill(0)
-      .map((_, i) => i + 1),
-    (num) => num.toString(),
-    undefined,
-    "Select number of segments to fill.",
-  );
-
-  const newClock = await clockUpdater(
-    vaultProcess(app, clockPath),
-    (clockAdapter) => {
-      return clockAdapter.updatingClock((clock) => clock.tick(ticks));
-    },
-  );
-
-  appendNodesToMoveOrMechanicsBlock(
-    editor,
-    createClockNode(clockPath, clockInfo, newClock.clock),
   );
 }
 
