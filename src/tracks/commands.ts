@@ -1,8 +1,13 @@
 import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
-import { createClockNode, createProgressNode } from "mechanics/node-builders";
+import {
+  createClockNode,
+  createProgressNode,
+  createTrackCreationNode,
+} from "mechanics/node-builders";
 import { App, Editor, MarkdownView, stringifyYaml } from "obsidian";
-import { IronVaultPluginSettings, createProgressTemplate } from "settings";
+import { IronVaultPluginSettings } from "settings";
+import { BLOCK_TYPE__TRACK } from "../constants";
 import { vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ClockIndex, clockUpdater } from "./clock-file";
@@ -127,10 +132,8 @@ export async function createProgressTrack(
     `---\n${stringifyYaml(track.raw)}\n---\n\n# ${track.name}\n\n`,
   );
 
-  editor.replaceSelection(
-    createProgressTemplate(plugin.settings)({
-      trackInfo: track,
-      trackPath: file.path,
-    }),
+  appendNodesToMoveOrMechanicsBlock(
+    editor,
+    createTrackCreationNode(trackInput.name, file.path),
   );
 }
