@@ -129,7 +129,7 @@ export async function createProgressTrack(
     progressFolder,
     trackInput.fileName,
     "md",
-    `---\n${stringifyYaml(track.raw)}\n---\n\n# ${track.name}\n\n`,
+    `---\n${stringifyYaml(track.raw)}\n---\n\n\`\`\`${BLOCK_TYPE__TRACK}\n\`\`\`\n\n`,
   );
 
   appendNodesToMoveOrMechanicsBlock(
