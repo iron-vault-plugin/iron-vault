@@ -22,6 +22,30 @@ export function createProgressNode(
   });
 }
 
+export function createTrackCreationNode(
+  trackName: string,
+  trackPath: string,
+): kdl.Node {
+  return node("track", {
+    properties: {
+      name: `[[${trackPath}|${trackName}]]`,
+      status: "added",
+    },
+  });
+}
+
+export function createClockCreationNode(
+  clockName: string,
+  clockPath: string,
+): kdl.Node {
+  return node("clock", {
+    properties: {
+      name: `[[${clockPath}|${clockName}]]`,
+      status: "added",
+    },
+  });
+}
+
 export function createClockNode(
   clockPath: string,
   sourceClock: ClockFileAdapter,
@@ -53,6 +77,7 @@ export function createOracleNode(roll: RollWrapper, prompt?: string): kdl.Node {
     ],
   });
 }
+
 export function generateMechanicsNode(move: MoveDescription): Document {
   const children: Node[] = [];
   if (moveIsAction(move)) {

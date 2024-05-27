@@ -366,7 +366,7 @@ export class MechanicsRenderer {
     const status = node.properties.status as string | undefined;
     if (status != null) {
       await this.renderDlist(target, "track-status", {
-        Clock: { cls: "track-name", value: trackName, md: true },
+        Track: { cls: "track-name", value: trackName, md: true },
         Status: { cls: "track-status", value: status },
       });
       return;
