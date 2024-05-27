@@ -8,7 +8,7 @@ export async function selectClock(
   app: App,
   filter?: (track: [string, ClockFileAdapter]) => boolean,
 ): Promise<[string, ClockFileAdapter]> {
-  let clocks = [...clockIndex.entries()];
+  let clocks = [...clockIndex.ofValid.entries()];
   if (filter) {
     clocks = clocks.filter(filter);
   }

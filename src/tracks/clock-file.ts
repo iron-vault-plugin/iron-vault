@@ -1,8 +1,9 @@
 import { produce } from "immer";
+import { Index } from "indexer/index-impl";
 import { CachedMetadata } from "obsidian";
 import { normalizeKeys } from "utils/zodutils";
 import { z } from "zod";
-import { BaseIndexer } from "../indexer/indexer";
+import { BaseIndexer, IndexUpdate } from "../indexer/indexer";
 import { Either, Left } from "../utils/either";
 import { updater } from "../utils/update";
 import { Clock } from "./clock";
@@ -83,15 +84,14 @@ export class ClockFileAdapter {
   }
 }
 
-export class ClockIndexer extends BaseIndexer<ClockFileAdapter> {
+export class ClockIndexer extends BaseIndexer<ClockFileAdapter, z.ZodError> {
   readonly id: string = "clock";
 
   processFile(
     path: string,
     cache: CachedMetadata,
-  ): ClockFileAdapter | undefined {
-    // TODO: we should use our Either support now to handle this
-    return ClockFileAdapter.create(cache.frontmatter).unwrap();
+  ): IndexUpdate<ClockFileAdapter, z.ZodError> {
+    return ClockFileAdapter.create(cache.frontmatter);
   }
 }
 
@@ -102,4 +102,4 @@ export const clockUpdater = updater<ClockFileAdapter>(
   (tracker) => tracker.raw,
 );
 
-export type ClockIndex = Map<string, ClockFileAdapter>;
+export type ClockIndex = Index<ClockFileAdapter, z.ZodError>;

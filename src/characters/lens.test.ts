@@ -6,8 +6,8 @@ import { Right } from "../utils/either";
 import { Lens, updating } from "../utils/lens";
 import {
   BaseIronVaultSchema,
-  IronVaultSheetAssetInput,
   ImpactStatus,
+  IronVaultSheetAssetInput,
   characterLens,
   momentumOps,
   movesReader,
@@ -66,17 +66,19 @@ describe("validater", () => {
   const { validater } = characterLens(TEST_RULESET);
 
   it("returns a validated character on valid input", () => {
-    expect(validatedAgainst(TEST_RULESET, validater(VALID_INPUT))).toBeTruthy();
+    expect(
+      validatedAgainst(TEST_RULESET, validater(VALID_INPUT).unwrap()),
+    ).toBeTruthy();
   });
 
   it("requires stat properties", () => {
     const data = { ...VALID_INPUT, wits: undefined };
-    expect(() => validater(data)).toThrow(/wits/);
+    expect(validater(data).unwrapError().message).toMatch(/wits/);
   });
 
   it("requires condition meter properties", () => {
     const data = { ...VALID_INPUT, health: undefined };
-    expect(() => validater(data)).toThrow(/health/);
+    expect(validater(data).unwrapError().message).toMatch(/health/);
   });
 });
 
@@ -98,13 +100,13 @@ describe("characterLens", () => {
     const character = validater({
       ...VALID_INPUT,
       name: "Test Name",
-    });
+    }).unwrap();
 
     actsLikeLens(lens.name, character, "Foo");
   });
 
   describe("stat", () => {
-    const character = validater({ ...VALID_INPUT, wits: 3 });
+    const character = validater({ ...VALID_INPUT, wits: 3 }).unwrap();
     actsLikeLens(lens.stats.wits, character, 4);
 
     it("enforces a minimum", () => {
@@ -117,7 +119,7 @@ describe("characterLens", () => {
   });
 
   describe("stat", () => {
-    const character = validater({ ...VALID_INPUT, health: 3 });
+    const character = validater({ ...VALID_INPUT, health: 3 }).unwrap();
     actsLikeLens(lens.condition_meters.health, character, 4);
 
     it("enforces a minimum", () => {
@@ -143,7 +145,7 @@ describe("characterLens", () => {
           controls: { integrity: 2 },
         },
       ] as IronVaultSheetAssetInput[],
-    });
+    }).unwrap();
     actsLikeLens(lens.assets, character, [
       {
         id: "new_asset",
@@ -160,7 +162,9 @@ describe("characterLens", () => {
     });
 
     it("get returns an empty array if missing in source", () => {
-      expect(lens.assets.get(validater({ ...VALID_INPUT }))).toStrictEqual([]);
+      expect(
+        lens.assets.get(validater({ ...VALID_INPUT }).unwrap()),
+      ).toStrictEqual([]);
     });
   });
 
@@ -168,7 +172,7 @@ describe("characterLens", () => {
     const character = validater({
       ...VALID_INPUT,
       wounded: "a",
-    });
+    }).unwrap();
 
     actsLikeLens(lens.impacts, character, {
       wounded: ImpactStatus.Marked,
@@ -183,7 +187,7 @@ describe("characterLens", () => {
     });
 
     it("treats a missing key as unmarked", () => {
-      const character = validater({ ...VALID_INPUT });
+      const character = validater({ ...VALID_INPUT }).unwrap();
       expect(lens.impacts.get(character)).toEqual({
         wounded: ImpactStatus.Unmarked,
         disappointed: ImpactStatus.Unmarked,
@@ -216,23 +220,23 @@ describe("momentumOps", () => {
   describe("with no impacts marked", () => {
     describe("take", () => {
       it("adds momentum", () => {
-        const character = validater({ ...VALID_INPUT, momentum: 3 });
+        const character = validater({ ...VALID_INPUT, momentum: 3 }).unwrap();
         expect(lens.momentum.get(take(3)(character))).toBe(6);
       });
 
       it("enforces a maximum", () => {
-        const character = validater({ ...VALID_INPUT, momentum: 3 });
+        const character = validater({ ...VALID_INPUT, momentum: 3 }).unwrap();
         expect(lens.momentum.get(take(8)(character))).toBe(10);
       });
     });
 
     describe("suffer", () => {
       it("removes momentum", () => {
-        const character = validater({ ...VALID_INPUT, momentum: 3 });
+        const character = validater({ ...VALID_INPUT, momentum: 3 }).unwrap();
         expect(lens.momentum.get(suffer(3)(character))).toBe(0);
       });
       it("enforces a minimum of -6", () => {
-        const character = validater({ ...VALID_INPUT, momentum: 3 });
+        const character = validater({ ...VALID_INPUT, momentum: 3 }).unwrap();
         expect(lens.momentum.get(suffer(10)(character))).toBe(-6);
       });
     });
@@ -251,7 +255,7 @@ describe("momentumOps", () => {
       ...Object.fromEntries(
         impactKeys.map((key) => [key, ImpactStatus.Marked]),
       ),
-    });
+    }).unwrap();
     it(`caps momentum to ${max}`, () => {
       expect(lens.momentum.get(take(8)(character))).toBe(max);
     });
@@ -392,7 +396,9 @@ describe("movesReader", () => {
 
     it("is empty if no assets", () => {
       expect(
-        movesReader(lens, mockIndex).get(validater({ ...VALID_INPUT })),
+        movesReader(lens, mockIndex).get(
+          validater({ ...VALID_INPUT }).unwrap(),
+        ),
       ).toEqual(Right.create([]));
     });
 
@@ -407,7 +413,7 @@ describe("movesReader", () => {
                 abilities: [false, false, false],
               },
             ],
-          } satisfies BaseIronVaultSchema),
+          } satisfies BaseIronVaultSchema).unwrap(),
         ),
       ).toEqual(Right.create([]));
     });
@@ -425,7 +431,7 @@ describe("movesReader", () => {
                   abilities: [false, true, false],
                 },
               ],
-            } satisfies BaseIronVaultSchema),
+            } satisfies BaseIronVaultSchema).unwrap(),
           )
           .unwrap(),
       ).toHaveLength(0);
@@ -442,7 +448,7 @@ describe("movesReader", () => {
                   abilities: [true, true, false],
                 },
               ],
-            } satisfies BaseIronVaultSchema),
+            } satisfies BaseIronVaultSchema).unwrap(),
           )
           .unwrap(),
       ).toMatchObject([
@@ -466,15 +472,15 @@ describe("Special Tracks", () => {
   });
 
   it("requires Progress field", () => {
-    expect(() => validater({ ...VALID_INPUT, Quests_XPEarned: 0 })).toThrow(
-      /Quests_Progress/,
-    );
+    expect(
+      validater({ ...VALID_INPUT, Quests_XPEarned: 0 }).unwrapError().message,
+    ).toMatch(/Quests_Progress/);
   });
 
   it("requires XPEarned field", () => {
-    expect(() => validater({ ...VALID_INPUT, Quests_Progress: 0 })).toThrow(
-      /Quests_XPEarned/,
-    );
+    expect(
+      validater({ ...VALID_INPUT, Quests_Progress: 0 }).unwrapError().message,
+    ).toMatch(/Quests_XPEarned/);
   });
 
   it("extracts a progress track", () => {
@@ -482,7 +488,7 @@ describe("Special Tracks", () => {
       ...VALID_INPUT,
       Quests_Progress: 4,
       Quests_XPEarned: 2,
-    });
+    }).unwrap();
     const track = lens.special_tracks["quests_legacy"].get(character);
     expect(track).toMatchObject({
       progress: 4,
@@ -497,7 +503,7 @@ describe("Special Tracks", () => {
       ...VALID_INPUT,
       Quests_Progress: 4,
       Quests_XPEarned: 2,
-    });
+    }).unwrap();
     expect(
       updating(lens.special_tracks["quests_legacy"], (track) =>
         track.advanced(2),
@@ -513,7 +519,7 @@ describe("Special Tracks", () => {
       ...VALID_INPUT,
       Quests_Progress: 4,
       Quests_XPEarned: 2,
-    });
+    }).unwrap();
     expect(
       updating(lens.special_tracks["quests_legacy"], (track) =>
         track.advanced(4),

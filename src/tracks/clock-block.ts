@@ -4,9 +4,10 @@ import { range } from "lit-html/directives/range.js";
 
 import IronVaultPlugin from "index";
 import { EventRef, TFile } from "obsidian";
+import { Left } from "utils/either";
 import { vaultProcess } from "utils/obsidian";
-import { ClockFileAdapter, clockUpdater } from "./clock-file";
 import { md } from "utils/ui/directives";
+import { ClockFileAdapter, clockUpdater } from "./clock-file";
 
 export default function registerClockBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -47,7 +48,6 @@ class ClockRenderer {
       );
       return;
     }
-    const clock = this.plugin.clockIndex.get(file.path);
     if (this.fileWatcher) {
       this.plugin.app.metadataCache.offref(this.fileWatcher);
     }
@@ -60,16 +60,18 @@ class ClockRenderer {
       },
     );
     this.plugin.registerEvent(this.fileWatcher);
-    if (!clock) {
+
+    const result =
+      this.plugin.clockIndex.get(file.path) ??
+      Left.create(new Error("clock not indexed"));
+    if (result.isLeft()) {
       render(
-        // TODO: we should preserve the error?
-        //html`<pre>Error rendering clock: ${res.error.message}</pre>`,
-        html`<pre>Error rendering clock: clock file is invalid</pre>`,
+        html`<pre>Error rendering clock: ${result.error.message}</pre>`,
         this.contentEl,
       );
       return;
     }
-    await this.renderClock(clock, file);
+    await this.renderClock(result.value, file);
   }
 
   async renderClock(clockFile: ClockFileAdapter, file: TFile) {

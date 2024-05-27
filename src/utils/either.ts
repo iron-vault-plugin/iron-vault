@@ -36,6 +36,10 @@ export class Left<T> {
   unwrap(): never {
     return this.expect("expected a value");
   }
+
+  unwrapError(): T {
+    return this.error;
+  }
 }
 export class Right<U> {
   private constructor(public readonly value: U) {}
@@ -66,6 +70,10 @@ export class Right<U> {
 
   unwrap(): U {
     return this.expect("expected a value");
+  }
+
+  unwrapError(): never {
+    throw new Error("expected an error, but found value");
   }
 }
 

@@ -1,45 +1,80 @@
+import { Index } from "indexer/index-impl";
 import { type CachedMetadata } from "obsidian";
+import { Either, Left } from "utils/either";
 
-export type IndexUpdateErrorResult = { type: "error"; error: Error };
-export type IndexUpdateResult =
+export type IndexErrorResult<E extends Error> = { type: "error"; error: E };
+export type IndexUpdateResult<V, E extends Error> =
   | {
       type: "indexed";
+      value: V;
     }
-  | { type: "removed" }
-  | { type: "not_indexable" }
-  | IndexUpdateErrorResult;
+  | { type: "wont_index"; reason: string }
+  | IndexErrorResult<E>;
 
-export function wrapIndexUpdateError(error: unknown): IndexUpdateErrorResult {
-  return {
-    type: "error",
-    error:
-      error instanceof Error
-        ? error
-        : new Error("indexing error", { cause: error }),
-  };
+export type IndexDeleteResult = { type: "not_found" } | { type: "removed" };
+
+/** A WontIndexError is issued when the file should not be indexed, but it is not considered an error
+ * with the file.
+ */
+export class WontIndexError extends Error {}
+
+/** Unexpected indexing error is issued when an unhandled exception is raised while processing a file. */
+export class UnexpectedIndexingError extends Error {}
+
+export type IndexUpdate<T, E extends Error> = Either<
+  WontIndexError | UnexpectedIndexingError | E,
+  T
+>;
+
+export function wrapIndexUpdateError(
+  error: unknown,
+): Left<UnexpectedIndexingError> {
+  return Left.create(
+    new UnexpectedIndexingError(`encountered error while indexing: ${error}`, {
+      cause: error,
+    }),
+  );
 }
 
 export interface Indexer {
   readonly id: IndexerId;
-  onChanged(path: string, cache: CachedMetadata): IndexUpdateResult;
-  onDeleted(path: string): IndexUpdateResult;
+  onChanged(
+    path: string,
+    cache: CachedMetadata,
+  ): IndexUpdateResult<unknown, Error>["type"];
+  onDeleted(path: string): IndexDeleteResult;
   onRename(oldPath: string, newPath: string): void;
 }
 
 export type IndexerId = string;
 
-export abstract class BaseIndexer<T> implements Indexer {
+export type IndexOf<Idx> =
+  Idx extends BaseIndexer<infer T, infer E> ? Index<T, E> : never;
+
+export abstract class BaseIndexer<T, E extends Error> implements Indexer {
   abstract id: string;
+  public readonly index: Index<T, E> = new Index();
 
-  constructor(public readonly index: Map<string, T>) {}
+  constructor() {}
 
-  onChanged(path: string, cache: CachedMetadata): IndexUpdateResult {
+  onChanged(
+    path: string,
+    cache: CachedMetadata,
+  ): IndexUpdateResult<unknown, Error>["type"] {
+    let result: IndexUpdate<T, E>;
     try {
-      const entry = this.processFile(path, cache);
-      if (entry) {
-        this.index.set(path, entry);
-        return { type: "indexed" };
-      } else {
+      result = this.processFile(path, cache);
+    } catch (error) {
+      result = wrapIndexUpdateError(error);
+    }
+
+    if (result.isRight()) {
+      this.index.set(path, result);
+      return "indexed";
+    } else {
+      if (result.error instanceof WontIndexError) {
+        // "Won't index" is intended for a situation where this indexer decides it doesn't
+        // apply to this file. We remove it from the index entirely.
         if (this.index.delete(path)) {
           console.log(
             "[indexer:%s] [file:%s] removing because no longer indexable",
@@ -47,27 +82,22 @@ export abstract class BaseIndexer<T> implements Indexer {
             path,
           );
         }
-        return { type: "not_indexable" };
+        return "wont_index";
+      } else {
+        // Otherwise, when an error occurs while indexing a file, we consider that an
+        // indication of fault in the file. We index it as an error and present that to the user.
+        this.index.set(path, result as Left<E>);
+        return "error";
       }
-    } catch (error) {
-      if (this.index.delete(path)) {
-        console.log(
-          "[indexer:%s] [file:%s] removing because error",
-          this.id,
-          path,
-        );
-      }
-      return wrapIndexUpdateError(error);
     }
   }
 
-  onDeleted(path: string): IndexUpdateResult {
+  onDeleted(path: string): IndexDeleteResult {
     if (this.index.delete(path)) {
       return { type: "removed" };
     } else {
       return {
-        type: "error",
-        error: new Error("delete requested on nonexistent entry"),
+        type: "not_found",
       };
     }
   }
@@ -80,5 +110,5 @@ export abstract class BaseIndexer<T> implements Indexer {
     }
   }
 
-  abstract processFile(path: string, cache: CachedMetadata): T | undefined;
+  abstract processFile(path: string, cache: CachedMetadata): IndexUpdate<T, E>;
 }

@@ -1,5 +1,8 @@
+import {
+  ActionContext,
+  CharacterActionContext,
+} from "characters/action-context";
 import { App } from "obsidian";
-import { CharacterTracker } from "../character-tracker";
 import IronVaultPlugin from "../index";
 import { vaultProcess } from "../utils/obsidian";
 import { ProgressIndex, ProgressTrackInfo } from "./progress";
@@ -12,19 +15,23 @@ import {
 export class ProgressContext {
   private app: App;
   private progressIndex: ProgressIndex;
-  private characterTracker: CharacterTracker;
 
-  constructor(plugin: IronVaultPlugin) {
+  constructor(
+    plugin: IronVaultPlugin,
+    private readonly actionContext: ActionContext,
+  ) {
     this.app = plugin.app;
     this.progressIndex = plugin.progressIndex;
-    this.characterTracker = plugin.characters;
   }
 
   tracks(
     filter: (track: ProgressTrackInfo) => boolean = () => true,
   ): ProgressTrackWriterContext[] {
     const tracks = [];
-    for (const [trackPath, trackAdapter] of this.progressIndex.entries()) {
+    for (const [
+      trackPath,
+      trackAdapter,
+    ] of this.progressIndex.ofValid.entries()) {
       tracks.push(
         new ProgressTrackFileWriter(
           trackAdapter,
@@ -34,16 +41,23 @@ export class ProgressContext {
       );
     }
 
-    const [charPath, charContext] = this.characterTracker.activeCharacter();
-    for (const trackKey in charContext.lens.special_tracks) {
-      tracks.push(
-        new LegacyTrackWriter(
-          charContext,
-          vaultProcess(this.app, charPath),
-          trackKey,
-          charPath,
-        ),
-      );
+    // TODO: need to refactor this to pull it into actionContext --> but then we need a way
+    //       to unify "updatable" tracks with non-updatable tracks
+    if (this.actionContext instanceof CharacterActionContext) {
+      const [charPath, charContext] = [
+        this.actionContext.characterPath,
+        this.actionContext.characterContext,
+      ];
+      for (const trackKey in charContext.lens.special_tracks) {
+        tracks.push(
+          new LegacyTrackWriter(
+            charContext,
+            vaultProcess(this.app, charPath),
+            trackKey,
+            charPath,
+          ),
+        );
+      }
     }
 
     return tracks.filter(filter);
