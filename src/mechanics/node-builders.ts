@@ -1,10 +1,10 @@
+import { Clock } from "clocks/clock";
+import { ClockFileAdapter } from "clocks/clock-file";
 import * as kdl from "kdljs";
 import { Document, Node } from "kdljs";
 import { RollWrapper } from "model/rolls";
 import { MoveDescription, moveIsAction, moveIsProgress } from "moves/desc";
 import { oracleNameWithParents } from "oracles/render";
-import { Clock } from "tracks/clock";
-import { ClockFileAdapter } from "tracks/clock-file";
 import { ProgressTrackWriterContext } from "tracks/writer";
 import { node } from "utils/kdl";
 
