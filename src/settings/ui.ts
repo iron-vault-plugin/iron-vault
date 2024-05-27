@@ -49,6 +49,17 @@ export class IronVaultSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
+      .setName("Default clock folder")
+      .setDesc("Create clocks in this folder by default.")
+      .addSearch((search) => {
+        new FolderTextSuggest(this.app, search.inputEl);
+        search
+          .setPlaceholder("Type the name of a folder")
+          .setValue(settings.defaultClockFolder)
+          .onChange((value) => this.updateSetting("defaultClockFolder", value));
+      });
+
+    new Setting(containerEl)
       .setName("Use character system")
       .setDesc(
         "If enabled (default), the plugin will look for an active character when making moves. If disabled, you will be prompted to supply appropriate values when needed.",

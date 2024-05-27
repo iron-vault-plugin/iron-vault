@@ -3,6 +3,7 @@ import { Index } from "indexer/index-impl";
 import { CachedMetadata } from "obsidian";
 import { normalizeKeys } from "utils/zodutils";
 import { z } from "zod";
+import { PLUGIN_KIND_FIELD } from "../constants";
 import { BaseIndexer, IndexUpdate } from "../indexer/indexer";
 import { Either, Left } from "../utils/either";
 import { updater } from "../utils/update";
@@ -45,6 +46,22 @@ export class ClockFileAdapter {
     return this.raw.name;
   }
 
+  static newFromClock({
+    name,
+    clock,
+  }: {
+    name: string;
+    clock: Clock;
+  }): Either<z.ZodError, ClockFileAdapter> {
+    return this.create({
+      name,
+      segments: clock.segments,
+      progress: clock.progress,
+      tags: !clock.active ? ["complete"] : ["incomplete"],
+      [PLUGIN_KIND_FIELD]: KIND__CLOCK,
+    } satisfies z.input<typeof clockSchema>);
+  }
+
   static create(data: unknown): Either<z.ZodError, ClockFileAdapter> {
     const result = normalizedClockSchema.safeParse(data);
     if (result.success) {
@@ -84,8 +101,10 @@ export class ClockFileAdapter {
   }
 }
 
+export const KIND__CLOCK = "clock";
+
 export class ClockIndexer extends BaseIndexer<ClockFileAdapter, z.ZodError> {
-  readonly id: string = "clock";
+  readonly id: string = KIND__CLOCK;
 
   processFile(
     path: string,
