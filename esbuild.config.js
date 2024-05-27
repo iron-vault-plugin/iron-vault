@@ -1,6 +1,7 @@
 import { typecheckPlugin } from "@jgoz/esbuild-plugin-typecheck";
 import builtins from "builtin-modules";
 import esbuild from "esbuild";
+import { copy } from "esbuild-plugin-copy";
 import process from "process";
 
 const banner = `/*
@@ -39,7 +40,24 @@ const context = await esbuild.context({
   sourcemap: prod ? false : "inline",
   treeShaking: true,
   outfile: prod ? "main.js" : "test-vault/.obsidian/plugins/iron-vault/main.js",
-  plugins: [typecheckPlugin({ watch: !prod })],
+  plugins: [
+    typecheckPlugin({ watch: !prod }),
+
+    ...(prod
+      ? []
+      : [
+          copy({
+            // this is equal to process.cwd(), which means we use cwd path as base path to resolve `to` path
+            // if not specified, this plugin uses ESBuild.build outdir/outfile options as base path.
+            resolveFrom: "cwd",
+            assets: {
+              from: ["manifest.json"],
+              to: ["./test-vault/.obsidian/plugins/iron-vault/manifest.json"],
+            },
+            watch: true,
+          }),
+        ]),
+  ],
 });
 
 const cssCtx = await esbuild.context({
