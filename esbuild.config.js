@@ -50,10 +50,16 @@ const context = await esbuild.context({
             // this is equal to process.cwd(), which means we use cwd path as base path to resolve `to` path
             // if not specified, this plugin uses ESBuild.build outdir/outfile options as base path.
             resolveFrom: "cwd",
-            assets: {
-              from: ["manifest.json"],
-              to: ["./test-vault/.obsidian/plugins/iron-vault/manifest.json"],
-            },
+            assets: [
+              {
+                from: ["manifest.json"],
+                to: ["./test-vault/.obsidian/plugins/iron-vault/manifest.json"],
+              },
+              {
+                from: [".hotreload"],
+                to: ["./test-vault/.obsidian/plugins/iron-vault/.hotreload"],
+              },
+            ],
             watch: true,
           }),
         ]),
