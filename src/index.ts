@@ -34,6 +34,7 @@ import { IronVaultSettingTab } from "./settings/ui";
 import { advanceProgressTrack, createProgressTrack } from "./tracks/commands";
 import { ProgressIndex, ProgressIndexer } from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
+import registerCharacterBlock from "characters/character-block";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -251,6 +252,7 @@ export default class IronVaultPlugin extends Plugin {
     registerTrackBlock(this);
     registerClockBlock(this);
     registerSidebarBlocks(this);
+    registerCharacterBlock(this);
   }
 
   async activateView() {

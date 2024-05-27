@@ -56,10 +56,10 @@ export const baseIronVaultSchema = z
 
 export type BaseIronVaultSchema = z.input<typeof baseIronVaultSchema>;
 
-export enum ImpactStatus {
-  Unmarked = "⬡",
-  Marked = "⬢",
-}
+// export enum ImpactStatus {
+//   Unmarked = "marked",
+//   Marked = "un",
+// }
 
 export interface CharacterLens {
   name: Lens<ValidatedCharacter, string>;
@@ -67,7 +67,7 @@ export interface CharacterLens {
   stats: Record<string, Lens<ValidatedCharacter, number>>;
   condition_meters: Record<string, Lens<ValidatedCharacter, number>>;
   assets: Lens<ValidatedCharacter, IronVaultSheetAssetSchema[]>;
-  impacts: Lens<ValidatedCharacter, Record<string, ImpactStatus>>;
+  impacts: Lens<ValidatedCharacter, Record<string, boolean>>;
   special_tracks: Record<string, Lens<ValidatedCharacter, ProgressTrack>>;
   ruleset: Ruleset;
 }
@@ -157,7 +157,7 @@ export function validated(
 
 function createImpactLens(
   ruleset: Ruleset,
-): Lens<Record<string, unknown>, Record<string, ImpactStatus>> {
+): Lens<Record<string, unknown>, Record<string, boolean>> {
   // function createImpactLens(data: Record<string, unknown>, ruleset: Ruleset): Lens<Record<string, unknown>, Record<string, ImpactStatus>> {
   // const impactProps: Record<string, string> = {};
   // const dataKeys = Object.fromEntries(Object.keys(data).map((key) => [key.toLowerCase(), key]));
@@ -170,17 +170,13 @@ function createImpactLens(
   return {
     get(source) {
       return objectMap(impactProps, (dataKey) => {
-        const val = source[dataKey];
-        if (val === "⬢") {
-          return ImpactStatus.Marked;
-        } else {
-          return ImpactStatus.Unmarked;
-        }
+        // TODO(@zkat): this needs validation.
+        return !!source[dataKey];
       });
     },
     update(source, newval) {
       const original = this.get(source);
-      const updates: [string, ImpactStatus][] = [];
+      const updates: [string, boolean][] = [];
       for (const key in newval) {
         if (!(key in impactProps)) {
           throw new Error(`unexpected key in impacts: ${key}`);
@@ -284,10 +280,9 @@ export function momentumTrackerReader(
   return { get: momentumTrackerLens(characterLens).get };
 }
 
-export function countMarked(impacts: Record<string, ImpactStatus>): number {
+export function countMarked(impacts: Record<string, boolean>): number {
   return Object.values(impacts).reduce(
-    (count, impactStatus) =>
-      count + (impactStatus === ImpactStatus.Marked ? 1 : 0),
+    (count, impactStatus) => count + (impactStatus ? 1 : 0),
     0,
   );
 }
