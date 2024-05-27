@@ -2,7 +2,7 @@ import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 import { determineCharacterActionContext } from "characters/action-context";
 import { addAssetToCharacter } from "characters/commands";
 import registerClockBlock from "clocks/clock-block";
-import { advanceClock } from "clocks/commands";
+import { advanceClock, createClock } from "clocks/commands";
 import { generateEntityCommand } from "entity/command";
 import { IndexManager } from "indexer/manager";
 import { runMoveCommand } from "moves/action";
@@ -133,6 +133,10 @@ export default class IronVaultPlugin extends Plugin {
         meterCommands.burnMomentum(this, editor),
     });
 
+    /*
+     * PROGRESS TRACKS
+     */
+
     this.addCommand({
       id: "progress-create",
       name: "Progress Track: Create a Progress Track",
@@ -155,18 +159,27 @@ export default class IronVaultPlugin extends Plugin {
       },
     });
 
+    /*
+     * CLOCKS
+     */
+
+    this.addCommand({
+      id: "clock-create",
+      name: "Clock: Create a clock",
+      editorCallback: (editor) => createClock(this, editor),
+    });
+
     this.addCommand({
       id: "clock-advance",
-      name: "Advance a Clock",
-      editorCallback: async (editor, ctx) => {
-        await advanceClock(
+      name: "Clock: Advance a Clock",
+      editorCallback: (editor, ctx) =>
+        advanceClock(
           this.app,
           this.settings,
           editor,
           ctx as MarkdownView,
           this.clockIndex,
-        );
-      },
+        ),
     });
 
     this.addCommand({
