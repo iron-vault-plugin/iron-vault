@@ -5,7 +5,6 @@ import IronVaultPlugin from "index";
 import { EventRef, TFile } from "obsidian";
 import { CharacterContext } from "../character-tracker";
 import renderAssetCard from "./asset-card";
-import { md } from "utils/ui/directives";
 import { renderTrack } from "tracks/track-block";
 
 export default function registerCharacterBlock(plugin: IronVaultPlugin): void {
