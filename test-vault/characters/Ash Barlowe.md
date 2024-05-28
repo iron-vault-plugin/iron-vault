@@ -61,6 +61,7 @@ Discoveries_Progress: 0
 ```iron-vault-character-special-tracks
 ```
 
+![[Failure]]
 ### Impacts
 ```iron-vault-character-impacts
 ```

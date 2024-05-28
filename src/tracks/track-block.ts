@@ -111,13 +111,13 @@ export function renderTrack(
   }
   const tpl = html`
     <article class="iron-vault-track">
-      <h3 class="track-name">${md(plugin, info.name)}</h3>
+      <header class="track-name">${md(plugin, info.name)}</header>
       ${showTrackInfo
         ? html`
-            <h5>
+            <div class="track-info">
               <span class="track-rank">${capitalize(info.track.rank)}</span>
               <span class="track-type">${capitalize(info.trackType)}</span>
-            </h5>
+            </div>
           `
         : null}
       <div class="track-widget">
