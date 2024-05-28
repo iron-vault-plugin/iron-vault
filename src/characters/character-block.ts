@@ -7,35 +7,76 @@ import { CharacterContext } from "../character-tracker";
 import renderAssetCard from "./asset-card";
 import { renderTrack } from "tracks/track-block";
 
-export default function registerCharacterBlock(plugin: IronVaultPlugin): void {
-  plugin.registerMarkdownCodeBlockProcessor(
-    "iron-vault-character",
-    async (source: string, el: CharacterContainerEl, ctx) => {
-      // We can't render blocks until datastore is ready.
-      await plugin.datastore.waitForReady;
-      if (!el.characterRenderer) {
-        el.characterRenderer = new CharacterRenderer(el, source, plugin);
-      }
-      const file = plugin.app.vault.getFileByPath(ctx.sourcePath);
-      await el.characterRenderer.render(file);
-    },
-  );
+export default function registerCharacterBlocks(plugin: IronVaultPlugin): void {
+  registerBlock();
+  registerBlock("info", CharacterSheetSection.INFO);
+  registerBlock("stats", CharacterSheetSection.STATS);
+  registerBlock("meters", CharacterSheetSection.METERS);
+  registerBlock("special-tracks", CharacterSheetSection.SPECIAL_TRACKS);
+  registerBlock("impacts", CharacterSheetSection.IMPACTS);
+  registerBlock("assets", CharacterSheetSection.ASSETS);
+
+  function registerBlock(
+    languageSuffix?: string,
+    section?: CharacterSheetSection,
+  ) {
+    plugin.registerMarkdownCodeBlockProcessor(
+      "iron-vault-character" + (languageSuffix ? "-" + languageSuffix : ""),
+      async (source: string, el: CharacterContainerEl, ctx) => {
+        // We can't render blocks until datastore is ready.
+        await plugin.datastore.waitForReady;
+        if (!el.characterRenderer) {
+          el.characterRenderer = new CharacterRenderer(
+            el,
+            source,
+            plugin,
+            section && [section],
+          );
+        }
+        const file = plugin.app.vault.getFileByPath(ctx.sourcePath);
+        await el.characterRenderer.render(file);
+      },
+    );
+  }
 }
 
 interface CharacterContainerEl extends HTMLElement {
   characterRenderer?: CharacterRenderer;
 }
 
+enum CharacterSheetSection {
+  INFO = "character-info",
+  STATS = "stats",
+  METERS = "meters",
+  SPECIAL_TRACKS = "special-tracks",
+  IMPACTS = "impacts",
+  ASSETS = "assets",
+}
+
 class CharacterRenderer {
   contentEl: HTMLElement;
   source: string;
   plugin: IronVaultPlugin;
+  sections: CharacterSheetSection[];
   fileWatcher?: EventRef;
 
-  constructor(contentEl: HTMLElement, source: string, plugin: IronVaultPlugin) {
+  constructor(
+    contentEl: HTMLElement,
+    source: string,
+    plugin: IronVaultPlugin,
+    sections: CharacterSheetSection[] = [
+      CharacterSheetSection.INFO,
+      CharacterSheetSection.STATS,
+      CharacterSheetSection.METERS,
+      CharacterSheetSection.SPECIAL_TRACKS,
+      CharacterSheetSection.IMPACTS,
+      CharacterSheetSection.ASSETS,
+    ],
+  ) {
     this.contentEl = contentEl;
     this.source = source;
     this.plugin = plugin;
+    this.sections = sections;
   }
 
   async render(file: TFile | undefined | null) {
@@ -83,11 +124,24 @@ Error rendering character: character file is invalid${character
   ) {
     const tpl = html`
       <article class="iron-vault-character">
-        ${this.renderCharacterInfo(charCtx, file)}
-        ${this.renderStats(charCtx, file)} ${this.renderMeters(charCtx, file)}
-        ${this.renderSpecialTracks(charCtx, file)}
-        ${this.renderImpacts(charCtx, file, readOnly)}
-        ${this.renderAssets(charCtx, file)}
+        ${this.sections.includes(CharacterSheetSection.INFO)
+          ? this.renderCharacterInfo(charCtx, file)
+          : null}
+        ${this.sections.includes(CharacterSheetSection.STATS)
+          ? this.renderStats(charCtx, file)
+          : null}
+        ${this.sections.includes(CharacterSheetSection.METERS)
+          ? this.renderMeters(charCtx, file)
+          : null}
+        ${this.sections.includes(CharacterSheetSection.SPECIAL_TRACKS)
+          ? this.renderSpecialTracks(charCtx, file)
+          : null}
+        ${this.sections.includes(CharacterSheetSection.IMPACTS)
+          ? this.renderImpacts(charCtx, file, readOnly)
+          : null}
+        ${this.sections.includes(CharacterSheetSection.ASSETS)
+          ? this.renderAssets(charCtx, file)
+          : null}
       </article>
     `;
     render(tpl, this.contentEl);
