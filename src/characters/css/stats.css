@@ -6,6 +6,8 @@
   gap: 1em;
   justify-content: center;
   align-items: center;
+  padding-left: 1em;
+  padding-right: 1em;
   & li {
     &:before {
       /* Some themes (Like ITS Theme) try to be more clever than they deserve
