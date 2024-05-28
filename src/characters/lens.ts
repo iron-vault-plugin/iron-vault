@@ -49,6 +49,9 @@ export type IronVaultSheetAssetSchema = z.output<typeof characterAssetSchema>;
 export const baseIronVaultSchema = z
   .object({
     name: z.string(),
+    callsign: z.string().optional(),
+    pronouns: z.string().optional(),
+    description: z.string().optional(),
     momentum: z.number().int().gte(-10).lte(10),
     assets: z.array(characterAssetSchema).optional(),
   })
@@ -63,6 +66,9 @@ export type BaseIronVaultSchema = z.input<typeof baseIronVaultSchema>;
 
 export interface CharacterLens {
   name: Lens<ValidatedCharacter, string>;
+  callsign: Lens<ValidatedCharacter, string | undefined>;
+  pronouns: Lens<ValidatedCharacter, string | undefined>;
+  description: Lens<ValidatedCharacter, string | undefined>;
   momentum: Lens<ValidatedCharacter, number>;
   stats: Record<string, Lens<ValidatedCharacter, number>>;
   condition_meters: Record<string, Lens<ValidatedCharacter, number>>;
@@ -444,6 +450,24 @@ export function characterLens(ruleset: Ruleset): {
       lensForSchemaProp({
         path: "name",
         schema: baseIronVaultSchema.shape.name,
+      }),
+    ),
+    callsign: v(
+      lensForSchemaProp({
+        path: "callsign",
+        schema: baseIronVaultSchema.shape.callsign,
+      }),
+    ),
+    pronouns: v(
+      lensForSchemaProp({
+        path: "pronouns",
+        schema: baseIronVaultSchema.shape.pronouns,
+      }),
+    ),
+    description: v(
+      lensForSchemaProp({
+        path: "description",
+        schema: baseIronVaultSchema.shape.description,
       }),
     ),
     momentum: v(
