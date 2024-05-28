@@ -13,7 +13,7 @@
     }
     pointer-events: none;
     fill: var(--interactive-accent);
-    fill-opacity: 1;
+    fill-opacity: 0.8;
     stroke: var(--background-modifier-border);
     stroke-width: 4;
     aspect-ratio: 1;
