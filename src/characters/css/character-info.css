@@ -1,0 +1,29 @@
+.iron-vault-character section.character-info {
+  padding: 0.5em;
+  & .name {
+    font-size: 1.6em;
+    font-weight: var(--font-semibold);
+  }
+  & dl,
+  & dt,
+  & dd {
+    margin: 0;
+    padding: 0;
+  }
+  & dl {
+    display: flex;
+    flex-flow: column wrap;
+    & dt {
+      font-weight: var(--font-semibold);
+      font-size: 0.8em;
+      text-transform: uppercase;
+    }
+    & dd {
+      flex-basis: 100%;
+      width: 0;
+    }
+    & dd input {
+      padding: 0.4em;
+    }
+  }
+}

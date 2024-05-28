@@ -1,19 +1,12 @@
 @import url("assets.css");
 @import url("asset-card.css");
+@import url("character-info.css");
 @import url("impacts.css");
 @import url("meters.css");
 @import url("special_tracks.css");
 @import url("stats.css");
 
 .iron-vault-character {
-  & > .name {
-    width: 100%;
-    text-align: center;
-    &:after {
-      /* Some themes, like ITS Theme, try to put stuff here. Make it go away. */
-      display: none;
-    }
-  }
   & label {
     cursor: pointer;
     text-transform: uppercase;

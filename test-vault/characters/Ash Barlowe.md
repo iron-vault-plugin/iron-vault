@@ -1,5 +1,8 @@
 ---
 name: Ash Barlowe
+callsign: Flapjack
+pronouns: they/them
+description: Tall dark and handsome
 heart: 1
 wits: 2
 edge: 2

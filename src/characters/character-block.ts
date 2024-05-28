@@ -82,11 +82,9 @@ Error rendering character: character file is invalid${character
     file: TFile,
     readOnly: boolean = false,
   ) {
-    const lens = charCtx.lens;
-    const raw = charCtx.character;
     const tpl = html`
       <article class="iron-vault-character">
-        <h3 class="name">${md(this.plugin, lens.name.get(raw), file.path)}</h3>
+        ${this.renderCharacterInfo(charCtx, file)}
         ${this.renderStats(charCtx, file)} ${this.renderMeters(charCtx, file)}
         ${this.renderSpecialTracks(charCtx, file)}
         ${this.renderImpacts(charCtx, file, readOnly)}
@@ -94,6 +92,40 @@ Error rendering character: character file is invalid${character
       </article>
     `;
     render(tpl, this.contentEl);
+  }
+
+  renderCharacterInfo(charCtx: CharacterContext, _file: TFile) {
+    const lens = charCtx.lens;
+    const raw = charCtx.character;
+    return html`<section class="character-info">
+      <header class="name">${lens.name.get(raw)}</header>
+      <dl>
+        <dt>Callsign</dt>
+        <dd class="callsign">
+          <input
+            type="text"
+            placeholder="Raven"
+            .value=${lens.callsign.get(raw) || ""}
+          />
+        </dd>
+        <dt>Pronous</dt>
+        <dd class="pronouns">
+          <input
+            type="text"
+            placeholder="They/them"
+            .value=${lens.pronouns.get(raw) || ""}
+          />
+        </dd>
+        <dt>Description</dt>
+        <dd class="description">
+          <input
+            type="text"
+            placeholder="About Me"
+            .value=${lens.description.get(raw) || ""}
+          />
+        </dd>
+      </dl>
+    </section>`;
   }
 
   renderStats(charCtx: CharacterContext, _file: TFile) {
