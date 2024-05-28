@@ -1,6 +1,4 @@
 .iron-vault-character .stats {
-  padding: 0;
-  padding-bottom: 1em;
   display: flex;
   flex-flow: wrap;
   list-style: none;

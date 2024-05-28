@@ -107,7 +107,7 @@ Error rendering character: character file is invalid${character
             .value=${lens.callsign.get(raw) || ""}
           />
         </dd>
-        <dt>Pronous</dt>
+        <dt>Pronouns</dt>
         <dd class="pronouns">
           <input
             type="text"

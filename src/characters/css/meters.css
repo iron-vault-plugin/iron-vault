@@ -1,13 +1,11 @@
 .iron-vault-character .meters {
   display: flex;
-  padding: 0;
   flex-flow: wrap;
   list-style: none;
   text-transform: uppercase;
   gap: 1em;
   justify-content: center;
   align-items: center;
-  padding-bottom: 1em;
   & li {
     &:before {
       /* Some themes (Like ITS Theme) try to be more clever than they deserve
@@ -18,9 +16,14 @@
     border-radius: 8px;
     border: 2px solid var(--background-modifier-border);
     margin: 0;
-    height: 4.5em;
+    & button {
+      background-color: var(--interactive-normal);
+      border: 1px solid var(--background-modifier-border);
+      &:hover {
+        background-color: var(--interactive-hover);
+      }
+    }
     &.momentum {
-      height: 6.5em;
       display: flex;
       flex-flow: column nowrap;
       align-items: center;

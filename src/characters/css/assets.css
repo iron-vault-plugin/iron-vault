@@ -1,11 +1,7 @@
 .iron-vault-character .assets {
-  padding: 0;
-  margin: 0;
   list-style: none;
   display: flex;
   flex-flow: row wrap;
+  justify-content: center;
   gap: 0.4em;
-  & > li {
-    margin: 0.5em;
-  }
 }

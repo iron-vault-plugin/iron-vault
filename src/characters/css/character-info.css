@@ -1,8 +1,12 @@
 .iron-vault-character section.character-info {
-  padding: 0.5em;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
   & .name {
     font-size: 1.6em;
     font-weight: var(--font-semibold);
+    padding-bottom: 0.5em;
   }
   & dl,
   & dt,
@@ -11,19 +15,32 @@
     padding: 0;
   }
   & dl {
-    display: flex;
-    flex-flow: column wrap;
+    display: grid;
+    max-width: 460px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(4, 1fr);
+    column-gap: 0.2em;
+    align-items: end;
     & dt {
+      vertical-align: bottom;
       font-weight: var(--font-semibold);
       font-size: 0.8em;
       text-transform: uppercase;
-    }
-    & dd {
-      flex-basis: 100%;
-      width: 0;
+      grid-row: 1;
     }
     & dd input {
       padding: 0.4em;
+      width: 100%;
+      font-size: 1em;
+    }
+    & dt:last-of-type, & dd:last-of-type {
+      grid-column: span 2;
+    }
+    & dt:last-of-type {
+      grid-row: 3;
+    }
+    & dd:last-of-type {
+      grid-row: 4;
     }
   }
 }
