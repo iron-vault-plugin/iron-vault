@@ -5,7 +5,7 @@ import IronVaultPlugin from "index";
 import { EventRef, TFile } from "obsidian";
 import { Left } from "utils/either";
 import { vaultProcess } from "utils/obsidian";
-import { ProgressTrackFileAdapter } from "./progress";
+import { ProgressTrackFileAdapter, ProgressTrackInfo } from "./progress";
 import { progressTrackUpdater } from "./writer";
 
 export default function registerTrackBlock(plugin: IronVaultPlugin): void {
@@ -74,48 +74,12 @@ class TrackRenderer {
   }
 
   async renderProgress(trackFile: ProgressTrackFileAdapter, file: TFile) {
-    const items = [];
-    for (let i = 0; i < 10; i++) {
-      const ticks = Math.max(Math.min(trackFile.track.progress - i * 4, 4), 0);
-      items.push(html`<li data-value="${ticks}">box ${ticks}</li>`);
-    }
-    const tpl = html`
-      <article class="iron-vault-track">
-        <h3 class="track-name">
-          ${md(this.plugin, trackFile.name, file.path)}
-        </h3>
-        <h5>
-          <span class="track-rank">${capitalize(trackFile.track.rank)}</span>
-          <span class="track-type">${capitalize(trackFile.trackType)}</span>
-        </h5>
-        <div class="track-widget">
-          <button
-            type="button"
-            @click=${() => this.updateTrackTicks(file, { steps: -1 })}
-          >
-            -
-          </button>
-          <ol>
-            ${items}
-          </ol>
-          <button
-            type="button"
-            @click=${() => this.updateTrackTicks(file, { steps: 1 })}
-          >
-            +
-          </button>
-          <input
-            .value="${trackFile.track.progress}"
-            @change=${(ev: Event) =>
-              this.updateTrackTicks(file, {
-                ticks: +(ev.target! as HTMLInputElement).value,
-              })}
-          />
-          <span>ticks</span>
-        </div>
-      </article>
-    `;
-    render(tpl, this.contentEl);
+    render(
+      renderTrack(this.plugin, trackFile, (incr) =>
+        this.updateTrackTicks(file, incr),
+      ),
+      this.contentEl,
+    );
   }
 
   async updateTrackTicks(
@@ -132,6 +96,50 @@ class TrackRenderer {
 
     await this.renderProgress(newProg, file);
   }
+}
+
+export function renderTrack(
+  plugin: IronVaultPlugin,
+  info: ProgressTrackInfo,
+  updateTrack: (incr: { steps?: number; ticks?: number }) => void,
+  showTrackInfo: boolean = true,
+) {
+  const items = [];
+  for (let i = 0; i < 10; i++) {
+    const ticks = Math.max(Math.min(info.track.progress - i * 4, 4), 0);
+    items.push(html`<li data-value="${ticks}">box ${ticks}</li>`);
+  }
+  const tpl = html`
+    <article class="iron-vault-track">
+      <h3 class="track-name">${md(plugin, info.name)}</h3>
+      ${showTrackInfo
+        ? html`
+            <h5>
+              <span class="track-rank">${capitalize(info.track.rank)}</span>
+              <span class="track-type">${capitalize(info.trackType)}</span>
+            </h5>
+          `
+        : null}
+      <div class="track-widget">
+        <button type="button" @click=${() => updateTrack({ steps: -1 })}>
+          -
+        </button>
+        <ol>
+          ${items}
+        </ol>
+        <button type="button" @click=${() => updateTrack({ steps: 1 })}>
+          +
+        </button>
+        <input
+          .value="${info.track.progress}"
+          @change=${(ev: Event) =>
+            updateTrack({ ticks: +(ev.target! as HTMLInputElement).value })}
+        />
+        <span>ticks</span>
+      </div>
+    </article>
+  `;
+  return tpl;
 }
 
 function capitalize(s: string) {

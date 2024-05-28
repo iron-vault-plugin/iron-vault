@@ -6,6 +6,7 @@ import { EventRef, TFile } from "obsidian";
 import { CharacterContext } from "../character-tracker";
 import renderAssetCard from "./asset-card";
 import { md } from "utils/ui/directives";
+import { renderTrack } from "tracks/track-block";
 
 export default function registerCharacterBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -87,6 +88,7 @@ Error rendering character: character file is invalid${character
       <article class="iron-vault-character">
         <h3 class="name">${md(this.plugin, lens.name.get(raw), file.path)}</h3>
         ${this.renderStats(charCtx, file)} ${this.renderMeters(charCtx, file)}
+        ${this.renderSpecialTracks(charCtx, file)}
         ${this.renderImpacts(charCtx, file, readOnly)}
         ${this.renderAssets(charCtx, file)}
       </article>
@@ -199,12 +201,20 @@ Error rendering character: character file is invalid${character
       <ul class="special-tracks">
         ${map(
           Object.entries(lens.special_tracks),
-          ([track, value]) => html`
+          ([name, value]) => html`
             <li>
-              <dl>
-                <dt data-value=${track}>${track}</dt>
-                <dd>${JSON.stringify(value.get(raw))}</dd>
-              </dl>
+              ${renderTrack(
+                this.plugin,
+                {
+                  name: capitalize(lens.ruleset.special_tracks[name].label),
+                  trackType: "special track",
+                  track: value.get(raw),
+                },
+                (_info: { steps?: number; ticks?: number }) => {
+                  // TODO(@zkat): change stuff
+                },
+                false,
+              )}
             </li>
           `,
         )}
@@ -239,4 +249,8 @@ Error rendering character: character file is invalid${character
 
   //   await this.renderCharacter(newProg, file);
   // }
+}
+
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }

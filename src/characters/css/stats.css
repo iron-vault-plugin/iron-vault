@@ -1,5 +1,4 @@
 .iron-vault-character .stats {
-  border-bottom: 2px solid var(--background-modifier-border);
   padding: 0;
   padding-bottom: 1em;
   display: flex;
