@@ -25,7 +25,7 @@ assets:
     abilities:
       - true
       - false
-      - false
+      - true
     controls:
       integrity: 4
       integrity/battered: true

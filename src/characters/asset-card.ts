@@ -10,13 +10,14 @@ import {
 import { IronVaultSheetAssetSchema } from "./lens";
 import IronVaultPlugin from "index";
 import { md } from "utils/ui/directives";
+import { integratedAssetLens } from "./assets";
 
 export default function renderAssetCard(
   plugin: IronVaultPlugin,
   sheetAsset: IronVaultSheetAssetSchema,
   readOnly: boolean = false,
 ) {
-  const asset = plugin.datastore.assets.get(sheetAsset.id);
+  const asset = integratedAssetLens(plugin.datastore).get(sheetAsset);
   if (!asset) {
     return;
   }
