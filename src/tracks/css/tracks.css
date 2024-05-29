@@ -14,15 +14,26 @@
   @container iron-vault-track (min-width: 640px) {
     max-width: 768px;
   }
+  & .track-xp {
+    font-weight: var(--font-semibold);
+    &:before {
+      content: "+";
+    }
+    &:after {
+      content: " XP";
+    }
+  }
   & .track-name {
     font-size: 1.6em;
     font-weight: var(--font-semibold);
   }
-  & .track-name, & .track-name * {
+  & .track-name,
+  & .track-name * {
     margin: 0;
   }
   & .track-rank,
-  & .track-type {
+  & .track-type,
+  & .track-xp {
     color: var(--text-muted);
   }
   > .track-widget {

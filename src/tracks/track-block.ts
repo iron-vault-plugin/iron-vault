@@ -103,6 +103,7 @@ export function renderTrack(
   info: ProgressTrackInfo,
   updateTrack: (incr: { steps?: number; ticks?: number }) => void,
   showTrackInfo: boolean = true,
+  xpEarned?: number,
 ) {
   const items = [];
   for (let i = 0; i < 10; i++) {
@@ -119,6 +120,9 @@ export function renderTrack(
               <span class="track-type">${capitalize(info.trackType)}</span>
             </div>
           `
+        : null}
+      ${xpEarned != null
+        ? html`<span class="track-xp">${xpEarned}</span>`
         : null}
       <div class="track-widget">
         <button type="button" @click=${() => updateTrack({ steps: -1 })}>
