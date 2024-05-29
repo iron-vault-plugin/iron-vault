@@ -1,16 +1,16 @@
-import { TemplateResult, html } from "lit-html";
-import { map } from "lit-html/directives/map.js";
-import { range } from "lit-html/directives/range.js";
 import {
   AssetAbility,
   AssetControlField,
   AssetOptionField,
 } from "@datasworn/core/dist/Datasworn";
+import { TemplateResult, html } from "lit-html";
+import { map } from "lit-html/directives/map.js";
+import { range } from "lit-html/directives/range.js";
 
-import { IronVaultSheetAssetSchema } from "./lens";
 import IronVaultPlugin from "index";
 import { md } from "utils/ui/directives";
 import { integratedAssetLens } from "./assets";
+import { IronVaultSheetAssetSchema } from "./lens";
 
 export default function renderAssetCard(
   plugin: IronVaultPlugin,
@@ -168,7 +168,7 @@ function renderControl(
                   ><span>${i}</span
                   ><input
                     type="radio"
-                    ?checked=${control.value}
+                    ?checked=${control.value == i}
                     ?disabled=${readOnly}
                     name=${control.label}
                   />
@@ -206,5 +206,4 @@ function renderControl(
       </label>`;
     }
   }
-  return null;
 }
