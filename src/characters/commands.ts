@@ -6,6 +6,7 @@ import { vaultProcess } from "utils/obsidian";
 import { firstUppercase } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
+import { PLUGIN_KIND_FIELD, pluginPrefixed } from "../constants";
 import {
   NoCharacterActionConext as NoCharacterActionContext,
   determineCharacterActionContext,
@@ -131,7 +132,7 @@ export async function createNewCharacter({ app, datastore }: IronVaultPlugin) {
   const file = await app.fileManager.createNewMarkdownFile(
     charactersFolder,
     name,
-    `---\n${stringifyYaml(createValidCharacter(lens, validater, name).raw)}\n---\n\n`,
+    `---\n${stringifyYaml({ ...createValidCharacter(lens, validater, name).raw, [PLUGIN_KIND_FIELD]: "character" })}\n---\n\n`,
   );
 
   await app.workspace.getLeaf().openFile(file, {
@@ -144,12 +145,15 @@ export async function createNewCharacter({ app, datastore }: IronVaultPlugin) {
   const templaterPlugin: any = (app.plugins.plugins as Record<string, any>)[
     "templater-obsidian"
   ];
-  if (templaterPlugin) {
-    const templateFile = app.vault.getFileByPath("Templates/Character.md");
-    if (templateFile) {
-      await templaterPlugin.templater.append_template_to_active_file(
-        templateFile,
-      );
-    }
+  const templateFile = undefined; //app.vault.getFileByPath("Templates/Character.md");
+  if (templaterPlugin && templateFile) {
+    await templaterPlugin.templater.append_template_to_active_file(
+      templateFile,
+    );
+  } else {
+    await app.vault.append(
+      file,
+      `\n\`\`\`${pluginPrefixed("character")}\n\`\`\`\n`,
+    );
   }
 }
