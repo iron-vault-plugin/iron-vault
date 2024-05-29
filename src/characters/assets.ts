@@ -42,6 +42,7 @@ export type AssetWalker = {
   onAnyOption?: (
     key: string,
     option: Datasworn.AssetOptionField | Datasworn.AssetAbilityOptionField,
+    parentKey?: string | number,
   ) => void;
   onBaseOption?: (key: string, option: Datasworn.AssetOptionField) => void;
   onAbilityOption?: (
@@ -56,6 +57,7 @@ export type AssetWalker = {
       | Datasworn.AssetControlField
       | Datasworn.AssetAbilityControlField
       | Datasworn.AssetConditionMeterControlField,
+    parentKey?: string | number,
   ) => void;
   onBaseControl?: (key: string, control: Datasworn.AssetControlField) => void;
   onAbilityControl?: (
@@ -94,7 +96,8 @@ export function walkAsset(
       for (const [subkey, subcontrol] of Object.entries(
         control.controls ?? {},
       )) {
-        if (handlers.onAnyControl) handlers.onAnyControl(subkey, subcontrol);
+        if (handlers.onAnyControl)
+          handlers.onAnyControl(subkey, subcontrol, key);
         if (handlers.onConditionMeterSubcontrol)
           handlers.onConditionMeterSubcontrol(subkey, subcontrol, control, key);
       }
@@ -115,13 +118,14 @@ export function walkAsset(
 
     const ability = asset.abilities[abilityIndex];
     for (const [key, control] of Object.entries(ability.controls ?? {})) {
-      if (handlers.onAnyControl) handlers.onAnyControl(key, control);
+      if (handlers.onAnyControl)
+        handlers.onAnyControl(key, control, abilityIndex);
       if (handlers.onAbilityControl)
         handlers.onAbilityControl(key, control, ability, abilityIndex);
     }
 
     for (const [key, option] of Object.entries(ability.options ?? {})) {
-      if (handlers.onAnyOption) handlers.onAnyOption(key, option);
+      if (handlers.onAnyOption) handlers.onAnyOption(key, option, abilityIndex);
       if (handlers.onAbilityOption)
         handlers.onAbilityOption(key, option, ability, abilityIndex);
     }
@@ -168,6 +172,10 @@ export function addOrUpdateViaDataswornAsset(
 
 export class MissingAssetError extends Error {}
 
+function assetKey(key: string, parentKey: string | number | undefined): string {
+  return parentKey != null ? `${parentKey}/${key}` : key;
+}
+
 export function integratedAssetLens(
   datastore: Datastore,
 ): Lens<IronVaultSheetAssetSchema, Datasworn.Asset> {
@@ -184,14 +192,14 @@ export function integratedAssetLens(
           }
         });
         walkAsset(draft, {
-          onAnyOption(key, option) {
-            const newVal = assetData.options[key];
+          onAnyOption(key, option, parentKey) {
+            const newVal = assetData.options[assetKey(key, parentKey)];
             if (newVal !== undefined && option.value !== newVal) {
               option.value = newVal as string;
             }
           },
-          onAnyControl(key, control) {
-            const newVal = assetData.controls[key];
+          onAnyControl(key, control, parentKey) {
+            const newVal = assetData.controls[assetKey(key, parentKey)];
             if (newVal !== undefined && control.value !== newVal) {
               control.value = newVal;
             }
@@ -204,13 +212,15 @@ export function integratedAssetLens(
         draft.id = asset._id;
         draft.abilities = asset.abilities.map(({ enabled }) => enabled);
         walkAsset(asset, {
-          onAnyOption(key, option) {
-            if (draft.options[key] !== option.value)
-              draft.options[key] = option.value;
+          onAnyOption(key, option, parentKey) {
+            const fullKey = assetKey(key, parentKey);
+            if (draft.options[fullKey] !== option.value)
+              draft.options[fullKey] = option.value;
           },
-          onAnyControl(key, control) {
-            if (draft.controls[key] !== control.value)
-              draft.controls[key] = control.value;
+          onAnyControl(key, control, parentKey) {
+            const fullKey = assetKey(key, parentKey);
+            if (draft.controls[fullKey] !== control.value)
+              draft.controls[fullKey] = control.value;
           },
         });
       });

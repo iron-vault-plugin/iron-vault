@@ -272,7 +272,7 @@ describe("integratedAssetLens", () => {
           id: starship()._id,
           abilities: [true, false, false],
           options: {},
-          controls: { battered: true },
+          controls: { "integrity/battered": true },
         }),
       ).toHaveProperty("controls.integrity.controls.battered.value", true);
     });
@@ -291,7 +291,7 @@ describe("integratedAssetLens", () => {
           id: starship()._id,
           abilities: [true, false, false],
           options: {},
-          controls: { battered: true },
+          controls: { "integrity/battered": true },
         }),
       ).toHaveProperty("controls.integrity.controls.battered.value", true);
     });
@@ -309,7 +309,7 @@ describe("integratedAssetLens", () => {
         integratedAssetLens(mockDatastore as unknown as Datastore).get({
           id: starship()._id,
           abilities: [false, false, false],
-          options: { made_up: "foo" },
+          options: { "0/made_up": "foo" },
           controls: {},
         }),
       ).toHaveProperty("abilities.0.options.made_up.value", "foo");
@@ -336,8 +336,12 @@ describe("integratedAssetLens", () => {
     ).toEqual({
       id: starship()._id,
       abilities: [true, true, false],
-      options: { label: "arclight", made_up: null },
-      controls: { integrity: 3, battered: true, cursed: false },
+      options: { label: "arclight", "0/made_up": null },
+      controls: {
+        integrity: 3,
+        "integrity/battered": true,
+        "integrity/cursed": false,
+      },
     });
   });
 });
