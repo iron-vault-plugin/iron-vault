@@ -296,7 +296,9 @@ export function countMarked(impacts: Record<string, boolean>): number {
 export function movesReader(
   charLens: CharacterLens,
   index: DataIndex,
-): CharReader<Either<AssetError[], Datasworn.Move[]>> {
+): CharReader<
+  Either<AssetError[], { move: Datasworn.Move; asset: Datasworn.Asset }[]>
+> {
   const assetReader = assetWithDefnReader(charLens, index);
   return reader((source) => {
     return collectEither(assetReader.get(source)).map((assets) =>
@@ -305,7 +307,8 @@ export function movesReader(
           // Take only enabled abilities
           .filter((_ability, index) => assetConfig.abilities[index])
           // Gather moves
-          .flatMap((ability) => Object.values(ability.moves ?? {})),
+          .flatMap((ability) => Object.values(ability.moves ?? {}))
+          .map((move) => ({ move, asset: defn })),
       ),
     );
   });

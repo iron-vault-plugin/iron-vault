@@ -1,4 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
+import { produce } from "immer";
 import { App } from "obsidian";
 import { ConditionMeterDefinition } from "rules/ruleset";
 import { vaultProcess } from "utils/obsidian";
@@ -84,7 +85,12 @@ export class CharacterActionContext implements IActionContext {
       this.datastore.index,
     )
       .get(this.characterContext.character)
-      .expect("unexpected failure finding assets for moves");
+      .expect("unexpected failure finding assets for moves")
+      .map(({ move, asset }) =>
+        produce(move, (draft) => {
+          draft.name = `${asset.name}: ${move.name}`;
+        }),
+      );
 
     return this.datastore.moves.concat(characterMoves);
   }

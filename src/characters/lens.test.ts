@@ -431,7 +431,12 @@ describe("movesReader", () => {
           )
           .unwrap(),
       ).toMatchObject([
-        { _id: "starforged/assets/path/empath/abilities/0/moves/read_heart" },
+        {
+          move: {
+            _id: "starforged/assets/path/empath/abilities/0/moves/read_heart",
+          },
+          asset: { _id: "starforged/assets/path/empath" },
+        },
       ]);
     });
   });
