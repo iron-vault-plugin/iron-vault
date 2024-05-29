@@ -1,7 +1,7 @@
 import { type Datasworn } from "@datasworn/core";
 import { produce } from "immer";
 import IronVaultPlugin from "index";
-import { Editor, FuzzyMatch, MarkdownView } from "obsidian";
+import { Editor, FuzzyMatch, MarkdownView, stringifyYaml } from "obsidian";
 import { vaultProcess } from "utils/obsidian";
 import { firstUppercase } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
@@ -15,6 +15,7 @@ import {
   defaultMarkedAbilitiesForAsset,
   walkAsset,
 } from "./assets";
+import { characterLens, createValidCharacter } from "./lens";
 
 export async function addAssetToCharacter(
   plugin: IronVaultPlugin,
@@ -115,4 +116,40 @@ export async function addAssetToCharacter(
       updatedAsset,
     ),
   );
+}
+
+export async function createNewCharacter({ app, datastore }: IronVaultPlugin) {
+  const { lens, validater } = characterLens(datastore.ruleset);
+  const name = await PromptModal.prompt(
+    app,
+    "What is the name of the character?",
+  );
+
+  const charactersFolder = app.vault.getFolderByPath("characters");
+  if (!charactersFolder) return;
+
+  const file = await app.fileManager.createNewMarkdownFile(
+    charactersFolder,
+    name,
+    `---\n${stringifyYaml(createValidCharacter(lens, validater, name).raw)}\n---\n\n`,
+  );
+
+  await app.workspace.getLeaf().openFile(file, {
+    active: true,
+    state: { mode: "source" },
+    eState: { rename: "all" },
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const templaterPlugin: any = (app.plugins.plugins as Record<string, any>)[
+    "templater-obsidian"
+  ];
+  if (templaterPlugin) {
+    const templateFile = app.vault.getFileByPath("Templates/Character.md");
+    if (templateFile) {
+      await templaterPlugin.templater.append_template_to_active_file(
+        templateFile,
+      );
+    }
+  }
 }

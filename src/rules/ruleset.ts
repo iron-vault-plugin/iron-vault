@@ -32,7 +32,7 @@ export interface MeterCommon {
   label: string;
   min: number;
   max: number;
-  default?: number;
+  defaultValue?: number;
   rollable: boolean;
 }
 
@@ -48,10 +48,15 @@ const statDefinitionValidator = z
     min: z.number().int(),
     max: z.number().int().positive(),
     rollable: z.boolean().default(true),
+    value: z.number().int().optional(),
   })
   .refine(({ min, max }) => min < max, {
     message: "min must be greater than max",
-  });
+  })
+  .refine(
+    ({ min, max, value }) => value == null || (min <= value && value <= max),
+    { message: "value must be between min and max" },
+  );
 
 export class StatDefinition implements Readonly<MeterCommon> {
   readonly kind = "stat" as const;
@@ -74,13 +79,16 @@ export class ConditionMeterDefinition implements Readonly<MeterCommon> {
   readonly min: number;
   readonly max: number;
   readonly rollable: boolean;
+  readonly defaultValue?: number;
 
   constructor(data: z.input<typeof statDefinitionValidator>) {
-    const { label, min, max, rollable } = statDefinitionValidator.parse(data);
+    const { label, min, max, rollable, value } =
+      statDefinitionValidator.parse(data);
     this.label = label;
     this.min = min;
     this.max = max;
     this.rollable = rollable;
+    this.defaultValue = value;
   }
 }
 

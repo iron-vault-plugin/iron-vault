@@ -1,7 +1,7 @@
 import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 import { determineCharacterActionContext } from "characters/action-context";
 import registerCharacterBlock from "characters/character-block";
-import { addAssetToCharacter } from "characters/commands";
+import { addAssetToCharacter, createNewCharacter } from "characters/commands";
 import registerClockBlock from "clocks/clock-block";
 import { advanceClock, createClock } from "clocks/commands";
 import { generateEntityCommand } from "entity/command";
@@ -251,6 +251,12 @@ export default class IronVaultPlugin extends Plugin {
           "collapse-iron-vault-mechanics",
         );
       },
+    });
+
+    this.addCommand({
+      id: "character-create",
+      name: "Create new character",
+      callback: () => createNewCharacter(this),
     });
 
     // This adds a settings tab so the user can configure various aspects of the plugin

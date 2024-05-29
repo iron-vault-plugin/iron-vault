@@ -34,7 +34,7 @@ export class Left<T> {
   }
 
   unwrap(): never {
-    return this.expect("expected a value");
+    return this.expect(`expected a value, but received error: ${this.error}`);
   }
 
   unwrapError(): T {
