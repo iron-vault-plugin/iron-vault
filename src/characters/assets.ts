@@ -1,9 +1,10 @@
 import { type Datasworn } from "@datasworn/core";
+import { Datastore } from "datastore";
 import { produce } from "immer";
 import { ConditionMeterDefinition } from "rules/ruleset";
 import { DataIndex } from "../datastore/data-index";
 import { Either, Left, Right } from "../utils/either";
-import { reader, writer } from "../utils/lens";
+import { Lens, addOrUpdateMatching, reader, writer } from "../utils/lens";
 import {
   CharLens,
   CharReader,
@@ -37,165 +38,185 @@ export function assetWithDefnReader(
   });
 }
 
-export type Pathed<T> = { path: string[]; value: T };
-export function pathed<T>(path: string[], value: T): Pathed<T> {
-  return { path, value };
-}
+export type AssetWalker = {
+  onAnyOption?: (
+    key: string,
+    option: Datasworn.AssetOptionField | Datasworn.AssetAbilityOptionField,
+  ) => void;
+  onBaseOption?: (key: string, option: Datasworn.AssetOptionField) => void;
+  onAbilityOption?: (
+    key: string,
+    option: Datasworn.AssetAbilityOptionField,
+    parent: Datasworn.AssetAbility,
+    parentIdx: number,
+  ) => void;
+  onAnyControl?: (
+    key: string,
+    control:
+      | Datasworn.AssetControlField
+      | Datasworn.AssetAbilityControlField
+      | Datasworn.AssetConditionMeterControlField,
+  ) => void;
+  onBaseControl?: (key: string, control: Datasworn.AssetControlField) => void;
+  onAbilityControl?: (
+    key: string,
+    control: Datasworn.AssetAbilityControlField,
+    parent: Datasworn.AssetAbility,
+    parentIdx: number,
+  ) => void;
+  onConditionMeterSubcontrol?: (
+    key: string,
+    control: Datasworn.AssetConditionMeterControlField,
+    parent: Datasworn.AssetConditionMeter,
+    parentKey: string,
+  ) => void;
+};
 
-export function extendPathed<T>(
-  pathed: Pathed<T>,
-  nextStep: string,
-  value: T,
-): Pathed<T> {
-  return { path: [...pathed.path, nextStep], value };
-}
-
-type AnyControlField =
-  | Datasworn.AssetControlField
-  | Datasworn.AssetAbilityControlField
-  | Datasworn.AssetConditionMeterControlField;
-
-type AnyOptionField =
-  | Datasworn.AssetOptionField
-  | Datasworn.AssetAbilityOptionField;
-
-function traverseAssetControls(
+/** Walks the asset controls and options, descending into those nested in abilities or other controls.
+ * @param markedAbilities if provided, only walk asset abilities for marked abilities.
+ */
+export function walkAsset(
   asset: Datasworn.Asset,
-  markedAbilities: boolean[],
-): Pathed<AnyControlField>[] {
-  function conditionMeterControls(
-    controls: Datasworn.AssetConditionMeter["controls"],
-    parent: Pathed<AnyControlField>,
-  ): Pathed<AnyControlField>[] {
-    return Object.entries(controls ?? {}).map(([key, field]) => {
-      return extendPathed(parent, key, field);
-    });
-  }
-  const baseControls: Pathed<AnyControlField>[] = Object.entries(
-    asset.controls ?? {},
-  ).flatMap(([key, field]) => {
-    const curControl = pathed([asset._id, key], field);
-    const conditionMeterFields =
-      field.field_type == "condition_meter"
-        ? conditionMeterControls(field.controls, curControl)
-        : [];
-    return [curControl, ...conditionMeterFields];
-  });
-
+  handlers: AssetWalker,
+  markedAbilities: boolean[] = asset.abilities.map(() => true),
+): void {
   if (markedAbilities.length != asset.abilities.length) {
     throw new Error(
       `Asset has ${asset.abilities.length} abilities, but marked abilities only ${markedAbilities.length}`,
     );
   }
 
-  const abilityControls: Pathed<AnyControlField>[] = asset.abilities
-    .filter((_ability, index) => markedAbilities[index])
-    .flatMap((ability) => {
-      return Object.entries(ability.controls ?? {}).map(([key, field]) =>
-        pathed([ability._id, key], field),
-      );
-    });
+  for (const [key, control] of Object.entries(asset.controls ?? {})) {
+    if (handlers.onAnyControl) handlers.onAnyControl(key, control);
+    if (handlers.onBaseControl) handlers.onBaseControl(key, control);
 
-  return [...baseControls, ...abilityControls];
-}
-
-export function traverseAssetOptions(
-  asset: Datasworn.Asset,
-  markedAbilities: boolean[],
-): Pathed<AnyOptionField>[] {
-  const baseControls: Pathed<AnyOptionField>[] = Object.entries(
-    asset.options ?? {},
-  ).map(([key, field]) => pathed([asset._id, key], field));
-
-  if (markedAbilities.length != asset.abilities.length) {
-    throw new Error(
-      `Asset has ${asset.abilities.length} abilities, but marked abilities only ${markedAbilities.length}`,
-    );
+    if (control.field_type == "condition_meter") {
+      for (const [subkey, subcontrol] of Object.entries(
+        control.controls ?? {},
+      )) {
+        if (handlers.onAnyControl) handlers.onAnyControl(subkey, subcontrol);
+        if (handlers.onConditionMeterSubcontrol)
+          handlers.onConditionMeterSubcontrol(subkey, subcontrol, control, key);
+      }
+    }
   }
 
-  const abilityOptions: Pathed<AnyOptionField>[] = asset.abilities
-    .filter((_ability, index) => markedAbilities[index])
-    .flatMap((ability) => {
-      return Object.entries(ability.options ?? {}).map(([key, field]) =>
-        pathed([ability._id, key], field),
-      );
-    });
-
-  return [...baseControls, ...abilityOptions];
-}
-
-export function samePath(
-  left: Pathed<unknown>,
-  right: Pathed<unknown>,
-): boolean {
-  if (left.path == right.path) return true;
-  if (left.path.length != right.path.length) return false;
-
-  for (const idx in left.path) {
-    if (left.path[idx] != right.path[idx]) return false;
+  for (const [key, option] of Object.entries(asset.options ?? {})) {
+    if (handlers.onAnyOption) handlers.onAnyOption(key, option);
+    if (handlers.onBaseOption) handlers.onBaseOption(key, option);
   }
 
-  return true;
+  for (
+    let abilityIndex = 0;
+    abilityIndex < asset.abilities.length;
+    abilityIndex++
+  ) {
+    if (!markedAbilities[abilityIndex]) continue;
+
+    const ability = asset.abilities[abilityIndex];
+    for (const [key, control] of Object.entries(ability.controls ?? {})) {
+      if (handlers.onAnyControl) handlers.onAnyControl(key, control);
+      if (handlers.onAbilityControl)
+        handlers.onAbilityControl(key, control, ability, abilityIndex);
+    }
+
+    for (const [key, option] of Object.entries(ability.options ?? {})) {
+      if (handlers.onAnyOption) handlers.onAnyOption(key, option);
+      if (handlers.onAbilityOption)
+        handlers.onAbilityOption(key, option, ability, abilityIndex);
+    }
+  }
 }
 
-export function getPathLabel(pathed: Pathed<unknown>): string {
-  // Skip first element (which is asset/ability id)
-  return pathed.path.slice(1).join("/");
-}
-
+/** Returns the default marked abilities array for this asset. */
 export function defaultMarkedAbilitiesForAsset(
   asset: Datasworn.Asset,
 ): boolean[] {
   return asset.abilities.map(({ enabled }) => enabled);
 }
 
-export function updateAssetWithOptions(
-  asset: Datasworn.Asset,
-  options: Record<string, string>,
-): Datasworn.Asset {
-  return produce(asset, (draft) => {
-    for (const pathed of traverseAssetOptions(
-      draft,
-      defaultMarkedAbilitiesForAsset(asset),
-    )) {
-      const updatedValue = options[getPathLabel(pathed)];
-      if (updatedValue) {
-        pathed.value.value = updatedValue;
-      }
-    }
-  });
+/** Produces a writer that adds or updates an asset to the character assets based on id. */
+export function addOrUpdateAssetData(
+  charLens: CharacterLens,
+): CharWriter<IronVaultSheetAssetSchema> {
+  return addOrUpdateMatching(
+    charLens.assets,
+    (existing, candidate) => existing.id === candidate.id,
+  );
 }
 
-export function addAsset(charLens: CharacterLens): CharWriter<Datasworn.Asset> {
-  return writer((character, newAsset) => {
-    const currentAssets = charLens.assets.get(character);
+/** Produces a writer that adds or updates an asset to the character assets using a populated
+ * Datasworn.Asset object.
+ */
+export function addOrUpdateViaDataswornAsset(
+  charLens: CharacterLens,
+  datastore: Datastore,
+): CharWriter<Datasworn.Asset> {
+  const assetDataWriter = addOrUpdateAssetData(charLens);
+  const assetLens = integratedAssetLens(datastore);
 
-    // If character already has asset, this is a no-op
-    if (currentAssets.find(({ id }) => id == newAsset._id)) return character;
-
-    const marked_abilities = defaultMarkedAbilitiesForAsset(newAsset);
-    const controls = Object.fromEntries(
-      traverseAssetControls(newAsset, marked_abilities).map((pathedField) => [
-        getPathLabel(pathedField),
-        pathedField.value.value,
-      ]),
+  return writer((source, newval) => {
+    return assetDataWriter.update(
+      source,
+      assetLens.update(
+        { id: newval._id, abilities: [], controls: {}, options: {} },
+        newval,
+      ),
     );
-
-    const options = Object.fromEntries(
-      traverseAssetOptions(newAsset, marked_abilities).map((pathedOption) => [
-        getPathLabel(pathedOption),
-        pathedOption.value.value,
-      ]),
-    );
-
-    return charLens.assets.update(character, [
-      ...currentAssets,
-      { id: newAsset._id, abilities: marked_abilities, controls, options },
-    ]);
   });
 }
 
 export class MissingAssetError extends Error {}
+
+export function integratedAssetLens(
+  datastore: Datastore,
+): Lens<IronVaultSheetAssetSchema, Datasworn.Asset> {
+  return {
+    get(assetData) {
+      const dataswornAsset = datastore.assets.get(assetData.id);
+      if (!dataswornAsset) {
+        throw new AssetError(`unable to find asset ${assetData.id}`);
+      }
+      return produce(dataswornAsset, (draft) => {
+        assetData.abilities.forEach((enabled, index) => {
+          if (enabled) {
+            draft.abilities[index].enabled = enabled;
+          }
+        });
+        walkAsset(draft, {
+          onAnyOption(key, option) {
+            const newVal = assetData.options[key];
+            if (newVal !== undefined && option.value !== newVal) {
+              option.value = newVal as string;
+            }
+          },
+          onAnyControl(key, control) {
+            const newVal = assetData.controls[key];
+            if (newVal !== undefined && control.value !== newVal) {
+              control.value = newVal;
+            }
+          },
+        });
+      });
+    },
+    update(source, asset) {
+      return produce(source, (draft) => {
+        draft.id = asset._id;
+        draft.abilities = asset.abilities.map(({ enabled }) => enabled);
+        walkAsset(asset, {
+          onAnyOption(key, option) {
+            if (draft.options[key] !== option.value)
+              draft.options[key] = option.value;
+          },
+          onAnyControl(key, control) {
+            if (draft.controls[key] !== control.value)
+              draft.controls[key] = control.value;
+          },
+        });
+      });
+    },
+  };
+}
 
 export function assetMeters(
   charLens: CharacterLens,
@@ -206,18 +227,20 @@ export function assetMeters(
   definition: ConditionMeterDefinition;
   lens: CharLens<number>;
 }[] {
-  const meters = traverseAssetControls(
+  const meters: [string, Datasworn.ConditionMeterField][] = [];
+  walkAsset(
     asset,
-    markedAbilities ?? defaultMarkedAbilitiesForAsset(asset),
-  ).filter(
-    (pathed): pathed is Pathed<Datasworn.ConditionMeterField> =>
-      pathed.value.field_type == "condition_meter",
+    {
+      onBaseControl(key, control) {
+        if (control.field_type == "condition_meter") {
+          meters.push([key, control]);
+        }
+      },
+    },
+    markedAbilities,
   );
 
-  return meters.map((pathed) => {
-    const { value: control } = pathed;
-    const key = getPathLabel(pathed);
-
+  return meters.map(([key, control]) => {
     return {
       key,
       definition: {

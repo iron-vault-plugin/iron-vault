@@ -1,40 +1,10 @@
 import { type Datasworn } from "@datasworn/core";
-import {
-  getPathLabel,
-  pathed,
-  samePath,
-  updateAssetWithOptions,
-} from "./assets";
+import { Datastore } from "datastore";
+import { produce } from "immer";
+import { integratedAssetLens, walkAsset } from "./assets";
 
-describe("getPathLabel", () => {
-  it("works with one part", () => {
-    expect(getPathLabel(pathed(["foo/assets/bar", "baz"], null))).toEqual(
-      "baz",
-    );
-  });
-  it("works with two parts", () => {
-    expect(getPathLabel(pathed(["foo/assets/bar", "1", "2"], null))).toEqual(
-      "1/2",
-    );
-  });
-});
-
-describe("samePath", () => {
-  it("is true for identical paths", () => {
-    expect(
-      samePath(pathed(["foo/bar", "1"], null), pathed(["foo/bar", "1"], null)),
-    ).toBe(true);
-  });
-
-  it("is false for different paths", () => {
-    expect(
-      samePath(pathed(["foo/bar", "1"], null), pathed(["foo/bar", "2"], null)),
-    ).toBe(false);
-  });
-});
-
-describe("updateAssetWithOptions", () => {
-  const starship: Datasworn.Asset = {
+const starship = () =>
+  ({
     _id: "starforged/assets/command_vehicle/starship",
     type: "asset",
     name: "Starship",
@@ -64,6 +34,9 @@ describe("updateAssetWithOptions", () => {
             enhances: ["starforged/moves/legacy/advance"],
           },
         ],
+        options: {
+          made_up: { field_type: "text", label: "made up", value: null },
+        },
       },
       {
         _id: "starforged/assets/command_vehicle/starship/abilities/1",
@@ -152,20 +125,219 @@ describe("updateAssetWithOptions", () => {
       url: "https://ironswornrpg.com",
       license: "https://creativecommons.org/licenses/by/4.0",
     },
+  }) satisfies Datasworn.Asset;
+
+describe("walkAsset", () => {
+  it("triggers on asset options", () => {
+    const mock = jest.fn(() => void undefined);
+    walkAsset(starship(), {
+      onBaseOption: mock,
+    });
+    expect(mock).toHaveBeenCalledWith("label", starship().options.label);
+  });
+
+  it("triggers on asset controls", () => {
+    const mock = jest.fn(() => void undefined);
+    walkAsset(starship(), {
+      onBaseControl: mock,
+    });
+    expect(mock).toHaveBeenCalledWith(
+      "integrity",
+      starship().controls.integrity,
+    );
+  });
+
+  it("triggers on asset meter subcontrols", () => {
+    const mock = jest.fn(() => void undefined);
+    walkAsset(starship(), {
+      onConditionMeterSubcontrol: mock,
+    });
+
+    const integrity = starship().controls.integrity;
+    expect(mock).toHaveBeenNthCalledWith(
+      1,
+      "battered",
+      integrity.controls.battered,
+      integrity,
+      "integrity",
+    );
+    expect(mock).toHaveBeenNthCalledWith(
+      2,
+      "cursed",
+      integrity.controls.cursed,
+      integrity,
+      "integrity",
+    );
+  });
+
+  it("triggers on marked ability", () => {
+    const mock = jest.fn(() => void undefined);
+    walkAsset(
+      starship(),
+      {
+        onAbilityOption: mock,
+      },
+      [true, false, false],
+    );
+
+    const firstAbility = starship().abilities[0];
+    expect(mock).toHaveBeenCalledWith(
+      "made_up",
+      firstAbility.options?.made_up,
+      firstAbility,
+      0,
+    );
+  });
+
+  it("does not trigger on marked ability", () => {
+    const mock = jest.fn(() => void undefined);
+    walkAsset(
+      starship(),
+      {
+        onAbilityOption: mock,
+      },
+      [false, true, false],
+    );
+
+    expect(mock).not.toHaveBeenCalled();
+  });
+});
+
+describe("integratedAssetLens", () => {
+  const mockDatastore = {
+    assets: new Map([[starship()._id, starship()]]),
   };
-  it("updates the values", () => {
-    expect(updateAssetWithOptions(starship, { label: "foo" })).toMatchObject({
-      options: { label: { value: "foo" } },
+  describe("#get", () => {
+    it("updates marked abilities", () => {
+      expect(
+        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+          id: starship()._id,
+          abilities: [true, false, true],
+          options: {},
+          controls: {},
+        }),
+      ).toMatchObject({
+        abilities: [{ enabled: true }, { enabled: false }, { enabled: true }],
+      });
+    });
+
+    it("integrates option values", () => {
+      expect(
+        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+          id: starship()._id,
+          abilities: [true, false, false],
+          options: {},
+          controls: {},
+        }),
+      ).toHaveProperty("options.label.value", null);
+      expect(
+        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+          id: starship()._id,
+          abilities: [true, false, false],
+          options: { label: "arclight" },
+          controls: {},
+        }),
+      ).toHaveProperty("options.label.value", "arclight");
+    });
+    it("integrates meter values", () => {
+      expect(
+        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+          id: starship()._id,
+          abilities: [true, false, false],
+          options: {},
+          controls: {},
+        }),
+      ).toHaveProperty("controls.integrity.value", 5);
+      expect(
+        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+          id: starship()._id,
+          abilities: [true, false, false],
+          options: {},
+          controls: { integrity: 3 },
+        }),
+      ).toHaveProperty("controls.integrity.value", 3);
+    });
+
+    it("integrates meter subfield values", () => {
+      expect(
+        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+          id: starship()._id,
+          abilities: [true, false, false],
+          options: {},
+          controls: {},
+        }),
+      ).toHaveProperty("controls.integrity.controls.battered.value", false);
+      expect(
+        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+          id: starship()._id,
+          abilities: [true, false, false],
+          options: {},
+          controls: { battered: true },
+        }),
+      ).toHaveProperty("controls.integrity.controls.battered.value", true);
+    });
+
+    it("integrates meter subfield values", () => {
+      expect(
+        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+          id: starship()._id,
+          abilities: [true, false, false],
+          options: {},
+          controls: {},
+        }),
+      ).toHaveProperty("controls.integrity.controls.battered.value", false);
+      expect(
+        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+          id: starship()._id,
+          abilities: [true, false, false],
+          options: {},
+          controls: { battered: true },
+        }),
+      ).toHaveProperty("controls.integrity.controls.battered.value", true);
+    });
+
+    it("integrates ability values", () => {
+      expect(
+        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+          id: starship()._id,
+          abilities: [false, false, false],
+          options: {},
+          controls: {},
+        }),
+      ).toHaveProperty("abilities.0.options.made_up.value", null);
+      expect(
+        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+          id: starship()._id,
+          abilities: [false, false, false],
+          options: { made_up: "foo" },
+          controls: {},
+        }),
+      ).toHaveProperty("abilities.0.options.made_up.value", "foo");
     });
   });
-  it("updates only the key given", () => {
-    expect(updateAssetWithOptions(starship, { bar: "foo" })).toMatchObject({
-      options: { label: { value: null } },
+
+  describe("update", () => {
+    expect(
+      integratedAssetLens(mockDatastore as unknown as Datastore).update(
+        {
+          id: starship()._id,
+          abilities: [false, false, false],
+          options: {},
+          controls: {},
+        },
+        produce(starship(), (draft) => {
+          draft.abilities[0].enabled = true;
+          draft.abilities[1].enabled = true;
+          draft.options.label.value = "arclight" as never;
+          draft.controls.integrity.value = 3;
+          draft.controls.integrity.controls.battered.value = true as never;
+        }),
+      ),
+    ).toEqual({
+      id: starship()._id,
+      abilities: [true, true, false],
+      options: { label: "arclight", made_up: null },
+      controls: { integrity: 3, battered: true, cursed: false },
     });
-  });
-  it("creates a new object and leaves the old unchanged", () => {
-    const updated = updateAssetWithOptions(starship, { label: "foo" });
-    expect(updated).not.toBe(starship);
-    expect(starship).toHaveProperty(["options", "label", "value"], null);
   });
 });

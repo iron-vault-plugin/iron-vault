@@ -87,3 +87,34 @@ export function writer<A, B>(
 ): Writer<A, B> {
   return { update };
 }
+
+export function addOrUpdateMatching<T, U>(
+  arrayLens: Lens<T, U[]>,
+  predicate: (existing: U, candidate: U) => boolean,
+): Writer<T, U> {
+  return writer((source, newElem) => {
+    const curArray = arrayLens.get(source);
+    const existingIndex = curArray.findIndex((value) =>
+      predicate(value, newElem),
+    );
+    if (existingIndex == -1) {
+      return arrayLens.update(source, [...curArray, newElem]);
+    } else if (curArray[existingIndex] === newElem) {
+      return source;
+    } else {
+      const newArray = [...curArray];
+      newArray[existingIndex] = newElem;
+      return arrayLens.update(source, newArray);
+    }
+  });
+}
+
+export function composeRightWriter<T, U, V>(
+  leftLens: Lens<T, U>,
+  rightLens: Writer<U, V>,
+): Writer<T, V> {
+  return writer((source, newval) => {
+    const intermediate = leftLens.get(source);
+    return leftLens.update(source, rightLens.update(intermediate, newval));
+  });
+}

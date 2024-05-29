@@ -1,4 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
+import { produce } from "immer";
 import IronVaultPlugin from "index";
 import { Editor, FuzzyMatch, MarkdownView } from "obsidian";
 import { vaultProcess } from "utils/obsidian";
@@ -10,11 +11,9 @@ import {
   determineCharacterActionContext,
 } from "./action-context";
 import {
-  addAsset,
+  addOrUpdateViaDataswornAsset,
   defaultMarkedAbilitiesForAsset,
-  getPathLabel,
-  traverseAssetOptions,
-  updateAssetWithOptions,
+  walkAsset,
 } from "./assets";
 
 export async function addAssetToCharacter(
@@ -56,24 +55,29 @@ export async function addAssetToCharacter(
     `Choose an asset to add to character ${lens.name.get(character)}.`,
   );
 
-  const options = traverseAssetOptions(
+  const options: [string, Datasworn.AssetOptionField][] = [];
+  walkAsset(
     selectedAsset,
+    {
+      onAnyOption(key, option) {
+        options.push([key, option]);
+      },
+    },
     defaultMarkedAbilitiesForAsset(selectedAsset),
   );
+
   const optionValues: Record<string, string> = {};
-  for (const pathed of options) {
-    const { value: optionControl } = pathed;
-    let value: string;
-    switch (optionControl.field_type) {
+  for (const [key, optionField] of options) {
+    switch (optionField.field_type) {
       case "select_value": {
         const choice = await CustomSuggestModal.select(
           plugin.app,
-          Object.entries(optionControl.choices),
+          Object.entries(optionField.choices),
           ([_choiceKey, choice]) => choice.label,
           undefined,
-          firstUppercase(optionControl.label),
+          firstUppercase(optionField.label),
         );
-        value = choice[0];
+        optionValues[key] = choice[0];
         break;
       }
       case "select_enhancement": {
@@ -83,21 +87,32 @@ export async function addAssetToCharacter(
         continue;
       }
       case "text": {
-        value = await PromptModal.prompt(
+        optionValues[key] = await PromptModal.prompt(
           plugin.app,
-          firstUppercase(optionControl.label),
+          firstUppercase(optionField.label),
         );
       }
     }
-    optionValues[getPathLabel(pathed)] = value;
   }
 
-  const updatedAsset = updateAssetWithOptions(selectedAsset, optionValues);
+  // TODO: this is clunky-- at this point, optionValues is actually just the options field
+  // in the IronVaultAssetSchema... so can't we just work with that?
+  const updatedAsset = produce(selectedAsset, (draft) => {
+    walkAsset(
+      draft,
+      {
+        onAnyOption(key, option) {
+          option.value = optionValues[key];
+        },
+      },
+      defaultMarkedAbilitiesForAsset(selectedAsset),
+    );
+  });
 
-  await context.updater(
-    vaultProcess(plugin.app, path),
-    (character, context) => {
-      return addAsset(context.lens).update(character, updatedAsset);
-    },
+  await context.updater(vaultProcess(plugin.app, path), (char) =>
+    addOrUpdateViaDataswornAsset(lens, plugin.datastore).update(
+      char,
+      updatedAsset,
+    ),
   );
 }
