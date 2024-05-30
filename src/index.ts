@@ -347,28 +347,28 @@ export default class IronVaultPlugin extends Plugin {
     plugin.registerMarkdownPostProcessor((el) => {
       el.querySelectorAll("a").forEach((a) => {
         if (a.href.startsWith("id:")) {
-          const id = a.href
-            .slice("id:".length)
-            .replace(/\s*/g, "")
-            .toLowerCase();
-          const oracle = plugin.datastore.oracles.get(id);
-          const move =
-            !oracle &&
-            plugin.datastore.moves.find(
-              (m) =>
-                m._id === id || m.name.replace(/\s*/g, "").toLowerCase() === id,
-            );
           const handler = (ev: MouseEvent) => {
             ev.stopPropagation();
             ev.preventDefault();
+            const id = a.href
+              .slice("id:".length)
+              .replace(/\s*/g, "")
+              .toLowerCase();
+            const oracle = plugin.datastore.oracles.get(id);
+            const move =
+              !oracle &&
+              plugin.datastore.moves.find(
+                (m) =>
+                  m._id === id ||
+                  m.name.replace(/\s*/g, "").toLowerCase() === id,
+              );
             if (oracle) {
               new OracleModal(plugin.app, plugin, oracle).open();
             } else if (move) {
               new MoveModal(plugin.app, plugin, move).open();
             }
           };
-          a.addEventListener("click", handler);
-          plugin.register(() => a.removeEventListener("click", handler));
+          plugin.registerDomEvent(a, "click", handler);
         }
       });
     });
