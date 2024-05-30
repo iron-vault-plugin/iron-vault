@@ -4,10 +4,10 @@ import {
   createProgressNode,
   createTrackCreationNode,
 } from "mechanics/node-builders";
-import { App, Editor, MarkdownView, stringifyYaml } from "obsidian";
+import { App, Editor, MarkdownView } from "obsidian";
 import { IronVaultPluginSettings } from "settings";
-import { getExistingOrNewFolder } from "utils/obsidian";
-import { BLOCK_TYPE__TRACK } from "../constants";
+import { createNewIronVaultEntityFile } from "utils/obsidian";
+import { BLOCK_TYPE__TRACK, IronVaultKind } from "../constants";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ProgressContext } from "./context";
 import { ProgressTrack, ProgressTrackFileAdapter } from "./progress";
@@ -71,17 +71,14 @@ export async function createProgressTrack(
   const track =
     ProgressTrackFileAdapter.newFromTrack(trackInput).expect("invalid track");
 
-  const progressFolder = await getExistingOrNewFolder(
+  const file = await createNewIronVaultEntityFile(
     plugin.app,
     trackInput.targetFolder,
-  );
-
-  // TODO: figure out the templating for this
-  const file = await plugin.app.fileManager.createNewFile(
-    progressFolder,
     trackInput.fileName,
-    "md",
-    `---\n${stringifyYaml(track.raw)}\n---\n\n\`\`\`${BLOCK_TYPE__TRACK}\n\`\`\`\n\n`,
+    IronVaultKind.ProgressTrack,
+    track.raw,
+    plugin.settings.progressTrackTemplateFile,
+    `\n\`\`\`${BLOCK_TYPE__TRACK}\n\`\`\`\n\n`,
   );
 
   appendNodesToMoveOrMechanicsBlock(

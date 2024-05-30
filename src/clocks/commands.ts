@@ -4,7 +4,7 @@ import {
   createClockCreationNode,
   createClockNode,
 } from "mechanics/node-builders";
-import { App, Editor, MarkdownView, stringifyYaml } from "obsidian";
+import { App, Editor, MarkdownView } from "obsidian";
 import { IronVaultPluginSettings } from "settings";
 import {
   ClockFileAdapter,
@@ -12,8 +12,8 @@ import {
   clockUpdater,
 } from "../clocks/clock-file";
 import { selectClock } from "../clocks/select-clock";
-import { BLOCK_TYPE__CLOCK } from "../constants";
-import { getExistingOrNewFolder, vaultProcess } from "../utils/obsidian";
+import { BLOCK_TYPE__CLOCK, IronVaultKind } from "../constants";
+import { createNewIronVaultEntityFile, vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { Clock } from "./clock";
 import { ClockCreateModal } from "./clock-create-modal";
@@ -80,17 +80,14 @@ export async function createClock(
   const clock =
     ClockFileAdapter.newFromClock(clockInput).expect("invalid clock");
 
-  const clockFolder = await getExistingOrNewFolder(
+  const file = await createNewIronVaultEntityFile(
     plugin.app,
     clockInput.targetFolder,
-  );
-
-  // TODO: figure out the templating for this
-  const file = await plugin.app.fileManager.createNewFile(
-    clockFolder,
     clockInput.fileName,
-    "md",
-    `---\n${stringifyYaml(clock.raw)}\n---\n\n\`\`\`${BLOCK_TYPE__CLOCK}\n\`\`\`\n\n`,
+    IronVaultKind.Clock,
+    clock.raw,
+    plugin.settings.clockTemplateFile,
+    `\n\`\`\`${BLOCK_TYPE__CLOCK}\n\`\`\`\n\n`,
   );
 
   appendNodesToMoveOrMechanicsBlock(
