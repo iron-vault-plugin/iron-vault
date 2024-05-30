@@ -89,7 +89,8 @@ export async function createNewIronVaultEntityFile(
   frontMatter: Record<string, unknown>,
   templatePath?: string,
   defaultTemplate?: string,
-) {
+  setFocus: boolean = false,
+): Promise<TFile> {
   const targetFolder = await getExistingOrNewFolder(app, targetFolderPath);
 
   console.log("Creating in folder: %o", targetFolder);
@@ -99,20 +100,23 @@ export async function createNewIronVaultEntityFile(
     `---\n${stringifyYaml({ ...frontMatter, [PLUGIN_KIND_FIELD]: ironVaultKind })}\n---\n\n`,
   );
 
-  await app.workspace.getLeaf().openFile(file, {
-    active: true,
-    state: { mode: "source" },
-    eState: { rename: "all" },
-  });
-
-  // TODO: also control this behavior by setting
+  let shouldSetFocus = setFocus;
+  // TODO: add a setting controlling use of templater plugin
   const templaterPlugin = app.plugins.enabledPlugins.has("templater-obsidian")
     ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (app.plugins.plugins as Record<string, any>)["templater-obsidian"]
     : undefined;
   const templateFile = templatePath && app.vault.getFileByPath(templatePath);
-  if (templaterPlugin && templateFile) {
+  if (setFocus && templaterPlugin && templateFile) {
     // If we have a template and the templater plugin, use that.
+    // This only works if we set focus, so also require that.
+    await app.workspace.getLeaf().openFile(file, {
+      active: true,
+      state: { mode: "source" },
+      eState: { rename: "all" },
+    });
+    shouldSetFocus = false;
+
     await templaterPlugin.templater.append_template_to_active_file(
       templateFile,
     );
@@ -124,4 +128,14 @@ export async function createNewIronVaultEntityFile(
     // Otherwise, just add the default template
     await app.vault.append(file, defaultTemplate);
   }
+
+  if (shouldSetFocus) {
+    await app.workspace.getLeaf().openFile(file, {
+      active: true,
+      state: { mode: "source" },
+      eState: { rename: "all" },
+    });
+  }
+
+  return file;
 }
