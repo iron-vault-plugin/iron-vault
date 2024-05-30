@@ -7,6 +7,7 @@ import {
   ValidatedCharacter,
   characterLens,
 } from "./characters/lens";
+import { IronVaultKind } from "./constants";
 import { Datastore } from "./datastore";
 import { BaseIndexer, IndexOf, IndexUpdate } from "./indexer/indexer";
 
@@ -20,7 +21,7 @@ export class CharacterIndexer extends BaseIndexer<
   CharacterContext,
   z.ZodError
 > {
-  readonly id: string = "character";
+  readonly id = IronVaultKind.Character;
 
   constructor(protected readonly dataStore: Datastore) {
     super();

@@ -11,3 +11,9 @@ export const PLUGIN_KIND_FIELD = pluginPrefixed("kind");
 
 export const BLOCK_TYPE__TRACK = pluginPrefixed("track");
 export const BLOCK_TYPE__CLOCK = pluginPrefixed("clock");
+
+export enum IronVaultKind {
+  Character = "character",
+  Clock = "clock",
+  ProgressTrack = "progress",
+}

@@ -3,7 +3,7 @@ import { Index } from "indexer/index-impl";
 import { CachedMetadata } from "obsidian";
 import { normalizeKeys } from "utils/zodutils";
 import { z } from "zod";
-import { PLUGIN_KIND_FIELD } from "../constants";
+import { IronVaultKind, PLUGIN_KIND_FIELD } from "../constants";
 import { BaseIndexer, IndexUpdate } from "../indexer/indexer";
 import { Either, Left } from "../utils/either";
 import { updater } from "../utils/update";
@@ -58,7 +58,7 @@ export class ClockFileAdapter {
       segments: clock.segments,
       progress: clock.progress,
       tags: !clock.active ? ["complete"] : ["incomplete"],
-      [PLUGIN_KIND_FIELD]: KIND__CLOCK,
+      [PLUGIN_KIND_FIELD]: IronVaultKind.Clock,
     } satisfies z.input<typeof clockSchema>);
   }
 
@@ -101,10 +101,8 @@ export class ClockFileAdapter {
   }
 }
 
-export const KIND__CLOCK = "clock";
-
 export class ClockIndexer extends BaseIndexer<ClockFileAdapter, z.ZodError> {
-  readonly id: string = KIND__CLOCK;
+  readonly id = IronVaultKind.Clock;
 
   processFile(
     path: string,
