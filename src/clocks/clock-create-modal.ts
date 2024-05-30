@@ -19,7 +19,7 @@ export type ClockCreateResultType = {
 
 export class ClockCreateModal extends Modal {
   public result: ClockCreateResultType = {
-    segments: 0,
+    segments: 6,
     name: "",
     fileName: "",
     targetFolder: "",
@@ -91,7 +91,7 @@ export class ClockCreateModal extends Modal {
     new Setting(contentEl).setName("Segments").addSlider((slider) =>
       slider
         .setLimits(2, 12, 1)
-        .setValue(6)
+        .setValue(this.result.segments)
         .setDynamicTooltip()
         .onChange((segments) => {
           this.result.segments = segments;
