@@ -2,7 +2,7 @@
   border: 2px solid var(--background-modifier-border);
   padding: 0;
   border-radius: 8px;
-  width: 320px;
+  width: 300px;
   background-color: var(--background-primary);
   & dl,
   dt,

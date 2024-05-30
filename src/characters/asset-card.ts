@@ -276,13 +276,13 @@ function renderControl(
     }
     case "checkbox": {
       return html`<label class="checkbox"
-        ><input
+        ><span>${control.label}</span>
+        <input
           type="checkbox"
           ?disabled=${!updateControl}
           ?checked=${control.value}
           @click=${toggleControl}
         />
-        <span>${control.label}</span>
       </label>`;
     }
     case "select_enhancement": {
