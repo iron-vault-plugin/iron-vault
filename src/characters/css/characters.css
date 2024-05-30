@@ -6,6 +6,11 @@
 @import url("special_tracks.css");
 @import url("stats.css");
 
+.markdown-rendered .iron-vault-character ul {
+  padding-left: 0;
+  margin-left: 0;
+}
+
 .iron-vault-character {
   display: flex;
   flex-flow: column nowrap;
