@@ -32,6 +32,14 @@ assets:
       integrity/cursed: false
     options:
       name: Arclight
+  - id: starforged/assets/module/medbay
+    abilities:
+      - true
+      - false
+      - false
+    controls:
+      broken: false
+    options: {}
 spirit: 5
 supply: 4
 Quests_Progress: 4
@@ -40,6 +48,7 @@ Bonds_XPEarned: 0
 Bonds_Progress: 0
 Discoveries_XPEarned: 0
 Discoveries_Progress: 0
+xp_spent: 0
 ---
 ```iron-vault-character
 ```
