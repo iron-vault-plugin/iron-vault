@@ -19,6 +19,11 @@
   > * + * {
     border-top: 2px solid var(--background-modifier-border);
   }
+  & li::before {
+    /* Some themes (Like ITS Theme) try to be more clever than they deserve
+      to be with list bullets. Make that b.s. go away. */
+    display: none;
+  }
   & label {
     cursor: pointer;
     text-transform: uppercase;
