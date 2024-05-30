@@ -18,8 +18,8 @@ import {
 
 export async function addAssetToCharacter(
   plugin: IronVaultPlugin,
-  _editor: Editor,
-  _view: MarkdownView,
+  _editor?: Editor,
+  _view?: MarkdownView,
 ): Promise<void> {
   const actionContext = await determineCharacterActionContext(plugin);
   // TODO: maybe we could make this part of the checkCallback? (i.e., if we are in no character

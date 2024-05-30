@@ -41,7 +41,18 @@
       border-bottom: 2px solid var(--background-modifier-border);
     }
     & dd {
-      font-size: 1.6em;
+      display: flex;
+      flex-flow: column;
+      align-items: center;
+      justify-content: center;
+      & input {
+        font-size: 1.6em;
+        width: 80%;
+        text-align: center;
+        background-color: transparent;
+        border: none;
+        margin-top: 0.2em;
+      }
     }
   }
 }

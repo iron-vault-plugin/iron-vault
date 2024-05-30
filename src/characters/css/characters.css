@@ -16,7 +16,7 @@
     margin: 0 !important;
     padding-inline-start: 0;
   }
-  > * + *{
+  > * + * {
     border-top: 2px solid var(--background-modifier-border);
   }
   & label {
@@ -58,6 +58,30 @@
       width: auto;
       text-align: center;
       background-color: transparent;
+    }
+  }
+  & .assets {
+    & .asset-card-wrapper {
+      position: relative;
+      cursor: pointer;
+      & > .remove-asset {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        z-index: 1;
+      }
+    }
+    & li:has(.add-asset) {
+      align-self: center;
+      justify-self: center;
+      & .add-asset {
+        text-transform: uppercase;
+        font-weight: var(--font-semibold);
+        font-size: 1em;
+        padding: 1em;
+      }
     }
   }
 }

@@ -52,6 +52,7 @@ export const baseIronVaultSchema = z
     callsign: z.string().optional(),
     pronouns: z.string().optional(),
     description: z.string().optional(),
+    xp_spent: z.number().int().nonnegative().default(0),
     momentum: z.number().int().gte(-10).lte(10),
     assets: z.array(characterAssetSchema).optional(),
   })
@@ -69,6 +70,7 @@ export interface CharacterLens {
   callsign: Lens<ValidatedCharacter, string | undefined>;
   pronouns: Lens<ValidatedCharacter, string | undefined>;
   description: Lens<ValidatedCharacter, string | undefined>;
+  xp_spent: Lens<ValidatedCharacter, number>;
   momentum: Lens<ValidatedCharacter, number>;
   stats: Record<string, Lens<ValidatedCharacter, number>>;
   condition_meters: Record<string, Lens<ValidatedCharacter, number>>;
@@ -471,6 +473,12 @@ export function characterLens(ruleset: Ruleset): {
       lensForSchemaProp({
         path: "description",
         schema: baseIronVaultSchema.shape.description,
+      }),
+    ),
+    xp_spent: v(
+      lensForSchemaProp({
+        path: "xp_spent",
+        schema: baseIronVaultSchema.shape.xp_spent,
       }),
     ),
     momentum: v(

@@ -3,10 +3,15 @@
   flex-flow: column nowrap;
   align-items: center;
   justify-content: center;
-  & .name {
+  & .name input {
     font-size: 1.6em;
+    height: 1.6em;
     font-weight: var(--font-semibold);
     padding-bottom: 0.5em;
+    background-color: transparent;
+    max-width: 340px;
+    text-align: center;
+    border: none;
   }
   & dl,
   & dt,
@@ -18,7 +23,7 @@
     display: grid;
     max-width: 460px;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(4, 1fr);
+    grid-template-rows: repeat(6, 1fr);
     column-gap: 0.2em;
     align-items: end;
     & dt {
@@ -26,21 +31,36 @@
       font-weight: var(--font-semibold);
       font-size: 0.8em;
       text-transform: uppercase;
-      grid-row: 1;
+      color: var(--text-faint);
+      grid-row-start: 5;
+      &:has(~ .description) {
+        grid-row-start: 1;
+      }
     }
     & dd input {
       padding: 0.4em;
       width: 100%;
       font-size: 1em;
+      background-color: transparent;
+      border: none;
+      border-bottom: 1px solid var(--background-modifier-border);
+      border-radius: 0;
+      &:focus {
+        border-radius: var(--input-radius);
+      }
     }
-    & dt:last-of-type, & dd:last-of-type {
-      grid-column: span 2;
+    & dt:has(+ .description),
+    & dd.description {
+      grid-column: 1 / span 2;
     }
-    & dt:last-of-type {
-      grid-row: 3;
+    & dt:has(+ .description) {
+      grid-row-start: 3;
     }
-    & dd:last-of-type {
-      grid-row: 4;
+    & dd.description {
+      grid-row-start: 4;
+    }
+    & dd.xp-earned {
+      padding-left: 0.4em;
     }
   }
 }
