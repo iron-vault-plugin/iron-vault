@@ -101,13 +101,15 @@ export async function createNewIronVaultEntityFile(
   );
 
   let shouldSetFocus = setFocus;
-  // TODO: add a setting controlling use of templater plugin
-  const templaterPlugin = app.plugins.enabledPlugins.has("templater-obsidian")
-    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (app.plugins.plugins as Record<string, any>)["templater-obsidian"]
-    : undefined;
+  const enableTemplaterPlugin = false;
+  const templaterPlugin =
+    enableTemplaterPlugin &&
+    app.plugins.enabledPlugins.has("templater-obsidian")
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (app.plugins.plugins as Record<string, any>)["templater-obsidian"]
+      : undefined;
   const templateFile = templatePath && app.vault.getFileByPath(templatePath);
-  if (setFocus && templaterPlugin && templateFile) {
+  if (shouldSetFocus && templaterPlugin && templateFile) {
     // If we have a template and the templater plugin, use that.
     // This only works if we set focus, so also require that.
     await app.workspace.getLeaf().openFile(file, {
@@ -121,6 +123,11 @@ export async function createNewIronVaultEntityFile(
       templateFile,
     );
   } else if (templateFile) {
+    if (enableTemplaterPlugin && !shouldSetFocus) {
+      console.log(
+        "Can only use templater plugin when setting focus. Falling back on ordinary template mode...",
+      );
+    }
     // If we have a template file, but no plugin-- just append the file contents.
     const templateContents = await app.vault.cachedRead(templateFile);
     await app.vault.append(file, "\n" + templateContents);
