@@ -1,12 +1,12 @@
 import { type Datasworn } from "@datasworn/core";
 import { produce } from "immer";
 import IronVaultPlugin from "index";
-import { Editor, FuzzyMatch, MarkdownView, stringifyYaml } from "obsidian";
-import { vaultProcess } from "utils/obsidian";
+import { Editor, FuzzyMatch, MarkdownView } from "obsidian";
+import { createNewIronVaultEntityFile, vaultProcess } from "utils/obsidian";
 import { firstUppercase } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
-import { PLUGIN_KIND_FIELD, pluginPrefixed } from "../constants";
+import { IronVaultKind, pluginPrefixed } from "../constants";
 import {
   NoCharacterActionConext as NoCharacterActionContext,
   determineCharacterActionContext,
@@ -119,41 +119,20 @@ export async function addAssetToCharacter(
   );
 }
 
-export async function createNewCharacter({ app, datastore }: IronVaultPlugin) {
-  const { lens, validater } = characterLens(datastore.ruleset);
+export async function createNewCharacter(plugin: IronVaultPlugin) {
+  const { lens, validater } = characterLens(plugin.datastore.ruleset);
   const name = await PromptModal.prompt(
-    app,
+    plugin.app,
     "What is the name of the character?",
   );
 
-  const charactersFolder = app.vault.getFolderByPath("characters");
-  if (!charactersFolder) return;
-
-  const file = await app.fileManager.createNewMarkdownFile(
-    charactersFolder,
+  await createNewIronVaultEntityFile(
+    plugin.app,
+    plugin.settings.defaultCharactersFolder,
     name,
-    `---\n${stringifyYaml({ ...createValidCharacter(lens, validater, name).raw, [PLUGIN_KIND_FIELD]: "character" })}\n---\n\n`,
+    IronVaultKind.Character,
+    createValidCharacter(lens, validater, name).raw,
+    plugin.settings.characterTemplateFile,
+    `\n\`\`\`${pluginPrefixed("character")}\n\`\`\`\n`,
   );
-
-  await app.workspace.getLeaf().openFile(file, {
-    active: true,
-    state: { mode: "source" },
-    eState: { rename: "all" },
-  });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const templaterPlugin: any = (app.plugins.plugins as Record<string, any>)[
-    "templater-obsidian"
-  ];
-  const templateFile = undefined; //app.vault.getFileByPath("Templates/Character.md");
-  if (templaterPlugin && templateFile) {
-    await templaterPlugin.templater.append_template_to_active_file(
-      templateFile,
-    );
-  } else {
-    await app.vault.append(
-      file,
-      `\n\`\`\`${pluginPrefixed("character")}\n\`\`\`\n`,
-    );
-  }
 }

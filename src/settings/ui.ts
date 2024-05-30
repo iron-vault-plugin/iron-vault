@@ -60,6 +60,33 @@ export class IronVaultSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
+      .setName("Default characters folder")
+      .setDesc("Create player characters in this folder by default.")
+      .addSearch((search) => {
+        new FolderTextSuggest(this.app, search.inputEl);
+        search
+          .setPlaceholder("Type the name of a folder")
+          .setValue(settings.defaultCharactersFolder)
+          .onChange((value) =>
+            this.updateSetting("defaultCharactersFolder", value),
+          );
+      });
+
+    new Setting(containerEl)
+      .setName("Character template file")
+      .setDesc(
+        "If provided, this file will be appended to new Character files. If the Templater plugin is enabled, Templater syntax may be used.",
+      )
+      .addText((text) => {
+        text
+          .setPlaceholder("Templates/Character.md")
+          .setValue(settings.characterTemplateFile)
+          .onChange((value) => {
+            this.updateSetting("characterTemplateFile", value);
+          });
+      });
+
+    new Setting(containerEl)
       .setName("Use character system")
       .setDesc(
         "If enabled (default), the plugin will look for an active character when making moves. If disabled, you will be prompted to supply appropriate values when needed.",

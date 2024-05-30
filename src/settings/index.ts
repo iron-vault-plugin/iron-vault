@@ -16,6 +16,9 @@ export class IronVaultPluginSettings {
 
   defaultProgressTrackFolder: string = "Progress";
   defaultClockFolder: string = "Clocks";
+  defaultCharactersFolder: string = "Characters";
+
+  characterTemplateFile: string = "";
 
   momentumResetTemplate: string =
     "> [!mechanics] {{character.name}} burned momentum: {{oldValue}} -> {{newValue}}\n\n";
