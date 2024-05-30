@@ -30,6 +30,9 @@ export class IronVaultPluginSettings {
 
   /** Hide "Hide mechanics" toggle */
   showMechanicsToggle: boolean = true;
+
+  /** Completely hide all mechanics */
+  hideMechanics: boolean = false;
   emitter: Emittery;
 
   constructor() {

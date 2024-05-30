@@ -57,7 +57,9 @@ export class MechanicsRenderer {
       plugin.settings.on("change", ({ key, oldValue, newValue }) => {
         if (
           oldValue !== newValue &&
-          (key === "showMechanicsToggle" || key === "collapseMoves")
+          (key === "showMechanicsToggle" ||
+            key === "collapseMoves" ||
+            key === "hideMechanics")
         ) {
           this.render();
         }
@@ -67,6 +69,9 @@ export class MechanicsRenderer {
 
   async render(): Promise<void> {
     this.contentEl.empty();
+    if (this.plugin.settings.hideMechanics) {
+      return;
+    }
     const res = parse(this.source);
     if (!res.output) {
       // TODO: give line/column information for errors.

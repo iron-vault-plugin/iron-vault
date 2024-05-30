@@ -17,10 +17,6 @@
 @import url("dlist-clock-status.css");
 @import url("dlist-oracle.css");
 
-.collapse-iron-vault-mechanics .iron-vault-mechanics {
-  display: none;
-}
-
 .iron-vault-mechanics {
   cursor: default;
   margin: 0.5em auto;

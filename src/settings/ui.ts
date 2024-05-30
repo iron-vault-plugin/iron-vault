@@ -97,5 +97,16 @@ export class IronVaultSettingTab extends PluginSettingTab {
             this.updateSetting("showMechanicsToggle", value),
           ),
       );
+
+    new Setting(containerEl)
+      .setName("Hide mechanics completely")
+      .setDesc(
+        "If enabled (default), mechanics blocks will not be displayed at all. Good for when you want to just read a story.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.hideMechanics)
+          .onChange((value) => this.updateSetting("hideMechanics", value)),
+      );
   }
 }

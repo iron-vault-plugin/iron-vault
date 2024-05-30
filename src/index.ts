@@ -246,10 +246,8 @@ export default class IronVaultPlugin extends Plugin {
       id: "toggle-mechanics",
       name: "Toggle displaying mechanics",
       icon: "eye-off",
-      editorCallback: async (editor: Editor) => {
-        editor.containerEl.ownerDocument.body.classList.toggle(
-          "collapse-iron-vault-mechanics",
-        );
+      editorCallback: async (_editor: Editor) => {
+        this.settings.hideMechanics = !this.settings.hideMechanics;
       },
     });
 
