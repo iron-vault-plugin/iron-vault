@@ -36,7 +36,7 @@
   & .track-xp {
     color: var(--text-muted);
   }
-  > .track-widget {
+  & > .track-widget {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
