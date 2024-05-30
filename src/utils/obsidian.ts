@@ -1,4 +1,4 @@
-import { App, TFile, normalizePath, type Plugin } from "obsidian";
+import { App, TFile, TFolder, normalizePath, type Plugin } from "obsidian";
 
 export function pluginAsset(plug: Plugin, assetPath: string): string {
   return normalizePath(
@@ -60,4 +60,14 @@ export function vaultProcess(
       },
     );
   };
+}
+
+export async function getExistingOrNewFolder(
+  app: App,
+  path: string,
+): Promise<TFolder> {
+  const existingFolder = app.vault.getFolderByPath(path);
+  if (existingFolder) return existingFolder;
+
+  return await app.vault.createFolder(path);
 }

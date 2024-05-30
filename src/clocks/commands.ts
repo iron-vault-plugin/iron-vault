@@ -13,7 +13,7 @@ import {
 } from "../clocks/clock-file";
 import { selectClock } from "../clocks/select-clock";
 import { BLOCK_TYPE__CLOCK } from "../constants";
-import { vaultProcess } from "../utils/obsidian";
+import { getExistingOrNewFolder, vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { Clock } from "./clock";
 import { ClockCreateModal } from "./clock-create-modal";
@@ -80,10 +80,10 @@ export async function createClock(
   const clock =
     ClockFileAdapter.newFromClock(clockInput).expect("invalid clock");
 
-  let clockFolder = plugin.app.vault.getFolderByPath(clockInput.targetFolder);
-  if (!clockFolder) {
-    clockFolder = await plugin.app.vault.createFolder(clockInput.targetFolder);
-  }
+  const clockFolder = await getExistingOrNewFolder(
+    plugin.app,
+    clockInput.targetFolder,
+  );
 
   // TODO: figure out the templating for this
   const file = await plugin.app.fileManager.createNewFile(

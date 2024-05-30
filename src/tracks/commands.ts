@@ -6,6 +6,7 @@ import {
 } from "mechanics/node-builders";
 import { App, Editor, MarkdownView, stringifyYaml } from "obsidian";
 import { IronVaultPluginSettings } from "settings";
+import { getExistingOrNewFolder } from "utils/obsidian";
 import { BLOCK_TYPE__TRACK } from "../constants";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ProgressContext } from "./context";
@@ -70,14 +71,10 @@ export async function createProgressTrack(
   const track =
     ProgressTrackFileAdapter.newFromTrack(trackInput).expect("invalid track");
 
-  let progressFolder = plugin.app.vault.getFolderByPath(
+  const progressFolder = await getExistingOrNewFolder(
+    plugin.app,
     trackInput.targetFolder,
   );
-  if (!progressFolder) {
-    progressFolder = await plugin.app.vault.createFolder(
-      trackInput.targetFolder,
-    );
-  }
 
   // TODO: figure out the templating for this
   const file = await plugin.app.fileManager.createNewFile(
