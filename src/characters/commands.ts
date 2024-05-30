@@ -134,5 +134,6 @@ export async function createNewCharacter(plugin: IronVaultPlugin) {
     createValidCharacter(lens, validater, name).raw,
     plugin.settings.characterTemplateFile,
     `\n\`\`\`${pluginPrefixed("character")}\n\`\`\`\n`,
+    true,
   );
 }
