@@ -451,6 +451,7 @@ Error rendering character: character file is invalid${character
       if (el && !Sortable.get(el as HTMLElement)) {
         Sortable.create(el as HTMLElement, {
           animation: 150,
+          handle: ".iron-vault-asset-card > header",
         });
       }
     };

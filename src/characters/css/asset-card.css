@@ -3,6 +3,7 @@
   padding: 0;
   border-radius: 8px;
   width: 320px;
+  background-color: var(--background-primary);
   & dl,
   dt,
   dd,
