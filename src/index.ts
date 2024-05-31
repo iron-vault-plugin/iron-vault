@@ -21,6 +21,7 @@ import { IronVaultPluginSettings } from "settings";
 import registerSidebarBlocks from "sidebar/sidebar-block";
 import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
 import { ProgressContext } from "tracks/context";
+import { ProgressIndex, ProgressIndexer } from "tracks/indexer";
 import registerTrackBlock from "tracks/track-block";
 import { IronVaultAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
@@ -33,7 +34,6 @@ import { runOracleCommand } from "./oracles/command";
 import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
 import { advanceProgressTrack, createProgressTrack } from "./tracks/commands";
-import { ProgressIndex, ProgressIndexer } from "./tracks/progress";
 import { pluginAsset } from "./utils/obsidian";
 
 export default class IronVaultPlugin extends Plugin {

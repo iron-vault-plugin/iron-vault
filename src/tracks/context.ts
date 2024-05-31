@@ -5,7 +5,8 @@ import {
 import { App } from "obsidian";
 import IronVaultPlugin from "../index";
 import { vaultProcess } from "../utils/obsidian";
-import { ProgressIndex, ProgressTrackInfo } from "./progress";
+import { ProgressIndex } from "./indexer";
+import { ProgressTrackInfo } from "./progress";
 import {
   LegacyTrackWriter,
   ProgressTrackFileWriter,
