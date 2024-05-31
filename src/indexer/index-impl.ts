@@ -1,79 +1,104 @@
+import { EventRef, Events } from "obsidian";
 import { Either } from "utils/either";
+import { resultFilteredMapClass } from "../utils/filtered-map";
+import { Index } from "./index-interface";
 
-function filteredReadonlyMap<K, V, U>(
-  select: (val: V) => U | undefined,
-): new (baseMap: Map<K, V>) => ReadonlyMap<K, U> {
-  return class FilteredReadonlyMap implements ReadonlyMap<K, U> {
-    #innerMap: ReadonlyMap<K, V>;
-    constructor(innerMap: ReadonlyMap<K, V>) {
-      this.#innerMap = innerMap;
-    }
-    forEach(
-      callbackfn: (value: U, key: K, map: ReadonlyMap<K, U>) => void,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      thisArg?: any,
-    ): void {
-      this.#innerMap.forEach((v, key) => {
-        const selected = select(v);
-        if (selected) {
-          callbackfn.bind(thisArg)(selected, key, this);
-        }
-      }, thisArg);
-    }
-
-    get(key: K): U | undefined {
-      const val = this.#innerMap.get(key);
-      return val && select(val);
-    }
-
-    has(key: K): boolean {
-      if (!this.#innerMap.has(key)) return false;
-      const val = this.#innerMap.get(key);
-      return !!select(val!);
-    }
-
-    get size(): number {
-      let count: number = 0;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      for (const _key of this.keys()) {
-        count++;
-      }
-      return count;
-    }
-    entries(): IterableIterator<[K, U]> {
-      return this[Symbol.iterator]();
-    }
-    *keys(): IterableIterator<K> {
-      for (const entry of this.#innerMap) {
-        yield entry[0];
-      }
-    }
-    *values(): IterableIterator<U> {
-      for (const entry of this) {
-        yield entry[1];
-      }
-    }
-    *[Symbol.iterator](): IterableIterator<[K, U]> {
-      for (const [key, value] of this.#innerMap) {
-        const selected = select(value);
-        if (selected) {
-          yield [key, selected];
-        }
-      }
-    }
-  };
-}
-
-export function resultFilteredMapClass<K, T, E extends Error>() {
-  return filteredReadonlyMap<K, Either<E, T>, T>((result) =>
-    result.isRight() ? result.value : undefined,
-  );
-}
-
-export class Index<T, E extends Error> extends Map<string, Either<E, T>> {
+export class IndexImpl<T, E extends Error> implements Index<T, E> {
   readonly ofValid: ReadonlyMap<string, T> = new (resultFilteredMapClass<
     string,
     T,
     E
   >())(this);
+  readonly events: Events = new Events();
+  readonly #map: Map<string, Either<E, T>> = new Map();
+
+  clear(): void {
+    const keys = [...this.#map.keys()];
+    this.#map.clear();
+    for (const key of keys) {
+      this.trigger("changed", key);
+    }
+  }
+
+  delete(key: string): boolean {
+    if (this.#map.delete(key)) {
+      this.trigger("changed", key);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  forEach(
+    callbackfn: (
+      value: Either<E, T>,
+      key: string,
+      map: Map<string, Either<E, T>>,
+    ) => void,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    thisArg?: any,
+  ): void {
+    this.#map.forEach(callbackfn, thisArg);
+  }
+
+  get(key: string): Either<E, T> | undefined {
+    return this.#map.get(key);
+  }
+
+  has(key: string): boolean {
+    return this.#map.has(key);
+  }
+
+  set(key: string, value: Either<E, T>): this {
+    this.#map.set(key, value);
+    this.trigger("changed", key);
+    return this;
+  }
+
+  get size(): number {
+    return this.#map.size;
+  }
+
+  entries(): IterableIterator<[string, Either<E, T>]> {
+    return this.#map.entries();
+  }
+
+  keys(): IterableIterator<string> {
+    return this.#map.keys();
+  }
+
+  values(): IterableIterator<Either<E, T>> {
+    return this.#map.values();
+  }
+
+  [Symbol.iterator](): IterableIterator<[string, Either<E, T>]> {
+    return this.#map[Symbol.iterator]();
+  }
+
+  get [Symbol.toStringTag](): string {
+    return this.#map[Symbol.toStringTag];
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  on(name: "changed", callback: (path: string) => any, ctx?: any): EventRef;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  on(name: string, callback: (...data: any) => any, ctx?: any): EventRef {
+    return this.events.on(name, callback, ctx);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  off(name: string, callback: (...data: any) => any): void {
+    this.events.off(name, callback);
+  }
+
+  offref(ref: EventRef): void {
+    this.events.offref(ref);
+  }
+
+  trigger(name: "changed", path: string): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  trigger(name: string, ...data: any[]): void {
+    this.events.trigger(name, ...data);
+  }
 }
