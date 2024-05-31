@@ -1,7 +1,8 @@
-import { Index } from "indexer/index-impl";
+import { Index } from "indexer/index-interface";
 import { type CachedMetadata } from "obsidian";
 import { Either, Left } from "utils/either";
 import { IronVaultKind } from "../constants";
+import { IndexImpl } from "./index-impl";
 
 export type IndexErrorResult<E extends Error> = { type: "error"; error: E };
 export type IndexUpdateResult<V, E extends Error> =
@@ -54,7 +55,7 @@ export type IndexOf<Idx> =
 
 export abstract class BaseIndexer<T, E extends Error> implements Indexer {
   abstract readonly id: IronVaultKind;
-  public readonly index: Index<T, E> = new Index();
+  public readonly index: Index<T, E> = new IndexImpl();
 
   constructor() {}
 

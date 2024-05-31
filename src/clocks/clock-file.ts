@@ -1,5 +1,5 @@
 import { produce } from "immer";
-import { Index } from "indexer/index-impl";
+import { Index } from "indexer";
 import { CachedMetadata } from "obsidian";
 import { normalizeKeys } from "utils/zodutils";
 import { z } from "zod";
