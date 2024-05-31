@@ -1,10 +1,10 @@
 import { syntaxTree } from "@codemirror/language";
 import { App } from "obsidian";
+import { ProgressIndex } from "tracks/indexer";
 import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
 import IronVaultPlugin from "./index";
 import { RollWrapper } from "./model/rolls";
-import { ProgressIndex } from "./tracks/progress";
 
 function stripLinks(input: string): string {
   return input.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");

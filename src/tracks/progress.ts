@@ -1,9 +1,7 @@
 import { produce } from "immer";
-import { CachedMetadata } from "obsidian";
 import { normalizeKeys } from "utils/zodutils";
 import { ZodError, z } from "zod";
 import { IronVaultKind, PLUGIN_KIND_FIELD } from "../constants";
-import { BaseIndexer, IndexOf, IndexUpdate } from "../indexer/indexer";
 import { Either, Left, Right } from "../utils/either";
 
 export enum ChallengeRanks {
@@ -287,19 +285,3 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     );
   }
 }
-
-export class ProgressIndexer extends BaseIndexer<
-  ProgressTrackFileAdapter,
-  z.ZodError
-> {
-  readonly id = IronVaultKind.ProgressTrack;
-
-  processFile(
-    path: string,
-    cache: CachedMetadata,
-  ): IndexUpdate<ProgressTrackFileAdapter, z.ZodError> {
-    return ProgressTrackFileAdapter.create(cache.frontmatter);
-  }
-}
-
-export type ProgressIndex = IndexOf<ProgressIndexer>;
