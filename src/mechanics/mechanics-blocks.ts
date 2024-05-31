@@ -206,6 +206,10 @@ export class MechanicsRenderer {
         await this.renderAsset(target, node);
         break;
       }
+      case "impact": {
+        await this.renderImpact(target, node);
+        break;
+      }
       default: {
         this.renderUnknown(target, node.name);
       }
@@ -613,6 +617,15 @@ export class MechanicsRenderer {
     }
     await this.renderDlist(target, "asset", dl);
     return;
+  }
+
+  async renderImpact(target: HTMLElement, node: KdlNode) {
+    const name = (node.properties.name ?? node.values[0]) as string;
+    const status = (node.properties.status ?? node.values[1]) as string;
+    await this.renderDlist(target, "impact", {
+      Impact: { cls: "impact-name", value: name, md: true },
+      Status: { cls: "impact-status", value: status },
+    });
   }
 
   renderUnknown(target: HTMLElement, name: string) {

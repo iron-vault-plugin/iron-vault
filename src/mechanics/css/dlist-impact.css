@@ -1,0 +1,25 @@
+.iron-vault-mechanics dl.impact {
+  &:before {
+    content: "💥";
+  }
+  &:has(.impact-status[data-value="unmarked"]) {
+    & dd.impact-status {
+      color: var(--text-success);
+    }
+  }
+  &:has(.impact-status[data-value="marked"]) {
+    & dd.impact-status {
+      color: var(--text-error);
+    }
+  }
+  & dd {
+    &.impact-name {
+      &::before {
+        content: "Impact ";
+      }
+      &::after {
+        content: " ";
+      }
+    }
+  }
+}

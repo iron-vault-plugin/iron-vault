@@ -17,6 +17,7 @@
 @import url("dlist-clock.css");
 @import url("dlist-clock-status.css");
 @import url("dlist-oracle.css");
+@import url("dlist-impact.css");
 
 .iron-vault-mechanics {
   cursor: default;
