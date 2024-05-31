@@ -1,7 +1,9 @@
-export function firstUppercase(str: string): string {
-  return str.slice(0, 1).toUpperCase() + str.slice(1);
+/** Capitalize the first character of a string. */
+export function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+/** Capitalize the first letter of every word. */
 export function titleCase(str: string): string {
   return str.replaceAll(/\b(?<!')(\w)/g, (_match, ch) => ch.toUpperCase());
 }

@@ -3,7 +3,7 @@ import { produce } from "immer";
 import IronVaultPlugin from "index";
 import { Editor, FuzzyMatch, MarkdownView } from "obsidian";
 import { createNewIronVaultEntityFile, vaultProcess } from "utils/obsidian";
-import { firstUppercase } from "utils/strings";
+import { capitalize } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
 import { IronVaultKind, pluginPrefixed } from "../constants";
@@ -77,7 +77,7 @@ export async function addAssetToCharacter(
           Object.entries(optionField.choices),
           ([_choiceKey, choice]) => choice.label,
           undefined,
-          firstUppercase(optionField.label),
+          capitalize(optionField.label),
         );
         optionValues[key] = choice[0];
         break;
@@ -91,7 +91,7 @@ export async function addAssetToCharacter(
       case "text": {
         optionValues[key] = await PromptModal.prompt(
           plugin.app,
-          firstUppercase(optionField.label),
+          capitalize(optionField.label),
         );
       }
     }
