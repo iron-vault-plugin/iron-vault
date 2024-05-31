@@ -535,6 +535,7 @@ describe("createValidCharacter", () => {
       shadow: 0,
       heart: 0,
       edge: 0,
+      xp_spent: 0,
       Bonds_Progress: 0,
       Bonds_XPEarned: 0,
       Discoveries_Progress: 0,
