@@ -202,6 +202,10 @@ export class MechanicsRenderer {
         await this.renderOracleGroup(target, node);
         break;
       }
+      case "asset": {
+        await this.renderAsset(target, node);
+        break;
+      }
       default: {
         this.renderUnknown(target, node.name);
       }
@@ -592,6 +596,23 @@ export class MechanicsRenderer {
     def["Outcome"] = { cls: "outcome", value: outcome, dataProp: false };
     this.setMoveHit(outcomeClass, match);
     await this.renderDlist(target, "reroll " + outcomeClass, def);
+  }
+
+  async renderAsset(target: HTMLElement, node: KdlNode) {
+    const assetName = (node.properties.name ?? node.values[0]) as string;
+    const status = (node.properties.status ?? node.values[1]) as string;
+    const ability = (node.properties.ability ?? node.values[2]) as
+      | number
+      | undefined;
+    const dl: DataList = {
+      Asset: { cls: "asset-name", value: assetName, md: true },
+      Status: { cls: "asset-status", value: status },
+    };
+    if (ability) {
+      dl.Ability = { cls: "asset-ability", value: ability };
+    }
+    await this.renderDlist(target, "asset", dl);
+    return;
   }
 
   renderUnknown(target: HTMLElement, name: string) {

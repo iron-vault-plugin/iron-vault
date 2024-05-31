@@ -22,6 +22,7 @@ move id="starforged/moves/adventure/face_danger" {
 	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
 	clock "[[Test Clock]]" status="added"
 }
+asset "[Empath](asset:Empath)" status="added"
 - "Oh nooo. This is gonna hurt. Time to [Endure Harm](move:EndureHarm). bla bla bla bla bla bla bla bla bla bla"
 - "Another one here"
 move "Endure Harm" {
