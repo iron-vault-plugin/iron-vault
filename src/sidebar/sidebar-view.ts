@@ -4,6 +4,7 @@ import { render, html } from "lit-html";
 import IronVaultPlugin from "index";
 import renderIronVaultOracles from "./oracles";
 import renderIronVaultMoves from "./moves";
+import renderIronVaultCharacter from "./character";
 
 export const VIEW_TYPE = "iron-vault-sidebar-view";
 
@@ -42,6 +43,11 @@ export class SidebarView extends ItemView {
           <label for="move-tab">Moves</label>
           <div class="content move-tab"></div>
         </div>
+        <div class="tab">
+          <input type="radio" name="tab-group" id="character-tab" />
+          <label for="character-tab">Character</label>
+          <div class="content character-tab"></div>
+        </div>
       </nav>
     `;
     render(tpl, container as HTMLElement);
@@ -52,6 +58,10 @@ export class SidebarView extends ItemView {
     );
     renderIronVaultMoves(
       container.querySelector(".content.move-tab")!,
+      this.plugin,
+    );
+    renderIronVaultCharacter(
+      container.querySelector(".content.character-tab")!,
       this.plugin,
     );
   }
