@@ -5,6 +5,7 @@ import IronVaultPlugin from "index";
 import { EventRef, TFile } from "obsidian";
 import { Left } from "utils/either";
 import { vaultProcess } from "utils/obsidian";
+import { capitalize } from "utils/strings";
 import { ProgressTrackFileAdapter, ProgressTrackInfo } from "./progress";
 import { progressTrackUpdater } from "./writer";
 
@@ -144,8 +145,4 @@ export function renderTrack(
     </article>
   `;
   return tpl;
-}
-
-function capitalize(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }
