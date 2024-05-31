@@ -3,7 +3,7 @@ import { map } from "lit-html/directives/map.js";
 import { range } from "lit-html/directives/range.js";
 
 import IronVaultPlugin from "index";
-import { EventRef, TFile } from "obsidian";
+import { EventRef, MarkdownRenderChild } from "obsidian";
 import { Left } from "utils/either";
 import { vaultProcess } from "utils/obsidian";
 import { md } from "utils/ui/directives";
@@ -12,73 +12,63 @@ import { ClockFileAdapter, clockUpdater } from "./clock-file";
 export default function registerClockBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-clock",
-    async (source: string, el: ClockContainerEl, ctx) => {
-      // We can't render blocks until datastore is ready.
-      await plugin.datastore.waitForReady;
-      if (!el.clockRenderer) {
-        el.clockRenderer = new ClockRenderer(el, source, plugin);
-      }
-      const file = plugin.app.vault.getFileByPath(ctx.sourcePath);
-      await el.clockRenderer.render(file);
+    (_source: string, el: HTMLElement, ctx) => {
+      ctx.addChild(new ClockRenderer(el, ctx.sourcePath, plugin));
     },
   );
 }
 
-interface ClockContainerEl extends HTMLElement {
-  clockRenderer?: ClockRenderer;
-}
-
-class ClockRenderer {
-  contentEl: HTMLElement;
-  source: string;
+class ClockRenderer extends MarkdownRenderChild {
+  sourcePath: string;
   plugin: IronVaultPlugin;
   fileWatcher?: EventRef;
 
-  constructor(contentEl: HTMLElement, source: string, plugin: IronVaultPlugin) {
-    this.contentEl = contentEl;
-    this.source = source;
+  constructor(
+    containerEl: HTMLElement,
+    sourcePath: string,
+    plugin: IronVaultPlugin,
+  ) {
+    super(containerEl);
+    this.sourcePath = sourcePath;
     this.plugin = plugin;
   }
 
-  async render(file: TFile | undefined | null) {
-    if (!file) {
-      render(
-        html`<pre>Error rendering clock: no file found.</pre>`,
-        this.contentEl,
-      );
-      return;
-    }
+  async onload() {
     if (this.fileWatcher) {
-      this.plugin.app.metadataCache.offref(this.fileWatcher);
+      this.plugin.clockIndex.offref(this.fileWatcher);
     }
-    this.fileWatcher = this.plugin.app.metadataCache.on(
-      "changed",
-      (moddedFile) => {
-        if (moddedFile.path === file.path) {
-          this.render(moddedFile);
-        }
-      },
+    this.registerEvent(
+      (this.fileWatcher = this.plugin.clockIndex.on(
+        "changed",
+        (changedPath) => {
+          if (changedPath === this.sourcePath) {
+            this.render();
+          }
+        },
+      )),
     );
-    this.plugin.registerEvent(this.fileWatcher);
+    this.render();
+  }
 
+  render() {
     const result =
-      this.plugin.clockIndex.get(file.path) ??
+      this.plugin.clockIndex.get(this.sourcePath) ??
       Left.create(new Error("clock not indexed"));
     if (result.isLeft()) {
       render(
         html`<pre>Error rendering clock: ${result.error.message}</pre>`,
-        this.contentEl,
+        this.containerEl,
       );
       return;
     }
-    await this.renderClock(result.value, file);
+    this.renderClock(result.value);
   }
 
-  async renderClock(clockFile: ClockFileAdapter, file: TFile) {
+  renderClock(clockFile: ClockFileAdapter) {
     const tpl = html`
       <article class="iron-vault-clock">
         <h3 class="clock-name">
-          ${md(this.plugin, clockFile.name, file.path)}
+          ${md(this.plugin, clockFile.name, this.sourcePath)}
         </h3>
 
         <svg
@@ -91,36 +81,37 @@ class ClockRenderer {
             .segments}"
         >
           ${map(range(clockFile.clock.segments), (i) =>
-            this.renderPath(i, clockFile, file),
+            this.renderPath(i, clockFile),
           )}
         </svg>
       </article>
     `;
-    render(tpl, this.contentEl);
+    render(tpl, this.containerEl);
   }
 
-  renderPath(i: number, clockFile: ClockFileAdapter, file: TFile) {
+  renderPath(i: number, clockFile: ClockFileAdapter) {
     return svg`<path
       d="${pathString(i, clockFile.clock.segments)}"
       class="clock-segment svg"
       aria-selected="${clockFile.clock.progress === i + 1}"
-      @click=${() => this.updateClockProgress(file, { progress: i === 0 && clockFile.clock.progress === 1 ? 0 : i + 1 })}
+      @click=${() => this.updateClockProgress({ progress: i === 0 && clockFile.clock.progress === 1 ? 0 : i + 1 })}
     ></path>`;
   }
 
-  async updateClockProgress(
-    file: TFile,
-    { steps, progress }: { steps?: number; progress?: number },
-  ) {
-    const newProg = await clockUpdater(
-      vaultProcess(this.plugin.app, file.path),
+  async updateClockProgress({
+    steps,
+    progress,
+  }: {
+    steps?: number;
+    progress?: number;
+  }) {
+    await clockUpdater(
+      vaultProcess(this.plugin.app, this.sourcePath),
       (clockFile) =>
         clockFile.updatingClock((clock) =>
           progress != null ? clock.withProgress(progress) : clock.tick(steps!),
         ),
     );
-
-    await this.renderClock(newProg, file);
   }
 }
 
