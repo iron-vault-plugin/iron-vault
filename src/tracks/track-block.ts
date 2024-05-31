@@ -2,7 +2,7 @@ import { html, render } from "lit-html";
 import { md } from "utils/ui/directives";
 
 import IronVaultPlugin from "index";
-import { EventRef, TFile } from "obsidian";
+import { EventRef, MarkdownRenderChild } from "obsidian";
 import { Left } from "utils/either";
 import { vaultProcess } from "utils/obsidian";
 import { capitalize } from "utils/strings";
@@ -12,90 +12,75 @@ import { progressTrackUpdater } from "./writer";
 export default function registerTrackBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-track",
-    async (source: string, el: TrackContainerEl, ctx) => {
-      // We can't render blocks until datastore is ready.
-      await plugin.datastore.waitForReady;
-      if (!el.trackRenderer) {
-        el.trackRenderer = new TrackRenderer(el, source, plugin);
-      }
-      const file = plugin.app.vault.getFileByPath(ctx.sourcePath);
-      await el.trackRenderer.render(file);
+    (_source: string, el: HTMLElement, ctx) => {
+      ctx.addChild(new TrackRenderer(el, ctx.sourcePath, plugin));
     },
   );
 }
 
-interface TrackContainerEl extends HTMLElement {
-  trackRenderer?: TrackRenderer;
-}
-
-class TrackRenderer {
-  contentEl: HTMLElement;
-  source: string;
+class TrackRenderer extends MarkdownRenderChild {
+  sourcePath: string;
   plugin: IronVaultPlugin;
   fileWatcher?: EventRef;
 
-  constructor(contentEl: HTMLElement, source: string, plugin: IronVaultPlugin) {
-    this.contentEl = contentEl;
-    this.source = source;
+  constructor(
+    containerEl: HTMLElement,
+    sourcePath: string,
+    plugin: IronVaultPlugin,
+  ) {
+    super(containerEl);
+    this.sourcePath = sourcePath;
     this.plugin = plugin;
   }
 
-  async render(file: TFile | undefined | null) {
-    if (!file) {
-      render(
-        html`<pre>Error rendering track: no file found.</pre>`,
-        this.contentEl,
-      );
-      return;
-    }
+  async onload() {
     if (this.fileWatcher) {
-      this.plugin.app.metadataCache.offref(this.fileWatcher);
+      this.plugin.progressIndex.offref(this.fileWatcher);
     }
-    this.fileWatcher = this.plugin.app.metadataCache.on(
-      "changed",
-      (moddedFile) => {
-        if (moddedFile.path === file.path) {
-          this.render(moddedFile);
-        }
-      },
+    this.registerEvent(
+      (this.fileWatcher = this.plugin.progressIndex.on(
+        "changed",
+        (changedPath) => {
+          if (changedPath === this.sourcePath) {
+            this.render();
+          }
+        },
+      )),
     );
-    this.plugin.registerEvent(this.fileWatcher);
+    this.render();
+  }
 
+  render() {
     const result =
-      this.plugin.progressIndex.get(file.path) ??
+      this.plugin.progressIndex.get(this.sourcePath) ??
       Left.create(new Error("track not indexed"));
     if (result.isLeft()) {
       render(
         html`<pre>Error rendering track: ${result.error.message}</pre>`,
-        this.contentEl,
+        this.containerEl,
       );
       return;
     }
-    await this.renderProgress(result.value, file);
+    this.renderProgress(result.value);
   }
 
-  async renderProgress(trackFile: ProgressTrackFileAdapter, file: TFile) {
+  renderProgress(trackFile: ProgressTrackFileAdapter) {
     render(
       renderTrack(this.plugin, trackFile, (incr) =>
-        this.updateTrackTicks(file, incr),
+        this.updateTrackTicks(incr),
       ),
-      this.contentEl,
+      this.containerEl,
     );
   }
 
-  async updateTrackTicks(
-    file: TFile,
-    { steps, ticks }: { steps?: number; ticks?: number },
-  ) {
-    const newProg = await progressTrackUpdater(
-      vaultProcess(this.plugin.app, file.path),
+  async updateTrackTicks({ steps, ticks }: { steps?: number; ticks?: number }) {
+    await progressTrackUpdater(
+      vaultProcess(this.plugin.app, this.sourcePath),
       (trackFile) =>
         trackFile.updatingTrack((track) =>
           ticks ? track.withTicks(ticks) : track.advanced(steps!),
         ),
     );
-
-    await this.renderProgress(newProg, file);
   }
 }
 
