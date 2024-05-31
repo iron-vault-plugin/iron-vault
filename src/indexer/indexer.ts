@@ -1,6 +1,7 @@
 import { Index } from "indexer/index-impl";
 import { type CachedMetadata } from "obsidian";
 import { Either, Left } from "utils/either";
+import { IronVaultKind } from "../constants";
 
 export type IndexErrorResult<E extends Error> = { type: "error"; error: E };
 export type IndexUpdateResult<V, E extends Error> =
@@ -37,7 +38,7 @@ export function wrapIndexUpdateError(
 }
 
 export interface Indexer {
-  readonly id: IndexerId;
+  readonly id: IronVaultKind;
   onChanged(
     path: string,
     cache: CachedMetadata,
@@ -52,7 +53,7 @@ export type IndexOf<Idx> =
   Idx extends BaseIndexer<infer T, infer E> ? Index<T, E> : never;
 
 export abstract class BaseIndexer<T, E extends Error> implements Indexer {
-  abstract id: string;
+  abstract readonly id: IronVaultKind;
   public readonly index: Index<T, E> = new Index();
 
   constructor() {}

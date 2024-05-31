@@ -1,4 +1,12 @@
-import { App, TFile, normalizePath, type Plugin } from "obsidian";
+import {
+  App,
+  TFile,
+  TFolder,
+  normalizePath,
+  stringifyYaml,
+  type Plugin,
+} from "obsidian";
+import { IronVaultKind, PLUGIN_KIND_FIELD } from "../constants";
 
 export function pluginAsset(plug: Plugin, assetPath: string): string {
   return normalizePath(
@@ -60,4 +68,81 @@ export function vaultProcess(
       },
     );
   };
+}
+
+export async function getExistingOrNewFolder(
+  app: App,
+  path: string,
+): Promise<TFolder> {
+  const normalizedPath = normalizePath(path);
+  const existingFolder = app.vault.getFolderByPath(normalizedPath);
+  if (existingFolder) return existingFolder;
+
+  return await app.vault.createFolder(normalizedPath);
+}
+
+export async function createNewIronVaultEntityFile(
+  app: App,
+  targetFolderPath: string,
+  fileName: string,
+  ironVaultKind: IronVaultKind,
+  frontMatter: Record<string, unknown>,
+  templatePath?: string,
+  defaultTemplate?: string,
+  setFocus: boolean = false,
+): Promise<TFile> {
+  const targetFolder = await getExistingOrNewFolder(app, targetFolderPath);
+
+  console.log("Creating in folder: %o", targetFolder);
+  const file = await app.fileManager.createNewMarkdownFile(
+    targetFolder,
+    fileName,
+    `---\n${stringifyYaml({ ...frontMatter, [PLUGIN_KIND_FIELD]: ironVaultKind })}\n---\n\n`,
+  );
+
+  let shouldSetFocus = setFocus;
+  const enableTemplaterPlugin = false;
+  const templaterPlugin =
+    enableTemplaterPlugin &&
+    app.plugins.enabledPlugins.has("templater-obsidian")
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (app.plugins.plugins as Record<string, any>)["templater-obsidian"]
+      : undefined;
+  const templateFile = templatePath && app.vault.getFileByPath(templatePath);
+  if (shouldSetFocus && templaterPlugin && templateFile) {
+    // If we have a template and the templater plugin, use that.
+    // This only works if we set focus, so also require that.
+    await app.workspace.getLeaf().openFile(file, {
+      active: true,
+      state: { mode: "source" },
+      eState: { rename: "all" },
+    });
+    shouldSetFocus = false;
+
+    await templaterPlugin.templater.append_template_to_active_file(
+      templateFile,
+    );
+  } else if (templateFile) {
+    if (enableTemplaterPlugin && !shouldSetFocus) {
+      console.log(
+        "Can only use templater plugin when setting focus. Falling back on ordinary template mode...",
+      );
+    }
+    // If we have a template file, but no plugin-- just append the file contents.
+    const templateContents = await app.vault.cachedRead(templateFile);
+    await app.vault.append(file, "\n" + templateContents);
+  } else if (defaultTemplate) {
+    // Otherwise, just add the default template
+    await app.vault.append(file, defaultTemplate);
+  }
+
+  if (shouldSetFocus) {
+    await app.workspace.getLeaf().openFile(file, {
+      active: true,
+      state: { mode: "source" },
+      eState: { rename: "all" },
+    });
+  }
+
+  return file;
 }

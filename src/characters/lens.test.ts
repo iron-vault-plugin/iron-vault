@@ -1,4 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
+import starforgedData from "@datasworn/starforged/json/starforged.json" with { type: "json" };
 import { DataIndex } from "../datastore/data-index";
 import { Ruleset } from "../rules/ruleset";
 import { ChallengeRanks } from "../tracks/progress";
@@ -8,11 +9,16 @@ import {
   BaseIronVaultSchema,
   IronVaultSheetAssetInput,
   characterLens,
+  createValidCharacter,
   momentumOps,
   movesReader,
   validatedAgainst,
 } from "./lens";
 
+const STARFORGED_RULESET = new Ruleset(
+  "starforged",
+  starforgedData.rules as Datasworn.Rules,
+);
 const TEST_RULESET = new Ruleset("test", {
   condition_meters: {
     health: {
@@ -22,7 +28,7 @@ const TEST_RULESET = new Ruleset("test", {
       max: 5,
       rollable: true,
       shared: false,
-      value: 0,
+      value: 3,
     },
   },
   stats: {
@@ -511,6 +517,30 @@ describe("Special Tracks", () => {
     ).toMatchObject({
       Quests_Progress: 8,
       Quests_XPEarned: 4,
+    });
+  });
+});
+
+describe("createValidCharacter", () => {
+  const { lens, validater } = characterLens(STARFORGED_RULESET);
+  it("creates a fully initialized character", () => {
+    expect(createValidCharacter(lens, validater, "Bobby").raw).toEqual({
+      name: "Bobby",
+      momentum: 2,
+      health: 5,
+      spirit: 5,
+      supply: 5,
+      iron: 0,
+      wits: 0,
+      shadow: 0,
+      heart: 0,
+      edge: 0,
+      Bonds_Progress: 0,
+      Bonds_XPEarned: 0,
+      Discoveries_Progress: 0,
+      Discoveries_XPEarned: 0,
+      Quests_Progress: 0,
+      Quests_XPEarned: 0,
     });
   });
 });

@@ -26,6 +26,19 @@ export class IronVaultSettingTab extends PluginSettingTab {
     containerEl.empty();
 
     new Setting(containerEl)
+      .setName("Use character system")
+      .setDesc(
+        "If enabled (default), the plugin will look for an active character when making moves. If disabled, you will be prompted to supply appropriate values when needed.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useCharacterSystem)
+          .onChange((value) => this.updateSetting("useCharacterSystem", value)),
+      );
+
+    new Setting(containerEl).setName("New game object defaults").setHeading();
+
+    new Setting(containerEl)
       .setName("Oracles folder")
       .setDesc("If specified, load oracles from this folder")
       .addText((text) =>
@@ -49,6 +62,20 @@ export class IronVaultSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
+      .setName("Progress track template file")
+      .setDesc(
+        "If provided, this file will be appended to new progress track files.",
+      )
+      .addText((text) => {
+        text
+          .setPlaceholder("Templates/Progress.md")
+          .setValue(settings.progressTrackTemplateFile)
+          .onChange((value) => {
+            this.updateSetting("progressTrackTemplateFile", value);
+          });
+      });
+
+    new Setting(containerEl)
       .setName("Default clock folder")
       .setDesc("Create clocks in this folder by default.")
       .addSearch((search) => {
@@ -60,15 +87,43 @@ export class IronVaultSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
-      .setName("Use character system")
+      .setName("Clock template file")
+      .setDesc("If provided, this file will be appended to new clock files.")
+      .addText((text) => {
+        text
+          .setPlaceholder("Templates/Clock.md")
+          .setValue(settings.clockTemplateFile)
+          .onChange((value) => {
+            this.updateSetting("clockTemplateFile", value);
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Default characters folder")
+      .setDesc("Create player characters in this folder by default.")
+      .addSearch((search) => {
+        new FolderTextSuggest(this.app, search.inputEl);
+        search
+          .setPlaceholder("Type the name of a folder")
+          .setValue(settings.defaultCharactersFolder)
+          .onChange((value) =>
+            this.updateSetting("defaultCharactersFolder", value),
+          );
+      });
+
+    new Setting(containerEl)
+      .setName("Character template file")
       .setDesc(
-        "If enabled (default), the plugin will look for an active character when making moves. If disabled, you will be prompted to supply appropriate values when needed.",
+        "If provided, this file will be appended to new Character files.",
       )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.useCharacterSystem)
-          .onChange((value) => this.updateSetting("useCharacterSystem", value)),
-      );
+      .addText((text) => {
+        text
+          .setPlaceholder("Templates/Character.md")
+          .setValue(settings.characterTemplateFile)
+          .onChange((value) => {
+            this.updateSetting("characterTemplateFile", value);
+          });
+      });
 
     //--- Mechanics blocks
 

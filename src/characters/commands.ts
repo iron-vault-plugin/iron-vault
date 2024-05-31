@@ -2,10 +2,11 @@ import { type Datasworn } from "@datasworn/core";
 import { produce } from "immer";
 import IronVaultPlugin from "index";
 import { Editor, FuzzyMatch, MarkdownView } from "obsidian";
-import { vaultProcess } from "utils/obsidian";
+import { createNewIronVaultEntityFile, vaultProcess } from "utils/obsidian";
 import { firstUppercase } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
+import { IronVaultKind, pluginPrefixed } from "../constants";
 import {
   NoCharacterActionConext as NoCharacterActionContext,
   determineCharacterActionContext,
@@ -15,6 +16,7 @@ import {
   defaultMarkedAbilitiesForAsset,
   walkAsset,
 } from "./assets";
+import { characterLens, createValidCharacter } from "./lens";
 
 export async function addAssetToCharacter(
   plugin: IronVaultPlugin,
@@ -114,5 +116,24 @@ export async function addAssetToCharacter(
       char,
       updatedAsset,
     ),
+  );
+}
+
+export async function createNewCharacter(plugin: IronVaultPlugin) {
+  const { lens, validater } = characterLens(plugin.datastore.ruleset);
+  const name = await PromptModal.prompt(
+    plugin.app,
+    "What is the name of the character?",
+  );
+
+  await createNewIronVaultEntityFile(
+    plugin.app,
+    plugin.settings.defaultCharactersFolder,
+    name,
+    IronVaultKind.Character,
+    createValidCharacter(lens, validater, name).raw,
+    plugin.settings.characterTemplateFile,
+    `\n\`\`\`${pluginPrefixed("character")}\n\`\`\`\n`,
+    true,
   );
 }

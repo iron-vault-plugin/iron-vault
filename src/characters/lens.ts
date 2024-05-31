@@ -424,6 +424,31 @@ export type CharacterValidater = (
   data: unknown,
 ) => Either<z.ZodError, ValidatedCharacter>;
 
+export function createValidCharacter(
+  lens: CharacterLens,
+  validater: CharacterValidater,
+  name: string,
+): ValidatedCharacter {
+  const character: BaseIronVaultSchema = { name, momentum: 2 };
+  const { ruleset } = lens;
+  for (const [key, meter] of Object.entries(ruleset.condition_meters)) {
+    character[key] = meter.defaultValue;
+  }
+  for (const [key, stat] of Object.entries(ruleset.stats)) {
+    character[key] = stat.min;
+  }
+  for (const [, special_track] of Object.entries(ruleset.special_tracks)) {
+    // TODO: since the lens update function expects the lens get function to work, we can't
+    // currently use the lens to update this value. And that means duplicating this code.
+    const formattedLabel = camelCase(special_track.label);
+    const progressKey = `${formattedLabel}_Progress`;
+    const xpEarnedKey = `${formattedLabel}_XPEarned`;
+    character[progressKey] = 0;
+    character[xpEarnedKey] = 0;
+  }
+  return validater(character).unwrap();
+}
+
 export function characterLens(ruleset: Ruleset): {
   validater: CharacterValidater;
   lens: CharacterLens;

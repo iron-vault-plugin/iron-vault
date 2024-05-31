@@ -2,6 +2,7 @@ import { produce } from "immer";
 import { CachedMetadata } from "obsidian";
 import { normalizeKeys } from "utils/zodutils";
 import { ZodError, z } from "zod";
+import { IronVaultKind, PLUGIN_KIND_FIELD } from "../constants";
 import { BaseIndexer, IndexOf, IndexUpdate } from "../indexer/indexer";
 import { Either, Left, Right } from "../utils/either";
 
@@ -241,7 +242,7 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
       progress: track.progress,
       tags: track.complete ? ["complete"] : ["incomplete"],
       "track-type": trackType,
-      "iron-vault-kind": "progress",
+      [PLUGIN_KIND_FIELD]: IronVaultKind.ProgressTrack,
     } as ProgressTrackerInputSchema);
   }
 
@@ -291,7 +292,7 @@ export class ProgressIndexer extends BaseIndexer<
   ProgressTrackFileAdapter,
   z.ZodError
 > {
-  readonly id: string = "progress";
+  readonly id = IronVaultKind.ProgressTrack;
 
   processFile(
     path: string,
