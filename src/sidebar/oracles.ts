@@ -179,16 +179,15 @@ function rollOracleBatch(plugin: IronVaultPlugin, oracles: Oracle[]) {
 function handleOracleRoll(
   ev: MouseEvent,
   plugin: IronVaultPlugin,
-  _oracle: Oracle,
+  oracle: Oracle,
 ) {
   ev.stopPropagation();
   ev.preventDefault();
   const { workspace } = plugin.app;
-  const editor = workspace.activeEditor?.editor;
-  const view = workspace.getActiveViewOfType(MarkdownView);
-  // TODO(@zkat): Hook this up properly. We probably don't want the command itself.
-  if (editor && view) {
-    runOracleCommand(plugin.app, plugin.datastore, editor, view);
+  const view = workspace.getActiveFileView();
+  if (view && view instanceof MarkdownView) {
+    const editor = view.editor;
+    runOracleCommand(plugin.app, plugin.datastore, editor, view, oracle);
   }
 }
 
