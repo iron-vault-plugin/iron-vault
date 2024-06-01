@@ -19,7 +19,6 @@ export default function installOracleLinkHandler(plugin: IronVaultPlugin) {
           .slice("oracle:".length)
           .replace(/\s*/g, "")
           .toLowerCase();
-        // TODO(@zkat): Fetch them by name, actually
         const oracle = plugin.datastore.oracles.get(id);
         if (oracle) {
           new OracleModal(plugin.app, plugin, oracle).open();
