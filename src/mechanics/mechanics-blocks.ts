@@ -230,7 +230,7 @@ export class MechanicsRenderer {
   }
 
   async renderMove(target: HTMLElement, node: KdlNode) {
-    const moves = this.plugin.datastore.moves;
+    const moves = [...this.plugin.datastore.moves.values()];
     const id = node.properties.id as string | undefined;
     const name = (node.properties.name ?? node.values[0]) as string | undefined;
     const move = id

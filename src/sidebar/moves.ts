@@ -25,7 +25,8 @@ function litHtmlMoveList(
 ) {
   const results = filter
     ? searchIdx.search(filter)
-    : plugin.datastore.moves.map((m) => ({ id: m._id }));
+    : // TODO: use the current context
+      [...plugin.datastore.moves.values()].map((m) => ({ id: m._id }));
   const categories = plugin.datastore.moveCategories.values();
   let total = 0;
   const newCats = [];
@@ -101,6 +102,7 @@ function makeIndex(plugin: IronVaultPlugin) {
       boost: { name: 2 },
     },
   });
-  idx.addAll(plugin.datastore.moves);
+  // TODO: use the current context
+  idx.addAll([...plugin.datastore.moves.values()]);
   return idx;
 }

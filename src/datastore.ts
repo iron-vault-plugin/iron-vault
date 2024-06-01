@@ -1,26 +1,29 @@
 import { type Datasworn } from "@datasworn/core";
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
-import { DataIndex } from "datastore/data-index";
-import { indexDataForgedData } from "datastore/parsers/dataforged";
-import { ParserReturn, parserForFrontmatter } from "datastore/parsers/markdown";
-import { StandardIndex } from "datastore/priority-index";
+import { IDataContext } from "characters/action-context";
+import {
+  DataIndexer,
+  SourceTag,
+  StandardIndex,
+  getHighestPriority,
+  getHighestPriorityChecked,
+  isOfKind,
+} from "datastore/data-indexer";
+import {
+  DataswornIndexer,
+  DataswornTypes,
+  createSource,
+  walkDataswornRulesPackage,
+} from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { Oracle } from "model/oracle";
-import {
-  Component,
-  TAbstractFile,
-  TFile,
-  TFolder,
-  parseYaml,
-  type App,
-} from "obsidian";
+import { Component, type App } from "obsidian";
 import { OracleRoller } from "oracles/roller";
 import { Ruleset } from "rules/ruleset";
-import { breadthFirstTraversal } from "utils/traversal";
 
-export class Datastore extends Component {
+export class Datastore extends Component implements IDataContext {
   _ready: boolean;
-  readonly index: DataIndex;
+  readonly indexer: DataswornIndexer = new DataIndexer();
 
   readonly waitForReady: Promise<void>;
 
@@ -33,7 +36,6 @@ export class Datastore extends Component {
     super();
     this._ready = false;
 
-    this.index = new DataIndex();
     this.waitForReady = new Promise((resolve) => {
       this.#readyNow = resolve;
     });
@@ -44,16 +46,7 @@ export class Datastore extends Component {
   }
 
   async initialize(): Promise<void> {
-    // TODO: properly support this.
-    const mainPath = this.plugin.assetFilePath("main.js");
-    indexDataForgedData(
-      this.index,
-      mainPath,
-      0,
-      starforgedRuleset as Datasworn.Ruleset,
-    );
-    this.index.updateIndexGroup(mainPath, new Set([mainPath]));
-    this.app.metadataCache.trigger("iron-vault:index-changed");
+    this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
 
     // TODO: also handle folders
     // const dataFiles = await this.app.vault.adapter.list(
@@ -85,116 +78,130 @@ export class Datastore extends Component {
     //     this.indexOraclesFolder(oraclesFolderFile);
     //   }
     // }
+
+    this._ready = true;
     console.log(
       "iron-vault: init complete. loaded: %d oracles, %d moves, %d assets",
-      this.index._oracleIndex.size,
-      this.index._moveIndex.size,
-      this.index._assetIndex.size,
+      this.moves.size,
+      this.oracles.size,
+      this.assets.size,
     );
-    this._ready = true;
     this.#readyNow();
   }
 
-  async indexOraclesFolder(folder: TFolder): Promise<void> {
-    console.log("indexing folder %s", folder.path);
-    const filesToIndex = new Map(
-      breadthFirstTraversal<TFile, TAbstractFile>(
-        folder,
-        (node) => (node instanceof TFile ? node : undefined),
-        (node) => (node instanceof TFolder ? node.children : []),
-      ).map((p) => [p.path, p]),
-    );
-
-    const indexedPaths = new Set<string>();
-
-    for (const fileToIndex of filesToIndex.values()) {
-      if (await this.indexOracleFile(fileToIndex)) {
-        indexedPaths.add(fileToIndex.path);
-      }
-    }
-
-    const pathsToRemove = this.index.updateIndexGroup(
-      folder.path,
-      indexedPaths,
-    );
-
-    for (const pathToRemove of pathsToRemove) {
-      console.log(
-        "index: previously indexed data file %s (part of %s) no longer indexable, removing...",
-        pathToRemove,
-        folder.path,
-      );
-    }
-  }
-
-  async indexOracleFile(file: TFile): Promise<boolean> {
-    console.log("indexing %s", file.path);
-    const cache = this.app.metadataCache.getFileCache(file);
-    const parser = parserForFrontmatter(file, cache);
-    if (parser == null) {
-      return false;
-    }
-
-    const content = await this.app.vault.cachedRead(file);
-    let result: ParserReturn;
-    try {
-      result = parser(content);
-    } catch (error) {
-      result = {
-        success: false,
-        error:
-          error instanceof Error
-            ? error
-            : new Error("unexpected parsing error", { cause: error }),
-      };
-    }
-
-    if (!result.success) {
-      console.error(`[file: ${file.path}] error parsing file`, result.error);
-      return false;
-    }
-
-    try {
-      // TODO: validation?
-      indexDataForgedData(
-        this.index,
-        file.path,
-        result.priority ?? 1,
-        result.rules,
-      );
-      return true;
-    } catch (e) {
-      console.error(`[file: ${file.path}] error indexing file`, e);
-      return false;
-    }
-  }
-
-  async indexPluginFile(
-    normalizedPath: string,
-    priority: number,
-    format: string = "json",
-  ): Promise<void> {
-    console.log(
-      "iron-vault: datastore: indexing plugin file %s (format: %s priority: %d)",
-      normalizedPath,
-      format,
-      priority,
-    );
-    const content = await this.app.vault.adapter.read(normalizedPath);
-    // TODO: validate
-    let data: Datasworn.RulesPackage;
-    if (format === "json") {
-      data = JSON.parse(content) as Datasworn.RulesPackage;
-    } else if (format === "yaml") {
-      data = parseYaml(content) as Datasworn.RulesPackage;
-    } else {
-      throw new Error(`unknown file type ${format}`);
-    }
-    indexDataForgedData(this.index, normalizedPath, priority, data);
-    this.index.updateIndexGroup(normalizedPath, new Set([normalizedPath]));
+  indexBuiltInData(pkg: Datasworn.RulesPackage) {
+    // TODO: properly support this.
+    const mainPath = `@datasworn:${pkg._id}`;
+    const source = createSource({
+      path: mainPath,
+      priority: 0,
+      sourceTags: { [SourceTag.RulesetId]: pkg._id },
+    });
+    this.indexer.index(source, walkDataswornRulesPackage(source, pkg));
 
     this.app.metadataCache.trigger("iron-vault:index-changed");
   }
+
+  // async indexOraclesFolder(folder: TFolder): Promise<void> {
+  //   console.log("indexing folder %s", folder.path);
+  //   const filesToIndex = new Map(
+  //     breadthFirstTraversal<TFile, TAbstractFile>(
+  //       folder,
+  //       (node) => (node instanceof TFile ? node : undefined),
+  //       (node) => (node instanceof TFolder ? node.children : []),
+  //     ).map((p) => [p.path, p]),
+  //   );
+
+  //   const indexedPaths = new Set<string>();
+
+  //   for (const fileToIndex of filesToIndex.values()) {
+  //     if (await this.indexOracleFile(fileToIndex)) {
+  //       indexedPaths.add(fileToIndex.path);
+  //     }
+  //   }
+
+  //   const pathsToRemove = this.index.updateIndexGroup(
+  //     folder.path,
+  //     indexedPaths,
+  //   );
+
+  //   for (const pathToRemove of pathsToRemove) {
+  //     console.log(
+  //       "index: previously indexed data file %s (part of %s) no longer indexable, removing...",
+  //       pathToRemove,
+  //       folder.path,
+  //     );
+  //   }
+  // }
+
+  // async indexOracleFile(file: TFile): Promise<boolean> {
+  //   console.log("indexing %s", file.path);
+  //   const cache = this.app.metadataCache.getFileCache(file);
+  //   const parser = parserForFrontmatter(file, cache);
+  //   if (parser == null) {
+  //     return false;
+  //   }
+
+  //   const content = await this.app.vault.cachedRead(file);
+  //   let result: ParserReturn;
+  //   try {
+  //     result = parser(content);
+  //   } catch (error) {
+  //     result = {
+  //       success: false,
+  //       error:
+  //         error instanceof Error
+  //           ? error
+  //           : new Error("unexpected parsing error", { cause: error }),
+  //     };
+  //   }
+
+  //   if (!result.success) {
+  //     console.error(`[file: ${file.path}] error parsing file`, result.error);
+  //     return false;
+  //   }
+
+  //   try {
+  //     // TODO: validation?
+  //     indexDataForgedData(
+  //       this.index,
+  //       file.path,
+  //       result.priority ?? 1,
+  //       result.rules,
+  //     );
+  //     return true;
+  //   } catch (e) {
+  //     console.error(`[file: ${file.path}] error indexing file`, e);
+  //     return false;
+  //   }
+  // }
+
+  // async indexPluginFile(
+  //   normalizedPath: string,
+  //   priority: number,
+  //   format: string = "json",
+  // ): Promise<void> {
+  //   console.log(
+  //     "iron-vault: datastore: indexing plugin file %s (format: %s priority: %d)",
+  //     normalizedPath,
+  //     format,
+  //     priority,
+  //   );
+  //   const content = await this.app.vault.adapter.read(normalizedPath);
+  //   // TODO: validate
+  //   let data: Datasworn.RulesPackage;
+  //   if (format === "json") {
+  //     data = JSON.parse(content) as Datasworn.RulesPackage;
+  //   } else if (format === "yaml") {
+  //     data = parseYaml(content) as Datasworn.RulesPackage;
+  //   } else {
+  //     throw new Error(`unknown file type ${format}`);
+  //   }
+  //   indexDataForgedData(this.index, normalizedPath, priority, data);
+  //   this.index.updateIndexGroup(normalizedPath, new Set([normalizedPath]));
+
+  //   this.app.metadataCache.trigger("iron-vault:index-changed");
+  // }
 
   get ready(): boolean {
     return this._ready;
@@ -204,23 +211,39 @@ export class Datastore extends Component {
   //   return this._data;
   // }
 
-  get moves(): Datasworn.Move[] {
+  get moves(): StandardIndex<DataswornTypes["move"]> {
     this.assertReady();
-    return [...this.index._moveIndex.values()];
+    return this.indexer.projected((value) =>
+      isOfKind<DataswornTypes, "move">(value, "move")
+        ? getHighestPriority(value)?.value
+        : undefined,
+    );
   }
 
-  get moveCategories(): StandardIndex<Datasworn.MoveCategory> {
+  get moveCategories(): StandardIndex<DataswornTypes["move_category"]> {
     this.assertReady();
-    return this.index._moveCategoryIndex;
+    return this.indexer.projected((value) =>
+      isOfKind<DataswornTypes, "move_category">(value, "move_category")
+        ? getHighestPriority(value)?.value
+        : undefined,
+    );
   }
   get oracles(): StandardIndex<Oracle> {
     this.assertReady();
-    return this.index._oracleIndex;
+    return this.indexer.projected((value) =>
+      isOfKind<DataswornTypes, "oracle">(value, "oracle")
+        ? getHighestPriority(value)?.value
+        : undefined,
+    );
   }
 
   get assets(): StandardIndex<Datasworn.Asset> {
     this.assertReady();
-    return this.index._assetIndex;
+    return this.indexer.projected((value) =>
+      isOfKind<DataswornTypes, "asset">(value, "asset")
+        ? getHighestPriority(value)?.value
+        : undefined,
+    );
   }
 
   get roller(): OracleRoller {
@@ -229,11 +252,24 @@ export class Datastore extends Component {
 
   get ruleset(): Ruleset {
     this.assertReady();
-    const ruleset = this.index._rulesetIndex.get(this.activeRuleset);
-    if (!ruleset) {
+
+    const packages = this.indexer.get(this.activeRuleset);
+    if (
+      !packages ||
+      !isOfKind<DataswornTypes, "rules_package">(packages, "rules_package")
+    ) {
       throw new Error(`missing ruleset ${this.activeRuleset}`);
     }
-    return ruleset;
+
+    const pkg = getHighestPriorityChecked(packages);
+
+    // TODO: figure out expansions and what not. kinda think I want to filter down to all available
+    // rulesets and merge them?
+
+    if (pkg.value.type != "ruleset")
+      throw new Error(`expected 'ruleset', but ${pkg.id} is ${pkg.value.type}`);
+
+    return new Ruleset(pkg?.id, pkg.value.rules);
   }
 
   private assertReady(): void {
