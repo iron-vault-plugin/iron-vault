@@ -1,4 +1,4 @@
-import { StandardIndex } from "datastore/priority-index";
+import { StandardIndex } from "datastore/data-indexer";
 import { Oracle, RollContext } from "model/oracle";
 import { RollWrapper } from "model/rolls";
 

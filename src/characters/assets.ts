@@ -2,9 +2,9 @@ import { type Datasworn } from "@datasworn/core";
 import { Datastore } from "datastore";
 import { produce } from "immer";
 import { ConditionMeterDefinition } from "rules/ruleset";
-import { DataIndex } from "../datastore/data-index";
 import { Either, Left, Right } from "../utils/either";
 import { Lens, addOrUpdateMatching, reader, writer } from "../utils/lens";
+import { IDataContext } from "./action-context";
 import {
   CharLens,
   CharReader,
@@ -17,7 +17,7 @@ export class AssetError extends Error {}
 
 export function assetWithDefnReader(
   charLens: CharacterLens,
-  index: DataIndex,
+  dataContext: IDataContext,
 ): CharReader<
   Array<
     Either<
@@ -28,7 +28,7 @@ export function assetWithDefnReader(
 > {
   return reader((source) => {
     return charLens.assets.get(source).map((asset) => {
-      const defn = index._assetIndex.get(asset.id);
+      const defn = dataContext.assets.get(asset.id);
       if (defn) {
         return Right.create({ asset, defn });
       } else {

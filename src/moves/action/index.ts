@@ -70,7 +70,9 @@ async function promptForMove(
   app: App,
   context: ActionContext,
 ): Promise<Datasworn.Move> {
-  const moves = [...context.moves].sort((a, b) => a.name.localeCompare(b.name));
+  const moves = [...context.moves.values()].sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
   const choice = await CustomSuggestModal.selectWithUserEntry(
     app,
     moves,

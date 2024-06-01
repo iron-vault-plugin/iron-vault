@@ -1,10 +1,11 @@
 import { type Datasworn } from "@datasworn/core";
 import starforgedData from "@datasworn/starforged/json/starforged.json" with { type: "json" };
-import { DataIndex } from "../datastore/data-index";
+import { VersionedMapImpl } from "datastore/data-indexer";
 import { Ruleset } from "../rules/ruleset";
 import { ChallengeRanks } from "../tracks/progress";
 import { Right } from "../utils/either";
 import { Lens, updating } from "../utils/lens";
+import { IDataContext } from "./action-context";
 import {
   BaseIronVaultSchema,
   IronVaultSheetAssetInput,
@@ -364,16 +365,16 @@ const TestAsset: Datasworn.Asset = {
 };
 
 describe("movesReader", () => {
-  const mockIndex = new DataIndex();
+  let mockDataContext: IDataContext;
 
   beforeAll(() => {
-    mockIndex.indexSource("test", 1, {
-      oracles: {},
-      moves: {},
-      assets: {
-        "starforged/assets/path/empath": TestAsset,
-      },
-    });
+    mockDataContext = {
+      assets: new VersionedMapImpl<string, Datasworn.Asset>().set(
+        "starforged/assets/path/empath",
+        TestAsset,
+      ),
+      moves: new VersionedMapImpl(),
+    };
   });
 
   describe("moves", () => {
@@ -381,7 +382,7 @@ describe("movesReader", () => {
 
     it("is empty if no assets", () => {
       expect(
-        movesReader(lens, mockIndex).get(
+        movesReader(lens, mockDataContext).get(
           validater({ ...VALID_INPUT }).unwrap(),
         ),
       ).toEqual(Right.create([]));
@@ -389,7 +390,7 @@ describe("movesReader", () => {
 
     it("does not include moves for unmarked asset abilities", () => {
       expect(
-        movesReader(lens, mockIndex).get(
+        movesReader(lens, mockDataContext).get(
           validater({
             ...VALID_INPUT,
             assets: [
@@ -406,7 +407,7 @@ describe("movesReader", () => {
     it("includes moves for marked asset abilities", () => {
       // This ability has no additional moves.
       expect(
-        movesReader(lens, mockIndex)
+        movesReader(lens, mockDataContext)
           .get(
             validater({
               ...VALID_INPUT,
@@ -423,7 +424,7 @@ describe("movesReader", () => {
 
       // This ability adds one extra move.
       expect(
-        movesReader(lens, mockIndex)
+        movesReader(lens, mockDataContext)
           .get(
             validater({
               ...VALID_INPUT,

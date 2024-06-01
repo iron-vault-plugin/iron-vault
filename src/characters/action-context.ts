@@ -1,4 +1,5 @@
-import { type Datasworn } from "@datasworn/core";
+import { StandardIndex } from "datastore/data-indexer";
+import { DataswornTypes, moveOrigin } from "datastore/datasworn-indexer";
 import { produce } from "immer";
 import { App } from "obsidian";
 import { ConditionMeterDefinition } from "rules/ruleset";
@@ -18,9 +19,13 @@ import { type Datastore } from "../datastore";
 import IronVaultPlugin from "../index";
 import { InfoModal } from "../utils/ui/info";
 
-export interface IActionContext {
+export interface IDataContext {
+  readonly moves: StandardIndex<DataswornTypes["move"]>;
+  readonly assets: StandardIndex<DataswornTypes["asset"]>;
+}
+
+export interface IActionContext extends IDataContext {
   readonly kind: "no_character" | "character";
-  readonly moves: Datasworn.Move[];
   readonly rollables: (MeterWithLens | MeterWithoutLens)[];
   readonly conditionMeters: (
     | MeterWithLens<ConditionMeterDefinition>
@@ -38,8 +43,12 @@ export class NoCharacterActionConext implements IActionContext {
 
   constructor(public readonly datastore: Datastore) {}
 
-  get moves(): Datasworn.Move[] {
+  get moves() {
     return this.datastore.moves;
+  }
+
+  get assets() {
+    return this.datastore.assets;
   }
 
   get rollables(): MeterWithoutLens[] {
@@ -72,6 +81,7 @@ export class NoCharacterActionConext implements IActionContext {
 
 export class CharacterActionContext implements IActionContext {
   readonly kind = "character";
+  #moves?: StandardIndex<DataswornTypes["move"]>;
 
   constructor(
     public readonly datastore: Datastore,
@@ -79,27 +89,41 @@ export class CharacterActionContext implements IActionContext {
     public readonly characterContext: CharacterContext,
   ) {}
 
-  get moves() {
-    const characterMoves = movesReader(
-      this.characterContext.lens,
-      this.datastore.index,
-    )
-      .get(this.characterContext.character)
-      .expect("unexpected failure finding assets for moves")
-      .map(({ move, asset }) =>
-        produce(move, (draft) => {
-          draft.name = `${asset.name}: ${move.name}`;
-        }),
-      );
+  get assets(): StandardIndex<DataswornTypes["asset"]> {
+    return this.datastore.assets;
+  }
 
-    return this.datastore.moves.concat(characterMoves);
+  get moves(): StandardIndex<DataswornTypes["move"]> {
+    if (!this.#moves) {
+      // TODO: might want to rethink this given the new set up.
+      const characterMoves = movesReader(this.characterContext.lens, this)
+        .get(this.characterContext.character)
+        .expect("unexpected failure finding assets for moves");
+      // .map(({ move, asset }) =>
+      //   produce(move, (draft) => {
+      //     draft.name = `${asset.name}: ${move.name}`;
+      //   }),
+      // );
+      this.#moves = this.datastore.moves.projected((move) => {
+        if (move[moveOrigin].assetId == null) return move;
+        const assetMove = characterMoves.find(
+          ({ move: characterMove }) => move._id === characterMove._id,
+        );
+        if (assetMove) {
+          return produce(move, (draft) => {
+            draft.name = `${assetMove.asset.name}: ${draft.name}`;
+          });
+        }
+        return undefined;
+      });
+    }
+    return this.#moves;
   }
 
   get rollables(): MeterWithLens[] {
-    return rollablesReader(
-      this.characterContext.lens,
-      this.datastore.index,
-    ).get(this.characterContext.character);
+    return rollablesReader(this.characterContext.lens, this).get(
+      this.characterContext.character,
+    );
   }
 
   get momentum() {
@@ -114,14 +138,14 @@ export class CharacterActionContext implements IActionContext {
 
   get conditionMeters(): MeterWithLens<ConditionMeterDefinition>[] {
     const { character, lens } = this.characterContext;
-    return Object.values(
-      meterLenses(lens, character, this.datastore.index),
-    ).map(({ key, definition, lens }) => ({
-      key,
-      definition,
-      lens,
-      value: lens.get(character),
-    }));
+    return Object.values(meterLenses(lens, character, this)).map(
+      ({ key, definition, lens }) => ({
+        key,
+        definition,
+        lens,
+        value: lens.get(character),
+      }),
+    );
   }
 
   async update(

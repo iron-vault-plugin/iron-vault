@@ -74,9 +74,7 @@ export default class IronVaultPlugin extends Plugin {
     await this.loadSettings();
 
     this.datastore = this.addChild(new Datastore(this));
-    this.indexManager = this.addChild(
-      new IndexManager(this.app, this.datastore.index),
-    );
+    this.indexManager = this.addChild(new IndexManager(this.app));
     this.indexManager.registerHandler(
       (this.characterIndexer = new CharacterIndexer(this.datastore)),
     );
@@ -326,7 +324,7 @@ export default class IronVaultPlugin extends Plugin {
           const oracle = plugin.datastore.oracles.get(id);
           const move =
             !oracle &&
-            plugin.datastore.moves.find(
+            [...plugin.datastore.moves.values()].find(
               (m) =>
                 m._id === id || m.name.replace(/\s*/g, "").toLowerCase() === id,
             );
@@ -363,7 +361,7 @@ export default class IronVaultPlugin extends Plugin {
             const oracle = plugin.datastore.oracles.get(id);
             const move =
               !oracle &&
-              plugin.datastore.moves.find(
+              [...plugin.datastore.moves.values()].find(
                 (m) =>
                   m._id === id ||
                   m.name.replace(/\s*/g, "").toLowerCase() === id,

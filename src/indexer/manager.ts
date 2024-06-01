@@ -7,7 +7,6 @@ import {
   type MetadataCache,
   type Vault,
 } from "obsidian";
-import { DataIndex } from "../datastore/data-index";
 import { Indexer, IndexerId } from "./indexer";
 
 // function isCharacterFile(
@@ -28,10 +27,7 @@ export class IndexManager extends Component {
   protected readonly handlers: Map<IndexerId, Indexer> = new Map();
   protected readonly indexedFiles: Map<string, IndexerId> = new Map();
 
-  constructor(
-    app: App,
-    protected readonly dataIndex: DataIndex,
-  ) {
+  constructor(app: App) {
     super();
 
     this.metadataCache = app.metadataCache;

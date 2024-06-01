@@ -1,6 +1,6 @@
+import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 import IronVaultPlugin from "index";
 import { MoveModal } from "./move-modal";
-import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 
 export default function installMoveLinkHandler(plugin: IronVaultPlugin) {
   const handler = (ev: MouseEvent) => {
@@ -19,7 +19,7 @@ export default function installMoveLinkHandler(plugin: IronVaultPlugin) {
           .slice("move:".length)
           .replace(/\s*/g, "")
           .toLowerCase();
-        const move = plugin.datastore.moves.find(
+        const move = [...plugin.datastore.moves.values()].find(
           (m) =>
             m._id === id || m.name.replace(/\s*/g, "").toLowerCase() === id,
         );
@@ -48,7 +48,7 @@ export default function installMoveLinkHandler(plugin: IronVaultPlugin) {
           .slice("move:".length)
           .replace(/\s*/g, "")
           .toLowerCase();
-        const move = plugin.datastore.moves.find(
+        const move = [...plugin.datastore.moves.values()].find(
           (m) =>
             m._id === id || m.name.replace(/\s*/g, "").toLowerCase() === id,
         );

@@ -55,11 +55,10 @@ export class MoveModal extends Modal {
       for (const child of contentEl.querySelectorAll('a[href^="id:"]')) {
         child.addEventListener("click", (ev) => {
           const id = child.getAttribute("href")?.slice(3);
+          if (!id) return;
           ev.preventDefault();
           ev.stopPropagation();
-          const newMove = this.plugin.datastore.moves.find(
-            (move) => move._id === id,
-          );
+          const newMove = this.plugin.datastore.moves.get(id);
           if (newMove) {
             this.moveHistory.push(move);
             this.openMove(newMove);

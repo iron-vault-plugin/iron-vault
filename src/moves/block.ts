@@ -64,7 +64,9 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
   ) {
     super(containerEl);
 
-    const moves = datastore.moves.filter((move) => move.name === doc.name);
+    const moves = [...datastore.moves.values()].filter(
+      (move) => move.name === doc.name,
+    );
     if (moves.length != 1) {
       console.warn(
         "Expected only one move named %s, found %d: %o",

@@ -1,7 +1,6 @@
 import { type Datasworn } from "@datasworn/core";
 import { zodResultToEither } from "utils/zodutils";
 import { z } from "zod";
-import { DataIndex } from "../datastore/data-index";
 import {
   ConditionMeterDefinition,
   MeterCommon,
@@ -23,6 +22,7 @@ import {
   reader,
   updating,
 } from "../utils/lens";
+import { IDataContext } from "./action-context";
 import { AssetError, assetMeters, assetWithDefnReader } from "./assets";
 
 const ValidationTag: unique symbol = Symbol("validated ruleset");
@@ -297,11 +297,11 @@ export function countMarked(impacts: Record<string, boolean>): number {
 
 export function movesReader(
   charLens: CharacterLens,
-  index: DataIndex,
+  dataContext: IDataContext,
 ): CharReader<
   Either<AssetError[], { move: Datasworn.Move; asset: Datasworn.Asset }[]>
 > {
-  const assetReader = assetWithDefnReader(charLens, index);
+  const assetReader = assetWithDefnReader(charLens, dataContext);
   return reader((source) => {
     return collectEither(assetReader.get(source)).map((assets) =>
       assets.flatMap(({ asset: assetConfig, defn }) =>
@@ -348,7 +348,7 @@ export const MOMENTUM_METER_DEFINITION: MeterWithoutLens<ConditionMeterDefinitio
 export function meterLenses(
   charLens: CharacterLens,
   character: ValidatedCharacter,
-  dataIndex: DataIndex,
+  dataContext: IDataContext,
 ): Record<string, MeterWithLens<ConditionMeterDefinition>> {
   const baseMeters = Object.fromEntries(
     Object.entries(charLens.condition_meters).map(([key, lens]) => [
@@ -360,7 +360,7 @@ export function meterLenses(
       },
     ]),
   );
-  const allAssetMeters = assetWithDefnReader(charLens, dataIndex)
+  const allAssetMeters = assetWithDefnReader(charLens, dataContext)
     .get(character)
     .flatMap((assetResult) => {
       if (assetResult.isLeft()) {
@@ -398,11 +398,11 @@ export type MeterWithLens<T extends MeterCommon = MeterCommon> = WithCharLens<
 
 export function rollablesReader(
   charLens: CharacterLens,
-  dataIndex: DataIndex,
+  dataContext: IDataContext,
 ): CharReader<MeterWithLens[]> {
   return reader((character) => {
     return [
-      ...Object.values(meterLenses(charLens, character, dataIndex)).map(
+      ...Object.values(meterLenses(charLens, character, dataContext)).map(
         ({ key, definition, lens }) => ({
           key,
           definition,
