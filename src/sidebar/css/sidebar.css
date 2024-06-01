@@ -12,6 +12,11 @@
 }
 
 .iron-vault-sidebar-view {
+  & .search-box {
+    width: 100%;
+    height: 2em;
+    font-size: 1.2em;
+  }
   &.tabs {
     position: relative;
     min-height: 100%;

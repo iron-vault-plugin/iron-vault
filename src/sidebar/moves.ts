@@ -13,25 +13,62 @@ export default async function renderIronVaultMoves(
   const loading = cont.createEl("p", { text: "Loading data..." });
   await plugin.datastore.waitForReady;
   loading.remove();
-  litHtmlMoveList(cont, plugin);
+  litHtmlMoveList(cont, plugin, plugin.datastore.moveCategories.values());
 }
 
-function litHtmlMoveList(cont: HTMLElement, plugin: IronVaultPlugin) {
+function litHtmlMoveList(
+  cont: HTMLElement,
+  plugin: IronVaultPlugin,
+  moveCategories: Iterable<MoveCategory>,
+  open: boolean = false,
+) {
   const tpl = html`
+    <input
+      class="search-box"
+      type="search"
+      placeholder="Filter moves..."
+      @input=${(e: Event) => {
+        const input = e.target as HTMLInputElement;
+        const query = input.value.toLowerCase();
+        const categories = plugin.datastore.moveCategories.values();
+        const [newList, total] = [...categories].reduce(
+          (acc, cat) => {
+            const contents = Object.values(cat.contents ?? {});
+            const filtered = contents.filter(
+              (m) =>
+                m.name.toLowerCase().includes(query) ||
+                m.trigger.text.toLowerCase().includes(query),
+            );
+            if (filtered.length) {
+              acc[0].push({
+                ...cat,
+                contents: Object.fromEntries(filtered.map((m) => [m._id, m])),
+              });
+              acc[1] += filtered.length;
+            }
+            return acc;
+          },
+          [[], 0] as [MoveCategory[], number],
+        );
+        litHtmlMoveList(cont, plugin, newList, total < 5);
+      }}
+    />
     <ol class="iron-vault-moves-list">
-      ${map(plugin.datastore.moveCategories.values(), (cat) =>
-        renderCategory(plugin, cat),
-      )}
+      ${map(moveCategories, (cat) => renderCategory(plugin, cat, open))}
     </ol>
   `;
   render(tpl, cont);
 }
 
-function renderCategory(plugin: IronVaultPlugin, category: MoveCategory) {
+function renderCategory(
+  plugin: IronVaultPlugin,
+  category: MoveCategory,
+  open: boolean,
+) {
   return html`
   <li class="category" style=${category.color ? `border-left: 6px solid ${category.color}` : ""}>
     <div class="wrapper">
-      <details>
+      <details ?open=${open}>
         <summary><span>${category.canonical_name ?? category.name}</span></summary>
       </details>
       <ol class="content">

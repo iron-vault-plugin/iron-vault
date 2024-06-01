@@ -13,7 +13,8 @@ export default async function renderIronVaultOracles(
   const loading = cont.createEl("p", { text: "Loading data..." });
   await plugin.datastore.waitForReady;
   loading.remove();
-  render(renderOracleList(plugin), cont);
+  const { rulesets, total } = getOracleTree(plugin);
+  litOracleList(cont, plugin, [...rulesets], total);
 }
 
 interface RulesetGrouping {
@@ -27,10 +28,11 @@ interface CollectionGrouping {
   children: Oracle[];
 }
 
-function getOracleTree(plugin: IronVaultPlugin) {
+function getOracleTree(plugin: IronVaultPlugin, filter?: string) {
   const oracles = plugin.datastore.oracles;
   const rulesets: Map<string, RulesetGrouping> = new Map();
   const groupings: Map<string, CollectionGrouping> = new Map();
+  let total = 0;
   for (const oracle of oracles.values()) {
     let topGroup = oracle.parent;
     let groupName = topGroup.name;
@@ -41,6 +43,14 @@ function getOracleTree(plugin: IronVaultPlugin) {
     ) {
       topGroup = topGroup.parent;
       groupName = `${topGroup.name} > ${groupName}`;
+    }
+
+    if (
+      filter &&
+      !oracle.name.toLowerCase().includes(filter) &&
+      !groupName.toLowerCase().includes(filter)
+    ) {
+      continue;
     }
 
     const top =
@@ -72,20 +82,43 @@ function getOracleTree(plugin: IronVaultPlugin) {
     }
 
     grouping.children.push(oracle);
+    total += 1;
   }
-  return rulesets.values();
+  return { rulesets: rulesets.values(), total };
 }
 
-function renderOracleList(plugin: IronVaultPlugin) {
-  const rulesets = getOracleTree(plugin);
-  return html`
-    <ul class="iron-vault-oracles-list">
-      ${map(rulesets, (r) => renderRuleset(plugin, r))}
-    </ul>
-  `;
+function litOracleList(
+  cont: HTMLElement,
+  plugin: IronVaultPlugin,
+  rulesets: RulesetGrouping[],
+  total: number,
+) {
+  return render(
+    html`
+      <input
+        class="search-box"
+        type="search"
+        placeholder="Filter oracles..."
+        @input=${(e: Event) => {
+          const input = e.target as HTMLInputElement;
+          const query = input.value.toLowerCase();
+          const { rulesets, total } = getOracleTree(plugin, query);
+          litOracleList(cont, plugin, [...rulesets], total);
+        }}
+      />
+      <ul class="iron-vault-oracles-list">
+        ${map(rulesets, (r) => renderRuleset(plugin, r, total <= 5))}
+      </ul>
+    `,
+    cont,
+  );
 }
 
-function renderRuleset(plugin: IronVaultPlugin, ruleset: RulesetGrouping) {
+function renderRuleset(
+  plugin: IronVaultPlugin,
+  ruleset: RulesetGrouping,
+  open: boolean,
+) {
   return html`
     <li class="ruleset">
       <div class="wrapper">
@@ -93,18 +126,22 @@ function renderRuleset(plugin: IronVaultPlugin, ruleset: RulesetGrouping) {
           <summary><span>${ruleset.name}</span></summary>
         </details>
         <ul class="content">
-          ${map(ruleset.children, (group) => renderGroup(plugin, group))}
+          ${map(ruleset.children, (group) => renderGroup(plugin, group, open))}
         </ul>
       </div>
     </li>
   `;
 }
 
-function renderGroup(plugin: IronVaultPlugin, group: CollectionGrouping) {
+function renderGroup(
+  plugin: IronVaultPlugin,
+  group: CollectionGrouping,
+  open: boolean,
+) {
   return html`
     <li class="oracle-group">
       <div class="wrapper">
-        <details>
+        <details ?open=${open}>
           <summary><span>${group.name}</span></summary>
         </details>
         <ul class="content">
