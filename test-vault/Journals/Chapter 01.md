@@ -88,6 +88,7 @@ This is part of
 
 a single multiline string.
 "
+  oracle "foo" roll=40 result="anything?"
 }
 - "trailing"
 - "here"

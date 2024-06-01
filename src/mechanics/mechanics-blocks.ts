@@ -128,6 +128,9 @@ export class MechanicsRenderer {
   }
 
   async renderNode(target: HTMLElement, node: KdlNode): Promise<void> {
+    if (this.details.length && node.name !== "-") {
+      await this.renderDetails(target);
+    }
     switch (node.name.toLowerCase()) {
       case "move": {
         await this.renderMove(target, node);
