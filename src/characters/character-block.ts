@@ -448,10 +448,28 @@ Error rendering character: character file is invalid${character
     };
 
     const makeSortable = (el?: Element) => {
-      if (el && !Sortable.get(el as HTMLElement)) {
+      if (el && Sortable.get(el as HTMLElement)) {
+        Sortable.get(el as HTMLElement)!.destroy();
+      }
+      if (el) {
         Sortable.create(el as HTMLElement, {
           animation: 150,
           handle: ".iron-vault-asset-card > header",
+          onEnd: (evt) => {
+            const assets = [...lens.assets.get(raw)];
+            if (evt.oldIndex != null && evt.newIndex != null) {
+              const a = assets[evt.oldIndex];
+              assets[evt.oldIndex] = assets[evt.newIndex];
+              assets[evt.newIndex] = a;
+              charCtx
+                .updater(vaultProcess(this.plugin.app, file.path), (char) =>
+                  lens.assets.update(char, assets),
+                )
+                .then(() => {
+                  this.render(file);
+                });
+            }
+          },
         });
       }
     };
@@ -459,7 +477,7 @@ Error rendering character: character file is invalid${character
     return html`
       <ul class="assets" ${ref(makeSortable)}>
         ${map(
-          Object.values(lens.assets.get(raw)),
+          lens.assets.get(raw),
           (asset) => html`
             <li class="asset-card-wrapper">
               <button
