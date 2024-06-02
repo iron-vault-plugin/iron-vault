@@ -1,10 +1,10 @@
+import { html, render } from "lit-html";
 import { ItemView, WorkspaceLeaf } from "obsidian";
-import { render, html } from "lit-html";
 
 import IronVaultPlugin from "index";
-import renderIronVaultOracles from "./oracles";
-import renderIronVaultMoves from "./moves";
 import renderIronVaultCharacter from "./character";
+import renderIronVaultMoves from "./moves";
+import renderIronVaultOracles from "./oracles";
 
 export const VIEW_TYPE = "iron-vault-sidebar-view";
 
@@ -60,10 +60,15 @@ export class SidebarView extends ItemView {
       container.querySelector(".content.move-tab")!,
       this.plugin,
     );
-    renderIronVaultCharacter(
-      container.querySelector(".content.character-tab")!,
-      this.plugin,
-      this,
+
+    this.registerEvent(
+      this.plugin.characters.on("changed", () => {
+        renderIronVaultCharacter(
+          container.querySelector(".content.character-tab")!,
+          this.plugin,
+          this,
+        );
+      }),
     );
   }
 
