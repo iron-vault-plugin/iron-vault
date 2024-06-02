@@ -1,5 +1,6 @@
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
+import { repeat } from "lit-html/directives/repeat.js";
 import { ref } from "lit-html/directives/ref.js";
 import Sortable from "sortablejs";
 
@@ -476,8 +477,9 @@ Error rendering character: character file is invalid${character
 
     return html`
       <ul class="assets" ${ref(makeSortable)}>
-        ${map(
+        ${repeat(
           lens.assets.get(raw),
+          (asset) => asset.id,
           (asset) => html`
             <li class="asset-card-wrapper">
               <button
