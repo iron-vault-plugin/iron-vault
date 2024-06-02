@@ -8,7 +8,9 @@
 
 .markdown-rendered .iron-vault-character ul {
   padding-left: 0;
+  padding-right: 0;
   margin-left: 0;
+  margin-right: 0;
 }
 
 .iron-vault-character {
