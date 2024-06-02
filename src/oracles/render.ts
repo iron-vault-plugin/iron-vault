@@ -25,15 +25,15 @@ export function registerOracleBlock(
       const validatedOracle = oracleSchema.safeParse(doc);
 
       if (validatedOracle.success) {
-        ctx.addChild(
-          new OracleMarkdownRenderChild(
-            el,
-            plugin.app,
-            ctx,
-            datastore,
-            validatedOracle.data,
-          ),
+        const renderer = new OracleMarkdownRenderChild(
+          el,
+          plugin.app,
+          ctx,
+          datastore,
+          validatedOracle.data,
         );
+        ctx.addChild(renderer);
+        renderer.render();
       } else {
         el.createEl("pre", {
           text:

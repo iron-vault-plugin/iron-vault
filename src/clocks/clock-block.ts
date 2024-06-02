@@ -12,8 +12,10 @@ import { ClockFileAdapter, clockUpdater } from "./clock-file";
 export default function registerClockBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-clock",
-    (_source: string, el: HTMLElement, ctx) => {
-      ctx.addChild(new ClockRenderer(el, ctx.sourcePath, plugin));
+    async (_source: string, el: HTMLElement, ctx) => {
+      const renderer = new ClockRenderer(el, ctx.sourcePath, plugin);
+      ctx.addChild(renderer);
+      renderer.render();
     },
   );
 }

@@ -1,5 +1,5 @@
 import IronVaultPlugin from "index";
-import { MarkdownRenderChild, MarkdownRenderer } from "obsidian";
+import { MarkdownPreviewView, MarkdownRenderChild } from "obsidian";
 import { html } from "lit-html";
 import { directive, Directive } from "lit-html/directive.js";
 
@@ -11,7 +11,7 @@ class RenderMarkdownDirective extends Directive {
   ): unknown {
     const target = document.createElement("div");
     target.classList.add("markdown-wrapper");
-    MarkdownRenderer.render(
+    MarkdownPreviewView.render(
       plugin.app,
       text,
       target,

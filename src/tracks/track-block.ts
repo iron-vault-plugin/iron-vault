@@ -12,8 +12,10 @@ import { progressTrackUpdater } from "./writer";
 export default function registerTrackBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-track",
-    (_source: string, el: HTMLElement, ctx) => {
-      ctx.addChild(new TrackRenderer(el, ctx.sourcePath, plugin));
+    async (_source: string, el: HTMLElement, ctx) => {
+      const renderer = new TrackRenderer(el, ctx.sourcePath, plugin);
+      ctx.addChild(renderer);
+      renderer.render();
     },
   );
 }

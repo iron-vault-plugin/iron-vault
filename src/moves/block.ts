@@ -26,15 +26,15 @@ export function registerMoveBlock(plugin: IronVaultPlugin): void {
     const validatedMove = parseMoveBlock(source);
 
     if (validatedMove.isRight()) {
-      ctx.addChild(
-        new MoveMarkdownRenderChild(
-          el,
-          plugin.app,
-          ctx.sourcePath,
-          validatedMove.value,
-          plugin.datastore,
-        ),
+      const renderer = new MoveMarkdownRenderChild(
+        el,
+        plugin.app,
+        ctx.sourcePath,
+        validatedMove.value,
+        plugin.datastore,
       );
+      ctx.addChild(renderer);
+      renderer.render();
     } else {
       el.createEl("pre", {
         text: `Error parsing move\n${validatedMove.error.toString()}\n${JSON.stringify(validatedMove.error.cause)}`,
