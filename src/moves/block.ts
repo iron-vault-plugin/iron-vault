@@ -148,6 +148,10 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
   }
 
   async onload(): Promise<void> {
+    await this.render();
+  }
+
+  async render() {
     await MarkdownRenderer.render(
       this.app,
       this.template(this.doc),
