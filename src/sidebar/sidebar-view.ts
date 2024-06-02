@@ -63,6 +63,7 @@ export class SidebarView extends ItemView {
     renderIronVaultCharacter(
       container.querySelector(".content.character-tab")!,
       this.plugin,
+      this,
     );
   }
 
