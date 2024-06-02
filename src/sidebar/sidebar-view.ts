@@ -29,7 +29,7 @@ export class SidebarView extends ItemView {
   }
 
   async onOpen() {
-    const container = this.containerEl.children[1];
+    const container = this.contentEl;
     container.empty();
     const tpl = html`
       <nav class="iron-vault-sidebar-view tabs">
@@ -62,17 +62,20 @@ export class SidebarView extends ItemView {
     );
 
     this.registerEvent(
-      this.plugin.characters.on("changed", () => {
-        renderIronVaultCharacter(
-          container.querySelector(".content.character-tab")!,
-          this.plugin,
-          this,
-        );
-      }),
+      this.plugin.characters.on("changed", () => this.renderCharacter()),
     );
+    this.renderCharacter();
   }
 
   async onClose() {
     // Nothing to clean up.
+  }
+
+  renderCharacter() {
+    renderIronVaultCharacter(
+      this.contentEl.querySelector(".content.character-tab")!,
+      this.plugin,
+      this,
+    );
   }
 }
