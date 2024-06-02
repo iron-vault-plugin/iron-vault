@@ -1,6 +1,7 @@
 import { Move, MoveCategory } from "@datasworn/core/dist/Datasworn";
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
+import MiniSearch from "minisearch";
 
 import IronVaultPlugin from "index";
 import { MoveModal } from "moves/move-modal";
@@ -13,15 +14,34 @@ export default async function renderIronVaultMoves(
   const loading = cont.createEl("p", { text: "Loading data..." });
   await plugin.datastore.waitForReady;
   loading.remove();
-  litHtmlMoveList(cont, plugin, plugin.datastore.moveCategories.values());
+  litHtmlMoveList(cont, plugin, makeIndex(plugin));
 }
 
 function litHtmlMoveList(
   cont: HTMLElement,
   plugin: IronVaultPlugin,
-  moveCategories: Iterable<MoveCategory>,
-  open: boolean = false,
+  searchIdx: MiniSearch<Move>,
+  filter?: string,
 ) {
+  const results = filter
+    ? searchIdx.search(filter)
+    : plugin.datastore.moves.map((m) => ({ id: m._id }));
+  const categories = plugin.datastore.moveCategories.values();
+  let total = 0;
+  const newCats = [];
+  for (const cat of categories) {
+    const contents = Object.values(cat.contents ?? {});
+    const filtered = contents.filter((m) =>
+      results.find((res) => m._id === res.id),
+    );
+    if (filtered.length) {
+      newCats.push({
+        ...cat,
+        contents: Object.fromEntries(filtered.map((m) => [m._id, m])),
+      });
+      total += filtered.length;
+    }
+  }
   const tpl = html`
     <input
       class="search-box"
@@ -29,32 +49,11 @@ function litHtmlMoveList(
       placeholder="Filter moves..."
       @input=${(e: Event) => {
         const input = e.target as HTMLInputElement;
-        const query = input.value.toLowerCase();
-        const categories = plugin.datastore.moveCategories.values();
-        const [newList, total] = [...categories].reduce(
-          (acc, cat) => {
-            const contents = Object.values(cat.contents ?? {});
-            const filtered = contents.filter(
-              (m) =>
-                m.name.toLowerCase().includes(query) ||
-                m.trigger.text.toLowerCase().includes(query),
-            );
-            if (filtered.length) {
-              acc[0].push({
-                ...cat,
-                contents: Object.fromEntries(filtered.map((m) => [m._id, m])),
-              });
-              acc[1] += filtered.length;
-            }
-            return acc;
-          },
-          [[], 0] as [MoveCategory[], number],
-        );
-        litHtmlMoveList(cont, plugin, newList, total < 5);
+        litHtmlMoveList(cont, plugin, searchIdx, input.value);
       }}
     />
     <ol class="iron-vault-moves-list">
-      ${map(moveCategories, (cat) => renderCategory(plugin, cat, open))}
+      ${map(newCats, (cat) => renderCategory(plugin, cat, total <= 5))}
     </ol>
   `;
   render(tpl, cont);
@@ -90,4 +89,18 @@ function renderMove(plugin: IronVaultPlugin, move: Move) {
       ${md(plugin, move.trigger.text)}
     </li>
   `;
+}
+
+function makeIndex(plugin: IronVaultPlugin) {
+  const idx = new MiniSearch({
+    fields: ["name", "trigger.text"],
+    idField: "_id",
+    searchOptions: {
+      prefix: true,
+      fuzzy: 0.3,
+      boost: { name: 2 },
+    },
+  });
+  idx.addAll(plugin.datastore.moves);
+  return idx;
 }

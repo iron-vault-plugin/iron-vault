@@ -5,6 +5,7 @@ import { OracleModal } from "oracles/oracle-modal";
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { Oracle, OracleRulesetGrouping } from "model/oracle";
+import MiniSearch from "minisearch";
 
 export default async function renderIronVaultOracles(
   cont: HTMLElement,
@@ -13,8 +14,15 @@ export default async function renderIronVaultOracles(
   const loading = cont.createEl("p", { text: "Loading data..." });
   await plugin.datastore.waitForReady;
   loading.remove();
-  const { rulesets, total } = getOracleTree(plugin);
-  litOracleList(cont, plugin, [...rulesets], total);
+  const idx = makeIndex(plugin);
+  litOracleList(cont, plugin, idx);
+}
+
+interface OracleIndexEntry {
+  id: string;
+  name: string;
+  group: string;
+  ruleset: string;
 }
 
 interface RulesetGrouping {
@@ -28,12 +36,19 @@ interface CollectionGrouping {
   children: Oracle[];
 }
 
-function getOracleTree(plugin: IronVaultPlugin, filter?: string) {
-  const oracles = plugin.datastore.oracles;
+function getOracleTree(
+  plugin: IronVaultPlugin,
+  searchIdx: MiniSearch<OracleIndexEntry>,
+  filter?: string,
+) {
+  const results = filter
+    ? searchIdx.search(filter)
+    : [...plugin.datastore.oracles.values()];
   const rulesets: Map<string, RulesetGrouping> = new Map();
   const groupings: Map<string, CollectionGrouping> = new Map();
   let total = 0;
-  for (const oracle of oracles.values()) {
+  for (const res of results) {
+    const oracle = plugin.datastore.oracles.get(res.id)!;
     let topGroup = oracle.parent;
     let groupName = topGroup.name;
     while (
@@ -43,14 +58,6 @@ function getOracleTree(plugin: IronVaultPlugin, filter?: string) {
     ) {
       topGroup = topGroup.parent;
       groupName = `${topGroup.name} > ${groupName}`;
-    }
-
-    if (
-      filter &&
-      !oracle.name.toLowerCase().includes(filter) &&
-      !groupName.toLowerCase().includes(filter)
-    ) {
-      continue;
     }
 
     const top =
@@ -90,9 +97,10 @@ function getOracleTree(plugin: IronVaultPlugin, filter?: string) {
 function litOracleList(
   cont: HTMLElement,
   plugin: IronVaultPlugin,
-  rulesets: RulesetGrouping[],
-  total: number,
+  index: MiniSearch<OracleIndexEntry>,
+  filter?: string,
 ) {
+  const { rulesets, total } = getOracleTree(plugin, index, filter);
   return render(
     html`
       <input
@@ -101,9 +109,7 @@ function litOracleList(
         placeholder="Filter oracles..."
         @input=${(e: Event) => {
           const input = e.target as HTMLInputElement;
-          const query = input.value.toLowerCase();
-          const { rulesets, total } = getOracleTree(plugin, query);
-          litOracleList(cont, plugin, [...rulesets], total);
+          litOracleList(cont, plugin, index, input.value);
         }}
       />
       <ul class="iron-vault-oracles-list">
@@ -193,4 +199,44 @@ function handleOracleRoll(
 
 function openOracleModal(plugin: IronVaultPlugin, oracle: Oracle) {
   new OracleModal(plugin.app, plugin, oracle).open();
+}
+
+function makeIndex(plugin: IronVaultPlugin) {
+  const idx = new MiniSearch({
+    fields: ["name", "group", "ruleset"],
+    idField: "id",
+    searchOptions: {
+      prefix: true,
+      fuzzy: 0.3,
+      boost: { name: 2 },
+    },
+  });
+  for (const oracle of plugin.datastore.oracles.values()) {
+    let topGroup = oracle.parent;
+    let groupName = topGroup.name;
+    while (
+      topGroup &&
+      topGroup.grouping_type === "collection" &&
+      topGroup.parent.grouping_type === "collection"
+    ) {
+      topGroup = topGroup.parent;
+      groupName = `${topGroup.name} > ${groupName}`;
+    }
+
+    const top =
+      topGroup.grouping_type === "collection"
+        ? topGroup.parent
+        : ({
+            name: "Homebrew",
+            id: "iron_vault_homebrew",
+          } as OracleRulesetGrouping);
+
+    idx.add({
+      id: oracle.id,
+      name: oracle.name,
+      group: groupName,
+      ruleset: top.name,
+    });
+  }
+  return idx;
 }
