@@ -12,6 +12,7 @@ import { range } from "lit-html/directives/range.js";
 
 import { produce } from "immer";
 import IronVaultPlugin from "index";
+import { repeat } from "lit-html/directives/repeat.js";
 import { md } from "utils/ui/directives";
 import { integratedAssetLens } from "./assets";
 import { IronVaultSheetAssetSchema } from "./lens";
@@ -70,8 +71,11 @@ export default function renderAssetCard(
       </header>
       <section>
         <ul class="abilities">
-          ${map(Object.values(asset.abilities), (ability, i) =>
-            renderAssetAbility(asset, plugin, ability, i, updateAsset),
+          ${repeat(
+            Object.values(asset.abilities),
+            (ability) => ability._id,
+            (ability, i) =>
+              renderAssetAbility(asset, plugin, ability, i, updateAsset),
           )}
         </ul>
       </section>
@@ -187,18 +191,22 @@ function renderControls<T extends Asset | AssetConditionMeter>(
       ));
   return html`
     <ul class="controls">
-      ${map(Object.entries(controls), ([key, control]) => {
-        return html`
-          <li>
-            <dl>
-              <dt>${key}</dt>
-              <dd class="control">
-                ${renderControl(key, control, updateControlField(key))}
-              </dd>
-            </dl>
-          </li>
-        `;
-      })}
+      ${repeat(
+        Object.entries(controls),
+        ([key]) => key,
+        ([key, control]) => {
+          return html`
+            <li>
+              <dl>
+                <dt>${key}</dt>
+                <dd class="control">
+                  ${renderControl(key, control, updateControlField(key))}
+                </dd>
+              </dl>
+            </li>
+          `;
+        },
+      )}
     </ul>
   `;
 }
@@ -244,8 +252,9 @@ function renderControl(
         renderControls(control, control.controls, updateControl)}
         <ul class="meter">
           <li><span>${control.label}</span></li>
-          ${map(
+          ${repeat(
             range(control.max + 1),
+            (i) => i,
             (i) =>
               html`<li>
                 <label
