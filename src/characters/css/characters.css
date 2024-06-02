@@ -13,6 +13,11 @@
   margin-right: 0;
 }
 
+.markdown-rendered.show-indentation-guide .iron-vault-character li > ul::before {
+  /* Markdown embed stuff draws a border here. Make it go away. */
+  display: none;
+}
+
 .iron-vault-character {
   display: flex;
   flex-flow: column nowrap;
