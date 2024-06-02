@@ -9,5 +9,5 @@ export default function renderIronVaultCharacter(
   plugin: IronVaultPlugin,
 ) {
   const [charPath] = activeCharacter(plugin.characters);
-  render(html`${md(plugin, `![[${charPath}]]`)}`, containerEl);
+  render(html`${md(plugin, `![[${charPath}]]`, ".")}`, containerEl);
 }
