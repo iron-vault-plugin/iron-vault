@@ -5,8 +5,10 @@
 [data-type="iron-vault-sidebar-view"] {
   & .view-content {
     padding: 0;
+    display: flex;
+    flex-flow: column nowrap;
     & > :first-child {
-      padding: 0.5em;
+      padding: 0.5em 0;
     }
   }
 }
@@ -18,23 +20,23 @@
     font-size: 1.2em;
   }
   &.tabs {
-    position: relative;
-    min-height: 100%;
     clear: both;
-    margin: 25px 0;
+    padding: 25px 0;
+    display: flex;
+    flex-flow: row nowrap;
+    flex: 1 1 auto;
   }
   & > .tab {
-    float: left;
     & > label {
       font-size: 1.1em;
       font-weight: var(--font-semibold);
       background-color: var(--background-primary-alt);
       padding: 0.5em;
       border: 2px solid var(--background-modifier-border);
-      margin-left: -1px;
-      position: relative;
+      margin: 0;
       left: 1px;
       transition: background-color 200ms ease;
+      z-index: 3;
       &:hover {
         background-color: var(--background-modifier-hover);
       }
@@ -45,10 +47,10 @@
     & > [type="radio"] {
       display: none;
       & ~ .content {
+        overflow-y: auto;
         display: none;
       }
       &:checked ~ label {
-        z-index: 2;
         background-color: var(--background-secondary-alt);
         &:hover {
           background-color: var(--background-modifier-hover);
