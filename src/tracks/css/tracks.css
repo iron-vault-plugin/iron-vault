@@ -38,8 +38,45 @@
   }
   & > .track-widget {
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
+    flex-flow: row wrap;
+    justify-content: center;
+    max-width: 240px;
+    @container iron-vault-track (min-width: 460px) {
+      flex-wrap: nowrap;
+    }
+    & > ol {
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      @container iron-vault-track (min-width: 460px) {
+        width: auto;
+      }
+    }
+    & > button,
+    & > input,
+    & > span {
+      order: 1;
+      @container iron-vault-track (min-width: 460px) {
+        order: 0;
+      }
+    }
+    & > button:last-of-type {
+      order: 2;
+      @container iron-vault-track (min-width: 460px) {
+        order: 0;
+      }
+    }
+    & > span,
+    & > input {
+      flex-grow: 1;
+    }
+    & > input {
+      margin-left: 5em;
+      @container iron-vault-track (min-width: 460px) {
+        margin-left: auto;
+      }
+      max-width: 3em;
+    }
     align-items: center;
     & input,
     & button,
@@ -47,13 +84,12 @@
     & span {
       overflow-wrap: normal;
       text-wrap: nowrap;
-      width: 20px;
-      height: 20px;
-      font-size: 12px;
+      width: 24px;
+      height: 24px;
+      font-size: 16px;
       @container iron-vault-track (min-width: 460px) {
         height: 32px;
         width: 32px;
-        font-size: 16px;
       }
       @container iron-vault-track (min-width: 640px) {
         height: 42px;
@@ -73,6 +109,7 @@
       flex-direction: row;
       flex-wrap: nowrap;
       align-items: center;
+      justify-content: center;
       padding-inline-start: 0;
     }
     & li {
