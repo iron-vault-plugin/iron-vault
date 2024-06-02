@@ -225,7 +225,7 @@ Error rendering character: character file is invalid${character
         <dd class="xp-spent">
           <input
             type="number"
-            .value=${lens.xp_spent.get(raw) || ""}
+            .value=${lens.xp_spent.get(raw) ?? ""}
             @change=${charNumFieldUpdater(lens.xp_spent)}
           />
         </dd>
