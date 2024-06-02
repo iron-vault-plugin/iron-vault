@@ -82,7 +82,7 @@ class CharacterRenderer extends MarkdownRenderChild {
   }
 
   onload() {
-    console.log("onload");
+    console.log("CharacterRenderer[%s] onload", this.sections.join(", "));
     if (this.fileWatcher) {
       this.plugin.characters.offref(this.fileWatcher);
     }
@@ -90,11 +90,6 @@ class CharacterRenderer extends MarkdownRenderChild {
       (this.fileWatcher = this.plugin.characters.on(
         "changed",
         (changedPath) => {
-          console.log(
-            "changed: %s vs my path: %s",
-            changedPath,
-            this.sourcePath,
-          );
           if (changedPath === this.sourcePath) {
             this.render();
           }
@@ -109,7 +104,7 @@ class CharacterRenderer extends MarkdownRenderChild {
       this.plugin.characters.get(this.sourcePath) ??
       Left.create(new Error("character not indexed"));
     console.log(
-      "Character %s render started for %o",
+      "CharacterRenderer[%s] render started for %o",
       this.sections.join(", "),
       result,
     );
@@ -121,7 +116,6 @@ class CharacterRenderer extends MarkdownRenderChild {
       return;
     }
     this.renderCharacter(result.value, false);
-    console.log("Character %s render ended", this.sections.join(", "));
   }
 
   renderCharacter(charCtx: CharacterContext, readOnly: boolean = false) {
