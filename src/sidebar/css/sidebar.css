@@ -21,11 +21,6 @@
   }
   & .character-tab > .markdown-wrapper > p > .markdown-embed {
     --embed-padding: 1em;
-    border: none;
-    box-shadow: none;
-    & > .markdown-embed-title {
-      display: none;
-    }
   }
   &.tabs {
     clear: both;

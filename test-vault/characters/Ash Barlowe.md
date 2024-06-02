@@ -69,8 +69,7 @@ xp_spent: 0
 ### Special Tracks
 ```iron-vault-character-special-tracks
 ```
-
-![[Failure]]
+![[Failure|iv-embed]]
 ### Impacts
 ```iron-vault-character-impacts
 ```
