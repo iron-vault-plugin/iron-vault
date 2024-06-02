@@ -18,7 +18,7 @@ assets:
     abilities:
       - true
       - false
-      - false
+      - true
     controls: {}
     options: {}
   - id: starforged/assets/command_vehicle/starship
