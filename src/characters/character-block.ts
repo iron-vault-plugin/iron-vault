@@ -1,21 +1,23 @@
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
-import { repeat } from "lit-html/directives/repeat.js";
 import { ref } from "lit-html/directives/ref.js";
+import { repeat } from "lit-html/directives/repeat.js";
 import Sortable from "sortablejs";
 
 import { Asset } from "@datasworn/core/dist/Datasworn";
 import IronVaultPlugin from "index";
-import { EventRef, TFile } from "obsidian";
+import { EventRef, MarkdownRenderChild } from "obsidian";
 import { ProgressTrack, legacyTrackXpEarned } from "tracks/progress";
 import { renderTrack } from "tracks/track-block";
+import { Left } from "utils/either";
 import { Lens } from "utils/lens";
 import { vaultProcess } from "utils/obsidian";
+import { capitalize } from "utils/strings";
 import { CharacterContext } from "../character-tracker";
 import renderAssetCard from "./asset-card";
 import { addOrUpdateViaDataswornAsset } from "./assets";
-import { ValidatedCharacter, momentumOps } from "./lens";
 import { addAssetToCharacter } from "./commands";
+import { ValidatedCharacter, momentumOps } from "./lens";
 
 export default function registerCharacterBlocks(plugin: IronVaultPlugin): void {
   registerBlock();
@@ -32,26 +34,17 @@ export default function registerCharacterBlocks(plugin: IronVaultPlugin): void {
   ) {
     plugin.registerMarkdownCodeBlockProcessor(
       "iron-vault-character" + (languageSuffix ? "-" + languageSuffix : ""),
-      async (source: string, el: CharacterContainerEl, ctx) => {
-        // We can't render blocks until datastore is ready.
-        await plugin.datastore.waitForReady;
-        if (!el.characterRenderer) {
-          el.characterRenderer = new CharacterRenderer(
-            el,
-            source,
-            plugin,
-            section && [section],
-          );
-        }
-        const file = plugin.app.vault.getFileByPath(ctx.sourcePath);
-        await el.characterRenderer.render(file);
+      (source: string, el: HTMLElement, ctx) => {
+        const renderer = new CharacterRenderer(
+          el,
+          ctx.sourcePath,
+          plugin,
+          section && [section],
+        );
+        ctx.addChild(renderer);
       },
     );
   }
-}
-
-interface CharacterContainerEl extends HTMLElement {
-  characterRenderer?: CharacterRenderer;
 }
 
 enum CharacterSheetSection {
@@ -63,16 +56,15 @@ enum CharacterSheetSection {
   ASSETS = "assets",
 }
 
-class CharacterRenderer {
-  contentEl: HTMLElement;
-  source: string;
+class CharacterRenderer extends MarkdownRenderChild {
+  sourcePath: string;
   plugin: IronVaultPlugin;
   sections: CharacterSheetSection[];
   fileWatcher?: EventRef;
 
   constructor(
-    contentEl: HTMLElement,
-    source: string,
+    containerEl: HTMLElement,
+    sourcePath: string,
     plugin: IronVaultPlugin,
     sections: CharacterSheetSection[] = [
       CharacterSheetSection.INFO,
@@ -83,95 +75,82 @@ class CharacterRenderer {
       CharacterSheetSection.ASSETS,
     ],
   ) {
-    this.contentEl = contentEl;
-    this.source = source;
+    super(containerEl);
+    this.sourcePath = sourcePath;
     this.plugin = plugin;
     this.sections = sections;
   }
 
-  async render(
-    file: TFile | undefined | null,
-    assets?: {
-      id: string;
-      abilities: boolean[];
-      options: Record<string, string | number | boolean | null>;
-      controls: Record<string, string | number | boolean | null>;
-    }[],
-  ) {
-    if (!file) {
-      render(
-        html`<pre>Error rendering character: no file found.</pre>`,
-        this.contentEl,
-      );
-      return;
-    }
-    const character = this.plugin.characters.get(file.path);
+  onload() {
+    console.log("onload");
     if (this.fileWatcher) {
-      this.plugin.app.metadataCache.offref(this.fileWatcher);
+      this.plugin.characters.offref(this.fileWatcher);
     }
-    this.fileWatcher = this.plugin.app.metadataCache.on(
-      "changed",
-      (moddedFile) => {
-        if (moddedFile.path === file.path) {
-          this.render(moddedFile);
-        }
-      },
+    this.registerEvent(
+      (this.fileWatcher = this.plugin.characters.on(
+        "changed",
+        (changedPath) => {
+          console.log(
+            "changed: %s vs my path: %s",
+            changedPath,
+            this.sourcePath,
+          );
+          if (changedPath === this.sourcePath) {
+            this.render();
+          }
+        },
+      )),
     );
-    this.plugin.registerEvent(this.fileWatcher);
-    if (!character || character.isLeft()) {
-      render(
-        // TODO: we should preserve the error?
-        //html`<pre>Error rendering clock: ${res.error.message}</pre>`,
-        html`<pre>
-Error rendering character: character file is invalid${character
-            ? ": " + character.error.message
-            : ""}</pre
-        >`,
-        this.contentEl,
-      );
-      return;
-    } else if (character.isRight()) {
-      await this.renderCharacter(character.value, file, false, assets);
-    }
+    this.render();
   }
 
-  async renderCharacter(
-    charCtx: CharacterContext,
-    file: TFile,
-    readOnly: boolean = false,
-    assets?: {
-      id: string;
-      abilities: boolean[];
-      options: Record<string, string | number | boolean | null>;
-      controls: Record<string, string | number | boolean | null>;
-    }[],
-  ) {
+  render() {
+    const result =
+      this.plugin.characters.get(this.sourcePath) ??
+      Left.create(new Error("character not indexed"));
+    console.log(
+      "Character %s render started for %o",
+      this.sections.join(", "),
+      result,
+    );
+    if (result.isLeft()) {
+      render(
+        html`<pre>Error rendering character: ${result.error.message}</pre>`,
+        this.containerEl,
+      );
+      return;
+    }
+    this.renderCharacter(result.value, false);
+    console.log("Character %s render ended", this.sections.join(", "));
+  }
+
+  renderCharacter(charCtx: CharacterContext, readOnly: boolean = false) {
     const tpl = html`
       <article class="iron-vault-character">
         ${this.sections.includes(CharacterSheetSection.INFO)
-          ? this.renderCharacterInfo(charCtx, file)
+          ? this.renderCharacterInfo(charCtx)
           : null}
         ${this.sections.includes(CharacterSheetSection.STATS)
-          ? this.renderStats(charCtx, file)
+          ? this.renderStats(charCtx)
           : null}
         ${this.sections.includes(CharacterSheetSection.METERS)
-          ? this.renderMeters(charCtx, file)
+          ? this.renderMeters(charCtx)
           : null}
         ${this.sections.includes(CharacterSheetSection.SPECIAL_TRACKS)
-          ? this.renderSpecialTracks(charCtx, file)
+          ? this.renderSpecialTracks(charCtx)
           : null}
         ${this.sections.includes(CharacterSheetSection.IMPACTS)
-          ? this.renderImpacts(charCtx, file, readOnly)
+          ? this.renderImpacts(charCtx, readOnly)
           : null}
         ${this.sections.includes(CharacterSheetSection.ASSETS)
-          ? this.renderAssets(charCtx, file, assets)
+          ? this.renderAssets(charCtx)
           : null}
       </article>
     `;
-    render(tpl, this.contentEl);
+    render(tpl, this.containerEl);
   }
 
-  renderCharacterInfo(charCtx: CharacterContext, file: TFile) {
+  renderCharacterInfo(charCtx: CharacterContext) {
     const lens = charCtx.lens;
     const raw = charCtx.character;
     const charFieldUpdater = (
@@ -181,16 +160,18 @@ Error rendering character: character file is invalid${character
     ) => {
       return (e: Event) => {
         const target = e.target as HTMLInputElement;
-        charCtx.updater(vaultProcess(this.plugin.app, file.path), (char) =>
-          lens.update(char, target.value),
+        charCtx.updater(
+          vaultProcess(this.plugin.app, this.sourcePath),
+          (char) => lens.update(char, target.value),
         );
       };
     };
     const charNumFieldUpdater = (lens: Lens<ValidatedCharacter, number>) => {
       return (e: Event) => {
         const target = e.target as HTMLInputElement;
-        charCtx.updater(vaultProcess(this.plugin.app, file.path), (char) =>
-          lens.update(char, +target.value),
+        charCtx.updater(
+          vaultProcess(this.plugin.app, this.sourcePath),
+          (char) => lens.update(char, +target.value),
         );
       };
     };
@@ -248,14 +229,15 @@ Error rendering character: character file is invalid${character
     </section>`;
   }
 
-  renderStats(charCtx: CharacterContext, file: TFile) {
+  renderStats(charCtx: CharacterContext) {
     const lens = charCtx.lens;
     const raw = charCtx.character;
     const statUpdater = (lens: Lens<ValidatedCharacter, number>) => {
       return (e: Event) => {
         const target = e.target as HTMLInputElement;
-        charCtx.updater(vaultProcess(this.plugin.app, file.path), (char) =>
-          lens.update(char, +target.value),
+        charCtx.updater(
+          vaultProcess(this.plugin.app, this.sourcePath),
+          (char) => lens.update(char, +target.value),
         );
       };
     };
@@ -282,20 +264,20 @@ Error rendering character: character file is invalid${character
     `;
   }
 
-  renderMeters(charCtx: CharacterContext, file: TFile) {
+  renderMeters(charCtx: CharacterContext) {
     const lens = charCtx.lens;
     const raw = charCtx.character;
     const updateMeter = (
       lens: Lens<ValidatedCharacter, number>,
       delta: number,
     ) => {
-      charCtx.updater(vaultProcess(this.plugin.app, file.path), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
         lens.update(char, lens.get(raw) + delta),
       );
     };
     const momOps = momentumOps(lens);
     const updateMomentum = (delta?: number) => {
-      charCtx.updater(vaultProcess(this.plugin.app, file.path), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
         delta == null
           ? momOps.reset(char)
           : delta >= 0
@@ -343,7 +325,7 @@ Error rendering character: character file is invalid${character
     `;
   }
 
-  renderImpacts(charCtx: CharacterContext, file: TFile, readOnly: boolean) {
+  renderImpacts(charCtx: CharacterContext, readOnly: boolean) {
     const lens = charCtx.lens;
     const raw = charCtx.character;
     const categories: Record<string, Record<string, boolean>> = {};
@@ -358,7 +340,7 @@ Error rendering character: character file is invalid${character
       lens: Lens<ValidatedCharacter, Record<string, boolean>>,
       impact: string,
     ) => {
-      charCtx.updater(vaultProcess(this.plugin.app, file.path), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
         lens.update(char, {
           ...lens.get(raw),
           [impact]: !lens.get(raw)[impact],
@@ -399,14 +381,14 @@ Error rendering character: character file is invalid${character
     `;
   }
 
-  renderSpecialTracks(charCtx: CharacterContext, file: TFile) {
+  renderSpecialTracks(charCtx: CharacterContext) {
     const lens = charCtx.lens;
     const raw = charCtx.character;
     const updateTrack = (
       track: Lens<ValidatedCharacter, ProgressTrack>,
       info: { steps?: number; ticks?: number },
     ) => {
-      charCtx.updater(vaultProcess(this.plugin.app, file.path), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
         track.update(
           char,
           info.steps == null
@@ -440,21 +422,12 @@ Error rendering character: character file is invalid${character
     `;
   }
 
-  renderAssets(
-    charCtx: CharacterContext,
-    file: TFile,
-    assets?: {
-      id: string;
-      abilities: boolean[];
-      options: Record<string, string | number | boolean | null>;
-      controls: Record<string, string | number | boolean | null>;
-    }[],
-  ) {
+  renderAssets(charCtx: CharacterContext) {
     const lens = charCtx.lens;
     const raw = charCtx.character;
 
     const updateAsset = (asset: Asset) => {
-      charCtx.updater(vaultProcess(this.plugin.app, file.path), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
         addOrUpdateViaDataswornAsset(lens, this.plugin.datastore).update(
           char,
           asset,
@@ -463,7 +436,7 @@ Error rendering character: character file is invalid${character
     };
 
     const removeAsset = (asset: { id: string }) => {
-      charCtx.updater(vaultProcess(this.plugin.app, file.path), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
         lens.assets.update(
           char,
           lens.assets.get(char).filter((a) => a.id !== asset.id),
@@ -486,9 +459,8 @@ Error rendering character: character file is invalid${character
               const a = assets[evt.oldIndex];
               assets[evt.oldIndex] = assets[evt.newIndex];
               assets[evt.newIndex] = a;
-              this.render(file, assets);
               charCtx.updater(
-                vaultProcess(this.plugin.app, file.path),
+                vaultProcess(this.plugin.app, this.sourcePath),
                 (char) => lens.assets.update(char, assets),
               );
             }
@@ -500,7 +472,7 @@ Error rendering character: character file is invalid${character
     return html`
       <ul class="assets" ${ref(makeSortable)}>
         ${repeat(
-          assets ?? lens.assets.get(raw),
+          lens.assets.get(raw),
           (asset) => asset.id,
           (asset) => html`
             <li class="asset-card-wrapper">
@@ -527,10 +499,6 @@ Error rendering character: character file is invalid${character
       </ul>
     `;
   }
-}
-
-function capitalize(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function createLitSortable(
