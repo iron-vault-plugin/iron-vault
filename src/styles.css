@@ -32,7 +32,7 @@
 }
 
 .internal-embed[alt~=iv-embed] {
-  & .markdown-embed-title {
+  & .markdown-embed-title, & .markdown-embed-link {
     display: none;
   }
   & .markdown-preview-view {
