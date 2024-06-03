@@ -445,8 +445,6 @@ class CharacterRenderer extends MarkdownRenderChild {
       if (el) {
         createLitSortable(el as HTMLElement, {
           animation: 150,
-          delay: 200,
-          delayOnTouchOnly: true,
           onEnd: (evt) => {
             const assets = [...lens.assets.get(raw)];
             if (evt.oldIndex != null && evt.newIndex != null) {
