@@ -61,10 +61,14 @@ export function createClockNode(
   });
 }
 
-export function createOracleNode(roll: RollWrapper, prompt?: string): kdl.Node {
+export function createOracleNode(
+  roll: RollWrapper,
+  prompt?: string,
+  name?: string,
+): kdl.Node {
   return node("oracle", {
     properties: {
-      name: `[${oracleNameWithParents(roll.oracle)}](oracle:${roll.oracle.id})`,
+      name: `[${name ?? oracleNameWithParents(roll.oracle)}](oracle:${roll.oracle.id})`,
       // TODO: this is preposterous
       roll: roll.roll.roll,
       result: roll.ownResult,
@@ -138,6 +142,21 @@ export function generateMechanicsNode(move: MoveDescription): Document {
   ];
   return doc;
 }
+
 function generateMoveLink(move: MoveDescription): string {
   return move.id ? `[${move.name}](move:${move.id})` : move.name;
+}
+
+export function createOracleGroup(
+  name: string,
+  oracles: { name?: string; rolls: RollWrapper[] }[],
+): kdl.Node {
+  return node("oracle-group", {
+    properties: {
+      name,
+    },
+    children: oracles.flatMap(({ name, rolls }) =>
+      rolls.map((roll) => createOracleNode(roll, undefined, name)),
+    ),
+  });
 }
