@@ -1,7 +1,7 @@
 import { createOrAppendMechanics } from "mechanics/editor";
 import { createOracleGroup } from "mechanics/node-builders";
 import { NoSuchOracleError } from "model/errors";
-import { App, Editor } from "obsidian";
+import { App, Editor, Notice } from "obsidian";
 import IronVaultPlugin from "../index";
 import { Oracle, OracleRollableRow, RollContext } from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
@@ -112,7 +112,13 @@ export async function generateEntityCommand(
     entityDesc = selectedEntityDescriptor;
   }
 
-  const entity = await generateEntity(plugin, entityDesc);
+  let entity: EntityResults<EntitySpec>;
+  try {
+    entity = await generateEntity(plugin, entityDesc);
+  } catch (e) {
+    new Notice(String(e));
+    throw e;
+  }
 
   createOrAppendMechanics(editor, [
     createOracleGroup(
