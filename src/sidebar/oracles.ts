@@ -1,11 +1,13 @@
+import { generateEntityCommand } from "entity/command";
+import { ENTITIES } from "entity/specs";
 import IronVaultPlugin from "index";
+import { html, render } from "lit-html";
+import { map } from "lit-html/directives/map.js";
+import MiniSearch from "minisearch";
+import { Oracle, OracleRulesetGrouping } from "model/oracle";
 import { MarkdownView, getIcon } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { OracleModal } from "oracles/oracle-modal";
-import { html, render } from "lit-html";
-import { map } from "lit-html/directives/map.js";
-import { Oracle, OracleRulesetGrouping } from "model/oracle";
-import MiniSearch from "minisearch";
 
 export default async function renderIronVaultOracles(
   cont: HTMLElement,
@@ -33,6 +35,7 @@ interface RulesetGrouping {
 
 interface CollectionGrouping {
   name: string;
+  id: string;
   children: Oracle[];
 }
 
@@ -81,6 +84,7 @@ function getOracleTree(
     let grouping = groupings.get(groupName);
     if (!grouping) {
       grouping = {
+        id: oracle.parent.id,
         name: groupName,
         children: [],
       };
@@ -154,7 +158,7 @@ function renderGroup(
           <li>
             <button
               type="button"
-              @click=${() => rollOracleBatch(plugin, group.children)}
+              @click=${() => rollOracleBatch(plugin, group)}
             >
               ${getIcon("dice")}
             </button>
@@ -188,9 +192,34 @@ function renderOracle(plugin: IronVaultPlugin, oracle: Oracle) {
   `;
 }
 
-function rollOracleBatch(plugin: IronVaultPlugin, oracles: Oracle[]) {
-  // TODO(@zkat): actually hook this up.
-  console.log("Rolling all these oracles:", oracles);
+function rollOracleBatch(plugin: IronVaultPlugin, group: CollectionGrouping) {
+  console.log("Rolling all these oracles:", group);
+  let entityDefn = Object.values(ENTITIES).find(
+    (desc) => desc.collectionId === group.id,
+  );
+  if (entityDefn) {
+    console.log("Found existing entity defintion", entityDefn);
+  } else {
+    console.log("No existing entity defn.");
+    entityDefn = {
+      label: group.name,
+      spec: Object.fromEntries(
+        group.children.map((oracle) => [
+          oracle.name,
+          {
+            id: oracle.id,
+            firstLook: false,
+          },
+        ]),
+      ),
+    };
+  }
+  const { workspace } = plugin.app;
+  const view = workspace.getActiveFileView();
+  if (view && view instanceof MarkdownView) {
+    const editor = view.editor;
+    generateEntityCommand(plugin, editor, view, entityDefn);
+  }
 }
 
 function handleOracleRoll(
