@@ -2,51 +2,15 @@ import { App, Modal, Setting } from "obsidian";
 import { partition } from "utils/partition";
 import { Oracle, RollContext } from "../model/oracle";
 import { RollWrapper } from "../model/rolls";
-
-export type EntityDescriptor<T extends EntitySpec> = {
-  label: string;
-  nameGen?: (ent: EntityResults<T>) => string;
-  spec: T;
-};
-
-export enum AttributeMechanism {
-  /** Snake case the result. (e.g., Creature Environment) */
-  Snakecase = "Snakecase",
-  /** Take the last segment of the id: link (e.g., Planet Class) */
-  ParseId = "parse-id",
-}
-
-export type DefinesAttribute = {
-  order: number;
-  mechanism: AttributeMechanism;
-};
-export type EntitySpec = Record<string, EntityFieldSpec>;
-
-export type EntityBaseFieldSpec = {
-  /** Oracle ID. Can use templates with `{{asdf}}` */
-  id: string;
-
-  /** True if this should be rolled as part of first look. */
-  firstLook?: boolean;
-
-  /** Label to use. If null, will use oracle name. */
-  name?: string;
-};
-export type EntityAttributeFieldSpec = EntityBaseFieldSpec & {
-  definesAttribute: DefinesAttribute;
-};
-
-export type EntityFieldSpec = EntityBaseFieldSpec | EntityAttributeFieldSpec;
-
-export function isEntityAttributeSpec(
-  spec: EntityFieldSpec,
-): spec is EntityAttributeFieldSpec {
-  return (spec as EntityAttributeFieldSpec).definesAttribute != null;
-}
-
-export type EntityResults<T extends EntitySpec> = {
-  [key in keyof T]: RollWrapper[];
-};
+import {
+  AttributeMechanism,
+  EntityAttributeFieldSpec,
+  EntityDescriptor,
+  EntityFieldSpec,
+  EntityResults,
+  EntitySpec,
+  isEntityAttributeSpec,
+} from "./specs";
 
 const SAFE_SNAKECASE_RESULT = /^[a-z0-9\s]+$/i;
 // [Rocky World](id:starforged/collections/oracles/planets/rocky)
