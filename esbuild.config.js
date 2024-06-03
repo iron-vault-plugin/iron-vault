@@ -59,6 +59,10 @@ const context = await esbuild.context({
                 from: [".hotreload"],
                 to: ["./test-vault/.obsidian/plugins/iron-vault/.hotreload"],
               },
+              {
+                from: ["./test-vault/.obsidian/plugins/iron-vault/main.js"],
+                to: ["./docs/.obsidian/plugins/iron-vault/main.js"],
+              },
             ],
             watch: true,
           }),
@@ -76,6 +80,24 @@ const cssCtx = await esbuild.context({
   loader: {
     ".svg": "dataurl",
   },
+  plugins: [
+    ...(prod
+      ? []
+      : [
+          copy({
+            // this is equal to process.cwd(), which means we use cwd path as base path to resolve `to` path
+            // if not specified, this plugin uses ESBuild.build outdir/outfile options as base path.
+            resolveFrom: "cwd",
+            assets: [
+              {
+                from: ["./test-vault/.obsidian/plugins/iron-vault/styles.js"],
+                to: ["./docs/.obsidian/plugins/iron-vault/styles.css"],
+              },
+            ],
+            watch: true,
+          }),
+        ]),
+  ],
 });
 
 if (prod) {

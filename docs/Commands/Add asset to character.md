@@ -1,0 +1,1 @@
+Adds an [[Assets|Asset]] to your [[Characters|Active Character]]. This asset will have default settings and will appear in your character sheet, where you can then customize it as needed.
