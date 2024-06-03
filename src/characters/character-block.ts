@@ -443,7 +443,7 @@ class CharacterRenderer extends MarkdownRenderChild {
         Sortable.get(el as HTMLElement)!.destroy();
       }
       if (el) {
-        createLitSortable(el as HTMLElement, {
+        Sortable.create(el as HTMLElement, {
           animation: 150,
           delay: 200,
           delayOnTouchOnly: true,
@@ -493,66 +493,4 @@ class CharacterRenderer extends MarkdownRenderChild {
       </ul>
     `;
   }
-}
-
-function createLitSortable(
-  container: HTMLElement,
-  options: Sortable.Options,
-): Sortable {
-  const onStart = options.onStart;
-  const onMove = options.onMove;
-  const onEnd = options.onEnd;
-
-  /** Stores the child-structure of a container element.
-   *  key = container element
-   *  value = .childNodes of that container when drag started
-   */
-  let map = new Map<HTMLElement, ChildNode[]>();
-
-  options.onStart = (e) => {
-    // Create a new map to make sure no old childNode-state is kept from previous drags.
-    map = new Map<HTMLElement, ChildNode[]>();
-
-    // Store the childNodes of the container were the drag started.
-    map.set(e.from, [...Array.prototype.slice.call(e.from.childNodes)]);
-
-    if (onStart) onStart(e);
-  };
-
-  options.onMove = (e, originalEvent) => {
-    // When entering this method the first, each container will have it's initial DOM-childNodes.
-    // We only add each container to the map the first time we see it.
-
-    if (!map.has(e.from))
-      map.set(e.from, [...Array.prototype.slice.call(e.from.childNodes)]);
-
-    if (!map.has(e.to))
-      map.set(e.to, [...Array.prototype.slice.call(e.to.childNodes)]);
-
-    if (onMove) onMove(e, originalEvent);
-  };
-
-  options.onClone = (e) => {
-    if (!map.has(e.from))
-      map.set(e.from, [...Array.prototype.slice.call(e.from.childNodes)]);
-
-    if (!map.has(e.to))
-      map.set(e.to, [...Array.prototype.slice.call(e.to.childNodes)]);
-  };
-
-  options.onEnd = (e) => {
-    // Here we loop over the map and restore the DOM-structure to it's initial state.
-    // Something other than SortableJS will have to trigger Lit to update and re-order the children.
-
-    map.forEach((children, container) => {
-      container.empty();
-      children.forEach((child) => {
-        container.appendChild(child);
-      });
-    });
-
-    if (onEnd) onEnd(e);
-  };
-
-  return Sortable.create(container, options);
 }
