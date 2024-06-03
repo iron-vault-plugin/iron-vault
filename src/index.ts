@@ -20,8 +20,10 @@ import { OracleModal } from "oracles/oracle-modal";
 import { IronVaultPluginSettings } from "settings";
 import registerSidebarBlocks from "sidebar/sidebar-block";
 import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
+import { AssetModal } from "tracks/asset-modal";
 import { ProgressContext } from "tracks/context";
 import { ProgressIndex, ProgressIndexer } from "tracks/indexer";
+import installAssetLinkHandler from "tracks/link-override";
 import registerTrackBlock from "tracks/track-block";
 import { IronVaultAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
@@ -35,8 +37,6 @@ import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
 import { advanceProgressTrack, createProgressTrack } from "./tracks/commands";
 import { pluginAsset } from "./utils/obsidian";
-import installAssetLinkHandler from "tracks/link-override";
-import { AssetModal } from "tracks/asset-modal";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -193,8 +193,8 @@ export default class IronVaultPlugin extends Plugin {
       id: "entity-gen",
       name: "Generate an entity",
       icon: "package-plus",
-      editorCallback: async (editor) => {
-        await generateEntityCommand(this, editor);
+      editorCallback: async (editor, ctx) => {
+        await generateEntityCommand(this, editor, ctx);
       },
     });
 

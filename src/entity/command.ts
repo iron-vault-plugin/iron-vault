@@ -1,13 +1,14 @@
+import Handlebars from "handlebars";
 import { createOrAppendMechanics } from "mechanics/editor";
 import { createOracleGroup } from "mechanics/node-builders";
 import { NoSuchOracleError } from "model/errors";
-import { App, Editor, Notice } from "obsidian";
+import { App, Editor, MarkdownFileInfo, MarkdownView, Notice } from "obsidian";
 import IronVaultPlugin from "../index";
 import { Oracle, OracleRollableRow, RollContext } from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
 import { OracleRoller } from "../oracles/roller";
 import { CustomSuggestModal } from "../utils/suggest";
-import { EntityModal } from "./modal";
+import { EntityModal, EntityModalResults } from "./modal";
 import {
   ENTITIES,
   EntityAttributeFieldSpec,
@@ -59,7 +60,7 @@ export async function promptOracleRow(
 export async function generateEntity(
   plugin: IronVaultPlugin,
   entityDesc: EntityDescriptor<EntitySpec>,
-): Promise<EntityResults<EntitySpec>> {
+): Promise<EntityModalResults<EntitySpec>> {
   const { datastore } = plugin;
   if (!datastore.ready) {
     throw new Error("data not ready");
@@ -96,6 +97,7 @@ export async function generateEntity(
 export async function generateEntityCommand(
   plugin: IronVaultPlugin,
   editor: Editor,
+  ctx: MarkdownView | MarkdownFileInfo,
   selectedEntityDescriptor?: EntityDescriptor<EntitySpec>,
 ): Promise<void> {
   let entityDesc: EntityDescriptor<EntitySpec>;
@@ -112,17 +114,65 @@ export async function generateEntityCommand(
     entityDesc = selectedEntityDescriptor;
   }
 
-  let entity: EntityResults<EntitySpec>;
+  let results: EntityModalResults<EntitySpec>;
   try {
-    entity = await generateEntity(plugin, entityDesc);
+    results = await generateEntity(plugin, entityDesc);
   } catch (e) {
     new Notice(String(e));
     throw e;
   }
 
+  const { entity, createFile } = results;
+
+  const entityName = entityDesc.nameGen
+    ? entityDesc.nameGen(entity)
+    : `New ${entityDesc.label}`;
+  let oracleGroupTitle: string;
+  if (createFile) {
+    const fileName = entityName;
+    const file = await plugin.app.fileManager.createNewMarkdownFile(
+      plugin.app.fileManager.getNewFileParent(ctx.file?.path ?? "", fileName),
+      fileName,
+      Handlebars.compile(
+        `
+| Name | {{ name }} |
+| ---  | --- |
+{{#each entity}}
+| {{ label }} |  {{ rolls }}  |
+{{/each}}
+      `.trim(),
+        { noEscape: true },
+      )(
+        {
+          entity: Object.entries(entityDesc.spec).flatMap(([key, spec]) => {
+            const rolls = entity[key] ?? [];
+            if (rolls.length == 0) return [];
+            return [
+              {
+                spec: spec,
+                label: spec.name ?? rolls[0].oracle.name,
+                rolls: rolls.map((roll) => roll.simpleResult).join(", "),
+              },
+            ];
+          }),
+          name: fileName,
+        },
+        { allowProtoPropertiesByDefault: true },
+      ),
+    );
+    oracleGroupTitle = plugin.app.fileManager.generateMarkdownLink(
+      file,
+      ctx.file?.path ?? "",
+      undefined,
+      entityName,
+    );
+  } else {
+    oracleGroupTitle = entityName;
+  }
+
   createOrAppendMechanics(editor, [
     createOracleGroup(
-      `${entityDesc.label}${entityDesc.nameGen ? `: ${entityDesc.nameGen(entity)}` : ""}`,
+      `${entityDesc.label}: ${oracleGroupTitle}`,
       Object.entries(entity).map(([slotKey, rolls]) => {
         const name = entityDesc.spec[slotKey].name;
         return { name, rolls };

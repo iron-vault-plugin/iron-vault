@@ -41,9 +41,14 @@ function evaluateAttribute(
   }
 }
 
+export type EntityModalResults<T extends EntitySpec> = {
+  createFile: boolean;
+  entity: EntityResults<T>;
+};
+
 export class EntityModal<T extends EntitySpec> extends Modal {
   public accepted: boolean = false;
-  public readonly results: EntityResults<T>;
+  public readonly results: EntityModalResults<T>;
 
   static create<T extends EntitySpec>({
     app,
@@ -55,7 +60,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     entityDesc: EntityDescriptor<T>;
     rollContext: RollContext;
     initialEntity: Partial<EntityResults<T>>;
-  }): Promise<EntityResults<T>> {
+  }): Promise<EntityModalResults<T>> {
     return new Promise((onAccept, onCancel) => {
       let modal;
       try {
@@ -80,16 +85,19 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     public readonly entityDesc: EntityDescriptor<T>,
     public readonly initialEntity: Partial<EntityResults<T>>,
     public readonly rollContext: RollContext,
-    public readonly onAccept: (results: EntityResults<T>) => void,
+    public readonly onAccept: (results: EntityModalResults<T>) => void,
     public readonly onCancel: () => void,
   ) {
     super(app);
-    this.results = Object.fromEntries(
-      Object.entries(entityDesc.spec).map(([key]) => [
-        key,
-        initialEntity[key] ?? [],
-      ]),
-    ) as Record<keyof T, RollWrapper[]>;
+    this.results = {
+      createFile: false,
+      entity: Object.fromEntries(
+        Object.entries(entityDesc.spec).map(([key]) => [
+          key,
+          initialEntity[key] ?? [],
+        ]),
+      ) as Record<keyof T, RollWrapper[]>,
+    };
     console.log("init results: %o", this.results);
   }
 
@@ -117,14 +125,14 @@ export class EntityModal<T extends EntitySpec> extends Modal {
 
     const rollForKey = (key: keyof T): void => {
       const { setting, table } = settings[key];
-      this.results[key] = [new RollWrapper(table, this.rollContext)];
+      this.results.entity[key] = [new RollWrapper(table, this.rollContext)];
       // getTextComponent(key)?.setValue(render(this.results[key][0]));
-      setting.setName(renderRolls(this.results[key]));
+      setting.setName(renderRolls(this.results.entity[key]));
     };
 
     const clearKey = (key: keyof T): void => {
       const { setting } = settings[key];
-      this.results[key] = [];
+      this.results.entity[key] = [];
       // getTextComponent(key)?.setValue("");
       setting.setName("");
       // settings[key].setName(table.name);
@@ -155,12 +163,12 @@ export class EntityModal<T extends EntitySpec> extends Modal {
         throw new Error("missing table " + id);
       }
       const setting = new Setting(contentEl)
-        .setName(renderRolls(this.results[key]))
+        .setName(renderRolls(this.results.entity[key]))
         .setDesc(spec.name ?? table.name);
 
       setting.descEl.ariaLabel = `(id: ${table.id})`;
 
-      attributeValues[key] = evaluateAttribute(spec, this.results[key]);
+      attributeValues[key] = evaluateAttribute(spec, this.results.entity[key]);
 
       settings[key] = { setting, table };
     }
@@ -216,6 +224,17 @@ export class EntityModal<T extends EntitySpec> extends Modal {
           }
         }),
       );
+
+    new Setting(contentEl).setName("Create entity file").addToggle((toggle) =>
+      toggle
+        .setTooltip(
+          "If enabled, a new file will be created with the entity template.",
+        )
+        .setValue(this.results.createFile)
+        .onChange((val) => {
+          this.results.createFile = val;
+        }),
+    );
 
     new Setting(contentEl)
       .addButton((btn) =>
