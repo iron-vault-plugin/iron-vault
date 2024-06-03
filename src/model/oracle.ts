@@ -31,6 +31,10 @@ export interface Oracle {
   readonly parent: OracleGrouping;
   readonly rollableRows: OracleRollableRow[];
 
+  // TODO(@cwegrzyn): exposed raw rollable for use in the oracle reference modal. not sure
+  //   to what extent it is useful to abstract some of this stuff away...
+  readonly raw: Datasworn.OracleRollable;
+
   row(value: number): OracleRow;
 
   roll(context: RollContext): Roll;

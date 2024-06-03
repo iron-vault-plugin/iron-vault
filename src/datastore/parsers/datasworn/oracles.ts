@@ -27,9 +27,13 @@ export function isRollableOracleRow(row: OracleRow): row is OracleRollableRow {
 
 export class DataswornOracle implements Oracle {
   constructor(
-    protected table: Datasworn.OracleRollable,
+    protected readonly table: Datasworn.OracleRollable,
     public readonly parent: OracleGrouping,
   ) {}
+
+  get raw(): Datasworn.OracleRollable {
+    return this.table;
+  }
 
   get rollableRows(): OracleRollableRow[] {
     return this.table.rows.map(asOracleRow).filter(isRollableOracleRow);
