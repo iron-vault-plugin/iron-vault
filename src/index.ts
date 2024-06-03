@@ -37,6 +37,7 @@ import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
 import { advanceProgressTrack, createProgressTrack } from "./tracks/commands";
 import { pluginAsset } from "./utils/obsidian";
+import registerAssetBlock from "tracks/asset-block";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -268,6 +269,7 @@ export default class IronVaultPlugin extends Plugin {
     registerClockBlock(this);
     registerSidebarBlocks(this);
     registerCharacterBlock(this);
+    registerAssetBlock(this);
   }
 
   async activateView() {

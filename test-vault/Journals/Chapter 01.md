@@ -9,6 +9,10 @@ Suddenly, a trap! Oh no!
 
 Proin maximus, odio non interdum hendrerit, dolor lectus accumsan mauris, id semper neque est sed nulla. Pellentesque tortor velit, ultrices eu feugiat et, commodo nec tortor. Nulla non dui eleifend eros efficitur semper. Morbi suscipit euismod erat, eget accumsan elit commodo at. Maecenas sed lacus sit amet massa imperdiet molestie in at dui. Donec sit amet malesuada ante, lacinia sodales est. Aliquam pretium, felis id pellentesque consectetur, turpis justo sollicitudin tortor, sit amet c4onvallis mi risus sed justo. Cras vulputate purus ac enim laoreet, eget pellentesque nisi malesuada.
 
+```iron-vault-asset
+Gunslinger
+```
+
 > [!spoiler]- This is a secret
 > Oh no I've been found!
 
