@@ -445,6 +445,8 @@ class CharacterRenderer extends MarkdownRenderChild {
       if (el) {
         createLitSortable(el as HTMLElement, {
           animation: 150,
+          delay: 200,
+          delayOnTouchOnly: true,
           onEnd: (evt) => {
             const assets = [...lens.assets.get(raw)];
             if (evt.oldIndex != null && evt.newIndex != null) {
@@ -543,7 +545,7 @@ function createLitSortable(
     // Something other than SortableJS will have to trigger Lit to update and re-order the children.
 
     map.forEach((children, container) => {
-      container.replaceChildren();
+      container.empty();
       children.forEach((child) => {
         container.appendChild(child);
       });
