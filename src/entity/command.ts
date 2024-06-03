@@ -1,3 +1,5 @@
+import { createOrAppendMechanics } from "mechanics/editor";
+import { createOracleGroup } from "mechanics/node-builders";
 import { NoSuchOracleError } from "model/errors";
 import { App, Editor } from "obsidian";
 import IronVaultPlugin from "../index";
@@ -94,29 +96,31 @@ export async function generateEntity(
 export async function generateEntityCommand(
   plugin: IronVaultPlugin,
   editor: Editor,
+  selectedEntityDescriptor?: EntityDescriptor<EntitySpec>,
 ): Promise<void> {
-  const [, entityDesc] = await CustomSuggestModal.select(
-    plugin.app,
-    Object.entries(ENTITIES),
-    ([_key, { label }]) => label,
-    undefined,
-    "What kind of entity?",
-  );
+  let entityDesc: EntityDescriptor<EntitySpec>;
+  if (!selectedEntityDescriptor) {
+    const [, desc] = await CustomSuggestModal.select(
+      plugin.app,
+      Object.entries(ENTITIES),
+      ([_key, { label }]) => label,
+      undefined,
+      "What kind of entity?",
+    );
+    entityDesc = desc;
+  } else {
+    entityDesc = selectedEntityDescriptor;
+  }
+
   const entity = await generateEntity(plugin, entityDesc);
-  editor.replaceSelection(
-    `> [!oracle] ${entityDesc.label}: ${entityDesc.nameGen ? entityDesc.nameGen(entity) : ""}\n${Object.entries(
-      entity,
-    )
-      .flatMap(([slotKey, rolls]) => {
-        if (rolls.length > 0) {
-          const name = entityDesc.spec[slotKey].name ?? rolls[0].oracle.name;
-          return [
-            `> **${name}**: ${rolls.map((roll) => roll.simpleResult).join(", ")}\n`,
-          ];
-        } else {
-          return [];
-        }
-      })
-      .join("")}\n`,
-  );
+
+  createOrAppendMechanics(editor, [
+    createOracleGroup(
+      `${entityDesc.label}${entityDesc.nameGen ? `: ${entityDesc.nameGen(entity)}` : ""}`,
+      Object.entries(entity).map(([slotKey, rolls]) => {
+        const name = entityDesc.spec[slotKey].name;
+        return { name, rolls };
+      }),
+    ),
+  ]);
 }
