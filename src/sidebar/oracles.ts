@@ -168,9 +168,20 @@ function renderGroup(
 
 function renderOracle(plugin: IronVaultPlugin, oracle: Oracle) {
   return html`
-    <li @click=${(ev: MouseEvent) => handleOracleRoll(ev, plugin, oracle)}>
+    <li
+      @click=${(ev: MouseEvent) => {
+        ev.stopPropagation();
+        handleOracleRoll(ev, plugin, oracle);
+      }}
+    >
       <span>${oracle.name}</span>
-      <button type="button" @click=${() => openOracleModal(plugin, oracle)}>
+      <button
+        type="button"
+        @click=${(ev: MouseEvent) => {
+          ev.stopPropagation();
+          openOracleModal(plugin, oracle);
+        }}
+      >
         ${getIcon("list")}
       </button>
     </li>
