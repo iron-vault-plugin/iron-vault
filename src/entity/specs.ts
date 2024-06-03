@@ -1,9 +1,13 @@
+import { Datasworn } from "@datasworn/core";
 import { RollWrapper } from "model/rolls";
 
 export type EntityDescriptor<T extends EntitySpec> = {
   label: string;
   nameGen?: (ent: EntityResults<T>) => string;
   spec: T;
+
+  /** Id of oracle collection that this entity applies to. */
+  collectionId?: Datasworn.OracleCollectionId;
 };
 
 export enum AttributeMechanism {
@@ -44,8 +48,12 @@ export function isEntityAttributeSpec(
 export type EntityResults<T extends EntitySpec> = {
   [key in keyof T]: RollWrapper[];
 };
+
+// TODO: these should maybe be indexed just like everything into the DataIndexer so we can
+// pull the appropriate ones for our active rulesets?
 export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
   character: {
+    collectionId: "starforged/collections/oracles/characters",
     label: "Character",
     nameGen: (ent) =>
       `${ent.givenName[0]?.simpleResult}${ent.callSign.length > 0 ? ' "' + ent.callSign[0].simpleResult + '"' : ""} ${ent.familyName[0]?.simpleResult}`,
@@ -84,8 +92,11 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
       },
     },
   },
+
+  // TODO(@cwegrzyn): Faction spec items vary based on the type of faction
   faction: {
     label: "Faction",
+    collectionId: "starforged/collections/oracles/factions",
     nameGen: (ent) => ent.name[0]?.simpleResult,
     spec: {
       name: {
@@ -97,7 +108,9 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
 
   creature: {
     label: "Creature",
-    nameGen: (_ent) => "TBD",
+    collectionId: "starforged/collections/oracles/creatures",
+    // TODO(@cwegrzyn): should we generate a name based on other aspects?
+    // nameGen: (_ent) => "TBD",
     spec: {
       environment: {
         id: "starforged/oracles/creatures/environment",
@@ -132,6 +145,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
   planet: {
     label: "Planet",
     nameGen: (ent) => ent.name[0]?.simpleResult,
+    collectionId: "starforged/collections/oracles/planets",
     spec: {
       region: {
         id: "starforgedsupp/oracles/templates/region",
