@@ -57,14 +57,21 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     initialEntity: Partial<EntityResults<T>>;
   }): Promise<EntityResults<T>> {
     return new Promise((onAccept, onCancel) => {
-      new this(
-        app,
-        entityDesc,
-        initialEntity,
-        rollContext,
-        onAccept,
-        onCancel,
-      ).open();
+      let modal;
+      try {
+        modal = new this(
+          app,
+          entityDesc,
+          initialEntity,
+          rollContext,
+          onAccept,
+          onCancel,
+        );
+        modal.open();
+      } catch (e) {
+        onCancel(e);
+        if (modal) modal.close();
+      }
     });
   }
 
