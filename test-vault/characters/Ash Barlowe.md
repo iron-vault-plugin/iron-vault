@@ -17,7 +17,7 @@ assets:
   - id: starforged/assets/path/empath
     abilities:
       - true
-      - false
+      - true
       - true
     controls: {}
     options: {}
