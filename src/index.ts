@@ -35,6 +35,8 @@ import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
 import { advanceProgressTrack, createProgressTrack } from "./tracks/commands";
 import { pluginAsset } from "./utils/obsidian";
+import installAssetLinkHandler from "tracks/link-override";
+import { AssetModal } from "tracks/asset-modal";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -93,6 +95,7 @@ export default class IronVaultPlugin extends Plugin {
     this.register(() => delete window.IronVaultAPI);
     installMoveLinkHandler(this);
     installOracleLinkHandler(this);
+    installAssetLinkHandler(this);
     this.installIdLinkHandler(this);
 
     this.registerView(VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
@@ -328,10 +331,18 @@ export default class IronVaultPlugin extends Plugin {
               (m) =>
                 m._id === id || m.name.replace(/\s*/g, "").toLowerCase() === id,
             );
+          const asset =
+            !move &&
+            [...plugin.datastore.assets.values()].find(
+              (a) =>
+                a._id === id || a.name.replace(/\s*/g, "").toLowerCase() === id,
+            );
           if (oracle) {
             new OracleModal(plugin.app, plugin, oracle).open();
           } else if (move) {
             new MoveModal(plugin.app, plugin, move).open();
+          } else if (asset) {
+            new AssetModal(plugin.app, plugin, asset).open();
           }
         }
       }

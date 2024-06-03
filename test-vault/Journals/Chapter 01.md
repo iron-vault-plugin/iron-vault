@@ -93,3 +93,5 @@ a single multiline string.
 - "trailing"
 - "here"
 ```
+
+[Starship](asset:Starship)

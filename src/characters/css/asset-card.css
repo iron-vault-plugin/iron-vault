@@ -1,4 +1,5 @@
 .iron-vault-asset-card {
+  margin: auto;
   border: 2px solid var(--background-modifier-border);
   padding: 0;
   border-radius: 8px;
@@ -31,6 +32,43 @@
         top: 0.2em;
         right: 0.2em;
       }
+    }
+  }
+  & label:has(> input[type="checkbox"]) {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    font-weight: var(--font-semibold);
+  }
+  & label > input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    border: none !important;
+    background-color: transparent !important;
+    width: 1.4em;
+    height: 2em;
+    margin: 0;
+    margin-left: 0.5em;
+    &:focus-visible {
+      box-shadow: none;
+      outline-offset: initial;
+    }
+    &:checked {
+      &::after {
+        content: "⬢";
+      }
+    }
+    &::after {
+      margin: 0;
+      padding: 0;
+      -webkit-mask-image: none;
+      mask-image: none;
+      font-size: 1.8em;
+      content: "⬡";
+      height: auto;
+      width: auto;
+      text-align: center;
+      background-color: transparent;
     }
   }
   & .options {
