@@ -1,7 +1,14 @@
 import { Datasworn } from "@datasworn/core";
 import IronVaultPlugin from "index";
 import { Oracle } from "model/oracle";
-import { App, ButtonComponent, MarkdownView, Modal } from "obsidian";
+import {
+  App,
+  ButtonComponent,
+  MarkdownRenderChild,
+  MarkdownRenderer,
+  MarkdownView,
+  Modal,
+} from "obsidian";
 import { runOracleCommand } from "oracles/command";
 
 export class OracleModal extends Modal {
@@ -83,16 +90,21 @@ export class OracleModal extends Modal {
           rangeText = `${row.min} - ${row.max}`;
         }
         tr.createEl("td", { text: rangeText });
-        tr.createEl("td", { text: row.text });
+        const td = tr.createEl("td");
+        this.renderMarkdown(td, row.text);
         if (numColumns >= 2) {
-          tr.createEl("td", {
-            text: (row as Datasworn.OracleTableRowText2).text2 ?? "",
-          });
+          const td = tr.createEl("td");
+          this.renderMarkdown(
+            td,
+            (row as Datasworn.OracleTableRowText2).text2 ?? "",
+          );
         }
         if (numColumns >= 3) {
-          tr.createEl("td", {
-            text: (row as Datasworn.OracleTableRowText3).text3 ?? "",
-          });
+          const td = tr.createEl("td");
+          this.renderMarkdown(
+            td,
+            (row as Datasworn.OracleTableRowText3).text3 ?? "",
+          );
         }
       }
       for (const child of contentEl.querySelectorAll('a[href^="id:"]')) {
@@ -116,5 +128,14 @@ export class OracleModal extends Modal {
   onClose() {
     const { contentEl } = this;
     contentEl.empty();
+  }
+  async renderMarkdown(target: HTMLElement, md: string) {
+    await MarkdownRenderer.render(
+      this.plugin.app,
+      md,
+      target,
+      "",
+      new MarkdownRenderChild(target),
+    );
   }
 }
