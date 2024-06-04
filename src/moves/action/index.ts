@@ -12,6 +12,7 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { MeterCommon } from "rules/ruleset";
+import { numberRange } from "utils/numbers";
 import {
   MeterWithLens,
   MeterWithoutLens,
@@ -162,35 +163,58 @@ async function promptForMove(
   }
 }
 
+function assertInRange(
+  val: number,
+  min: number,
+  max: number,
+  desc?: string,
+): void {
+  if (val < min || val > max) {
+    throw new Error(
+      `Expected ${desc ?? "value"} to be between ${min} and ${max}, but was ${val}`,
+    );
+  }
+}
+
 function processActionMove(
   move: Datasworn.Move,
   stat: string,
   statVal: number,
   adds: ActionMoveAdd[],
+  action: number = randomInt(1, 6),
+  challenge1: number = randomInt(1, 10),
+  challenge2: number = randomInt(1, 10),
 ): ActionMoveDescription {
+  assertInRange(action, 1, 6, "action");
+  assertInRange(challenge1, 1, 10, "first challenge dice");
+  assertInRange(challenge2, 1, 10, "second challenge dice");
   return {
     id: move._id,
     name: move.name,
-    action: randomInt(1, 6),
+    action,
     stat,
     statVal,
     adds,
-    challenge1: randomInt(1, 10),
-    challenge2: randomInt(1, 10),
+    challenge1,
+    challenge2,
   };
 }
 
 function processProgressMove(
   move: Datasworn.Move,
   tracker: ProgressTrackWriterContext,
+  challenge1: number = randomInt(1, 10),
+  challenge2: number = randomInt(1, 10),
 ): ProgressMoveDescription {
+  assertInRange(challenge1, 1, 10, "challenge1");
+  assertInRange(challenge2, 1, 10, "challenge2");
   return {
     id: move._id,
     name: move.name,
     progressTrack: `[[${tracker.location}]]`,
     progressTicks: tracker.track.progress,
-    challenge1: randomInt(1, 10),
-    challenge2: randomInt(1, 10),
+    challenge1,
+    challenge2,
   };
 }
 
@@ -226,12 +250,12 @@ export async function runMoveCommand(
   let moveDescription: MoveDescription;
   switch (move.roll_type) {
     case "action_roll": {
-      moveDescription = await handleActionRoll(context, plugin.app, move);
+      moveDescription = await handleActionRoll(plugin, context, move);
       break;
     }
     case "progress_roll": {
       moveDescription = await handleProgressRoll(
-        plugin.app,
+        plugin,
         new ProgressContext(plugin, context),
         move,
       );
@@ -258,19 +282,46 @@ export async function runMoveCommand(
 }
 
 async function handleProgressRoll(
-  app: App,
+  plugin: IronVaultPlugin,
   progressContext: ProgressContext,
   move: Datasworn.MoveProgressRoll,
 ): Promise<MoveDescription> {
   const progressTrack = await selectProgressTrack(
     progressContext,
-    app,
+    plugin.app,
     (prog) =>
       (move.tracks.category == "*" || prog.trackType == move.tracks.category) &&
       !prog.track.complete,
   );
+
+  let rolls: [number, number] | [];
+  if (plugin.settings.promptForRollsInMoves) {
+    const challenge1 = await CustomSuggestModal.select(
+      plugin.app,
+      ["Roll for me", ...numberRange(1, 10)],
+      (x) => x.toString(),
+      undefined,
+      "Roll your first challenge die (1d10) and enter the value",
+    );
+    if (typeof challenge1 === "string") {
+      rolls = [];
+    } else {
+      const challenge2 = await CustomSuggestModal.select(
+        plugin.app,
+        numberRange(1, 10),
+        (x) => x.toString(),
+        undefined,
+        "Enter your second challenge die (1d10)",
+      );
+
+      rolls = [challenge1, challenge2];
+    }
+  } else {
+    rolls = [];
+  }
+
   // TODO: when would we mark complete? should we prompt on a hit?
-  return processProgressMove(move, progressTrack);
+  return processProgressMove(move, progressTrack, ...rolls);
 }
 
 const ORDINALS = [
@@ -327,14 +378,14 @@ function suggestedRollablesForMove(
 }
 
 async function handleActionRoll(
+  plugin: IronVaultPlugin,
   actionContext: ActionContext,
-  app: App,
   move: Datasworn.MoveActionRoll,
 ) {
   const suggestedRollables = suggestedRollablesForMove(move);
 
   const stat = await promptForRollable(
-    app,
+    plugin.app,
     actionContext,
     suggestedRollables,
     move,
@@ -343,7 +394,7 @@ async function handleActionRoll(
   // This stat has an unknown value, so we need to prompt the user for a value.
   if (!stat.value) {
     stat.value = await CustomSuggestModal.select(
-      app,
+      plugin.app,
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       (n) => n.toString(10),
       undefined,
@@ -355,14 +406,14 @@ async function handleActionRoll(
   // TODO: do we need this arbitrary cutoff on adds? just wanted to avoid a kinda infinite loop
   while (adds.length < 5) {
     const addValue = await CustomSuggestModal.select(
-      app,
+      plugin.app,
       validAdds(stat.value ?? 0),
       (n) => n.toString(10),
       undefined,
       `Choose an amount for the ${ORDINALS[adds.length + 1]} add.`,
     );
     if (addValue == 0) break;
-    const addReason = await AddsModal.show(app, `+${addValue}`);
+    const addReason = await AddsModal.show(plugin.app, `+${addValue}`);
     const add: { amount: number; desc?: string } = { amount: addValue };
     if ((addReason ?? "").length > 0) {
       add.desc = addReason;
@@ -370,12 +421,50 @@ async function handleActionRoll(
     adds.push(add);
   }
 
-  let description = processActionMove(move, stat.key, stat.value ?? 0, adds);
+  let rolls: [number, number, number] | [];
+  if (plugin.settings.promptForRollsInMoves) {
+    const action = await CustomSuggestModal.select(
+      plugin.app,
+      ["Roll for me", ...numberRange(1, 6)],
+      (x) => x.toString(),
+      undefined,
+      "Roll your action die (1d6) and enter the value",
+    );
+    if (typeof action === "string") {
+      rolls = [];
+    } else {
+      const challenge1 = await CustomSuggestModal.select(
+        plugin.app,
+        numberRange(1, 10),
+        (x) => x.toString(),
+        undefined,
+        "Enter your first challenge die (1d10)",
+      );
+      const challenge2 = await CustomSuggestModal.select(
+        plugin.app,
+        numberRange(1, 10),
+        (x) => x.toString(),
+        undefined,
+        "Enter your second challenge die (1d10)",
+      );
+      rolls = [action, challenge1, challenge2];
+    }
+  } else {
+    rolls = [];
+  }
+
+  let description = processActionMove(
+    move,
+    stat.key,
+    stat.value ?? 0,
+    adds,
+    ...rolls,
+  );
   const wrapper = new ActionMoveWrapper(description);
   if (actionContext instanceof CharacterActionContext) {
     const { characterContext } = actionContext;
     description = await checkForMomentumBurn(
-      app,
+      plugin.app,
       move as Datasworn.MoveActionRoll,
       wrapper,
       characterContext,
@@ -384,7 +473,7 @@ async function handleActionRoll(
     // applies for action moves.
     if (description.burn) {
       await characterContext.updater(
-        vaultProcess(app, actionContext.characterPath),
+        vaultProcess(plugin.app, actionContext.characterPath),
         (character, { lens }) => momentumOps(lens).reset(character),
       );
     }

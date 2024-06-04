@@ -20,6 +20,7 @@ import { OracleModal } from "oracles/oracle-modal";
 import { IronVaultPluginSettings } from "settings";
 import registerSidebarBlocks from "sidebar/sidebar-block";
 import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
+import registerAssetBlock from "tracks/asset-block";
 import { AssetModal } from "tracks/asset-modal";
 import { ProgressContext } from "tracks/context";
 import { ProgressIndex, ProgressIndexer } from "tracks/indexer";
@@ -37,7 +38,6 @@ import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
 import { advanceProgressTrack, createProgressTrack } from "./tracks/commands";
 import { pluginAsset } from "./utils/obsidian";
-import registerAssetBlock from "tracks/asset-block";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -121,12 +121,7 @@ export default class IronVaultPlugin extends Plugin {
       name: "Ask the Oracle",
       icon: "message-circle-question",
       editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
-        runOracleCommand(
-          this.app,
-          this.datastore,
-          editor,
-          view as MarkdownView,
-        ),
+        runOracleCommand(this, editor, view as MarkdownView),
     });
 
     this.addCommand({

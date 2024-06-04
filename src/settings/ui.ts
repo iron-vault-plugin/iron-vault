@@ -163,5 +163,31 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .setValue(settings.hideMechanics)
           .onChange((value) => this.updateSetting("hideMechanics", value)),
       );
+
+    new Setting(containerEl).setName("Dice rolling").setHeading();
+
+    new Setting(containerEl)
+      .setName("Prompt for rolls in Make a Move")
+      .setDesc(
+        "If enabled, when you Make a Move, the plugin will prompt you to roll your own dice and enter the values.",
+      )
+      .addToggle((btn) =>
+        btn
+          .setValue(settings.promptForRollsInMoves)
+          .onChange((val) => this.updateSetting("promptForRollsInMoves", val)),
+      );
+
+    new Setting(containerEl)
+      .setName("Prompt for rolls in Ask the Oracle")
+      .setDesc(
+        "If enabled, when you Ask the Oracle, the plugin will prompt you to roll your own dice and enter the values.",
+      )
+      .addToggle((btn) =>
+        btn
+          .setValue(settings.promptForRollsInOracles)
+          .onChange((val) =>
+            this.updateSetting("promptForRollsInOracles", val),
+          ),
+      );
   }
 }

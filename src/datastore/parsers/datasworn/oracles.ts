@@ -65,13 +65,12 @@ export class DataswornOracle implements Oracle {
     return this.table._id;
   }
 
-  dice(): Dice {
+  get dice(): Dice {
     return Dice.fromDiceString(this.table.dice);
   }
 
   roll(context: RollContext): Roll {
-    const dice = this.dice();
-    return this.evaluate(context, dice.roll());
+    return this.evaluate(context, this.dice.roll());
   }
 
   evaluate(context: RollContext, roll: number): Roll {
@@ -194,9 +193,8 @@ export class DataswornOracle implements Oracle {
   }
 
   variants(context: RollContext, roll: Roll): Record<string, Roll> {
-    const dice = this.dice();
     return {
-      flip: this.evaluate(context, dice.flip(roll.roll)),
+      flip: this.evaluate(context, this.dice.flip(roll.roll)),
     };
   }
 }
