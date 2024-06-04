@@ -379,10 +379,19 @@ export default class IronVaultPlugin extends Plugin {
                   m._id === id ||
                   m.name.replace(/\s*/g, "").toLowerCase() === id,
               );
+            const asset =
+              !move &&
+              [...plugin.datastore.assets.values()].find(
+                (a) =>
+                  a._id === id ||
+                  a.name.replace(/\s*/g, "").toLowerCase() === id,
+              );
             if (oracle) {
               new OracleModal(plugin.app, plugin, oracle).open();
             } else if (move) {
               new MoveModal(plugin.app, plugin, move).open();
+            } else if (asset) {
+              new AssetModal(plugin.app, plugin, asset).open();
             }
           };
           plugin.registerDomEvent(a, "click", handler);
