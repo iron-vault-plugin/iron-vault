@@ -17,11 +17,13 @@ import {
   walkAsset,
 } from "./assets";
 import { characterLens, createValidCharacter } from "./lens";
+import { Asset } from "@datasworn/core/dist/Datasworn";
 
 export async function addAssetToCharacter(
   plugin: IronVaultPlugin,
   _editor?: Editor,
   _view?: MarkdownView,
+  asset?: Asset,
 ): Promise<void> {
   const actionContext = await determineCharacterActionContext(plugin);
   // TODO: maybe we could make this part of the checkCallback? (i.e., if we are in no character
@@ -42,20 +44,22 @@ export async function addAssetToCharacter(
     }
   }
 
-  const selectedAsset = await CustomSuggestModal.select(
-    plugin.app,
-    availableAssets,
-    (asset) => asset.name,
-    ({ item: asset }: FuzzyMatch<Datasworn.Asset>, el: HTMLElement) => {
-      el.createEl("small", {
-        text:
-          asset.category +
-          (asset.requirement ? ` (requirement: ${asset.requirement})` : ""),
-        cls: "iron-vault-suggest-hint",
-      });
-    },
-    `Choose an asset to add to character ${lens.name.get(character)}.`,
-  );
+  const selectedAsset =
+    asset ??
+    (await CustomSuggestModal.select(
+      plugin.app,
+      availableAssets,
+      (asset) => asset.name,
+      ({ item: asset }: FuzzyMatch<Datasworn.Asset>, el: HTMLElement) => {
+        el.createEl("small", {
+          text:
+            asset.category +
+            (asset.requirement ? ` (requirement: ${asset.requirement})` : ""),
+          cls: "iron-vault-suggest-hint",
+        });
+      },
+      `Choose an asset to add to character ${lens.name.get(character)}.`,
+    ));
 
   const options: [string, Datasworn.AssetOptionField][] = [];
   walkAsset(

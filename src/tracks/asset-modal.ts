@@ -1,9 +1,10 @@
-import { render } from "lit-html";
+import { html, render } from "lit-html";
 import { App, Modal } from "obsidian";
 
 import { Asset } from "@datasworn/core/dist/Datasworn";
 import IronVaultPlugin from "index";
 import renderAssetCard from "characters/asset-card";
+import { addAssetToCharacter } from "characters/commands";
 
 export class AssetModal extends Modal {
   plugin: IronVaultPlugin;
@@ -19,13 +20,25 @@ export class AssetModal extends Modal {
     const { contentEl } = this;
     contentEl.empty();
     contentEl.toggleClass("iron-vault-modal-content", true);
+    contentEl.toggleClass("iron-vault-asset-modal", true);
     render(
-      renderAssetCard(this.plugin, {
-        id: asset._id,
-        abilities: [true, false, false],
-        options: {},
-        controls: {},
-      }),
+      html`
+        ${renderAssetCard(this.plugin, {
+          id: asset._id,
+          abilities: [true, false, false],
+          options: {},
+          controls: {},
+        })}
+        <button
+          type="button"
+          @click=${() => {
+            addAssetToCharacter(this.plugin, undefined, undefined, asset);
+            this.close();
+          }}
+        >
+          Add Asset to Character
+        </button>
+      `,
       contentEl,
     );
   }
