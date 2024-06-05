@@ -233,7 +233,7 @@ function handleOracleRoll(
   const view = workspace.getActiveFileView();
   if (view && view instanceof MarkdownView) {
     const editor = view.editor;
-    runOracleCommand(plugin.app, plugin.datastore, editor, view, oracle);
+    runOracleCommand(plugin, editor, view, oracle);
   }
 }
 

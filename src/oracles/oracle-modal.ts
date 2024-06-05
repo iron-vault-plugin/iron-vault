@@ -36,13 +36,7 @@ export class OracleModal extends Modal {
           const view = workspace.getActiveFileView();
           if (view && view instanceof MarkdownView) {
             const editor = view.editor;
-            runOracleCommand(
-              this.plugin.app,
-              this.plugin.datastore,
-              editor,
-              view,
-              oracle,
-            );
+            runOracleCommand(this.plugin, editor, view, oracle);
             this.close();
           }
         });

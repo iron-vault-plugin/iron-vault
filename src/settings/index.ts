@@ -22,6 +22,12 @@ export class IronVaultPluginSettings {
   characterTemplateFile: string = "";
   clockTemplateFile: string = "";
 
+  /** When true, prompt the user to roll their own dice for moves. */
+  promptForRollsInMoves: boolean = false;
+
+  /** When true, prompt the user to roll their own dice for oracles. */
+  promptForRollsInOracles: boolean = false;
+
   momentumResetTemplate: string =
     "> [!mechanics] {{character.name}} burned momentum: {{oldValue}} -> {{newValue}}\n\n";
   meterAdjTemplate: string =

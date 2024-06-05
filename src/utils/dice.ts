@@ -33,11 +33,19 @@ export class Dice {
     return total;
   }
 
+  minRoll(): number {
+    return this.count;
+  }
+
   maxRoll(): number {
     return this.count * this.sides;
   }
 
   flip(roll: number): number {
     return this.maxRoll() - roll + 1;
+  }
+
+  [Symbol.toStringTag](): string {
+    return `${this.count}d${this.sides}`;
   }
 }

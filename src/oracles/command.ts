@@ -1,14 +1,10 @@
+import IronVaultPlugin from "index";
 import { createOrAppendMechanics } from "mechanics/editor";
 import { createOracleNode } from "mechanics/node-builders";
-import {
-  EditorSelection,
-  type App,
-  type Editor,
-  type MarkdownView,
-} from "obsidian";
-import { type Datastore } from "../datastore";
+import { EditorSelection, type Editor, type MarkdownView } from "obsidian";
+import { numberRange } from "utils/numbers";
 import { Oracle, OracleGroupingType } from "../model/oracle";
-import { RollWrapper } from "../model/rolls";
+import { Roll, RollWrapper } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
 import { OracleRoller } from "./roller";
@@ -39,13 +35,12 @@ export function oracleRuleset(oracle: Oracle): string {
 }
 
 export async function runOracleCommand(
-  app: App,
-  datastore: Datastore,
+  plugin: IronVaultPlugin,
   editor: Editor,
   _view: MarkdownView,
   chosenOracle?: Oracle,
 ): Promise<void> {
-  if (!datastore.ready) {
+  if (!plugin.datastore.ready) {
     console.warn("data not ready");
     return;
   }
@@ -89,9 +84,9 @@ export async function runOracleCommand(
   if (chosenOracle) {
     oracle = chosenOracle;
   } else {
-    const oracles: Oracle[] = [...datastore.oracles.values()];
+    const oracles: Oracle[] = [...plugin.datastore.oracles.values()];
     oracle = await CustomSuggestModal.select(
-      app,
+      plugin.app,
       oracles,
       formatOraclePath,
       (match, el) => {
@@ -101,12 +96,30 @@ export async function runOracleCommand(
       prompt ? `Select an oracle to answer '${prompt}'` : "Select an oracle",
     );
   }
-  console.log(oracle);
-  const rollContext = new OracleRoller(datastore.oracles);
+  const rollContext = new OracleRoller(plugin.datastore.oracles);
+
+  // If user wishes to make their own roll, prompt them now.
+  let initialRoll: Roll | undefined = undefined;
+  if (plugin.settings.promptForRollsInOracles) {
+    const diceValue = await CustomSuggestModal.select(
+      plugin.app,
+      [
+        "Roll for me",
+        ...numberRange(oracle.dice.minRoll(), oracle.dice.maxRoll()),
+      ],
+      (x) => x.toString(),
+      undefined,
+      `Roll your oracle dice (${oracle.dice}) and enter the value`,
+    );
+    if (typeof diceValue === "number") {
+      initialRoll = oracle.evaluate(rollContext, diceValue);
+    }
+  }
+
   new OracleRollerModal(
-    app,
+    plugin.app,
     oracle,
-    new RollWrapper(oracle, rollContext),
+    new RollWrapper(oracle, rollContext, initialRoll),
     (roll) => {
       // Delete the prompt and then inject the oracle node to a mechanics block
       editor.setSelection(replaceSelection.anchor, replaceSelection.head);

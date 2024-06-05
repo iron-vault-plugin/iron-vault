@@ -1,4 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
+import { Dice } from "utils/dice";
 import { NumberRange, Roll } from "./rolls";
 
 export interface RollContext {
@@ -30,6 +31,7 @@ export interface Oracle {
   readonly name: string;
   readonly parent: OracleGrouping;
   readonly rollableRows: OracleRollableRow[];
+  readonly dice: Dice;
 
   // TODO(@cwegrzyn): exposed raw rollable for use in the oracle reference modal. not sure
   //   to what extent it is useful to abstract some of this stuff away...
