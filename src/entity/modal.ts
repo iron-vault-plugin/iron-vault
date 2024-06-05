@@ -51,6 +51,20 @@ function evaluateAttribute(
   }
 }
 
+/** Check that all properties in `reqs` are present in `inst`.
+ * @param reqs all properties on this object must be present on `inst`
+ * @param inst the object to test against reqs
+ * @returns true if `inst` matches `reqs`
+ */
+function hasAllProperties<K extends string>(
+  reqs: Partial<Record<K, string>>,
+  inst: Partial<Record<K, string>>,
+): boolean {
+  return (Object.entries(reqs) as [K, string][])
+    .map(([reqKey, reqValue]) => inst[reqKey] === reqValue)
+    .reduce((acc, cond) => acc && cond);
+}
+
 export type EntityModalResults<T extends EntitySpec> = {
   createFile: boolean;
   fileName: string;
@@ -180,7 +194,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
 
     new Setting(contentEl).setName(this.entityDesc.label).setHeading();
 
-    const [attributes, slots] = partition(
+    const [attributes, allSlots] = partition(
       Object.entries(entitySpec) as [keyof T, EntityFieldSpec][],
       (elem): elem is [keyof T, EntityAttributeFieldSpec] =>
         isEntityAttributeSpec(elem[1]),
@@ -210,6 +224,13 @@ export class EntityModal<T extends EntitySpec> extends Modal {
 
       settings[key] = { setting, table };
     }
+
+    // Filter slots down to the applicable ones based on attribute values
+    const slots = allSlots.filter(
+      ([, { condition }]) =>
+        !condition ||
+        condition.find((reqs) => hasAllProperties(reqs, attributeValues)),
+    );
 
     for (const [key, { id, name }] of slots) {
       const formattedId = id.replaceAll(/\{\{(\w+)\}\}/g, (_, attribute) => {
@@ -257,7 +278,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
       )
       .addButton((btn) =>
         btn.setButtonText("Clear").onClick(() => {
-          for (const key of Object.keys(this.entityDesc.spec)) {
+          for (const [key] of slots) {
             clearKey(key);
           }
         }),
