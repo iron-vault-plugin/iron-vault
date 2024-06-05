@@ -32,6 +32,9 @@ export type EntityBaseFieldSpec = {
 
   /** Label to use. If null, will use oracle name. */
   name?: string;
+
+  /** Conditions for including this asset */
+  condition?: Array<Record<string, string>>;
 };
 export type EntityAttributeFieldSpec = EntityBaseFieldSpec & {
   definesAttribute: DefinesAttribute;
@@ -102,9 +105,46 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
     collectionId: "starforged/collections/oracles/factions",
     nameGen: (ent) => ent.name[0]?.simpleResult,
     spec: {
-      name: {
-        id: "starforged/oracles/factions/name/template",
+      factionType: {
+        id: "starforged/oracles/factions/type",
         firstLook: true,
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.ParseId,
+        },
+      },
+      // name: {
+      //   id: "starforged/oracles/factions/name/template",
+      //   firstLook: true,
+      // },
+      dominionType: {
+        id: "starforged/oracles/factions/dominion",
+        firstLook: true,
+        condition: [{ factionType: "dominion" }],
+      },
+      dominionLeadership: {
+        id: "starforged/oracles/factions/dominion_leadership",
+        firstLook: true,
+        condition: [{ factionType: "dominion" }],
+      },
+      guildType: {
+        id: "starforged/oracles/factions/guild",
+        firstLook: true,
+        condition: [{ factionType: "guild" }],
+      },
+      fringeGroupType: {
+        id: "starforged/oracles/factions/fringe_group",
+        firstLook: true,
+        condition: [{ factionType: "fringe_group" }],
+      },
+      factionProjects: {
+        id: "starforged/oracles/factions/projects",
+      },
+      factionQuirks: {
+        id: "starforged/oracles/factions/quirks",
+      },
+      factionRumors: {
+        id: "starforged/oracles/factions/rumors",
       },
     },
   },
