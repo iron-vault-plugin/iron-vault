@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Commands/Toggle displaying mechanics.md",
+                "file": "Other Features/Settings.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Commands/Toggle displaying mechanics.md",
+                "file": "Other Features/Settings.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Commands/Toggle displaying mechanics.md",
+                "file": "Other Features/Settings.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Commands/Toggle displaying mechanics.md"
+                "file": "Other Features/Settings.md"
               }
             }
           },
@@ -157,11 +157,11 @@
   },
   "active": "ae551890021d75d2",
   "lastOpenFiles": [
+    "Commands/Toggle displaying mechanics.md",
     "Commands/Take on a meter.md",
     "Commands/Suffer on a meter.md",
     "Commands/Make a move.md",
     "Commands/Burn momentum.md",
-    "Commands/Toggle displaying mechanics.md",
     "Other Features/Settings.md",
     "Commands/Generate an entity.md",
     "Other Features/Rulesets.md",

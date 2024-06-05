@@ -16,3 +16,8 @@ These options control various parts of how [[Mechanics Blocks]] are rendered.
 * **Collapse move blocks**: when enabled (default), moves in mechanics blocks will only show the move name and result when first rendered, and you'll need to click on them in order to see move details.
 * **Show mechanics toggle**: when enabled (default), mechanics blocks will have a small "Hide mechanics" toggle underneath them that, when clicked, will hide the mechanics block.
 * **Hide mechanics completely**: If enabled, mechanics blocks will not be displayed at all. Good for when you just want to read a story. You can also toggle this setting by using the [[Toggle displaying mechanics]] command.
+
+### Dice rolling
+
+* **Prompt for rolls in Make a Move**: if enabled, when you [[Make a move]], the plugin will prompt you to roll your own dice and enter the values.
+* **Prompt for rolls in Ask the Oracle**: if enabled, when you [[Ask the Oracle]], the plugin will prompt you to roll your own dice and enter the values.
