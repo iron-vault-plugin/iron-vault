@@ -39,16 +39,6 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("New game object defaults").setHeading();
 
     new Setting(containerEl)
-      .setName("Oracles folder")
-      .setDesc("If specified, load oracles from this folder")
-      .addText((text) =>
-        text
-          .setPlaceholder("Folder name")
-          .setValue(settings.oraclesFolder)
-          .onChange((value) => this.updateSetting("oraclesFolder", value)),
-      );
-
-    new Setting(containerEl)
       .setName("Default progress track folder")
       .setDesc("Create progress tracks in this folder by default.")
       .addSearch((search) => {
