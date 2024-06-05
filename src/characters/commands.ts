@@ -1,27 +1,24 @@
 import { type Datasworn } from "@datasworn/core";
+import { Asset } from "@datasworn/core/dist/Datasworn";
 import { produce } from "immer";
 import IronVaultPlugin from "index";
+import { html, render } from "lit-html";
+import { map } from "lit-html/directives/map.js";
+import MiniSearch from "minisearch";
 import { App, Editor, MarkdownView, Modal } from "obsidian";
 import { createNewIronVaultEntityFile, vaultProcess } from "utils/obsidian";
 import { capitalize } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
 import { IronVaultKind, pluginPrefixed } from "../constants";
-import {
-  NoCharacterActionConext as NoCharacterActionContext,
-  determineCharacterActionContext,
-} from "./action-context";
+import { requireActiveCharacterContext } from "./action-context";
+import renderAssetCard from "./asset-card";
 import {
   addOrUpdateViaDataswornAsset,
   defaultMarkedAbilitiesForAsset,
   walkAsset,
 } from "./assets";
 import { characterLens, createValidCharacter } from "./lens";
-import { Asset } from "@datasworn/core/dist/Datasworn";
-import { html, render } from "lit-html";
-import { map } from "lit-html/directives/map.js";
-import MiniSearch from "minisearch";
-import renderAssetCard from "./asset-card";
 
 export async function addAssetToCharacter(
   plugin: IronVaultPlugin,
@@ -29,12 +26,10 @@ export async function addAssetToCharacter(
   _view?: MarkdownView,
   asset?: Asset,
 ): Promise<void> {
-  const actionContext = await determineCharacterActionContext(plugin);
   // TODO: maybe we could make this part of the checkCallback? (i.e., if we are in no character
   // mode, don't even bother to list this command?)
-  if (!actionContext || actionContext instanceof NoCharacterActionContext) {
-    return;
-  }
+  const actionContext = await requireActiveCharacterContext(plugin);
+
   const path = actionContext.characterPath;
   const context = actionContext.characterContext;
   const { character, lens } = context;

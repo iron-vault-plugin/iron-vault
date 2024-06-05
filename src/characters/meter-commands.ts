@@ -106,9 +106,6 @@ export const modifyMeterCommand = async (
 ) => {
   // todo: multichar
   const actionContext = await determineCharacterActionContext(plugin);
-  if (!actionContext) {
-    return;
-  }
 
   const choice = await promptForMeter(plugin.app, actionContext, meterFilter);
 

@@ -172,17 +172,19 @@ function renderError(e: Error, el: HTMLElement): void {
   }
 }
 
+export class NoValidContextError extends Error {}
+
 export async function requireActiveCharacterContext(
   plugin: IronVaultPlugin,
 ): Promise<CharacterActionContext> {
   const context = await determineCharacterActionContext(plugin);
-  if (!context || !(context instanceof CharacterActionContext)) {
+  if (!(context instanceof CharacterActionContext)) {
     await InfoModal.show(
       plugin.app,
-      "Command requires an active character, but none was found.",
+      "Command requires an active character, but character system is disabled.",
     );
-    throw new Error(
-      "Command requires an active character, but none was found.",
+    throw new NoValidContextError(
+      "Command requires an active character, but character system is disabled.",
     );
   }
 
@@ -191,7 +193,7 @@ export async function requireActiveCharacterContext(
 
 export async function determineCharacterActionContext(
   plugin: IronVaultPlugin,
-): Promise<ActionContext | undefined> {
+): Promise<ActionContext> {
   if (plugin.settings.useCharacterSystem) {
     try {
       const [characterPath, characterContext] = activeCharacter(
@@ -216,8 +218,7 @@ export async function determineCharacterActionContext(
       }
 
       await InfoModal.show(plugin.app, div);
-      // TODO: maybe this should just raise an exception because the alternative is boring.
-      return undefined;
+      throw new NoValidContextError("No valid character found", { cause: e });
     }
   } else {
     return new NoCharacterActionConext(plugin.datastore);
