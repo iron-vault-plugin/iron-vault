@@ -26,7 +26,7 @@ move id="starforged/moves/adventure/face_danger" {
 	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
 	clock "[[Test Clock]]" status="added"
 }
-asset "[Empath](asset:Empath)" status="added"
+asset "[Empath](asset:Empath)" status="upgraded" ability=1
 impact "Permanently Harmed" "marked"
 - "Oh nooo. This is gonna hurt. Time to [Endure Harm](move:EndureHarm). bla bla bla bla bla bla bla bla bla bla"
 - "Another one here"
@@ -99,3 +99,9 @@ a single multiline string.
 ```
 
 [Starship](asset:Starship)
+
+
+```mechanics
+burn from=6 to=2
+```
+

@@ -1,0 +1,7 @@
+Iron Vault has support for NPCs by using various [[Oracles|Oracle Groups]], which can be rolled either through the [[Sidebar]] or through the [[Ask the Oracle]] command. For example, rolling the `Character Oracles` Oracle Group by pressing the dice icon in the sidebar, or invoking the [[Generate an entity]] command will pop up a window where you can do a batch roll of all oracles in that group, or only the "first look" oracles. You'll also be given the option to save the results into a new file, which will include a Markdown table with all the roll results. Rolling this oracle group will also record the results in your journal.
+
+Besides this, there is no additional support specific to NPCs. You are free to organize these entities however you want, including having multiple settlements in a single file (although we recommend doing 1-entity, 1-file as a general rule).
+
+#### Managing Connections
+
+You are free to manage the representation of Connections however you want, but one recommended way is to first use the [[Create a progress track]] command to create a new `Connection` progress track, then embed that track in your NPC's file using `![[Connection to My NPC|iv-embed]]`, which will inline an interactive version of the progress track right in your NPC file. You can also add metadata to your frontmatter, such as `connection: true` and `bond: true`.

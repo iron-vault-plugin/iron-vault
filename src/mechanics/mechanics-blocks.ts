@@ -265,7 +265,7 @@ export class MechanicsRenderer {
 
   async renderAdd(target: HTMLElement, node: KdlNode) {
     const amount = (node.properties.amount ?? node.values[0]) as number;
-    const from = (node.properties.from ?? node.values[1]) as number;
+    const from = (node.properties.from ?? node.values[1]) as string;
     const neg = amount < 0;
     const def: DataList = {
       Amount: {

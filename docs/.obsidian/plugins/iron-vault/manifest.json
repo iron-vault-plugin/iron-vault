@@ -1,0 +1,11 @@
+{
+  "id": "iron-vault",
+  "name": "Iron Vault",
+  "minAppVersion": "0.15.0",
+  "description": "Gameplay plugin/VTT for the Ironsworn/Starforged family of tabletop RPGs",
+  "author": "Chris Wegrzyn",
+  "authorUrl": "https://github.com/cwegrzyn",
+  "fundingUrl": "https://obsidian.md/pricing",
+  "isDesktopOnly": false,
+  "version": "1.36.0"
+}
