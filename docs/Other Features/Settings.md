@@ -5,7 +5,6 @@ Iron Vault includes various settings for tweaking the behavior of its features, 
 
 ### New game object defaults
 
-* **Oracles folder**: (Coming Soon) this feature is currently disabled, and will be replaced with the upcoming [[Rulesets]] system.
 * **Default (x) folder**: Controls which folder to put various rollable [[Entities/About|Entities]] in by default. You can still pick the folder on an individual basis, or even move it, regardless of what these values are.
 * **(x) template file**: If provided, the contents of these files will be added to the end of the new entity files when they're created. (Coming Soon) This will eventually be replaced with a more involved template system that will give you more control of how files are generated and formatted, and what additional frontmatter they include.
 
