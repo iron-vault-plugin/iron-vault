@@ -23,7 +23,8 @@
     display: grid;
     max-width: 460px;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(6, 1fr);
+    grid-template-rows: 1fr auto 1fr;
+    grid-template-areas: "name pronouns" "description description" "xp-earned xp-spent";
     column-gap: 0.2em;
     align-items: end;
     & dt {
@@ -37,7 +38,7 @@
         grid-row-start: 1;
       }
     }
-    & dd input {
+    & dd input, & dd textarea, & dd:has(textarea) {
       padding: 0.4em;
       width: 100%;
       font-size: 1em;
@@ -47,6 +48,24 @@
       border-radius: 0;
       &:focus {
         border-radius: var(--input-radius);
+      }
+    }
+    & dd:has(textarea) {
+      /* See https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/ */
+      border-bottom: none;
+      padding: 0;
+      display: grid;
+      &::after {
+        content: attr(data-replicated-value) " ";
+        white-space: pre-wrap;
+        visibility: hidden;
+      }
+      & > textarea {
+        resize: none;
+        overflow: hidden;
+      }
+      & > textarea, &::after {
+        grid-area: 1 / 1 / 2 / 2;
       }
     }
     & dt:has(+ .description),

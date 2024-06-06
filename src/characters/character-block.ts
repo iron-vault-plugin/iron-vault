@@ -197,13 +197,17 @@ class CharacterRenderer extends MarkdownRenderChild {
           />
         </dd>
         <dt>Description</dt>
-        <dd class="description">
-          <input
-            type="text"
+        <dd
+          class="description"
+          data-replicated-value=${lens.description.get(raw) || ""}
+        >
+          <textarea
             placeholder="About Me"
+            onInput="this.parentNode.dataset.replicatedValue = this.value"
             .value=${lens.description.get(raw) || ""}
             @change=${charFieldUpdater(lens.description)}
-          />
+          >
+          </textarea>
         </dd>
         <dt>XP Earned</dt>
         <dd class="xp-earned">
