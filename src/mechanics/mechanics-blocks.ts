@@ -624,10 +624,10 @@ export class MechanicsRenderer {
 
   async renderImpact(target: HTMLElement, node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
-    const status = (node.properties.status ?? node.values[1]) as string;
+    const marked = (node.properties.marked ?? node.values[1]) as boolean;
     await this.renderDlist(target, "impact", {
       Impact: { cls: "impact-name", value: name, md: true },
-      Status: { cls: "impact-status", value: status },
+      Status: { cls: "impact-marked", value: "" + marked },
     });
   }
 

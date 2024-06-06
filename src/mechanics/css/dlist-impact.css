@@ -2,23 +2,25 @@
   &:before {
     content: "💥";
   }
-  &:has(.impact-status[data-value="unmarked"]) {
-    & dd.impact-status {
+  & dd.impact-marked {
+    display: none;
+  }
+  &:has(.impact-marked[data-value="false"]) {
+    & dd.impact-name::after {
       color: var(--text-success);
+      content: " unmarked ⬡";
     }
   }
-  &:has(.impact-status[data-value="marked"]) {
-    & dd.impact-status {
+  &:has(.impact-marked[data-value="true"]) {
+    & dd.impact-name::after {
       color: var(--text-error);
+      content: " marked ⬢";
     }
   }
   & dd {
     &.impact-name {
       &::before {
         content: "Impact ";
-      }
-      &::after {
-        content: " ";
       }
     }
   }

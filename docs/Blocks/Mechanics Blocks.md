@@ -319,9 +319,9 @@ Records marking and unmarking of impacts.
 ##### Arguments
 
 * `name` (md): the name of the impact
-* `status`: the new status of the impact. Either `marked` or `unmarked`.
+* `marked`: the new status of the impact. `true` or `false`.
 ##### Example
 
 ```kdl
-impact "Permanently Harmed" "marked"
+impact "Permanently Harmed" true
 ```

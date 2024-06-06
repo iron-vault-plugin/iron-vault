@@ -27,7 +27,7 @@ move id="starforged/moves/adventure/face_danger" {
 	clock "[[Test Clock]]" status="added"
 }
 asset "[Empath](asset:Empath)" status="upgraded" ability=1
-impact "Permanently Harmed" "marked"
+impact "Permanently Harmed" false
 - "Oh nooo. This is gonna hurt. Time to [Endure Harm](move:EndureHarm). bla bla bla bla bla bla bla bla bla bla"
 - "Another one here"
 move "Endure Harm" {
