@@ -1,3 +1,6 @@
+---
+title: Iron Vault Plugin
+---
 This is the documentation for [Iron Vault](https://github.com/cwegrzyn/iron-vault), a plugin for [Obsidian](https://obsidian.md) that turns the beloved note-taking/journaling tool into a full-fledged Virtual Tabletop (VTT) for the [Ironsworn/Starforged family of games](https://ironswornrpg.com).
 
 It has features ranging from a full character sheet, to commands for making moves, and even an entire featureset for rendering pretty mechanics blocks in your story journals describing the mechanics involved in your story, as they happen.
