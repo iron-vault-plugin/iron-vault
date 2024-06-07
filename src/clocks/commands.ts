@@ -25,11 +25,6 @@ export async function advanceClock(
   view: MarkdownView,
   clockIndex: ClockIndex,
 ) {
-  // TODO: clearly we should have something like this checking the indexer
-  // if (!datastore.ready) {
-  //   console.warn("data not ready");
-  //   return;
-  // }
   const [clockPath, clockInfo] = await selectClock(
     clockIndex,
     app,

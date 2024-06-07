@@ -5,6 +5,7 @@ import {
   determineCharacterActionContext,
 } from "characters/action-context";
 import IronVaultPlugin from "index";
+import { rootLogger } from "logger";
 import {
   type App,
   type Editor,
@@ -35,6 +36,8 @@ import { ActionMoveWrapper } from "../wrapper";
 import { checkForMomentumBurn } from "./action-modal";
 import { AddsModal } from "./adds-modal";
 import { renderMechanics } from "./format";
+
+const logger = rootLogger.child({ module: "moves" });
 
 enum MoveKind {
   Progress = "Progress",
@@ -233,7 +236,7 @@ export async function runMoveCommand(
   chosenMove?: Datasworn.Move,
 ): Promise<void> {
   if (view.file?.path == null) {
-    console.error("No file for view. Why?");
+    logger.error("No file for view. Why?");
     return;
   }
 
@@ -270,7 +273,7 @@ export async function runMoveCommand(
     case "special_track":
     default:
       // TODO: this probably makes sense with new mechanics format?
-      console.warn(
+      logger.warn(
         "Teach me how to handle a move with roll type %s: %o",
         move.roll_type,
         move,
@@ -361,11 +364,7 @@ function suggestedRollablesForMove(
           rollableToAdd = rollable.condition_meter;
           break;
         default:
-          console.warn(
-            "unhandled rollable scenario %o %o",
-            condition,
-            rollable,
-          );
+          logger.warn("unhandled rollable scenario %o %o", condition, rollable);
       }
       if (!rollableToAdd) continue;
       if (!(rollableToAdd in suggestedRollables)) {

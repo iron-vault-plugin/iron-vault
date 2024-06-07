@@ -6,6 +6,7 @@ import registerClockBlock from "clocks/clock-block";
 import { advanceClock, createClock } from "clocks/commands";
 import { generateEntityCommand } from "entity/command";
 import { IndexManager } from "indexer/manager";
+import { loadLogLevel } from "logger";
 import { runMoveCommand } from "moves/action";
 import installMoveLinkHandler from "moves/link-override";
 import { MoveModal } from "moves/move-modal";
@@ -74,6 +75,7 @@ export default class IronVaultPlugin extends Plugin {
   }
 
   async onload(): Promise<void> {
+    loadLogLevel();
     await this.loadSettings();
 
     this.datastore = this.addChild(new Datastore(this));

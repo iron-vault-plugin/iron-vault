@@ -1,3 +1,4 @@
+import { rootLogger } from "logger";
 import {
   Component,
   TFile,
@@ -20,6 +21,8 @@ import { Indexer, IndexerId } from "./indexer";
 //   }
 // }
 
+const logger = rootLogger.child({ module: "index-manager" });
+
 export class IndexManager extends Component {
   protected readonly metadataCache: MetadataCache;
   protected readonly vault: Vault;
@@ -39,14 +42,13 @@ export class IndexManager extends Component {
     if (this.handlers.has(indexer.id)) {
       throw new Error(`attempt to re-register handler for ${indexer.id}`);
     }
-    console.log("[index-manager] registered indexer %s", indexer.id);
+    logger.verbose("registered indexer %s", indexer.id);
     this.handlers.set(indexer.id, indexer);
   }
 
   public initialize(): void {
     this.registerEvent(
       this.metadataCache.on("changed", (file, data, cache) => {
-        // console.log("changed: ", file);
         this.indexFile(file, cache);
       }),
     );
@@ -69,14 +71,14 @@ export class IndexManager extends Component {
       }),
     );
 
-    console.log("[index-manager] starting initial index...");
+    logger.verbose("Starting initial index...");
 
     for (const file of this.vault.getMarkdownFiles()) {
       const cache = this.metadataCache.getFileCache(file);
       if (cache != null) {
         this.indexFile(file, cache);
       } else {
-        console.warn("no cache for ", file.path);
+        logger.warn("no cache for %s", file.path);
       }
     }
   }
@@ -104,14 +106,14 @@ export class IndexManager extends Component {
   private unindex(fileKey: string): void {
     const indexer = this.currentIndexerForFile(fileKey);
     if (indexer != null) {
-      console.log(
+      logger.debug(
         "[indexer:%s] [file: %s] removing indexed file for deleted file",
         indexer.id,
         fileKey,
       );
       const result = indexer.onDeleted(fileKey);
       if (result.type == "not_found") {
-        console.warn(
+        logger.warn(
           "[indexer:%s] [file:%s] requested file not found in index",
           indexer.id,
           fileKey,
@@ -138,11 +140,7 @@ export class IndexManager extends Component {
       if (indexer) {
         return indexer;
       } else {
-        console.warn(
-          '[indexer] [file:%s] unknown iron-vault-kind "%s"',
-          file.path,
-          kind,
-        );
+        logger.warn('[file:%s] unknown iron-vault-kind "%s"', file.path, kind);
       }
     }
     return undefined;
@@ -160,8 +158,8 @@ export class IndexManager extends Component {
     }
 
     if (newIndexer) {
-      console.log(
-        "[index-manager] [file:%s] using indexer %s for file",
+      logger.debug(
+        "[file:%s] using indexer %s for file",
         indexKey,
         newIndexer.id,
       );
@@ -171,7 +169,7 @@ export class IndexManager extends Component {
         result = newIndexer.onChanged(file.path, cache);
       } catch (error) {
         result = "error";
-        console.error(
+        logger.error(
           "[indexer:%s] [file:%s] unexpected error or result while indexing %o",
           newIndexer.id,
           indexKey,
@@ -180,7 +178,7 @@ export class IndexManager extends Component {
       }
       switch (result) {
         case "indexed":
-          console.log(
+          logger.verbose(
             "[indexer:%s] [file:%s] indexed",
             newIndexer.id,
             indexKey,
@@ -188,7 +186,7 @@ export class IndexManager extends Component {
           this.indexedFiles.set(indexKey, newIndexer.id);
           break;
         case "wont_index":
-          console.log(
+          logger.debug(
             "[indexer:%s] [file:%s] not indexable",
             newIndexer.id,
             indexKey,
@@ -196,7 +194,7 @@ export class IndexManager extends Component {
           break;
         case "error":
         default:
-          console.error(
+          logger.error(
             "[indexer:%s] [file:%s] error while indexing",
             newIndexer.id,
             indexKey,
