@@ -155,7 +155,7 @@
         width: 100%;
         margin: 0;
         display: flex;
-        flex-flow: flex-row nowrap;
+        flex-flow: row nowrap;
         & li {
           display: flex;
           flex-flow: row nowrap;
