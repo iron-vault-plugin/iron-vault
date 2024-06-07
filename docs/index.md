@@ -9,6 +9,8 @@ The plugin is designed to be used piecemeal: you can use as much or as little as
 
 It is not a "play for me"-style VTT, in the sense that while it has a lot of conveniences for rendering and interacting with mechanics, the actual resolution and logic of game mechanics is left up to you, and whatever flexibility you want to handle the game's rules with. The game, after all, is not a single monolithic set of laws, and everyone tends to take their own liberties with the rules in the interest of enjoying the game more.
 
+### Features
+
 You can start reading about the various Iron Vault features here:
 
 * [[Blocks/About|Blocks]] - Special blocks used throughout the tool to render things nicely and give you handy interactive widgets for editing game data.
