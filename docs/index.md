@@ -13,9 +13,9 @@ It is not a "play for me"-style VTT, in the sense that while it has a lot of con
 
 You can start reading about the various Iron Vault features here:
 
-* [[Blocks/About|Blocks]] - Special blocks used throughout the tool to render things nicely and give you handy interactive widgets for editing game data.
-* [[Commands/About|Commands]] - Various Obsidian commands, all of which can be bound to hotkeys or the quick access bar, for performing all sorts of game actions, like making moves, creating progress tracks, etc.
-* [[Entities/About|Entities]] - How Iron Vault represents all sorts of different game concepts, or some ways that you might choose to represent them yourself.
+* [[About Blocks|Blocks]] - Special blocks used throughout the tool to render things nicely and give you handy interactive widgets for editing game data.
+* [[About Commands|Commands]] - Various Obsidian commands, all of which can be bound to hotkeys or the quick access bar, for performing all sorts of game actions, like making moves, creating progress tracks, etc.
+* [[About Entities|Entities]] - How Iron Vault represents all sorts of different game concepts, or some ways that you might choose to represent them yourself.
 * [[Sidebar]] - A handy right-panel sidebar for quick access to Moves, Oracles, and your Character Sheet, all in one, easy-access place. Particularly useful on mobile.
 * [[Special Links]] - There are `oracle:`, `move:`, `asset:` and `id:` links that, instead of trying to open a web page, will instead open a modal window with the contents of the thing you're trying to link to. For example, `[My Oracle](oracle:MyOracleName)` will pop up a window with the description and roll table for "My Oracle".
 * [[CSS Tweaks]] - Styling tweaks to make some things look nicer or more customized, such as the `iron-vault-embed` option for inlining embeds.
