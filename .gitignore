@@ -7,9 +7,8 @@ node_modules/
 
 # Ignore .obsidian
 # No one will commit these files, they just spam 'git status'
-test-vault/.obsidian/*
-docs/.obsidian/*
-/.docs-export
+/test-vault/.obsidian/*
+docs/.obsidian/plugins/iron-vault
 # Tells obsidian what plugins are enabled
 !test-vault/.obsidian/community-plugins.json
 # This plugin should still be tracked by git.

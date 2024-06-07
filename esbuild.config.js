@@ -39,43 +39,38 @@ const context = await esbuild.context({
   logLevel: "info",
   sourcemap: prod ? false : "inline",
   treeShaking: true,
-  outfile: prod ? "main.js" : "test-vault/.obsidian/plugins/iron-vault/main.js",
+  outfile: "main.js",
   plugins: [
     typecheckPlugin({ watch: !prod }),
-    ...(prod
-      ? []
-      : [
-          copy({
-            // this is equal to process.cwd(), which means we use cwd path as base path to resolve `to` path
-            // if not specified, this plugin uses ESBuild.build outdir/outfile options as base path.
-            resolveFrom: "cwd",
-            assets: [
-              {
-                from: ["manifest.json"],
-                to: ["./test-vault/.obsidian/plugins/iron-vault/manifest.json"],
-              },
-              {
-                from: [".hotreload"],
-                to: ["./test-vault/.obsidian/plugins/iron-vault/.hotreload"],
-              },
-              {
-                from: ["./test-vault/.obsidian/plugins/iron-vault/main.js"],
-                to: ["./docs/.obsidian/plugins/iron-vault/main.js"],
-              },
-              {
-                from: [
-                  "./test-vault/.obsidian/plugins/iron-vault/manifest.json",
-                ],
-                to: ["./docs/.obsidian/plugins/iron-vault/manifest.json"],
-              },
-              {
-                from: ["./test-vault/.obsidian/plugins/iron-vault/.hotreload"],
-                to: ["./docs/.obsidian/plugins/iron-vault/.hotreload"],
-              },
-            ],
-            watch: true,
-          }),
-        ]),
+    copy({
+      // this is equal to process.cwd(), which means we use cwd path as base path to resolve `to` path
+      // if not specified, this plugin uses ESBuild.build outdir/outfile options as base path.
+      resolveFrom: "cwd",
+      assets: [
+        {
+          from: ["manifest.json"],
+          to: [
+            "./test-vault/.obsidian/plugins/iron-vault/manifest.json",
+            "./docs/.obsidian/plugins/iron-vault/manifest.json",
+          ],
+        },
+        {
+          from: [".hotreload"],
+          to: [
+            "./test-vault/.obsidian/plugins/iron-vault/.hotreload",
+            "./docs/.obsidian/plugins/iron-vault/.hotreload",
+          ],
+        },
+        {
+          from: ["main.js"],
+          to: [
+            "./docs/.obsidian/plugins/iron-vault/main.js",
+            "./test-vault/.obsidian/plugins/iron-vault/main.js",
+          ],
+        },
+      ],
+      watch: true,
+    }),
   ],
 });
 
@@ -83,30 +78,27 @@ const cssCtx = await esbuild.context({
   entryPoints: ["src/styles.css"],
   bundle: true,
   sourcemap: prod ? false : "inline",
-  outfile: prod
-    ? "styles.css"
-    : "test-vault/.obsidian/plugins/iron-vault/styles.css",
+  outfile: "styles.css",
   loader: {
     ".svg": "dataurl",
   },
   target: "chrome88",
   plugins: [
-    ...(prod
-      ? []
-      : [
-          copy({
-            // this is equal to process.cwd(), which means we use cwd path as base path to resolve `to` path
-            // if not specified, this plugin uses ESBuild.build outdir/outfile options as base path.
-            resolveFrom: "cwd",
-            assets: [
-              {
-                from: ["./test-vault/.obsidian/plugins/iron-vault/styles.css"],
-                to: ["./docs/.obsidian/plugins/iron-vault/styles.css"],
-              },
-            ],
-            watch: true,
-          }),
-        ]),
+    copy({
+      // this is equal to process.cwd(), which means we use cwd path as base path to resolve `to` path
+      // if not specified, this plugin uses ESBuild.build outdir/outfile options as base path.
+      resolveFrom: "cwd",
+      assets: [
+        {
+          from: ["./styles.css"],
+          to: [
+            "./test-vault/.obsidian/plugins/iron-vault/styles.css",
+            "./docs/.obsidian/plugins/iron-vault/styles.css",
+          ],
+        },
+      ],
+      watch: true,
+    }),
   ],
 });
 

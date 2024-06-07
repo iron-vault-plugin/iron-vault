@@ -1,0 +1,188 @@
+{
+  "main": {
+    "id": "e2941fe7ee42ecb0",
+    "type": "split",
+    "children": [
+      {
+        "id": "aa7afe00db686821",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "38fe42f3d36bd61d",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "634087b2eeb3e5d4",
+    "type": "split",
+    "children": [
+      {
+        "id": "82845a3789b19d8b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "5f4b2eddacdf3006",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "ee1776b99d8dd4dd",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "34af98ef8bde87bc",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "bfcce08df144c11f",
+    "type": "split",
+    "children": [
+      {
+        "id": "05f0f3fe20bad66d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b12d3673aaf2062e",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "8cb65b8f547d5bbf",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "858558752df020e6",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "c60fbd2c27296871",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {}
+            }
+          },
+          {
+            "id": "0090bf52decb42f7",
+            "type": "leaf",
+            "state": {
+              "type": "iron-vault-sidebar-view",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "iron-vault:Iron Vault": false,
+      "webpage-html-export:Export Vault to HTML": false
+    }
+  },
+  "active": "38fe42f3d36bd61d",
+  "lastOpenFiles": [
+    "index.md",
+    "Other Features/Special Links.md",
+    "Other Features/Sidebar.md",
+    "Other Features/Settings.md",
+    "Other Features/Rulesets.md",
+    "Other Features/CSS Tweaks.md",
+    "Other Features/API.md",
+    "Entities/Vaults.md",
+    "Entities/Truths.md",
+    "Entities/Progress Tracks.md",
+    "Entities/Oracles.md",
+    "Entities/Moves.md",
+    "Entities/Locations and Settlements.md",
+    "Entities/Factions.md",
+    "Entities/Derelicts.md",
+    "Entities/Clocks.md",
+    "Entities/Characters.md",
+    "Entities/Assets.md",
+    "Entities/About Entities.md",
+    "Commands/Take on a meter.md",
+    "Commands/Suffer on a meter.md",
+    "Commands/Make a move.md",
+    "Commands/Create new character.md",
+    "Commands/Create a progress track.md",
+    "Commands/Create a clock.md",
+    "Commands/Burn momentum.md",
+    "Support/img/special-tracks-example.png",
+    "Support/img/character-sheet.png",
+    "Support/img/mechanics-rendered.png",
+    "Support/img/mechanics-raw.png",
+    "Support/img",
+    "Support",
+    "Commands",
+    "Blocks"
+  ]
+}
