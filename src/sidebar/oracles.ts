@@ -193,14 +193,10 @@ function renderOracle(plugin: IronVaultPlugin, oracle: Oracle) {
 }
 
 function rollOracleBatch(plugin: IronVaultPlugin, group: CollectionGrouping) {
-  console.log("Rolling all these oracles:", group);
   let entityDefn = Object.values(ENTITIES).find(
     (desc) => desc.collectionId === group.id,
   );
-  if (entityDefn) {
-    console.log("Found existing entity defintion", entityDefn);
-  } else {
-    console.log("No existing entity defn.");
+  if (!entityDefn) {
     entityDefn = {
       label: group.name,
       spec: Object.fromEntries(

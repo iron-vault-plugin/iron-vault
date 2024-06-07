@@ -1,4 +1,5 @@
 import IronVaultPlugin from "index";
+import { rootLogger } from "logger";
 import { createOrAppendMechanics } from "mechanics/editor";
 import { createOracleNode } from "mechanics/node-builders";
 import { EditorSelection, type Editor, type MarkdownView } from "obsidian";
@@ -8,6 +9,8 @@ import { Roll, RollWrapper } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
 import { OracleRoller } from "./roller";
+
+const logger = rootLogger.child({ module: "oracles" });
 
 export function formatOraclePath(oracle: Oracle): string {
   let current = oracle.parent;
@@ -41,7 +44,7 @@ export async function runOracleCommand(
   chosenOracle?: Oracle,
 ): Promise<void> {
   if (!plugin.datastore.ready) {
-    console.warn("data not ready");
+    logger.warn("data not ready");
     return;
   }
 
@@ -53,7 +56,7 @@ export async function runOracleCommand(
     prompt = editor.getRange(selection.anchor, selection.head);
     if (!prompt && selection.anchor.line == selection.head.line) {
       prompt = editor.getLine(selection.anchor.line);
-      console.log("prompt: '%s'", prompt);
+      logger.debug("prompt: '%s'", prompt);
 
       // TODO: if I wanted to split the line around the cursor, this is how I can do it!
       // const rightMost = Math.max(selection.anchor.ch, selection.head.ch);
@@ -74,7 +77,7 @@ export async function runOracleCommand(
       prompt = undefined;
     }
   } else {
-    console.error(
+    logger.error(
       "Canceling oracle: Expected exactly one selection; found %d: %o",
     );
     return;
