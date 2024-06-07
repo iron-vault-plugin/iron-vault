@@ -1,0 +1,551 @@
+{
+  "vaultName": "Iron Vault",
+  "lastExport": 1717797023042,
+  "pluginVersion": "1.8.01",
+  "validBodyClasses": "publish css-settings-manager theme-dark show-inline-title show-ribbon",
+  "useCustomHeadContent": false,
+  "useCustomFavicon": false,
+  "files": [
+    "Blocks/About Blocks.md",
+    "Blocks/Asset Blocks.md",
+    "Blocks/Character Blocks.md",
+    "Blocks/Clock Blocks.md",
+    "Blocks/Mechanics Blocks.md",
+    "Blocks/Moves Blocks.md",
+    "Blocks/Oracles Blocks.md",
+    "Blocks/Track Blocks.md",
+    "Commands/About Commands.md",
+    "Commands/Add asset to character.md",
+    "Commands/Advance a clock.md",
+    "Commands/Advance a progress track.md",
+    "Commands/Ask the Oracle.md",
+    "Commands/Burn momentum.md",
+    "Commands/Create a clock.md",
+    "Commands/Create a progress track.md",
+    "Commands/Create new character.md",
+    "Commands/Generate an entity.md",
+    "Commands/Make a move.md",
+    "Commands/Suffer on a meter.md",
+    "Commands/Take on a meter.md",
+    "Commands/Toggle displaying mechanics.md",
+    "Entities/About Entities.md",
+    "Entities/Assets.md",
+    "Entities/Characters.md",
+    "Entities/Clocks.md",
+    "Entities/Delves.md",
+    "Entities/Derelicts.md",
+    "Entities/Factions.md",
+    "Entities/Locations and Settlements.md",
+    "Entities/Moves.md",
+    "Entities/NPCs.md",
+    "Entities/Oracles.md",
+    "Entities/Progress Tracks.md",
+    "Entities/Sectors.md",
+    "Entities/Truths.md",
+    "Entities/Vaults.md",
+    "Other Features/API.md",
+    "Other Features/CSS Tweaks.md",
+    "Other Features/Debug Logging.md",
+    "Other Features/Rulesets.md",
+    "Other Features/Settings.md",
+    "Other Features/Sidebar.md",
+    "Other Features/Special Links.md",
+    "index.md",
+    "lib/media/character-sheet.png",
+    "lib/media/special-tracks-example.png",
+    "lib/media/mechanics-raw.png",
+    "lib/media/mechanics-rendered.png",
+    "lib/fonts/94f2f163d4b698242fef.otf",
+    "lib/fonts/72505e6a122c6acd5471.woff2",
+    "lib/fonts/2d5198822ab091ce4305.woff2",
+    "lib/fonts/c8ba52b05a9ef10f4758.woff2",
+    "lib/fonts/cb10ffd7684cd9836a05.woff2",
+    "lib/fonts/b5f0f109bc88052d4000.woff2",
+    "lib/fonts/cbe0ae49c52c920fd563.woff2",
+    "lib/fonts/535a6cf662596b3bd6a6.woff2",
+    "lib/fonts/70cc7ff27245e82ad414.ttf",
+    "lib/fonts/454577c22304619db035.ttf",
+    "lib/fonts/52ac8f3034507f1d9e53.ttf",
+    "lib/fonts/05b618077343fbbd92b7.ttf",
+    "lib/fonts/4bb6ac751d1c5478ff3a.woff2",
+    "lib/media/874d8b8e340f75575caa.svg",
+    "lib/media/3d6c1bdc4d87cde4de67.svg",
+    "lib/html/file-tree.html",
+    "lib/scripts/webpage.js",
+    "lib/scripts/minisearch.js",
+    "lib/media/favicon.png",
+    "lib/styles/obsidian.css",
+    "lib/styles/other-plugins.css",
+    "lib/styles/global-variable-styles.css",
+    "lib/styles/main-styles.css"
+  ],
+  "mainDependencies": [
+    "lib/fonts/94f2f163d4b698242fef.otf",
+    "lib/fonts/72505e6a122c6acd5471.woff2",
+    "lib/fonts/2d5198822ab091ce4305.woff2",
+    "lib/fonts/c8ba52b05a9ef10f4758.woff2",
+    "lib/fonts/cb10ffd7684cd9836a05.woff2",
+    "lib/fonts/b5f0f109bc88052d4000.woff2",
+    "lib/fonts/cbe0ae49c52c920fd563.woff2",
+    "lib/fonts/535a6cf662596b3bd6a6.woff2",
+    "lib/fonts/70cc7ff27245e82ad414.ttf",
+    "lib/fonts/454577c22304619db035.ttf",
+    "lib/fonts/52ac8f3034507f1d9e53.ttf",
+    "lib/fonts/05b618077343fbbd92b7.ttf",
+    "lib/fonts/4bb6ac751d1c5478ff3a.woff2",
+    "lib/media/874d8b8e340f75575caa.svg",
+    "lib/media/3d6c1bdc4d87cde4de67.svg",
+    "lib/html/file-tree.html",
+    "lib/scripts/webpage.js",
+    "lib/scripts/minisearch.js",
+    "lib/media/favicon.png",
+    "lib/styles/obsidian.css",
+    "lib/styles/other-plugins.css",
+    "lib/styles/global-variable-styles.css",
+    "lib/styles/main-styles.css"
+  ],
+  "fileInfo": {
+    "lib/fonts/94f2f163d4b698242fef.otf": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 66800,
+      "exportedPath": "lib/fonts/94f2f163d4b698242fef.otf",
+      "dependencies": []
+    },
+    "lib/fonts/72505e6a122c6acd5471.woff2": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 104232,
+      "exportedPath": "lib/fonts/72505e6a122c6acd5471.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/2d5198822ab091ce4305.woff2": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 104332,
+      "exportedPath": "lib/fonts/2d5198822ab091ce4305.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/c8ba52b05a9ef10f4758.woff2": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 98868,
+      "exportedPath": "lib/fonts/c8ba52b05a9ef10f4758.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/cb10ffd7684cd9836a05.woff2": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 106876,
+      "exportedPath": "lib/fonts/cb10ffd7684cd9836a05.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/b5f0f109bc88052d4000.woff2": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 105804,
+      "exportedPath": "lib/fonts/b5f0f109bc88052d4000.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/cbe0ae49c52c920fd563.woff2": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 106108,
+      "exportedPath": "lib/fonts/cbe0ae49c52c920fd563.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/535a6cf662596b3bd6a6.woff2": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 111708,
+      "exportedPath": "lib/fonts/535a6cf662596b3bd6a6.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/70cc7ff27245e82ad414.ttf": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 192740,
+      "exportedPath": "lib/fonts/70cc7ff27245e82ad414.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/454577c22304619db035.ttf": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 161376,
+      "exportedPath": "lib/fonts/454577c22304619db035.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/52ac8f3034507f1d9e53.ttf": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 191568,
+      "exportedPath": "lib/fonts/52ac8f3034507f1d9e53.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/05b618077343fbbd92b7.ttf": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 155288,
+      "exportedPath": "lib/fonts/05b618077343fbbd92b7.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/4bb6ac751d1c5478ff3a.woff2": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 7876,
+      "exportedPath": "lib/fonts/4bb6ac751d1c5478ff3a.woff2",
+      "dependencies": []
+    },
+    "lib/media/874d8b8e340f75575caa.svg": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 317,
+      "exportedPath": "lib/media/874d8b8e340f75575caa.svg",
+      "dependencies": []
+    },
+    "lib/html/file-tree.html": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 17879,
+      "exportedPath": "lib/html/file-tree.html",
+      "dependencies": []
+    },
+    "lib/scripts/webpage.js": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 47290,
+      "exportedPath": "lib/scripts/webpage.js",
+      "dependencies": []
+    },
+    "lib/scripts/minisearch.js": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 29422,
+      "exportedPath": "lib/scripts/minisearch.js",
+      "dependencies": []
+    },
+    "lib/media/favicon.png": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 1105,
+      "exportedPath": "lib/media/favicon.png",
+      "dependencies": []
+    },
+    "lib/styles/obsidian.css": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 130183,
+      "exportedPath": "lib/styles/obsidian.css",
+      "dependencies": []
+    },
+    "lib/styles/other-plugins.css": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 54592,
+      "exportedPath": "lib/styles/other-plugins.css",
+      "dependencies": []
+    },
+    "lib/styles/global-variable-styles.css": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 236,
+      "exportedPath": "lib/styles/global-variable-styles.css",
+      "dependencies": []
+    },
+    "lib/styles/main-styles.css": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 23130,
+      "exportedPath": "lib/styles/main-styles.css",
+      "dependencies": []
+    },
+    "Blocks/About Blocks.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 1528,
+      "exportedPath": "blocks/about-blocks.html",
+      "dependencies": []
+    },
+    "Blocks/Asset Blocks.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 356,
+      "exportedPath": "blocks/asset-blocks.html",
+      "dependencies": []
+    },
+    "Blocks/Character Blocks.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 2520,
+      "exportedPath": "blocks/character-blocks.html",
+      "dependencies": [
+        "lib/media/character-sheet.png",
+        "lib/media/special-tracks-example.png"
+      ]
+    },
+    "Blocks/Clock Blocks.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 1086,
+      "exportedPath": "blocks/clock-blocks.html",
+      "dependencies": []
+    },
+    "Blocks/Mechanics Blocks.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 10269,
+      "exportedPath": "blocks/mechanics-blocks.html",
+      "dependencies": [
+        "lib/media/mechanics-raw.png",
+        "lib/media/mechanics-rendered.png"
+      ]
+    },
+    "Blocks/Moves Blocks.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 332,
+      "exportedPath": "blocks/moves-blocks.html",
+      "dependencies": []
+    },
+    "Blocks/Oracles Blocks.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 342,
+      "exportedPath": "blocks/oracles-blocks.html",
+      "dependencies": []
+    },
+    "Blocks/Track Blocks.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 1133,
+      "exportedPath": "blocks/track-blocks.html",
+      "dependencies": []
+    },
+    "Commands/About Commands.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 1207,
+      "exportedPath": "commands/about-commands.html",
+      "dependencies": []
+    },
+    "Commands/Add asset to character.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 323,
+      "exportedPath": "commands/add-asset-to-character.html",
+      "dependencies": []
+    },
+    "Commands/Advance a clock.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 616,
+      "exportedPath": "commands/advance-a-clock.html",
+      "dependencies": []
+    },
+    "Commands/Advance a progress track.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 396,
+      "exportedPath": "commands/advance-a-progress-track.html",
+      "dependencies": []
+    },
+    "Commands/Ask the Oracle.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 457,
+      "exportedPath": "commands/ask-the-oracle.html",
+      "dependencies": []
+    },
+    "Commands/Burn momentum.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 860,
+      "exportedPath": "commands/burn-momentum.html",
+      "dependencies": []
+    },
+    "Commands/Create a clock.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 397,
+      "exportedPath": "commands/create-a-clock.html",
+      "dependencies": []
+    },
+    "Commands/Create a progress track.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 433,
+      "exportedPath": "commands/create-a-progress-track.html",
+      "dependencies": []
+    },
+    "Commands/Create new character.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 303,
+      "exportedPath": "commands/create-new-character.html",
+      "dependencies": [
+        "lib/media/character-sheet.png"
+      ]
+    },
+    "Commands/Generate an entity.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 547,
+      "exportedPath": "commands/generate-an-entity.html",
+      "dependencies": []
+    },
+    "Commands/Make a move.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 624,
+      "exportedPath": "commands/make-a-move.html",
+      "dependencies": []
+    },
+    "Commands/Suffer on a meter.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 578,
+      "exportedPath": "commands/suffer-on-a-meter.html",
+      "dependencies": []
+    },
+    "Commands/Take on a meter.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 580,
+      "exportedPath": "commands/take-on-a-meter.html",
+      "dependencies": []
+    },
+    "Commands/Toggle displaying mechanics.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 131,
+      "exportedPath": "commands/toggle-displaying-mechanics.html",
+      "dependencies": []
+    },
+    "Entities/About Entities.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 686,
+      "exportedPath": "entities/about-entities.html",
+      "dependencies": []
+    },
+    "Entities/Assets.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 2315,
+      "exportedPath": "entities/assets.html",
+      "dependencies": []
+    },
+    "Entities/Characters.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 4136,
+      "exportedPath": "entities/characters.html",
+      "dependencies": [
+        "lib/media/character-sheet.png"
+      ]
+    },
+    "Entities/Clocks.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 1667,
+      "exportedPath": "entities/clocks.html",
+      "dependencies": []
+    },
+    "Entities/Delves.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 295,
+      "exportedPath": "entities/delves.html",
+      "dependencies": []
+    },
+    "Entities/Derelicts.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 301,
+      "exportedPath": "entities/derelicts.html",
+      "dependencies": []
+    },
+    "Entities/Factions.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 299,
+      "exportedPath": "entities/factions.html",
+      "dependencies": []
+    },
+    "Entities/Locations and Settlements.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 921,
+      "exportedPath": "entities/locations-and-settlements.html",
+      "dependencies": []
+    },
+    "Entities/Moves.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 1095,
+      "exportedPath": "entities/moves.html",
+      "dependencies": []
+    },
+    "Entities/NPCs.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 1370,
+      "exportedPath": "entities/npcs.html",
+      "dependencies": []
+    },
+    "Entities/Oracles.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 3208,
+      "exportedPath": "entities/oracles.html",
+      "dependencies": []
+    },
+    "Entities/Progress Tracks.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 3396,
+      "exportedPath": "entities/progress-tracks.html",
+      "dependencies": []
+    },
+    "Entities/Sectors.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 689,
+      "exportedPath": "entities/sectors.html",
+      "dependencies": []
+    },
+    "Entities/Truths.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 304,
+      "exportedPath": "entities/truths.html",
+      "dependencies": []
+    },
+    "Entities/Vaults.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 295,
+      "exportedPath": "entities/vaults.html",
+      "dependencies": []
+    },
+    "Other Features/API.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 330,
+      "exportedPath": "other-features/api.html",
+      "dependencies": []
+    },
+    "Other Features/CSS Tweaks.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 740,
+      "exportedPath": "other-features/css-tweaks.html",
+      "dependencies": []
+    },
+    "Other Features/Rulesets.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 724,
+      "exportedPath": "other-features/rulesets.html",
+      "dependencies": []
+    },
+    "Other Features/Settings.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 2249,
+      "exportedPath": "other-features/settings.html",
+      "dependencies": []
+    },
+    "Other Features/Sidebar.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 2937,
+      "exportedPath": "other-features/sidebar.html",
+      "dependencies": []
+    },
+    "Other Features/Special Links.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 1841,
+      "exportedPath": "other-features/special-links.html",
+      "dependencies": []
+    },
+    "index.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 3287,
+      "exportedPath": "index.html",
+      "dependencies": []
+    },
+    "lib/media/character-sheet.png": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 89743,
+      "exportedPath": "lib/media/character-sheet.png",
+      "dependencies": []
+    },
+    "lib/media/special-tracks-example.png": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 62945,
+      "exportedPath": "lib/media/special-tracks-example.png",
+      "dependencies": []
+    },
+    "lib/media/mechanics-raw.png": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 130685,
+      "exportedPath": "lib/media/mechanics-raw.png",
+      "dependencies": []
+    },
+    "lib/media/mechanics-rendered.png": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 104270,
+      "exportedPath": "lib/media/mechanics-rendered.png",
+      "dependencies": []
+    },
+    "Other Features/Debug Logging.md": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 581,
+      "exportedPath": "other-features/debug-logging.html",
+      "dependencies": []
+    },
+    "lib/media/3d6c1bdc4d87cde4de67.svg": {
+      "modifiedTime": 1717797023042,
+      "sourceSize": 279,
+      "exportedPath": "lib/media/3d6c1bdc4d87cde4de67.svg",
+      "dependencies": []
+    }
+  }
+}
