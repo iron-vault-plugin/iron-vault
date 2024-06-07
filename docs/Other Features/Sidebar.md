@@ -2,17 +2,17 @@ Iron Vault includes a Sidebar that can be opened by clicking on the die icon in 
 
 The Iron Vault Sidebar then has three tabs providing some handy quick-access features:
 
-* [[#Oracles Tab]]
-* [[#Moves Tab]]
+* [[#Oracle Tab]]
+* [[#Move Tab]]
 * [[#Character Tab]]
 
-#### Oracles Tab
+#### Oracle Tab
 
-The Oracles Tab includes a list of all Oracles available in the currently-enabled Rulesets. You can filter this list by typing into its search field, which will narrow down the list to a fuzzy match based on what you're typing (meaning, you don't have to spell everything exactly right, or even write full words in the right order). When using the search field, the Oracles list will also have its _groups_ reordered by top match.
+The Oracle Tab includes a list of all Oracles available in the currently-enabled Rulesets. You can filter this list by typing into its search field, which will narrow down the list to a fuzzy match based on what you're typing (meaning, you don't have to spell everything exactly right, or even write full words in the right order). When using the search field, the Oracles list will also have its _groups_ reordered by top match.
 
 In order to roll an oracle on this tab, you can expand its group if needed, then click on the oracle name, which will invoke the [[Ask the Oracle]] command using that oracle. If you want to pick from the oracle table yourself or just see the table for reference, you can click on the button with the list icon next to the oracle name to open a popup window with the oracle table, and a button for rolling that oracle if you then want to roll it.
 
-Each Oracle group in the Oracles Tab also has a button with a die icon before its list of oracles. When an [[Entities/About|Entity]] for this group is supported, this button will invoke the [[Generate an entity]] command for that Entity.
+Each Oracle group in the Oracle Tab also has a button with a die icon before its list of oracles. When an [[About Entities|Entity]] for this group is supported, this button will invoke the [[Generate an entity]] command for that Entity.
 
 (Coming Soon)
 
@@ -21,9 +21,9 @@ Buttons not associated with an entity will also allow you to roll the group as-i
 (Coming Soon)
 
 This tab will eventually also allow you to manage and roll your [[Oracles#Oracle Arrays|Oracle Arrays]], [[Oracles#Campaign Elements Oracles|Campaign Elements Oracles]], and [[Oracles#Madlib Oracles|Madlib Oracles]].
-#### Moves Tab
+#### Move Tab
 
-The Moves Tab includes a list of all Moves available in the currently-enabled Rulesets. You can filter this list by typing into its search field, which will narrow down the list to a fuzzy match based on what you're typing (meaning, you don't have to spell everything exactly right, or even write full words in the right order). When using the search field, the Moves list will also have its _groups_ reordered by top match.
+The Move Tab includes a list of all Moves available in the currently-enabled Rulesets. You can filter this list by typing into its search field, which will narrow down the list to a fuzzy match based on what you're typing (meaning, you don't have to spell everything exactly right, or even write full words in the right order). When using the search field, the Moves list will also have its _groups_ reordered by top match.
 
 You can click on a Move category to expand it. Once expanded, you can click on any Move in the list to invoke the [[Make a move]] command using that Move.
 #### Character Tab

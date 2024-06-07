@@ -1,7 +1,7 @@
 ---
-name: Destruction of Kresnik
+name: The Doomsday Device Explodes
 segments: 6
-progress: 2
+progress: 5
 tags:
   - incomplete
 iron-vault-kind: clock

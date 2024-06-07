@@ -13,6 +13,7 @@ The first two options will automatically record your oracle results in your acti
 
 You can record the results in your journal using [[Mechanics Blocks#`oracle`|`oracle`]] and [[Mechanics Blocks#`oracle-group`|`oracle-group`]] [[Mechanics Blocks]] nodes, which will be rendered nicely in your journal pages.
 
+![[Mechanics Blocks#`oracle-group`#Example]]
 #### Rolling Entities
 
 You can roll an entire entity at a time using the [[Generate an entity]] command, or by going to the [[Sidebar]] and clicking the die icon on an entity-related oracle category.

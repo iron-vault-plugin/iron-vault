@@ -3,3 +3,5 @@ Makes a Move based on the Moves available in the active [[Rulesets|Rulesets]]. I
 When the Move has been made, the command will add a [[Mechanics Blocks#`move`|`move` mechanics node]] with the Move results into your current journal.
 
 After it's made, you can also choose to invoke the [[Burn momentum]] command.
+
+![[Mechanics Blocks#`move`#Example|iv-embed]]

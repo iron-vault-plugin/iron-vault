@@ -4,8 +4,11 @@ Iron Vault directly supports assets in a number of ways.
 
 #### Asset Cards
 
-Assets in most places in Iron Vault are represented as asset cards. These cards are shown in a number of places, including popup windows and your character sheet. They are only editable in the character sheet itself: otherwise, they will be shown as a read-only example.
+Assets in most places in Iron Vault are represented as asset cards. These cards are shown in a number of places, including popup windows and your character sheet. They are only editable in the character sheet itself; otherwise, they will be shown as a read-only example:
 
+```iron-vault-asset
+Starship
+```
 #### Adding, Removing, and Editing Assets
 
 You can add assets to your character two different ways:
@@ -27,3 +30,9 @@ You can link to an asset's definition card using [[Special Links#`asset `|`asset
 #### Asset Blocks
 
 You can embed an asset's read-only card using [[Asset Blocks]]. These blocks will not be associated with your character's assets and are only for reference of the original asset definition.
+
+#### Custom Assets
+
+(Coming Soon)
+
+In the future, Iron Vault will support custom [[Rulesets]], including individual homebrew assets.

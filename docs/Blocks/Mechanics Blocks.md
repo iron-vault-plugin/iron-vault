@@ -200,10 +200,12 @@ Shows meter changes.
 ##### Example
 ```mechanics
 meter "health" from=3 to=2
+meter "health" from=2 to=4
 ```
 ````kdl
 ```mechanics
 meter "health" from=3 to=2
+meter "health" from=2 to=4
 ```
 ````
 
@@ -247,11 +249,11 @@ Box/tick amounts can be given either as a single `from` argument, or with
 - `steps` (optional, default: 1) - number of times to mark progress.
 ##### Example
 ```mechanics
-progress "My Background Vow" from-boxes=3 from-ticks=2 rank="formidable" steps=2
+progress "I vow to write this documentation" from-boxes=3 from-ticks=2 rank="formidable" steps=2
 ```
 ````kdl
 ```mechanics
-progress "My Background Vow" from-boxes=3 from-ticks=2 rank="formidable" steps=2
+progress "I vow to write this documentation" from-boxes=3 from-ticks=2 rank="formidable" steps=2
 ```
 ````
 

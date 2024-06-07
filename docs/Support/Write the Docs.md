@@ -6,8 +6,8 @@ track-type: Vow
 complete: false
 unbounded: false
 name: I vow to write this documentation
-progress: 28
-rank: dangerous
+progress: 22
+rank: formidable
 ---
 
 ```iron-vault-track

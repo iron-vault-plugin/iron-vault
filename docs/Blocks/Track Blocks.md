@@ -23,7 +23,7 @@ rank: dangerous
 
 Will render a track that looks like this:
 
-![[Write the Docs]]
+![[Write the Docs|iv-embed]]
 
 #### Interacting with the Track Block
 

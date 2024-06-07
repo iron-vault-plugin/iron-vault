@@ -23,7 +23,7 @@ iron-vault-kind: clock
 
 Will render a clock that looks like this:
 
-![[Destruction of Kresnik]]
+![[Doomsday Device|iv-embed]]
 
 #### Interacting with the Clock Block
 
