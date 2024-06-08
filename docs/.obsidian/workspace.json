@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Entities/Progress Tracks.md",
+                "file": "Other Features/Special Links.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Entities/Progress Tracks.md",
+                "file": "Other Features/Special Links.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Entities/Progress Tracks.md",
+                "file": "Other Features/Special Links.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Entities/Progress Tracks.md"
+                "file": "Other Features/Special Links.md"
               }
             }
           },
@@ -158,10 +158,13 @@
   },
   "active": "38fe42f3d36bd61d",
   "lastOpenFiles": [
+    "Other Features/Special Links.md",
+    "Support/img/gunslinger-link.png",
+    "Support/img/background-assets-link.png",
+    "Support/img/face-danger-link.png",
     "Entities/Progress Tracks.md",
     "Entities/Assets.md",
     "index.md",
-    "Other Features/Special Links.md",
     "Other Features/Sidebar.md",
     "Other Features/Settings.md",
     "Other Features/Rulesets.md",
@@ -183,7 +186,6 @@
     "Commands/Create new character.md",
     "Commands/Create a progress track.md",
     "Commands/Create a clock.md",
-    "Commands/Burn momentum.md",
     "Support/img/special-tracks-example.png",
     "Support/img/character-sheet.png",
     "Support/img/mechanics-rendered.png",
