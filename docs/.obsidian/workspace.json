@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Entities/Assets.md",
+                "file": "Entities/Progress Tracks.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Entities/Assets.md",
+                "file": "Entities/Progress Tracks.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Entities/Assets.md",
+                "file": "Entities/Progress Tracks.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Entities/Assets.md"
+                "file": "Entities/Progress Tracks.md"
               }
             }
           },
@@ -158,6 +158,7 @@
   },
   "active": "38fe42f3d36bd61d",
   "lastOpenFiles": [
+    "Entities/Progress Tracks.md",
     "Entities/Assets.md",
     "index.md",
     "Other Features/Special Links.md",
@@ -168,7 +169,6 @@
     "Other Features/API.md",
     "Entities/Vaults.md",
     "Entities/Truths.md",
-    "Entities/Progress Tracks.md",
     "Entities/Oracles.md",
     "Entities/Moves.md",
     "Entities/Locations and Settlements.md",

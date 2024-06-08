@@ -12,6 +12,7 @@
     padding: 0;
     margin: 0;
   }
+  /* NB(@zkat): Fix some obnoxious Obsidian styles */
   & ul > li {
     margin-inline-start: 0;
   }

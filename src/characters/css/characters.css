@@ -22,6 +22,10 @@
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
+  /* NB(@zkat): Fix some obnoxious Obsidian styles */
+  & ul > li, & ol > li {
+    margin-inline-start: 0;
+  }
   > * {
     width: 100%;
     padding: 1em 0;

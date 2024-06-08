@@ -19,7 +19,7 @@ Gunslinger
 Reglar link to [[Example Vow|the vow I swor3e]].
 ![[Test Clock]]
 
-![[Example Vow]]
+![[Example Vow|iv-embed]]
 ```mechanics
 move id="starforged/moves/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"

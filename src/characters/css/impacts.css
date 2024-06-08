@@ -1,5 +1,9 @@
 .iron-vault-character .impact-categories {
   flex-flow: row wrap;
+  /* NB(@zkat): Fix some obnoxious Obsidian styles */
+  & ul > li, & ol > li {
+    margin-inline-start: 0;
+  }
   &,
   & ul {
     padding-inline-start: 0;

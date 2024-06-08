@@ -2,6 +2,6 @@
   list-style: none;
   display: flex;
   flex-flow: column nowrap;
-  justify-contents: center;
+  justify-content: center;
   width: 100%;
 }
