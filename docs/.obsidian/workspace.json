@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "index.md",
+                "file": "Entities/Assets.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "index.md",
+                "file": "Entities/Assets.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "index.md",
+                "file": "Entities/Assets.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "index.md"
+                "file": "Entities/Assets.md"
               }
             }
           },
@@ -152,12 +152,14 @@
       "daily-notes:Open today's daily note": false,
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
-      "iron-vault:Iron Vault": false,
-      "webpage-html-export:Export Vault to HTML": false
+      "webpage-html-export:Export Vault to HTML": false,
+      "iron-vault:Iron Vault": false
     }
   },
   "active": "38fe42f3d36bd61d",
   "lastOpenFiles": [
+    "Entities/Assets.md",
+    "index.md",
     "Other Features/Special Links.md",
     "Other Features/Sidebar.md",
     "Other Features/Settings.md",
@@ -174,7 +176,6 @@
     "Entities/Derelicts.md",
     "Entities/Clocks.md",
     "Entities/Characters.md",
-    "Entities/Assets.md",
     "Entities/About Entities.md",
     "Commands/Take on a meter.md",
     "Commands/Suffer on a meter.md",
@@ -183,7 +184,6 @@
     "Commands/Create a progress track.md",
     "Commands/Create a clock.md",
     "Commands/Burn momentum.md",
-    "Commands/Ask the Oracle.md",
     "Support/img/special-tracks-example.png",
     "Support/img/character-sheet.png",
     "Support/img/mechanics-rendered.png",

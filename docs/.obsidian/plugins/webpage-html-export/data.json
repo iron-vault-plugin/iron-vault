@@ -1,6 +1,6 @@
 {
   "settingsVersion": "1.8.01",
-  "makeOfflineCompatible": true,
+  "makeOfflineCompatible": false,
   "inlineAssets": false,
   "includePluginCSS": "iron-vault",
   "includeSvelteCSS": false,
