@@ -154,6 +154,17 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .onChange((value) => this.updateSetting("hideMechanics", value)),
       );
 
+    new Setting(containerEl)
+      .setName("Inline tracks and clocks on creation")
+      .setDesc(
+        "If enabled, new tracks and clocks will be automatically inlined in the journal when created.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.inlineOnCreation)
+          .onChange((value) => this.updateSetting("inlineOnCreation", value)),
+      );
+
     new Setting(containerEl).setName("Dice rolling").setHeading();
 
     new Setting(containerEl)

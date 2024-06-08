@@ -1,6 +1,7 @@
 import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
 import {
+  createDetailsNode,
   createProgressNode,
   createTrackCreationNode,
 } from "mechanics/node-builders";
@@ -84,5 +85,8 @@ export async function createProgressTrack(
   appendNodesToMoveOrMechanicsBlock(
     editor,
     createTrackCreationNode(trackInput.name, file.path),
+    ...(plugin.settings.inlineOnCreation
+      ? [createDetailsNode(`![[${file.path}|iv-embed]]`)]
+      : []),
   );
 }

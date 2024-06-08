@@ -160,3 +160,9 @@ export function createOracleGroup(
     ),
   });
 }
+
+export function createDetailsNode(details: string): kdl.Node {
+  return node("-", {
+    values: [details],
+  });
+}
