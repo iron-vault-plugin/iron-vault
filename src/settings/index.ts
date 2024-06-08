@@ -26,6 +26,9 @@ export class IronVaultPluginSettings {
 
   /** Completely hide all mechanics */
   hideMechanics: boolean = false;
+
+  /** Automatically inline clocks and tracks in journal on creation. */
+  inlineOnCreation: boolean = false;
   emitter: Emittery;
 
   constructor() {

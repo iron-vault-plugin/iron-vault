@@ -3,6 +3,7 @@ import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
 import {
   createClockCreationNode,
   createClockNode,
+  createDetailsNode,
 } from "mechanics/node-builders";
 import { App, Editor, MarkdownView } from "obsidian";
 import { IronVaultPluginSettings } from "settings";
@@ -93,5 +94,8 @@ export async function createClock(
   appendNodesToMoveOrMechanicsBlock(
     editor,
     createClockCreationNode(clockInput.name, file.path),
+    ...(plugin.settings.inlineOnCreation
+      ? [createDetailsNode(`![[${file.path}|iv-embed]]`)]
+      : []),
   );
 }
