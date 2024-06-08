@@ -58,8 +58,9 @@ You can start reading about the various Iron Vault features here:
 
 For now, the easiest way to install is via
 [BRAT](https://tfthacker.com/brat-plugins). You should be able to add this
-repo to BRAT, and it will install the latest release of this plugin. You can
-also install it manually by downloading the latest files from [Github
+repo to BRAT, and it will install the latest release of this plugin
+
+You can also install it manually by downloading the latest files from [Github
 Release](https://github.com/cwegrzyn/iron-vault/releases/latest). You'll want
 to put `main.js`, `manifest.json`, and `styles.css` in
 `your-vault/.obsidian/plugins/iron-vault`.
@@ -71,8 +72,8 @@ copy these to the location above.
 You should then be able to enable the plugin in your vault (after
 restarting/reloading Obsidian).
 
-## Development
+## Contributing
 
-To play around, you can run `pnpm dev`, which watches for code changes, compiles,
-and then deploys into the test vault. You can open up the test-vault in obsidian
-and, with the hot-reload plugin enabled, new updates will be loaded automatically.
+Iron Vault is a community project built by players, for players, and we
+welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for
+details.

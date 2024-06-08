@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Other Features/Special Links.md",
+                "file": "index.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Other Features/Special Links.md",
+                "file": "index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Other Features/Special Links.md",
+                "file": "index.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Other Features/Special Links.md"
+                "file": "index.md"
               }
             }
           },
@@ -158,13 +158,13 @@
   },
   "active": "38fe42f3d36bd61d",
   "lastOpenFiles": [
+    "index.md",
     "Other Features/Special Links.md",
     "Support/img/gunslinger-link.png",
     "Support/img/background-assets-link.png",
     "Support/img/face-danger-link.png",
     "Entities/Progress Tracks.md",
     "Entities/Assets.md",
-    "index.md",
     "Other Features/Sidebar.md",
     "Other Features/Settings.md",
     "Other Features/Rulesets.md",
