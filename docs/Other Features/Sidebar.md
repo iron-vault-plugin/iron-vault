@@ -1,4 +1,4 @@
-Iron Vault includes a Sidebar that can be opened by clicking on the die icon in the [Obsidian Ribbon](https://help.obsidian.md/User+interface/Ribbon). Launching the sidebar will make it available on the [right-hand Obsidian Sidebar](https://help.obsidian.md/User+interface/Sidebar). On mobile, you can then access it simply by swiping left as-needed.
+Iron Vault includes a Sidebar that can be opened by invoking the [[Show sidebar]] command, or clicking on the die icon in the [Obsidian Ribbon](https://help.obsidian.md/User+interface/Ribbon) and selecting the [[Show sidebar]] command from the list. Launching the sidebar will make it available on the [right-hand Obsidian Sidebar](https://help.obsidian.md/User+interface/Sidebar). On mobile, you can then access it simply by swiping left as-needed.
 
 The Iron Vault Sidebar then has three tabs providing some handy quick-access features:
 
