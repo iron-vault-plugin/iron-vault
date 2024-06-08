@@ -98,6 +98,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
         ]),
       ) as Record<keyof T, RollWrapper[]>,
     };
+    console.log("init results: %o", this.results);
   }
 
   onOpen(): void {

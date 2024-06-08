@@ -1,6 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
 import { Datastore } from "datastore";
-import { rootLogger } from "logger";
 import { MarkdownRenderChild, MarkdownRenderer, type App } from "obsidian";
 import IronVaultPlugin from "../index";
 import {
@@ -20,8 +19,6 @@ import {
   formatRollResult,
   lookupOutcome,
 } from "./wrapper";
-
-const logger = rootLogger.child({ module: "moves/block" });
 
 export function registerMoveBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor("move", async (source, el, ctx) => {
@@ -71,7 +68,7 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
       (move) => move.name === doc.name,
     );
     if (moves.length != 1) {
-      logger.warn(
+      console.warn(
         "Expected only one move named %s, found %d: %o",
         doc.name,
         moves.length,

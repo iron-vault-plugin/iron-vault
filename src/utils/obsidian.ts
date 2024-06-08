@@ -1,4 +1,3 @@
-import { rootLogger } from "logger";
 import {
   App,
   TFile,
@@ -8,8 +7,6 @@ import {
   type Plugin,
 } from "obsidian";
 import { IronVaultKind, PLUGIN_KIND_FIELD } from "../constants";
-
-const logger = rootLogger.child({ module: "utils" });
 
 export function pluginAsset(plug: Plugin, assetPath: string): string {
   return normalizePath(
@@ -96,6 +93,7 @@ export async function createNewIronVaultEntityFile(
 ): Promise<TFile> {
   const targetFolder = await getExistingOrNewFolder(app, targetFolderPath);
 
+  console.log("Creating in folder: %o", targetFolder);
   const file = await app.fileManager.createNewMarkdownFile(
     targetFolder,
     fileName,
@@ -126,7 +124,7 @@ export async function createNewIronVaultEntityFile(
     );
   } else if (templateFile) {
     if (enableTemplaterPlugin && !shouldSetFocus) {
-      logger.warn(
+      console.log(
         "Can only use templater plugin when setting focus. Falling back on ordinary template mode...",
       );
     }

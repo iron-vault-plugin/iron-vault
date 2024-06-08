@@ -1,7 +1,3 @@
-import { rootLogger } from "logger";
-
-const logger = rootLogger.child({ module: "data-indexer" });
-
 export enum SourceTag {
   RulesetId = "ruleset-id",
   ExpansionId = "expansion-id",
@@ -323,7 +319,7 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
         this.dataMap.set(id, entries);
       }
     } catch (err) {
-      logger.warn(
+      console.warn(
         "caught error while indexing path %s. removing from index...",
         path,
       );

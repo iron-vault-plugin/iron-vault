@@ -1,5 +1,4 @@
 import { type Datasworn } from "@datasworn/core";
-import { rootLogger } from "logger";
 import { NoSuchOracleError } from "../../../model/errors";
 import {
   Oracle,
@@ -10,8 +9,6 @@ import {
 } from "../../../model/oracle";
 import { Roll, RollResultKind, Subroll, sameRoll } from "../../../model/rolls";
 import { Dice } from "../../../utils/dice";
-
-const logger = rootLogger.child({ module: "datasworn/oracles" });
 
 function asOracleRow(rawRow: Datasworn.OracleTableRow): OracleRow {
   return Object.freeze({
@@ -108,16 +105,16 @@ export class DataswornOracle implements Oracle {
       for (const subOracle of row.oracle_rolls) {
         const subOracleId = subOracle.oracle ?? this.id;
         if (subOracleId in subrolls) {
-          logger.warn(
-            "[table: %s] already generated subrolls for %s. skipping...",
+          console.warn(
+            "[oracles] [table: %s] already generated subrolls for %s. skipping...",
             this.id,
             subOracleId,
           );
           throw new Error("unexpected duplicate subroll");
         }
         if (!subOracle.auto) {
-          logger.warn(
-            "[table: %s] ignoring auto=false oracle_rolls entry %s",
+          console.warn(
+            "[oracles] [table: %s] ignoring auto=false oracle_rolls entry %s",
             this.id,
             subOracle.oracle,
           );
@@ -127,8 +124,8 @@ export class DataswornOracle implements Oracle {
           if (kind == null) {
             kind = RollResultKind.Multi;
           } else {
-            logger.warn(
-              "[table: %s] table has both template and self rolls",
+            console.warn(
+              "[oracles] [table: %s] table has both template and self rolls",
               this.id,
               subOracleId,
             );
@@ -149,8 +146,8 @@ export class DataswornOracle implements Oracle {
         let iterations = 0;
         while (results.length < subOracle.number_of_rolls) {
           if (iterations++ >= 10) {
-            logger.warn(
-              "[table: %s] too many iterations for subroll %s",
+            console.warn(
+              "[oracles] [table: %s] too many iterations for subroll %s",
               this.id,
               subOracle.oracle,
             );
@@ -162,14 +159,14 @@ export class DataswornOracle implements Oracle {
               if (
                 results.find((otherRoll) => sameRoll(roll, otherRoll)) != null
               ) {
-                logger.warn("duplicate roll skipped", results, roll);
+                console.log("duplicate roll skipped", results, roll);
               } else {
                 results.push(roll);
               }
               break;
             case "make_it_worse":
-              logger.warn(
-                "[table: %s] found `make_it_worse` in subroll %s",
+              console.warn(
+                "[oracles] [table: %s] found `make_it_worse` in subroll %s",
                 this.id,
                 subOracle.oracle,
               );

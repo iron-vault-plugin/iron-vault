@@ -232,11 +232,13 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     _evt: MouseEvent | KeyboardEvent,
   ): void {
     console.assert(this.resolved, "expected to already have been resolved");
+    // console.log(item);
     this.onSelect(item.item);
   }
 
   onClose(): void {
     super.onClose();
+    // console.log("closed");
     if (!this.resolved) {
       this.onCancel();
     }

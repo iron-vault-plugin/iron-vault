@@ -2,7 +2,6 @@ import { ViewPlugin, ViewUpdate } from "@codemirror/view";
 import registerCharacterBlock from "characters/character-block";
 import registerClockBlock from "clocks/clock-block";
 import { IndexManager } from "indexer/manager";
-import { loadLogLevel } from "logger";
 import installMoveLinkHandler from "moves/link-override";
 import { MoveModal } from "moves/move-modal";
 import { Plugin } from "obsidian";
@@ -63,7 +62,6 @@ export default class IronVaultPlugin extends Plugin {
   }
 
   async onload(): Promise<void> {
-    loadLogLevel();
     await this.loadSettings();
 
     this.datastore = this.addChild(new Datastore(this));

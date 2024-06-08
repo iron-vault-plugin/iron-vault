@@ -21,6 +21,10 @@ export async function advanceProgressTrack(
   view: MarkdownView,
   progressContext: ProgressContext,
 ) {
+  // if (!datastore.ready) {
+  //   console.warn("data not ready");
+  //   return;
+  // }
   const trackContext = await selectProgressTrack(
     progressContext,
     app,
