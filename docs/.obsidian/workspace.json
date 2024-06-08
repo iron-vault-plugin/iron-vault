@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blocks/Mechanics Blocks.md",
+                "file": "Other Features/Ribbon Button.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blocks/Mechanics Blocks.md",
+                "file": "Other Features/Ribbon Button.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blocks/Mechanics Blocks.md",
+                "file": "Other Features/Ribbon Button.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Blocks/Mechanics Blocks.md"
+                "file": "Other Features/Ribbon Button.md"
               }
             }
           },
@@ -154,26 +154,22 @@
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
       "webpage-html-export:Export Vault to HTML": false,
-      "iron-vault:Iron Vault": false
+      "iron-vault:Show Iron Vault commands": false
     }
   },
   "active": "38fe42f3d36bd61d",
   "lastOpenFiles": [
-    "Blocks/Mechanics Blocks.md",
     "index.md",
     "Other Features/Special Links.md",
-    "Support/img/gunslinger-link.png",
-    "Support/img/background-assets-link.png",
-    "Support/img/face-danger-link.png",
-    "Entities/Progress Tracks.md",
-    "Entities/Assets.md",
     "Other Features/Sidebar.md",
     "Other Features/Settings.md",
     "Other Features/Rulesets.md",
+    "Other Features/Ribbon Button.md",
     "Other Features/CSS Tweaks.md",
     "Other Features/API.md",
     "Entities/Vaults.md",
     "Entities/Truths.md",
+    "Entities/Progress Tracks.md",
     "Entities/Oracles.md",
     "Entities/Moves.md",
     "Entities/Locations and Settlements.md",
@@ -181,13 +177,17 @@
     "Entities/Derelicts.md",
     "Entities/Clocks.md",
     "Entities/Characters.md",
+    "Entities/Assets.md",
     "Entities/About Entities.md",
     "Commands/Take on a meter.md",
     "Commands/Suffer on a meter.md",
+    "Commands/Show sidebar.md",
     "Commands/Make a move.md",
     "Commands/Create new character.md",
     "Commands/Create a progress track.md",
-    "Commands/Create a clock.md",
+    "Support/img/gunslinger-link.png",
+    "Support/img/background-assets-link.png",
+    "Support/img/face-danger-link.png",
     "Support/img/special-tracks-example.png",
     "Support/img/character-sheet.png",
     "Support/img/mechanics-rendered.png",

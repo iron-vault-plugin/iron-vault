@@ -59,3 +59,9 @@ LICENSE](https://github.com/rsek/dataforged/blob/main/LICENSE.md).
 
 Secret book icon by [Delapouite](https://delapouite.com/), [CC BY
 3.0](http://creativecommons.org/licenses/by/3.0/)
+
+## BRAT code
+
+The GenericFuzzySuggester was copied from the [BRAT
+project](https://github.com/TfTHacker/obsidian42-brat/blob/60c83d083ed8e65943f52a9cd061a1fb47c8e5b0/src/ui/GenericFuzzySuggester.ts).
+It is MIT licensed and Copyright (c) 2023 TfTHacker.

@@ -1,0 +1,1 @@
+This command opens and focuses the Iron Vault [[Sidebar]].

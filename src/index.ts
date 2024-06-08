@@ -1,21 +1,11 @@
 import { ViewPlugin, ViewUpdate } from "@codemirror/view";
-import { determineCharacterActionContext } from "characters/action-context";
 import registerCharacterBlock from "characters/character-block";
-import { addAssetToCharacter, createNewCharacter } from "characters/commands";
 import registerClockBlock from "clocks/clock-block";
-import { advanceClock, createClock } from "clocks/commands";
-import { generateEntityCommand } from "entity/command";
 import { IndexManager } from "indexer/manager";
 import { loadLogLevel } from "logger";
-import { runMoveCommand } from "moves/action";
 import installMoveLinkHandler from "moves/link-override";
 import { MoveModal } from "moves/move-modal";
-import {
-  Plugin,
-  type Editor,
-  type MarkdownFileInfo,
-  type MarkdownView,
-} from "obsidian";
+import { Plugin } from "obsidian";
 import installOracleLinkHandler from "oracles/link-override";
 import { OracleModal } from "oracles/oracle-modal";
 import { IronVaultPluginSettings } from "settings";
@@ -23,22 +13,19 @@ import registerSidebarBlocks from "sidebar/sidebar-block";
 import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
 import registerAssetBlock from "tracks/asset-block";
 import { AssetModal } from "tracks/asset-modal";
-import { ProgressContext } from "tracks/context";
 import { ProgressIndex, ProgressIndexer } from "tracks/indexer";
 import installAssetLinkHandler from "tracks/link-override";
 import registerTrackBlock from "tracks/track-block";
 import { IronVaultAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
-import * as meterCommands from "./characters/meter-commands";
 import { ClockIndex, ClockIndexer } from "./clocks/clock-file";
 import { Datastore } from "./datastore";
 import registerMechanicsBlock from "./mechanics/mechanics-blocks";
 import { registerMoveBlock } from "./moves/block";
-import { runOracleCommand } from "./oracles/command";
 import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
-import { advanceProgressTrack, createProgressTrack } from "./tracks/commands";
 import { pluginAsset } from "./utils/obsidian";
+import { IronVaultCommands } from "commands";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -51,6 +38,7 @@ export default class IronVaultPlugin extends Plugin {
   clockIndexer!: ClockIndexer;
   indexManager!: IndexManager;
   api!: IronVaultAPI;
+  commands!: IronVaultCommands;
 
   private async initialize(): Promise<void> {
     await this.datastore.initialize();
@@ -102,158 +90,14 @@ export default class IronVaultPlugin extends Plugin {
     this.installIdLinkHandler(this);
 
     this.registerView(VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
-    this.addRibbonIcon("dice", "Iron Vault", () => {
-      return this.activateView();
-    });
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
     // const statusBarItemEl = this.addStatusBarItem();
     // statusBarItemEl.setText("Status Bar Text");
 
-    this.addCommand({
-      id: "make-a-move",
-      name: "Make a move",
-      icon: "zap",
-      editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
-        // TODO: what if view is just a fileinfo?
-        runMoveCommand(this, editor, view as MarkdownView),
-    });
-
-    this.addCommand({
-      id: "ask-the-oracle",
-      name: "Ask the Oracle",
-      icon: "message-circle-question",
-      editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
-        runOracleCommand(this, editor, view as MarkdownView),
-    });
-
-    this.addCommand({
-      id: "burn-momentum",
-      name: "Burn momentum",
-      icon: "flame",
-      editorCallback: (editor: Editor) =>
-        meterCommands.burnMomentum(this, editor),
-    });
-
-    /*
-     * PROGRESS TRACKS
-     */
-
-    this.addCommand({
-      id: "progress-create",
-      name: "Progress: Create a progress track",
-      icon: "square-pen",
-      editorCallback: (editor) => createProgressTrack(this, editor),
-    });
-
-    this.addCommand({
-      id: "progress-advance",
-      name: "Progress: Advance a progress track",
-      icon: "chevrons-right",
-      editorCallback: async (editor, ctx) => {
-        const actionContext = await determineCharacterActionContext(this);
-        if (!actionContext) return;
-        await advanceProgressTrack(
-          this.app,
-          this.settings,
-          editor,
-          ctx as MarkdownView,
-          new ProgressContext(this, actionContext),
-        );
-      },
-    });
-
-    /*
-     * CLOCKS
-     */
-
-    this.addCommand({
-      id: "clock-create",
-      name: "Clock: Create a clock",
-      icon: "alarm-clock",
-      editorCallback: (editor) => createClock(this, editor),
-    });
-
-    this.addCommand({
-      id: "clock-advance",
-      name: "Clock: Advance a clock",
-      icon: "alarm-clock-plus",
-      editorCallback: (editor, ctx) =>
-        advanceClock(
-          this.app,
-          this.settings,
-          editor,
-          ctx as MarkdownView,
-          this.clockIndex,
-        ),
-    });
-
-    this.addCommand({
-      id: "entity-gen",
-      name: "Generate an entity",
-      icon: "package-plus",
-      editorCallback: async (editor, ctx) => {
-        await generateEntityCommand(this, editor, ctx);
-      },
-    });
-
-    this.addCommand({
-      id: "character-add-asset",
-      name: "Add asset to character",
-      icon: "gem",
-      editorCallback: async (editor, ctx) => {
-        await addAssetToCharacter(this, editor, ctx as MarkdownView);
-      },
-    });
-
-    this.addCommand({
-      id: "take-meter",
-      name: "Take on a meter",
-      icon: "trending-up",
-      editorCallback: async (editor: Editor) =>
-        meterCommands.modifyMeterCommand(
-          this,
-          editor,
-          "take",
-          ({ value, definition: { max } }) =>
-            value === undefined || value < max,
-          (measure) =>
-            Array(measure.definition.max - measure.value)
-              .fill(0)
-              .map((_, i) => i + 1),
-        ),
-    });
-
-    this.addCommand({
-      id: "suffer-meter",
-      name: "Suffer on a meter",
-      icon: "trending-down",
-      editorCallback: async (editor: Editor) =>
-        meterCommands.modifyMeterCommand(
-          this,
-          editor,
-          "suffer",
-          ({ value, definition: { min } }) =>
-            value === undefined || value > min,
-          (measure) =>
-            Array(measure.value - measure.definition.min)
-              .fill(0)
-              .map((_, i) => -1 * (i + 1)),
-        ),
-    });
-
-    this.addCommand({
-      id: "toggle-mechanics",
-      name: "Toggle displaying mechanics",
-      icon: "eye-off",
-      editorCallback: async (_editor: Editor) => {
-        this.settings.hideMechanics = !this.settings.hideMechanics;
-      },
-    });
-
-    this.addCommand({
-      id: "character-create",
-      name: "Create new character",
-      callback: () => createNewCharacter(this),
+    this.commands = new IronVaultCommands(this);
+    this.commands.addCommands();
+    this.addRibbonIcon("dice", "Show Iron Vault commands", () => {
+      this.commands.showCommandPicker();
     });
 
     // This adds a settings tab so the user can configure various aspects of the plugin

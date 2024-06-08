@@ -1,0 +1,1 @@
+Iron Vault installs a button in the [Obsidian Ribbon](https://help.obsidian.md/User+interface/Ribbon) with a "die" icon. Clicking on this button calls the [[Show all commands]] command, letting you pick from a filtered list of all Iron Vault commands.
