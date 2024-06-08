@@ -220,11 +220,21 @@ Burn momentum. Note that for "normal" momentum changes, you should use [`meter`]
 
 ##### Example
 ```mechanics
-burn from=3 to=2
+move "Face Danger" {
+    roll action=4 stat=2 adds=0 vs1=8 vs2=9
+    - "ouch"
+    burn from=9 to=2
+    - "that's better..."
+}
 ```
 ````kdl
 ```mechanics
-burn from=3 to=2
+move "Face Danger" {
+    roll action=4 stat=2 adds=0 vs1=8 vs2=9
+    - "ouch"
+    burn from=9 to=2
+	- "that's better..."
+}
 ```
 ````
 
