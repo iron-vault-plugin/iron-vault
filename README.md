@@ -22,30 +22,30 @@ You can start reading about the various Iron Vault features here:
 * [Blocks](https://cwegrzyn.github.io/iron-vault/blocks/about-blocks.html) -
   Special blocks used throughout the tool to render things nicely and give you
   handy interactive widgets for editing game data.
-* [Commands](https://cwegrzyn.github.io/iron-vault/commands/about-commands.html)
-  - Various Obsidian commands, all of which can be bound to hotkeys or the
+* [Commands](https://cwegrzyn.github.io/iron-vault/commands/about-commands.html) -
+  Various Obsidian commands, all of which can be bound to hotkeys or the
   quick access bar, for performing all sorts of game actions, like making
   moves, creating progress tracks, etc.
-* [Entities](https://cwegrzyn.github.io/iron-vault/entities/about-entities.html)
-  - How Iron Vault represents all sorts of different game concepts, or some
+* [Entities](https://cwegrzyn.github.io/iron-vault/entities/about-entities.html) -
+  How Iron Vault represents all sorts of different game concepts, or some
   ways that you might choose to represent them yourself.
-* [Sidebar](https://cwegrzyn.github.io/iron-vault/other-features/sidebar.html)
-  - A handy right-panel sidebar for quick access to Moves, Oracles, and your
+* [Sidebar](https://cwegrzyn.github.io/iron-vault/other-features/sidebar.html) -
+  A handy right-panel sidebar for quick access to Moves, Oracles, and your
   Character Sheet, all in one, easy-access place. Particularly useful on
   mobile.
 * [Special
-  Links](https://cwegrzyn.github.io/iron-vault/other-features/special-links.html)
-  - There are `oracle:`, `move:`, `asset:` and `id:` links that, instead of
+  Links](https://cwegrzyn.github.io/iron-vault/other-features/special-links.html) -
+  There are `oracle:`, `move:`, `asset:` and `id:` links that, instead of
   trying to open a web page, will instead open a modal window with the
   contents of the thing you're trying to link to. For example, `[My
   Oracle](oracle:MyOracleName)` will pop up a window with the description and
   roll table for "My Oracle".
 * [CSS
-  Tweaks](https://cwegrzyn.github.io/iron-vault/other-features/css-tweaks.html)
-  - Styling tweaks to make some things look nicer or more customized, such as
+  Tweaks](https://cwegrzyn.github.io/iron-vault/other-features/css-tweaks.html) -
+  Styling tweaks to make some things look nicer or more customized, such as
   the `iron-vault-embed` option for inlining embeds.
-* [Settings](https://cwegrzyn.github.io/iron-vault/other-features/settings.html)
-  - Various configurations available to tweak your Iron Vault experience.
+* [Settings](https://cwegrzyn.github.io/iron-vault/other-features/settings.html) -
+  Various configurations available to tweak your Iron Vault experience.
 * [API](https://cwegrzyn.github.io/iron-vault/other-features/api.html) -
   (Coming Soon) Are you a developer? We expose the plugin for easy access, for
   folks who want to do fancier things with Iron Vault features.
