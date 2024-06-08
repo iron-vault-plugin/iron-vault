@@ -80,11 +80,12 @@ export class Datastore extends Component implements IDataContext {
     // }
 
     this._ready = true;
-    console.log(
-      "iron-vault: init complete. loaded: %d oracles, %d moves, %d assets",
-      this.moves.size,
+    console.info(
+      "iron-vault: init complete. loaded: %d oracles, %d moves, %d assets, %d truths",
       this.oracles.size,
+      this.moves.size,
       this.assets.size,
+      this.truths.size,
     );
     this.#readyNow();
   }
@@ -241,6 +242,15 @@ export class Datastore extends Component implements IDataContext {
     this.assertReady();
     return this.indexer.projected((value) =>
       isOfKind<DataswornTypes, "asset">(value, "asset")
+        ? getHighestPriority(value)?.value
+        : undefined,
+    );
+  }
+
+  get truths(): StandardIndex<Datasworn.Truth> {
+    this.assertReady();
+    return this.indexer.projected((value) =>
+      isOfKind<DataswornTypes, "truth">(value, "truth")
         ? getHighestPriority(value)?.value
         : undefined,
     );

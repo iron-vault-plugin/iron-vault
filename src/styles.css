@@ -5,6 +5,7 @@
 @import url("tracks/css/modal.css");
 @import url("clocks/css/clocks.css");
 @import url("characters/css/characters.css");
+@import url("truths/css/truths.css");
 
 .theme-light {
   --color-code: 0, 0, 0;
