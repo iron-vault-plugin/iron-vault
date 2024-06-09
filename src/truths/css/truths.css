@@ -10,8 +10,8 @@
   & select {
     min-width: 0;
   }
-  & button {
-    max-width: 3em;
+  & > button:first-child {
+    grid-column: 1 / span 2;
   }
   & > section {
     grid-column: 1 / span 2;

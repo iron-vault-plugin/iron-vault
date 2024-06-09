@@ -1,7 +1,7 @@
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { ref } from "lit-html/directives/ref.js";
-import { EventRef, MarkdownRenderChild, setIcon } from "obsidian";
+import { EditorRange, EventRef, MarkdownRenderChild, setIcon } from "obsidian";
 import {
   OracleTableRowText,
   Truth,
@@ -18,11 +18,16 @@ export default function registerTruthBlock(plugin: IronVaultPlugin): void {
     async (source: string, el: TruthContainerEl, ctx) => {
       await plugin.datastore.waitForReady;
       if (!el.truthRenderer) {
+        const pos = ctx.getSectionInfo(el) || undefined;
         el.truthRenderer = new TruthRenderer(
           el,
           ctx.sourcePath,
           plugin,
           source,
+          pos && {
+            from: { ch: 0, line: pos.lineStart },
+            to: { ch: 0, line: pos.lineEnd },
+          },
         );
       }
       el.truthRenderer.render();
@@ -38,6 +43,7 @@ class TruthRenderer extends MarkdownRenderChild {
   sourcePath: string;
   plugin: IronVaultPlugin;
   source: string;
+  editorRange?: EditorRange;
   fileWatcher?: EventRef;
   selectedOption?: TruthOption;
   selectedOptionSubIndex?: number;
@@ -47,16 +53,31 @@ class TruthRenderer extends MarkdownRenderChild {
     sourcePath: string,
     plugin: IronVaultPlugin,
     source: string,
+    editorRange?: EditorRange,
   ) {
     super(containerEl);
     this.sourcePath = sourcePath;
     this.plugin = plugin;
-    this.source = source.trim().toLowerCase();
+    this.source = source;
+    this.editorRange = editorRange;
   }
 
   render() {
+    const [firstLine, inserted] = this.source.split("\n").filter((x) => x);
+    if (inserted && inserted.trim().toLowerCase() === "inserted") {
+      render(
+        html`<article class="iron-vault-truth">
+          <button type="button" @click=${() => this.reset()}>
+            Reset Truth Picker
+          </button>
+        </article>`,
+        this.containerEl,
+      );
+      return;
+    }
+    const truthName = firstLine.trim().toLowerCase();
     const truth = [...this.plugin.datastore.truths.values()].find((truth) => {
-      return truth.name.toLowerCase() === this.source;
+      return truth.name.toLowerCase() === truthName;
     });
     if (!truth) {
       render(
@@ -148,6 +169,7 @@ class TruthRenderer extends MarkdownRenderChild {
           ${this.selectedOption
             ? html`<button
                 type="button"
+                @click=${() => this.appendTruth()}
                 ?disabled=${this.selectedOption.table &&
                 this.selectedOptionSubIndex == null}
                 ${ref(
@@ -159,6 +181,56 @@ class TruthRenderer extends MarkdownRenderChild {
       </article>
     `;
     render(tpl, this.containerEl);
+  }
+
+  appendTruth() {
+    const editor = this.plugin.app.workspace.activeEditor?.editor;
+    if (
+      !editor ||
+      !this.editorRange ||
+      !this.selectedOption ||
+      (this.selectedOption.table &&
+        !(
+          this.selectedOptionSubIndex != null &&
+          this.selectedOptionSubIndex >= 0
+        ))
+    ) {
+      return;
+    }
+    console.log(this.selectedOption.description);
+    const text =
+      this.selectedOption.table && this.selectedOptionSubIndex != null
+        ? this.selectedOption.description.replaceAll(
+            /{{table:[^}]+}}/g,
+            this.selectedOption.table.rows[this.selectedOptionSubIndex].text,
+          )
+        : this.selectedOption.description;
+    const loc = {
+      line: this.editorRange.to.line,
+      ch: editor.getLine(this.editorRange.to.line).length,
+    };
+    editor.replaceRange("\n" + text, loc, loc);
+    editor.replaceRange(
+      `\`\`\`iron-vault-truth\n${this.source}\ninserted\n\`\`\``,
+      this.editorRange.from,
+      loc,
+    );
+  }
+
+  reset() {
+    const editor = this.plugin.app.workspace.activeEditor?.editor;
+    if (!editor || !this.editorRange) {
+      return;
+    }
+    const end = {
+      line: this.editorRange.to.line,
+      ch: editor.getLine(this.editorRange.to.line).length,
+    };
+    editor.replaceRange(
+      `\`\`\`iron-vault-truth\n${this.source.split("\n").filter((x) => x)[0]}\n\`\`\`\n##### Old Truth:\n`,
+      this.editorRange.from,
+      end,
+    );
   }
 }
 
