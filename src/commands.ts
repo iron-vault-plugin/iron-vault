@@ -20,7 +20,7 @@ export class IronVaultCommands {
     {
       id: "show-all-commands",
       name: "Show all commands",
-      icon: "list",
+      icon: "iron-vault",
       callback: () => {
         this.showCommandPicker();
       },
