@@ -5,7 +5,6 @@ import {
   MarkdownRenderer,
 } from "obsidian";
 
-import { MoveModal } from "moves/move-modal";
 import { ProgressTrack } from "tracks/progress";
 import IronVaultPlugin from "../index";
 
@@ -245,14 +244,6 @@ export class MechanicsRenderer {
     const summary = this.moveEl.createEl("summary");
     if (moveName) {
       await this.renderMarkdown(summary, moveName);
-      if (move) {
-        const modal = new MoveModal(this.plugin.app, this.plugin, move);
-        const btn = new ButtonComponent(summary);
-        btn
-          .setButtonText("?")
-          .setTooltip("View move text.")
-          .onClick(() => modal.open());
-      }
     }
     await this.renderChildren(this.moveEl, node.children, true);
   }

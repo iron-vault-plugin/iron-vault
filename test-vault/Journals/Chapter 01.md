@@ -103,5 +103,15 @@ a single multiline string.
 
 ```mechanics
 burn from=6 to=2
-```
 
+move "[Strike](move:starforged\/moves\/combat\/strike)" {
+    roll "iron" action=2 adds=0 stat=3 vs1=10 vs2=10
+}
+
+
+move "[Endure Harm](move:starforged\/moves\/suffer\/endure_harm)" {
+    add 1
+    roll "health" action=3 adds=1 stat=5 vs1=2 vs2=2
+}
+
+```

@@ -1,4 +1,8 @@
 .iron-vault-mechanics dl {
+  --item-gap: 0.3em;
+  display: flex;
+  flex-flow: row wrap;
+  gap: var(--item-gap);
   &:before {
     margin-right: 0.5em;
   }
@@ -6,8 +10,18 @@
     font-weight: var(--font-semibold);
     padding-left: 0.5em;
   }
+  &.match.strong-hit:after {
+    color: var(--text-success);
+  }
+  &.match.miss:after {
+    color: var(--text-error);
+  }
   &.match:after {
-    content: "✅";
+    content: "match";
+    text-transform: uppercase;
+    font-weight: var(--font-bold);
+    font-size: 0.8em;
+    padding: 0.2em 0;
   }
   & dt {
     display: none;
@@ -15,7 +29,6 @@
   & dd {
     margin: 0;
     padding: 0;
-    display: inline;
     font-weight: var(--font-semibold);
     & * {
       display: inline;
