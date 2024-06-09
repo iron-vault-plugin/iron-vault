@@ -12,9 +12,10 @@ Iron Vault includes various settings for tweaking the behavior of its features, 
 
 These options control various parts of how [[Mechanics Blocks]] are rendered.
 
-* **Collapse move blocks**: when enabled (default), moves in mechanics blocks will only show the move name and result when first rendered, and you'll need to click on them in order to see move details.
-* **Show mechanics toggle**: when enabled (default), mechanics blocks will have a small "Hide mechanics" toggle underneath them that, when clicked, will hide the mechanics block.
+* **Collapse move blocks**: when enabled  moves in mechanics blocks will only show the move name and result when first rendered, and you'll need to click on them in order to see move details.
+* **Show mechanics toggle**: when enabled, mechanics blocks will have a small "Hide mechanics" toggle underneath them that, when clicked, will hide the mechanics block.
 * **Hide mechanics completely**: If enabled, mechanics blocks will not be displayed at all. Good for when you just want to read a story. You can also toggle this setting by using the [[Toggle displaying mechanics]] command.
+* **Inline tracks on clock creation**: If enabled, new tracks and clocks will be automatically inlined in the journal when created.
 
 ### Dice rolling
 
