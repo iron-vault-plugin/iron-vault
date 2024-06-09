@@ -1,4 +1,4 @@
-Iron Vault includes various settings for tweaking the behavior of its features, to allow you to shape it into a better tool for your use case.
+ braIron Vault includes various settings for tweaking the behavior of its features, to allow you to shape it into a better tool for your use case.
 ### General
 
 * **Use character system**: when enabled, this will look for an active [[Characters|Character]] file when making moves and doing other game operations. If disabled, Iron Vault will still work, but will prompt you for values of, for example, your stats. This is a good setting to disable if you only wish to use a particular subset of Iron Vault features, like [[Mechanics Blocks]] or the [[Sidebar]] but don't really care to use the various [[About Commands|Commands]].
