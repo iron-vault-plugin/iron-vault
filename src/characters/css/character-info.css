@@ -72,14 +72,12 @@
         grid-area: 1 / 1 / 2 / 2;
       }
     }
-    & dt:has(+ .description),
-    & dd.description {
-      grid-column: 1 / span 2;
-    }
     & dt:has(+ .description) {
+      grid-column: 1 / span 2;
       grid-row-start: 3;
     }
     & dd.description {
+      grid-column: 1 / span 2;
       grid-row-start: 4;
     }
     & dd.xp-earned {
