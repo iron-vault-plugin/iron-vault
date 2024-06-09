@@ -7,11 +7,11 @@
   background-color: var(--background-primary-alt);
   padding: 1em;
   border-radius: 10px;
-  & select {
-    min-width: 0;
-  }
   & > button:first-child {
     grid-column: 1 / span 2;
+  }
+  & select {
+    min-width: 0;
   }
   & > section {
     grid-column: 1 / span 2;
