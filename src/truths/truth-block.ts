@@ -1,7 +1,12 @@
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { ref } from "lit-html/directives/ref.js";
-import { EditorRange, EventRef, MarkdownRenderChild, setIcon } from "obsidian";
+import {
+  EventRef,
+  MarkdownPostProcessorContext,
+  MarkdownRenderChild,
+  setIcon,
+} from "obsidian";
 import {
   OracleTableRowText,
   Truth,
@@ -18,16 +23,12 @@ export default function registerTruthBlock(plugin: IronVaultPlugin): void {
     async (source: string, el: TruthContainerEl, ctx) => {
       await plugin.datastore.waitForReady;
       if (!el.truthRenderer) {
-        const pos = ctx.getSectionInfo(el) || undefined;
         el.truthRenderer = new TruthRenderer(
           el,
           ctx.sourcePath,
           plugin,
           source,
-          pos && {
-            from: { ch: 0, line: pos.lineStart },
-            to: { ch: 0, line: pos.lineEnd },
-          },
+          ctx,
         );
       }
       el.truthRenderer.render();
@@ -43,23 +44,23 @@ class TruthRenderer extends MarkdownRenderChild {
   sourcePath: string;
   plugin: IronVaultPlugin;
   source: string;
-  editorRange?: EditorRange;
   fileWatcher?: EventRef;
   selectedOption?: TruthOption;
   selectedOptionSubIndex?: number;
+  ctx: MarkdownPostProcessorContext;
 
   constructor(
     containerEl: HTMLElement,
     sourcePath: string,
     plugin: IronVaultPlugin,
     source: string,
-    editorRange?: EditorRange,
+    ctx: MarkdownPostProcessorContext,
   ) {
     super(containerEl);
     this.sourcePath = sourcePath;
     this.plugin = plugin;
     this.source = source;
-    this.editorRange = editorRange;
+    this.ctx = ctx;
   }
 
   render() {
@@ -185,9 +186,12 @@ class TruthRenderer extends MarkdownRenderChild {
 
   appendTruth() {
     const editor = this.plugin.app.workspace.activeEditor?.editor;
+    const sectionInfo = this.ctx.getSectionInfo(
+      this.containerEl as HTMLElement,
+    );
     if (
       !editor ||
-      !this.editorRange ||
+      !sectionInfo ||
       !this.selectedOption ||
       (this.selectedOption.table &&
         !(
@@ -197,7 +201,16 @@ class TruthRenderer extends MarkdownRenderChild {
     ) {
       return;
     }
-    console.log(this.selectedOption.description);
+    const editorRange = {
+      from: {
+        ch: 0,
+        line: sectionInfo.lineStart,
+      },
+      to: {
+        ch: 0,
+        line: sectionInfo.lineEnd,
+      },
+    };
     const text =
       this.selectedOption.table && this.selectedOptionSubIndex != null
         ? this.selectedOption.description.replaceAll(
@@ -205,31 +218,43 @@ class TruthRenderer extends MarkdownRenderChild {
             this.selectedOption.table.rows[this.selectedOptionSubIndex].text,
           )
         : this.selectedOption.description;
-    const loc = {
-      line: this.editorRange.to.line,
-      ch: editor.getLine(this.editorRange.to.line).length,
+    const to = {
+      line: editorRange.to.line,
+      ch: editor.getLine(editorRange.to.line).length,
     };
-    editor.replaceRange("\n" + text, loc, loc);
     editor.replaceRange(
-      `\`\`\`iron-vault-truth\n${this.source}\ninserted\n\`\`\``,
-      this.editorRange.from,
-      loc,
+      `\`\`\`iron-vault-truth\n${this.source}\ninserted\n\`\`\`\n${this.selectedOption.summary ? this.selectedOption.summary + "\n\n" : ""}${text}`,
+      editorRange.from,
+      to,
     );
   }
 
   reset() {
     const editor = this.plugin.app.workspace.activeEditor?.editor;
-    if (!editor || !this.editorRange) {
+    const sectionInfo = this.ctx.getSectionInfo(
+      this.containerEl as HTMLElement,
+    );
+    if (!editor || !sectionInfo) {
       return;
     }
-    const end = {
-      line: this.editorRange.to.line,
-      ch: editor.getLine(this.editorRange.to.line).length,
+    const editorRange = {
+      from: {
+        ch: 0,
+        line: sectionInfo.lineStart,
+      },
+      to: {
+        ch: 0,
+        line: sectionInfo.lineEnd,
+      },
+    };
+    const to = {
+      line: editorRange.to.line,
+      ch: editor.getLine(editorRange.to.line).length,
     };
     editor.replaceRange(
       `\`\`\`iron-vault-truth\n${this.source.split("\n").filter((x) => x)[0]}\n\`\`\`\n##### Old Truth:\n`,
-      this.editorRange.from,
-      end,
+      editorRange.from,
+      to,
     );
   }
 }
