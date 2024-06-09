@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Other Features/Sidebar.md",
+                "file": "index.md",
                 "mode": "source",
                 "source": false
               }
@@ -48,7 +48,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "die",
+                "query": "cwegr",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -86,7 +86,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Other Features/Sidebar.md",
+                "file": "index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,7 +103,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Other Features/Sidebar.md",
+                "file": "index.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -126,7 +126,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Other Features/Sidebar.md"
+                "file": "index.md"
               }
             }
           },
@@ -160,9 +160,6 @@
   },
   "active": "38fe42f3d36bd61d",
   "lastOpenFiles": [
-    "Other Features/Ribbon Button.md",
-    "Entities/Locations and Settlements.md",
-    "index.md",
     "Other Features/Special Links.md",
     "Other Features/Sidebar.md",
     "Other Features/Settings.md",
@@ -174,6 +171,7 @@
     "Entities/Progress Tracks.md",
     "Entities/Oracles.md",
     "Entities/Moves.md",
+    "Entities/Locations and Settlements.md",
     "Entities/Factions.md",
     "Entities/Derelicts.md",
     "Entities/Clocks.md",
@@ -186,6 +184,8 @@
     "Commands/Make a move.md",
     "Commands/Create new character.md",
     "Commands/Create a progress track.md",
+    "Commands/Create a clock.md",
+    "Commands/Burn momentum.md",
     "Support/img/gunslinger-link.png",
     "Support/img/background-assets-link.png",
     "Support/img/face-danger-link.png",
