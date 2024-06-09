@@ -25,7 +25,7 @@ export class SidebarView extends ItemView {
   }
 
   getIcon() {
-    return "dice";
+    return "iron-vault";
   }
 
   async onOpen() {

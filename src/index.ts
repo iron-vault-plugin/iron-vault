@@ -4,7 +4,7 @@ import registerClockBlock from "clocks/clock-block";
 import { IndexManager } from "indexer/manager";
 import installMoveLinkHandler from "moves/link-override";
 import { MoveModal } from "moves/move-modal";
-import { Plugin } from "obsidian";
+import { Plugin, addIcon } from "obsidian";
 import installOracleLinkHandler from "oracles/link-override";
 import { OracleModal } from "oracles/oracle-modal";
 import { IronVaultPluginSettings } from "settings";
@@ -63,7 +63,10 @@ export default class IronVaultPlugin extends Plugin {
 
   async onload(): Promise<void> {
     await this.loadSettings();
-
+    addIcon(
+      "iron-vault",
+      `<g fill="currentColor" transform="matrix(6.6666667,0,0,6.2533639,-3.3333334,-0.02691142)"><path d="m 11.28,5.72 a 0.75,0.75 0 0 1 0,1.06 l -4,4 a 0.75,0.75 0 0 1 -1.06,0 l -2,-2 A 0.75,0.75 0 0 1 5.28,7.72 l 1.47,1.47 3.47,-3.47 a 0.75,0.75 0 0 1 1.06,0 z" id="path1" /><path fill-rule="evenodd" d="m 6.834,0.33 a 2.25,2.25 0 0 1 2.332,0 l 5.25,3.182 A 2.25,2.25 0 0 1 15.5,5.436 v 5.128 a 2.25,2.25 0 0 1 -1.084,1.924 l -5.25,3.182 a 2.25,2.25 0 0 1 -2.332,0 L 1.584,12.488 A 2.25,2.25 0 0 1 0.5,10.564 V 5.436 A 2.25,2.25 0 0 1 1.584,3.512 Z m 1.555,1.283 a 0.75,0.75 0 0 0 -0.778,0 L 2.361,4.794 A 0.75,0.75 0 0 0 2,5.436 v 5.128 a 0.75,0.75 0 0 0 0.361,0.642 l 5.25,3.181 a 0.75,0.75 0 0 0 0.778,0 l 5.25,-3.181 A 0.75,0.75 0 0 0 14,10.564 V 5.436 A 0.75,0.75 0 0 0 13.639,4.794 Z" clip-rule="evenodd" /></g>`,
+    );
     this.datastore = this.addChild(new Datastore(this));
     this.indexManager = this.addChild(new IndexManager(this.app));
     this.indexManager.registerHandler(
@@ -94,7 +97,7 @@ export default class IronVaultPlugin extends Plugin {
 
     this.commands = new IronVaultCommands(this);
     this.commands.addCommands();
-    this.addRibbonIcon("dice", "Show Iron Vault commands", () => {
+    this.addRibbonIcon("iron-vault", "Show Iron Vault commands", () => {
       this.commands.showCommandPicker();
     });
 

@@ -58,7 +58,12 @@ LICENSE](https://github.com/rsek/dataforged/blob/main/LICENSE.md).
 ## Icons
 
 Secret book icon by [Delapouite](https://delapouite.com/), [CC BY
-3.0](http://creativecommons.org/licenses/by/3.0/)
+3.0](http://creativecommons.org/licenses/by/3.0/).
+
+Hexagon with checkmark icon by
+[Hashicorp](https://github.com/hashicorp/design-system/) in MLP License via
+[SVG Repo](https://www.svgrepo.com/), with some modifications for proper
+scaling.
 
 ## BRAT code
 
