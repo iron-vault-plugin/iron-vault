@@ -1,6 +1,6 @@
 {
   "vaultName": "Iron Vault",
-  "lastExport": 1717961227189,
+  "lastExport": 1717974870742,
   "pluginVersion": "1.8.01",
   "validBodyClasses": "publish css-settings-manager theme-dark show-inline-title show-ribbon",
   "useCustomHeadContent": false,
@@ -14,6 +14,7 @@
     "Blocks/Moves Blocks.md",
     "Blocks/Oracles Blocks.md",
     "Blocks/Track Blocks.md",
+    "Blocks/Truth Blocks.md",
     "Commands/About Commands.md",
     "Commands/Add asset to character.md",
     "Commands/Advance a clock.md",
@@ -24,6 +25,7 @@
     "Commands/Create a progress track.md",
     "Commands/Create new character.md",
     "Commands/Generate an entity.md",
+    "Commands/Generate Truths.md",
     "Commands/Make a move.md",
     "Commands/Show all commands.md",
     "Commands/Show sidebar.md",
@@ -111,8 +113,8 @@
   ],
   "fileInfo": {
     "Blocks/About Blocks.md": {
-      "modifiedTime": 1717960709068,
-      "sourceSize": 1528,
+      "modifiedTime": 1717974870742,
+      "sourceSize": 1681,
       "exportedPath": "blocks/about-blocks.html",
       "dependencies": []
     },
@@ -343,8 +345,8 @@
       "dependencies": []
     },
     "Entities/Truths.md": {
-      "modifiedTime": 1717960709068,
-      "sourceSize": 304,
+      "modifiedTime": 1717974870742,
+      "sourceSize": 827,
       "exportedPath": "entities/truths.html",
       "dependencies": []
     },
@@ -379,8 +381,8 @@
       "dependencies": []
     },
     "Other Features/Settings.md": {
-      "modifiedTime": 1717961227189,
-      "sourceSize": 2361,
+      "modifiedTime": 1717974870742,
+      "sourceSize": 2365,
       "exportedPath": "other-features/settings.html",
       "dependencies": []
     },
@@ -402,7 +404,7 @@
       ]
     },
     "index.md": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 3874,
       "exportedPath": "index.html",
       "dependencies": []
@@ -450,141 +452,153 @@
       "dependencies": []
     },
     "lib/fonts/94f2f163d4b698242fef.otf": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 66800,
       "exportedPath": "lib/fonts/94f2f163d4b698242fef.otf",
       "dependencies": []
     },
     "lib/fonts/72505e6a122c6acd5471.woff2": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 104232,
       "exportedPath": "lib/fonts/72505e6a122c6acd5471.woff2",
       "dependencies": []
     },
     "lib/fonts/2d5198822ab091ce4305.woff2": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 104332,
       "exportedPath": "lib/fonts/2d5198822ab091ce4305.woff2",
       "dependencies": []
     },
     "lib/fonts/c8ba52b05a9ef10f4758.woff2": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 98868,
       "exportedPath": "lib/fonts/c8ba52b05a9ef10f4758.woff2",
       "dependencies": []
     },
     "lib/fonts/cb10ffd7684cd9836a05.woff2": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 106876,
       "exportedPath": "lib/fonts/cb10ffd7684cd9836a05.woff2",
       "dependencies": []
     },
     "lib/fonts/b5f0f109bc88052d4000.woff2": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 105804,
       "exportedPath": "lib/fonts/b5f0f109bc88052d4000.woff2",
       "dependencies": []
     },
     "lib/fonts/cbe0ae49c52c920fd563.woff2": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 106108,
       "exportedPath": "lib/fonts/cbe0ae49c52c920fd563.woff2",
       "dependencies": []
     },
     "lib/fonts/535a6cf662596b3bd6a6.woff2": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 111708,
       "exportedPath": "lib/fonts/535a6cf662596b3bd6a6.woff2",
       "dependencies": []
     },
     "lib/fonts/70cc7ff27245e82ad414.ttf": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 192740,
       "exportedPath": "lib/fonts/70cc7ff27245e82ad414.ttf",
       "dependencies": []
     },
     "lib/fonts/454577c22304619db035.ttf": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 161376,
       "exportedPath": "lib/fonts/454577c22304619db035.ttf",
       "dependencies": []
     },
     "lib/fonts/52ac8f3034507f1d9e53.ttf": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 191568,
       "exportedPath": "lib/fonts/52ac8f3034507f1d9e53.ttf",
       "dependencies": []
     },
     "lib/fonts/05b618077343fbbd92b7.ttf": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 155288,
       "exportedPath": "lib/fonts/05b618077343fbbd92b7.ttf",
       "dependencies": []
     },
     "lib/fonts/4bb6ac751d1c5478ff3a.woff2": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 7876,
       "exportedPath": "lib/fonts/4bb6ac751d1c5478ff3a.woff2",
       "dependencies": []
     },
     "lib/media/874d8b8e340f75575caa.svg": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 317,
       "exportedPath": "lib/media/874d8b8e340f75575caa.svg",
       "dependencies": []
     },
     "lib/media/3d6c1bdc4d87cde4de67.svg": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 279,
       "exportedPath": "lib/media/3d6c1bdc4d87cde4de67.svg",
       "dependencies": []
     },
     "lib/html/file-tree.html": {
-      "modifiedTime": 1717961227189,
-      "sourceSize": 18539,
+      "modifiedTime": 1717974870742,
+      "sourceSize": 19193,
       "exportedPath": "lib/html/file-tree.html",
       "dependencies": []
     },
     "lib/scripts/webpage.js": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 47290,
       "exportedPath": "lib/scripts/webpage.js",
       "dependencies": []
     },
     "lib/scripts/minisearch.js": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 29422,
       "exportedPath": "lib/scripts/minisearch.js",
       "dependencies": []
     },
     "lib/media/favicon.png": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 1105,
       "exportedPath": "lib/media/favicon.png",
       "dependencies": []
     },
     "lib/styles/obsidian.css": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 130183,
       "exportedPath": "lib/styles/obsidian.css",
       "dependencies": []
     },
     "lib/styles/other-plugins.css": {
-      "modifiedTime": 1717961227189,
-      "sourceSize": 55153,
+      "modifiedTime": 1717974870742,
+      "sourceSize": 56532,
       "exportedPath": "lib/styles/other-plugins.css",
       "dependencies": []
     },
     "lib/styles/global-variable-styles.css": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 236,
       "exportedPath": "lib/styles/global-variable-styles.css",
       "dependencies": []
     },
     "lib/styles/main-styles.css": {
-      "modifiedTime": 1717961227189,
+      "modifiedTime": 1717974870742,
       "sourceSize": 23130,
       "exportedPath": "lib/styles/main-styles.css",
+      "dependencies": []
+    },
+    "Blocks/Truth Blocks.md": {
+      "modifiedTime": 1717974870742,
+      "sourceSize": 3014,
+      "exportedPath": "blocks/truth-blocks.html",
+      "dependencies": []
+    },
+    "Commands/Generate Truths.md": {
+      "modifiedTime": 1717974870742,
+      "sourceSize": 250,
+      "exportedPath": "commands/generate-truths.html",
       "dependencies": []
     }
   }
