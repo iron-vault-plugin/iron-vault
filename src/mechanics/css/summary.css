@@ -2,21 +2,37 @@
   &[open] summary:has(+ *) {
     border-bottom: 1px dashed var(--color-base-50);
   }
+  & summary > :first-child {
+    flex-grow: 1;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+  }
   &.strong-hit summary > :first-child:after {
     background-image: url("img/Outcomes/outcome-strong-hit.svg");
+    color: var(--text-success);
   }
   &.weak-hit summary > :first-child:after {
     background-image: url("img/Outcomes/outcome-weak-hit.svg");
   }
   &.miss summary > :first-child:after {
     background-image: url("img/Outcomes/outcome-miss.svg");
+    color: var(--text-error);
   }
   &.match summary > :first-child:after {
-    content: "✅";
+    content: "match";
+    text-transform: uppercase;
+    font-weight: var(--font-bold);
+    font-size: 0.8em;
+    padding: 0.2em 0;
+    padding-right: 3.4em;
   }
 
   & summary {
-    display: block;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
     border: none;
     min-height: 2em;
     width: 100%;

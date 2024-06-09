@@ -27,5 +27,8 @@
         content: " → ";
       }
     }
+    &.out-of {
+      margin-left: calc(var(--item-gap) * -1);
+    }
   }
 }

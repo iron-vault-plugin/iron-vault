@@ -28,5 +28,9 @@
     &.to-ticks:after {
       content: "t";
     }
+    
+    &.from-ticks, &.to-ticks {
+      margin-left: calc(var(--item-gap) * -1);
+    }
   }
 }
