@@ -8,7 +8,7 @@
   padding: 1em;
   border-radius: 10px;
   & select {
-    max-width: 360px;
+    min-width: 0;
   }
   & button {
     max-width: 3em;
@@ -21,6 +21,9 @@
     grid-template-columns: auto 1fr 1fr;
     & > :first-child {
       grid-column: 1 / span 3;
+    }
+    & > button {
+      justify-self: end;
     }
   }
 }

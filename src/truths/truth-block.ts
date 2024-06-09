@@ -142,11 +142,14 @@ class TruthRenderer extends MarkdownRenderChild {
                   .replaceAll(/{{table:[^}]+}}/g, "")
                   .trim(),
               )}
-          ${optionSelect}
-          ${this.selectedOption &&
-          (!this.selectedOption.table || this.selectedOptionSubIndex != null)
+          ${optionSelect ||
+          html`<div></div>
+            <div></div>`}
+          ${this.selectedOption
             ? html`<button
                 type="button"
+                ?disabled=${this.selectedOption.table &&
+                this.selectedOptionSubIndex == null}
                 ${ref(
                   (el?: Element) => el && setIcon(el as HTMLElement, "save"),
                 )}
