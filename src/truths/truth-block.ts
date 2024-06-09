@@ -1,10 +1,16 @@
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
+import { ref } from "lit-html/directives/ref.js";
+import { EventRef, MarkdownRenderChild, setIcon } from "obsidian";
+import {
+  OracleTableRowText,
+  Truth,
+  TruthOption,
+} from "@datasworn/core/dist/Datasworn";
 
 import IronVaultPlugin from "index";
-import { EventRef, MarkdownRenderChild } from "obsidian";
 import { md } from "utils/ui/directives";
-import { TruthOption } from "@datasworn/core/dist/Datasworn";
+import { Dice } from "utils/dice";
 
 export default function registerTruthBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -68,16 +74,36 @@ class TruthRenderer extends MarkdownRenderChild {
             this.render();
           }}
         >
-          <option disabled selected>Select your option...</option>
+          <option
+            disabled
+            ?selected=${!this.selectedOptionSubIndex ||
+            this.selectedOptionSubIndex < 0}
+          >
+            Select your option...
+          </option>
           ${map(
             this.selectedOption.table.rows,
-            (row) => html`<option>${row.text}</option>`,
+            (row, i) =>
+              html`<option ?selected=${i === this.selectedOptionSubIndex}>
+                ${row.text}
+              </option>`,
           )}
         </select>
-        <button type="button">Roll</button>`;
+        <button
+          type="button"
+          @click=${() => {
+            if (!this.selectedOption || !this.selectedOption.table) {
+              return;
+            }
+            this.selectedOptionSubIndex = pickRandomSubOption(
+              this.selectedOption.table!,
+            );
+            this.render();
+          }}
+          ${ref((el?: Element) => el && setIcon(el as HTMLElement, "dice"))}
+        ></button>`;
     const tpl = html`
       <article class="iron-vault-truth">
-        <header>${truth.name}</header>
         <select
           @change=${(e: Event) => {
             this.selectedOption =
@@ -86,18 +112,27 @@ class TruthRenderer extends MarkdownRenderChild {
             this.render();
           }}
         >
-          <option disabled selected>Select your truth...</option>
+          <option disabled ?selected=${!this.selectedOption}>
+            Select your truth...
+          </option>
           ${map(
             truth.options,
             (option) => html`
-              <!-- TODO: table -->
-              <option>
+              <option ?selected=${option === this.selectedOption}>
                 ${md(this.plugin, option.summary ?? option.description)}
               </option>
             `,
           )}
         </select>
-        <button type="button">Roll</button>
+        <button
+          type="button"
+          @click=${() => {
+            this.selectedOption = pickRandomOption(truth);
+            this.selectedOptionSubIndex = undefined;
+            this.render();
+          }}
+          ${ref((el?: Element) => el && setIcon(el as HTMLElement, "dice"))}
+        ></button>
         <section>
           ${!this.selectedOption
             ? null
@@ -108,14 +143,39 @@ class TruthRenderer extends MarkdownRenderChild {
                   .trim(),
               )}
           ${optionSelect}
-          <br />
           ${this.selectedOption &&
           (!this.selectedOption.table || this.selectedOptionSubIndex != null)
-            ? html`<button type="button">Save</button>`
+            ? html`<button
+                type="button"
+                ${ref(
+                  (el?: Element) => el && setIcon(el as HTMLElement, "save"),
+                )}
+              ></button>`
             : null}
         </section>
       </article>
     `;
     render(tpl, this.containerEl);
+  }
+}
+
+function pickRandomSubOption(table: {
+  dice: string;
+  rows: OracleTableRowText[];
+}) {
+  const dice = Dice.fromDiceString(table.dice);
+  const res = dice.roll();
+  return table.rows.findIndex((row) => row.min! <= res && res <= row.max!);
+}
+
+function pickRandomOption(truth: Truth) {
+  const options = truth.options;
+  if (options.every((option) => option.min != null && option.max != null)) {
+    // Do a dice roll
+    const die = Dice.fromDiceString(truth.dice);
+    const res = die.roll();
+    return options.find((opt) => opt.min! <= res && res <= opt.max!);
+  } else {
+    return options[Math.floor(Math.random() * options.length)];
   }
 }

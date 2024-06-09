@@ -1,0 +1,26 @@
+.iron-vault-truth {
+  margin: 0.5em auto;
+  max-width: 460px;
+  display: grid;
+  gap: 0.5em;
+  grid-template-columns: auto 1fr;
+  background-color: var(--background-primary-alt);
+  padding: 1em;
+  border-radius: 10px;
+  & select {
+    max-width: 360px;
+  }
+  & button {
+    max-width: 3em;
+  }
+  & > section {
+    grid-column: 1 / span 2;
+    display: grid;
+    gap: 0.5em;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: auto 1fr 1fr;
+    & > :first-child {
+      grid-column: 1 / span 3;
+    }
+  }
+}
