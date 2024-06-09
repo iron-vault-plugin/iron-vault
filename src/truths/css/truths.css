@@ -18,11 +18,12 @@
     display: grid;
     gap: 0.5em;
     grid-template-rows: auto 1fr;
-    grid-template-columns: auto 1fr 1fr;
+    grid-template-columns: auto 2.5em 2.5em;
     & > :first-child {
       grid-column: 1 / span 3;
     }
     & > button {
+      max-width: 3em;
       justify-self: end;
     }
   }
