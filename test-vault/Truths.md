@@ -4,19 +4,11 @@
 Cataclysm
 inserted
 ```
-Without warning, these implacable and enigmatic beings ravaged our homeworlds. We could not stand against them. With the last of our defenses destroyed, our hope gone, we cast our fate to the Forge. Here, we can hide. Survive.
+Over millennia, we consumed resources and shattered lives as we fueled the engines of industry, expansion, and war. In the end, a powerful foe took advantage of our rivalries in a violent bid for power. Fleeing the devastation, we assembled our fleets and traveled to the Forge. A new home. A fresh start.
 
-These entities took the form of:
+In this final war, we were set upon by:
 
-Monstrous humanoids
-##### Old Truth:
-
-The anomaly traveled at incredible speeds, many times faster than light itself, and snuffed out the stars around us before we realized it was coming. Few of us survived as we made our way to this new galaxy. Here in the Forge, the stars are still aflame. We cling to their warmth like weary travelers huddled around a fire.
-
-We suspect the sun plague was caused by:
-
-Superweapon run amok
-
+Religious zealots
 ## Artificial Intelligence
 
 ```iron-vault-truth
