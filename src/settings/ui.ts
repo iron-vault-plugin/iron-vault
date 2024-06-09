@@ -122,7 +122,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Collapse move blocks")
       .setDesc(
-        "If enabled (default), moves in mechanics blocks will only show the move name and result by default, and you'll need to click on them to see move details.",
+        "If enabled, moves in mechanics blocks will only show the move name and result by default, and you'll need to click on them to see move details.",
       )
       .addToggle((toggle) =>
         toggle
@@ -133,7 +133,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Show mechanics toggle")
       .setDesc(
-        "If enabled (default), mechanics blocks will show a small 'Hide mechanics' toggle underneath the mechanics items.",
+        "If enabled, mechanics blocks will show a small 'Hide mechanics' toggle underneath the mechanics items.",
       )
       .addToggle((toggle) =>
         toggle

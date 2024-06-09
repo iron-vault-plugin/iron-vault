@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "index.md",
+                "file": "Other Features/Settings.md",
                 "mode": "source",
                 "source": false
               }
@@ -65,12 +65,11 @@
               "state": {}
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 258.5
   },
   "right": {
     "id": "bfcce08df144c11f",
@@ -86,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "index.md",
+                "file": "Other Features/Settings.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "index.md",
+                "file": "Other Features/Settings.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -126,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "index.md"
+                "file": "Other Features/Settings.md"
               }
             }
           },
@@ -160,9 +159,10 @@
   },
   "active": "38fe42f3d36bd61d",
   "lastOpenFiles": [
+    "index.md",
+    "Other Features/Settings.md",
     "Other Features/Special Links.md",
     "Other Features/Sidebar.md",
-    "Other Features/Settings.md",
     "Other Features/Rulesets.md",
     "Other Features/CSS Tweaks.md",
     "Other Features/API.md",
@@ -185,7 +185,6 @@
     "Commands/Create new character.md",
     "Commands/Create a progress track.md",
     "Commands/Create a clock.md",
-    "Commands/Burn momentum.md",
     "Support/img/gunslinger-link.png",
     "Support/img/background-assets-link.png",
     "Support/img/face-danger-link.png",

@@ -19,10 +19,10 @@ export class IronVaultPluginSettings {
   useCharacterSystem: boolean = true;
 
   /** Set moves in mechanics blocks to be collapsed initially */
-  collapseMoves: boolean = true;
+  collapseMoves: boolean = false;
 
   /** Hide "Hide mechanics" toggle */
-  showMechanicsToggle: boolean = true;
+  showMechanicsToggle: boolean = false;
 
   /** Completely hide all mechanics */
   hideMechanics: boolean = false;
