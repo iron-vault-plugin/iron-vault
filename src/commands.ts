@@ -13,6 +13,7 @@ import {
   GenericFuzzySuggester,
   SuggesterItem,
 } from "utils/ui/generic-fuzzy-suggester";
+import { generateTruthsCommand } from "truths/command";
 
 export class IronVaultCommands {
   plugin: IronVaultPlugin;
@@ -180,6 +181,11 @@ export class IronVaultCommands {
       id: "character-create",
       name: "Create new character",
       callback: () => createNewCharacter(this.plugin),
+    },
+    {
+      id: "generate-truths",
+      name: "Generate truths",
+      callback: () => generateTruthsCommand(this.plugin),
     },
   ];
 
