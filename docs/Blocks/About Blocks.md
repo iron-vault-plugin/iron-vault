@@ -19,3 +19,4 @@ The following blocks are supported:
 - [[Track Blocks]] (`iron-vault-track`) - for progress track notes
 - [[Moves Blocks]] (`iron-vault-moves`) - searchable list of moves (same thing as the [[Sidebar]], but useful if you want to embed it directly in a note)
 - [[Oracles Blocks]] (`iron-vault-oracles`) - searchable list of oracles (same thing as the [[Sidebar]], but useful if you want to embed it directly in a note)
+- [[Truth Blocks]] (`iron-vault-truth`) - Shows a picker that lets you generate a particular truth, optionally regenerating it if you want to try again.

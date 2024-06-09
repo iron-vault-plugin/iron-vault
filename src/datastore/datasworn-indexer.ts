@@ -27,6 +27,7 @@ export type DataswornTypes = {
   asset: Datasworn.Asset;
   oracle: Oracle;
   rules_package: Datasworn.RulesPackage;
+  truth: Datasworn.Truth;
 };
 
 export type DataswornSourced<
@@ -88,6 +89,10 @@ export function* walkDataswornRulesPackage(
 
   for (const oracle of walkOracles(input)) {
     yield { id: oracle.id, kind: "oracle", value: oracle, source };
+  }
+
+  for (const truth of Object.values(input.truths ?? {})) {
+    yield { id: truth._id, kind: "truth", value: truth, source };
   }
 
   yield { id: input._id, kind: "rules_package", value: input, source };

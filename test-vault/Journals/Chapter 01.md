@@ -2,7 +2,7 @@ I'm telling my story here.
 
 Suddenly, a trap! Oh no!
 
-#character 
+#character
 > #character
 
 [Testing](oracle:GivenName)

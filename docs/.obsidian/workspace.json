@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Other Features/Settings.md",
+                "file": "index.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Other Features/Settings.md",
+                "file": "index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Other Features/Settings.md",
+                "file": "index.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Other Features/Settings.md"
+                "file": "index.md"
               }
             }
           },
@@ -159,15 +159,20 @@
   },
   "active": "38fe42f3d36bd61d",
   "lastOpenFiles": [
-    "index.md",
+    "Entities/Truths.md",
+    "Commands/Generate Truths.md",
+    "Commands/Create new character.md",
+    "Blocks/Truth Blocks.md",
+    "Blocks/Track Blocks.md",
+    "Blocks/About Blocks.md",
     "Other Features/Settings.md",
+    "index.md",
     "Other Features/Special Links.md",
     "Other Features/Sidebar.md",
     "Other Features/Rulesets.md",
     "Other Features/CSS Tweaks.md",
     "Other Features/API.md",
     "Entities/Vaults.md",
-    "Entities/Truths.md",
     "Entities/Progress Tracks.md",
     "Entities/Oracles.md",
     "Entities/Moves.md",
@@ -180,11 +185,6 @@
     "Entities/About Entities.md",
     "Commands/Take on a meter.md",
     "Commands/Suffer on a meter.md",
-    "Commands/Show sidebar.md",
-    "Commands/Make a move.md",
-    "Commands/Create new character.md",
-    "Commands/Create a progress track.md",
-    "Commands/Create a clock.md",
     "Support/img/gunslinger-link.png",
     "Support/img/background-assets-link.png",
     "Support/img/face-danger-link.png",
