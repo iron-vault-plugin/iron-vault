@@ -26,7 +26,7 @@
   "addGraphView": false,
   "addTitle": true,
   "addRSSFeed": true,
-  "siteURL": "https://cwegrzyn.github.io/iron-vault/",
+  "siteURL": "https://iron-vault-plugin.github.io/iron-vault/",
   "authorName": "Iron Vault Dev Team",
   "vaultTitle": "Iron Vault",
   "exportPreset": "website",

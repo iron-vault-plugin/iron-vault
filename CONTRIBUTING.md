@@ -41,7 +41,7 @@ expected settings:
     * Turn off Svelte CSS
     * Include CSS from "Iron Vault"
   * Under "Metadata":
-    * Public site URL should be `https://cwegrzyn.github.io/iron-vault/`
+    * Public site URL should be `https://iron-vault-plugin.github.io/iron-vault/`
     * Author Name should be `Iron Vault Dev Team`
     * Vault Title should be `Iron Vault`
     * RSS Feed should be enabled

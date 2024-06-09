@@ -1,7 +1,7 @@
 ---
 title: Home
 ---
-This is the documentation for [Iron Vault](https://github.com/cwegrzyn/iron-vault), a plugin for [Obsidian](https://obsidian.md) that turns the beloved note-taking/journaling tool into a full-fledged Virtual Tabletop (VTT) for the [Ironsworn/Starforged family of games](https://ironswornrpg.com).
+This is the documentation for [Iron Vault](https://github.com/iron-vault-plugin/iron-vault), a plugin for [Obsidian](https://obsidian.md) that turns the beloved note-taking/journaling tool into a full-fledged Virtual Tabletop (VTT) for the [Ironsworn/Starforged family of games](https://ironswornrpg.com).
 
 It has features ranging from a full character sheet, to commands for making moves, and even an entire featureset for rendering pretty mechanics blocks in your story journals describing the mechanics involved in your story, as they happen.
 
@@ -27,7 +27,7 @@ You can start reading about the various Iron Vault features here:
 
 For now, the easiest way to install is via [BRAT](https://tfthacker.com/brat-plugins). You should be able to add this repo to BRAT, and it will install the latest release of this plugin
 
-You can also install it manually by downloading the latest files from [Github Release](https://github.com/cwegrzyn/iron-vault/releases/latest). You'll want to put `main.js`, `manifest.json`, and `styles.css` in `your-vault/.obsidian/plugins/iron-vault`.
+You can also install it manually by downloading the latest files from [Github Release](https://github.com/iron-vault-plugin/iron-vault/releases/latest). You'll want to put `main.js`, `manifest.json`, and `styles.css` in `your-vault/.obsidian/plugins/iron-vault`.
 
 To build the code and copy it to your vault yourself, run `pnpm build` to generate the production files, which will be in the repo root. You can then copy these to the location above.
 
@@ -35,4 +35,4 @@ You should then be able to enable the plugin in your vault (after restarting/rel
 
 #### Contributing
 
-Iron Vault is a community project built by players, for players, and we welcome contributions! Please see [CONTRIBUTING.md](https://github.com/cwegrzyn/iron-vault/blob/main/README.md) for details.
+Iron Vault is a community project built by players, for players, and we welcome contributions! Please see [CONTRIBUTING.md](https://github.com/iron-vault-plugin/iron-vault/blob/main/README.md) for details.
