@@ -16,7 +16,7 @@ The following blocks are supported:
   - `iron-vault-character-impacts`
   - `iron-vault-character-assets`
 - [[Clock Blocks]] (`iron-vault-clock`) - for tension clock notes
-- [[Mechanics Blocks]] (`mechanics`) - fancy drawing of mechanics, intended for use in journal pages.
+- [[Mechanics Blocks]] (`iron-vault-mechanics`) - fancy drawing of mechanics, intended for use in journal pages.
 - [[Moves Blocks]] (`iron-vault-moves`) - searchable list of moves (same thing as the [[Sidebar]], but useful if you want to embed it directly in a note)
 - [[Oracles Blocks]] (`iron-vault-oracles`) - searchable list of oracles (same thing as the [[Sidebar]], but useful if you want to embed it directly in a note)
 - [[Track Blocks]] (`iron-vault-track`) - for progress track notes

@@ -4,15 +4,19 @@
     "type": "split",
     "children": [
       {
-        "id": "67dfac042fc691d9",
+        "id": "f8d03aa605c808de",
         "type": "tabs",
         "children": [
           {
-            "id": "09b1e86c360f9ba1",
+            "id": "9e83b50c2e954b85",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {}
+              "type": "markdown",
+              "state": {
+                "file": "Blocks/Mechanics Blocks.md",
+                "mode": "source",
+                "source": false
+              }
             }
           }
         ]
@@ -44,7 +48,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "mechanics",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -81,6 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Blocks/Mechanics Blocks.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,6 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Blocks/Mechanics Blocks.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -118,7 +124,9 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {}
+              "state": {
+                "file": "Blocks/Mechanics Blocks.md"
+              }
             }
           },
           {
@@ -149,14 +157,15 @@
       "iron-vault:Show Iron Vault commands": false
     }
   },
-  "active": "09b1e86c360f9ba1",
+  "active": "9e83b50c2e954b85",
   "lastOpenFiles": [
+    "Blocks/About Blocks.md",
+    "Blocks/Mechanics Blocks.md",
     "Other Features/Settings.md",
     "Blocks/Track Blocks.md",
     "Blocks/Clock Blocks.md",
     "Blocks/Character Blocks.md",
     "Commands/About Commands.md",
-    "Blocks/About Blocks.md",
     "Support/Doomsday Device.md",
     "Support/Write the Docs.md",
     "Support/img/special-tracks-example.png",
@@ -165,7 +174,6 @@
     "Other Features/Ribbon Button.md",
     "Commands/Generate an entity.md",
     "Entities/About.md",
-    "Blocks/Mechanics Blocks.md",
     "index.md",
     "Entities/Truths.md",
     "Commands/Generate Truths.md",
