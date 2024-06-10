@@ -31,7 +31,7 @@
 
     &.rank {
       text-transform: capitalize;
-      color: var(--text-faint);
+      color: var(--text-muted);
       &:before {
         content: " (";
       }
@@ -60,7 +60,8 @@
       content: "t";
     }
 
-    &.from-ticks, &.to-ticks {
+    &.from-ticks,
+    &.to-ticks {
       margin-left: calc(var(--item-gap) * -1);
     }
   }
