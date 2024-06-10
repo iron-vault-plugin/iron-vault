@@ -6,8 +6,20 @@
   bottom: 0;
 }
 
+.search-box:has(
+    + :is(
+        .iron-vault-moves-list,
+        .iron-vault-oracles-list,
+        .iron-vault-asset-list
+      )
+  ) {
+  width: 100%;
+  height: 2em;
+  font-size: 1.2em;
+}
 .iron-vault-moves-list,
-.iron-vault-oracles-list {
+.iron-vault-oracles-list,
+.iron-vault-asset-list {
   margin: 0;
   padding: 0;
   padding-left: 0 !important;

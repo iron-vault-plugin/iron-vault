@@ -65,15 +65,23 @@ function renderCategory(
   category: MoveCategory,
   open: boolean,
 ) {
-  return html`
-  <li class="category" style=${category.color ? `border-left: 6px solid ${category.color}` : ""}>
+  return html` <li
+    class="category"
+    style=${category.color ? `border-left: 6px solid ${category.color}` : ""}
+  >
     <div class="wrapper">
       <details ?open=${open}>
-        <summary><span>${category.canonical_name ?? category.name}</span></summary>
+        <summary>
+          <span>${category.canonical_name ?? category.name}</span>
+        </summary>
       </details>
       <ol class="content">
-        ${map(Object.values(category.contents ?? {}), (move) => html`${renderMove(plugin, move)}`)}
+        ${map(
+          Object.values(category.contents ?? {}),
+          (move) => html`${renderMove(plugin, move)}`,
+        )}
       </ol>
+    </div>
   </li>`;
 }
 

@@ -1,0 +1,21 @@
+.iron-vault-asset-list {
+  & .content {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    &.category {
+      padding: 0 !important;
+      padding-left: 0.5em !important;
+    }
+    &.asset {
+      gap: 0.5em;
+    }
+  }
+  & .wrapper {
+    width: 100%;
+  }
+  & summary > span {
+    width: 100%;
+  }
+}
