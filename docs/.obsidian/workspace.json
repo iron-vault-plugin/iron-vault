@@ -4,19 +4,15 @@
     "type": "split",
     "children": [
       {
-        "id": "aa7afe00db686821",
+        "id": "67dfac042fc691d9",
         "type": "tabs",
         "children": [
           {
-            "id": "38fe42f3d36bd61d",
+            "id": "09b1e86c360f9ba1",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Blocks/Mechanics Blocks.md",
-                "mode": "source",
-                "source": false
-              }
+              "type": "empty",
+              "state": {}
             }
           }
         ]
@@ -48,7 +44,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "cwegr",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -85,7 +81,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blocks/Mechanics Blocks.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +97,6 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blocks/Mechanics Blocks.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -124,9 +118,7 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {
-                "file": "Blocks/Mechanics Blocks.md"
-              }
+              "state": {}
             }
           },
           {
@@ -157,17 +149,28 @@
       "iron-vault:Show Iron Vault commands": false
     }
   },
-  "active": "38fe42f3d36bd61d",
+  "active": "09b1e86c360f9ba1",
   "lastOpenFiles": [
+    "Commands/About Commands.md",
+    "Blocks/About Blocks.md",
+    "Support/Doomsday Device.md",
+    "Support/Write the Docs.md",
+    "Support/img/special-tracks-example.png",
+    "Support/img/gunslinger-link.png",
+    "Support/img/background-assets-link.png",
+    "Other Features/Ribbon Button.md",
+    "Blocks/Track Blocks.md",
+    "Other Features/Settings.md",
+    "Commands/Generate an entity.md",
+    "Blocks/Clock Blocks.md",
+    "Blocks/Character Blocks.md",
+    "Entities/About.md",
     "Blocks/Mechanics Blocks.md",
     "index.md",
-    "Other Features/Settings.md",
     "Entities/Truths.md",
     "Commands/Generate Truths.md",
-    "Blocks/About Blocks.md",
     "Blocks/Truth Blocks.md",
     "Commands/Create new character.md",
-    "Blocks/Track Blocks.md",
     "Other Features/Special Links.md",
     "Other Features/Sidebar.md",
     "Other Features/Rulesets.md",
@@ -177,18 +180,7 @@
     "Entities/Progress Tracks.md",
     "Entities/Oracles.md",
     "Entities/Moves.md",
-    "Entities/Locations and Settlements.md",
-    "Entities/Factions.md",
-    "Entities/Derelicts.md",
-    "Entities/Clocks.md",
-    "Entities/Characters.md",
-    "Entities/Assets.md",
-    "Entities/About Entities.md",
-    "Commands/Take on a meter.md",
-    "Support/img/gunslinger-link.png",
-    "Support/img/background-assets-link.png",
     "Support/img/face-danger-link.png",
-    "Support/img/special-tracks-example.png",
     "Support/img/character-sheet.png",
     "Support/img/mechanics-rendered.png",
     "Support/img/mechanics-raw.png",

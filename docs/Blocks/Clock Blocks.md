@@ -2,7 +2,7 @@ Clock blocks are used to represent Clocks, originally described in Starforged.
 
 A Clock is composed of two parts: the number of segments, and the number of segments that are filled in so far.
 
-[[Clocks|Clocks]] in Iron Vault are [[Entities/About|Entities]], and can only have one note per clock, since their data is stored in frontmatter. These clocks can be placed anywhere as long as they have the right metadata, which they require in order to render correctly. You can use [[Create a clock]] to generate these.
+[[Clocks|Clocks]] in Iron Vault are [[About Entities|Entities]], and can only have one note per clock, since their data is stored in frontmatter. These clocks can be placed anywhere as long as they have the right metadata, which they require in order to render correctly. You can use [[Create a clock]] to generate these.
 
 #### Example
 
