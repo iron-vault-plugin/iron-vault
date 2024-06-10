@@ -37,7 +37,7 @@ export default function renderAssetCard(
           ${asset.requirement &&
           html`
             <dt>Requirement</dt>
-            <dd class="requirement">${asset.requirement}</dd>
+            <dd class="requirement">${md(plugin, asset.requirement)}</dd>
           `}
           ${asset.icon && html`<img src=${asset.icon} />`}
           ${asset.options &&
