@@ -1,4 +1,193 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://iron-vault-plugin.github.io/iron-vault/</link><image><url>https://iron-vault-plugin.github.io/iron-vault/lib/media/favicon.png</url><title>Iron Vault</title><link>https://iron-vault-plugin.github.io/iron-vault/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Mon, 10 Jun 2024 00:51:21 GMT</lastBuildDate><atom:link href="https://iron-vault-plugin.github.io/iron-vault/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Mon, 10 Jun 2024 00:51:21 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://iron-vault-plugin.github.io/iron-vault/</link><image><url>https://iron-vault-plugin.github.io/iron-vault/lib/media/favicon.png</url><title>Iron Vault</title><link>https://iron-vault-plugin.github.io/iron-vault/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Mon, 10 Jun 2024 01:01:53 GMT</lastBuildDate><atom:link href="https://iron-vault-plugin.github.io/iron-vault/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Mon, 10 Jun 2024 01:01:51 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[Mechanics Blocks]]></title><description><![CDATA[ 
+ <br><br>This plugin renders a <a data-tooltip-position="top" aria-label="https://kdl.dev/" rel="noopener" class="external-link" href="https://kdl.dev/" target="_blank">KDL</a> block into a formatted Ironsworn/Starforged mechanics block, with nice styling and some interactivity.<br>It takes an Obsidian note that looks like this:<br>```mechanics
+move id="starforged/moves/adventure/face_danger" {
+	add 1 "because I'm cool [[Ash Barlowe]]"
+	roll "shadow" 1 3 1 9 9 // &lt;statname&gt; &lt;action-die&gt; &lt;stat&gt; &lt;adds&gt; &lt;vs1&gt; &lt;vs2&gt;
+}
+- "Oh nooo. This is gonna hurt. Time to [Endure Harm](move:EndureHarm)."
+move "Endure Harm" {
+    meter "health" from=3 to=2
+    roll "health" action=3 stat=4 adds=0 vs1=3 vs2=8
+    meter "momentum" from=7 to=6
+    meter "health" from=2 to=3
+}
+move "Undertake an Expedition" {
+    roll action=3 stat=1 adds=0 vs1=3 vs2=5
+    reroll action=1 vs1=6
+    burn from=10 to=2
+}
+```
+Copy<br>and turns it into this:<br>Face DangerAmount1Frombecause I'm cool <a data-href="Ash Barlowe" href="https://iron-vault-plugin.github.io/iron-vault/Ash Barlowe" class="internal-link" target="_self" rel="noopener">Ash Barlowe</a>Action Die1Stat3Stat NameshadowAdds1Score5Challenge Die 19Challenge Die 29OutcomeMiss (Match)
+Oh nooo. This is gonna hurt. Time to <a data-tooltip-position="top" aria-label="move:EndureHarm" rel="noopener" class="external-link" href="https://iron-vault-plugin.github.io/iron-vault/move:EndureHarm" target="_blank">Endure Harm</a>.
+Endure HarmMeterhealthDelta1From3To2Action Die3Stat4Stat NamehealthAdds0Score7Challenge Die 13Challenge Die 28OutcomeWeak HitMetermomentumDelta1From7To6MeterhealthDelta1From2To3Undertake an ExpeditionAction Die3Stat1Adds0Score4Challenge Die 13Challenge Die 25OutcomeWeak HitOld Action Die3New Action Die1Old Challenge Die 13New Challenge Die 16New Score2Challenge Die 16Challenge Die 25OutcomeMissFrom10To2New Score10Challenge Die 16Challenge Die 25OutcomeStrong Hit<br>Most mechanics nodes accept arguments either as properties, or BOA (by order of arguments).<br>That is, a node with arguments a, b, and c can be written as:<br>node 1 2 3
+Copy<br>or as:<br>node a=1 b=2 c=3
+Copy<br>Exceptions are noted in node documentation with ("not BOA").<br>Some arguments also support markdown rendering, and are marked as md.<br><br>There are <a data-tooltip-position="top" aria-label="Settings > Mechanics blocks" data-href="Settings#Mechanics blocks" href="https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html#Mechanics_blocks" class="internal-link" target="_self" rel="noopener">various settings</a> for tweaking how and whether mechanics blocks are rendered. See the Settings documentation for more information.<br><br><br>Declares a new move. Can contain any other nodes except for move. Shows<br>
+icons for hit kind and whether there was a match, and can be expanded or<br>
+collapsed to show or hide the contained nodes.<br><br>
+<br>id (optional): datasworn ID of the move
+<br>name (optional, md): the name of the move
+<br><br>Any node, except for move.<br><br>Face DangerAction Die6Stat3Adds0Score9Challenge Die 18Challenge Die 29OutcomeWeak Hit
+ouch
+Endure HarmMeterhealthDelta1From3To2Action Die3Stat4Adds0Score7Challenge Die 13Challenge Die 25OutcomeStrong Hit<br>```mechanics
+move "Face Danger" {
+    roll action=6 stat=3 adds=0 vs1=8 vs2=9
+    - "ouch"
+}
+move "Endure Harm" {
+    meter "health" from=3 to=2
+    roll action=3 stat=4 adds=0 vs1=3 vs2=5
+}
+```
+Copy<br><br>Adds an "arbitrary" text entry under the move. You can put anything in here.<br>(BOA only)<br><br>
+<br>text (md): the text to display
+<br><br>
+Oh man that was interesting
+<br>```mechanics
+- "Oh man that was interesting"
+```
+Copy<br><br>Records an "add" for an upcoming challenge roll, along with its reason.<br><br>
+<br>amount: the number of points to add to the roll
+<br>from (optional, md): the reason for the add (e.g. from="Bond with [[Ash]])
+<br><br>Amount2FromBond with <a data-href="Ash" href="https://iron-vault-plugin.github.io/iron-vault/Ash" class="internal-link" target="_self" rel="noopener">Ash</a><br>```mechanics
+add 2 "Bond with [[Ash]]"
+```
+Copy<br><br>Adds a regular roll to the move. If used inside a move block, will set its<br>
+result.<br><br>
+<br>stat-name (optional): the name of the stat to roll against
+<br>action: the value of the action die
+<br>stat: the value of the stat to add
+<br>adds (optional, default: 0): the total value of the adds
+<br>vs1: the first challenge die
+<br>vs2: the second challenge die
+<br><br>Action Die3Stat2Stat NameheartAdds1Score6Challenge Die 13Challenge Die 27OutcomeWeak Hit<br>```mechanics
+// This will be rendered as a Weak Hit
+roll "heart" action=3 stat=2 adds=1 score=6 vs1=3 vs2=7
+```
+Copy<br><br>Renders a progress roll. If used inside a move block, will set its result.<br><br>
+<br>score: the number of filled track boxes the progress move is rolling against
+<br>vs1: the first challenge die
+<br>vs2: the second challenge die
+<br><br>Track NameProgress Score5Challenge Die 16Challenge Die 27OutcomeMiss<br>```mechanics
+// This will render as a Miss on progress
+progress-roll score=5 vs1=6 vs2=7
+```
+Copy<br><br>Rerolls one or more dice from a previous roll. If used inside a move, the<br>
+move's result will be automatically updated. It's an error to use this if there's no previous roll in the current Mechanics Block.<br>(not BOA)<br><br>
+<br>action (optional): the new value of the action die
+<br>vs1 (optional): the new value of the first challenge die
+<br>vs2 (optional): the new value of the second challenge die
+<br><br>Face DangerAction Die3Stat2Adds1Score6Challenge Die 13Challenge Die 27OutcomeWeak HitOld Action Die3New Action Die6Old Challenge Die 13New Challenge Die 15New Score9Challenge Die 15Challenge Die 27OutcomeStrong Hit<br>```mechanics
+move "Face Danger" {
+    // weak hit (score = 6)
+    roll action=3 stat=2 adds=1 vs1=3 vs2=7
+
+    // strong hit (score = 9)
+    reroll action=6 vs1=5
+}
+```
+Copy<br><br>Shows meter changes.<br><br>
+<br>name: the name of the meter (e.g. "health")
+<br>from: the starting value of the meter
+<br>to: the ending value of the meter
+<br><br>MeterhealthDelta1From3To2MeterhealthDelta2From2To4<br>```mechanics
+meter "health" from=3 to=2
+meter "health" from=2 to=4
+```
+Copy<br><br>Burn momentum. Note that for "normal" momentum changes, you should use <a class="internal-link" data-href="#meter" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#meter" target="_self" rel="noopener"><code></code></a>meter instead.<br><br>
+<br>from: the starting momentum amount.
+<br>to: the ending momentum amount.
+<br><br>Face DangerAction Die4Stat2Adds0Score6Challenge Die 18Challenge Die 29OutcomeMiss
+ouch
+From9To2New Score9Challenge Die 18Challenge Die 29OutcomeWeak Hit
+that's better...
+<br>```mechanics
+move "Face Danger" {
+    roll action=4 stat=2 adds=0 vs1=8 vs2=9
+    - "ouch"
+    burn from=9 to=2
+	- "that's better..."
+}
+```
+Copy<br><br>Marks progress on a progress track. Can be used interchangeably with track,<br>
+but has a nicer interface when what you want to express is "mark progress<br>
+twice" without having to figure out tick details yourself.<br>Box/tick amounts can be given either as a single from argument, or with<br>
+from-boxes/from-ticks.<br>(not BOA)<br><br>
+<br>name (md): the name of the progress track.
+<br>from (optional): the starting value of the progress track, in total ticks.
+<br>from-boxes (optional): the starting value of the progress track, in boxes.
+<br>from-ticks (optional): the starting value of the progress track, in ticks<br>
+filled into the last unfilled box.
+<br>rank - the challenge rank of the progress track (e.g. "formidable", "epic", etc).
+<br>steps (optional, default: 1) - number of times to mark progress.
+<br><br>Track NameI vow to write this documentationSteps2RankformidableFrom Boxes3From Ticks2To Boxes5To Ticks2<br>```mechanics
+progress "I vow to write this documentation" from-boxes=3 from-ticks=2 rank="formidable" steps=2
+```
+Copy<br><br>Marks progress on a progress track. Can be used interchangeably with<br>
+progress, but doesn't encode the track challenge rank or the number of<br>
+times progress was marked. Most often, this node would be used for moves that<br>
+say something like "erase two ticks from TKTK".<br>(not BOA)<br><br>
+<br>name (md): the name of the progress track.
+<br>status (optional): a status change for the track. Can be either "added" or "removed". If this argument is present, all other arguments except name are ignored.
+<br>from (optional): the starting value of the progress track, in total ticks.
+<br>from-boxes (optional): the starting value of the progress track, in boxes.
+<br>from-ticks (optional): the starting value of the progress track, in ticks<br>
+filled into the last unfilled box.
+<br>to (optional): the ending value of the progress track, in total ticks.
+<br>to-boxes (optional): the ending value of the progress track, in boxes.
+<br>to-ticks (optional): the ending value of the progress track, in ticks<br>
+filled into the last unfilled box.
+<br><br>TrackMy Background VowStatusaddedTrack NameMy Background VowFrom Boxes3From Ticks2To Boxes4To Ticks1<br>```mechanics
+track "My Background Vow" status="added"
+track "My Background Vow" from-boxes=3 from-ticks=2 to-boxes=4 to-ticks=1
+```
+Copy<br><br>Renders a change (positive or negative) in experience points.<br><br>
+<br>from: the starting number of experience points.
+<br>to: the ending number of experience points.
+<br><br>Delta2From3To5<br>```mechanics
+xp from=3 to=5
+```
+Copy<br><br>Renders a change in a clock.<br><br>
+<br>name (md): the name of the clock.
+<br>status (optional): a status change for the clock. Can be either "added" or "removed". If this argument is present, all other arguments except name are ignored.
+<br>from: the starting number of segments filled.
+<br>to: the ending number of segments filled.
+<br>out-of: the total number of segments in the clock.
+<br><br>ClockThe Doomsday Device ExplodesStatusaddedClockThe Doomsday Device ExplodesFrom3OutOfFrom6To5OutOfTo6<br>```mechanics
+clock "The Doomsday Device Explodes" status="added"
+clock "The Doomsday Device Explodes" from=3 to=5 out-of=6
+```
+Copy<br><br>Records an oracle roll and its result.<br><br>
+<br>name (md): the name of the oracle
+<br>roll: the value of the percentile die roll
+<br>result (md): The resulting value of the oracle roll.
+<br><br>oracle nodes may be nested, meaning you can have oracles inside oracles.<br><br>name<a data-tooltip-position="top" aria-label="oracle:GivenName" rel="noopener" class="external-link" href="https://iron-vault-plugin.github.io/iron-vault/oracle:GivenName" target="_blank">Character Name &gt; Given Name</a>roll34resultEsananameSomething elseroll2resultfoo<br>```mechanics
+oracle "[Character Name &gt; Given Name](oracle:GivenName)" roll=34 result="Esana" {
+  oracle "Something else" 2 "foo"
+}
+```
+Copy<br><br>Utility node for grouping related <a data-tooltip-position="top" aria-label="`oracle`" data-href="#`oracle`" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#`oracle`" class="internal-link" target="_self" rel="noopener">`oracle`</a>s together.<br><br>
+<br>name (md): a label for this group
+<br><br>Any oracle or oracle-group nodes.<br><br>Character NamenameGiven Nameroll30resultErennameCallsignroll72resultRooknameFamily Nameroll42resultBridger<br>```mechanics
+oracle-group "Character Name" {
+  oracle "Given Name" roll=30 result="Eren"
+  oracle "Callsign" roll=72 result="Rook"
+  oracle "Family Name" roll=42 result="Bridger"
+}
+```
+Copy<br><br>Records additions, removals, and upgrades of character assets.<br><br>
+<br>name (md): the name of the asset
+<br>status: the operation being performed on the asset. One of added, removed, upgraded.
+<br>ability (optional): the (1-based) index of the ability being upgraded. This should only be used when status is upgraded.
+<br><br>Asset<a data-tooltip-position="top" aria-label="asset:Empath" rel="noopener" class="external-link" href="https://iron-vault-plugin.github.io/iron-vault/asset:Empath" target="_blank">Empath</a>StatusupgradedAbility1<br>```mechanics
+asset "[Empath](asset:Empath)" status="upgraded" ability=1
+```
+Copy<br><br>Records marking and unmarking of impacts.<br><br>
+<br>name (md): the name of the impact
+<br>marked: the new status of the impact. true or false.
+<br><br>ImpactPermanently HarmedStatustrue<br>```mechanics
+impact "Permanently Harmed" true
+```
+Copy]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html</link><guid isPermaLink="false">Blocks/Mechanics Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Mon, 10 Jun 2024 00:58:41 GMT</pubDate></item><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
  <br>"Blocks" are used throughout Iron Vault to provide custom rendering of various game features. Most blocks also provide interactivity, so instead of having to manually edit frontmatter data, you can do the edits through the blocks' rendered views themselves.<br>
 You can use them as much or as little as you want, just like any other Iron Vault feature.<br>All blocks are used by using triple backticks (`), the name of the block, a new line, then a closing set of triple backticks.<br>Most blocks don't contain anything in order to work, but some, like <a data-href="Mechanics Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a>, have special contents that determine how they're rendered.<br>The following blocks are supported:<br>
 <br><a data-href="Mechanics Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a> (mechanics) - fancy drawing of mechanics, intended for use in journal pages.
@@ -272,177 +461,7 @@ Copy<br>Will render a clock that looks like this:<br>Doomsday Device<br><br>
           
         
       
-    <br><br>To edit the number of filled-in slices, simply click on the slice you want to fill up to. Clocks fill clockwise.<br>In order to zero-out your clock, first click on the first wedge until only that first wedge is filled, then click on it again to toggle it off, leaving the clock blank.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/clock-blocks.html</link><guid isPermaLink="false">Blocks/Clock Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Mechanics Blocks]]></title><description><![CDATA[ 
- <br><br>This plugin renders a <a data-tooltip-position="top" aria-label="https://kdl.dev/" rel="noopener" class="external-link" href="https://kdl.dev/" target="_blank">KDL</a> block into a formatted<br>
-Ironsworn/Starforged mechanics block, with nice styling and all that.<br>It takes an Obsidian note that looks like this:<br><img alt="mechanics-raw.png" src="https://iron-vault-plugin.github.io/iron-vault/lib/media/mechanics-raw.png" style="width: 500px; max-width: 100%;"><br>and turns it into this:<br><img alt="mechanics-rendered.png" src="https://iron-vault-plugin.github.io/iron-vault/lib/media/mechanics-rendered.png" style="width: 500px; max-width: 100%;"><br>Most mechanics nodes accept arguments either as properties, or BOA (by order of arguments).<br>That is, a node with arguments a, b, and c can be written as:<br>node 1 2 3
-Copy<br>or as:<br>node a=1 b=2 c=3
-Copy<br>Exceptions are noted in node documentation with ("not BOA").<br>Some arguments also support markdown rendering, and are marked as md.<br><br>There are <a data-tooltip-position="top" aria-label="Settings > Mechanics blocks" data-href="Settings#Mechanics blocks" href="https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html#Mechanics_blocks" class="internal-link" target="_self" rel="noopener">various settings</a> for tweaking how and whether mechanics blocks are rendered. See the Settings documentation for more information.<br><br><br>Declares a new move. Can contain any other nodes except for move. Shows<br>
-icons for hit kind and whether there was a match, and can be expanded or<br>
-collapsed to show or hide the contained nodes.<br><br>
-<br>id (optional): datasworn ID of the move
-<br>name (optional, md): the name of the move
-<br><br>Any node, except for move.<br><br>Face Danger?Action Die6Stat3Adds0Score9Challenge Die 18Challenge Die 29OutcomeWeak Hit
-ouch
-Endure Harm?MeterhealthDelta1From3To2Action Die3Stat4Adds0Score7Challenge Die 13Challenge Die 25OutcomeStrong HitHide Mechanics<br>```mechanics
-move "Face Danger" {
-    roll action=6 stat=3 adds=0 vs1=8 vs2=9
-    - "ouch"
-}
-move "Endure Harm" {
-    meter "health" from=3 to=2
-    roll action=3 stat=4 adds=0 vs1=3 vs2=5
-}
-```
-Copy<br><br>Adds an "arbitrary" text entry under the move. You can put anything in here.<br>(BOA only)<br><br>
-<br>text (md): the text to display
-<br><br>
-Oh man that was interesting
-Hide Mechanics<br>```mechanics
-- "Oh man that was interesting"
-```
-Copy<br><br>Records an "add" for an upcoming challenge roll, along with its reason.<br><br>
-<br>amount: the number of points to add to the roll
-<br>from (optional, md): the reason for the add (e.g. from="Bond with [[Ash]])
-<br><br>Amount2FromBond with <a data-href="Ash" href="https://iron-vault-plugin.github.io/iron-vault/Ash" class="internal-link" target="_self" rel="noopener">Ash</a>Hide Mechanics<br>```mechanics
-add 2 "Bond with [[Ash]]"
-```
-Copy<br><br>Adds a regular roll to the move. If used inside a move block, will set its<br>
-result.<br><br>
-<br>stat-name (optional): the name of the stat to roll against
-<br>action: the value of the action die
-<br>stat: the value of the stat to add
-<br>adds (optional, default: 0): the total value of the adds
-<br>vs1: the first challenge die
-<br>vs2: the second challenge die
-<br><br>Action Die3Stat2Stat NameheartAdds1Score6Challenge Die 13Challenge Die 27OutcomeWeak HitHide Mechanics<br>```mechanics
-// This will be rendered as a Weak Hit
-roll "heart" action=3 stat=2 adds=1 score=6 vs1=3 vs2=7
-```
-Copy<br><br>Renders a progress roll. If used inside a move block, will set its result.<br><br>
-<br>score: the number of filled track boxes the progress move is rolling against
-<br>vs1: the first challenge die
-<br>vs2: the second challenge die
-<br><br>Track NameProgress Score5Challenge Die 16Challenge Die 27OutcomeMissHide Mechanics<br>```mechanics
-// This will render as a Miss on progress
-progress-roll score=5 vs1=6 vs2=7
-```
-Copy<br><br>Rerolls one or more dice from a previous roll. If used inside a move, the<br>
-move's result will be automatically updated. It's an error to use this if there's no previous roll in the current Mechanics Block.<br>(not BOA)<br><br>
-<br>action (optional): the new value of the action die
-<br>vs1 (optional): the new value of the first challenge die
-<br>vs2 (optional): the new value of the second challenge die
-<br><br>Face Danger?Action Die3Stat2Adds1Score6Challenge Die 13Challenge Die 27OutcomeWeak HitOld Action Die3New Action Die6Old Challenge Die 13New Challenge Die 15New Score9Challenge Die 15Challenge Die 27OutcomeStrong HitHide Mechanics<br>```mechanics
-move "Face Danger" {
-    // weak hit (score = 6)
-    roll action=3 stat=2 adds=1 vs1=3 vs2=7
-
-    // strong hit (score = 9)
-    reroll action=6 vs1=5
-}
-```
-Copy<br><br>Shows meter changes.<br><br>
-<br>name: the name of the meter (e.g. "health")
-<br>from: the starting value of the meter
-<br>to: the ending value of the meter
-<br><br>MeterhealthDelta1From3To2MeterhealthDelta2From2To4Hide Mechanics<br>```mechanics
-meter "health" from=3 to=2
-meter "health" from=2 to=4
-```
-Copy<br><br>Burn momentum. Note that for "normal" momentum changes, you should use <a class="internal-link" data-href="#meter" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#meter" target="_self" rel="noopener"><code></code></a>meter instead.<br><br>
-<br>from: the starting momentum amount.
-<br>to: the ending momentum amount.
-<br><br>Face Danger?Action Die4Stat2Adds0Score6Challenge Die 18Challenge Die 29OutcomeMiss
-ouch
-From9To2New Score9Challenge Die 18Challenge Die 29OutcomeWeak Hit
-that's better...
-Hide Mechanics<br>```mechanics
-move "Face Danger" {
-    roll action=4 stat=2 adds=0 vs1=8 vs2=9
-    - "ouch"
-    burn from=9 to=2
-	- "that's better..."
-}
-```
-Copy<br><br>Marks progress on a progress track. Can be used interchangeably with track,<br>
-but has a nicer interface when what you want to express is "mark progress<br>
-twice" without having to figure out tick details yourself.<br>Box/tick amounts can be given either as a single from argument, or with<br>
-from-boxes/from-ticks.<br>(not BOA)<br><br>
-<br>name (md): the name of the progress track.
-<br>from (optional): the starting value of the progress track, in total ticks.
-<br>from-boxes (optional): the starting value of the progress track, in boxes.
-<br>from-ticks (optional): the starting value of the progress track, in ticks<br>
-filled into the last unfilled box.
-<br>rank - the challenge rank of the progress track (e.g. "formidable", "epic", etc).
-<br>steps (optional, default: 1) - number of times to mark progress.
-<br><br>Track NameI vow to write this documentationSteps2RankformidableFrom Boxes3From Ticks2To Boxes5To Ticks2Hide Mechanics<br>```mechanics
-progress "I vow to write this documentation" from-boxes=3 from-ticks=2 rank="formidable" steps=2
-```
-Copy<br><br>Marks progress on a progress track. Can be used interchangeably with<br>
-progress, but doesn't encode the track challenge rank or the number of<br>
-times progress was marked. Most often, this node would be used for moves that<br>
-say something like "erase two ticks from TKTK".<br>(not BOA)<br><br>
-<br>name (md): the name of the progress track.
-<br>status (optional): a status change for the track. Can be either "added" or "removed". If this argument is present, all other arguments except name are ignored.
-<br>from (optional): the starting value of the progress track, in total ticks.
-<br>from-boxes (optional): the starting value of the progress track, in boxes.
-<br>from-ticks (optional): the starting value of the progress track, in ticks<br>
-filled into the last unfilled box.
-<br>to (optional): the ending value of the progress track, in total ticks.
-<br>to-boxes (optional): the ending value of the progress track, in boxes.
-<br>to-ticks (optional): the ending value of the progress track, in ticks<br>
-filled into the last unfilled box.
-<br><br>TrackMy Background VowStatusaddedTrack NameMy Background VowFrom Boxes3From Ticks2To Boxes4To Ticks1Hide Mechanics<br>```mechanics
-track "My Background Vow" status="added"
-track "My Background Vow" from-boxes=3 from-ticks=2 to-boxes=4 to-ticks=1
-```
-Copy<br><br>Renders a change (positive or negative) in experience points.<br><br>
-<br>from: the starting number of experience points.
-<br>to: the ending number of experience points.
-<br><br>Delta2From3To5Hide Mechanics<br>```mechanics
-xp from=3 to=5
-```
-Copy<br><br>Renders a change in a clock.<br><br>
-<br>name (md): the name of the clock.
-<br>status (optional): a status change for the clock. Can be either "added" or "removed". If this argument is present, all other arguments except name are ignored.
-<br>from: the starting number of segments filled.
-<br>to: the ending number of segments filled.
-<br>out-of: the total number of segments in the clock.
-<br><br>ClockThe Doomsday Device ExplodesStatusaddedClockThe Doomsday Device ExplodesFrom3OutOfFrom6To5OutOfTo6Hide Mechanics<br>```mechanics
-clock "The Doomsday Device Explodes" status="added"
-clock "The Doomsday Device Explodes" from=3 to=5 out-of=6
-```
-Copy<br><br>Records an oracle roll and its result.<br><br>
-<br>name (md): the name of the oracle
-<br>roll: the value of the percentile die roll
-<br>result (md): The resulting value of the oracle roll.
-<br><br>oracle nodes may be nested, meaning you can have oracles inside oracles.<br><br>name<a data-tooltip-position="top" aria-label="oracle:GivenName" rel="noopener" class="external-link" href="https://iron-vault-plugin.github.io/iron-vault/oracle:GivenName" target="_blank">Character Name &gt; Given Name</a>roll34resultEsananameSomething elseroll2resultfooHide Mechanics<br>```mechanics
-oracle "[Character Name &gt; Given Name](oracle:GivenName)" roll=34 result="Esana" {
-  oracle "Something else" 2 "foo"
-}
-```
-Copy<br><br>Utility node for grouping related <a data-tooltip-position="top" aria-label="`oracle`" data-href="#`oracle`" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#`oracle`" class="internal-link" target="_self" rel="noopener">`oracle`</a>s together.<br><br>
-<br>name (md): a label for this group
-<br><br>Any oracle or oracle-group nodes.<br><br>Character NamenameGiven Nameroll30resultErennameCallsignroll72resultRooknameFamily Nameroll42resultBridgerHide Mechanics<br>```mechanics
-oracle-group "Character Name" {
-  oracle "Given Name" roll=30 result="Eren"
-  oracle "Callsign" roll=72 result="Rook"
-  oracle "Family Name" roll=42 result="Bridger"
-}
-```
-Copy<br><br>Records additions, removals, and upgrades of character assets.<br><br>
-<br>name (md): the name of the asset
-<br>status: the operation being performed on the asset. One of added, removed, upgraded.
-<br>ability (optional): the (1-based) index of the ability being upgraded. This should only be used when status is upgraded.
-<br><br>Asset<a data-tooltip-position="top" aria-label="asset:Empath" rel="noopener" class="external-link" href="https://iron-vault-plugin.github.io/iron-vault/asset:Empath" target="_blank">Empath</a>StatusupgradedAbility1Hide Mechanics<br>```mechanics
-asset "[Empath](asset:Empath)" status="upgraded" ability=1
-```
-Copy<br><br>Records marking and unmarking of impacts.<br><br>
-<br>name (md): the name of the impact
-<br>marked: the new status of the impact. true or false.
-<br><br>ImpactPermanently HarmedStatustrueHide Mechanics<br>```mechanics
-impact "Permanently Harmed" true
-```
-Copy]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html</link><guid isPermaLink="false">Blocks/Mechanics Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate><enclosure url="https://iron-vault-plugin.github.io/iron-vault/lib/media/mechanics-raw.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://iron-vault-plugin.github.io/iron-vault/lib/media/mechanics-raw.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[Moves Blocks]]></title><description><![CDATA[ 
+    <br><br>To edit the number of filled-in slices, simply click on the slice you want to fill up to. Clocks fill clockwise.<br>In order to zero-out your clock, first click on the first wedge until only that first wedge is filled, then click on it again to toggle it off, leaving the clock blank.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/clock-blocks.html</link><guid isPermaLink="false">Blocks/Clock Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Moves Blocks]]></title><description><![CDATA[ 
  <br>Moves blocks are rendered using iron-vault-moves. The entire purpose of these blocks is to render the searchable list of moves from the <a data-href="Sidebar" href="https://iron-vault-plugin.github.io/iron-vault/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener">Sidebar</a>, but in a regular note.<br><br>Using it is as simple as putting the following in a note:<br>```iron-vault-moves
 ```
 Copy<br>Which will render this:<br>

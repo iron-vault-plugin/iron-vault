@@ -1,15 +1,50 @@
 ### About
 
-This plugin renders a [KDL](https://kdl.dev/) block into a formatted
-Ironsworn/Starforged mechanics block, with nice styling and all that.
+This plugin renders a [KDL](https://kdl.dev/) block into a formatted Ironsworn/Starforged mechanics block, with nice styling and some interactivity.
 
 It takes an Obsidian note that looks like this:
 
-![[mechanics-raw.png|500]]
+````
+```mechanics
+move id="starforged/moves/adventure/face_danger" {
+	add 1 "because I'm cool [[Ash Barlowe]]"
+	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
+}
+- "Oh nooo. This is gonna hurt. Time to [Endure Harm](move:EndureHarm)."
+move "Endure Harm" {
+    meter "health" from=3 to=2
+    roll "health" action=3 stat=4 adds=0 vs1=3 vs2=8
+    meter "momentum" from=7 to=6
+    meter "health" from=2 to=3
+}
+move "Undertake an Expedition" {
+    roll action=3 stat=1 adds=0 vs1=3 vs2=5
+    reroll action=1 vs1=6
+    burn from=10 to=2
+}
+```
+````
 
 and turns it into this:
 
-![[mechanics-rendered.png|500]]
+```mechanics
+move id="starforged/moves/adventure/face_danger" {
+	add 1 "because I'm cool [[Ash Barlowe]]"
+	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
+}
+- "Oh nooo. This is gonna hurt. Time to [Endure Harm](move:EndureHarm)."
+move "Endure Harm" {
+    meter "health" from=3 to=2
+    roll "health" action=3 stat=4 adds=0 vs1=3 vs2=8
+    meter "momentum" from=7 to=6
+    meter "health" from=2 to=3
+}
+move "Undertake an Expedition" {
+    roll action=3 stat=1 adds=0 vs1=3 vs2=5
+    reroll action=1 vs1=6
+    burn from=10 to=2
+}
+```
 
 Most mechanics nodes accept arguments either as properties, or BOA (by order of arguments).
 
