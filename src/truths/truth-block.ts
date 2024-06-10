@@ -227,6 +227,8 @@ class TruthRenderer extends MarkdownRenderChild {
       editorRange.from,
       to,
     );
+    editor.focus();
+    editor.setCursor({ ch: 0, line: to.line + 2 });
   }
 
   reset() {
@@ -256,6 +258,8 @@ class TruthRenderer extends MarkdownRenderChild {
       editorRange.from,
       to,
     );
+    editor.focus();
+    editor.setCursor({ ch: 0, line: to.line + 2 });
   }
 }
 
