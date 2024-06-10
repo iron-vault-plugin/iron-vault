@@ -6,7 +6,7 @@ import {
   updateCodeBlockInterior,
 } from "../utils/editor";
 
-export const MECHANICS_CODE_BLOCK_TAG = "mechanics";
+export const MECHANICS_CODE_BLOCK_TAG = "iron-vault-mechanics";
 
 /** Appends nodes to an existing mechanics block or inserts a new block. */
 export function createOrUpdateBlock(

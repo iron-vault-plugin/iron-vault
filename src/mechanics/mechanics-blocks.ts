@@ -1,6 +1,7 @@
 import { Node as KdlNode, parse } from "kdljs";
 import {
   ButtonComponent,
+  MarkdownPostProcessorContext,
   MarkdownRenderChild,
   MarkdownRenderer,
 } from "obsidian";
@@ -8,23 +9,32 @@ import {
 import { ProgressTrack } from "tracks/progress";
 import IronVaultPlugin from "../index";
 
+function makeHandler(plugin: IronVaultPlugin) {
+  return async (
+    source: string,
+    el: MechanicsContainerEl,
+    ctx: MarkdownPostProcessorContext,
+  ) => {
+    // We can't render blocks until datastore is ready.
+    await plugin.datastore.waitForReady;
+    if (!el.mechanicsRenderer) {
+      el.mechanicsRenderer = new MechanicsRenderer(
+        el,
+        source,
+        plugin,
+        ctx.sourcePath,
+      );
+    }
+    await el.mechanicsRenderer.render();
+  };
+}
+
 export default function registerMechanicsBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
-    "mechanics",
-    async (source, el: MechanicsContainerEl, ctx) => {
-      // We can't render blocks until datastore is ready.
-      await plugin.datastore.waitForReady;
-      if (!el.mechanicsRenderer) {
-        el.mechanicsRenderer = new MechanicsRenderer(
-          el,
-          source,
-          plugin,
-          ctx.sourcePath,
-        );
-      }
-      await el.mechanicsRenderer.render();
-    },
+    "iron-vault-mechanics",
+    makeHandler(plugin),
   );
+  plugin.registerMarkdownCodeBlockProcessor("mechanics", makeHandler(plugin));
 }
 
 interface MechanicsContainerEl extends HTMLElement {

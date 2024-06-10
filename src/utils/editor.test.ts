@@ -41,23 +41,25 @@ describe("findAdjacentCodeBlock", () => {
     expect(
       findAdjacentCodeBlock(
         splitTextIntoReverseLineIterator("```\nasdf\n```\n\n\n"),
-        "mechanics",
+        "iron-vault-mechanics",
       ),
     ).toEqual(null);
 
     expect(
       findAdjacentCodeBlock(
-        splitTextIntoReverseLineIterator("```mechanics\nasdf\n```\n\n\n"),
-        "mechanics",
+        splitTextIntoReverseLineIterator(
+          "```iron-vault-mechanics\nasdf\n```\n\n\n",
+        ),
+        "iron-vault-mechanics",
       ),
     ).toEqual({ from: { line: 0, ch: 0 }, to: { line: 3, ch: 0 } });
 
     expect(
       findAdjacentCodeBlock(
         splitTextIntoReverseLineIterator(
-          "```mechanics\nasdf\n```\n\n```\nthis block blocks\n```\n",
+          "```iron-vault-mechanics\nasdf\n```\n\n```\nthis block blocks\n```\n",
         ),
-        "mechanics",
+        "iron-vault-mechanics",
       ),
     ).toEqual(null);
   });

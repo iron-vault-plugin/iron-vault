@@ -30,7 +30,7 @@ export function findFirstNonWhitespace(
   return null;
 }
 
-const CODE_BLOCK_START_REGEX = /^\s*```\s*(\w*)\s*[^`]*$/;
+const CODE_BLOCK_START_REGEX = /^\s*```\s*(\S*)\s*[^`]*$/;
 
 // Note that this does not currently look for code blocks in callouts (grimace)
 /** Searches for a whitespace-separated code block.
