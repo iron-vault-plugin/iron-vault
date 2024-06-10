@@ -5,7 +5,7 @@
   & dd {
     &.delta {
       &:before {
-        color: var(--text-faint);
+        color: var(--text-muted);
       }
       &.positive {
         color: var(--text-success);

@@ -115,3 +115,14 @@ move "[Endure Harm](move:starforged\/moves\/suffer\/endure_harm)" {
 }
 
 ```
+asdfasdf
+```mechanics
+oracle-group name="Character: Curtis \"Centurion\" Shelton" {
+    oracle name="[Character Oracles \/ Character Name \/ Given Name](oracle:starforged\/oracles\/characters\/name\/given)" result="Curtis" roll=64
+    oracle name="[Character Oracles \/ Character Name \/ Callsign](oracle:starforged\/oracles\/characters\/name\/callsign)" result="Centurion" roll=19
+    oracle name="[Character Oracles \/ Character Name \/ Family Name](oracle:starforged\/oracles\/characters\/name\/family_name)" result="Shelton" roll=52
+    oracle name="[Character Oracles \/ First Look](oracle:starforged\/oracles\/characters\/first_look)" result="Weathered" roll=89
+    oracle name="[Character Oracles \/ Initial Disposition](oracle:starforged\/oracles\/characters\/initial_disposition)" result="Wanting" roll=58
+}
+```
+

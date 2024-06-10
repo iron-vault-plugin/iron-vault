@@ -10,7 +10,7 @@
       content: " + ";
     }
     &.stat-name {
-      color: var(--text-faint);
+      color: var(--text-muted);
       &:before {
         content: " (";
       }

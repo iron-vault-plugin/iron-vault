@@ -52,7 +52,7 @@
     }
     &:before,
     &:after {
-      color: var(--text-faint);
+      color: var(--text-muted);
     }
   }
   &.strong-hit {

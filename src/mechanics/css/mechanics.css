@@ -20,9 +20,14 @@
 @import url("dlist-impact.css");
 
 .iron-vault-mechanics {
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   cursor: default;
   margin: 0.5em auto;
   max-width: 460px;
+  background-color: var(--background-secondary);
+  padding: 1em;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
   &.collapsed > :not(.toggle) {
     display: none;
   }
