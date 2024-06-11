@@ -11,7 +11,7 @@ It is not a "play for me"-style VTT, in the sense that while it has a lot of con
 
 ### Getting Started
 
-Not sure where to start? There's a full [[Player's Guide/index|Player's Guide]] or, more specifically, a [[Initial Setup]] guide so you can jump right in with a new or existing campaign, using as much or as little of Iron Vault as you want!
+Not sure where to start? There's a full [[Player's Guide/index|Player's Guide]] or, more specifically, a [[Initial Setup|Getting Started]] guide so you can jump right in with a new or existing campaign, using as much or as little of Iron Vault as you want!
 
 ### Features
 
@@ -23,6 +23,7 @@ You can start reading about the various Iron Vault features here:
 * [[Sidebar]] - A handy right-panel sidebar for quick access to Moves, Oracles, and your Character Sheet, all in one, easy-access place. Particularly useful on mobile.
 * [[Special Links]] - There are `oracle:`, `move:`, `asset:` and `id:` links that, instead of trying to open a web page, will instead open a modal window with the contents of the thing you're trying to link to. For example, `[My Oracle](oracle:MyOracleName)` will pop up a window with the description and roll table for "My Oracle".
 * [[CSS Tweaks]] - Styling tweaks to make some things look nicer or more customized, such as the `iron-vault-embed` option for inlining embeds.
+* [[Callouts]] - Special formatting and generation for game-related callouts.
 * [[Settings]] - Various configurations available to tweak your Iron Vault experience.
 * [[API]] - (Coming Soon) Are you a developer? We expose the plugin for easy access, for folks who want to do fancier things with Iron Vault features.
 * [[Rulesets]] (Coming Soon) - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the [Datasworn](https://github.com/rsek/datasworn) data model.
