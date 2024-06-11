@@ -56,7 +56,10 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
     collectionId: "starforged/collections/oracles/characters",
     label: "Character",
     nameGen: (ent) =>
-      `${ent.givenName[0]?.simpleResult}${ent.callSign.length > 0 ? ' "' + ent.callSign[0].simpleResult + '"' : ""} ${ent.familyName[0]?.simpleResult}`,
+      // NB(@zkat): We use smart quotes here because `"` is an invalid
+      // character in Windows filenames and `'` looks like shit. They look
+      // nice anyway.
+      `${ent.givenName[0]?.simpleResult}${ent.callSign.length > 0 ? " “" + ent.callSign[0].simpleResult + "”" : ""} ${ent.familyName[0]?.simpleResult}`,
     spec: {
       givenName: {
         id: "starforged/oracles/characters/name/given",
