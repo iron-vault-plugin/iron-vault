@@ -6,6 +6,7 @@ import Sortable from "sortablejs";
 
 import { Asset } from "@datasworn/core/dist/Datasworn";
 import IronVaultPlugin from "index";
+import { rootLogger } from "logger";
 import { EventRef, MarkdownRenderChild } from "obsidian";
 import { ProgressTrack, legacyTrackXpEarned } from "tracks/progress";
 import { renderTrack } from "tracks/track-block";
@@ -18,6 +19,8 @@ import renderAssetCard from "./asset-card";
 import { addOrUpdateViaDataswornAsset } from "./assets";
 import { addAssetToCharacter } from "./commands";
 import { ValidatedCharacter, momentumOps } from "./lens";
+
+const logger = rootLogger.getLogger("blocks");
 
 export default function registerCharacterBlocks(plugin: IronVaultPlugin): void {
   registerBlock();
@@ -82,7 +85,7 @@ class CharacterRenderer extends MarkdownRenderChild {
   }
 
   onload() {
-    console.log("CharacterRenderer[%s] onload", this.sections.join(", "));
+    logger.debug("CharacterRenderer[%s] onload", this.sections.join(", "));
     if (this.fileWatcher) {
       this.plugin.characters.offref(this.fileWatcher);
     }
@@ -103,10 +106,10 @@ class CharacterRenderer extends MarkdownRenderChild {
     const result =
       this.plugin.characters.get(this.sourcePath) ??
       Left.create(new Error("character not indexed"));
-    console.log(
+    logger.trace(
       "CharacterRenderer[%s] render started for %o",
       this.sections.join(", "),
-      result,
+      result.map((ctx) => ctx.character.raw),
     );
     if (result.isLeft()) {
       render(

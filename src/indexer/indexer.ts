@@ -1,8 +1,10 @@
 import { Index } from "indexer/index-interface";
+import { rootLogger } from "logger";
 import { type CachedMetadata } from "obsidian";
 import { Either, Left } from "utils/either";
 import { IronVaultKind } from "../constants";
 import { IndexImpl } from "./index-impl";
+import { Logger } from "loglevel";
 
 export type IndexErrorResult<E extends Error> = { type: "error"; error: E };
 export type IndexUpdateResult<V, E extends Error> =
@@ -57,7 +59,17 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
   abstract readonly id: IronVaultKind;
   public readonly index: Index<T, E> = new IndexImpl();
 
+  #_logger?: Logger;
+
   constructor() {}
+
+  get #logger(): Logger {
+    // NOTE: this is because the id field isn't available in the constructor :grimace:
+    if (!this.#_logger) {
+      this.#_logger = rootLogger.getLogger(`indexer.${this.id}`);
+    }
+    return this.#_logger;
+  }
 
   onChanged(
     path: string,
@@ -78,7 +90,7 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
         // "Won't index" is intended for a situation where this indexer decides it doesn't
         // apply to this file. We remove it from the index entirely.
         if (this.index.delete(path)) {
-          console.log(
+          this.#logger.debug(
             "[indexer:%s] [file:%s] removing because no longer indexable",
             this.id,
             path,

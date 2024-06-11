@@ -1,4 +1,6 @@
 import { syntaxTree } from "@codemirror/language";
+import { rootLogger, setLogLevel } from "logger";
+import loglevel from "loglevel";
 import { App } from "obsidian";
 import { ProgressIndex } from "tracks/indexer";
 import { CharacterTracker } from "./character-tracker";
@@ -36,6 +38,14 @@ export class IronVaultAPI {
   public getSyntaxTree() {
     const state = this.plugin.app.workspace.activeEditor?.editor?.cm.state;
     return state && syntaxTree(state);
+  }
+
+  get logLevel(): loglevel.LogLevelDesc {
+    return rootLogger.getLevel();
+  }
+
+  set logLevel(level: loglevel.LogLevelDesc) {
+    setLogLevel(level);
   }
 }
 
