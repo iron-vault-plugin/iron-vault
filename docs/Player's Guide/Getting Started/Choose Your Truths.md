@@ -48,3 +48,8 @@ The Starforged Rulebook gives you three options for choosing each Truth:
 2. Rolling for a Truth using your oracle dice
 3. Customizing a Truth, or crafting your own
 
+Iron Vault supports all three!
+
+##### Just choosing a Truth
+
+Directly choosing a Truth is as simple as clicking on the `Select your truth...` dropdown in each Truth Block, and picking whichever you like best. 

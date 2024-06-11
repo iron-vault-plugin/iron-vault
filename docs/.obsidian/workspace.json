@@ -10,16 +10,31 @@
           {
             "id": "9e83b50c2e954b85",
             "type": "leaf",
+            "pinned": true,
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Entities/index.md",
+                "file": "Player's Guide/Getting Started/Initial Setup.md",
+                "mode": "source",
+                "source": false
+              },
+              "pinned": true
+            }
+          },
+          {
+            "id": "f922024d4dac3713",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Player's Guide/Getting Started/Choose Your Truths.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -85,7 +100,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "index.md",
+                "file": "Player's Guide/Getting Started/Choose Your Truths.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +117,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "index.md",
+                "file": "Player's Guide/Getting Started/Choose Your Truths.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +140,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "index.md"
+                "file": "Player's Guide/Getting Started/Choose Your Truths.md"
               }
             }
           },
@@ -142,7 +157,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -153,53 +169,20 @@
       "templates:Insert template": false,
       "command-palette:Open command palette": false,
       "webpage-html-export:Export Vault to HTML": false,
-      "iron-vault:Show Iron Vault commands": false,
-      "obsidian42-brat:BRAT": false
+      "iron-vault:Show Iron Vault commands": false
     }
   },
-  "floating": {
-    "id": "71eb49a921668ae5",
-    "type": "floating",
-    "children": [
-      {
-        "id": "cbfbf7918033ff20",
-        "type": "window",
-        "children": [
-          {
-            "id": "c1ba122004ca21cf",
-            "type": "tabs",
-            "children": [
-              {
-                "id": "5821f13438654e71",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "index.md",
-                    "mode": "source",
-                    "source": false
-                  }
-                }
-              }
-            ]
-          }
-        ],
-        "direction": "vertical",
-        "x": 270,
-        "y": 435,
-        "width": 800,
-        "height": 400,
-        "maximize": true,
-        "zoom": 0
-      }
-    ]
-  },
-  "active": "5821f13438654e71",
+  "active": "f922024d4dac3713",
   "lastOpenFiles": [
+    "Player's Guide/Getting Started/Initial Setup.md",
+    "Player's Guide/index.md",
+    "Player's Guide/Getting Started",
+    "Player's Guide/Getting Started/Choose Your Truths.md",
+    "Entities/index.md",
+    "index.md",
     "Other Features/Sidebar.md",
     "Other Features/Settings.md",
     "Other Features/index.md",
-    "Entities/index.md",
     "Commands/Ask the Oracle.md",
     "Commands/Add asset to character.md",
     "Blocks/Track Blocks.md",
@@ -207,7 +190,6 @@
     "Blocks/Character Blocks.md",
     "Blocks/index.md",
     "Commands/index.md",
-    "index.md",
     "Blocks/Mechanics Blocks.md",
     "Support/Doomsday Device.md",
     "Support/Write the Docs.md",
@@ -222,9 +204,6 @@
     "Blocks/Truth Blocks.md",
     "Commands/Create new character.md",
     "Other Features/Special Links.md",
-    "Other Features/Rulesets.md",
-    "Other Features/CSS Tweaks.md",
-    "Other Features/API.md",
     "Support/img/face-danger-link.png",
     "Support/img/character-sheet.png",
     "Support/img/mechanics-rendered.png",
