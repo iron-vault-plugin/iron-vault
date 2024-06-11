@@ -1,6 +1,6 @@
 Track blocks are used to represent Progress Tracks, a core Ironsworn and Starforged feature.
 
-[[Progress Tracks]] in Iron Vault are [[About Entities|Entities]], and can only have one note per Track, since their data is stored in frontmatter. These Tracks can be placed anywhere as long as they have the right metadata, which they require in order to render correctly. You can use [[Create a progress track]] to generate these.
+[[Progress Tracks]] in Iron Vault are [[Entities/index|Entities]], and can only have one note per Track, since their data is stored in frontmatter. These Tracks can be placed anywhere as long as they have the right metadata, which they require in order to render correctly. You can use [[Create a progress track]] to generate these.
 #### Example
 
 The following file:

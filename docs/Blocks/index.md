@@ -1,3 +1,6 @@
+---
+title: About Blocks
+---
 "Blocks" are used throughout Iron Vault to provide custom rendering of various game features. Most blocks also provide interactivity, so instead of having to manually edit frontmatter data, you can do the edits through the blocks' rendered views themselves.
 You can use them as much or as little as you want, just like any other Iron Vault feature.
 

@@ -1,3 +1,6 @@
+---
+title: About Commands
+---
 The following commands are supported:
 
 - [[Create new character|Create new character]]
@@ -16,7 +19,7 @@ The following commands are supported:
 - [[Show sidebar]]
 #### Journal Insertions
 
-Many commands have some mechanical effect, but additionally "add a mechanics entry to your journal". Right now, the "current journal" is determined simply by whatever file you have open when the command was invoked. That means that if you're looking at an [[About Entities|Entity]] file, the command result will get appended to that file, not your "actual" journal.
+Many commands have some mechanical effect, but additionally "add a mechanics entry to your journal". Right now, the "current journal" is determined simply by whatever file you have open when the command was invoked. That means that if you're looking at an [[Entities/index|Entity]] file, the command result will get appended to that file, not your "actual" journal.
 
 (Coming Soon)
 

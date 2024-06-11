@@ -12,7 +12,7 @@ The Oracle Tab includes a list of all Oracles available in the currently-enabled
 
 In order to roll an oracle on this tab, you can expand its group if needed, then click on the oracle name, which will invoke the [[Ask the Oracle]] command using that oracle. If you want to pick from the oracle table yourself or just see the table for reference, you can click on the button with the list icon next to the oracle name to open a popup window with the oracle table, and a button for rolling that oracle if you then want to roll it.
 
-Each Oracle group in the Oracle Tab also has a button with a die icon before its list of oracles. When an [[About Entities|Entity]] for this group is supported, this button will invoke the [[Generate an entity]] command for that Entity.
+Each Oracle group in the Oracle Tab also has a button with a die icon before its list of oracles. When an [[Entities/index|Entity]] for this group is supported, this button will invoke the [[Generate an entity]] command for that Entity.
 
 (Coming Soon)
 

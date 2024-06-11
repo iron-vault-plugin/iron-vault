@@ -1,3 +1,6 @@
+---
+title: About Entities
+---
 Iron Vault represents various game concepts as something called "Entities". This section lists all current entities, their data models, and links to how to use them throughout the plugin.
 
 The current supported entities are:

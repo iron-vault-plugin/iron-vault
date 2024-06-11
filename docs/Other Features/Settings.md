@@ -1,11 +1,11 @@
  braIron Vault includes various settings for tweaking the behavior of its features, to allow you to shape it into a better tool for your use case.
 ### General
 
-* **Use character system**: when enabled, this will look for an active [[Characters|Character]] file when making moves and doing other game operations. If disabled, Iron Vault will still work, but will prompt you for values of, for example, your stats. This is a good setting to disable if you only wish to use a particular subset of Iron Vault features, like [[Mechanics Blocks]] or the [[Sidebar]] but don't really care to use the various [[About Commands|Commands]].
+* **Use character system**: when enabled, this will look for an active [[Characters|Character]] file when making moves and doing other game operations. If disabled, Iron Vault will still work, but will prompt you for values of, for example, your stats. This is a good setting to disable if you only wish to use a particular subset of Iron Vault features, like [[Mechanics Blocks]] or the [[Sidebar]] but don't really care to use the various [[Commands/index|Commands]].
 
 ### New game object defaults
 
-* **Default (x) folder**: Controls which folder to put various rollable [[About Entities|Entities]] in by default. You can still pick the folder on an individual basis, or even move it, regardless of what these values are.
+* **Default (x) folder**: Controls which folder to put various rollable [[Entities/index|Entities]] in by default. You can still pick the folder on an individual basis, or even move it, regardless of what these values are.
 * **(x) template file**: If provided, the contents of these files will be added to the end of the new entity files when they're created. (Coming Soon) This will eventually be replaced with a more involved template system that will give you more control of how files are generated and formatted, and what additional frontmatter they include.
 
 ### Mechanics blocks

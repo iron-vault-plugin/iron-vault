@@ -3,7 +3,7 @@ Character blocks are intended to be used in dedicated character notes with speci
 They look like this:
 ![[character-sheet.png]]
 
-[[Characters|Characters]] in Iron Vault are [[About Entities|Entities]], and can only have one note per character, since their data is stored in frontmatter. These characters can be placed anywhere as long as they have the right metadata.
+[[Characters|Characters]] in Iron Vault are [[Entities/index|Entities]], and can only have one note per character, since their data is stored in frontmatter. These characters can be placed anywhere as long as they have the right metadata.
 
 Currently, Iron Vault only supports one character per Obsidian vault, but multi-character and multi-campaign mode is on the roadmap.
 
