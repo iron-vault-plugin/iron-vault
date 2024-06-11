@@ -8,7 +8,7 @@ import { FolderTextSuggest } from "utils/ui/settings/folder";
 export async function generateTruthsCommand(plugin: IronVaultPlugin) {
   const truths = [...plugin.datastore.truths.values()];
   const text = Handlebars.compile(
-    `{{#each truths}}\n## {{name}}\n\`\`\`iron-vault-truth\n{{name}}\n\`\`\`\n{{/each}}`,
+    `{{#each truths}}\n## {{name}}\n\`\`\`iron-vault-truth\n{{name}}\n\`\`\`\n\n{{/each}}`,
   )({ truths });
   const { fileName, targetFolder }: { fileName: string; targetFolder: string } =
     await new Promise((onAccept, onReject) =>
