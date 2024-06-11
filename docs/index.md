@@ -9,6 +9,9 @@ The plugin is designed to be used piecemeal: you can use as much or as little as
 
 It is not a "play for me"-style VTT, in the sense that while it has a lot of conveniences for rendering and interacting with mechanics, the actual resolution and logic of game mechanics is left up to you, and whatever flexibility you want to handle the game's rules with. The game, after all, is not a single monolithic set of laws, and everyone tends to take their own liberties with the rules in the interest of enjoying the game more.
 
+### Getting Started
+
+Not sure where to start? There's a full [[Player's Guide/index|Player's Guide]] or, more specifically, a [[Getting Started]] guide so you can jump right in with a new or existing campaign, using as much or as little of Iron Vault as you want!
 ### Features
 
 You can start reading about the various Iron Vault features here:
