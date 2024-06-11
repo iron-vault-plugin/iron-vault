@@ -26,6 +26,7 @@ import { IronVaultSettingTab } from "./settings/ui";
 import { pluginAsset } from "./utils/obsidian";
 import { IronVaultCommands } from "commands";
 import registerTruthBlock from "truths/truth-block";
+import { initLogger } from "logger";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -63,6 +64,7 @@ export default class IronVaultPlugin extends Plugin {
   }
 
   async onload(): Promise<void> {
+    initLogger();
     await this.loadSettings();
     addIcon(
       "iron-vault",

@@ -70,7 +70,7 @@ export class Datastore extends Component implements IDataContext {
     //     oraclesFolderFile == null ||
     //     !(oraclesFolderFile instanceof TFolder)
     //   ) {
-    //     console.error(
+    //     logger.error(
     //       "oracle folders: expected '%s' to be folder",
     //       oraclesFolderFile,
     //     );
@@ -104,7 +104,7 @@ export class Datastore extends Component implements IDataContext {
   }
 
   // async indexOraclesFolder(folder: TFolder): Promise<void> {
-  //   console.log("indexing folder %s", folder.path);
+  //   logger.info("indexing folder %s", folder.path);
   //   const filesToIndex = new Map(
   //     breadthFirstTraversal<TFile, TAbstractFile>(
   //       folder,
@@ -127,7 +127,7 @@ export class Datastore extends Component implements IDataContext {
   //   );
 
   //   for (const pathToRemove of pathsToRemove) {
-  //     console.log(
+  //     logger.debug(
   //       "index: previously indexed data file %s (part of %s) no longer indexable, removing...",
   //       pathToRemove,
   //       folder.path,
@@ -136,7 +136,7 @@ export class Datastore extends Component implements IDataContext {
   // }
 
   // async indexOracleFile(file: TFile): Promise<boolean> {
-  //   console.log("indexing %s", file.path);
+  //   logger.info("indexing %s", file.path);
   //   const cache = this.app.metadataCache.getFileCache(file);
   //   const parser = parserForFrontmatter(file, cache);
   //   if (parser == null) {
@@ -158,7 +158,7 @@ export class Datastore extends Component implements IDataContext {
   //   }
 
   //   if (!result.success) {
-  //     console.error(`[file: ${file.path}] error parsing file`, result.error);
+  //     logger.error(`[file: ${file.path}] error parsing file`, result.error);
   //     return false;
   //   }
 
@@ -172,7 +172,7 @@ export class Datastore extends Component implements IDataContext {
   //     );
   //     return true;
   //   } catch (e) {
-  //     console.error(`[file: ${file.path}] error indexing file`, e);
+  //     logger.error(`[file: ${file.path}] error indexing file`, e);
   //     return false;
   //   }
   // }
@@ -182,7 +182,7 @@ export class Datastore extends Component implements IDataContext {
   //   priority: number,
   //   format: string = "json",
   // ): Promise<void> {
-  //   console.log(
+  //   logger.info(
   //     "iron-vault: datastore: indexing plugin file %s (format: %s priority: %d)",
   //     normalizedPath,
   //     format,
