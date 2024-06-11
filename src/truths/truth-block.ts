@@ -156,6 +156,7 @@ class TruthRenderer extends MarkdownRenderChild {
           ${ref((el?: Element) => el && setIcon(el as HTMLElement, "dice"))}
         ></button>
         <section>
+          ${!this.selectedOption ? null : this.selectedOption.summary}
           ${!this.selectedOption
             ? null
             : md(
