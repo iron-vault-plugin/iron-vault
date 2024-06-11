@@ -12,6 +12,7 @@ It is not a "play for me"-style VTT, in the sense that while it has a lot of con
 ### Getting Started
 
 Not sure where to start? There's a full [[Player's Guide/index|Player's Guide]] or, more specifically, a [[Initial Setup]] guide so you can jump right in with a new or existing campaign, using as much or as little of Iron Vault as you want!
+
 ### Features
 
 You can start reading about the various Iron Vault features here:

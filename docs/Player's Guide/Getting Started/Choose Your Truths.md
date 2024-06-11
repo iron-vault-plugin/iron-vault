@@ -44,12 +44,37 @@ At this point, you can go one by one and select your Truths.
 
 The Starforged Rulebook gives you three options for choosing each Truth:
 
-1. Just choosing a Truth from the list
-2. Rolling for a Truth using your oracle dice
-3. Customizing a Truth, or crafting your own
+1. [[#Just choosing a Truth|Just choosing a Truth from the list]]
+2. [[#Rolling for a Truth|Rolling for a Truth using your oracle dice]]
+3. [[#Customizing a Truth, or Crafting Your Own|Customizing a Truth, or crafting your own]]
 
 Iron Vault supports all three!
 
+Once you've taken your chosen path, you'll be able to move on to [[Create Your Character|Creating Your Character]].
 ##### Just choosing a Truth
 
-Directly choosing a Truth is as simple as clicking on the `Select your truth...` dropdown in each Truth Block, and picking whichever you like best. 
+Directly choosing a Truth is as simple as clicking on the `Select your truth...` dropdown in each Truth Block, and picking whichever you like best. You may need to repeat it if the Truth has sub-options.
+
+When you're satisfied with your choice, press the save button on the bottom right to write the results to your note.
+
+##### Rolling for a Truth
+
+To randomize this process, you can click on the small die button next to the `Select your truth...` dropdown. This will pick a random Truth from the list of built-in ones. You may have to repeat this if the Truth has sub-options.
+
+If you're satisfied with the results, press the save button on the bottom right to write the results to your note.
+
+##### Customizing a Truth, or Crafting Your Own
+
+Truth notes are regular notes! You can actually write anything you want on this note, in any structure you want. If you want to reorder the Truths, you can just cut and paste the header and the Truth Block and move it wherever you want. Likewise, if you want to add or remove Truths, you can do that, although Truth Blocks will only work for Truths in your active [[Rulesets]]. But headers still work!
+
+If you chose to pick or roll for a Truth, as above, you can also freely edit the results at any time to add more color, to change details, or otherwise update the Truth to your preference.
+
+Eventually, you may even want to move your Truths into different notes, and all you have to do for that is to cut and paste the parts you want.
+
+##### Changing Your Mind
+
+Did you press save, but you don't like the results and you want to try again? Just press the "Reset" button on the Truth Block, and it'll insert a separator before your current Truth text, and let you pick your Truth again!
+
+##### Next Steps
+
+Once you've taken your chosen path, you'll be able to move on to [[Create Your Character|Creating Your Character]].
