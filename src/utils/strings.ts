@@ -5,7 +5,10 @@ export function capitalize(s: string): string {
 
 /** Capitalize the first letter of every word. */
 export function titleCase(str: string): string {
-  return str.replaceAll(/\b(?<!')(\w)/g, (_match, ch) => ch.toUpperCase());
+  return str
+    .split(" ")
+    .map(([h, ...t]) => h.toUpperCase() + t.join("").toLowerCase())
+    .join(" ");
 }
 
 export function makeSafeForId(str: string): string {

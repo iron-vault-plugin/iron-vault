@@ -18,7 +18,7 @@ export interface MarkdownTable {
 export class MalformedMarkdownTableError extends Error {}
 
 export function splitTableRow(row: string): string[] {
-  const segments = row.split(/(?<!\\)\|/).map((s) => s.trim());
+  const segments = row.split(/[^\\]?\|/).map((s) => s.trim());
   if (segments[0] === "") {
     segments.shift();
   }
