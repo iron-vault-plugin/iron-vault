@@ -20,6 +20,8 @@ export default tseslint.config(
         { argsIgnorePattern: "^_" },
       ],
     },
-    ignores: ["dist/"],
+  },
+  {
+    ignores: ["dist/", "**/.obsidian", "main.js", "docs-built/"],
   },
 );

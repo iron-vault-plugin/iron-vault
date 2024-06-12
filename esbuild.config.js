@@ -48,28 +48,28 @@ const context = await esbuild.context({
       resolveFrom: "cwd",
       assets: [
         {
-          from: ["manifest.json"],
+          from: ["./manifest.json"],
           to: [
             "./test-vault/.obsidian/plugins/iron-vault/manifest.json",
             "./docs/.obsidian/plugins/iron-vault/manifest.json",
           ],
         },
         {
-          from: [".hotreload"],
+          from: ["./.hotreload"],
           to: [
             "./test-vault/.obsidian/plugins/iron-vault/.hotreload",
             "./docs/.obsidian/plugins/iron-vault/.hotreload",
           ],
         },
         {
-          from: ["main.js"],
+          from: ["./main.js"],
           to: [
             "./docs/.obsidian/plugins/iron-vault/main.js",
             "./test-vault/.obsidian/plugins/iron-vault/main.js",
           ],
         },
       ],
-      watch: true,
+      watch: !prod,
     }),
   ],
 });
@@ -97,7 +97,7 @@ const cssCtx = await esbuild.context({
           ],
         },
       ],
-      watch: true,
+      watch: !prod,
     }),
   ],
 });
