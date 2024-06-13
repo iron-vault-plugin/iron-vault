@@ -14,6 +14,7 @@ import {
   SuggesterItem,
 } from "utils/ui/generic-fuzzy-suggester";
 import { generateTruthsCommand } from "truths/command";
+import { insertComment } from "mechanics/commands";
 
 export class IronVaultCommands {
   plugin: IronVaultPlugin;
@@ -186,6 +187,11 @@ export class IronVaultCommands {
       id: "generate-truths",
       name: "Generate truths",
       callback: () => generateTruthsCommand(this.plugin),
+    },
+    {
+      id: "insert-comment",
+      name: "Insert out-of-character (OOC) comment",
+      editorCallback: (editor: Editor) => insertComment(this.plugin, editor),
     },
   ];
 
