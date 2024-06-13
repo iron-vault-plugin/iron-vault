@@ -130,7 +130,26 @@ export async function createNewCharacter(plugin: IronVaultPlugin) {
     IronVaultKind.Character,
     createValidCharacter(lens, validater, name).raw,
     plugin.settings.characterTemplateFile,
-    `\n\`\`\`${pluginPrefixed("character")}\n\`\`\`\n`,
+    `
+\`\`\`${pluginPrefixed("character-info")}
+\`\`\`
+
+\`\`\`${pluginPrefixed("character-stats")}
+\`\`\`
+
+\`\`\`${pluginPrefixed("character-meters")}
+\`\`\`
+
+\`\`\`${pluginPrefixed("character-special-tracks")}
+\`\`\`
+
+\`\`\`${pluginPrefixed("character-impacts")}
+\`\`\`
+
+\`\`\`${pluginPrefixed("character-assets")}
+\`\`\`
+
+`,
     true,
   );
 }
