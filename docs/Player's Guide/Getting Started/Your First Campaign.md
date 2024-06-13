@@ -10,6 +10,7 @@ To quickly address the first section on player safety: Iron Vault supports two s
 
 1. [[Make a move|Making a move]] to `Set a Flag`, and then adding appropriate [[Mechanics Blocks#`-` (dash)|comments]] to it.
 2. Using [[Callouts#Spoiler Callout|a Spoiler Callout]] to hide sensitive content behind an expandable box.
+
 ### Intro to Journaling
 
 Before we start, we have to introduce a core concept to Iron Vault: journals.

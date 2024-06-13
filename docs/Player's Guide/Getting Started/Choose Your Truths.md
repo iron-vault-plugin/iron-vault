@@ -51,6 +51,7 @@ The Starforged Rulebook gives you three options for choosing each Truth:
 Iron Vault supports all three!
 
 Once you've taken your chosen path, you'll be able to move on to [[Create Your Character|Creating Your Character]].
+
 ##### Just choosing a Truth
 
 Directly choosing a Truth is as simple as clicking on the `Select your truth...` dropdown in each Truth Block, and picking whichever you like best. You may need to repeat it if the Truth has sub-options.

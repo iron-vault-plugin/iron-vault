@@ -1,6 +1,7 @@
 Your character! Your character is the protagonist of your story. They are the vehicle through which you write and experience the story you're telling by playing these wonderful games.
 
 As such, the process of creating your character is very important! In this guide, we'll walk you through the whole process, following along with the Starforged Rulebook's steps!
+
 ### Generating Your Character Sheet
 
 What's a hero without a character sheet?
@@ -60,7 +61,6 @@ Finally, you can expand again in order to see a nicely-rendered asset card for e
 
 Go ahead and pick your two Paths. If you change your mind about a choice, simply click the "x" button on the asset card in your character sheet. If you want to reorder them, just drag and drop them by the top part.
 
-Let's move on!
 #### Create your backstory
 
 Although you had some opportunity to do this with Truths, this is likely the first time you'll have to make a choice about where to put something and how to organize your vault. Your backstory can go anywhere you want, after all!
