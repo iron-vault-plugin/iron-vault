@@ -15,6 +15,7 @@ import {
 } from "utils/ui/generic-fuzzy-suggester";
 import { generateTruthsCommand } from "truths/command";
 import { insertComment } from "mechanics/commands";
+import { PromptModal } from "utils/ui/prompt";
 
 export class IronVaultCommands {
   plugin: IronVaultPlugin;
@@ -193,6 +194,11 @@ export class IronVaultCommands {
       name: "Insert out-of-character (OOC) comment",
       editorCallback: (editor: Editor) => insertComment(this.plugin, editor),
     },
+    {
+      id: "insert-spoilers",
+      name: "Insert spoiler text",
+      editorCallback: (editor: Editor) => this.insertSpoilers(editor),
+    },
   ];
 
   constructor(plugin: IronVaultPlugin) {
@@ -235,5 +241,23 @@ export class IronVaultCommands {
         item.info();
       }
     });
+  }
+
+  async insertSpoilers(editor: Editor) {
+    const title = await PromptModal.prompt(
+      this.plugin.app,
+      "Enter spoiler title (this will be visible)",
+    );
+    const body = await PromptModal.prompt(
+      this.plugin.app,
+      "Enter spoiler body (this will be hidden)",
+    );
+    const extraLine = editor.getCursor("from").ch > 0 ? "\n\n" : "";
+    editor.replaceSelection(
+      `${extraLine}\
+> [!spoiler]- ${title}
+> ${body}
+`,
+    );
   }
 }
