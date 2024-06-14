@@ -67,6 +67,7 @@ export class ClockFileAdapter {
     if (result.success) {
       const raw = result.data;
       return Clock.create({
+        name: raw.name,
         progress: raw.progress,
         segments: raw.segments,
         active: !raw.tags.includes("complete"),
@@ -84,6 +85,7 @@ export class ClockFileAdapter {
     if (this.clock == other || this.clock.equals(other)) return this;
     return new ClockFileAdapter(
       produce(this.raw, (data) => {
+        data.name = other.name;
         data.progress = other.progress;
         data.segments = other.segments;
         const [tagToRemove, tagToAdd] = !other.active
