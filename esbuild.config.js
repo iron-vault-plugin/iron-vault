@@ -18,6 +18,11 @@ const context = await esbuild.context({
   },
   entryPoints: ["src/index.ts"],
   bundle: true,
+  loader: {
+    ".png": "binary",
+    ".jpg": "binary",
+    ".wasm": "binary",
+  },
   external: [
     "obsidian",
     "electron",

@@ -28,6 +28,12 @@ import { IronVaultCommands } from "commands";
 import registerTruthBlock from "truths/truth-block";
 import { initLogger } from "logger";
 import { IronVaultLinkView, LINK_VIEW } from "docs/docs-view";
+import {
+  createDiceOverlay,
+  ensureAssets,
+  removeDiceOverlay,
+} from "utils/overlay-dice";
+import DiceBox from "@3d-dice/dice-box";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -41,6 +47,7 @@ export default class IronVaultPlugin extends Plugin {
   indexManager!: IndexManager;
   api!: IronVaultAPI;
   commands!: IronVaultCommands;
+  diceBox!: DiceBox;
 
   private async initialize(): Promise<void> {
     await this.datastore.initialize();
@@ -112,6 +119,9 @@ export default class IronVaultPlugin extends Plugin {
     // This adds a settings tab so the user can configure various aspects of the plugin
     this.addSettingTab(new IronVaultSettingTab(this.app, this));
     this.registerBlocks();
+    await ensureAssets(this);
+    this.diceBox = await createDiceOverlay(this, document.body);
+    this.register(removeDiceOverlay);
   }
 
   initializeIndexManager() {
