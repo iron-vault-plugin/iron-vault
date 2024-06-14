@@ -241,10 +241,6 @@ export async function runMoveCommand(
   }
 
   const context = await determineCharacterActionContext(plugin);
-  if (!context) {
-    // No available/selected character
-    return;
-  }
 
   // Use the provided move, or prompt the user for a move appropriate to the current action context.
   const move: Datasworn.Move =

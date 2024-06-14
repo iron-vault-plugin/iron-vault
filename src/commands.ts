@@ -1,25 +1,29 @@
-import IronVaultPlugin from "index";
-import { runMoveCommand } from "moves/action";
-import { Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
-import * as meterCommands from "./characters/meter-commands";
-import { runOracleCommand } from "oracles/command";
-import { advanceProgressTrack, createProgressTrack } from "tracks/commands";
 import { determineCharacterActionContext } from "characters/action-context";
-import { ProgressContext } from "tracks/context";
+import { addAssetToCharacter, createNewCharacter } from "characters/commands";
 import { advanceClock, createClock } from "clocks/commands";
 import { generateEntityCommand } from "entity/command";
-import { addAssetToCharacter, createNewCharacter } from "characters/commands";
+import IronVaultPlugin from "index";
+import { insertComment } from "mechanics/commands";
+import { runMoveCommand } from "moves/action";
+import { Command, Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
+import { runOracleCommand } from "oracles/command";
+import {
+  advanceProgressTrack,
+  createProgressTrack,
+  markTrackCompleted,
+} from "tracks/commands";
+import { ProgressContext } from "tracks/context";
+import { generateTruthsCommand } from "truths/command";
 import {
   GenericFuzzySuggester,
   SuggesterItem,
 } from "utils/ui/generic-fuzzy-suggester";
-import { generateTruthsCommand } from "truths/command";
-import { insertComment } from "mechanics/commands";
 import { PromptModal } from "utils/ui/prompt";
+import * as meterCommands from "./characters/meter-commands";
 
 export class IronVaultCommands {
   plugin: IronVaultPlugin;
-  commandList = [
+  commandList: Command[] = [
     {
       id: "show-all-commands",
       name: "Show all commands",
@@ -80,7 +84,6 @@ export class IronVaultCommands {
         const actionContext = await determineCharacterActionContext(
           this.plugin,
         );
-        if (!actionContext) return;
         await advanceProgressTrack(
           this.plugin.app,
           this.plugin.settings,
@@ -89,6 +92,12 @@ export class IronVaultCommands {
           new ProgressContext(this.plugin, actionContext),
         );
       },
+    },
+    {
+      id: "progress-complete",
+      name: "Progress: Complete a progress track",
+      icon: "square-check",
+      editorCallback: (editor) => markTrackCompleted(this.plugin, editor),
     },
 
     /*

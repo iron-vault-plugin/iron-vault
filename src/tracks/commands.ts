@@ -1,8 +1,10 @@
+import { determineCharacterActionContext } from "characters/action-context";
 import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
 import {
   createDetailsNode,
   createProgressNode,
+  createTrackCompletionNode,
   createTrackCreationNode,
 } from "mechanics/node-builders";
 import { App, Editor, MarkdownView } from "obsidian";
@@ -84,5 +86,25 @@ export async function createProgressTrack(
     ...(plugin.settings.inlineOnCreation
       ? [createDetailsNode(`![[${file.path}|iv-embed]]`)]
       : []),
+  );
+}
+
+export async function markTrackCompleted(
+  plugin: IronVaultPlugin,
+  editor: Editor,
+): Promise<void> {
+  const actionContext = await determineCharacterActionContext(plugin);
+  const progressContext = new ProgressContext(plugin, actionContext);
+  const trackContext = await selectProgressTrack(
+    progressContext,
+    plugin.app,
+    ({ trackType, track }) => trackType !== "Legacy" && !track.complete,
+  );
+
+  await trackContext.process((trackAdapter) => trackAdapter.completed());
+
+  appendNodesToMoveOrMechanicsBlock(
+    editor,
+    createTrackCompletionNode(trackContext.name, trackContext.location),
   );
 }
