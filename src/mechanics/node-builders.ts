@@ -34,6 +34,18 @@ export function createTrackCreationNode(
   });
 }
 
+export function createTrackCompletionNode(
+  trackName: string,
+  trackPath: string,
+): kdl.Node {
+  return node("track", {
+    properties: {
+      name: `[[${trackPath}|${trackName}]]`,
+      status: "removed",
+    },
+  });
+}
+
 export function createClockCreationNode(
   clockName: string,
   clockPath: string,
