@@ -4,6 +4,9 @@ import { zodResultToEither } from "../utils/zodutils";
 
 export const clockValidator = z
   .object({
+    /** Name of the clock */
+    name: z.string(),
+
     /** Number of filled segments. */
     progress: z.number().nonnegative(),
 
@@ -22,6 +25,7 @@ export type ClockLike = Readonly<z.output<typeof clockValidator>>;
 
 export class Clock implements ClockLike {
   private constructor(
+    public readonly name: string,
     public readonly progress: number,
     public readonly segments: number,
     public readonly active: boolean,
@@ -31,8 +35,14 @@ export class Clock implements ClockLike {
     data: ClockInput,
   ): Either<z.ZodError<ClockInput>, Clock> {
     return zodResultToEither(clockValidator.safeParse(data)).map(
-      ({ progress, segments, active }) => new this(progress, segments, active),
+      ({ name, progress, segments, active }) =>
+        new this(name, progress, segments, active),
     );
+  }
+
+  public withName(name: string): this {
+    if (name === this.name) return this;
+    return new Clock(name, this.progress, this.segments, this.active) as this;
   }
 
   public withProgress(progress: number): this {
@@ -41,7 +51,17 @@ export class Clock implements ClockLike {
     // TODO: should this give an error or something if we attempt to tick beyond the limit?
     const newProgress = Math.max(Math.min(this.segments, progress), 0);
     if (newProgress === this.progress) return this;
-    return new Clock(newProgress, this.segments, this.active) as this;
+    return new Clock(
+      this.name,
+      newProgress,
+      this.segments,
+      this.active,
+    ) as this;
+  }
+
+  public withSegments(segments: number): this {
+    if (segments === this.segments) return this;
+    return new Clock(this.name, this.progress, segments, this.active) as this;
   }
 
   public tick(steps: number = 1): this {
@@ -50,7 +70,7 @@ export class Clock implements ClockLike {
 
   public deactivate(): this {
     if (!this.active) return this;
-    return new Clock(this.progress, this.segments, false) as this;
+    return new Clock(this.name, this.progress, this.segments, false) as this;
   }
 
   get isFilled(): boolean {
@@ -60,7 +80,8 @@ export class Clock implements ClockLike {
   public equals(other: Clock): boolean {
     return (
       this === other ||
-      (this.progress === other.progress &&
+      (this.name === other.name &&
+        this.progress === other.progress &&
         this.segments === other.segments &&
         this.active === other.active)
     );

@@ -6,7 +6,12 @@ import { EventRef, MarkdownRenderChild } from "obsidian";
 import { Left } from "utils/either";
 import { vaultProcess } from "utils/obsidian";
 import { capitalize } from "utils/strings";
-import { ProgressTrackFileAdapter, ProgressTrackInfo } from "./progress";
+import {
+  ChallengeRanks,
+  ProgressTrack,
+  ProgressTrackFileAdapter,
+  ProgressTrackInfo,
+} from "./progress";
 import { progressTrackUpdater } from "./writer";
 
 export default function registerTrackBlock(plugin: IronVaultPlugin): void {
@@ -24,6 +29,7 @@ class TrackRenderer extends MarkdownRenderChild {
   sourcePath: string;
   plugin: IronVaultPlugin;
   fileWatcher?: EventRef;
+  editingName = false;
 
   constructor(
     containerEl: HTMLElement,
@@ -68,20 +74,50 @@ class TrackRenderer extends MarkdownRenderChild {
 
   renderProgress(trackFile: ProgressTrackFileAdapter) {
     render(
-      renderTrack(this.plugin, trackFile, (incr) =>
-        this.updateTrackTicks(incr),
+      renderTrack(
+        this.plugin,
+        trackFile,
+        (incr) => this.updateTrack(incr),
+        undefined,
+        undefined,
+        this,
       ),
       this.containerEl,
     );
   }
 
-  async updateTrackTicks({ steps, ticks }: { steps?: number; ticks?: number }) {
+  async updateTrack({
+    name,
+    rank,
+    trackType,
+    steps,
+    ticks,
+  }: {
+    name?: string;
+    rank?: ChallengeRanks;
+    trackType?: string;
+    steps?: number;
+    ticks?: number;
+  }) {
     await progressTrackUpdater(
       vaultProcess(this.plugin.app, this.sourcePath),
-      (trackFile) =>
-        trackFile.updatingTrack((track) =>
-          ticks ? track.withTicks(ticks) : track.advanced(steps!),
-        ),
+      (trackFile) => {
+        const updatedFile = trackFile.updatingTrack((track) => {
+          const advanced =
+            ticks != null ? track.withTicks(ticks) : track.advanced(steps ?? 0);
+          return ProgressTrack.create_({
+            rank: rank ?? advanced.rank,
+            progress: advanced.progress,
+            complete: advanced.complete,
+            unbounded: advanced.unbounded,
+          });
+        });
+        return ProgressTrackFileAdapter.newFromTrack({
+          name: name ?? updatedFile.name,
+          trackType: trackType ?? updatedFile.trackType,
+          track: updatedFile.track,
+        }).expect("failed to update track");
+      },
     );
   }
 }
@@ -89,9 +125,16 @@ class TrackRenderer extends MarkdownRenderChild {
 export function renderTrack(
   plugin: IronVaultPlugin,
   info: ProgressTrackInfo,
-  updateTrack: (incr: { steps?: number; ticks?: number }) => void,
+  updateTrack: (incr: {
+    name?: string;
+    rank?: ChallengeRanks;
+    trackType?: string;
+    steps?: number;
+    ticks?: number;
+  }) => void,
   showTrackInfo: boolean = true,
   xpEarned?: number,
+  trackRenderer?: TrackRenderer,
 ) {
   const items = [];
   for (let i = 0; i < 10; i++) {
@@ -100,12 +143,71 @@ export function renderTrack(
   }
   const tpl = html`
     <article class="iron-vault-track">
-      <header class="track-name">${md(plugin, info.name)}</header>
+      <header class="track-name">
+        ${trackRenderer?.editingName
+          ? html`<textarea
+              type="text"
+              .value=${info.name}
+              @blur=${() => {
+                trackRenderer.editingName = false;
+                setTimeout(() => trackRenderer?.render(), 0);
+              }}
+              @change=${(ev: Event) => {
+                updateTrack({
+                  name: (ev.target! as HTMLInputElement).value,
+                });
+              }}
+            />`
+          : html`<span
+              @click=${() => {
+                if (!trackRenderer) {
+                  return;
+                }
+                trackRenderer.editingName = true;
+                trackRenderer.render();
+                const el = trackRenderer.containerEl.querySelector(
+                  ".track-name textarea",
+                ) as HTMLElement | undefined;
+                el?.focus();
+              }}
+            >
+              ${md(plugin, info.name)}</span
+            >`}
+      </header>
       ${showTrackInfo
         ? html`
             <div class="track-info">
-              <span class="track-rank">${capitalize(info.track.rank)}</span>
-              <span class="track-type">${capitalize(info.trackType)}</span>
+              <span class="track-rank">
+                ${trackRenderer
+                  ? html`<select
+                      .value=${info.track.rank}
+                      @change=${(ev: Event) =>
+                        updateTrack({
+                          rank: (ev.target! as HTMLSelectElement)
+                            .value as ChallengeRanks,
+                        })}
+                    >
+                      ${Object.values(ChallengeRanks).map(
+                        (rank) =>
+                          html`<option value=${rank}>
+                            ${capitalize(rank)}
+                          </option>`,
+                      )}
+                    </select>`
+                  : html`${capitalize(info.track.rank)}`}
+              </span>
+              <span class="track-type">
+                ${trackRenderer
+                  ? html`<input
+                      type="text"
+                      .value=${info.trackType}
+                      @change=${(ev: Event) =>
+                        updateTrack({
+                          trackType: (ev.target! as HTMLSelectElement).value,
+                        })}
+                    /> `
+                  : html`${capitalize(info.trackType)}`}
+              </span>
             </div>
           `
         : null}

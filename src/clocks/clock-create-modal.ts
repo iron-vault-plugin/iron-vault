@@ -125,6 +125,7 @@ export class ClockCreateModal extends Modal {
       fileName: this.result.fileName,
       targetFolder: this.result.targetFolder,
       clock: Clock.create({
+        name: this.result.name,
         progress: 0,
         segments: this.result.segments,
         active: true,

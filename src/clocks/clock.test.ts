@@ -1,6 +1,7 @@
 import { Clock, ClockInput } from "./clock";
 
 const DEFAULT_CLOCK_INPUT = {
+  name: "Doom",
   progress: 0,
   segments: 6,
   active: true,
@@ -14,8 +15,14 @@ describe("Clock", () => {
   describe("create", () => {
     it("accepts clocks with 0 progress", () => {
       expect(
-        Clock.create({ active: true, progress: 0, segments: 6 }).unwrap(),
+        Clock.create({
+          name: "blah",
+          active: true,
+          progress: 0,
+          segments: 6,
+        }).unwrap(),
       ).toEqual({
+        name: "blah",
         progress: 0,
         segments: 6,
         active: true,

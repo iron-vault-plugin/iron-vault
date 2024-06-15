@@ -8,6 +8,7 @@ import { Left } from "utils/either";
 import { vaultProcess } from "utils/obsidian";
 import { md } from "utils/ui/directives";
 import { ClockFileAdapter, clockUpdater } from "./clock-file";
+import { Clock } from "./clock";
 
 export default function registerClockBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -24,6 +25,8 @@ class ClockRenderer extends MarkdownRenderChild {
   sourcePath: string;
   plugin: IronVaultPlugin;
   fileWatcher?: EventRef;
+  editingName = false;
+  editingSegments = false;
 
   constructor(
     containerEl: HTMLElement,
@@ -69,9 +72,39 @@ class ClockRenderer extends MarkdownRenderChild {
   renderClock(clockFile: ClockFileAdapter) {
     const tpl = html`
       <article class="iron-vault-clock">
-        <h3 class="clock-name">
-          ${md(this.plugin, clockFile.name, this.sourcePath)}
-        </h3>
+        <header class="clock-name">
+          ${this.editingName
+            ? html`<input
+                type="text"
+                .value=${clockFile.name}
+                @blur=${async () => {
+                  this.editingName = false;
+                  setTimeout(() => this.render(), 0);
+                }}
+                @change=${async (ev: Event) => {
+                  ev.target &&
+                    (await clockUpdater(
+                      vaultProcess(this.plugin.app, this.sourcePath),
+                      (clockFile) =>
+                        clockFile.updatingClock((clock) =>
+                          clock.withName((ev.target as HTMLInputElement).value),
+                        ),
+                    ));
+                  this.editingName = false;
+                }}
+              />`
+            : html`<span
+                @click=${() => {
+                  this.editingName = true;
+                  this.render();
+                  const el = this.containerEl.querySelector(
+                    ".clock-name input",
+                  ) as HTMLElement | undefined;
+                  el?.focus();
+                }}
+                >${md(this.plugin, clockFile.name, this.sourcePath)}</span
+              >`}
+        </header>
 
         <svg
           class="clock-widget"
@@ -86,6 +119,63 @@ class ClockRenderer extends MarkdownRenderChild {
             this.renderPath(i, clockFile),
           )}
         </svg>
+
+        <div
+          class="clock-segments"
+          @click=${(ev: Event) => {
+            const target = ev.target as HTMLElement | undefined;
+            if (target?.querySelector("span")) {
+              this.editingSegments = true;
+              this.render();
+              target?.querySelector("input")?.focus();
+            }
+          }}
+        >
+          ${this.editingSegments
+            ? html`<input
+                type="number"
+                .value=${clockFile.clock.segments}
+                @blur=${() => {
+                  this.editingSegments = false;
+                  setTimeout(() => this.render(), 0);
+                }}
+                @change=${async (ev: Event) => {
+                  ev.target &&
+                    (await clockUpdater(
+                      vaultProcess(this.plugin.app, this.sourcePath),
+                      (clockFile) =>
+                        clockFile.updatingClock((clock) =>
+                          clock.withSegments(
+                            +(ev.target as HTMLInputElement).value,
+                          ),
+                        ),
+                    ));
+                  this.editingName = false;
+                }}
+              />`
+            : html`<span>${clockFile.clock.segments}</span>`}
+          segments;
+          <label
+            >Complete:
+            <input
+              type="checkbox"
+              ?checked=${!clockFile.clock.active}
+              @change=${async (ev: Event) =>
+                ev.target &&
+                (await clockUpdater(
+                  vaultProcess(this.plugin.app, this.sourcePath),
+                  (clockFile) =>
+                    clockFile.updatingClock((clock) =>
+                      Clock.create({
+                        active: !(ev.target as HTMLInputElement).checked,
+                        progress: clock.progress,
+                        segments: clock.segments,
+                        name: clock.name,
+                      }).expect("This should be fine."),
+                    ),
+                ))}
+          /></label>
+        </div>
       </article>
     `;
     render(tpl, this.containerEl);
