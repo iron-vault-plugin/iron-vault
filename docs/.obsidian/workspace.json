@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Player's Guide/Getting Started/Your First Campaign.md",
+                "file": "Player's Guide/Getting Started/Build a Starting Sector.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Player's Guide/Getting Started/Your First Campaign.md",
+                "file": "Player's Guide/Getting Started/Build a Starting Sector.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Player's Guide/Getting Started/Your First Campaign.md",
+                "file": "Player's Guide/Getting Started/Build a Starting Sector.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Player's Guide/Getting Started/Your First Campaign.md"
+                "file": "Player's Guide/Getting Started/Build a Starting Sector.md"
               }
             }
           },
@@ -159,28 +159,28 @@
   },
   "active": "f922024d4dac3713",
   "lastOpenFiles": [
-    "Player's Guide/Getting Started/Initial Setup.md",
-    "Player's Guide/Getting Started/Begin Your Adventure.md",
-    "Player's Guide/Getting Started/Build a Starting Sector.md",
-    "Player's Guide/Getting Started/Create Your Character.md",
-    "Player's Guide/Getting Started/Choose Your Truths.md",
-    "Player's Guide/Getting Started/Your First Campaign.md",
-    "Support/img/Player's Guide",
-    "Support/img/Player's Guide/gearing-up.png",
-    "Support/img/Player's Guide/callsign-pronouns.png",
-    "Support/img/Player's Guide/character-description.png",
-    "Support/img/Player's Guide/condition-meters.png",
+    "Player's Guide/index.md",
     "Support/img/Player's Guide/stats-edited.png",
     "Support/img/Player's Guide/starship-asset.png",
     "Support/img/Player's Guide/sidebar-starship-history.png",
-    "Support/img/Player's Guide/background-vow-inserted.png",
-    "Support/img/Player's Guide/background-vow-window.png",
-    "index.md",
-    "Support/img/Player's Guide/backstory-mechanics-block.png",
-    "Player's Guide/index.md",
+    "Support/img/Player's Guide/session-0.png",
+    "Support/img/Player's Guide/getting-started-initial.png",
+    "Support/img/Player's Guide/generated-truths-page.png",
+    "Support/img/Player's Guide/generate-truths-menu.png",
+    "Support/img/Player's Guide/gearing-up.png",
+    "Support/img/Player's Guide/condition-meters.png",
+    "Support/img/Player's Guide/character-sheet.png",
+    "Support/img/Player's Guide",
+    "Player's Guide/Getting Started/Your First Campaign.md",
+    "Player's Guide/Getting Started/Initial Setup.md",
+    "Player's Guide/Getting Started/Create Your Character.md",
+    "Player's Guide/Getting Started/Choose Your Truths.md",
+    "Player's Guide/Getting Started/Build a Starting Sector.md",
+    "Player's Guide/Getting Started/Begin Your Adventure.md",
     "Player's Guide/Getting Started",
     "Player's Guide",
     "Other Features/Callouts.md",
+    "index.md",
     "Player's Guide/Your First Campaign.md",
     "Player's Guide/Getting Started.md",
     "Player's Guide/Create Your Character.md",
