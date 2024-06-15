@@ -26,6 +26,7 @@
       width: 3em;
       height: 100%;
       justify-self: end;
+      padding: 0 !important;
     }
   }
 }
