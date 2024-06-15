@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Player's Guide/Getting Started/Create Your Character.md",
+                "file": "Player's Guide/Getting Started/Your First Campaign.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Player's Guide/Getting Started/Create Your Character.md",
+                "file": "Player's Guide/Getting Started/Your First Campaign.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Player's Guide/Getting Started/Create Your Character.md",
+                "file": "Player's Guide/Getting Started/Your First Campaign.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Player's Guide/Getting Started/Create Your Character.md"
+                "file": "Player's Guide/Getting Started/Your First Campaign.md"
               }
             }
           },
@@ -159,13 +159,13 @@
   },
   "active": "f922024d4dac3713",
   "lastOpenFiles": [
+    "Player's Guide/Getting Started/Initial Setup.md",
+    "Player's Guide/Getting Started/Begin Your Adventure.md",
+    "Player's Guide/Getting Started/Build a Starting Sector.md",
+    "Player's Guide/Getting Started/Create Your Character.md",
     "Player's Guide/Getting Started/Choose Your Truths.md",
     "Player's Guide/Getting Started/Your First Campaign.md",
-    "Player's Guide/Getting Started/Initial Setup.md",
     "Support/img/Player's Guide",
-    "Player's Guide/Getting Started/Create Your Character.md",
-    "Player's Guide/Getting Started/Build a Starting Sector.md",
-    "Player's Guide/Getting Started/Begin Your Adventure.md",
     "Support/img/Player's Guide/gearing-up.png",
     "Support/img/Player's Guide/callsign-pronouns.png",
     "Support/img/Player's Guide/character-description.png",
