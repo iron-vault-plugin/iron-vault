@@ -23,7 +23,8 @@
       grid-column: 1 / span 3;
     }
     & > button {
-      max-width: 3em;
+      width: 3em;
+      height: 100%;
       justify-self: end;
     }
   }
