@@ -1,6 +1,6 @@
 {
   "vaultName": "Iron Vault",
-  "lastExport": 1718079341145,
+  "lastExport": 1718424134817,
   "pluginVersion": "1.8.01",
   "validBodyClasses": "publish css-settings-manager theme-dark show-inline-title show-ribbon",
   "useCustomHeadContent": false,
@@ -48,16 +48,46 @@
     "Entities/Truths.md",
     "Entities/Vaults.md",
     "Other Features/API.md",
+    "Other Features/Callouts.md",
     "Other Features/CSS Tweaks.md",
+    "Other Features/Debug Logging.md",
     "Other Features/index.md",
     "Other Features/Ribbon Button.md",
     "Other Features/Rulesets.md",
     "Other Features/Settings.md",
     "Other Features/Sidebar.md",
     "Other Features/Special Links.md",
+    "Player's Guide/Getting Started/Begin Your Adventure.md",
+    "Player's Guide/Getting Started/Build a Starting Sector.md",
+    "Player's Guide/Getting Started/Choose Your Truths.md",
+    "Player's Guide/Getting Started/Create Your Character.md",
+    "Player's Guide/Getting Started/Initial Setup.md",
+    "Player's Guide/Getting Started/Your First Campaign.md",
+    "Player's Guide/index.md",
     "index.md",
     "lib/media/character-sheet.png",
     "lib/media/special-tracks-example.png",
+    "lib/media/ribbon-icon.png",
+    "lib/media/generate-truths-menu.png",
+    "lib/media/generated-truths-page.png",
+    "lib/media/character-frontmatter.png",
+    "lib/media/asset-picker-initial.png",
+    "lib/media/asset-picker-expanded.png",
+    "lib/media/asset-picker-card.png",
+    "lib/media/backstory-prompts-popup.png",
+    "lib/media/backstory-mechanics-block.png",
+    "lib/media/background-vow-window.png",
+    "lib/media/background-vow-inserted.png",
+    "lib/media/sidebar-starship-history.png",
+    "lib/media/starship-asset.png",
+    "lib/media/stats-edited.png",
+    "lib/media/condition-meters.png",
+    "lib/media/character-description.png",
+    "lib/media/callsign-pronouns.png",
+    "lib/media/gearing-up.png",
+    "lib/media/getting-started-initial.png",
+    "lib/media/brat-menu.png",
+    "lib/media/session-0.png",
     "lib/fonts/94f2f163d4b698242fef.otf",
     "lib/fonts/72505e6a122c6acd5471.woff2",
     "lib/fonts/2d5198822ab091ce4305.woff2",
@@ -118,7 +148,7 @@
       "dependencies": []
     },
     "Blocks/Character Blocks.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 2520,
       "exportedPath": "blocks/character-blocks.html",
       "dependencies": [
@@ -127,7 +157,7 @@
       ]
     },
     "Blocks/Clock Blocks.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 1086,
       "exportedPath": "blocks/clock-blocks.html",
       "dependencies": []
@@ -151,7 +181,7 @@
       "dependencies": []
     },
     "Blocks/Track Blocks.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 1133,
       "exportedPath": "blocks/track-blocks.html",
       "dependencies": []
@@ -175,7 +205,7 @@
       "dependencies": []
     },
     "Commands/Ask the Oracle.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 457,
       "exportedPath": "commands/ask-the-oracle.html",
       "dependencies": []
@@ -207,7 +237,7 @@
       ]
     },
     "Commands/Generate an entity.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 538,
       "exportedPath": "commands/generate-an-entity.html",
       "dependencies": []
@@ -359,13 +389,13 @@
       "dependencies": []
     },
     "Other Features/Settings.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 2365,
       "exportedPath": "other-features/settings.html",
       "dependencies": []
     },
     "Other Features/Sidebar.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 3055,
       "exportedPath": "other-features/sidebar.html",
       "dependencies": []
@@ -382,19 +412,19 @@
       ]
     },
     "index.md": {
-      "modifiedTime": 1718079341145,
-      "sourceSize": 3874,
+      "modifiedTime": 1718424134817,
+      "sourceSize": 4231,
       "exportedPath": "index.html",
       "dependencies": []
     },
     "lib/media/character-sheet.png": {
-      "modifiedTime": 1718079341145,
-      "sourceSize": 89743,
+      "modifiedTime": 1718424134817,
+      "sourceSize": 42782,
       "exportedPath": "lib/media/character-sheet.png",
       "dependencies": []
     },
     "lib/media/special-tracks-example.png": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 62945,
       "exportedPath": "lib/media/special-tracks-example.png",
       "dependencies": []
@@ -418,139 +448,139 @@
       "dependencies": []
     },
     "lib/fonts/94f2f163d4b698242fef.otf": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 66800,
       "exportedPath": "lib/fonts/94f2f163d4b698242fef.otf",
       "dependencies": []
     },
     "lib/fonts/72505e6a122c6acd5471.woff2": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 104232,
       "exportedPath": "lib/fonts/72505e6a122c6acd5471.woff2",
       "dependencies": []
     },
     "lib/fonts/2d5198822ab091ce4305.woff2": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 104332,
       "exportedPath": "lib/fonts/2d5198822ab091ce4305.woff2",
       "dependencies": []
     },
     "lib/fonts/c8ba52b05a9ef10f4758.woff2": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 98868,
       "exportedPath": "lib/fonts/c8ba52b05a9ef10f4758.woff2",
       "dependencies": []
     },
     "lib/fonts/cb10ffd7684cd9836a05.woff2": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 106876,
       "exportedPath": "lib/fonts/cb10ffd7684cd9836a05.woff2",
       "dependencies": []
     },
     "lib/fonts/b5f0f109bc88052d4000.woff2": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 105804,
       "exportedPath": "lib/fonts/b5f0f109bc88052d4000.woff2",
       "dependencies": []
     },
     "lib/fonts/cbe0ae49c52c920fd563.woff2": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 106108,
       "exportedPath": "lib/fonts/cbe0ae49c52c920fd563.woff2",
       "dependencies": []
     },
     "lib/fonts/535a6cf662596b3bd6a6.woff2": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 111708,
       "exportedPath": "lib/fonts/535a6cf662596b3bd6a6.woff2",
       "dependencies": []
     },
     "lib/fonts/70cc7ff27245e82ad414.ttf": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 192740,
       "exportedPath": "lib/fonts/70cc7ff27245e82ad414.ttf",
       "dependencies": []
     },
     "lib/fonts/454577c22304619db035.ttf": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 161376,
       "exportedPath": "lib/fonts/454577c22304619db035.ttf",
       "dependencies": []
     },
     "lib/fonts/52ac8f3034507f1d9e53.ttf": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 191568,
       "exportedPath": "lib/fonts/52ac8f3034507f1d9e53.ttf",
       "dependencies": []
     },
     "lib/fonts/05b618077343fbbd92b7.ttf": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 155288,
       "exportedPath": "lib/fonts/05b618077343fbbd92b7.ttf",
       "dependencies": []
     },
     "lib/fonts/4bb6ac751d1c5478ff3a.woff2": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 7876,
       "exportedPath": "lib/fonts/4bb6ac751d1c5478ff3a.woff2",
       "dependencies": []
     },
     "lib/media/874d8b8e340f75575caa.svg": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 317,
       "exportedPath": "lib/media/874d8b8e340f75575caa.svg",
       "dependencies": []
     },
     "lib/media/3d6c1bdc4d87cde4de67.svg": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 279,
       "exportedPath": "lib/media/3d6c1bdc4d87cde4de67.svg",
       "dependencies": []
     },
     "lib/html/file-tree.html": {
-      "modifiedTime": 1718079341145,
-      "sourceSize": 19494,
+      "modifiedTime": 1718424134817,
+      "sourceSize": 23927,
       "exportedPath": "lib/html/file-tree.html",
       "dependencies": []
     },
     "lib/scripts/webpage.js": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 47290,
       "exportedPath": "lib/scripts/webpage.js",
       "dependencies": []
     },
     "lib/scripts/minisearch.js": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 29422,
       "exportedPath": "lib/scripts/minisearch.js",
       "dependencies": []
     },
     "lib/media/favicon.png": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 1105,
       "exportedPath": "lib/media/favicon.png",
       "dependencies": []
     },
     "lib/styles/obsidian.css": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 130183,
       "exportedPath": "lib/styles/obsidian.css",
       "dependencies": []
     },
     "lib/styles/other-plugins.css": {
-      "modifiedTime": 1718079341145,
-      "sourceSize": 57572,
+      "modifiedTime": 1718424134817,
+      "sourceSize": 57603,
       "exportedPath": "lib/styles/other-plugins.css",
       "dependencies": []
     },
     "lib/styles/global-variable-styles.css": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 236,
       "exportedPath": "lib/styles/global-variable-styles.css",
       "dependencies": []
     },
     "lib/styles/main-styles.css": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 23130,
       "exportedPath": "lib/styles/main-styles.css",
       "dependencies": []
@@ -568,27 +598,233 @@
       "dependencies": []
     },
     "Blocks/index.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 1813,
       "exportedPath": "blocks/index.html",
       "dependencies": []
     },
     "Commands/index.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 1279,
       "exportedPath": "commands/index.html",
       "dependencies": []
     },
     "Entities/index.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 716,
       "exportedPath": "entities/index.html",
       "dependencies": []
     },
     "Other Features/index.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718424134817,
       "sourceSize": 190,
       "exportedPath": "other-features/index.html",
+      "dependencies": []
+    },
+    "Other Features/Callouts.md": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 439,
+      "exportedPath": "other-features/callouts.html",
+      "dependencies": []
+    },
+    "Other Features/Debug Logging.md": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 581,
+      "exportedPath": "other-features/debug-logging.html",
+      "dependencies": []
+    },
+    "Player's Guide/Getting Started/Begin Your Adventure.md": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 58,
+      "exportedPath": "player's-guide/getting-started/begin-your-adventure.html",
+      "dependencies": []
+    },
+    "Player's Guide/Getting Started/Build a Starting Sector.md": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 58,
+      "exportedPath": "player's-guide/getting-started/build-a-starting-sector.html",
+      "dependencies": []
+    },
+    "Player's Guide/Getting Started/Choose Your Truths.md": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 4595,
+      "exportedPath": "player's-guide/getting-started/choose-your-truths.html",
+      "dependencies": [
+        "lib/media/ribbon-icon.png",
+        "lib/media/generate-truths-menu.png",
+        "lib/media/generated-truths-page.png"
+      ]
+    },
+    "Player's Guide/Getting Started/Create Your Character.md": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 9216,
+      "exportedPath": "player's-guide/getting-started/create-your-character.html",
+      "dependencies": [
+        "lib/media/character-frontmatter.png",
+        "lib/media/character-sheet.png",
+        "lib/media/asset-picker-initial.png",
+        "lib/media/asset-picker-expanded.png",
+        "lib/media/asset-picker-card.png",
+        "lib/media/backstory-prompts-popup.png",
+        "lib/media/backstory-mechanics-block.png",
+        "lib/media/background-vow-window.png",
+        "lib/media/background-vow-inserted.png",
+        "lib/media/sidebar-starship-history.png",
+        "lib/media/starship-asset.png",
+        "lib/media/stats-edited.png",
+        "lib/media/condition-meters.png",
+        "lib/media/character-description.png",
+        "lib/media/callsign-pronouns.png",
+        "lib/media/gearing-up.png"
+      ]
+    },
+    "Player's Guide/Getting Started/Initial Setup.md": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 1930,
+      "exportedPath": "player's-guide/getting-started/initial-setup.html",
+      "dependencies": [
+        "lib/media/getting-started-initial.png",
+        "lib/media/brat-menu.png"
+      ]
+    },
+    "Player's Guide/Getting Started/Your First Campaign.md": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 2093,
+      "exportedPath": "player's-guide/getting-started/your-first-campaign.html",
+      "dependencies": [
+        "lib/media/session-0.png"
+      ]
+    },
+    "Player's Guide/index.md": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 488,
+      "exportedPath": "player's-guide/index.html",
+      "dependencies": []
+    },
+    "lib/media/ribbon-icon.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 1396,
+      "exportedPath": "lib/media/ribbon-icon.png",
+      "dependencies": []
+    },
+    "lib/media/generate-truths-menu.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 32960,
+      "exportedPath": "lib/media/generate-truths-menu.png",
+      "dependencies": []
+    },
+    "lib/media/generated-truths-page.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 66964,
+      "exportedPath": "lib/media/generated-truths-page.png",
+      "dependencies": []
+    },
+    "lib/media/character-frontmatter.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 155566,
+      "exportedPath": "lib/media/character-frontmatter.png",
+      "dependencies": []
+    },
+    "lib/media/asset-picker-initial.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 41024,
+      "exportedPath": "lib/media/asset-picker-initial.png",
+      "dependencies": []
+    },
+    "lib/media/asset-picker-expanded.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 30997,
+      "exportedPath": "lib/media/asset-picker-expanded.png",
+      "dependencies": []
+    },
+    "lib/media/asset-picker-card.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 152824,
+      "exportedPath": "lib/media/asset-picker-card.png",
+      "dependencies": []
+    },
+    "lib/media/backstory-prompts-popup.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 40972,
+      "exportedPath": "lib/media/backstory-prompts-popup.png",
+      "dependencies": []
+    },
+    "lib/media/backstory-mechanics-block.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 116981,
+      "exportedPath": "lib/media/backstory-mechanics-block.png",
+      "dependencies": []
+    },
+    "lib/media/background-vow-window.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 72191,
+      "exportedPath": "lib/media/background-vow-window.png",
+      "dependencies": []
+    },
+    "lib/media/background-vow-inserted.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 114535,
+      "exportedPath": "lib/media/background-vow-inserted.png",
+      "dependencies": []
+    },
+    "lib/media/sidebar-starship-history.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 78879,
+      "exportedPath": "lib/media/sidebar-starship-history.png",
+      "dependencies": []
+    },
+    "lib/media/starship-asset.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 142715,
+      "exportedPath": "lib/media/starship-asset.png",
+      "dependencies": []
+    },
+    "lib/media/stats-edited.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 14490,
+      "exportedPath": "lib/media/stats-edited.png",
+      "dependencies": []
+    },
+    "lib/media/condition-meters.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 22453,
+      "exportedPath": "lib/media/condition-meters.png",
+      "dependencies": []
+    },
+    "lib/media/character-description.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 100272,
+      "exportedPath": "lib/media/character-description.png",
+      "dependencies": []
+    },
+    "lib/media/callsign-pronouns.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 31591,
+      "exportedPath": "lib/media/callsign-pronouns.png",
+      "dependencies": []
+    },
+    "lib/media/gearing-up.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 56754,
+      "exportedPath": "lib/media/gearing-up.png",
+      "dependencies": []
+    },
+    "lib/media/getting-started-initial.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 104877,
+      "exportedPath": "lib/media/getting-started-initial.png",
+      "dependencies": []
+    },
+    "lib/media/brat-menu.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 61467,
+      "exportedPath": "lib/media/brat-menu.png",
+      "dependencies": []
+    },
+    "lib/media/session-0.png": {
+      "modifiedTime": 1718424134817,
+      "sourceSize": 43878,
+      "exportedPath": "lib/media/session-0.png",
       "dependencies": []
     }
   }
