@@ -44,6 +44,8 @@ You can start reading about the various Iron Vault features here:
   Tweaks](https://iron-vault-plugin.github.io/iron-vault/other-features/css-tweaks.html) -
   Styling tweaks to make some things look nicer or more customized, such as
   the `iron-vault-embed` option for inlining embeds.
+* [Callouts](https://iron-vault-plugin.github.io/iron-vault/other-features/callouts.html)
+  - Special formatting and generation for game-related callouts.
 * [Settings](https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html) -
   Various configurations available to tweak your Iron Vault experience.
 * [API](https://iron-vault-plugin.github.io/iron-vault/other-features/api.html) -
