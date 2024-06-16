@@ -2,7 +2,15 @@ import Handlebars from "handlebars";
 import { createOrAppendMechanics } from "mechanics/editor";
 import { createOracleGroup } from "mechanics/node-builders";
 import { NoSuchOracleError } from "model/errors";
-import { App, Editor, MarkdownFileInfo, MarkdownView, Notice } from "obsidian";
+import {
+  App,
+  Editor,
+  MarkdownFileInfo,
+  MarkdownRenderChild,
+  MarkdownRenderer,
+  MarkdownView,
+  Notice,
+} from "obsidian";
 import IronVaultPlugin from "../index";
 import { Oracle, OracleRollableRow, RollContext } from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
@@ -39,8 +47,20 @@ export async function promptOracleRow(
       options,
       (option) => {
         switch (option.action) {
-          case "pick":
-            return option.row.result;
+          case "pick": {
+            // NB(@zkat): this field is actually markdown, but we don't want
+            // to render it proper, so we do a bit of a maneuver to extract
+            // the text itself.
+            const div = document.createElement("div");
+            MarkdownRenderer.render(
+              app,
+              option.row.result,
+              div,
+              "",
+              new MarkdownRenderChild(div),
+            );
+            return div.innerText;
+          }
           case "roll":
             return "Roll on the table";
         }

@@ -1,4 +1,10 @@
-import { App, Modal, Setting } from "obsidian";
+import {
+  App,
+  MarkdownRenderChild,
+  MarkdownRenderer,
+  Modal,
+  Setting,
+} from "obsidian";
 import { partition } from "utils/partition";
 import { Oracle, RollContext } from "../model/oracle";
 import { RollWrapper } from "../model/rolls";
@@ -108,7 +114,22 @@ export class EntityModal<T extends EntitySpec> extends Modal {
 
     const render = (roll: RollWrapper): string => {
       const evaledRoll = roll.dehydrate();
-      return `${evaledRoll.roll}: ${evaledRoll.results.join(", ")}`;
+      return `${evaledRoll.roll}: ${evaledRoll.results
+        .map((val) => {
+          // NB(@zkat): this field is actually markdown, but we don't want
+          // to render it proper, so we do a bit of a maneuver to extract
+          // the text itself.
+          const div = document.createElement("div");
+          MarkdownRenderer.render(
+            this.app,
+            val,
+            div,
+            "",
+            new MarkdownRenderChild(div),
+          );
+          return div.innerText;
+        })
+        .join(", ")}`;
     };
 
     const renderRolls = (rolls: RollWrapper[]): string => {

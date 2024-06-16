@@ -145,13 +145,65 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
     },
   },
 
+  settlement: {
+    label: "Settlement",
+    nameGen: (ent) => ent.name[0]?.simpleResult,
+    collectionId: "starforged/collections/oracles/settlements",
+    spec: {
+      region: {
+        id: "starforgedsupp/oracles/region",
+        firstLook: true,
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.Snakecase,
+        },
+      },
+      name: {
+        id: "starforged/oracles/settlements/name",
+        firstLook: true,
+      },
+      location: {
+        id: "starforged/oracles/settlements/location",
+        firstLook: true,
+      },
+      population: {
+        id: "starforged/oracles/settlements/population/{{region}}",
+        firstLook: true,
+        name: "Population",
+      },
+      authority: {
+        id: "starforged/oracles/settlements/authority",
+        firstLook: true,
+      },
+      project: {
+        id: "starforged/oracles/settlements/projects",
+        firstLook: true,
+      },
+      firstLook: {
+        id: "starforged/oracles/settlements/first_look",
+        // lol this is ironic, but that's what the rulebook says
+        firstLook: false,
+        name: "First Look",
+      },
+      initialContact: {
+        id: "starforged/oracles/settlements/initial_contact",
+        firstLook: false,
+        name: "Initial Contact",
+      },
+      trouble: {
+        id: "starforged/oracles/settlements/trouble",
+        firstLook: false,
+      },
+    },
+  },
+
   planet: {
     label: "Planet",
     nameGen: (ent) => ent.name[0]?.simpleResult,
     collectionId: "starforged/collections/oracles/planets",
     spec: {
       region: {
-        id: "starforgedsupp/oracles/templates/region",
+        id: "starforgedsupp/oracles/region",
         firstLook: true,
         definesAttribute: {
           order: 1,
