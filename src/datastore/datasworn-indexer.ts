@@ -150,4 +150,51 @@ function* walkOracles(data: Datasworn.RulesPackage): Generator<Oracle> {
   for (const [, set] of Object.entries(data.oracles ?? {})) {
     yield* expand(set, rootGrouping);
   }
+
+  /// HACK(@zkat): This is a hack to get the region oracle to show up in the
+  /// index, since there's not actually one included in datasworn. This is
+  /// important for Planet and Settlement entity generation.
+  yield new DataswornOracle(
+    {
+      _id: "starforgedsupp/oracles/region",
+      name: "Region",
+      type: "oracle_rollable",
+      column_labels: {
+        roll: "Roll",
+        text: "Region",
+      },
+      dice: "1d100",
+      oracle_type: "table_text",
+      rows: [
+        {
+          min: 1,
+          max: 45,
+          text: "Terminus",
+        },
+        {
+          min: 45,
+          max: 80,
+          text: "Outlands",
+        },
+        {
+          min: 81,
+          max: 100,
+          text: "Expanse",
+        },
+      ],
+      _source: {
+        title: "Iron Vault Support Oracles",
+        page: 0,
+        authors: [
+          {
+            name: "Iron Vault Dev Team",
+          },
+        ],
+        date: "2024-06-15",
+        url: "https://github.com/iron-vault-plugin/irion-vault",
+        license: "MIT",
+      },
+    },
+    rootGrouping,
+  );
 }
