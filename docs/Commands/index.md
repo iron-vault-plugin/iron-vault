@@ -1,22 +1,27 @@
 ---
-title: About Commands
+title: About
 ---
 The following commands are supported:
 
-- [[Create new character|Create new character]]
-- [[Make a move|Make a move]]
-- [[Ask the Oracle|Ask the Oracle]]
-- [[Take on a meter|Take on a meter]]
-- [[Suffer on a meter|Suffer on a meter]]
-- [[Generate an entity|Generate an entity]]
-- [[Create a clock|Create a block Command]]
-- [[Advance a clock|Advance a clock]]
-- [[Add asset to character|Add asset to character]]
-- [[Toggle displaying mechanics|Toggle displaying mechanics]]
-- [[Create a progress track|Create a progress track]]
-- [[Advance a progress track|Advance a progress track]]
-- [[Show all commands]]
-- [[Show sidebar]]
+* [[Add asset to character]]
+* [[Advance a clock]]
+* [[Advance a progress track]]
+* [[Ask the Oracle]]
+* [[Burn momentum]]
+* [[Create a clock]]
+* [[Create a progress track]]
+* [[Create new character]]
+* [[Generate an entity]]
+* [[Generate Truths]]
+* [[Make a move]]
+* [[Open documentation in a tab]]
+* [[Open documentation in your browser]]
+* [[Show all commands]]
+* [[Show sidebar]]
+* [[Suffer on a meter]]
+* [[Take on a meter]]
+* [[Toggle displaying mechanics]]
+
 #### Journal Insertions
 
 Many commands have some mechanical effect, but additionally "add a mechanics entry to your journal". Right now, the "current journal" is determined simply by whatever file you have open when the command was invoked. That means that if you're looking at an [[Entities/index|Entity]] file, the command result will get appended to that file, not your "actual" journal.

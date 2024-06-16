@@ -70,3 +70,9 @@ scaling.
 The GenericFuzzySuggester was copied from the [BRAT
 project](https://github.com/TfTHacker/obsidian42-brat/blob/60c83d083ed8e65943f52a9cd061a1fb47c8e5b0/src/ui/GenericFuzzySuggester.ts).
 It is MIT licensed and Copyright (c) 2023 TfTHacker.
+
+## Obsidian Link Opener
+
+The documentation link opener commands are based on [Obsidian Link
+Opener](https://github.com/zorazrr/obsidian-link-opener), which is MIT license
+and Copyright (c) Zora Zhang (@zorazrr).
