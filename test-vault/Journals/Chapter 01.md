@@ -20,7 +20,7 @@ Reglar link to [[Example Vow|the vow I swor3e]].
 ![[Test Clock]]
 
 ![[Example Vow|iv-embed]]
-```mechanics
+```iron-vault-mechanics
 move id="starforged/moves/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"
 	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
@@ -68,7 +68,7 @@ oracle-group "Character Name" /* No need to link */ {
 }
 ```
 And then a fight broke out!
-```mechanics
+```iron-vault-mechanics
 move "Clash" {
     roll "iron" action=1 adds=0 stat=3 vs1=8 vs2=7
 }
@@ -77,7 +77,7 @@ move "Clash" {
 Oh no! Everyone is bloody! Our hero tries to talk some sense into them. They approach their counterparts and extend a hand.
 
 "Let's solve this peacefully", our hero says.
-```mechanics
+```iron-vault-mechanics
 - "line1"
 - "line2"
 - "multiline
@@ -101,7 +101,7 @@ a single multiline string.
 [Starship](asset:Starship)
 
 
-```mechanics
+```iron-vault-mechanics
 burn from=6 to=2
 
 move "[Strike](move:starforged\/moves\/combat\/strike)" {
@@ -116,7 +116,7 @@ move "[Endure Harm](move:starforged\/moves\/suffer\/endure_harm)" {
 
 ```
 asdfasdf
-```mechanics
+```iron-vault-mechanics
 oracle-group name="Character: Curtis \"Centurion\" Shelton" {
     oracle name="[Character Oracles \/ Character Name \/ Given Name](oracle:starforged\/oracles\/characters\/name\/given)" result="Curtis" roll=64
     oracle name="[Character Oracles \/ Character Name \/ Callsign](oracle:starforged\/oracles\/characters\/name\/callsign)" result="Centurion" roll=19
