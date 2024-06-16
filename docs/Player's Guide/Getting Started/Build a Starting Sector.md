@@ -43,7 +43,11 @@ Let's move on.
 
 #### Determine the number of settlements
 
-Once that's done, this step is simple: make note of how many settlements we'll need to generate based on what you picked for your starting region.
+Once that's done, this step is simple: make note of how many settlements we'll need to generate based on what you picked for your starting region. The Rulebook gives the following suggestions, based on your sector's region:
+
+* Terminus: 4 settlements
+* Outlands: 3 settlements
+* Expands: 2 settlements
 
 #### Generate settlement details
 
@@ -51,9 +55,13 @@ Now it's time to generate the settlements themselves! For this, we switch back t
 
 Iron Vault lets you roll multiple oracles at the same time by going to the [[Sidebar#Oracle Tab|Sidebar's Oracle Tab]] and pressing the dice icon on any oracle _group_. Some of these oracle groups, though, have special semantics, and we call those rollable [[Entities/index|Entities]].
 
-Generating an entity is easy: run the [[Generate an entity]] command, or click on the corresponding dice icon for the entity you want to roll. You'll see a list of supported entities pop up in a list. In our case, we want to generate a _Settlement_, so we pick that entity.
+Generating an entity is easy: run the [[Generate an entity]] command, or click on the corresponding dice icon in the [[Sidebar#Oracle Tab|Sidebar]] for the entity you want to roll. You'll see a list of supported entities pop up in a list. In our case, we want to generate a _Settlement_, so we pick that entity.
+
+![[entity-type-picker.png]]
 
 The next prompt will ask you what region you want to generate this in, which you can optionally roll.
+
+![[entity-region-picker.png]]
 
 Then, you'll get a popup that looks like this:
 
@@ -108,6 +116,8 @@ Go back to your sector Canvas from before. Then, add a new note to the Canvas wi
 ![[sector-with-stuff.png]]
 
 There's a lot more you could do here to gussy it up, but as the Rulebook says, I like to keep it simple. I can make it fancier later!
+
+For a more in-depth guide to working with the Canvas, see [its official documentation](https://help.obsidian.md/Plugins/Canvas).
 
 #### Create passages
 
