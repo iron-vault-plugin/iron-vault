@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Player's Guide/Getting Started/Begin Your Adventure.md",
+                "file": "Entities/Settlements.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Player's Guide/Getting Started/Begin Your Adventure.md",
+                "file": "Entities/Settlements.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Player's Guide/Getting Started/Begin Your Adventure.md",
+                "file": "Entities/Settlements.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Player's Guide/Getting Started/Begin Your Adventure.md"
+                "file": "Entities/Settlements.md"
               }
             }
           },
@@ -159,6 +159,10 @@
   },
   "active": "a426985bb32186fa",
   "lastOpenFiles": [
+    "Entities/Settlements.md",
+    "Entities/Creatures.md",
+    "Entities/Planets.md",
+    "Player's Guide/Getting Started/Begin Your Adventure.md",
     "index.md",
     "Player's Guide/Getting Started/Your First Campaign.md",
     "Player's Guide/Getting Started/Initial Setup.md",
@@ -176,15 +180,11 @@
     "Other Features/API.md",
     "Entities/Vaults.md",
     "Entities/Truths.md",
-    "Entities/Settlements.md",
-    "Player's Guide/Getting Started/Begin Your Adventure.md",
     "Entities/Oracles.md",
     "Entities/Moves.md",
     "Entities/Factions.md",
     "Entities/Derelicts.md",
     "Entities/Delves.md",
-    "Entities/Clocks.md",
-    "Entities/Characters.md",
     "Support/img/Player's Guide/finalized-sector.png",
     "Support/img/Player's Guide/sector-trouble.png",
     "Support/img/Player's Guide/completed-connection.png",
