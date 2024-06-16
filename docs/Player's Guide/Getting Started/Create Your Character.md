@@ -26,17 +26,17 @@ This character sheet is fully-editable and interactive, so you never have to man
 
 There's eleven steps for character creation in Starforged, and we'll be going over each one!
 
-1. Ready your assets (page 104) - don't worry, we've got this covered!
-2. [[#Choose two paths]] (page 105)
-3. [[#Create your backstory]] (page 106)
-4. [[#Write your background vow]] (page 107)
-5. [[#Board your starship]] (page 108)
-6. [[#Choose your final asset]] (page 110)
-7. [[#Set your stats]] (page 110)
-8. [[#Set your condition meters]] (page 111)
-9. [[#Envision your character]] (page 111)
-10. [[#Name your character]] (page 111)
-11. [[#Gear up]] (page 112)
+1. Ready your assets (p. 104) - don't worry, we've got this covered!
+2. [[#Choose two paths]] (p. 105)
+3. [[#Create your backstory]] (p. 106)
+4. [[#Write your background vow]] (p. 107)
+5. [[#Board your starship]] (p. 108)
+6. [[#Choose your final asset]] (p. 110)
+7. [[#Set your stats]] (p. 110)
+8. [[#Set your condition meters]] (p. 111)
+9. [[#Envision your character]] (p. 111)
+10. [[#Name your character]] (p. 111)
+11. [[#Gear up]] (p. 112)
 12. [[#Next steps]]
 
 #### Choose two paths

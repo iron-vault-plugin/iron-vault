@@ -13,7 +13,7 @@ The current supported entities are:
 - [[Entities/Moves|Moves]]
 - [[Entities/Oracles|Oracles]]
 - [[Entities/Factions|Factions]]
-- [[Entities/Locations and Settlements|Locations and Settlements]]
+- [[Settlements|Settlements]]
 - [[Entities/Sectors|Sectors]]
 - [[Entities/Truths|Truths]]
 - [[Entities/Vaults|Vaults]]

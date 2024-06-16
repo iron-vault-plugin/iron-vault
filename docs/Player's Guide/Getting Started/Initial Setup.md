@@ -1,3 +1,11 @@
+### Prep is Play
+
+The Ironsworn/Starforged family of games all have some significant worldbuilding involved, and that can take up a lot of the time before your character starts your adventure.
+
+For this reason, the books remind you that Prep is Play. That is, you're playing the game as soon as you engage with it, when you're starting to create the game world, when you're thinking of ideas and, in our case, when you're setting up Iron Vault and learning how to use it!
+
+We hope you'll bring the Prep is Play spirit to seeing what Iron Vault can do and how it can help enrich your experience playing these wonderful games!
+
 ### Initial Obsidian Setup
 
 Being a plugin, Iron Vault requires that you first install [Obsidian.md](https://obsidian.md), a free note-taking tool that will help you organize your campaign in just about any way you'd like!
