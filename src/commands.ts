@@ -20,6 +20,7 @@ import {
 } from "utils/ui/generic-fuzzy-suggester";
 import { PromptModal } from "utils/ui/prompt";
 import * as meterCommands from "./characters/meter-commands";
+import { openDocsInBrowser, openDocsInTab } from "docs/commands";
 
 export class IronVaultCommands {
   plugin: IronVaultPlugin;
@@ -207,6 +208,16 @@ export class IronVaultCommands {
       id: "insert-spoilers",
       name: "Insert spoiler text",
       editorCallback: (editor: Editor) => this.insertSpoilers(editor),
+    },
+    {
+      id: "open-docs-in-tab",
+      name: "Open documentation in a tab",
+      callback: () => openDocsInTab(this.plugin),
+    },
+    {
+      id: "open-docs-in-browser",
+      name: "Open documentation in your browser",
+      callback: () => openDocsInBrowser(),
     },
   ];
 

@@ -27,6 +27,7 @@ import { pluginAsset } from "./utils/obsidian";
 import { IronVaultCommands } from "commands";
 import registerTruthBlock from "truths/truth-block";
 import { initLogger } from "logger";
+import { IronVaultLinkView, LINK_VIEW } from "docs/docs-view";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -94,6 +95,10 @@ export default class IronVaultPlugin extends Plugin {
     this.installIdLinkHandler(this);
 
     this.registerView(VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
+    this.registerView(
+      LINK_VIEW,
+      (leaf) => new IronVaultLinkView(app.workspace, leaf),
+    );
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
     // const statusBarItemEl = this.addStatusBarItem();
     // statusBarItemEl.setText("Status Bar Text");

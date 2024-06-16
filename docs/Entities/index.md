@@ -1,21 +1,26 @@
 ---
-title: About Entities
+title: About
 ---
 Iron Vault represents various game concepts as something called "Entities". This section lists all current entities, their data models, and links to how to use them throughout the plugin.
 
+Some Entities are "Rollable Entities", that is, they can be generated using the [[Generate an entity]] command, through oracles.
+
 The current supported entities are:
 
+- [[Entities/Assets|Assets]]
 - [[Entities/Characters|Characters]]
 - [[Clocks|Clocks]]
-- [[Progress Tracks|Progress Tracks]]
-- [[Entities/NPCs|NPCs]]
-- [[Entities/Assets|Assets]]
-- [[Entities/Moves|Moves]]
-- [[Entities/Oracles|Oracles]]
-- [[Entities/Factions|Factions]]
-- [[Settlements|Settlements]]
-- [[Entities/Sectors|Sectors]]
-- [[Entities/Truths|Truths]]
-- [[Entities/Vaults|Vaults]]
-- [[Entities/Derelicts|Derelicts]]
-- [[Entities/Delves|Delves]]
+- [[Creatures]]
+- [[Delves]]
+- [[Derelicts]]
+- [[Factions]]
+- [[Moves]]
+- [[NPCs]]
+- [[Oracles]]
+- [[Planets]]
+- [[Progress Tracks]]
+- [[Sectors]]
+- [[Settlements]]
+- [[Truths]]
+- [[Vaults]]
+
