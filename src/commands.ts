@@ -34,14 +34,6 @@ export class IronVaultCommands {
       },
     },
     {
-      id: "show-sidebar",
-      name: "Show sidebar",
-      icon: "list",
-      callback: () => {
-        this.plugin.activateView();
-      },
-    },
-    {
       id: "make-a-move",
       name: "Make a move",
       icon: "zap",
@@ -57,11 +49,65 @@ export class IronVaultCommands {
         runOracleCommand(this.plugin, editor, view as MarkdownView),
     },
     {
+      id: "show-sidebar",
+      name: "Show sidebar",
+      icon: "list",
+      callback: () => {
+        this.plugin.activateView();
+      },
+    },
+    {
+      id: "insert-comment",
+      name: "Insert out-of-character (OOC) comment",
+      icon: "file-pen-line",
+      editorCallback: (editor: Editor) => insertComment(this.plugin, editor),
+    },
+    {
       id: "burn-momentum",
       name: "Burn momentum",
       icon: "flame",
       editorCallback: (editor: Editor) =>
         meterCommands.burnMomentum(this.plugin, editor),
+    },
+    {
+      id: "take-meter",
+      name: "Take on a meter",
+      icon: "trending-up",
+      editorCallback: async (editor: Editor) =>
+        meterCommands.modifyMeterCommand(
+          this.plugin,
+          editor,
+          "take",
+          ({ value, definition: { max } }) =>
+            value === undefined || value < max,
+          (measure) =>
+            Array(measure.definition.max - measure.value)
+              .fill(0)
+              .map((_, i) => i + 1),
+        ),
+    },
+    {
+      id: "suffer-meter",
+      name: "Suffer on a meter",
+      icon: "trending-down",
+      editorCallback: async (editor: Editor) =>
+        meterCommands.modifyMeterCommand(
+          this.plugin,
+          editor,
+          "suffer",
+          ({ value, definition: { min } }) =>
+            value === undefined || value > min,
+          (measure) =>
+            Array(measure.value - measure.definition.min)
+              .fill(0)
+              .map((_, i) => -1 * (i + 1)),
+        ),
+    },
+    {
+      id: "insert-spoilers",
+      name: "Insert spoiler text",
+      icon: "lock",
+      editorCallback: (editor: Editor) => this.insertSpoilers(editor),
     },
 
     /*
@@ -147,40 +193,6 @@ export class IronVaultCommands {
       },
     },
     {
-      id: "take-meter",
-      name: "Take on a meter",
-      icon: "trending-up",
-      editorCallback: async (editor: Editor) =>
-        meterCommands.modifyMeterCommand(
-          this.plugin,
-          editor,
-          "take",
-          ({ value, definition: { max } }) =>
-            value === undefined || value < max,
-          (measure) =>
-            Array(measure.definition.max - measure.value)
-              .fill(0)
-              .map((_, i) => i + 1),
-        ),
-    },
-    {
-      id: "suffer-meter",
-      name: "Suffer on a meter",
-      icon: "trending-down",
-      editorCallback: async (editor: Editor) =>
-        meterCommands.modifyMeterCommand(
-          this.plugin,
-          editor,
-          "suffer",
-          ({ value, definition: { min } }) =>
-            value === undefined || value > min,
-          (measure) =>
-            Array(measure.value - measure.definition.min)
-              .fill(0)
-              .map((_, i) => -1 * (i + 1)),
-        ),
-    },
-    {
       id: "toggle-mechanics",
       name: "Toggle displaying mechanics",
       icon: "eye-off",
@@ -192,31 +204,25 @@ export class IronVaultCommands {
     {
       id: "character-create",
       name: "Create new character",
+      icon: "user-round",
       callback: () => createNewCharacter(this.plugin),
     },
     {
       id: "generate-truths",
       name: "Generate truths",
+      icon: "book",
       callback: () => generateTruthsCommand(this.plugin),
-    },
-    {
-      id: "insert-comment",
-      name: "Insert out-of-character (OOC) comment",
-      editorCallback: (editor: Editor) => insertComment(this.plugin, editor),
-    },
-    {
-      id: "insert-spoilers",
-      name: "Insert spoiler text",
-      editorCallback: (editor: Editor) => this.insertSpoilers(editor),
     },
     {
       id: "open-docs-in-tab",
       name: "Open documentation in a tab",
+      icon: "book-open",
       callback: () => openDocsInTab(this.plugin),
     },
     {
       id: "open-docs-in-browser",
       name: "Open documentation in your browser",
+      icon: "globe",
       callback: () => openDocsInBrowser(),
     },
   ];
