@@ -1,6 +1,6 @@
 {
   "vaultName": "Iron Vault",
-  "lastExport": 1718520867837,
+  "lastExport": 1718521344704,
   "pluginVersion": "1.8.01",
   "validBodyClasses": "publish css-settings-manager theme-dark show-inline-title show-ribbon",
   "useCustomHeadContent": false,
@@ -67,6 +67,11 @@
     "Player's Guide/Getting Started/Your First Campaign.md",
     "Player's Guide/index.md",
     "index.md",
+    "lib/media/character-sheet.png",
+    "lib/media/special-tracks-example.png",
+    "lib/media/face-danger-link.png",
+    "lib/media/background-assets-link.png",
+    "lib/media/gunslinger-link.png",
     "lib/media/sector-initial.png",
     "lib/media/sector-region.png",
     "lib/media/generate-entity-modal.png",
@@ -90,7 +95,6 @@
     "lib/media/generate-truths-menu.png",
     "lib/media/generated-truths-page.png",
     "lib/media/character-frontmatter.png",
-    "lib/media/character-sheet.png",
     "lib/media/asset-picker-initial.png",
     "lib/media/asset-picker-expanded.png",
     "lib/media/asset-picker-card.png",
@@ -130,11 +134,7 @@
     "lib/styles/obsidian.css",
     "lib/styles/other-plugins.css",
     "lib/styles/global-variable-styles.css",
-    "lib/styles/main-styles.css",
-    "lib/media/special-tracks-example.png",
-    "lib/media/face-danger-link.png",
-    "lib/media/background-assets-link.png",
-    "lib/media/gunslinger-link.png"
+    "lib/styles/main-styles.css"
   ],
   "mainDependencies": [
     "lib/fonts/94f2f163d4b698242fef.otf",
@@ -162,14 +162,20 @@
     "lib/styles/main-styles.css"
   ],
   "fileInfo": {
+    "Blocks/index.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 1813,
+      "exportedPath": "blocks/index.html",
+      "dependencies": []
+    },
     "Blocks/Asset Blocks.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 356,
       "exportedPath": "blocks/asset-blocks.html",
       "dependencies": []
     },
     "Blocks/Character Blocks.md": {
-      "modifiedTime": 1718424134817,
+      "modifiedTime": 1718521344704,
       "sourceSize": 2520,
       "exportedPath": "blocks/character-blocks.html",
       "dependencies": [
@@ -178,79 +184,91 @@
       ]
     },
     "Blocks/Clock Blocks.md": {
-      "modifiedTime": 1718424134817,
+      "modifiedTime": 1718521344704,
       "sourceSize": 1086,
       "exportedPath": "blocks/clock-blocks.html",
       "dependencies": []
     },
     "Blocks/Mechanics Blocks.md": {
-      "modifiedTime": 1717997814180,
+      "modifiedTime": 1718521344704,
       "sourceSize": 12235,
       "exportedPath": "blocks/mechanics-blocks.html",
       "dependencies": []
     },
     "Blocks/Moves Blocks.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 332,
       "exportedPath": "blocks/moves-blocks.html",
       "dependencies": []
     },
     "Blocks/Oracles Blocks.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 342,
       "exportedPath": "blocks/oracles-blocks.html",
       "dependencies": []
     },
     "Blocks/Track Blocks.md": {
-      "modifiedTime": 1718424134817,
+      "modifiedTime": 1718521344704,
       "sourceSize": 1133,
       "exportedPath": "blocks/track-blocks.html",
       "dependencies": []
     },
+    "Blocks/Truth Blocks.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 3014,
+      "exportedPath": "blocks/truth-blocks.html",
+      "dependencies": []
+    },
+    "Commands/index.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 1279,
+      "exportedPath": "commands/index.html",
+      "dependencies": []
+    },
     "Commands/Add asset to character.md": {
-      "modifiedTime": 1718079341145,
+      "modifiedTime": 1718521344704,
       "sourceSize": 323,
       "exportedPath": "commands/add-asset-to-character.html",
       "dependencies": []
     },
     "Commands/Advance a clock.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 616,
       "exportedPath": "commands/advance-a-clock.html",
       "dependencies": []
     },
     "Commands/Advance a progress track.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 396,
       "exportedPath": "commands/advance-a-progress-track.html",
       "dependencies": []
     },
     "Commands/Ask the Oracle.md": {
-      "modifiedTime": 1718424134817,
+      "modifiedTime": 1718521344704,
       "sourceSize": 457,
       "exportedPath": "commands/ask-the-oracle.html",
       "dependencies": []
     },
     "Commands/Burn momentum.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 860,
       "exportedPath": "commands/burn-momentum.html",
       "dependencies": []
     },
     "Commands/Create a clock.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 397,
       "exportedPath": "commands/create-a-clock.html",
       "dependencies": []
     },
     "Commands/Create a progress track.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 433,
       "exportedPath": "commands/create-a-progress-track.html",
       "dependencies": []
     },
     "Commands/Create new character.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 303,
       "exportedPath": "commands/create-new-character.html",
       "dependencies": [
@@ -258,55 +276,67 @@
       ]
     },
     "Commands/Generate an entity.md": {
-      "modifiedTime": 1718424134817,
+      "modifiedTime": 1718521344704,
       "sourceSize": 538,
       "exportedPath": "commands/generate-an-entity.html",
       "dependencies": []
     },
+    "Commands/Generate Truths.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 250,
+      "exportedPath": "commands/generate-truths.html",
+      "dependencies": []
+    },
     "Commands/Make a move.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 624,
       "exportedPath": "commands/make-a-move.html",
       "dependencies": []
     },
     "Commands/Show all commands.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 146,
       "exportedPath": "commands/show-all-commands.html",
       "dependencies": []
     },
     "Commands/Show sidebar.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 58,
       "exportedPath": "commands/show-sidebar.html",
       "dependencies": []
     },
     "Commands/Suffer on a meter.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 578,
       "exportedPath": "commands/suffer-on-a-meter.html",
       "dependencies": []
     },
     "Commands/Take on a meter.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 580,
       "exportedPath": "commands/take-on-a-meter.html",
       "dependencies": []
     },
     "Commands/Toggle displaying mechanics.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 131,
       "exportedPath": "commands/toggle-displaying-mechanics.html",
       "dependencies": []
     },
+    "Entities/index.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 679,
+      "exportedPath": "entities/index.html",
+      "dependencies": []
+    },
     "Entities/Assets.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 2315,
       "exportedPath": "entities/assets.html",
       "dependencies": []
     },
     "Entities/Characters.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 4136,
       "exportedPath": "entities/characters.html",
       "dependencies": [
@@ -314,109 +344,145 @@
       ]
     },
     "Entities/Clocks.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 1667,
       "exportedPath": "entities/clocks.html",
       "dependencies": []
     },
+    "Entities/Creatures.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 793,
+      "exportedPath": "entities/creatures.html",
+      "dependencies": []
+    },
     "Entities/Delves.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 295,
       "exportedPath": "entities/delves.html",
       "dependencies": []
     },
     "Entities/Derelicts.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 301,
       "exportedPath": "entities/derelicts.html",
       "dependencies": []
     },
     "Entities/Factions.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 299,
       "exportedPath": "entities/factions.html",
       "dependencies": []
     },
     "Entities/Moves.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 1095,
       "exportedPath": "entities/moves.html",
       "dependencies": []
     },
     "Entities/NPCs.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 1370,
       "exportedPath": "entities/npcs.html",
       "dependencies": []
     },
     "Entities/Oracles.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 3208,
       "exportedPath": "entities/oracles.html",
       "dependencies": []
     },
+    "Entities/Planets.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 609,
+      "exportedPath": "entities/planets.html",
+      "dependencies": []
+    },
     "Entities/Progress Tracks.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 3396,
       "exportedPath": "entities/progress-tracks.html",
       "dependencies": []
     },
     "Entities/Sectors.md": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 836,
       "exportedPath": "entities/sectors.html",
       "dependencies": []
     },
+    "Entities/Settlements.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 635,
+      "exportedPath": "entities/settlements.html",
+      "dependencies": []
+    },
     "Entities/Truths.md": {
-      "modifiedTime": 1717974870742,
+      "modifiedTime": 1718521344704,
       "sourceSize": 827,
       "exportedPath": "entities/truths.html",
       "dependencies": []
     },
     "Entities/Vaults.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 295,
       "exportedPath": "entities/vaults.html",
       "dependencies": []
     },
     "Other Features/API.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 330,
       "exportedPath": "other-features/api.html",
       "dependencies": []
     },
+    "Other Features/Callouts.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 439,
+      "exportedPath": "other-features/callouts.html",
+      "dependencies": []
+    },
     "Other Features/CSS Tweaks.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 740,
       "exportedPath": "other-features/css-tweaks.html",
       "dependencies": []
     },
+    "Other Features/Debug Logging.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 581,
+      "exportedPath": "other-features/debug-logging.html",
+      "dependencies": []
+    },
+    "Other Features/index.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 190,
+      "exportedPath": "other-features/index.html",
+      "dependencies": []
+    },
     "Other Features/Ribbon Button.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 268,
       "exportedPath": "other-features/ribbon-button.html",
       "dependencies": []
     },
     "Other Features/Rulesets.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 724,
       "exportedPath": "other-features/rulesets.html",
       "dependencies": []
     },
     "Other Features/Settings.md": {
-      "modifiedTime": 1718424134817,
+      "modifiedTime": 1718521344704,
       "sourceSize": 2365,
       "exportedPath": "other-features/settings.html",
       "dependencies": []
     },
     "Other Features/Sidebar.md": {
-      "modifiedTime": 1718424134817,
+      "modifiedTime": 1718521344704,
       "sourceSize": 3055,
       "exportedPath": "other-features/sidebar.html",
       "dependencies": []
     },
     "Other Features/Special Links.md": {
-      "modifiedTime": 1717960709068,
+      "modifiedTime": 1718521344704,
       "sourceSize": 1989,
       "exportedPath": "other-features/special-links.html",
       "dependencies": [
@@ -426,236 +492,14 @@
         "lib/media/gunslinger-link.png"
       ]
     },
-    "index.md": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 4231,
-      "exportedPath": "index.html",
-      "dependencies": []
-    },
-    "lib/media/character-sheet.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 42782,
-      "exportedPath": "lib/media/character-sheet.png",
-      "dependencies": []
-    },
-    "lib/media/special-tracks-example.png": {
-      "modifiedTime": 1718424134817,
-      "sourceSize": 62945,
-      "exportedPath": "lib/media/special-tracks-example.png",
-      "dependencies": []
-    },
-    "lib/media/face-danger-link.png": {
-      "modifiedTime": 1717960709068,
-      "sourceSize": 141257,
-      "exportedPath": "lib/media/face-danger-link.png",
-      "dependencies": []
-    },
-    "lib/media/background-assets-link.png": {
-      "modifiedTime": 1717960709068,
-      "sourceSize": 125855,
-      "exportedPath": "lib/media/background-assets-link.png",
-      "dependencies": []
-    },
-    "lib/media/gunslinger-link.png": {
-      "modifiedTime": 1717960709068,
-      "sourceSize": 145076,
-      "exportedPath": "lib/media/gunslinger-link.png",
-      "dependencies": []
-    },
-    "lib/fonts/94f2f163d4b698242fef.otf": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 66800,
-      "exportedPath": "lib/fonts/94f2f163d4b698242fef.otf",
-      "dependencies": []
-    },
-    "lib/fonts/72505e6a122c6acd5471.woff2": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 104232,
-      "exportedPath": "lib/fonts/72505e6a122c6acd5471.woff2",
-      "dependencies": []
-    },
-    "lib/fonts/2d5198822ab091ce4305.woff2": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 104332,
-      "exportedPath": "lib/fonts/2d5198822ab091ce4305.woff2",
-      "dependencies": []
-    },
-    "lib/fonts/c8ba52b05a9ef10f4758.woff2": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 98868,
-      "exportedPath": "lib/fonts/c8ba52b05a9ef10f4758.woff2",
-      "dependencies": []
-    },
-    "lib/fonts/cb10ffd7684cd9836a05.woff2": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 106876,
-      "exportedPath": "lib/fonts/cb10ffd7684cd9836a05.woff2",
-      "dependencies": []
-    },
-    "lib/fonts/b5f0f109bc88052d4000.woff2": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 105804,
-      "exportedPath": "lib/fonts/b5f0f109bc88052d4000.woff2",
-      "dependencies": []
-    },
-    "lib/fonts/cbe0ae49c52c920fd563.woff2": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 106108,
-      "exportedPath": "lib/fonts/cbe0ae49c52c920fd563.woff2",
-      "dependencies": []
-    },
-    "lib/fonts/535a6cf662596b3bd6a6.woff2": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 111708,
-      "exportedPath": "lib/fonts/535a6cf662596b3bd6a6.woff2",
-      "dependencies": []
-    },
-    "lib/fonts/70cc7ff27245e82ad414.ttf": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 192740,
-      "exportedPath": "lib/fonts/70cc7ff27245e82ad414.ttf",
-      "dependencies": []
-    },
-    "lib/fonts/454577c22304619db035.ttf": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 161376,
-      "exportedPath": "lib/fonts/454577c22304619db035.ttf",
-      "dependencies": []
-    },
-    "lib/fonts/52ac8f3034507f1d9e53.ttf": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 191568,
-      "exportedPath": "lib/fonts/52ac8f3034507f1d9e53.ttf",
-      "dependencies": []
-    },
-    "lib/fonts/05b618077343fbbd92b7.ttf": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 155288,
-      "exportedPath": "lib/fonts/05b618077343fbbd92b7.ttf",
-      "dependencies": []
-    },
-    "lib/fonts/4bb6ac751d1c5478ff3a.woff2": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 7876,
-      "exportedPath": "lib/fonts/4bb6ac751d1c5478ff3a.woff2",
-      "dependencies": []
-    },
-    "lib/media/874d8b8e340f75575caa.svg": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 317,
-      "exportedPath": "lib/media/874d8b8e340f75575caa.svg",
-      "dependencies": []
-    },
-    "lib/media/3d6c1bdc4d87cde4de67.svg": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 279,
-      "exportedPath": "lib/media/3d6c1bdc4d87cde4de67.svg",
-      "dependencies": []
-    },
-    "lib/html/file-tree.html": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 24533,
-      "exportedPath": "lib/html/file-tree.html",
-      "dependencies": []
-    },
-    "lib/scripts/webpage.js": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 47290,
-      "exportedPath": "lib/scripts/webpage.js",
-      "dependencies": []
-    },
-    "lib/scripts/minisearch.js": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 29422,
-      "exportedPath": "lib/scripts/minisearch.js",
-      "dependencies": []
-    },
-    "lib/media/favicon.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 1105,
-      "exportedPath": "lib/media/favicon.png",
-      "dependencies": []
-    },
-    "lib/styles/obsidian.css": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 130183,
-      "exportedPath": "lib/styles/obsidian.css",
-      "dependencies": []
-    },
-    "lib/styles/other-plugins.css": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 58619,
-      "exportedPath": "lib/styles/other-plugins.css",
-      "dependencies": []
-    },
-    "lib/styles/global-variable-styles.css": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 236,
-      "exportedPath": "lib/styles/global-variable-styles.css",
-      "dependencies": []
-    },
-    "lib/styles/main-styles.css": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 23130,
-      "exportedPath": "lib/styles/main-styles.css",
-      "dependencies": []
-    },
-    "Blocks/Truth Blocks.md": {
-      "modifiedTime": 1717974870742,
-      "sourceSize": 3014,
-      "exportedPath": "blocks/truth-blocks.html",
-      "dependencies": []
-    },
-    "Commands/Generate Truths.md": {
-      "modifiedTime": 1717974870742,
-      "sourceSize": 250,
-      "exportedPath": "commands/generate-truths.html",
-      "dependencies": []
-    },
-    "Blocks/index.md": {
-      "modifiedTime": 1718424134817,
-      "sourceSize": 1813,
-      "exportedPath": "blocks/index.html",
-      "dependencies": []
-    },
-    "Commands/index.md": {
-      "modifiedTime": 1718424134817,
-      "sourceSize": 1279,
-      "exportedPath": "commands/index.html",
-      "dependencies": []
-    },
-    "Entities/index.md": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 679,
-      "exportedPath": "entities/index.html",
-      "dependencies": []
-    },
-    "Other Features/index.md": {
-      "modifiedTime": 1718424134817,
-      "sourceSize": 190,
-      "exportedPath": "other-features/index.html",
-      "dependencies": []
-    },
-    "Other Features/Callouts.md": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 439,
-      "exportedPath": "other-features/callouts.html",
-      "dependencies": []
-    },
-    "Other Features/Debug Logging.md": {
-      "modifiedTime": 1718424134817,
-      "sourceSize": 581,
-      "exportedPath": "other-features/debug-logging.html",
-      "dependencies": []
-    },
     "Player's Guide/Getting Started/Begin Your Adventure.md": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 58,
       "exportedPath": "player's-guide/getting-started/begin-your-adventure.html",
       "dependencies": []
     },
     "Player's Guide/Getting Started/Build a Starting Sector.md": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 10413,
       "exportedPath": "player's-guide/getting-started/build-a-starting-sector.html",
       "dependencies": [
@@ -681,7 +525,7 @@
       ]
     },
     "Player's Guide/Getting Started/Choose Your Truths.md": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 4595,
       "exportedPath": "player's-guide/getting-started/choose-your-truths.html",
       "dependencies": [
@@ -691,7 +535,7 @@
       ]
     },
     "Player's Guide/Getting Started/Create Your Character.md": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 9194,
       "exportedPath": "player's-guide/getting-started/create-your-character.html",
       "dependencies": [
@@ -714,7 +558,7 @@
       ]
     },
     "Player's Guide/Getting Started/Initial Setup.md": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 2556,
       "exportedPath": "player's-guide/getting-started/initial-setup.html",
       "dependencies": [
@@ -723,7 +567,7 @@
       ]
     },
     "Player's Guide/Getting Started/Your First Campaign.md": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 2093,
       "exportedPath": "player's-guide/getting-started/your-first-campaign.html",
       "dependencies": [
@@ -731,267 +575,423 @@
       ]
     },
     "Player's Guide/index.md": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 488,
       "exportedPath": "player's-guide/index.html",
       "dependencies": []
     },
-    "lib/media/ribbon-icon.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 1396,
-      "exportedPath": "lib/media/ribbon-icon.png",
+    "index.md": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 4231,
+      "exportedPath": "index.html",
       "dependencies": []
     },
-    "lib/media/generate-truths-menu.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 32960,
-      "exportedPath": "lib/media/generate-truths-menu.png",
+    "lib/media/character-sheet.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 42782,
+      "exportedPath": "lib/media/character-sheet.png",
       "dependencies": []
     },
-    "lib/media/generated-truths-page.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 66964,
-      "exportedPath": "lib/media/generated-truths-page.png",
+    "lib/media/special-tracks-example.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 62945,
+      "exportedPath": "lib/media/special-tracks-example.png",
       "dependencies": []
     },
-    "lib/media/character-frontmatter.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 155566,
-      "exportedPath": "lib/media/character-frontmatter.png",
+    "lib/media/face-danger-link.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 141257,
+      "exportedPath": "lib/media/face-danger-link.png",
       "dependencies": []
     },
-    "lib/media/asset-picker-initial.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 41024,
-      "exportedPath": "lib/media/asset-picker-initial.png",
+    "lib/media/background-assets-link.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 125855,
+      "exportedPath": "lib/media/background-assets-link.png",
       "dependencies": []
     },
-    "lib/media/asset-picker-expanded.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 30997,
-      "exportedPath": "lib/media/asset-picker-expanded.png",
-      "dependencies": []
-    },
-    "lib/media/asset-picker-card.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 152824,
-      "exportedPath": "lib/media/asset-picker-card.png",
-      "dependencies": []
-    },
-    "lib/media/backstory-prompts-popup.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 40972,
-      "exportedPath": "lib/media/backstory-prompts-popup.png",
-      "dependencies": []
-    },
-    "lib/media/backstory-mechanics-block.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 116981,
-      "exportedPath": "lib/media/backstory-mechanics-block.png",
-      "dependencies": []
-    },
-    "lib/media/background-vow-window.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 72191,
-      "exportedPath": "lib/media/background-vow-window.png",
-      "dependencies": []
-    },
-    "lib/media/background-vow-inserted.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 114535,
-      "exportedPath": "lib/media/background-vow-inserted.png",
-      "dependencies": []
-    },
-    "lib/media/sidebar-starship-history.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 78879,
-      "exportedPath": "lib/media/sidebar-starship-history.png",
-      "dependencies": []
-    },
-    "lib/media/starship-asset.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 142715,
-      "exportedPath": "lib/media/starship-asset.png",
-      "dependencies": []
-    },
-    "lib/media/stats-edited.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 14490,
-      "exportedPath": "lib/media/stats-edited.png",
-      "dependencies": []
-    },
-    "lib/media/condition-meters.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 22453,
-      "exportedPath": "lib/media/condition-meters.png",
-      "dependencies": []
-    },
-    "lib/media/character-description.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 100272,
-      "exportedPath": "lib/media/character-description.png",
-      "dependencies": []
-    },
-    "lib/media/callsign-pronouns.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 31591,
-      "exportedPath": "lib/media/callsign-pronouns.png",
-      "dependencies": []
-    },
-    "lib/media/gearing-up.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 56754,
-      "exportedPath": "lib/media/gearing-up.png",
-      "dependencies": []
-    },
-    "lib/media/getting-started-initial.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 104877,
-      "exportedPath": "lib/media/getting-started-initial.png",
-      "dependencies": []
-    },
-    "lib/media/brat-menu.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 61467,
-      "exportedPath": "lib/media/brat-menu.png",
-      "dependencies": []
-    },
-    "lib/media/session-0.png": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 43878,
-      "exportedPath": "lib/media/session-0.png",
-      "dependencies": []
-    },
-    "Entities/Creatures.md": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 793,
-      "exportedPath": "entities/creatures.html",
-      "dependencies": []
-    },
-    "Entities/Planets.md": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 609,
-      "exportedPath": "entities/planets.html",
-      "dependencies": []
-    },
-    "Entities/Settlements.md": {
-      "modifiedTime": 1718520867837,
-      "sourceSize": 635,
-      "exportedPath": "entities/settlements.html",
+    "lib/media/gunslinger-link.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 145076,
+      "exportedPath": "lib/media/gunslinger-link.png",
       "dependencies": []
     },
     "lib/media/sector-initial.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 86283,
       "exportedPath": "lib/media/sector-initial.png",
       "dependencies": []
     },
     "lib/media/sector-region.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 72995,
       "exportedPath": "lib/media/sector-region.png",
       "dependencies": []
     },
     "lib/media/generate-entity-modal.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 74479,
       "exportedPath": "lib/media/generate-entity-modal.png",
       "dependencies": []
     },
     "lib/media/generate-entity-modal-filled.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 96933,
       "exportedPath": "lib/media/generate-entity-modal-filled.png",
       "dependencies": []
     },
     "lib/media/first-settlement.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 168958,
       "exportedPath": "lib/media/first-settlement.png",
       "dependencies": []
     },
     "lib/media/generated-planets.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 133072,
       "exportedPath": "lib/media/generated-planets.png",
       "dependencies": []
     },
     "lib/media/edited-settlement-planet.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 55606,
       "exportedPath": "lib/media/edited-settlement-planet.png",
       "dependencies": []
     },
     "lib/media/edited-planet-settlement.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 64223,
       "exportedPath": "lib/media/edited-planet-settlement.png",
       "dependencies": []
     },
     "lib/media/stellar-object-oracle-rolls.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 58594,
       "exportedPath": "lib/media/stellar-object-oracle-rolls.png",
       "dependencies": []
     },
     "lib/media/planet-with-star-row.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 79376,
       "exportedPath": "lib/media/planet-with-star-row.png",
       "dependencies": []
     },
     "lib/media/sector-with-stuff.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 130940,
       "exportedPath": "lib/media/sector-with-stuff.png",
       "dependencies": []
     },
     "lib/media/sector-with-passages.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 142866,
       "exportedPath": "lib/media/sector-with-passages.png",
       "dependencies": []
     },
     "lib/media/zoomed-in-settlement.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 93978,
       "exportedPath": "lib/media/zoomed-in-settlement.png",
       "dependencies": []
     },
     "lib/media/generated-connection.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 86282,
       "exportedPath": "lib/media/generated-connection.png",
       "dependencies": []
     },
     "lib/media/new-progress-trap-modal.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 63372,
       "exportedPath": "lib/media/new-progress-trap-modal.png",
       "dependencies": []
     },
     "lib/media/embedded-connection-track.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 69483,
       "exportedPath": "lib/media/embedded-connection-track.png",
       "dependencies": []
     },
     "lib/media/completed-connection.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 109321,
       "exportedPath": "lib/media/completed-connection.png",
       "dependencies": []
     },
     "lib/media/sector-trouble.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 40013,
       "exportedPath": "lib/media/sector-trouble.png",
       "dependencies": []
     },
     "lib/media/finalized-sector.png": {
-      "modifiedTime": 1718520867837,
+      "modifiedTime": 1718521344704,
       "sourceSize": 95353,
       "exportedPath": "lib/media/finalized-sector.png",
+      "dependencies": []
+    },
+    "lib/media/ribbon-icon.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 1396,
+      "exportedPath": "lib/media/ribbon-icon.png",
+      "dependencies": []
+    },
+    "lib/media/generate-truths-menu.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 32960,
+      "exportedPath": "lib/media/generate-truths-menu.png",
+      "dependencies": []
+    },
+    "lib/media/generated-truths-page.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 66964,
+      "exportedPath": "lib/media/generated-truths-page.png",
+      "dependencies": []
+    },
+    "lib/media/character-frontmatter.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 155566,
+      "exportedPath": "lib/media/character-frontmatter.png",
+      "dependencies": []
+    },
+    "lib/media/asset-picker-initial.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 41024,
+      "exportedPath": "lib/media/asset-picker-initial.png",
+      "dependencies": []
+    },
+    "lib/media/asset-picker-expanded.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 30997,
+      "exportedPath": "lib/media/asset-picker-expanded.png",
+      "dependencies": []
+    },
+    "lib/media/asset-picker-card.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 152824,
+      "exportedPath": "lib/media/asset-picker-card.png",
+      "dependencies": []
+    },
+    "lib/media/backstory-prompts-popup.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 40972,
+      "exportedPath": "lib/media/backstory-prompts-popup.png",
+      "dependencies": []
+    },
+    "lib/media/backstory-mechanics-block.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 116981,
+      "exportedPath": "lib/media/backstory-mechanics-block.png",
+      "dependencies": []
+    },
+    "lib/media/background-vow-window.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 72191,
+      "exportedPath": "lib/media/background-vow-window.png",
+      "dependencies": []
+    },
+    "lib/media/background-vow-inserted.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 114535,
+      "exportedPath": "lib/media/background-vow-inserted.png",
+      "dependencies": []
+    },
+    "lib/media/sidebar-starship-history.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 78879,
+      "exportedPath": "lib/media/sidebar-starship-history.png",
+      "dependencies": []
+    },
+    "lib/media/starship-asset.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 142715,
+      "exportedPath": "lib/media/starship-asset.png",
+      "dependencies": []
+    },
+    "lib/media/stats-edited.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 14490,
+      "exportedPath": "lib/media/stats-edited.png",
+      "dependencies": []
+    },
+    "lib/media/condition-meters.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 22453,
+      "exportedPath": "lib/media/condition-meters.png",
+      "dependencies": []
+    },
+    "lib/media/character-description.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 100272,
+      "exportedPath": "lib/media/character-description.png",
+      "dependencies": []
+    },
+    "lib/media/callsign-pronouns.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 31591,
+      "exportedPath": "lib/media/callsign-pronouns.png",
+      "dependencies": []
+    },
+    "lib/media/gearing-up.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 56754,
+      "exportedPath": "lib/media/gearing-up.png",
+      "dependencies": []
+    },
+    "lib/media/getting-started-initial.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 104877,
+      "exportedPath": "lib/media/getting-started-initial.png",
+      "dependencies": []
+    },
+    "lib/media/brat-menu.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 61467,
+      "exportedPath": "lib/media/brat-menu.png",
+      "dependencies": []
+    },
+    "lib/media/session-0.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 43878,
+      "exportedPath": "lib/media/session-0.png",
+      "dependencies": []
+    },
+    "lib/fonts/94f2f163d4b698242fef.otf": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 66800,
+      "exportedPath": "lib/fonts/94f2f163d4b698242fef.otf",
+      "dependencies": []
+    },
+    "lib/fonts/72505e6a122c6acd5471.woff2": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 104232,
+      "exportedPath": "lib/fonts/72505e6a122c6acd5471.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/2d5198822ab091ce4305.woff2": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 104332,
+      "exportedPath": "lib/fonts/2d5198822ab091ce4305.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/c8ba52b05a9ef10f4758.woff2": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 98868,
+      "exportedPath": "lib/fonts/c8ba52b05a9ef10f4758.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/cb10ffd7684cd9836a05.woff2": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 106876,
+      "exportedPath": "lib/fonts/cb10ffd7684cd9836a05.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/b5f0f109bc88052d4000.woff2": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 105804,
+      "exportedPath": "lib/fonts/b5f0f109bc88052d4000.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/cbe0ae49c52c920fd563.woff2": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 106108,
+      "exportedPath": "lib/fonts/cbe0ae49c52c920fd563.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/535a6cf662596b3bd6a6.woff2": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 111708,
+      "exportedPath": "lib/fonts/535a6cf662596b3bd6a6.woff2",
+      "dependencies": []
+    },
+    "lib/fonts/70cc7ff27245e82ad414.ttf": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 192740,
+      "exportedPath": "lib/fonts/70cc7ff27245e82ad414.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/454577c22304619db035.ttf": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 161376,
+      "exportedPath": "lib/fonts/454577c22304619db035.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/52ac8f3034507f1d9e53.ttf": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 191568,
+      "exportedPath": "lib/fonts/52ac8f3034507f1d9e53.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/05b618077343fbbd92b7.ttf": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 155288,
+      "exportedPath": "lib/fonts/05b618077343fbbd92b7.ttf",
+      "dependencies": []
+    },
+    "lib/fonts/4bb6ac751d1c5478ff3a.woff2": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 7876,
+      "exportedPath": "lib/fonts/4bb6ac751d1c5478ff3a.woff2",
+      "dependencies": []
+    },
+    "lib/media/874d8b8e340f75575caa.svg": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 317,
+      "exportedPath": "lib/media/874d8b8e340f75575caa.svg",
+      "dependencies": []
+    },
+    "lib/media/3d6c1bdc4d87cde4de67.svg": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 279,
+      "exportedPath": "lib/media/3d6c1bdc4d87cde4de67.svg",
+      "dependencies": []
+    },
+    "lib/html/file-tree.html": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 24533,
+      "exportedPath": "lib/html/file-tree.html",
+      "dependencies": []
+    },
+    "lib/scripts/webpage.js": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 47290,
+      "exportedPath": "lib/scripts/webpage.js",
+      "dependencies": []
+    },
+    "lib/scripts/minisearch.js": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 29422,
+      "exportedPath": "lib/scripts/minisearch.js",
+      "dependencies": []
+    },
+    "lib/media/favicon.png": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 1105,
+      "exportedPath": "lib/media/favicon.png",
+      "dependencies": []
+    },
+    "lib/styles/obsidian.css": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 130183,
+      "exportedPath": "lib/styles/obsidian.css",
+      "dependencies": []
+    },
+    "lib/styles/other-plugins.css": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 58619,
+      "exportedPath": "lib/styles/other-plugins.css",
+      "dependencies": []
+    },
+    "lib/styles/global-variable-styles.css": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 236,
+      "exportedPath": "lib/styles/global-variable-styles.css",
+      "dependencies": []
+    },
+    "lib/styles/main-styles.css": {
+      "modifiedTime": 1718521344704,
+      "sourceSize": 23130,
+      "exportedPath": "lib/styles/main-styles.css",
       "dependencies": []
     }
   }
