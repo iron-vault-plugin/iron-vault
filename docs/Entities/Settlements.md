@@ -1,0 +1,3 @@
+Iron Vault has support for Settlements by using the related Oracle Entity, which can be rolled either through the [[Sidebar]] or through the [[Generate an entity]] command. You'll be given the option to save the results into a new file, which will include a Markdown table with all the roll results. Rolling this oracle group will also record the results in your journal.
+
+Besides this, there is no additional support specific to locations and settlements. You are free to organize these entities however you want, including having multiple settlements in a single file (although we recommend doing 1-entity, 1-file as a general rule).
