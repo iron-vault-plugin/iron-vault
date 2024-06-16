@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Entities/Settlements.md",
+                "file": "Player's Guide/Getting Started/Build a Starting Sector.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Entities/Settlements.md",
+                "file": "Player's Guide/Getting Started/Build a Starting Sector.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Entities/Settlements.md",
+                "file": "Player's Guide/Getting Started/Build a Starting Sector.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Entities/Settlements.md"
+                "file": "Player's Guide/Getting Started/Build a Starting Sector.md"
               }
             }
           },
@@ -159,6 +159,7 @@
   },
   "active": "a426985bb32186fa",
   "lastOpenFiles": [
+    "Player's Guide/Getting Started/Build a Starting Sector.md",
     "Entities/Settlements.md",
     "Entities/Creatures.md",
     "Entities/Planets.md",
@@ -168,7 +169,6 @@
     "Player's Guide/Getting Started/Initial Setup.md",
     "Player's Guide/Getting Started/Create Your Character.md",
     "Player's Guide/Getting Started/Choose Your Truths.md",
-    "Player's Guide/Getting Started/Build a Starting Sector.md",
     "Other Features/Special Links.md",
     "Other Features/Sidebar.md",
     "Other Features/Settings.md",

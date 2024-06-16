@@ -174,6 +174,8 @@ To finish up, we either come up with or roll the Sector Name oracle, then we go 
 
 If you want, you can do what I did and make the card's contents into a [Markdown table](https://www.markdownguide.org/extended-syntax/#tables) to make it look nicer.
 
+Finally, go ahead and rename your Sector Canvas file to the name you ended up with, so it's not just "Untitled".
+
 #### Next Steps
 
 And with that, we've completed the entire Starting Sector guide! Following along with the Starforged Rulebook, that means you're ready to [[Begin Your Adventure]] and see what it's like to get into the rest of gameplay using Iron Vault!
