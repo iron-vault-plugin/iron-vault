@@ -172,7 +172,7 @@ function* walkOracles(data: Datasworn.RulesPackage): Generator<Oracle> {
           text: "Terminus",
         },
         {
-          min: 45,
+          min: 46,
           max: 80,
           text: "Outlands",
         },
