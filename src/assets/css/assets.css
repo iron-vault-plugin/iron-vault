@@ -1,3 +1,6 @@
+@import url("asset-card.css");
+@import url("asset-list.css");
+
 .iron-vault-asset-modal {
   display: flex;
   flex-flow: column nowrap;

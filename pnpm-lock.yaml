@@ -17,6 +17,9 @@ importers:
       '@datasworn/core':
         specifier: 0.0.10
         version: 0.0.10
+      '@datasworn/ironsworn-classic':
+        specifier: ^0.0.10
+        version: 0.0.10
       '@datasworn/starforged':
         specifier: 0.0.10
         version: 0.0.10
@@ -44,6 +47,9 @@ importers:
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
+      '@types/lodash.merge':
+        specifier: ^4.6.9
+        version: 4.6.9
       '@types/node':
         specifier: ^20.12.12
         version: 20.12.12
@@ -95,6 +101,9 @@ importers:
       lit-html:
         specifier: ^3.1.3
         version: 3.1.3
+      lodash.merge:
+        specifier: ^4.6.2
+        version: 4.6.2
       loglevel:
         specifier: ^1.9.1
         version: 1.9.1
@@ -318,6 +327,9 @@ packages:
 
   '@datasworn/core@0.0.10':
     resolution: {integrity: sha512-MpZHQ87haKJVJlzyo6mhHgfkLUgrwIW+Rj4Pu4k66oEchlg+vmHVTkVSF9oRBitq//eTqx5jZLesmo43Nhnq+w==}
+
+  '@datasworn/ironsworn-classic@0.0.10':
+    resolution: {integrity: sha512-yNoeKcL2qL6I3JH9XfCjMX1u7k83FXnyRzIxQLd32lO9If2Su4Oq6xe4FigQWHsZtkyuYWyj7/B3fMNW24H1xg==}
 
   '@datasworn/starforged@0.0.10':
     resolution: {integrity: sha512-EN++YMiFRfc/ues5WG4sSZQjfPLd5X40fIvrQ2W4iqBKaI0aloWagai1o/yRCdXINz4P1VF+fW7FoDJr6SGrDg==}
@@ -762,6 +774,12 @@ packages:
 
   '@types/jsdom@20.0.1':
     resolution: {integrity: sha512-d0r18sZPmMQr1eG35u12FZfhIXNrnsPU/g5wvRKCUf/tOGilKKwYMYGqh33BNR6ba+2gkHw1EUiHoN3mn7E5IQ==}
+
+  '@types/lodash.merge@4.6.9':
+    resolution: {integrity: sha512-23sHDPmzd59kUgWyKGiOMO2Qb9YtqRO/x4IhkgNUiPQ1+5MUVqi6bCZeq9nBJ17msjIMbEIO5u+XW4Kz6aGUhQ==}
+
+  '@types/lodash@4.17.5':
+    resolution: {integrity: sha512-MBIOHVZqVqgfro1euRDWX7OO0fBVUUMrN6Pwm8LQsz8cWhEpihlvR70ENj3f40j58TNxZaWv2ndSkInykNBBJw==}
 
   '@types/node@20.12.12':
     resolution: {integrity: sha512-eWLDGF/FOSPtAvEqeRAQ4C8LSA7M1I7i0ky1I8U7kD1J5ITyW3AsRhQrKVoWf5pFKZ2kILsEGJhsI9r93PYnOw==}
@@ -2484,6 +2502,10 @@ snapshots:
 
   '@datasworn/core@0.0.10': {}
 
+  '@datasworn/ironsworn-classic@0.0.10':
+    dependencies:
+      '@datasworn/core': 0.0.10
+
   '@datasworn/starforged@0.0.10':
     dependencies:
       '@datasworn/core': 0.0.10
@@ -2944,6 +2966,12 @@ snapshots:
       '@types/node': 20.12.12
       '@types/tough-cookie': 4.0.5
       parse5: 7.1.2
+
+  '@types/lodash.merge@4.6.9':
+    dependencies:
+      '@types/lodash': 4.17.5
+
+  '@types/lodash@4.17.5': {}
 
   '@types/node@20.12.12':
     dependencies:

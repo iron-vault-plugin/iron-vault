@@ -29,14 +29,17 @@ function litHtmlMoveList(
       [...plugin.datastore.moves.values()].map((m) => ({ id: m._id }));
   const categories = plugin.datastore.moveCategories.values();
   let total = 0;
-  const newCats = [];
+  const sources: Record<string, MoveCategory[]> = {};
   for (const cat of categories) {
     const contents = Object.values(cat.contents ?? {});
     const filtered = contents.filter((m) =>
       results.find((res) => m._id === res.id),
     );
     if (filtered.length) {
-      newCats.push({
+      if (!sources[cat._source.title]) {
+        sources[cat._source.title] = [];
+      }
+      sources[cat._source.title].push({
         ...cat,
         contents: Object.fromEntries(filtered.map((m) => [m._id, m])),
       });
@@ -53,9 +56,26 @@ function litHtmlMoveList(
         litHtmlMoveList(cont, plugin, searchIdx, input.value);
       }}
     />
-    <ol class="iron-vault-moves-list">
-      ${map(newCats, (cat) => renderCategory(plugin, cat, total <= 5))}
-    </ol>
+    <ul class="iron-vault-moves-list">
+      ${map(
+        Object.entries(sources),
+        ([source, sourceCats]) =>
+          html` <li class="ruleset">
+            <div class="wrapper">
+              <details ?open=${total <= 5}>
+                <summary>
+                  <span>${source}</span>
+                </summary>
+              </details>
+              <ul class="content">
+                ${map(sourceCats, (cat) =>
+                  renderCategory(plugin, cat, total <= 5),
+                )}
+              </ul>
+            </div>
+          </li>`,
+      )}
+    </ul>
   `;
   render(tpl, cont);
 }
@@ -66,7 +86,7 @@ function renderCategory(
   open: boolean,
 ) {
   return html` <li
-    class="category"
+    class="move-category"
     style=${category.color ? `border-left: 6px solid ${category.color}` : ""}
   >
     <div class="wrapper">

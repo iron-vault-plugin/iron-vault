@@ -1,0 +1,42 @@
+.iron-vault-asset-list {
+  & .ruleset {
+    & > .wrapper > details span {
+      font-size: 1.4em;
+      border-bottom: 1px solid var(--background-secondary);
+    }
+    background-color: var(--background-secondary);
+    & > .wrapper {
+      & > .content {
+        padding: 0;
+      }
+    }
+    & li:has(+ li) {
+      border-bottom: 1px solid var(--background-secondary);
+    }
+  }
+  & .ruleset > .wrapper > .content {
+    padding: 0 !important;
+  }
+  & li.category {
+    width: 100%;
+  }
+  & .content {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    &.category {
+      padding: 0 !important;
+      padding-left: 0.5em !important;
+    }
+    &.asset {
+      gap: 0.5em;
+    }
+  }
+  & .wrapper {
+    width: 100%;
+  }
+  & summary > span {
+    width: 100%;
+  }
+}

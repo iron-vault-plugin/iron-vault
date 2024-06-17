@@ -1,12 +1,14 @@
+import merge from "lodash.merge";
 import { type Datasworn } from "@datasworn/core";
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
+import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
 import { IDataContext } from "characters/action-context";
 import {
   DataIndexer,
   SourceTag,
+  Sourced,
   StandardIndex,
   getHighestPriority,
-  getHighestPriorityChecked,
   isOfKind,
 } from "datastore/data-indexer";
 import {
@@ -20,6 +22,8 @@ import { Oracle } from "model/oracle";
 import { Component, type App } from "obsidian";
 import { OracleRoller } from "oracles/roller";
 import { Ruleset } from "rules/ruleset";
+import { Rules, RulesPackage } from "@datasworn/core/dist/Datasworn";
+import Emittery from "emittery";
 
 export class Datastore extends Component implements IDataContext {
   _ready: boolean;
@@ -29,12 +33,18 @@ export class Datastore extends Component implements IDataContext {
 
   #readyNow!: () => void;
 
-  // TODO: wtf
-  activeRuleset: string = "starforged";
+  emitter: Emittery;
 
   constructor(public readonly plugin: IronVaultPlugin) {
     super();
     this._ready = false;
+    this.emitter = new Emittery();
+
+    this.plugin.settings.on("change", ({ key }) => {
+      if (key === "enableIronsworn" || key === "enableStarforged") {
+        this.initialize();
+      }
+    });
 
     this.waitForReady = new Promise((resolve) => {
       this.#readyNow = resolve;
@@ -46,38 +56,17 @@ export class Datastore extends Component implements IDataContext {
   }
 
   async initialize(): Promise<void> {
-    this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
-
-    // TODO: also handle folders
-    // const dataFiles = await this.app.vault.adapter.list(
-    //   this.plugin.assetFilePath("data"),
-    // );
-    // for (const dataFilePath of dataFiles.files) {
-    //   let extension = dataFilePath.split(".").pop();
-    //   if (extension === "yml") {
-    //     extension = "yaml";
-    //   }
-    //   if (extension === "yml" || extension === "yaml" || extension === "json") {
-    //     await this.indexPluginFile(dataFilePath, 0, extension);
-    //   }
-    // }
-
-    // if (this.plugin.settings.oraclesFolder != "") {
-    //   const oraclesFolderFile = this.app.vault.getAbstractFileByPath(
-    //     this.plugin.settings.oraclesFolder,
-    //   );
-    //   if (
-    //     oraclesFolderFile == null ||
-    //     !(oraclesFolderFile instanceof TFolder)
-    //   ) {
-    //     logger.error(
-    //       "oracle folders: expected '%s' to be folder",
-    //       oraclesFolderFile,
-    //     );
-    //   } else {
-    //     this.indexOraclesFolder(oraclesFolderFile);
-    //   }
-    // }
+    this._ready = false;
+    if (this.plugin.settings.enableIronsworn) {
+      this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
+    } else {
+      this.removeBuiltInData(ironswornRuleset as Datasworn.Ruleset);
+    }
+    if (this.plugin.settings.enableStarforged) {
+      this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
+    } else {
+      this.removeBuiltInData(starforgedRuleset as Datasworn.Ruleset);
+    }
 
     this._ready = true;
     console.info(
@@ -87,6 +76,7 @@ export class Datastore extends Component implements IDataContext {
       this.assets.size,
       this.truths.size,
     );
+    this.emitter.emit("initialized");
     this.#readyNow();
   }
 
@@ -100,6 +90,13 @@ export class Datastore extends Component implements IDataContext {
     });
     this.indexer.index(source, walkDataswornRulesPackage(source, pkg));
 
+    this.app.metadataCache.trigger("iron-vault:index-changed");
+  }
+
+  removeBuiltInData(pkg: Datasworn.RulesPackage) {
+    // TODO: properly support this.
+    const mainPath = `@datasworn:${pkg._id}`;
+    this.indexer.removeSource(mainPath);
     this.app.metadataCache.trigger("iron-vault:index-changed");
   }
 
@@ -263,23 +260,15 @@ export class Datastore extends Component implements IDataContext {
   get ruleset(): Ruleset {
     this.assertReady();
 
-    const packages = this.indexer.get(this.activeRuleset);
-    if (
-      !packages ||
-      !isOfKind<DataswornTypes, "rules_package">(packages, "rules_package")
-    ) {
-      throw new Error(`missing ruleset ${this.activeRuleset}`);
-    }
+    const rules = [...this.indexer.values()]
+      .filter((v) =>
+        isOfKind<DataswornTypes, "rules_package">(v, "rules_package"),
+      )
+      .flat()
+      .map((v) => (v as Sourced<"rules_package", RulesPackage>).value.rules)
+      .reduce((acc, rules) => merge(acc, rules)) as Rules;
 
-    const pkg = getHighestPriorityChecked(packages);
-
-    // TODO: figure out expansions and what not. kinda think I want to filter down to all available
-    // rulesets and merge them?
-
-    if (pkg.value.type != "ruleset")
-      throw new Error(`expected 'ruleset', but ${pkg.id} is ${pkg.value.type}`);
-
-    return new Ruleset(pkg?.id, pkg.value.rules);
+    return new Ruleset("iron-vault-active-ruleset", rules);
   }
 
   private assertReady(): void {
@@ -287,4 +276,30 @@ export class Datastore extends Component implements IDataContext {
       throw new Error("data not loaded yet");
     }
   }
+
+  on<K extends keyof EVENT_TYPES>(
+    event: K,
+    listener: (params: EVENT_TYPES[K]) => void,
+  ) {
+    return this.emitter.on(event, listener);
+  }
+
+  once<K extends keyof EVENT_TYPES>(event: K) {
+    return this.emitter.once(event);
+  }
+
+  off<K extends keyof EVENT_TYPES>(
+    event: K,
+    listener: (params: EVENT_TYPES[K]) => void,
+  ) {
+    return this.emitter.off(event, listener);
+  }
+
+  events<K extends keyof EVENT_TYPES>(event: K) {
+    return this.emitter.events(event);
+  }
 }
+
+export type EVENT_TYPES = {
+  initialized: void;
+};

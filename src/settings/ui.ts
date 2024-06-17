@@ -36,6 +36,30 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .onChange((value) => this.updateSetting("useCharacterSystem", value)),
       );
 
+    new Setting(containerEl).setName("Rulesets").setHeading();
+
+    new Setting(containerEl)
+      .setName("Enable Ironsworn ruleset")
+      .setDesc(
+        "If enabled, Ironsworn Core oracles, assets, truths, etc. will be available for play.",
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(settings.enableIronsworn)
+          .onChange((value) => this.updateSetting("enableIronsworn", value));
+      });
+
+    new Setting(containerEl)
+      .setName("Enable Starforged ruleset")
+      .setDesc(
+        "If enabled, Ironsworn oracles, assets, truths, etc. will be available for play.",
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(settings.enableStarforged)
+          .onChange((value) => this.updateSetting("enableStarforged", value));
+      });
+
     new Setting(containerEl).setName("New game object defaults").setHeading();
 
     new Setting(containerEl)

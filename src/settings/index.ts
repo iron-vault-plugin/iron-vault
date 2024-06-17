@@ -1,6 +1,8 @@
 import Emittery from "emittery";
 
 export class IronVaultPluginSettings {
+  enableIronsworn: boolean = false;
+  enableStarforged: boolean = true;
   defaultProgressTrackFolder: string = "Progress";
   defaultClockFolder: string = "Clocks";
   defaultCharactersFolder: string = "Characters";
