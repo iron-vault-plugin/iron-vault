@@ -76,7 +76,7 @@ export class AssetPickerModal extends Modal {
     return html`
       <li class="ruleset">
         <div class="wrapper">
-          <details ?open=${open}>
+          <details open>
             <summary>
               <span>${sourceName}</span>
             </summary>

@@ -41,7 +41,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Enable Ironsworn ruleset")
       .setDesc(
-        "If enabled, Ironsworn Core oracles, assets, truths, etc. will be available for play.",
+        "If enabled, Ironsworn Core oracles, assets, truths, and moves will be available for play. You must reload Obsidian for the changes to take effect.",
       )
       .addToggle((toggle) => {
         toggle
@@ -52,7 +52,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Enable Starforged ruleset")
       .setDesc(
-        "If enabled, Ironsworn oracles, assets, truths, etc. will be available for play.",
+        "If enabled, Ironsworn: Starforged oracles, assets, truths, and moves will be available for play. You must reload Obsidian for the changes to take effect.",
       )
       .addToggle((toggle) => {
         toggle
