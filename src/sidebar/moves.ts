@@ -62,7 +62,7 @@ function litHtmlMoveList(
         ([source, sourceCats]) =>
           html` <li class="ruleset">
             <div class="wrapper">
-              <details ?open=${total <= 5}>
+              <details open>
                 <summary>
                   <span>${source}</span>
                 </summary>

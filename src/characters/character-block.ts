@@ -99,6 +99,7 @@ class CharacterRenderer extends MarkdownRenderChild {
         },
       )),
     );
+    this.register(this.plugin.settings.on("change", () => this.render()));
     this.render();
   }
 
@@ -181,7 +182,7 @@ class CharacterRenderer extends MarkdownRenderChild {
         />
       </header>
       <dl>
-        <dt>Callsign</dt>
+        <dt>${this.plugin.settings.enableIronsworn ? "Alias" : "Callsign"}</dt>
         <dd class="callsign">
           <input
             type="text"
