@@ -1,12 +1,20 @@
 .iron-vault-moves-list {
-  & summary span {
-    font-size: 1.4em;
-    font-weight: var(--font-semibold);
+  & .ruleset {
+    & > .wrapper > details span {
+      font-size: 1.4em;
+      border-bottom: 1px solid var(--background-secondary);
+    }
+    background-color: var(--background-secondary);
+    & > .wrapper {
+      & > .content {
+        padding: 0;
+      }
+    }
+    & li:has(+ li) {
+      border-bottom: 1px solid var(--background-secondary);
+    }
   }
-  & .content {
-    padding: 0;
-  }
-  & .category li {
+  & .move-category li {
     display: flex;
     flex-direction: column;
     padding: 0.5em;
@@ -30,5 +38,8 @@
     &:active {
       background-color: var(--background-modifier-active-hover);
     }
+  }
+  & .ruleset > .wrapper > .content {
+    padding: 0 !important;
   }
 }

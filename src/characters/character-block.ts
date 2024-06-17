@@ -15,7 +15,7 @@ import { Lens } from "utils/lens";
 import { vaultProcess } from "utils/obsidian";
 import { capitalize } from "utils/strings";
 import { CharacterContext } from "../character-tracker";
-import renderAssetCard from "./asset-card";
+import renderAssetCard from "../assets/asset-card";
 import { addOrUpdateViaDataswornAsset } from "./assets";
 import { addAssetToCharacter } from "./commands";
 import { ValidatedCharacter, momentumOps } from "./lens";

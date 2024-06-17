@@ -3,7 +3,7 @@ import { App, Modal } from "obsidian";
 
 import { Asset } from "@datasworn/core/dist/Datasworn";
 import IronVaultPlugin from "index";
-import renderAssetCard from "characters/asset-card";
+import renderAssetCard from "./asset-card";
 import { addAssetToCharacter } from "characters/commands";
 
 export class AssetModal extends Modal {

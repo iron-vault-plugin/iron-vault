@@ -2,7 +2,7 @@ import { Asset } from "@datasworn/core/dist/Datasworn";
 import { html, render } from "lit-html";
 
 import IronVaultPlugin from "index";
-import renderAssetCard from "characters/asset-card";
+import renderAssetCard from "./asset-card";
 
 export default function registerAssetBlock(plugin: IronVaultPlugin) {
   plugin.registerMarkdownCodeBlockProcessor(

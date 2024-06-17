@@ -14,8 +14,8 @@ import { produce } from "immer";
 import IronVaultPlugin from "index";
 import { repeat } from "lit-html/directives/repeat.js";
 import { md } from "utils/ui/directives";
-import { integratedAssetLens } from "./assets";
-import { IronVaultSheetAssetSchema } from "./lens";
+import { integratedAssetLens } from "../characters/assets";
+import { IronVaultSheetAssetSchema } from "../characters/lens";
 
 export default function renderAssetCard(
   plugin: IronVaultPlugin,

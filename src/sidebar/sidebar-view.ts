@@ -52,6 +52,20 @@ export class SidebarView extends ItemView {
     `;
     render(tpl, container as HTMLElement);
     // We separate these out so they can do their own dynamic state stuff.
+
+    this.register(
+      this.plugin.datastore.on("initialized", () => {
+        renderIronVaultOracles(
+          container.querySelector(".content.oracle-tab")!,
+          this.plugin,
+        );
+        renderIronVaultMoves(
+          container.querySelector(".content.move-tab")!,
+          this.plugin,
+        );
+      }),
+    );
+
     renderIronVaultOracles(
       container.querySelector(".content.oracle-tab")!,
       this.plugin,
