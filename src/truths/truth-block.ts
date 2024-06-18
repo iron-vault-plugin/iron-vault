@@ -15,7 +15,7 @@ import {
 
 import IronVaultPlugin from "index";
 import { md } from "utils/ui/directives";
-import { Dice } from "utils/dice";
+import { Dice, DieKind } from "utils/dice";
 
 export default function registerTruthBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -272,7 +272,7 @@ async function pickRandomSubOption(
   },
   plugin: IronVaultPlugin,
 ) {
-  const dice = Dice.fromDiceString(table.dice, plugin);
+  const dice = Dice.fromDiceString(table.dice, plugin, DieKind.Oracle);
   const res = await dice.roll();
   return table.rows.findIndex((row) => row.min! <= res && res <= row.max!);
 }
@@ -281,7 +281,7 @@ async function pickRandomOption(truth: Truth, plugin: IronVaultPlugin) {
   const options = truth.options;
   if (options.every((option) => option.min != null && option.max != null)) {
     // Do a dice roll
-    const die = Dice.fromDiceString(truth.dice, plugin);
+    const die = Dice.fromDiceString(truth.dice, plugin, DieKind.Oracle);
     const res = await die.roll();
     return options.find((opt) => opt.min! <= res && res <= opt.max!);
   } else {

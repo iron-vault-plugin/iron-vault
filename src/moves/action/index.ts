@@ -22,7 +22,7 @@ import {
 import { ProgressContext } from "../../tracks/context";
 import { selectProgressTrack } from "../../tracks/select";
 import { ProgressTrackWriterContext } from "../../tracks/writer";
-import { Dice } from "../../utils/dice";
+import { Dice, DieKind } from "../../utils/dice";
 import { vaultProcess } from "../../utils/obsidian";
 import { CustomSuggestModal } from "../../utils/suggest";
 import {
@@ -190,7 +190,10 @@ async function processActionMove(
 ): Promise<ActionMoveDescription> {
   if (!roll) {
     const res = await new DiceGroup(
-      [new Dice(1, 6, plugin), new Dice(2, 10, plugin)],
+      [
+        new Dice(1, 6, plugin, DieKind.Action),
+        new Dice(2, 10, plugin, DieKind.Challenge),
+      ],
       plugin,
     ).roll();
     roll = {
@@ -222,7 +225,10 @@ async function processProgressMove(
   roll?: { challenge1: number; challenge2: number },
 ): Promise<ProgressMoveDescription> {
   if (!roll) {
-    const res = await new DiceGroup([new Dice(2, 10, plugin)], plugin).roll();
+    const res = await new DiceGroup(
+      [new Dice(2, 10, plugin, DieKind.Challenge)],
+      plugin,
+    ).roll();
     roll = {
       challenge1: res[0].value,
       challenge2: res[1].value,
