@@ -233,10 +233,10 @@ export class EntityModal<T extends EntitySpec> extends Modal {
 
     new Setting(contentEl)
       .addButton((btn) =>
-        btn.setButtonText("Roll First Look").onClick(() => {
+        btn.setButtonText("Roll First Look").onClick(async () => {
           for (const [key, spec] of slots) {
             if (spec.firstLook) {
-              rollForKey(key);
+              await rollForKey(key);
             } else {
               clearKey(key);
             }
