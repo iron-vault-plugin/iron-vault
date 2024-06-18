@@ -63,7 +63,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("Dice").setHeading();
 
     new Setting(containerEl)
-      .setName("Graphical Dice")
+      .setName("Graphical dice")
       .setDesc("If enabled, dice rolls will use on-screen 3d graphical dice.")
       .addToggle((toggle) => {
         toggle
