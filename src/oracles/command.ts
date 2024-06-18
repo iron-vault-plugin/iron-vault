@@ -115,14 +115,18 @@ export async function runOracleCommand(
       `Roll your oracle dice (${oracle.dice}) and enter the value`,
     );
     if (typeof diceValue === "number") {
-      initialRoll = oracle.evaluate(rollContext, diceValue);
+      initialRoll = await oracle.evaluate(rollContext, diceValue);
     }
   }
 
   new OracleRollerModal(
     plugin.app,
     oracle,
-    new RollWrapper(oracle, rollContext, initialRoll),
+    new RollWrapper(
+      oracle,
+      rollContext,
+      initialRoll || (await oracle.roll(rollContext)),
+    ),
     (roll) => {
       // Delete the prompt and then inject the oracle node to a mechanics block
       editor.setSelection(replaceSelection.anchor, replaceSelection.head);

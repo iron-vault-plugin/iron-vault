@@ -88,7 +88,10 @@ export class Datastore extends Component implements IDataContext {
       priority: 0,
       sourceTags: { [SourceTag.RulesetId]: pkg._id },
     });
-    this.indexer.index(source, walkDataswornRulesPackage(source, pkg));
+    this.indexer.index(
+      source,
+      walkDataswornRulesPackage(source, pkg, this.plugin),
+    );
 
     this.app.metadataCache.trigger("iron-vault:index-changed");
   }

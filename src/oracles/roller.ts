@@ -9,7 +9,7 @@ export class OracleRoller implements RollContext {
     return this.index.get(id);
   }
 
-  roll(oracle: Oracle | string): RollWrapper {
+  async roll(oracle: Oracle | string): Promise<RollWrapper> {
     let table: Oracle | undefined;
     if (typeof oracle === "string") {
       table = this.index.get(oracle);
@@ -19,7 +19,7 @@ export class OracleRoller implements RollContext {
     } else {
       table = oracle;
     }
-    return new RollWrapper(table, this);
+    return new RollWrapper(table, this, await table.roll(this));
   }
 }
 

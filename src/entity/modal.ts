@@ -106,7 +106,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     };
   }
 
-  onOpen(): void {
+  async onOpen(): Promise<void> {
     const { contentEl } = this;
 
     const settings: Record<keyof T, { setting: Setting; table: Oracle }> =
@@ -143,9 +143,15 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     //   );
     // };
 
-    const rollForKey = (key: keyof T): void => {
+    const rollForKey = async (key: keyof T): Promise<void> => {
       const { setting, table } = settings[key];
-      this.results.entity[key] = [new RollWrapper(table, this.rollContext)];
+      this.results.entity[key] = [
+        new RollWrapper(
+          table,
+          this.rollContext,
+          await table.roll(this.rollContext),
+        ),
+      ];
       // getTextComponent(key)?.setValue(render(this.results[key][0]));
       setting.setName(renderRolls(this.results.entity[key]));
     };

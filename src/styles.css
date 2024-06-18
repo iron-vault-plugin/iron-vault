@@ -58,8 +58,11 @@
   box-sizing: border-box;
   width: 100%;
   height: 100%;
-  pointer-events: none;
   z-index: 999;
+  pointer-events: none;
+  &.active {
+    pointer-events: auto;
+  }
   & canvas {
     position: absolute;
     top: 0;

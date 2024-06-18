@@ -60,6 +60,17 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .onChange((value) => this.updateSetting("enableStarforged", value));
       });
 
+    new Setting(containerEl).setName("Dice").setHeading();
+
+    new Setting(containerEl)
+      .setName("Graphical Dice")
+      .setDesc("If enabled, dice rolls will use on-screen 3d graphical dice.")
+      .addToggle((toggle) => {
+        toggle
+          .setValue(settings.graphicalDice)
+          .onChange((value) => this.updateSetting("graphicalDice", value));
+      });
+
     new Setting(containerEl).setName("New game object defaults").setHeading();
 
     new Setting(containerEl)

@@ -143,7 +143,7 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
     const div = this.containerEl.createDiv();
     const button = div.createEl("button", { type: "button", text: "Re-roll" });
     // TODO: only render actions if we are in edit-only mode
-    button.onClickEvent((_ev) => {
+    button.onClickEvent(async (_ev) => {
       const view = this.app.workspace.getActiveViewOfType(MarkdownView);
       if (this.ctx.sourcePath !== view?.file?.path) {
         throw new Error(
@@ -156,7 +156,7 @@ class OracleMarkdownRenderChild extends MarkdownRenderChild {
         const editor = view.editor;
 
         const oracles = this.datastore.oracles;
-        const result = new OracleRoller(oracles).roll(
+        const result = await new OracleRoller(oracles).roll(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           oracles.get(this.oracle.roll.tableId)!,
         );

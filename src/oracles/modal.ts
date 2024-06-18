@@ -15,7 +15,7 @@ export class OracleRollerModal extends Modal {
     super(app);
   }
 
-  onOpen(): void {
+  async onOpen(): Promise<void> {
     this.accepted = false;
 
     const { contentEl } = this;
@@ -40,22 +40,22 @@ export class OracleRollerModal extends Modal {
       return `${evaledRoll.roll}: ${evaledRoll.results.join("; ")}`;
     };
 
-    const onUpdateRoll = (): void => {
+    const onUpdateRoll = async (): Promise<void> => {
       rollSetting.setDesc(render(this.currentRoll));
-      flipSetting.setDesc(render(this.currentRoll.variants["flip"]));
+      flipSetting.setDesc(render((await this.currentRoll.variants()).flip));
     };
 
-    const setRoll = (roll: RollWrapper): void => {
+    const setRoll = async (roll: RollWrapper): Promise<void> => {
       this.currentRoll = roll;
-      onUpdateRoll();
+      await onUpdateRoll();
     };
 
     rollSetting
       .addExtraButton((btn) =>
         btn
           .setIcon("refresh-cw")
-          .onClick(() => {
-            setRoll(this.currentRoll.reroll());
+          .onClick(async () => {
+            await setRoll(await this.currentRoll.reroll());
           })
           .setTooltip("Re-roll (r)"),
       )
@@ -68,18 +68,18 @@ export class OracleRollerModal extends Modal {
           });
       });
 
-    this.scope.register([], "r", () => {
-      setRoll(this.currentRoll.reroll());
+    this.scope.register([], "r", async () => {
+      await setRoll(await this.currentRoll.reroll());
       return false;
     });
 
     flipSetting.addButton((btn) => {
-      btn.setButtonText("Select").onClick(() => {
-        this.accept(this.currentRoll.variants.flip);
+      btn.setButtonText("Select").onClick(async () => {
+        this.accept((await this.currentRoll.variants()).flip);
       });
     });
 
-    onUpdateRoll();
+    await onUpdateRoll();
 
     new Setting(contentEl).addButton((button) => {
       button.setButtonText("Cancel").onClick(() => {

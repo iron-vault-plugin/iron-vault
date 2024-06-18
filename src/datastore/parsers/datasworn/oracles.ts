@@ -10,6 +10,7 @@ import {
 } from "../../../model/oracle";
 import { Roll, RollResultKind, Subroll, sameRoll } from "../../../model/rolls";
 import { Dice } from "../../../utils/dice";
+import IronVaultPlugin from "index";
 
 const logger = rootLogger.getLogger("datasworn/oracles");
 
@@ -32,6 +33,7 @@ export class DataswornOracle implements Oracle {
   constructor(
     protected readonly table: Datasworn.OracleRollable,
     public readonly parent: OracleGrouping,
+    private readonly plugin?: IronVaultPlugin,
   ) {}
 
   get raw(): Datasworn.OracleRollable {
@@ -69,14 +71,14 @@ export class DataswornOracle implements Oracle {
   }
 
   get dice(): Dice {
-    return Dice.fromDiceString(this.table.dice);
+    return Dice.fromDiceString(this.table.dice, this.plugin);
   }
 
-  roll(context: RollContext): Roll {
-    return this.evaluate(context, this.dice.roll());
+  async roll(context: RollContext): Promise<Roll> {
+    return this.evaluate(context, await this.dice.roll());
   }
 
-  evaluate(context: RollContext, roll: number): Roll {
+  async evaluate(context: RollContext, roll: number): Promise<Roll> {
     const row = this.rowFor(roll);
 
     const subrolls: Record<string, Subroll<Roll>> = {};
@@ -98,7 +100,7 @@ export class DataswornOracle implements Oracle {
             throw new NoSuchOracleError(id, `missing subtable in ${this.id}`);
           }
           subrolls[id] = {
-            rolls: [subTable.roll(context)],
+            rolls: [await subTable.roll(context)],
             inTemplate: true,
           };
         }
@@ -156,7 +158,7 @@ export class DataswornOracle implements Oracle {
             );
             throw new Error("too many iterations");
           }
-          const roll = subrollable.roll(context);
+          const roll = await subrollable.roll(context);
           switch (subOracle.duplicates) {
             case "reroll":
               if (
@@ -195,9 +197,12 @@ export class DataswornOracle implements Oracle {
     };
   }
 
-  variants(context: RollContext, roll: Roll): Record<string, Roll> {
+  async variants(
+    context: RollContext,
+    roll: Roll,
+  ): Promise<Record<string, Roll>> {
     return {
-      flip: this.evaluate(context, this.dice.flip(roll.roll)),
+      flip: await this.evaluate(context, this.dice.flip(roll.roll)),
     };
   }
 }

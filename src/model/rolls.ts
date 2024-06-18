@@ -84,14 +84,14 @@ export class RollWrapper {
   constructor(
     public readonly oracle: Oracle,
     public readonly context: RollContext,
-    public readonly roll: Roll = oracle.roll(context),
+    public readonly roll: Roll,
   ) {
     this.row = oracle.row(roll.roll);
   }
 
-  get variants(): Readonly<Record<string, RollWrapper>> {
+  async variants(): Promise<Readonly<Record<string, RollWrapper>>> {
     return Object.fromEntries(
-      Object.entries(this.oracle.variants(this.context, this.roll)).map(
+      Object.entries(await this.oracle.variants(this.context, this.roll)).map(
         ([k, v]) => [k, new RollWrapper(this.oracle, this.context, v)],
       ),
     );
@@ -147,8 +147,12 @@ export class RollWrapper {
     return this.results.join(", ");
   }
 
-  reroll(): RollWrapper {
-    return new RollWrapper(this.oracle, this.context);
+  async reroll(): Promise<RollWrapper> {
+    return new RollWrapper(
+      this.oracle,
+      this.context,
+      await this.oracle.roll(this.context),
+    );
   }
 
   get subrolls(): Record<string, Subroll<RollWrapper>> {

@@ -25,6 +25,9 @@ export async function createDiceOverlay(
   const db = new DiceBox("#iron-vault-dice-box", {
     assetPath: "/",
     origin: originUrl.toString(),
+    gravity: 6,
+    angularDamping: 0.5,
+    linearDamping: 0.5,
   });
   await db.init();
   return db;

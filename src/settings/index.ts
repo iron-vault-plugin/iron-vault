@@ -1,6 +1,7 @@
 import Emittery from "emittery";
 
 export class IronVaultPluginSettings {
+  graphicalDice: boolean = true;
   enableIronsworn: boolean = false;
   enableStarforged: boolean = true;
   defaultProgressTrackFolder: string = "Progress";
