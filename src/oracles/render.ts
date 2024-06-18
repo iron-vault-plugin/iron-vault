@@ -7,17 +7,14 @@ import {
   stringifyYaml,
   type App,
   type MarkdownPostProcessorContext,
-  type Plugin,
 } from "obsidian";
 import { Oracle, OracleGroupingType } from "../model/oracle";
 import { RollWrapper } from "../model/rolls";
 import { OracleRoller } from "./roller";
 import { oracleSchema, type OracleSchema, type RollSchema } from "./schema";
+import IronVaultPlugin from "index";
 
-export function registerOracleBlock(
-  plugin: Plugin,
-  datastore: Datastore,
-): void {
+export function registerOracleBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
     "oracle",
     async (source, el, ctx) => {
@@ -29,7 +26,7 @@ export function registerOracleBlock(
           el,
           plugin.app,
           ctx,
-          datastore,
+          plugin.datastore,
           validatedOracle.data,
         );
         ctx.addChild(renderer);
