@@ -71,6 +71,34 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .onChange((value) => this.updateSetting("graphicalDice", value));
       });
 
+    new Setting(containerEl)
+      .setName("Action die color")
+      .setDesc("Color used for the action die when using graphical dice.")
+      .addColorPicker((color) => {
+        color
+          .setValue(settings.actionDieColor)
+          .onChange((value) => this.updateSetting("actionDieColor", value));
+      });
+
+    new Setting(containerEl)
+      .setName("Challenge dice color")
+      .setDesc("Color used for the challenge dice when using graphical dice.")
+      .addColorPicker((color) => {
+        color.setValue(settings.challengeDiceColor).onChange((value) => {
+          console.log(value);
+          this.updateSetting("challengeDiceColor", value);
+        });
+      });
+
+    new Setting(containerEl)
+      .setName("Oracle dice color")
+      .setDesc("Color used for the oracle dice when using graphical dice.")
+      .addColorPicker((color) => {
+        color
+          .setValue(settings.oracleDiceColor)
+          .onChange((value) => this.updateSetting("oracleDiceColor", value));
+      });
+
     new Setting(containerEl).setName("New game object defaults").setHeading();
 
     new Setting(containerEl)

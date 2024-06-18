@@ -13,7 +13,7 @@ export class DiceGroup {
       this.dice.map((d) => ({
         qty: d.count,
         sides: d.sides,
-        // themeColor: "dark",
+        themeColor: d.themeColor,
       })),
     );
   }

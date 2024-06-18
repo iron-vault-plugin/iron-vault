@@ -9,7 +9,7 @@ import {
   RollContext,
 } from "../../../model/oracle";
 import { Roll, RollResultKind, Subroll, sameRoll } from "../../../model/rolls";
-import { Dice } from "../../../utils/dice";
+import { Dice, DieKind } from "../../../utils/dice";
 import IronVaultPlugin from "index";
 
 const logger = rootLogger.getLogger("datasworn/oracles");
@@ -71,7 +71,7 @@ export class DataswornOracle implements Oracle {
   }
 
   get dice(): Dice {
-    return Dice.fromDiceString(this.table.dice, this.plugin);
+    return Dice.fromDiceString(this.table.dice, this.plugin, DieKind.Oracle);
   }
 
   async roll(context: RollContext): Promise<Roll> {
