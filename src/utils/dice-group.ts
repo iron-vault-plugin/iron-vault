@@ -9,7 +9,7 @@ export class DiceGroup {
   ) {}
 
   async roll(): Promise<RollResult[]> {
-    return await this.plugin.diceBox.roll(
+    return await this.plugin.diceOverlay.roll(
       this.dice.map((d) => ({
         qty: d.count,
         sides: d.sides,

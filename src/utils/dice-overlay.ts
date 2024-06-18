@@ -1,4 +1,4 @@
-import DiceBox from "@3d-dice/dice-box";
+import DiceBox, { Roll, RollResult } from "@3d-dice/dice-box";
 import { normalizePath } from "obsidian";
 
 import ammo from "@3d-dice/dice-box/dist/assets/ammo/ammo.wasm.wasm";
@@ -10,31 +10,51 @@ import specular from "@3d-dice/dice-box/dist/assets/themes/default/specular.jpg"
 
 import IronVaultPlugin from "index";
 
-export async function createDiceOverlay(
-  plugin: IronVaultPlugin,
-  target: HTMLElement,
-) {
-  const originUrl = new URL(
-    plugin.app.vault.adapter.getResourcePath(pluginAssetsPath(plugin)),
-  );
-  originUrl.search = "";
-  removeDiceOverlay();
-  const container = document.createElement("div");
-  container.id = "iron-vault-dice-box";
-  target.appendChild(container);
-  const db = new DiceBox("#iron-vault-dice-box", {
-    assetPath: "/",
-    origin: originUrl.toString(),
-    gravity: 6,
-    angularDamping: 0.5,
-    linearDamping: 0.5,
-  });
-  await db.init();
-  return db;
-}
+export class DiceOverlay {
+  diceBox: DiceBox;
 
-export function removeDiceOverlay() {
-  document.getElementById("iron-vault-dice-box")?.remove();
+  static async init(plugin: IronVaultPlugin, target: HTMLElement) {
+    const od = new DiceOverlay(plugin, target);
+    await ensureAssets(plugin);
+    await od.diceBox.init();
+    return od;
+  }
+
+  private constructor(
+    public plugin: IronVaultPlugin,
+    target: HTMLElement,
+  ) {
+    const originUrl = new URL(
+      plugin.app.vault.adapter.getResourcePath(pluginAssetsPath(plugin)),
+    );
+    originUrl.search = "";
+    this.removeDiceOverlay();
+    const container = document.createElement("div");
+    container.id = "iron-vault-dice-box";
+    target.appendChild(container);
+    container.addEventListener("click", () => {
+      container.classList.toggle("active", false);
+      this.diceBox.clear();
+    });
+    this.diceBox = new DiceBox("#iron-vault-dice-box", {
+      assetPath: "/",
+      origin: originUrl.toString(),
+      gravity: 6,
+      angularDamping: 0.5,
+      linearDamping: 0.5,
+    });
+  }
+
+  removeDiceOverlay() {
+    document.getElementById("iron-vault-dice-box")?.remove();
+  }
+
+  async roll(dice: string | string[] | Roll | Roll[]): Promise<RollResult[]> {
+    document
+      .getElementById("iron-vault-dice-box")
+      ?.classList.toggle("active", true);
+    return await this.diceBox.roll(dice);
+  }
 }
 
 function pluginAssetsPath(plugin: IronVaultPlugin) {
@@ -49,7 +69,7 @@ function pluginAssetsPath(plugin: IronVaultPlugin) {
   );
 }
 
-export async function ensureAssets(plugin: IronVaultPlugin) {
+async function ensureAssets(plugin: IronVaultPlugin) {
   const assetsPath = pluginAssetsPath(plugin);
   const allExists = await Promise.all([
     exists("ammo/ammo.wasm.wasm"),

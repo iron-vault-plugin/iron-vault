@@ -45,6 +45,7 @@ declare module "@3d-dice/dice-box" {
     constructor(container: string, options: DiceBoxOptions);
     init(): Promise<void>;
     roll(dice: string | string[] | Roll | Roll[]): Promise<RollResult[]>;
+    clear(): void;
   }
 
   export interface DiceBoxOptions {

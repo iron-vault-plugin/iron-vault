@@ -34,7 +34,9 @@ export class Dice {
 
   async roll(): Promise<number> {
     if (this.plugin?.settings.graphicalDice) {
-      const res = await this.plugin.diceBox.roll(`${this.count}d${this.sides}`);
+      const res = await this.plugin.diceOverlay.roll(
+        `${this.count}d${this.sides}`,
+      );
       return res.reduce((acc, roll) => acc + roll.value, 0);
     } else {
       let total = 0;
