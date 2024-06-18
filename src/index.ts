@@ -72,14 +72,14 @@ export default class IronVaultPlugin extends Plugin {
       `<g fill="currentColor" transform="matrix(6.6666667,0,0,6.2533639,-3.3333334,-0.02691142)"><path d="m 11.28,5.72 a 0.75,0.75 0 0 1 0,1.06 l -4,4 a 0.75,0.75 0 0 1 -1.06,0 l -2,-2 A 0.75,0.75 0 0 1 5.28,7.72 l 1.47,1.47 3.47,-3.47 a 0.75,0.75 0 0 1 1.06,0 z" id="path1" /><path fill-rule="evenodd" d="m 6.834,0.33 a 2.25,2.25 0 0 1 2.332,0 l 5.25,3.182 A 2.25,2.25 0 0 1 15.5,5.436 v 5.128 a 2.25,2.25 0 0 1 -1.084,1.924 l -5.25,3.182 a 2.25,2.25 0 0 1 -2.332,0 L 1.584,12.488 A 2.25,2.25 0 0 1 0.5,10.564 V 5.436 A 2.25,2.25 0 0 1 1.584,3.512 Z m 1.555,1.283 a 0.75,0.75 0 0 0 -0.778,0 L 2.361,4.794 A 0.75,0.75 0 0 0 2,5.436 v 5.128 a 0.75,0.75 0 0 0 0.361,0.642 l 5.25,3.181 a 0.75,0.75 0 0 0 0.778,0 l 5.25,-3.181 A 0.75,0.75 0 0 0 14,10.564 V 5.436 A 0.75,0.75 0 0 0 13.639,4.794 Z" clip-rule="evenodd" /></g>`,
     );
     this.datastore = this.addChild(new Datastore(this));
-    this.indexManager = this.addChild(new IndexManager(this.app));
-    this.indexManager.registerHandler(
-      (this.characterIndexer = new CharacterIndexer(this.datastore)),
-    );
-    this.indexManager.registerHandler(
-      (this.progressIndexer = new ProgressIndexer()),
-    );
-    this.indexManager.registerHandler((this.clockIndexer = new ClockIndexer()));
+    this.initializeIndexManager();
+    this.settings.on("change", ({ key }) => {
+      if (key === "enableIronsworn" || key === "enableStarforged") {
+        this.removeChild(this.indexManager);
+        this.initializeIndexManager();
+        this.indexManager.initialize();
+      }
+    });
 
     if (this.app.workspace.layoutReady) {
       await this.initialize();
@@ -97,7 +97,7 @@ export default class IronVaultPlugin extends Plugin {
     this.registerView(VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
     this.registerView(
       LINK_VIEW,
-      (leaf) => new IronVaultLinkView(app.workspace, leaf),
+      (leaf) => new IronVaultLinkView(this.app.workspace, leaf),
     );
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
     // const statusBarItemEl = this.addStatusBarItem();
@@ -111,9 +111,23 @@ export default class IronVaultPlugin extends Plugin {
 
     // This adds a settings tab so the user can configure various aspects of the plugin
     this.addSettingTab(new IronVaultSettingTab(this.app, this));
+    this.registerBlocks();
+  }
 
+  initializeIndexManager() {
+    this.indexManager = this.addChild(new IndexManager(this.app));
+    this.indexManager.registerHandler(
+      (this.characterIndexer = new CharacterIndexer(this.datastore)),
+    );
+    this.indexManager.registerHandler(
+      (this.progressIndexer = new ProgressIndexer()),
+    );
+    this.indexManager.registerHandler((this.clockIndexer = new ClockIndexer()));
+  }
+
+  registerBlocks() {
     registerMoveBlock(this);
-    registerOracleBlock(this, this.datastore);
+    registerOracleBlock(this);
     registerMechanicsBlock(this);
     registerTrackBlock(this);
     registerClockBlock(this);

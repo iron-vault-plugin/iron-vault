@@ -22,9 +22,12 @@ export default function renderAssetCard(
   sheetAsset: IronVaultSheetAssetSchema,
   updateAsset?: (asset: Asset) => void,
 ) {
-  const asset = integratedAssetLens(plugin.datastore).get(sheetAsset);
-  if (!asset) {
-    return;
+  let asset;
+  try {
+    asset = integratedAssetLens(plugin.datastore).get(sheetAsset);
+  } catch (e) {
+    // @ts-expect-error it's just an error. Let it crash if there's no message.
+    return html`<article class="iron-vault-asset-card">Error: ${e.message}</a>`;
   }
   return html`
     <article class="iron-vault-asset-card">
