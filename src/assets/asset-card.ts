@@ -128,7 +128,11 @@ function renderOption(
           @change=${updateOption}
         >
           ${map(Object.keys(option.choices), (key) => {
-            return html` <option value=${key}>${key}</option> `;
+            return html`
+              <option ?selected=${option.value === key} value=${key}>
+                ${key}
+              </option>
+            `;
           })}
         </select>
       `;
@@ -141,7 +145,11 @@ function renderOption(
           @change=${updateOption}
         >
           ${map(Object.keys(option.choices), (key) => {
-            return html` <option value=${key}>${key}</option> `;
+            return html`
+              <option ?selected=${option.value === key} value=${key}>
+                ${key}
+              </option>
+            `;
           })}
         </select>
       `;
@@ -307,7 +315,10 @@ function renderControl(
         >
           ${map(
             Object.keys(control.choices),
-            (key) => html`<option value=${key}>${key}</option>`,
+            (key) =>
+              html`<option ?selected=${control.value === key} value=${key}>
+                ${key}
+              </option>`,
           )}
         </select>
       </label>`;
