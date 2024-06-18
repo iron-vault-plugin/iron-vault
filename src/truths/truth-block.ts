@@ -113,12 +113,13 @@ class TruthRenderer extends MarkdownRenderChild {
         </select>
         <button
           type="button"
-          @click=${() => {
+          @click=${async () => {
             if (!this.selectedOption || !this.selectedOption.table) {
               return;
             }
-            this.selectedOptionSubIndex = pickRandomSubOption(
+            this.selectedOptionSubIndex = await pickRandomSubOption(
               this.selectedOption.table!,
+              this.plugin,
             );
             this.render();
           }}
@@ -148,8 +149,8 @@ class TruthRenderer extends MarkdownRenderChild {
         </select>
         <button
           type="button"
-          @click=${() => {
-            this.selectedOption = pickRandomOption(truth);
+          @click=${async () => {
+            this.selectedOption = await pickRandomOption(truth, this.plugin);
             this.selectedOptionSubIndex = undefined;
             this.render();
           }}
@@ -264,21 +265,24 @@ class TruthRenderer extends MarkdownRenderChild {
   }
 }
 
-function pickRandomSubOption(table: {
-  dice: string;
-  rows: OracleTableRowText[];
-}) {
-  const dice = Dice.fromDiceString(table.dice);
-  const res = dice.roll();
+async function pickRandomSubOption(
+  table: {
+    dice: string;
+    rows: OracleTableRowText[];
+  },
+  plugin: IronVaultPlugin,
+) {
+  const dice = Dice.fromDiceString(table.dice, plugin);
+  const res = await dice.roll();
   return table.rows.findIndex((row) => row.min! <= res && res <= row.max!);
 }
 
-function pickRandomOption(truth: Truth) {
+async function pickRandomOption(truth: Truth, plugin: IronVaultPlugin) {
   const options = truth.options;
   if (options.every((option) => option.min != null && option.max != null)) {
     // Do a dice roll
-    const die = Dice.fromDiceString(truth.dice);
-    const res = die.roll();
+    const die = Dice.fromDiceString(truth.dice, plugin);
+    const res = await die.roll();
     return options.find((opt) => opt.min! <= res && res <= opt.max!);
   } else {
     return options[Math.floor(Math.random() * options.length)];

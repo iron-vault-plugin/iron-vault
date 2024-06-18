@@ -21,6 +21,7 @@
   "author": "",
   "license": "SEE LICENSE IN LICENSE.md",
   "devDependencies": {
+    "@3d-dice/dice-box": "^1.0.12",
     "@codemirror/language": "^6.10.1",
     "@codemirror/view": "^6.26.3",
     "@datasworn/core": "0.0.10",

@@ -39,12 +39,12 @@ export interface Oracle {
 
   row(value: number): OracleRow;
 
-  roll(context: RollContext): Roll;
+  roll(context: RollContext): Promise<Roll>;
   // TODO: with variants, can we eliminate this? or is there a better way to deal with the
   // specificity of the randomizer ("value")?
-  evaluate(context: RollContext, value: number): Roll;
+  evaluate(context: RollContext, value: number): Promise<Roll>;
   // TODO: this feels kludgey
-  variants(context: RollContext, roll: Roll): Record<string, Roll>;
+  variants(context: RollContext, roll: Roll): Promise<Record<string, Roll>>;
 }
 
 // TODO: template currently relies on re-exporting datasworn

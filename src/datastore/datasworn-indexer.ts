@@ -14,6 +14,7 @@ import {
   SourcedBy,
 } from "./data-indexer";
 import { DataswornOracle } from "./parsers/datasworn/oracles";
+import IronVaultPlugin from "index";
 
 export const moveOrigin: unique symbol = Symbol("moveOrigin");
 
@@ -60,6 +61,7 @@ export function createSource(fields: {
 export function* walkDataswornRulesPackage(
   source: Source,
   input: Datasworn.RulesPackage,
+  plugin?: IronVaultPlugin,
 ): Iterable<DataswornSourced> {
   function make<T extends { _id: string; type: string }>(
     obj: T,
@@ -87,7 +89,7 @@ export function* walkDataswornRulesPackage(
     }
   }
 
-  for (const oracle of walkOracles(input)) {
+  for (const oracle of walkOracles(input, plugin)) {
     yield { id: oracle.id, kind: "oracle", value: oracle, source };
   }
 
@@ -98,7 +100,10 @@ export function* walkDataswornRulesPackage(
   yield { id: input._id, kind: "rules_package", value: input, source };
 }
 
-function* walkOracles(data: Datasworn.RulesPackage): Generator<Oracle> {
+function* walkOracles(
+  data: Datasworn.RulesPackage,
+  plugin?: IronVaultPlugin,
+): Generator<Oracle> {
   function* expand(
     collection: Datasworn.OracleCollection,
     parent: OracleGrouping,
@@ -123,7 +128,7 @@ function* walkOracles(data: Datasworn.RulesPackage): Generator<Oracle> {
           for (const oracle of Object.values<Datasworn.OracleRollable>(
             collection.contents,
           )) {
-            yield new DataswornOracle(oracle, newParent);
+            yield new DataswornOracle(oracle, newParent, plugin);
           }
         }
 
@@ -197,6 +202,7 @@ function* walkOracles(data: Datasworn.RulesPackage): Generator<Oracle> {
         },
       },
       rootGrouping,
+      plugin,
     );
   }
 }

@@ -27,7 +27,7 @@ export class IronVaultAPI {
     return this.plugin.progressIndex;
   }
 
-  public roll(oracle: string): RollWrapper {
+  public async roll(oracle: string): Promise<RollWrapper> {
     return this.datastore.roller.roll(oracle);
   }
 
