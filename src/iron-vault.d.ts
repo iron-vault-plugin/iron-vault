@@ -35,16 +35,16 @@ declare module "@3d-dice/dice-box" {
   }
 
   export interface Roll {
-    modifier: number;
+    modifier?: number;
     qty: number;
     sides: number;
-    theme: string;
-    themeColor: string;
+    theme?: string;
+    themeColor?: string;
   }
   export default class DiceBox {
     constructor(container: string, options: DiceBoxOptions);
     init(): Promise<void>;
-    roll(dice: string | Roll): Promise<RollResult[]>;
+    roll(dice: string | string[] | Roll | Roll[]): Promise<RollResult[]>;
   }
 
   export interface DiceBoxOptions {
