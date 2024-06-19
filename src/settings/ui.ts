@@ -81,12 +81,26 @@ export class IronVaultSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
-      .setName("Challenge dice color")
-      .setDesc("Color used for the challenge dice when using graphical dice.")
+      .setName("Challenge die 1 color")
+      .setDesc(
+        "Color used for the first challenge die when using graphical dice. You can configure them separately to implement Twin Fates.",
+      )
       .addColorPicker((color) => {
-        color.setValue(settings.challengeDiceColor).onChange((value) => {
+        color.setValue(settings.challengeDie1Color).onChange((value) => {
           console.log(value);
-          this.updateSetting("challengeDiceColor", value);
+          this.updateSetting("challengeDie1Color", value);
+        });
+      });
+
+    new Setting(containerEl)
+      .setName("Challenge die 2 color")
+      .setDesc(
+        "Color used for the second challenge die when using graphical dice. You can configure them separately to implement Twin Fates.",
+      )
+      .addColorPicker((color) => {
+        color.setValue(settings.challengeDie2Color).onChange((value) => {
+          console.log(value);
+          this.updateSetting("challengeDie2Color", value);
         });
       });
 
@@ -97,6 +111,15 @@ export class IronVaultSettingTab extends PluginSettingTab {
         color
           .setValue(settings.oracleDiceColor)
           .onChange((value) => this.updateSetting("oracleDiceColor", value));
+      });
+
+    new Setting(containerEl)
+      .setName("Cursed dice color")
+      .setDesc("Color used for the cursed die when using graphical dice.")
+      .addColorPicker((color) => {
+        color
+          .setValue(settings.cursedDieColor)
+          .onChange((value) => this.updateSetting("cursedDieColor", value));
       });
 
     new Setting(containerEl).setName("New game object defaults").setHeading();

@@ -192,7 +192,8 @@ async function processActionMove(
     const res = await new DiceGroup(
       [
         new Dice(1, 6, plugin, DieKind.Action),
-        new Dice(2, 10, plugin, DieKind.Challenge),
+        new Dice(1, 10, plugin, DieKind.Challenge1),
+        new Dice(1, 10, plugin, DieKind.Challenge2),
       ],
       plugin,
     ).roll();
@@ -226,7 +227,10 @@ async function processProgressMove(
 ): Promise<ProgressMoveDescription> {
   if (!roll) {
     const res = await new DiceGroup(
-      [new Dice(2, 10, plugin, DieKind.Challenge)],
+      [
+        new Dice(1, 10, plugin, DieKind.Challenge1),
+        new Dice(1, 10, plugin, DieKind.Challenge2),
+      ],
       plugin,
     ).roll();
     roll = {

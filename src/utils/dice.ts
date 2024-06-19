@@ -15,11 +15,10 @@ const DICE_REGEX = /^(\d+)d(\d+)$/;
 
 export enum DieKind {
   Action = "action",
-  Challenge = "challenge",
+  Challenge1 = "challenge1",
+  Challenge2 = "challenge2",
   Oracle = "oracle",
   Cursed = "cursed",
-  Cinder = "cinder",
-  Wraith = "wraith",
 }
 
 export class Dice {
@@ -68,19 +67,14 @@ export class Dice {
     switch (this.kind) {
       case DieKind.Action:
         return this.plugin?.settings.actionDieColor;
-      case DieKind.Challenge:
-        return this.plugin?.settings.challengeDiceColor;
+      case DieKind.Challenge1:
+        return this.plugin?.settings.challengeDie1Color;
+      case DieKind.Challenge2:
+        return this.plugin?.settings.challengeDie2Color;
       case DieKind.Oracle:
         return this.plugin?.settings.oracleDiceColor;
-      // case DieKind.Cursed:
-      //   themeColor = this.plugin.settings.cursedDiceColor;
-      //   break;
-      // case DieKind.Cinder:
-      //   themeColor = this.plugin.settings.cinderDiceColor;
-      //   break;
-      // case DieKind.Wraith:
-      //   themeColor = this.plugin.settings.wraithDiceColor;
-      //   break;
+      case DieKind.Cursed:
+        return this.plugin?.settings.cursedDieColor;
       default:
         return;
     }

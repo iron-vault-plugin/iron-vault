@@ -2,9 +2,11 @@ import Emittery from "emittery";
 
 export class IronVaultPluginSettings {
   graphicalDice: boolean = true;
-  actionDieColor: string = "#017403";
-  challengeDiceColor: string = "#8b5cf5";
-  oracleDiceColor: string = "#e1a34c";
+  actionDieColor: string = "#8f8f8f";
+  challengeDie1Color: string = "#8b5cf5";
+  challengeDie2Color: string = "#8b5cf5";
+  oracleDiceColor: string = "#9d6910";
+  cursedDieColor: string = "#017403";
   enableIronsworn: boolean = false;
   enableStarforged: boolean = true;
   defaultProgressTrackFolder: string = "Progress";
