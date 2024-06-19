@@ -1,4 +1,4 @@
-import { projectedVersionedMap } from "./data-indexer";
+import { projectedVersionedMap } from "utils/versioned-map";
 
 describe("projectedVersionedMap", () => {
   it("omits entries that return undefined", () => {
