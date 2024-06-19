@@ -1,11 +1,15 @@
 import {
   App,
+  ButtonComponent,
   MarkdownRenderChild,
   MarkdownRenderer,
   Modal,
+  normalizePath,
   Setting,
+  TextComponent,
 } from "obsidian";
 import { partition } from "utils/partition";
+import { FolderTextSuggest } from "utils/ui/settings/folder";
 import { Oracle, RollContext } from "../model/oracle";
 import { RollWrapper } from "../model/rolls";
 import {
@@ -49,6 +53,8 @@ function evaluateAttribute(
 
 export type EntityModalResults<T extends EntitySpec> = {
   createFile: boolean;
+  fileName: string;
+  targetFolder: string;
   entity: EntityResults<T>;
 };
 
@@ -97,6 +103,8 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     super(app);
     this.results = {
       createFile: false,
+      fileName: "",
+      targetFolder: "",
       entity: Object.fromEntries(
         Object.entries(entityDesc.spec).map(([key]) => [
           key,
@@ -136,32 +144,36 @@ export class EntityModal<T extends EntitySpec> extends Modal {
       return rolls.map(render).join("; ");
     };
 
-    // const getTextComponent = (key: string): TextComponent | undefined => {
-    //   return settings[key]?.components.find(
-    //     (component): component is TextComponent =>
-    //       component instanceof TextComponent,
-    //   );
-    // };
-
     const rollForKey = async (key: keyof T): Promise<void> => {
-      const { setting, table } = settings[key];
-      this.results.entity[key] = [
+      const { table } = settings[key];
+      updateSetting(key, [
         new RollWrapper(
           table,
           this.rollContext,
           await table.roll(this.rollContext),
         ),
-      ];
-      // getTextComponent(key)?.setValue(render(this.results[key][0]));
-      setting.setName(renderRolls(this.results.entity[key]));
+      ]);
     };
 
     const clearKey = (key: keyof T): void => {
+      updateSetting(key, []);
+    };
+
+    const updateSetting = (key: keyof T, values: RollWrapper[]) => {
       const { setting } = settings[key];
-      this.results.entity[key] = [];
-      // getTextComponent(key)?.setValue("");
-      setting.setName("");
-      // settings[key].setName(table.name);
+      this.results.entity[key] = values;
+      if (values.length > 0) {
+        setting.setName(renderRolls(this.results.entity[key]));
+      } else {
+        setting.setName("");
+      }
+
+      const newEntityName =
+        this.entityDesc.nameGen && this.entityDesc.nameGen(this.results.entity);
+      if (newEntityName !== undefined) {
+        fileNameInput.setValue(newEntityName);
+        fileNameInput.onChanged();
+      }
     };
 
     const { spec: entitySpec } = this.entityDesc;
@@ -251,20 +263,66 @@ export class EntityModal<T extends EntitySpec> extends Modal {
         }),
       );
 
-    new Setting(contentEl).setName("Create entity file").addToggle((toggle) =>
-      toggle
-        .setTooltip(
-          "If enabled, a new file will be created with the entity template.",
-        )
-        .setValue(this.results.createFile)
-        .onChange((val) => {
-          this.results.createFile = val;
-        }),
-    );
+    const updateAccept = () => {
+      acceptButton.setDisabled(
+        this.results.createFile && this.results.fileName.length == 0,
+      );
+    };
+
+    const onCreateFileChange = (val: boolean) => {
+      this.results.createFile = val;
+      fileNameSetting.settingEl.toggle(val);
+      targetFolderSetting.settingEl.toggle(val);
+      updateAccept();
+    };
 
     new Setting(contentEl)
+      .setName("Create entity file")
+      .addToggle((toggle) =>
+        toggle
+          .setTooltip(
+            "If enabled, a new file will be created with the entity template.",
+          )
+          .setValue(this.results.createFile)
+          .onChange(onCreateFileChange),
+      );
+
+    let fileNameInput!: TextComponent;
+    const fileNameSetting = new Setting(contentEl)
+      .setName("File name")
+      .addText((text) =>
+        (fileNameInput = text).onChange((value) => {
+          this.results.fileName = value;
+          updateAccept();
+        }),
+      );
+
+    const targetFolderSetting = new Setting(contentEl)
+      .setName("Target folder")
+      .addSearch((search) => {
+        new FolderTextSuggest(this.app, search.inputEl);
+        search
+          .setPlaceholder("Choose a folder")
+          .setValue(this.results.targetFolder)
+          .onChange((newFolder) => {
+            const normalized = normalizePath(newFolder);
+            this.results.targetFolder = normalized;
+            if (this.app.vault.getFolderByPath(normalized)) {
+              targetFolderSetting.setDesc(
+                `Creating ${this.entityDesc.label} in existing folder '${normalized}'`,
+              );
+            } else {
+              targetFolderSetting.setDesc(
+                `Creating ${this.entityDesc.label} in new folder '${normalized}`,
+              );
+            }
+          });
+      });
+
+    let acceptButton!: ButtonComponent;
+    new Setting(contentEl)
       .addButton((btn) =>
-        btn
+        (acceptButton = btn)
           .setButtonText("Accept")
           .setCta()
           .onClick(() => {
@@ -276,6 +334,8 @@ export class EntityModal<T extends EntitySpec> extends Modal {
           this.cancel();
         }),
       );
+
+    onCreateFileChange(this.results.createFile);
   }
 
   onClose(): void {

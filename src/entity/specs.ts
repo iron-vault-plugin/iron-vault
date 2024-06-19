@@ -54,7 +54,7 @@ export type EntityResults<T extends EntitySpec> = {
 export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
   character: {
     collectionId: "starforged/collections/oracles/characters",
-    label: "Character",
+    label: "NPC",
     nameGen: (ent) =>
       // NB(@zkat): We use smart quotes here because `"` is an invalid
       // character in Windows filenames and `'` looks like shit. They look
