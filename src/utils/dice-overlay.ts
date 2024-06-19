@@ -72,12 +72,12 @@ function pluginAssetsPath(plugin: IronVaultPlugin) {
 async function ensureAssets(plugin: IronVaultPlugin) {
   const assetsPath = pluginAssetsPath(plugin);
   const allExists = await Promise.all([
-    exists("ammo/ammo.wasm.wasm"),
-    exists("models/default.json"),
-    exists("themes/default/diffuse-dark.png"),
-    exists("themes/default/diffuse-light.png"),
-    exists("themes/default/normal.png"),
-    exists("themes/default/specular.jpg"),
+    remove("ammo/ammo.wasm.wasm"),
+    remove("models/default.json"),
+    remove("themes/default/diffuse-dark.png"),
+    remove("themes/default/diffuse-light.png"),
+    remove("themes/default/normal.png"),
+    remove("themes/default/specular.jpg"),
   ]);
   if (!allExists.every((x) => x)) {
     await mkdir("");
@@ -98,9 +98,9 @@ async function ensureAssets(plugin: IronVaultPlugin) {
     const dest = normalizePath(assetsPath + "/" + path);
     return plugin.app.vault.adapter.mkdir(dest);
   }
-  function exists(path: string) {
+  function remove(path: string) {
     const dest = normalizePath([assetsPath, path].join("/"));
-    return plugin.app.vault.adapter.exists(dest);
+    return plugin.app.vault.adapter.remove(dest);
   }
   function writeFile(path: string, data: Uint8Array | string) {
     const dest = normalizePath([assetsPath, path].join("/"));
