@@ -59,9 +59,9 @@
   width: 100vw;
   height: 100vh;
   z-index: 999;
-  pointer-events: none;
+  visibility: hidden;
   &.active {
-    pointer-events: auto;
+    visibility: visible;
   }
   & canvas {
     position: absolute;
