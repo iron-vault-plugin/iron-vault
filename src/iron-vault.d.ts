@@ -51,6 +51,7 @@ declare module "@3d-dice/dice-box" {
   export interface DiceBoxOptions {
     assetPath: string;
     origin?: string;
+    scale?: number;
     gravity?: number;
     mass?: number;
     friction?: number;

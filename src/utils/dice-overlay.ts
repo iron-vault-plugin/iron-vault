@@ -40,6 +40,7 @@ export class DiceOverlay {
       assetPath: "/",
       origin: originUrl.toString(),
       gravity: 6,
+      scale: plugin.app.isMobile ? 9 : 6,
       angularDamping: 0.5,
       linearDamping: 0.5,
     });
