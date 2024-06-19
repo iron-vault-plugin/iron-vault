@@ -27,8 +27,8 @@ You can write anything you want here! Write about your thoughts so far on what y
 
 From here on, we'll walk through the four main steps in the Starforged Getting Started section:
 
-1. [[Choose Your Truths]] (page 81)
-2. [[Create Your Character]] (page 100)
-3. [[Build a Starting Sector]] (page 114)
-4. [[Begin Your Adventure]] (page 128)
+1. [[03 - Choose Your Truths]] (page 81)
+2. [[04 - Create Your Character]] (page 100)
+3. [[05 - Build a Starting Sector]] (page 114)
+4. [[06 - Begin Your Adventure]] (page 128)
 

@@ -1,6 +1,6 @@
 Now that we have a character, the next step is to create our first sector. You can find the process for this on p. 114 of the Starforged Rulebook.
 
-Generating your starting sector is a 10-step process, so expect it to take a while, and remember that [[Initial Setup#Prep is Play|Prep is Play]]!
+Generating your starting sector is a 10-step process, so expect it to take a while, and remember that [[01 - Initial Setup#Prep is Play|Prep is Play]]!
 
 Before we start, it's worth noting that this part of the guide involves a lot of suggestions on how to represent your sector and things in it. Remember that you're free to structure your campaign however you want! Obsidian is a very flexible tool. In the interest of not getting too deep in the weeds with what's out there, though, we've documented a "happy path" that you can get started with and transform into what's most ideal for you. See the [[Sectors]] documentation for other ideas.
 
@@ -188,4 +188,4 @@ Finally, go ahead and rename your Sector Canvas file to the name you ended up wi
 
 #### Next Steps
 
-And with that, we've completed the entire Starting Sector guide! Following along with the Starforged Rulebook, that means you're ready to [[Begin Your Adventure]] and see what it's like to get into the rest of gameplay using Iron Vault!
+And with that, we've completed the entire Starting Sector guide! Following along with the Starforged Rulebook, that means you're ready to [[06 - Begin Your Adventure]] and see what it's like to get into the rest of gameplay using Iron Vault!

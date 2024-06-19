@@ -169,4 +169,4 @@ That was a lot!
 
 But with all that done: congratulations! You've made your first character using Iron Vault!
 
-Now we can move on to [[Build a Starting Sector]].
+Now we can move on to [[05 - Build a Starting Sector]].

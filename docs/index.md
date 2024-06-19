@@ -1,5 +1,5 @@
 ---
-title: Home
+title: About Iron Vault
 ---
 This is the documentation for [Iron Vault](https://github.com/iron-vault-plugin/iron-vault), a plugin for [Obsidian](https://obsidian.md) that turns the beloved note-taking/journaling tool into a full-fledged Virtual Tabletop (VTT) for the [Ironsworn/Starforged family of games](https://ironswornrpg.com).
 
@@ -11,7 +11,7 @@ It is not a "play for me"-style VTT, in the sense that while it has a lot of con
 
 ### Getting Started
 
-Not sure where to start? There's a full [[Player's Guide/index|Player's Guide]] or, more specifically, a [[Initial Setup|Getting Started]] guide so you can jump right in with a new or existing campaign, using as much or as little of Iron Vault as you want!
+Not sure where to start? There's a full [[Player's Guide/index|Player's Guide]] or, more specifically, a [[01 - Initial Setup|Getting Started]] guide so you can jump right in with a new or existing campaign, using as much or as little of Iron Vault as you want!
 
 You can also open this documentation at any time while in Obsidian by running the [[Open documentation in a tab]] or [[Open documentation in your browser]] commands.
 

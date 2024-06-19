@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "f97aac1953d5d4df",
+        "id": "c0467a23e2912335",
         "type": "tabs",
         "children": [
           {
-            "id": "8c099390552bdf16",
+            "id": "e241c2813ce59ca4",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Entities/index.md",
+                "file": "index.md",
                 "mode": "source",
                 "source": false
               }
@@ -65,8 +65,7 @@
               "state": {}
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -86,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Entities/index.md",
+                "file": "index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Entities/index.md",
+                "file": "index.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -126,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Entities/index.md"
+                "file": "index.md"
               }
             }
           },
@@ -158,71 +157,34 @@
       "iron-vault:Show Iron Vault commands": false
     }
   },
-  "floating": {
-    "id": "8e4e752e32b83b13",
-    "type": "floating",
-    "children": [
-      {
-        "id": "5db5130d13a882ea",
-        "type": "window",
-        "children": [
-          {
-            "id": "ac0cfe7e88029d45",
-            "type": "tabs",
-            "children": [
-              {
-                "id": "76e579a7f1352dca",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "Entities/index.md",
-                    "mode": "source",
-                    "source": false
-                  }
-                }
-              }
-            ]
-          }
-        ],
-        "direction": "vertical",
-        "x": 270,
-        "y": 435,
-        "width": 800,
-        "height": 400,
-        "maximize": true,
-        "zoom": 0
-      }
-    ]
-  },
-  "active": "76e579a7f1352dca",
+  "active": "e241c2813ce59ca4",
   "lastOpenFiles": [
-    "Commands/index.md",
-    "Entities/index.md",
-    "Blocks/index.md",
+    "Player's Guide/index.md",
+    "Player's Guide/Getting Started/05 - Build a Starting Sector.md",
+    "Player's Guide/Getting Started/04 - Create Your Character.md",
+    "Player's Guide/Getting Started/03 - Choose Your Truths.md",
+    "Player's Guide/Getting Started/02 - Your First Campaign.md",
+    "Player's Guide/Getting Started/01 - Initial Setup.md",
+    "Other Features/index.md",
+    "Other Features/Callouts.md",
+    "Entities/Settlements.md",
+    "Entities/Sectors.md",
+    "Entities/Planets.md",
     "Entities/Creatures.md",
+    "Entities/index.md",
     "Commands/Open documentation in your browser.md",
+    "Commands/Open documentation in a tab.md",
+    "Blocks/index.md",
     "index.md",
-    "Player's Guide/Getting Started/Your First Campaign.md",
-    "Player's Guide/Getting Started/Initial Setup.md",
-    "Player's Guide/Getting Started/Create Your Character.md",
-    "Player's Guide/Getting Started/Choose Your Truths.md",
-    "Player's Guide/Getting Started/Build a Starting Sector.md",
+    "Commands/index.md",
     "Other Features/Special Links.md",
     "Other Features/Sidebar.md",
     "Other Features/Settings.md",
     "Other Features/Rulesets.md",
-    "Other Features/index.md",
     "Other Features/CSS Tweaks.md",
-    "Other Features/Callouts.md",
     "Other Features/API.md",
     "Entities/Vaults.md",
     "Entities/Truths.md",
-    "Entities/Settlements.md",
-    "Entities/Progress Tracks.md",
-    "Entities/Oracles.md",
-    "Entities/Moves.md",
-    "Entities/Factions.md",
     "Support/img/Player's Guide/finalized-sector.png",
     "Support/img/Player's Guide/sector-trouble.png",
     "Support/img/Player's Guide/completed-connection.png",
