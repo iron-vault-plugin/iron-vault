@@ -1,6 +1,6 @@
 import { type Datasworn } from "@datasworn/core";
 import starforgedData from "@datasworn/starforged/json/starforged.json" with { type: "json" };
-import { VersionedMapImpl } from "datastore/data-indexer";
+import { VersionedMapImpl } from "utils/versioned-map";
 import { Ruleset } from "../rules/ruleset";
 import { ChallengeRanks } from "../tracks/progress";
 import { Right } from "../utils/either";
