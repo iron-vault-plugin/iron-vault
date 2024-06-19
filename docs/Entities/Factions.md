@@ -1,5 +1,3 @@
-(Coming Soon)
+To generate a faction, either choose "Faction" from the [[Generate an entity]] command or click the dice icon in the `Faction Oracles` oracle group in the sidebar. Both will launch the [[Generate an entity|entity generation modal]].
 
-Iron Vault does not currently have direct support for Factions, but this is on the roadmap for a future version.
-
-In the meantime, you should be able to manage your own Factions by manually creating notes and putting data in them as you see fit, with the support of available Oracles.
+Besides this, there is no additional support specific to factions. You are free to organize these entities however you want, including having multiple factions in a single file (although we recommend doing 1-entity, 1-file as a general rule).
