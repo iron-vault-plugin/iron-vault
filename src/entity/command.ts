@@ -11,6 +11,7 @@ import {
   MarkdownView,
   Notice,
 } from "obsidian";
+import { getExistingOrNewFolder } from "utils/obsidian";
 import IronVaultPlugin from "../index";
 import { Oracle, OracleRollableRow, RollContext } from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
@@ -149,9 +150,13 @@ export async function generateEntityCommand(
     : `New ${entityDesc.label}`;
   let oracleGroupTitle: string;
   if (createFile) {
-    const fileName = entityName;
+    const fileName = results.fileName;
+    const folder = await getExistingOrNewFolder(
+      plugin.app,
+      results.targetFolder,
+    );
     const file = await plugin.app.fileManager.createNewMarkdownFile(
-      plugin.app.fileManager.getNewFileParent(ctx.file?.path ?? "", fileName),
+      folder,
       fileName,
       Handlebars.compile(
         `
@@ -175,7 +180,7 @@ export async function generateEntityCommand(
               },
             ];
           }),
-          name: fileName,
+          name: entityName,
         },
         { allowProtoPropertiesByDefault: true },
       ),

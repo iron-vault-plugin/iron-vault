@@ -74,8 +74,8 @@ export class ClockCreateModal extends Modal {
           .setPlaceholder("Choose a folder")
           .setValue(this.result.targetFolder)
           .onChange((newFolder) => {
-            this.result.targetFolder = newFolder;
             const normalized = normalizePath(newFolder);
+            this.result.targetFolder = normalized;
             if (this.app.vault.getFolderByPath(normalized)) {
               folderSetting.setDesc(
                 `Creating clock in existing folder '${normalized}'`,
