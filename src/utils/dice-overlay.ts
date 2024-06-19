@@ -98,10 +98,10 @@ async function ensureAssets(plugin: IronVaultPlugin) {
     const dest = normalizePath(assetsPath + "/" + path);
     return plugin.app.vault.adapter.mkdir(dest);
   }
-  function remove(path: string) {
+  async function remove(path: string) {
     const dest = normalizePath([assetsPath, path].join("/"));
     try {
-      return plugin.app.vault.adapter.remove(dest);
+      return await plugin.app.vault.adapter.remove(dest);
     } catch (e) {
       return;
     }
