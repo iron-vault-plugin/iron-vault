@@ -1,0 +1,216 @@
+{
+  "type": "expansion",
+  "_id": "starforgedsupp",
+  "datasworn_version": "0.0.10",
+  "ruleset": "starforged",
+  "oracles": {
+    "templates": {
+      "_id": "starforgedsupp/collections/oracles/templates",
+      "name": "Templates",
+      "type": "oracle_collection",
+      "oracle_type": "tables",
+      "_source": {
+        "title": "Original",
+        "authors": [
+          {
+            "name": "Shawn Tomkin"
+          }
+        ],
+        "date": "1234-12-12",
+        "url": "https://example.com",
+        "license": "???"
+      },
+      "contents": {
+        "actiontheme": {
+          "_id": "starforgedsupp/oracles/templates/actiontheme",
+          "type": "oracle_rollable",
+          "oracle_type": "table_text",
+          "name": "Action + Theme",
+          "dice": "1d100",
+          "_source": {
+            "title": "Original",
+            "authors": [
+              {
+                "name": "Shawn Tomkin"
+              }
+            ],
+            "date": "1234-12-12",
+            "url": "https://example.com",
+            "license": "???"
+          },
+          "column_labels": {
+            "roll": "Roll",
+            "text": "Result"
+          },
+          "rows": [
+            {
+              "min": 1,
+              "max": 100,
+              "text": "[[⏵Action](id:starforged/oracles/core/action)] [[⏵Theme](id:starforged/oracles/core/theme)]",
+              "template": {
+                "text": "{{text:starforged/oracles/core/action}} {{text:starforged/oracles/core/theme}}"
+              }
+            }
+          ]
+        },
+        "descriptorfocus": {
+          "_id": "starforgedsupp/oracles/templates/descriptorfocus",
+          "name": "Descriptor+Focus",
+          "dice": "1d100",
+          "type": "oracle_rollable",
+          "oracle_type": "table_text",
+          "_source": {
+            "title": "Original",
+            "authors": [
+              {
+                "name": "Shawn Tomkin"
+              }
+            ],
+            "date": "1234-12-12",
+            "url": "https://example.com",
+            "license": "???"
+          },
+          "column_labels": {
+            "roll": "Roll",
+            "text": "Result"
+          },
+          "rows": [
+            {
+              "min": 1,
+              "max": 100,
+              "text": "[[⏵Descriptor](id:starforged/oracles/core/descriptor)] [[⏵Focus](id:starforged/oracles/core/focus)]",
+              "template": {
+                "text": "{{text:starforged/oracles/core/descriptor}} {{text:starforged/oracles/core/focus}}"
+              }
+            }
+          ]
+        },
+        "region": {
+          "_id": "starforgedsupp/oracles/core/region",
+          "name": "Region",
+          "dice": "1d100",
+          "type": "oracle_rollable",
+          "oracle_type": "table_text",
+          "_source": {
+            "title": "Iron Vault Support Oracles",
+            "authors": [
+              {
+                "name": "Iron Vault Dev Team"
+              }
+            ],
+            "date": "2024-06-15",
+            "url": "https://github.com/iron-vault-plugin/iron-vault",
+            "license": "MIT"
+          },
+          "column_labels": {
+            "roll": "Roll",
+            "text": "Region"
+          },
+          "rows": [
+            {
+              "min": 1,
+              "max": 45,
+              "text": "Terminus"
+            },
+            {
+              "min": 46,
+              "max": 80,
+              "text": "Outlands"
+            },
+            {
+              "min": 81,
+              "max": 100,
+              "text": "Expanse"
+            }
+          ]
+        },
+        "factionname": {
+          "_id": "starforged/oracles/factions/name/template",
+          "type": "oracle_rollable",
+          "name": "Faction Name Template",
+          "oracle_type": "table_text",
+          "dice": "1d100",
+          "description": "To generate a faction name, first roll or choose the name template. Then, follow the structure of the template to build the name from individual tables. If you’ve already set the faction type, picking from the tables (instead of rolling) will likely provide a more appropriate result. For example, “Silver Jackals” is a fitting name for a criminal organization. The “Empire of the Undying Suns” is a less apt name for that gang—unless their leader is prone to delusions of grandeur. In short, choosing a name will give you more control. Rolling might give you a result that doesn’t square with known aspects, but those contradictions may prove inspiring.\n\nAn alternative approach to generating a faction from scratch is to start with a random name. Then, consider what the name evokes and choose an appropriate faction type instead of rolling on those tables. For example, “Bloody Ravens” might suggest a mercenary guild, while the “Republic of the Radiant Servants” brings to mind a dominion built upon a religion, or one that idolizes a prophesied leader. If a result doesn’t inspire anything interesting, roll again or pick.",
+          "column_labels": {
+            "roll": "Roll",
+            "text": "Result"
+          },
+          "rows": [
+            {
+              "min": 1,
+              "max": 40,
+              "text": "[Legacy](id:starforged/oracles/factions/name/legacy) [Affiliation](id:starforged/oracles/factions/name/affiliation)",
+              "template": {
+                "text": "{{text:starforged/oracles/factions/name/legacy}} {{text:starforged/oracles/factions/name/affiliation}}"
+              },
+              "_i18n": {
+                "template": {
+                  "text": {
+                    "part_of_speech": "proper_noun"
+                  }
+                }
+              }
+            },
+            {
+              "min": 41,
+              "max": 55,
+              "text": "[Legacy](id:starforged/oracles/factions/name/legacy) [Identity](id:starforged/oracles/factions/name/identity)",
+              "template": {
+                "text": "{{text:starforged/oracles/factions/name/legacy}} {{text:starforged/oracles/factions/name/identity}}"
+              },
+              "_i18n": {
+                "template": {
+                  "text": {
+                    "part_of_speech": "proper_noun"
+                  }
+                }
+              }
+            },
+            {
+              "min": 56,
+              "max": 70,
+              "text": "[Identity](id:starforged/oracles/factions/name/identity) *of the* [Legacy](id:starforged/oracles/factions/name/legacy) [Affiliation](id:starforged/oracles/factions/name/affiliation)",
+              "template": {
+                "text": "{{text:starforged/oracles/factions/name/identity}} of the {{text:starforged/oracles/factions/name/legacy}} {{text:starforged/oracles/factions/name/affiliation}}"
+              },
+              "_i18n": {
+                "template": {
+                  "text": {
+                    "part_of_speech": "proper_noun"
+                  }
+                }
+              }
+            },
+            {
+              "min": 71,
+              "max": 100,
+              "text": "[Affiliation](id:starforged/oracles/factions/name/affiliation) *of the* [Legacy](id:starforged/oracles/factions/name/legacy) [Identity](id:starforged/oracles/factions/name/identity)",
+              "template": {
+                "text": "{{text:starforged/oracles/factions/name/affiliation}} of the {{text:starforged/oracles/factions/name/legacy}} {{text:starforged/oracles/factions/name/identity}}"
+              },
+              "_i18n": {
+                "template": {
+                  "text": {
+                    "part_of_speech": "proper_noun"
+                  }
+                }
+              }
+            }
+          ],
+          "_source": {
+            "title": "Ironsworn: Starforged Rulebook",
+            "page": 344,
+            "authors": [
+              {
+                "name": "Shawn Tomkin"
+              }
+            ],
+            "date": "2022-05-06",
+            "url": "https://ironswornrpg.com",
+            "license": "https://creativecommons.org/licenses/by/4.0"
+          }
+        }
+      }
+    }
+  }
+}

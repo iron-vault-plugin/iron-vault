@@ -1,7 +1,7 @@
-import merge from "lodash.merge";
 import { type Datasworn } from "@datasworn/core";
-import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
+import { Rules, RulesPackage } from "@datasworn/core/dist/Datasworn";
 import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
+import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
 import { IDataContext } from "characters/action-context";
 import {
   DataIndexer,
@@ -17,13 +17,14 @@ import {
   createSource,
   walkDataswornRulesPackage,
 } from "datastore/datasworn-indexer";
+import Emittery from "emittery";
 import IronVaultPlugin from "index";
+import merge from "lodash.merge";
 import { Oracle } from "model/oracle";
 import { Component, type App } from "obsidian";
 import { OracleRoller } from "oracles/roller";
 import { Ruleset } from "rules/ruleset";
-import { Rules, RulesPackage } from "@datasworn/core/dist/Datasworn";
-import Emittery from "emittery";
+import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
 
 export class Datastore extends Component implements IDataContext {
   _ready: boolean;
@@ -64,7 +65,9 @@ export class Datastore extends Component implements IDataContext {
     }
     if (this.plugin.settings.enableStarforged) {
       this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
+      this.indexBuiltInData(starforgedSupp as Datasworn.Expansion, 5);
     } else {
+      this.removeBuiltInData(starforgedSupp as Datasworn.Expansion);
       this.removeBuiltInData(starforgedRuleset as Datasworn.Ruleset);
     }
 
@@ -80,12 +83,12 @@ export class Datastore extends Component implements IDataContext {
     this.#readyNow();
   }
 
-  indexBuiltInData(pkg: Datasworn.RulesPackage) {
+  indexBuiltInData(pkg: Datasworn.RulesPackage, priority: number = 0) {
     // TODO: properly support this.
     const mainPath = `@datasworn:${pkg._id}`;
     const source = createSource({
       path: mainPath,
-      priority: 0,
+      priority,
       sourceTags: { [SourceTag.RulesetId]: pkg._id },
     });
     this.indexer.index(

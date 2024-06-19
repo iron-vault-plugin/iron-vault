@@ -294,6 +294,8 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
   index(source: Source, data: Iterable<SourcedBy<Kinds>>): void {
     const { path } = source;
 
+    logger.debug("[source:%s] Starting index", source.path);
+
     // TODO: maybe there is a more efficient way than removing and re-adding, but this will work
     if (!this.removeSource(path)) {
       // Remove source will bump the revision, so this ensures we get a new revision;
@@ -322,9 +324,15 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
         entries.push(datum);
         this.dataMap.set(id, entries);
       }
+
+      logger.debug(
+        "[source:%s] Index finished. %d entries indexed.",
+        source.path,
+        keys.size,
+      );
     } catch (err) {
       logger.warn(
-        "caught error while indexing path %s. removing from index...",
+        "[source:%s] caught error while indexing. removing from index...",
         path,
       );
       this.removeSource(path);
@@ -357,7 +365,7 @@ export function getHighestPriority<K extends string, V>(
     return first;
   } else {
     for (const next of rest) {
-      if (next.source.priority < first.source.priority) {
+      if (next.source.priority > first.source.priority) {
         first = next;
       }
     }

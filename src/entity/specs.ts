@@ -99,7 +99,6 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
     },
   },
 
-  // TODO(@cwegrzyn): Faction spec items vary based on the type of faction
   sfFaction: {
     label: "Faction",
     collectionId: "starforged/collections/oracles/factions",
@@ -113,10 +112,10 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
           mechanism: AttributeMechanism.ParseId,
         },
       },
-      // name: {
-      //   id: "starforged/oracles/factions/name/template",
-      //   firstLook: true,
-      // },
+      name: {
+        id: "starforged/oracles/factions/name/template",
+        firstLook: true,
+      },
       dominionType: {
         id: "starforged/oracles/factions/dominion",
         firstLook: true,
@@ -191,7 +190,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
     collectionId: "starforged/collections/oracles/settlements",
     spec: {
       region: {
-        id: "starforgedsupp/oracles/region",
+        id: "starforgedsupp/oracles/core/region",
         firstLook: true,
         definesAttribute: {
           order: 1,
@@ -243,7 +242,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
     collectionId: "starforged/collections/oracles/planets",
     spec: {
       region: {
-        id: "starforgedsupp/oracles/region",
+        id: "starforgedsupp/oracles/core/region",
         firstLook: true,
         definesAttribute: {
           order: 1,
