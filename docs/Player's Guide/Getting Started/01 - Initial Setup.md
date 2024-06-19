@@ -34,5 +34,5 @@ Enter the following URL into the box to install and enable Iron Vault: https://g
 
 ### Next Steps
 
-Now we have an empty vault and the plugin installed, we're ready for adventure! Let's get started with [[Your First Campaign]].
+Now we have an empty vault and the plugin installed, we're ready for adventure! Let's get started with [[02 - Your First Campaign]].
 

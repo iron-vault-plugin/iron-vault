@@ -1,5 +1,5 @@
 ---
-title: About
+title: About Commands
 ---
 The following commands are supported:
 

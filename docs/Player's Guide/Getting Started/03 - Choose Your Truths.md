@@ -50,7 +50,7 @@ The Starforged Rulebook gives you three options for choosing each Truth:
 
 Iron Vault supports all three!
 
-Once you've taken your chosen path, you'll be able to move on to [[Create Your Character|Creating Your Character]].
+Once you've taken your chosen path, you'll be able to move on to [[04 - Create Your Character|Creating Your Character]].
 
 ##### Just choosing a Truth
 
@@ -78,4 +78,4 @@ Did you press save, but you don't like the results and you want to try again? Ju
 
 ##### Next Steps
 
-Once you've taken your chosen path, you'll be able to move on to [[Create Your Character|Creating Your Character]].
+Once you've taken your chosen path, you'll be able to move on to [[04 - Create Your Character|Creating Your Character]].
