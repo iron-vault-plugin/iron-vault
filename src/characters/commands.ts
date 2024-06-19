@@ -16,6 +16,7 @@ import {
 } from "./assets";
 import { characterLens, createValidCharacter } from "./lens";
 import { AssetPickerModal } from "assets/asset-picker-modal";
+import { Ruleset } from "rules/ruleset";
 
 export async function addAssetToCharacter(
   plugin: IronVaultPlugin,
@@ -145,3 +146,63 @@ export async function createNewCharacter(plugin: IronVaultPlugin) {
     true,
   );
 }
+
+export function initiativeValueLabel(
+  ruleset: Ruleset,
+  val: boolean | undefined,
+) {
+  const labels = [];
+  if (val === true && ruleset.ids.contains("classic")) {
+    labels.push("Has Initiative");
+  }
+  if (val === false && ruleset.ids.contains("classic")) {
+    labels.push("No Initiative");
+  }
+  if (val === true && ruleset.ids.contains("starforged")) {
+    labels.push("In Control");
+  }
+  if (val === false && ruleset.ids.contains("starforged")) {
+    labels.push("In a Bad Spot");
+  }
+  if (val == null) {
+    labels.push("Out of Combat");
+  }
+  return labels.join("/");
+}
+
+// export const changeInitiative = async (
+//   plugin: IronVaultPlugin,
+//   editor: Editor,
+// ) => {
+//   // todo: multichar
+//   const actionContext = await determineCharacterActionContext(plugin);
+
+//   const ruleset = actionContext.datastore.ruleset;
+
+//   // TODO(@zkat): get old initiative and write it back out to the file
+
+//   const newInitiative = await CustomSuggestModal.select(
+//     plugin.app,
+//     [true, false, undefined],
+//     (n) => initiativeValueLabel(ruleset, n),
+//     undefined,
+//     `Choose the new value for your initiative/position.`,
+//   );
+
+//   const initNode = node(
+//     ruleset.ids.contains("classic") ? "initiative" : "position",
+//     {
+//       properties: { from: oldInitiative, to: newInitiative },
+//     },
+//   );
+//   updatePreviousMoveOrCreateBlock(
+//     editor,
+//     (move) => {
+//       return {
+//         ...move,
+//         children: [...move.children, initNode],
+//       };
+//     },
+//     () => initNode,
+//   );
+// };

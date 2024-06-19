@@ -519,3 +519,33 @@ impact "Permanently Harmed" true
 impact "Permanently Harmed" true
 ```
 ````
+
+#### `initiative`/`position`
+
+Records changes in the initiative or position in a combat. Initiative is an Ironsworn concept and Position ("in control"/"in a bad spot") is a Starforged concept. Both `initiative` and `position` nodes are provided but they have identical semantics and accept the same arguments.
+
+Valid initiative values are:
+
+* "has initiative"
+* "no initiative"
+* "in control"
+* "in a bad spot"
+* "out of combat"
+##### Arguments
+
+* `from`: starting initiative value
+* `to`: new initiative value
+
+##### `Example`
+
+```iron-vault-mechanics
+initiative "has initiative" "no initiative"
+position from="in a bad spot" to="out of combat"
+```
+
+````kdl
+```iron-vault-mechanics
+initiative "has initiative" "no initiative"
+position from="in a bad spot" to="out of combat"
+```
+````

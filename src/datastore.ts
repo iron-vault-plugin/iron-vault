@@ -266,15 +266,20 @@ export class Datastore extends Component implements IDataContext {
   get ruleset(): Ruleset {
     this.assertReady();
 
+    const ids: string[] = [];
     const rules = [...this.indexer.values()]
       .filter((v) =>
         isOfKind<DataswornTypes, "rules_package">(v, "rules_package"),
       )
       .flat()
-      .map((v) => (v as Sourced<"rules_package", RulesPackage>).value.rules)
+      .map((v) => {
+        const pkg = v as Sourced<"rules_package", RulesPackage>;
+        ids.push(pkg.id);
+        return pkg.value.rules;
+      })
       .reduce((acc, rules) => merge(acc, rules)) as Rules;
 
-    return new Ruleset("iron-vault-active-ruleset", rules);
+    return new Ruleset(ids, rules);
   }
 
   private assertReady(): void {

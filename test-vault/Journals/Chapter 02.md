@@ -4,6 +4,7 @@ And then more stuff happened
 move "Begin a Session" {
   - "+1 momentum"
 }
+initiative "has-initiative" "in a bad spot"
 ```
 > [!spoiler]- secret
 > made you look

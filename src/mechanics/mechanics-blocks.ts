@@ -222,6 +222,11 @@ export class MechanicsRenderer {
         await this.renderImpact(target, node);
         break;
       }
+      case "initiative":
+      case "position": {
+        await this.renderInitiative(target, node);
+        break;
+      }
       default: {
         this.renderUnknown(target, node.name);
       }
@@ -630,6 +635,41 @@ export class MechanicsRenderer {
       Impact: { cls: "impact-name", value: name, md: true },
       Status: { cls: "impact-marked", value: "" + marked },
     });
+  }
+
+  async renderInitiative(target: HTMLElement, node: KdlNode) {
+    const from =
+      ((node.properties.from ?? node.values[0]) as string) || "out-of-combat";
+    const to =
+      ((node.properties.to ?? node.values[1]) as string) || "out-of-combat";
+    await this.renderDlist(target, "initiative", {
+      From: {
+        cls: "from " + initClass(from),
+        value: initText(from),
+      },
+      To: {
+        cls: "to " + initClass(to),
+        value: initText(to),
+      },
+    });
+    function initClass(init: string) {
+      return init.match(/bad.spot|no.initiative/i)
+        ? "no-initiative"
+        : init.match(/in.control|initiative/i)
+          ? "has-initiative"
+          : "out-of-combat";
+    }
+    function initText(init: string) {
+      return init.match(/bad.spot/i)
+        ? "In a Bad Spot"
+        : init.match(/no.initiative/i)
+          ? "No Initiative"
+          : init.match(/in.control/i)
+            ? "In Control"
+            : init.match(/initiative/i)
+              ? "Has Initiative"
+              : "Out of Combat";
+    }
   }
 
   renderUnknown(target: HTMLElement, name: string) {

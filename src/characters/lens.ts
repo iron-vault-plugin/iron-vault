@@ -55,6 +55,7 @@ export const baseIronVaultSchema = z
     xp_spent: z.number().int().nonnegative().default(0),
     momentum: z.number().int().gte(-10).lte(10),
     assets: z.array(characterAssetSchema).optional(),
+    initiative: z.boolean().optional(),
   })
   .passthrough();
 
@@ -77,6 +78,7 @@ export interface CharacterLens {
   assets: Lens<ValidatedCharacter, IronVaultSheetAssetSchema[]>;
   impacts: Lens<ValidatedCharacter, Record<string, boolean>>;
   special_tracks: Record<string, Lens<ValidatedCharacter, ProgressTrack>>;
+  initiative: Lens<ValidatedCharacter, boolean | undefined>;
   ruleset: Ruleset;
 }
 
@@ -524,6 +526,12 @@ export function characterLens(ruleset: Ruleset): {
     ),
     impacts: v(createImpactLens(ruleset)),
     special_tracks: objectMap(specialTracks, ({ lens }) => v(lens)),
+    initiative: v(
+      lensForSchemaProp({
+        path: "initiative",
+        schema: baseIronVaultSchema.shape.initiative,
+      }),
+    ),
     ruleset,
   };
 
