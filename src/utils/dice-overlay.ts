@@ -100,7 +100,11 @@ async function ensureAssets(plugin: IronVaultPlugin) {
   }
   function remove(path: string) {
     const dest = normalizePath([assetsPath, path].join("/"));
-    return plugin.app.vault.adapter.remove(dest);
+    try {
+      return plugin.app.vault.adapter.remove(dest);
+    } catch (e) {
+      return;
+    }
   }
   function writeFile(path: string, data: Uint8Array | string) {
     const dest = normalizePath([assetsPath, path].join("/"));
