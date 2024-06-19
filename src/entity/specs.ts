@@ -52,7 +52,7 @@ export type EntityResults<T extends EntitySpec> = {
 // TODO: these should maybe be indexed just like everything into the DataIndexer so we can
 // pull the appropriate ones for our active rulesets?
 export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
-  character: {
+  sfCharacter: {
     collectionId: "starforged/collections/oracles/characters",
     label: "NPC",
     nameGen: (ent) =>
@@ -97,7 +97,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
   },
 
   // TODO(@cwegrzyn): Faction spec items vary based on the type of faction
-  faction: {
+  sfFaction: {
     label: "Faction",
     collectionId: "starforged/collections/oracles/factions",
     nameGen: (ent) => ent.name[0]?.simpleResult,
@@ -109,7 +109,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
     },
   },
 
-  creature: {
+  sfCreature: {
     label: "Creature",
     collectionId: "starforged/collections/oracles/creatures",
     // TODO(@cwegrzyn): should we generate a name based on other aspects?
@@ -145,7 +145,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
     },
   },
 
-  settlement: {
+  sfSettlement: {
     label: "Settlement",
     nameGen: (ent) => ent.name[0]?.simpleResult,
     collectionId: "starforged/collections/oracles/settlements",
@@ -197,7 +197,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
     },
   },
 
-  planet: {
+  sfPlanet: {
     label: "Planet",
     nameGen: (ent) => ent.name[0]?.simpleResult,
     collectionId: "starforged/collections/oracles/planets",
@@ -235,6 +235,38 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
         id: "starforged/oracles/planets/{{class}}/settlements/{{region}}",
         firstLook: true,
         name: "Settlements",
+      },
+    },
+  },
+  isIronlander: {
+    collectionId: "classic/collections/oracles/character",
+    label: "Ironlander",
+    nameGen: (ent) => ent.nameA[0]?.simpleResult ?? ent.nameB[0]?.simpleResult,
+    spec: {
+      nameA: {
+        id: "classic/oracles/name/ironlander/a",
+        name: "Name Table A",
+        firstLook: true,
+      },
+      nameB: {
+        id: "classic/oracles/name/ironlander/b",
+        name: "Name Table B",
+        firstLook: false,
+      },
+      role: {
+        id: "classic/oracles/character/role",
+        firstLook: true,
+        name: "Character Role",
+      },
+      descriptor: {
+        id: "classic/oracles/character/descriptor",
+        firstLook: true,
+        name: "Character Descriptor",
+      },
+      goal: {
+        id: "classic/oracles/character/goal",
+        firstLook: false,
+        name: "Character Goal",
       },
     },
   },
