@@ -125,7 +125,13 @@ export async function generateEntityCommand(
   if (!selectedEntityDescriptor) {
     const [, desc] = await CustomSuggestModal.select(
       plugin.app,
-      Object.entries(ENTITIES),
+      Object.entries(ENTITIES).filter(
+        ([_k, v]) =>
+          (plugin.settings.enableStarforged &&
+            v.collectionId?.startsWith("starforged/")) ||
+          (plugin.settings.enableIronsworn &&
+            v.collectionId?.startsWith("classic/")),
+      ),
       ([_key, { label }]) => label,
       undefined,
       "What kind of entity?",
