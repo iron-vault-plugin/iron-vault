@@ -36,6 +36,16 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .onChange((value) => this.updateSetting("useCharacterSystem", value)),
       );
 
+    new Setting(containerEl)
+      .setName("Reset to defaults")
+      .setDesc("Set all Iron Vault settings back to their default values.")
+      .addButton((button) => {
+        button.setButtonText("Reset").onClick(async () => {
+          this.plugin.settings.reset();
+          this.display();
+        });
+      });
+
     new Setting(containerEl).setName("Rulesets").setHeading();
 
     new Setting(containerEl)

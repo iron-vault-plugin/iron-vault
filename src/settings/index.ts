@@ -44,7 +44,7 @@ export class IronVaultPluginSettings {
   /** Base path for homebrew content. */
   homebrewPath: string = "Homebrew";
 
-  emitter: Emittery;
+  emitter?: Emittery;
 
   constructor() {
     this.emitter = new Emittery();
@@ -59,7 +59,7 @@ export class IronVaultPluginSettings {
         }
         const oldValue = target[key];
         target[key] = newValue;
-        target.emitter.emit("change", { key, oldValue, newValue });
+        target.emitter!.emit("change", { key, oldValue, newValue });
         return true;
       },
     });
@@ -69,22 +69,28 @@ export class IronVaultPluginSettings {
     event: K,
     listener: (params: EVENT_TYPES[K]) => void,
   ) {
-    return this.emitter.on(event, listener);
+    return this.emitter!.on(event, listener);
   }
 
   once<K extends keyof EVENT_TYPES>(event: K) {
-    return this.emitter.once(event);
+    return this.emitter!.once(event);
   }
 
   off<K extends keyof EVENT_TYPES>(
     event: K,
     listener: (params: EVENT_TYPES[K]) => void,
   ) {
-    return this.emitter.off(event, listener);
+    return this.emitter!.off(event, listener);
   }
 
   events<K extends keyof EVENT_TYPES>(event: K) {
-    return this.emitter.events(event);
+    return this.emitter!.events(event);
+  }
+
+  reset() {
+    const fresh = Object.assign({}, new IronVaultPluginSettings());
+    delete fresh.emitter;
+    Object.assign(this, fresh);
   }
 }
 
