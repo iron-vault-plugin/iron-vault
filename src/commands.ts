@@ -1,10 +1,12 @@
 import { determineCharacterActionContext } from "characters/action-context";
 import { addAssetToCharacter, createNewCharacter } from "characters/commands";
 import { advanceClock, createClock } from "clocks/commands";
+import { openDocsInBrowser, openDocsInTab } from "docs/commands";
 import { generateEntityCommand } from "entity/command";
 import IronVaultPlugin from "index";
 import { insertComment } from "mechanics/commands";
 import { runMoveCommand } from "moves/action";
+import { rerollDie } from "moves/action/action-modal";
 import { Command, Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import {
@@ -20,8 +22,6 @@ import {
 } from "utils/ui/generic-fuzzy-suggester";
 import { PromptModal } from "utils/ui/prompt";
 import * as meterCommands from "./characters/meter-commands";
-import { openDocsInBrowser, openDocsInTab } from "docs/commands";
-import { rerollDie } from "moves/action/action-modal";
 
 export class IronVaultCommands {
   plugin: IronVaultPlugin;
@@ -62,6 +62,16 @@ export class IronVaultCommands {
       name: "Insert out-of-character (OOC) comment",
       icon: "file-pen-line",
       editorCallback: (editor: Editor) => insertComment(this.plugin, editor),
+    },
+
+    /*
+     * CHARACTERS
+     */
+    {
+      id: "character-create",
+      name: "Create new character",
+      icon: "user-round",
+      callback: () => createNewCharacter(this.plugin),
     },
     {
       id: "burn-momentum",
@@ -105,10 +115,15 @@ export class IronVaultCommands {
         ),
     },
     {
-      id: "insert-spoilers",
-      name: "Insert spoiler text",
-      icon: "lock",
-      editorCallback: (editor: Editor) => this.insertSpoilers(editor),
+      id: "character-add-asset",
+      name: "Add asset to character",
+      icon: "gem",
+      editorCallback: async (
+        editor: Editor,
+        ctx: MarkdownView | MarkdownFileInfo,
+      ) => {
+        await addAssetToCharacter(this.plugin, editor, ctx as MarkdownView);
+      },
     },
     {
       id: "reroll-die",
@@ -177,6 +192,10 @@ export class IronVaultCommands {
           this.plugin.clockIndex,
         ),
     },
+
+    /*
+     * ENTITIES
+     */
     {
       id: "entity-gen",
       name: "Generate an entity",
@@ -188,17 +207,10 @@ export class IronVaultCommands {
         await generateEntityCommand(this.plugin, editor, ctx);
       },
     },
-    {
-      id: "character-add-asset",
-      name: "Add asset to character",
-      icon: "gem",
-      editorCallback: async (
-        editor: Editor,
-        ctx: MarkdownView | MarkdownFileInfo,
-      ) => {
-        await addAssetToCharacter(this.plugin, editor, ctx as MarkdownView);
-      },
-    },
+
+    /*
+     * UTILITY
+     */
     {
       id: "toggle-mechanics",
       name: "Toggle displaying mechanics",
@@ -209,11 +221,12 @@ export class IronVaultCommands {
       },
     },
     {
-      id: "character-create",
-      name: "Create new character",
-      icon: "user-round",
-      callback: () => createNewCharacter(this.plugin),
+      id: "insert-spoilers",
+      name: "Insert spoiler text",
+      icon: "lock",
+      editorCallback: (editor: Editor) => this.insertSpoilers(editor),
     },
+
     {
       id: "generate-truths",
       name: "Generate truths",
