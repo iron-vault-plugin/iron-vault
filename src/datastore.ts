@@ -50,7 +50,8 @@ export class Datastore extends Component implements IDataContext {
       if (
         key === "enableIronsworn" ||
         key === "enableStarforged" ||
-        key === "useHomebrew"
+        key === "useHomebrew" ||
+        key === "homebrewPath"
       ) {
         this.initialize();
       }
