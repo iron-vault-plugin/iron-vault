@@ -17,10 +17,10 @@ import {
 } from "./lens";
 
 const STARFORGED_RULESET = new Ruleset(
-  "starforged",
+  ["starforged"],
   starforgedData.rules as Datasworn.Rules,
 );
-const TEST_RULESET = new Ruleset("test", {
+const TEST_RULESET = new Ruleset(["test"], {
   condition_meters: {
     health: {
       label: "health",
@@ -452,6 +452,7 @@ describe("movesReader", () => {
 describe("Special Tracks", () => {
   const { validater, lens } = characterLens({
     ...TEST_RULESET,
+    id: TEST_RULESET.id,
     special_tracks: {
       quests_legacy: {
         label: "quests",

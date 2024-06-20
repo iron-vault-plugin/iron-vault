@@ -18,7 +18,7 @@ import { CharacterContext } from "../character-tracker";
 import renderAssetCard from "../assets/asset-card";
 import { addOrUpdateViaDataswornAsset } from "./assets";
 import { addAssetToCharacter } from "./commands";
-import { ValidatedCharacter, momentumOps } from "./lens";
+import { CharacterLens, ValidatedCharacter, momentumOps } from "./lens";
 
 const logger = rootLogger.getLogger("blocks");
 
@@ -173,6 +173,25 @@ class CharacterRenderer extends MarkdownRenderChild {
         );
       };
     };
+    const charBoolFieldUpdater = (
+      lens: Lens<ValidatedCharacter, boolean | undefined>,
+    ) => {
+      return (e: Event) => {
+        const target = e.target as HTMLInputElement;
+        charCtx.updater(
+          vaultProcess(this.plugin.app, this.sourcePath),
+          (char) =>
+            lens.update(
+              char,
+              target.value === "true"
+                ? true
+                : target.value === "false"
+                  ? false
+                  : undefined,
+            ),
+        );
+      };
+    };
     return html`<section class="character-info">
       <header class="name">
         <input
@@ -181,6 +200,24 @@ class CharacterRenderer extends MarkdownRenderChild {
           @change=${charFieldUpdater(lens.name)}
         />
       </header>
+      <select
+        class="initiative"
+        .value=${"" + (lens.initiative.get(raw) ?? "out-of-combat")}
+        @change=${charBoolFieldUpdater(lens.initiative)}
+      >
+        <option value="true" ?selected=${lens.initiative.get(raw) === true}>
+          ${this.initiativeValueLabel(lens, true)}
+        </option>
+        <option value="false" ?selected=${lens.initiative.get(raw) === false}>
+          ${this.initiativeValueLabel(lens, false)}
+        </option>
+        <option
+          value="out-of-combat"
+          ?selected=${lens.initiative.get(raw) === undefined}
+        >
+          ${this.initiativeValueLabel(lens, undefined)}
+        </option>
+      </select>
       <dl>
         <dt>${this.plugin.settings.enableIronsworn ? "Alias" : "Callsign"}</dt>
         <dd class="callsign">
@@ -500,5 +537,25 @@ class CharacterRenderer extends MarkdownRenderChild {
         </li>
       </ul>
     `;
+  }
+
+  initiativeValueLabel(lens: CharacterLens, val: boolean | undefined) {
+    const labels = [];
+    if (val === true && lens.ruleset.ids.contains("classic")) {
+      labels.push("Has Initiative");
+    }
+    if (val === false && lens.ruleset.ids.contains("classic")) {
+      labels.push("No Initiative");
+    }
+    if (val === true && lens.ruleset.ids.contains("starforged")) {
+      labels.push("In Control");
+    }
+    if (val === false && lens.ruleset.ids.contains("starforged")) {
+      labels.push("In a Bad Spot");
+    }
+    if (val == null) {
+      labels.push("Out of Combat");
+    }
+    return labels.join("/");
   }
 }

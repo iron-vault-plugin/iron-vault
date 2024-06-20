@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "index.md",
+                "file": "Blocks/Mechanics Blocks.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "index.md",
+                "file": "Blocks/Mechanics Blocks.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "index.md",
+                "file": "Blocks/Mechanics Blocks.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "index.md"
+                "file": "Blocks/Mechanics Blocks.md"
               }
             }
           },
@@ -159,6 +159,7 @@
   },
   "active": "e241c2813ce59ca4",
   "lastOpenFiles": [
+    "index.md",
     "Player's Guide/index.md",
     "Player's Guide/Getting Started/05 - Build a Starting Sector.md",
     "Player's Guide/Getting Started/04 - Create Your Character.md",
@@ -175,7 +176,6 @@
     "Commands/Open documentation in your browser.md",
     "Commands/Open documentation in a tab.md",
     "Blocks/index.md",
-    "index.md",
     "Commands/index.md",
     "Other Features/Special Links.md",
     "Other Features/Sidebar.md",

@@ -99,7 +99,7 @@ export class Ruleset {
   readonly special_tracks: Record<string, SpecialTrackRule>;
 
   constructor(
-    public readonly id: string,
+    public readonly ids: string[],
     rules: Datasworn.Rules,
   ) {
     this.condition_meters = Object.fromEntries(
@@ -126,5 +126,11 @@ export class Ruleset {
       }),
     );
     this.special_tracks = rules.special_tracks;
+  }
+
+  get id() {
+    const allIds = [...this.ids];
+    allIds.sort();
+    return allIds.join("|");
   }
 }
