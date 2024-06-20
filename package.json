@@ -40,6 +40,7 @@
     "@types/node": "^20.12.12",
     "@types/obsidian-typings": "npm:obsidian-typings@^1.1.6",
     "@types/sortablejs": "^1.15.8",
+    "ajv": "^8.16.0",
     "builtin-modules": "^3.3.0",
     "emittery": "^1.0.3",
     "esbuild": "^0.21.3",

@@ -58,6 +58,8 @@ Bonds_XPEarned: 0
 Bonds_Progress: 0
 Discoveries_XPEarned: 0
 Discoveries_Progress: 0
+FailureTrack_Progress: 0
+FailureTrack_XPEarned: 0
 xp_spent: 0
 ---
 ```iron-vault-character
