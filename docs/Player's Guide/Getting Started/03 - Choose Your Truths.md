@@ -1,4 +1,4 @@
-The first step in any Ironsworn or Starforged campaign is to Choose Your Truths. These are facts about your world that help set the stage for the space you'll be playing in. Each [[Rulesets|Ruleset]] comes with its own set of Truths, which are themed to that game or expansion's default setting. Of course, you can always skip right by this and start writing about your world however you prefer, but using the Truths tool is very handy!
+The first step in any Ironsworn or Starforged campaign is to Choose Your Truths. These are facts about your world that help set the stage for the space you'll be playing in. Each [[Rulesets and homebrew|Ruleset]] comes with its own set of Truths, which are themed to that game or expansion's default setting. Of course, you can always skip right by this and start writing about your world however you prefer, but using the Truths tool is very handy!
 
 ### Truth Blocks
 
@@ -66,7 +66,7 @@ If you're satisfied with the results, press the save button on the bottom right 
 
 ##### Customizing a Truth, or Crafting Your Own
 
-Truth notes are regular notes! You can actually write anything you want on this note, in any structure you want. If you want to reorder the Truths, you can just cut and paste the header and the Truth Block and move it wherever you want. Likewise, if you want to add or remove Truths, you can do that, although Truth Blocks will only work for Truths in your active [[Rulesets]]. But headers still work!
+Truth notes are regular notes! You can actually write anything you want on this note, in any structure you want. If you want to reorder the Truths, you can just cut and paste the header and the Truth Block and move it wherever you want. Likewise, if you want to add or remove Truths, you can do that, although Truth Blocks will only work for Truths in your active [[Rulesets and homebrew]]. But headers still work!
 
 If you chose to pick or roll for a Truth, as above, you can also freely edit the results at any time to add more color, to change details, or otherwise update the Truth to your preference.
 
