@@ -94,19 +94,23 @@ export function projectedVersionedMap<K, V, U>(
       }
       return count;
     }
+
     entries(): IterableIterator<[K, U]> {
       return this[Symbol.iterator]();
     }
+
     *keys(): IterableIterator<K> {
-      for (const entry of this.#innerMap) {
+      for (const entry of this) {
         yield entry[0];
       }
     }
+
     *values(): IterableIterator<U> {
       for (const entry of this) {
         yield entry[1];
       }
     }
+
     *[Symbol.iterator](): IterableIterator<[K, U]> {
       for (const [key, value] of this.#innerMap) {
         const selected = select(value, key);
