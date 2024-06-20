@@ -1,5 +1,9 @@
 import { determineCharacterActionContext } from "characters/action-context";
-import { addAssetToCharacter, createNewCharacter } from "characters/commands";
+import {
+  addAssetToCharacter,
+  changeInitiative,
+  createNewCharacter,
+} from "characters/commands";
 import { advanceClock, createClock } from "clocks/commands";
 import { openDocsInBrowser, openDocsInTab } from "docs/commands";
 import { generateEntityCommand } from "entity/command";
@@ -124,6 +128,12 @@ export class IronVaultCommands {
       ) => {
         await addAssetToCharacter(this.plugin, editor, ctx as MarkdownView);
       },
+    },
+    {
+      id: "character-change-initiative",
+      name: "Change character position / intiative",
+      icon: "activity",
+      editorCallback: (editor: Editor) => changeInitiative(this.plugin, editor),
     },
     {
       id: "reroll-die",

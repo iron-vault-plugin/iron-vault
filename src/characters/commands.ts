@@ -1,8 +1,12 @@
 import { type Datasworn } from "@datasworn/core";
 import { Asset } from "@datasworn/core/dist/Datasworn";
+import { AssetPickerModal } from "assets/asset-picker-modal";
 import { produce } from "immer";
 import IronVaultPlugin from "index";
+import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
+import { createInitiativeNode } from "mechanics/node-builders";
 import { Editor, MarkdownView } from "obsidian";
+import { Ruleset } from "rules/ruleset";
 import { createNewIronVaultEntityFile, vaultProcess } from "utils/obsidian";
 import { capitalize } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
@@ -15,8 +19,6 @@ import {
   walkAsset,
 } from "./assets";
 import { characterLens, createValidCharacter } from "./lens";
-import { AssetPickerModal } from "assets/asset-picker-modal";
-import { Ruleset } from "rules/ruleset";
 
 export async function addAssetToCharacter(
   plugin: IronVaultPlugin,
@@ -150,7 +152,7 @@ export async function createNewCharacter(plugin: IronVaultPlugin) {
 export function initiativeValueLabel(
   ruleset: Ruleset,
   val: boolean | undefined,
-) {
+): string {
   const labels = [];
   if (val === true && ruleset.ids.contains("classic")) {
     labels.push("Has Initiative");
@@ -170,39 +172,38 @@ export function initiativeValueLabel(
   return labels.join("/");
 }
 
-// export const changeInitiative = async (
-//   plugin: IronVaultPlugin,
-//   editor: Editor,
-// ) => {
-//   // todo: multichar
-//   const actionContext = await determineCharacterActionContext(plugin);
+export const changeInitiative = async (
+  plugin: IronVaultPlugin,
+  editor: Editor,
+) => {
+  const actionContext = await requireActiveCharacterContext(plugin);
 
-//   const ruleset = actionContext.datastore.ruleset;
+  const ruleset = actionContext.datastore.ruleset;
 
-//   // TODO(@zkat): get old initiative and write it back out to the file
+  const { character, lens } = actionContext.characterContext;
 
-//   const newInitiative = await CustomSuggestModal.select(
-//     plugin.app,
-//     [true, false, undefined],
-//     (n) => initiativeValueLabel(ruleset, n),
-//     undefined,
-//     `Choose the new value for your initiative/position.`,
-//   );
+  const oldInitiative = lens.initiative.get(character);
 
-//   const initNode = node(
-//     ruleset.ids.contains("classic") ? "initiative" : "position",
-//     {
-//       properties: { from: oldInitiative, to: newInitiative },
-//     },
-//   );
-//   updatePreviousMoveOrCreateBlock(
-//     editor,
-//     (move) => {
-//       return {
-//         ...move,
-//         children: [...move.children, initNode],
-//       };
-//     },
-//     () => initNode,
-//   );
-// };
+  const newInitiative = await CustomSuggestModal.select(
+    plugin.app,
+    [true, false, undefined],
+    (n) => initiativeValueLabel(ruleset, n),
+    undefined,
+    `Choose the new value for your initiative/position.`,
+  );
+
+  await actionContext.update(plugin.app, (char, { lens }) =>
+    lens.initiative.update(char, newInitiative),
+  );
+
+  appendNodesToMoveOrMechanicsBlock(
+    editor,
+    createInitiativeNode(
+      // TODO(@cwegrzyn): once we have a setting that controls which version of position/initiative
+      //   to use, we'll use that instead here and in determining the label.
+      ruleset.ids.contains("starforged") ? "position" : "initiative",
+      initiativeValueLabel(ruleset, oldInitiative).toLowerCase(),
+      initiativeValueLabel(ruleset, newInitiative).toLowerCase(),
+    ),
+  );
+};
