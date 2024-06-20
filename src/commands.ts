@@ -21,6 +21,7 @@ import {
 import { PromptModal } from "utils/ui/prompt";
 import * as meterCommands from "./characters/meter-commands";
 import { openDocsInBrowser, openDocsInTab } from "docs/commands";
+import { rerollDie } from "moves/action/action-modal";
 
 export class IronVaultCommands {
   plugin: IronVaultPlugin;
@@ -108,6 +109,12 @@ export class IronVaultCommands {
       name: "Insert spoiler text",
       icon: "lock",
       editorCallback: (editor: Editor) => this.insertSpoilers(editor),
+    },
+    {
+      id: "reroll-die",
+      name: "Reroll a die",
+      icon: "dice",
+      editorCallback: (editor: Editor) => rerollDie(this.plugin, editor),
     },
 
     /*

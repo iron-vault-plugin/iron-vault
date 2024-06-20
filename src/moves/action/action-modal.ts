@@ -1,9 +1,15 @@
 import { type Datasworn } from "@datasworn/core";
-import { App, Modal, Setting } from "obsidian";
+import { App, Editor, Modal, Setting } from "obsidian";
 import { CharacterContext } from "../../character-tracker";
 import { MomentumTracker, momentumTrackerReader } from "../../characters/lens";
 import { ActionMoveDescription } from "../desc";
 import { ActionMoveWrapper, formatRollResult } from "../wrapper";
+import { PromptModal } from "utils/ui/prompt";
+import { CustomSuggestModal } from "utils/suggest";
+import { node } from "utils/kdl";
+import IronVaultPlugin from "index";
+import { updatePreviousMoveOrCreateBlock } from "mechanics/editor";
+import { Dice, DieKind } from "utils/dice";
 
 export async function checkForMomentumBurn(
   app: App,
@@ -100,4 +106,56 @@ export class ActionModal extends Modal {
       this.onCancel();
     }
   }
+}
+
+export async function rerollDie(plugin: IronVaultPlugin, editor: Editor) {
+  const dieName: "action" | "vs1" | "vs2" = await CustomSuggestModal.select(
+    plugin.app,
+    ["action", "vs1", "vs2"],
+    (item) =>
+      item === "action"
+        ? "Action Die"
+        : item === "vs1"
+          ? "Challenge Die 1"
+          : item === "vs2"
+            ? "Challenge Die 2"
+            : "Other",
+    undefined,
+    "Select the die to reroll",
+  );
+  let newValue: string;
+  if (plugin.settings.promptForRollsInMoves) {
+    newValue = await PromptModal.prompt(
+      plugin.app,
+      "Enter the new die roll value",
+    );
+  } else {
+    newValue =
+      "" +
+      (await new Dice(
+        1,
+        dieName === "action" ? 6 : 10,
+        plugin,
+        dieName === "action"
+          ? DieKind.Action
+          : dieName === "vs1"
+            ? DieKind.Challenge1
+            : DieKind.Challenge2,
+      ).roll());
+  }
+  const props: { action?: string; vs1?: string; vs2?: string } = {};
+  props[dieName] = newValue;
+  const rerollNode = node("reroll", {
+    properties: props,
+  });
+  updatePreviousMoveOrCreateBlock(
+    editor,
+    (move) => {
+      return {
+        ...move,
+        children: [...move.children, rerollNode],
+      };
+    },
+    () => rerollNode,
+  );
 }
