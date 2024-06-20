@@ -558,17 +558,17 @@ export class MechanicsRenderer {
     }
 
     const newScore = Math.min(
-      ((node.properties.action ?? this.lastRoll.properties.action) as number) +
-        (this.lastRoll.properties.stat as number) +
-        ((this.lastRoll.properties.adds as number) ?? 0),
+      +((node.properties.action ?? this.lastRoll.properties.action) as number) +
+        +(this.lastRoll.properties.stat as number) +
+        +((this.lastRoll.properties.adds as number) ?? 0),
       10,
     );
-    const lastVs1 = this.lastRoll.properties.vs1 as number;
-    const lastVs2 = this.lastRoll.properties.vs2 as number;
-    const newVs1 = (node.properties.vs1 ??
-      this.lastRoll.properties.vs1) as number;
-    const newVs2 = (node.properties.vs2 ??
-      this.lastRoll.properties.vs2) as number;
+    const lastVs1 = +(this.lastRoll.properties.vs1 as number);
+    const lastVs2 = +(this.lastRoll.properties.vs2 as number);
+    const newVs1 = +((node.properties.vs1 ??
+      this.lastRoll.properties.vs1) as number);
+    const newVs2 = +((node.properties.vs2 ??
+      this.lastRoll.properties.vs2) as number);
     const {
       cls: outcomeClass,
       text: outcome,
