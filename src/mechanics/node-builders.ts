@@ -178,3 +178,23 @@ export function createDetailsNode(details: string): kdl.Node {
     values: [details],
   });
 }
+
+export function createInitiativeNode(
+  label: "initiative" | "position",
+  oldIntiative: string | undefined,
+  newInitiative: string | undefined,
+) {
+  const properties: { to?: string; from?: string } = {};
+
+  if (oldIntiative !== undefined) {
+    properties.from = oldIntiative;
+  }
+
+  if (newInitiative !== undefined) {
+    properties.to = newInitiative;
+  }
+
+  return node(label, {
+    properties,
+  });
+}
