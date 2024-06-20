@@ -35,4 +35,4 @@ You can embed an asset's read-only card using [[Asset Blocks]]. These blocks wil
 
 (Coming Soon)
 
-In the future, Iron Vault will support custom [[Rulesets]], including individual homebrew assets.
+In the future, Iron Vault will support custom [[Rulesets and homebrew]], including individual homebrew assets.
