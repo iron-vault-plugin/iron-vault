@@ -1,7 +1,9 @@
 import { type Datasworn } from "@datasworn/core";
 import { Rules, RulesPackage } from "@datasworn/core/dist/Datasworn";
+import dataswornSchema from "@datasworn/core/json/datasworn.schema.json" assert { type: "json" };
 import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
+import Ajv from "ajv";
 import { IDataContext } from "characters/action-context";
 import {
   DataIndexer,
@@ -20,11 +22,14 @@ import {
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
 import merge from "lodash.merge";
+import { rootLogger } from "logger";
 import { Oracle } from "model/oracle";
-import { Component, type App } from "obsidian";
+import { Component, Notice, TFile, TFolder, type App } from "obsidian";
 import { OracleRoller } from "oracles/roller";
 import { Ruleset } from "rules/ruleset";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
+
+const logger = rootLogger.getLogger("datastore");
 
 export class Datastore extends Component implements IDataContext {
   _ready: boolean;
@@ -42,7 +47,11 @@ export class Datastore extends Component implements IDataContext {
     this.emitter = new Emittery();
 
     this.plugin.settings.on("change", ({ key }) => {
-      if (key === "enableIronsworn" || key === "enableStarforged") {
+      if (
+        key === "enableIronsworn" ||
+        key === "enableStarforged" ||
+        key === "useHomebrew"
+      ) {
         this.initialize();
       }
     });
@@ -58,17 +67,35 @@ export class Datastore extends Component implements IDataContext {
 
   async initialize(): Promise<void> {
     this._ready = false;
+    this.indexer.clear();
+
     if (this.plugin.settings.enableIronsworn) {
       this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
-    } else {
-      this.removeBuiltInData(ironswornRuleset as Datasworn.Ruleset);
     }
+
     if (this.plugin.settings.enableStarforged) {
       this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
       this.indexBuiltInData(starforgedSupp as Datasworn.Expansion, 5);
-    } else {
-      this.removeBuiltInData(starforgedSupp as Datasworn.Expansion);
-      this.removeBuiltInData(starforgedRuleset as Datasworn.Ruleset);
+    }
+
+    if (this.plugin.settings.useHomebrew) {
+      if (this.plugin.settings.homebrewPath) {
+        const homebrewFolder = this.plugin.app.vault.getFolderByPath(
+          this.plugin.settings.homebrewPath,
+        );
+        if (homebrewFolder) {
+          await this.indexDataswornFiles(homebrewFolder);
+        } else {
+          new Notice(
+            `Homebrew enabled, but path '${this.plugin.settings.homebrewPath}' is missing.`,
+          );
+          logger.warn(
+            `Homebrew enabled, but path '${this.plugin.settings.homebrewPath}' is missing.`,
+          );
+        }
+      } else {
+        new Notice("Homebrew enabled, but path is empty.");
+      }
     }
 
     this._ready = true;
@@ -104,6 +131,41 @@ export class Datastore extends Component implements IDataContext {
     const mainPath = `@datasworn:${pkg._id}`;
     this.indexer.removeSource(mainPath);
     this.app.metadataCache.trigger("iron-vault:index-changed");
+  }
+
+  async indexDataswornFiles(folder: TFolder) {
+    const ajv = new Ajv({ strict: false, validateFormats: false });
+    const validate = ajv.compile(dataswornSchema);
+
+    for (const file of folder.children) {
+      if (file instanceof TFile && file.name.endsWith(".json")) {
+        try {
+          const data = JSON.parse(await this.app.vault.cachedRead(file));
+          const result = validate(data);
+          if (!result) {
+            logger.error(validate.errors);
+            continue;
+          }
+          const dataswornPackage = data as Datasworn.RulesPackage;
+          const rulesetId =
+            dataswornPackage.type == "ruleset"
+              ? dataswornPackage._id
+              : dataswornPackage.ruleset;
+          const source = createSource({
+            path: file.path,
+            priority: 10,
+            sourceTags: { [SourceTag.RulesetId]: rulesetId },
+          });
+          this.indexer.index(
+            source,
+            walkDataswornRulesPackage(source, dataswornPackage, this.plugin),
+          );
+        } catch (e) {
+          logger.error(e);
+          continue;
+        }
+      }
+    }
   }
 
   // async indexOraclesFolder(folder: TFolder): Promise<void> {
@@ -180,40 +242,9 @@ export class Datastore extends Component implements IDataContext {
   //   }
   // }
 
-  // async indexPluginFile(
-  //   normalizedPath: string,
-  //   priority: number,
-  //   format: string = "json",
-  // ): Promise<void> {
-  //   logger.info(
-  //     "iron-vault: datastore: indexing plugin file %s (format: %s priority: %d)",
-  //     normalizedPath,
-  //     format,
-  //     priority,
-  //   );
-  //   const content = await this.app.vault.adapter.read(normalizedPath);
-  //   // TODO: validate
-  //   let data: Datasworn.RulesPackage;
-  //   if (format === "json") {
-  //     data = JSON.parse(content) as Datasworn.RulesPackage;
-  //   } else if (format === "yaml") {
-  //     data = parseYaml(content) as Datasworn.RulesPackage;
-  //   } else {
-  //     throw new Error(`unknown file type ${format}`);
-  //   }
-  //   indexDataForgedData(this.index, normalizedPath, priority, data);
-  //   this.index.updateIndexGroup(normalizedPath, new Set([normalizedPath]));
-
-  //   this.app.metadataCache.trigger("iron-vault:index-changed");
-  // }
-
   get ready(): boolean {
     return this._ready;
   }
-
-  // get data(): Starforged | undefined {
-  //   return this._data;
-  // }
 
   get moves(): StandardIndex<DataswornTypes["move"]> {
     this.assertReady();

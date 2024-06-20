@@ -60,6 +60,30 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .onChange((value) => this.updateSetting("enableStarforged", value));
       });
 
+    new Setting(containerEl).setName("Homebrew").setHeading();
+
+    new Setting(containerEl)
+      .setName("Enable Homebrew content")
+      .setDesc(
+        "If enabled, Homebrew content from the folder below will be avilable for play.",
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(settings.useHomebrew)
+          .onChange((value) => this.updateSetting("useHomebrew", value));
+      });
+
+    new Setting(containerEl)
+      .setName("Homebrew content folder")
+      .setDesc("Load custom rulesets from this folder.")
+      .addSearch((search) => {
+        new FolderTextSuggest(this.app, search.inputEl);
+        search
+          .setPlaceholder("Type the name of a folder")
+          .setValue(settings.homebrewPath)
+          .onChange((value) => this.updateSetting("homebrewPath", value));
+      });
+
     new Setting(containerEl).setName("Dice").setHeading();
 
     new Setting(containerEl)

@@ -37,6 +37,13 @@ export class IronVaultPluginSettings {
 
   /** Automatically inline clocks and tracks in journal on creation. */
   inlineOnCreation: boolean = false;
+
+  /** Index homebrew content. */
+  useHomebrew: boolean = false;
+
+  /** Base path for homebrew content. */
+  homebrewPath: string = "Homebrew";
+
   emitter: Emittery;
 
   constructor() {

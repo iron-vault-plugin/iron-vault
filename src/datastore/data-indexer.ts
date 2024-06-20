@@ -127,6 +127,12 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
 
   constructor() {}
 
+  clear(): void {
+    this.dataMap.clear();
+    this.sourceIndex.clear();
+    this.#revision++;
+  }
+
   renameSource(oldPath: string, newPath: string): void {
     const source = this.sourceIndex.get(oldPath);
     if (source == null) {
