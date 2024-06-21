@@ -94,6 +94,14 @@ export class MechanicsRenderer {
       cls: "iron-vault-mechanics",
     });
     this.mechNode.classList.toggle("collapsed", this.hideMechanics);
+    this.mechNode.style.setProperty(
+      "--vs1-color",
+      this.plugin.settings.challengeDie1Color,
+    );
+    this.mechNode.style.setProperty(
+      "--vs2-color",
+      this.plugin.settings.challengeDie2Color,
+    );
     await this.renderChildren(this.mechNode, doc);
     await this.renderToggleButton();
   }
@@ -327,11 +335,11 @@ export class MechanicsRenderer {
       const vs2 = this.lastRoll.properties.vs2 as number;
       def["New Score"] = { cls: "score", value: from };
       def["Challenge Die 1"] = {
-        cls: "challenge-die",
+        cls: "challenge-die vs1",
         value: vs1,
       };
       def["Challenge Die 2"] = {
-        cls: "challenge-die",
+        cls: "challenge-die vs2",
         value: vs2,
       };
       const { cls, text, match } = rollOutcome(from, vs1, vs2);
@@ -512,8 +520,8 @@ export class MechanicsRenderer {
     Object.assign(def, {
       Adds: { cls: "adds", value: adds },
       Score: { cls: "score", value: score },
-      "Challenge Die 1": { cls: "challenge-die", value: challenge1 },
-      "Challenge Die 2": { cls: "challenge-die", value: challenge2 },
+      "Challenge Die 1": { cls: "challenge-die vs1", value: challenge1 },
+      "Challenge Die 2": { cls: "challenge-die vs2", value: challenge2 },
       Outcome: { cls: "outcome", value: outcome, dataProp: false },
     });
     await this.renderDlist(target, "roll " + outcomeClass, def);
@@ -533,8 +541,8 @@ export class MechanicsRenderer {
     await this.renderDlist(target, "roll progress " + outcomeClass, {
       "Track Name": { cls: "track-name", value: trackName, md: true },
       "Progress Score": { cls: "progress-score", value: score },
-      "Challenge Die 1": { cls: "challenge-die", value: challenge1 },
-      "Challenge Die 2": { cls: "challenge-die", value: challenge2 },
+      "Challenge Die 1": { cls: "challenge-die vs1", value: challenge1 },
+      "Challenge Die 2": { cls: "challenge-die vs2", value: challenge2 },
       Outcome: { cls: "outcome", value: outcome, dataProp: false },
     });
   }
@@ -589,23 +597,29 @@ export class MechanicsRenderer {
       const newVs1 = node.properties.vs1 as number;
       this.lastRoll.properties.vs1 = newVs1;
       def["Old Challenge Die 1"] = {
-        cls: "challenge-die from",
+        cls: "challenge-die from vs1",
         value: lastVs1,
       };
-      def["New Challenge Die 1"] = { cls: "challenge-die to", value: newVs1 };
+      def["New Challenge Die 1"] = {
+        cls: "challenge-die to vs1",
+        value: newVs1,
+      };
     }
     if (node.properties.vs2 != null) {
       const newVs2 = node.properties.vs2 as number;
       this.lastRoll.properties.vs2 = newVs2;
       def["Old Challenge Die 2"] = {
-        cls: "challenge-die from",
+        cls: "challenge-die from vs2",
         value: lastVs2,
       };
-      def["New Challenge Die 2"] = { cls: "challenge-die to", value: newVs2 };
+      def["New Challenge Die 2"] = {
+        cls: "challenge-die to vs2",
+        value: newVs2,
+      };
     }
     def["New Score"] = { cls: "score", value: newScore };
-    def["Challenge Die 1"] = { cls: "challenge-die", value: newVs1 };
-    def["Challenge Die 2"] = { cls: "challenge-die", value: newVs2 };
+    def["Challenge Die 1"] = { cls: "challenge-die vs1", value: newVs1 };
+    def["Challenge Die 2"] = { cls: "challenge-die vs2", value: newVs2 };
     def["Outcome"] = { cls: "outcome", value: outcome, dataProp: false };
     this.setMoveHit(outcomeClass, match);
     await this.renderDlist(target, "reroll " + outcomeClass, def);

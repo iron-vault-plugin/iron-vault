@@ -34,12 +34,17 @@
       display: inline;
     }
     &.challenge-die {
-      color: var(--text-accent);
       &:has(~ .challenge-die):before {
         content: " vs ";
       }
       &:not(:has(~ .challenge-die)):before {
         content: " | ";
+      }
+      &.vs1 {
+        color: var(--vs1-color);
+      }
+      &.vs2 {
+        color: var(--vs2-color);
       }
     }
     &.score {

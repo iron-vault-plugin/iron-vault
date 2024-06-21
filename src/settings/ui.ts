@@ -121,7 +121,6 @@ export class IronVaultSettingTab extends PluginSettingTab {
       )
       .addColorPicker((color) => {
         color.setValue(settings.challengeDie1Color).onChange((value) => {
-          console.log(value);
           this.updateSetting("challengeDie1Color", value);
         });
       });
@@ -133,7 +132,6 @@ export class IronVaultSettingTab extends PluginSettingTab {
       )
       .addColorPicker((color) => {
         color.setValue(settings.challengeDie2Color).onChange((value) => {
-          console.log(value);
           this.updateSetting("challengeDie2Color", value);
         });
       });
