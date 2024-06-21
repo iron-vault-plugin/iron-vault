@@ -67,7 +67,7 @@ Release](https://github.com/iron-vault-plugin/iron-vault/releases/latest). You'l
 to put `main.js`, `manifest.json`, and `styles.css` in
 `your-vault/.obsidian/plugins/iron-vault`.
 
-To build the code and copy it to your vault yourself, run `pnpm build` to
+To build the code and copy it to your vault yourself, run `pnpm install` and `pnpm build` to
 generate the production files, which will be in the repo root. You can then
 copy these to the location above.
 
