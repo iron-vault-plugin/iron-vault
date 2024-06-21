@@ -189,7 +189,10 @@ export function renderTrack(
                     >
                       ${Object.values(ChallengeRanks).map(
                         (rank) =>
-                          html`<option value=${rank}>
+                          html`<option
+                            ?selected=${rank === info.track.rank}
+                            value=${rank}
+                          >
                             ${capitalize(rank)}
                           </option>`,
                       )}
