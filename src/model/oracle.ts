@@ -35,7 +35,7 @@ export interface Oracle {
 
   // TODO(@cwegrzyn): exposed raw rollable for use in the oracle reference modal. not sure
   //   to what extent it is useful to abstract some of this stuff away...
-  readonly raw: Datasworn.OracleRollable;
+  readonly raw: Datasworn.OracleRollable | Datasworn.EmbeddedOracleRollable;
 
   row(value: number): OracleRow;
 

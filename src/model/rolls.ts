@@ -203,7 +203,7 @@ export class RollWrapper {
           );
         }
         return templateString.replace(
-          /\{\{text:([^{}]+)\}\}/g,
+          /\{\{text>([^{}]+)\}\}/g,
           (_: unknown, id: string) => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const templateRolls = this.subrolls[id];
@@ -232,7 +232,7 @@ export class RollWrapper {
         }
         return [
           templateString.replace(
-            /\{\{text:([^{}]+)\}\}/g,
+            /\{\{text>([^{}]+)\}\}/g,
             (_: unknown, id: string) => {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const templateRolls = this.subrolls[id];

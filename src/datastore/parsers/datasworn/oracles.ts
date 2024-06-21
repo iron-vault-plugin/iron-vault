@@ -1,4 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
+import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { NoSuchOracleError } from "../../../model/errors";
 import {
@@ -10,18 +11,14 @@ import {
 } from "../../../model/oracle";
 import { Roll, RollResultKind, Subroll, sameRoll } from "../../../model/rolls";
 import { Dice, DieKind } from "../../../utils/dice";
-import IronVaultPlugin from "index";
 
 const logger = rootLogger.getLogger("datasworn/oracles");
 
-function asOracleRow(rawRow: Datasworn.OracleTableRow): OracleRow {
+function asOracleRow(rawRow: Datasworn.OracleRollableRow): OracleRow {
   return Object.freeze({
     result: rawRow.text,
     template: rawRow.template,
-    range:
-      rawRow.min != null && rawRow.max != null
-        ? { min: rawRow.min, max: rawRow.max }
-        : null,
+    range: rawRow.roll,
   });
 }
 
@@ -31,12 +28,14 @@ export function isRollableOracleRow(row: OracleRow): row is OracleRollableRow {
 
 export class DataswornOracle implements Oracle {
   constructor(
-    protected readonly table: Datasworn.OracleRollable,
+    protected readonly table:
+      | Datasworn.OracleRollable
+      | Datasworn.EmbeddedOracleRollable,
     public readonly parent: OracleGrouping,
     private readonly plugin?: IronVaultPlugin,
   ) {}
 
-  get raw(): Datasworn.OracleRollable {
+  get raw(): Datasworn.OracleRollable | Datasworn.EmbeddedOracleRollable {
     return this.table;
   }
 
@@ -48,13 +47,9 @@ export class DataswornOracle implements Oracle {
     return asOracleRow(this.rowFor(value));
   }
 
-  protected rowFor(roll: number): Datasworn.OracleTableRow {
+  protected rowFor(roll: number): Datasworn.OracleRollableRow {
     const row = this.table.rows.find(
-      (row) =>
-        row.min != null &&
-        row.min <= roll &&
-        row.max != null &&
-        roll <= row.max,
+      (row) => row.roll != null && row.roll.min <= roll && roll <= row.roll.max,
     );
     if (row == null) {
       throw new Error(`roll ${roll} is off the charts for ${this.id}`);
@@ -92,7 +87,7 @@ export class DataswornOracle implements Oracle {
         throw new Error(`unhandled template for ${this.id}`);
       }
       kind = RollResultKind.Templated;
-      for (const [, id] of template.text.matchAll(/\{\{text:([^{}]+)\}\}/g)) {
+      for (const [, id] of template.text.matchAll(/\{\{text>([^{}]+)\}\}/g)) {
         const prevRoll = subrolls[id];
         if (!prevRoll) {
           const subTable = context.lookup(id);

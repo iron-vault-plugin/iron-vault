@@ -1,8 +1,9 @@
 import { Datasworn } from "@datasworn/core";
 import starforgedPackage from "@datasworn/starforged/json/starforged.json" with { type: "json" };
 import { OracleGrouping, OracleGroupingType } from "model/oracle";
-import { DataIndexer, Source, assertIsKind } from "./data-indexer";
+import { assertIsKind, DataIndexer, Source } from "./data-indexer";
 import {
+  createSource,
   DataswornIndexer,
   DataswornTypes,
   moveOrigin,
@@ -11,17 +12,17 @@ import {
 
 describe("Datasworn Indexer", () => {
   const createIndex = () => {
-    const source: Source = {
+    const source: Source = createSource({
       path: "@datasworn/starforged",
       priority: 0,
-      keys: new Set(),
       sourceTags: { "ruleset-id": Symbol.for(starforgedPackage._id) },
-    };
+    });
     const indexer: DataswornIndexer = new DataIndexer();
     indexer.index(
       source,
       walkDataswornRulesPackage(
         source,
+        // @ts-expect-error tsc compiler seems to infer starforged JSON types weirdly
         starforgedPackage as Datasworn.RulesPackage,
       ),
     );
@@ -32,10 +33,10 @@ describe("Datasworn Indexer", () => {
 
   it("should index moves", () => {
     const [faceDanger] =
-      indexer.dataMap.get("starforged/moves/adventure/face_danger") ?? [];
+      indexer.dataMap.get("move:starforged/adventure/face_danger") ?? [];
 
     expect(faceDanger).toMatchObject({
-      id: "starforged/moves/adventure/face_danger",
+      id: "move:starforged/adventure/face_danger",
       kind: "move",
       source: { path: "@datasworn/starforged" },
       value: starforgedPackage.moves.adventure.contents.face_danger,
@@ -47,9 +48,9 @@ describe("Datasworn Indexer", () => {
   });
 
   it("should index assets", () => {
-    expect(indexer.dataMap.get("starforged/assets/path/empath")).toMatchObject([
+    expect(indexer.dataMap.get("asset:starforged/path/empath")).toMatchObject([
       {
-        id: "starforged/assets/path/empath",
+        id: "asset:starforged/path/empath",
         kind: "asset",
         source: { path: "@datasworn/starforged" },
         value: starforgedPackage.assets.path.contents.empath,
@@ -59,10 +60,10 @@ describe("Datasworn Indexer", () => {
 
   it("should index asset-linked-moves", () => {
     const [readHeart] = indexer.dataMap.get(
-      "starforged/assets/path/empath/abilities/0/moves/read_heart",
+      "asset.ability.move:starforged/path/empath.0.read_heart",
     )!;
     expect(readHeart).toMatchObject({
-      id: "starforged/assets/path/empath/abilities/0/moves/read_heart",
+      id: "asset.ability.move:starforged/path/empath.0.read_heart",
       kind: "move",
       source: { path: "@datasworn/starforged" },
       value:
@@ -73,42 +74,37 @@ describe("Datasworn Indexer", () => {
     assertIsKind<DataswornTypes, "move">(readHeart, "move");
 
     expect(readHeart.value[moveOrigin]).toEqual({
-      assetId: "starforged/assets/path/empath",
+      assetId: "asset:starforged/path/empath",
     });
   });
 
   it("should add keys to source", () => {
     expect(
-      indexer.dataMap.get("starforged/moves/adventure/face_danger")?.at(0)
+      indexer.dataMap.get("move:starforged/adventure/face_danger")?.at(0)
         ?.source.keys,
-    ).toContain("starforged/moves/adventure/face_danger");
+    ).toContain("move:starforged/adventure/face_danger");
   });
 
   it("indexes included starforged data", () => {
     expect(
-      indexer.dataMap.get("starforged/oracles/core/action")?.at(0),
-    ).toHaveProperty("id", "starforged/oracles/core/action");
+      indexer.dataMap.get("oracle_rollable:starforged/core/action")?.at(0),
+    ).toHaveProperty("id", "oracle_rollable:starforged/core/action");
   });
 
   it("indexes each Ask The Oracle entry", () => {
     const almostCertain = indexer.dataMap.get(
-      "starforged/oracles/moves/ask_the_oracle/almost_certain",
+      "move.oracle_rollable:starforged/fate/ask_the_oracle.almost_certain",
     )![0];
     assertIsKind<DataswornTypes, "oracle">(almostCertain, "oracle");
     expect(almostCertain.value.name).toEqual("Almost Certain");
     expect(almostCertain.value.parent).toEqual<OracleGrouping>({
       grouping_type: OracleGroupingType.Collection,
-      id: "starforged/collections/oracles/moves/ask_the_oracle",
+      id: "move:starforged/fate/ask_the_oracle",
       name: "Ask the Oracle",
       parent: {
-        grouping_type: OracleGroupingType.Collection,
-        id: "starforged/collections/oracles/moves",
-        name: "Move Oracles",
-        parent: {
-          grouping_type: OracleGroupingType.Ruleset,
-          id: "starforged",
-          name: "Ironsworn: Starforged Rulebook",
-        },
+        grouping_type: OracleGroupingType.Ruleset,
+        id: "starforged",
+        name: "Ironsworn: Starforged Rulebook",
       },
     });
   });

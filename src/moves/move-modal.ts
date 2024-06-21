@@ -1,5 +1,10 @@
-import { Move } from "@datasworn/core/dist/Datasworn";
+import { Datasworn } from "@datasworn/core";
+import { determineCharacterActionContext } from "characters/action-context";
+import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
+import { html, render } from "lit-html";
+import { map } from "lit-html/directives/map.js";
+import { ref } from "lit-html/directives/ref.js";
 import {
   App,
   ButtonComponent,
@@ -9,26 +14,21 @@ import {
   setIcon,
 } from "obsidian";
 import { runMoveCommand, suggestedRollablesForMove } from "./action";
-import { Datasworn } from "@datasworn/core";
-import { html, render } from "lit-html";
-import { map } from "lit-html/directives/map.js";
-import { determineCharacterActionContext } from "characters/action-context";
-import { ref } from "lit-html/directives/ref.js";
 
-const TABLE_REGEX = /\{\{table:([^}]+)\}\}/g;
+const TABLE_REGEX = /\{\{table>([^}]+)\}\}/g;
 
 export class MoveModal extends Modal {
   plugin: IronVaultPlugin;
-  move: Move;
-  moveHistory: Move[] = [];
+  move: AnyDataswornMove;
+  moveHistory: AnyDataswornMove[] = [];
 
-  constructor(app: App, plugin: IronVaultPlugin, move: Move) {
+  constructor(app: App, plugin: IronVaultPlugin, move: AnyDataswornMove) {
     super(app);
     this.plugin = plugin;
     this.move = move;
   }
 
-  async openMove(move: Move) {
+  async openMove(move: AnyDataswornMove) {
     this.setTitle(move.name);
     const { contentEl } = this;
     contentEl.empty();
@@ -125,7 +125,7 @@ export class MoveModal extends Modal {
     contentEl.empty();
   }
 
-  getMoveText(move: Move) {
+  getMoveText(move: AnyDataswornMove) {
     let moveText = move.text;
     for (const match of move.text.matchAll(TABLE_REGEX)) {
       const oracle = this.plugin.datastore.oracles.get(match[1]);
@@ -170,16 +170,18 @@ export class MoveModal extends Modal {
         oracleText += "\n";
         for (const row of rollable.rows) {
           oracleText +=
-            row.min === row.max ? row.min : `${row.min} - ${row.max}`;
+            row.roll?.max === row.roll?.min
+              ? row.roll?.min
+              : `${row.roll?.min} - ${row.roll?.max}`;
           oracleText += "|";
           oracleText += row.text;
           oracleText += "|";
           if (numColumns >= 2) {
-            oracleText += (row as Datasworn.OracleTableRowText2).text2 ?? "";
+            oracleText += (row as Datasworn.OracleRollableRowText2).text2 ?? "";
             oracleText += "|";
           }
           if (numColumns >= 3) {
-            oracleText += (row as Datasworn.OracleTableRowText3).text3 ?? "";
+            oracleText += (row as Datasworn.OracleRollableRowText3).text3 ?? "";
             oracleText += "|";
           }
           oracleText += "\n";

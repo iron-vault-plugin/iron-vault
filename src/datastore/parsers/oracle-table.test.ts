@@ -6,12 +6,12 @@ describe("extractOracleTable", () => {
     const table = `
     | dice: 1d6 | Something special |
     | --------- | ------ |
-    | 1-2       | [Action](id:starforged/oracles/core/action) |
-    | 3-5       | [Theme](id:starforged/oracles/core/theme) |
+    | 1-2       | [Action](oracle_rollable:starforged/core/action) |
+    | 3-5       | [Theme](oracle_rollable:starforged/core/theme) |
     | 6       | Just foo |
     `;
     const expectedOracle: Partial<Datasworn.OracleTableText> = {
-      _id: "custom/oracles/foo",
+      _id: "oracle_rollable:custom/foo",
       //name: "Foo",
       dice: "1d6",
       // source: {
@@ -26,48 +26,54 @@ describe("extractOracleTable", () => {
       oracle_type: "table_text",
       rows: [
         {
-          min: 1,
-          max: 2,
-          text: "[Action](id:starforged/oracles/core/action)",
-          template: { text: "{{text:starforged/oracles/core/action}}" },
-        },
-        {
-          min: 3,
-          max: 5,
-          text: "[Theme](id:starforged/oracles/core/theme)",
+          _id: "oracle_rollable.row:custom/foo.0",
+          roll: {
+            min: 1,
+            max: 2,
+          },
+          text: "[Action](oracle_rollable:starforged/core/action)",
           template: {
-            text: "{{text:starforged/oracles/core/theme}}",
+            text: "{{text>oracle_rollable:starforged/core/action}}",
           },
         },
         {
-          min: 6,
-          max: 6,
+          _id: "oracle_rollable.row:custom/foo.1",
+          roll: {
+            min: 3,
+            max: 5,
+          },
+          text: "[Theme](oracle_rollable:starforged/core/theme)",
+          template: {
+            text: "{{text>oracle_rollable:starforged/core/theme}}",
+          },
+        },
+        {
+          _id: "oracle_rollable.row:custom/foo.2",
+          roll: { min: 6, max: 6 },
           text: "Just foo",
         },
       ],
     };
-    expect(extractOracleTable("custom/oracles/foo", table)).toEqual(
-      expectedOracle,
-    );
+    expect(extractOracleTable("custom/foo", table)).toEqual(expectedOracle);
   });
 });
 
 describe("parseResultTemplate", () => {
   it("parses a result template", () => {
     expect(
-      parseResultTemplate("[Action](id:starforged/oracles/core/action)"),
+      parseResultTemplate("[Action](oracle_rollable:starforged/core/action)"),
     ).toEqual<Datasworn.OracleRollTemplate>({
-      text: "{{text:starforged/oracles/core/action}}",
+      text: "{{text>oracle_rollable:starforged/core/action}}",
     });
   });
 
   it("parses a result template with multiple results", () => {
     expect(
       parseResultTemplate(
-        "[Action](id:starforged/oracles/core/action) [Theme](id:starforged/oracles/core/theme)",
+        "[Action](oracle_rollable:starforged/core/action) [Theme](oracle_rollable:starforged/core/theme)",
       ),
     ).toEqual<Datasworn.OracleRollTemplate>({
-      text: "{{text:starforged/oracles/core/action}} {{text:starforged/oracles/core/theme}}",
+      text: "{{text>oracle_rollable:starforged/core/action}} {{text>oracle_rollable:starforged/core/theme}}",
     });
   });
 

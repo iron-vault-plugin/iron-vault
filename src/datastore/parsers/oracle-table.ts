@@ -26,13 +26,13 @@ export function parseRange(input: string): NumberRange | undefined {
   };
 }
 
-const TEMPLATE_REGEX = /\[[^[\]]+\]\(id:([\w_\-/]+)\)/gi;
+const TEMPLATE_REGEX = /\[[^[\]]+\]\(([\w.]+:[\w_\-/]+)\)/gi;
 
 export function parseResultTemplate(
   input: string,
 ): Datasworn.OracleRollTemplate | undefined {
   const templateString = input.replace(TEMPLATE_REGEX, (_match, tableId) => {
-    return `{{text:${tableId}}}`;
+    return `{{text>${tableId}}}`;
   });
   if (input !== templateString) {
     return { text: templateString };
@@ -44,7 +44,7 @@ export function parseResultTemplate(
 export function extractOracleTable(
   id: string,
   content: string,
-): Omit<Datasworn.OracleTableText, "name" | "_source"> {
+): Omit<Datasworn.EmbeddedOracleTableText, "name"> {
   const tables = matchTables(content);
   if (tables.length != 1) {
     throw new Error(`expected 1 table, found ${tables.length}`);
@@ -62,7 +62,7 @@ export function extractOracleTable(
     );
   }
   return {
-    _id: id,
+    _id: `oracle_rollable:${id}`,
     type: "oracle_rollable",
     oracle_type: "table_text",
     column_labels: { roll: "Roll", text: header[1] },
@@ -73,9 +73,9 @@ export function extractOracleTable(
         throw new Error(`invalid range ${range} in row ${index}`);
       }
       const { min, max } = parsedRange;
-      const row: Datasworn.OracleTableRowText = {
-        min,
-        max,
+      const row: Datasworn.OracleRollableRowText = {
+        _id: `oracle_rollable.row:${id}.${index}`,
+        roll: { min, max },
         text: result,
       };
       const template = parseResultTemplate(result);

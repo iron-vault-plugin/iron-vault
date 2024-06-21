@@ -75,6 +75,7 @@ export class Datastore extends Component implements IDataContext {
     }
 
     if (this.plugin.settings.enableStarforged) {
+      // @ts-expect-error tsc seems to infer type of data in an incompatible way
       this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
       this.indexBuiltInData(starforgedSupp as Datasworn.Expansion, 5);
     }

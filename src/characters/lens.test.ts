@@ -253,116 +253,8 @@ describe("momentumOps", () => {
 });
 
 // TODO: generate an actual test asset
-const TestAsset: Datasworn.Asset = {
-  _id: "starforged/assets/path/empath",
-  type: "asset",
-  name: "Empath",
-  category: "Path",
-  color: "#3f7faa",
-  count_as_impact: false,
-  shared: false,
-  abilities: [
-    {
-      _id: "starforged/assets/path/empath/abilities/0",
-      enabled: true,
-      text: "When you read the intent, emotions, or memories of a nearby being, roll +heart. On a strong hit, you glimpse a helpful aspect of their inner self. Envision what you learn, take +2 momentum, and add +1 when you make moves to interact with them in this scene. On a weak hit, the visions are murky; take +1 momentum. On a miss, you reveal a troubling motive or secret; [Pay the Price](id:starforged/moves/fate/pay_the_price).",
-      moves: {
-        read_heart: {
-          _id: "starforged/assets/path/empath/abilities/0/moves/read_heart",
-          type: "move",
-          name: "Read Heart",
-          roll_type: "action_roll",
-          trigger: {
-            conditions: [
-              {
-                method: "player_choice",
-                roll_options: [
-                  {
-                    using: "stat",
-                    stat: "heart",
-                  },
-                ],
-              },
-            ],
-            text: "When you read the intent, emotions, or memories of a nearby being...",
-          },
-          text: "When you read the intent, emotions, or memories of a nearby being, roll +heart. On a strong hit, you glimpse a helpful aspect of their inner self. Envision what you learn, take +2 momentum, and add +1 when you make moves to interact with them in this scene. On a weak hit, the visions are murky; take +1 momentum. On a miss, you reveal a troubling motive or secret; [Pay the Price](id:starforged/moves/fate/pay_the_price).",
-          outcomes: {
-            strong_hit: {
-              text: "On a __strong hit__, you glimpse a helpful aspect of their inner self. Envision what you learn, take +2 momentum, and add +1 when you make moves to interact with them in this scene.",
-            },
-            weak_hit: {
-              text: "On a __weak hit__, the visions are murky; take +1 momentum.",
-            },
-            miss: {
-              text: "On a __miss__, you reveal a troubling motive or secret; [Pay the Price](id:starforged/moves/fate/pay_the_price).",
-            },
-          },
-          _source: {
-            title: "Ironsworn: Starforged Assets",
-            authors: [
-              {
-                name: "Shawn Tomkin",
-              },
-            ],
-            date: "2022-05-06",
-            url: "https://ironswornrpg.com",
-            license: "https://creativecommons.org/licenses/by/4.0",
-          },
-        },
-      },
-    },
-    {
-      _id: "starforged/assets/path/empath/abilities/1",
-      enabled: false,
-      text: "As above, and if you score a hit as you read them, you may subtly influence their attitude or actions, such as making a hostile being hesitate. Take another +1 momentum. If in a fight, mark progress.",
-      enhance_moves: [
-        {
-          roll_type: "action_roll",
-          enhances: [
-            "starforged/assets/path/empath/abilities/0/moves/read_heart",
-          ],
-        },
-      ],
-    },
-    {
-      _id: "starforged/assets/path/empath/abilities/2",
-      enabled: false,
-      text: "When you [Face Danger](id:starforged/moves/adventure/face_danger) to soothe a being’s distress by creating an empathic bond, roll +spirit and take +1 momentum on a hit. If they are an ally, also give them +2 spirit on a hit.",
-      enhance_moves: [
-        {
-          roll_type: "action_roll",
-          enhances: ["starforged/moves/*/face_danger"],
-          trigger: {
-            conditions: [
-              {
-                method: "player_choice",
-                roll_options: [
-                  {
-                    using: "condition_meter",
-                    condition_meter: "spirit",
-                  },
-                ],
-                text: "To soothe a being's distress by creating an empathic bond",
-              },
-            ],
-          },
-        },
-      ],
-    },
-  ],
-  _source: {
-    title: "Ironsworn: Starforged Assets",
-    authors: [
-      {
-        name: "Shawn Tomkin",
-      },
-    ],
-    date: "2022-05-06",
-    url: "https://ironswornrpg.com",
-    license: "https://creativecommons.org/licenses/by/4.0",
-  },
-};
+const TestAsset: Datasworn.Asset = starforgedData.assets.path.contents
+  .empath as unknown as Datasworn.Asset;
 
 describe("movesReader", () => {
   let mockDataContext: IDataContext;
@@ -370,7 +262,7 @@ describe("movesReader", () => {
   beforeAll(() => {
     mockDataContext = {
       assets: new VersionedMapImpl<string, Datasworn.Asset>().set(
-        "starforged/assets/path/empath",
+        TestAsset._id,
         TestAsset,
       ),
       moves: new VersionedMapImpl(),
@@ -395,7 +287,7 @@ describe("movesReader", () => {
             ...VALID_INPUT,
             assets: [
               {
-                id: "starforged/assets/path/empath",
+                id: "asset:starforged/path/empath",
                 abilities: [false, false, false],
               },
             ],
@@ -413,7 +305,7 @@ describe("movesReader", () => {
               ...VALID_INPUT,
               assets: [
                 {
-                  id: "starforged/assets/path/empath",
+                  id: "asset:starforged/path/empath",
                   abilities: [false, true, false],
                 },
               ],
@@ -430,7 +322,7 @@ describe("movesReader", () => {
               ...VALID_INPUT,
               assets: [
                 {
-                  id: "starforged/assets/path/empath",
+                  id: "asset:starforged/path/empath",
                   abilities: [true, true, false],
                 },
               ],
@@ -440,9 +332,9 @@ describe("movesReader", () => {
       ).toMatchObject([
         {
           move: {
-            _id: "starforged/assets/path/empath/abilities/0/moves/read_heart",
+            _id: "asset.ability.move:starforged/path/empath.0.read_heart",
           },
-          asset: { _id: "starforged/assets/path/empath" },
+          asset: { _id: "asset:starforged/path/empath" },
         },
       ]);
     });

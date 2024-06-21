@@ -301,7 +301,10 @@ export function movesReader(
   charLens: CharacterLens,
   dataContext: IDataContext,
 ): CharReader<
-  Either<AssetError[], { move: Datasworn.Move; asset: Datasworn.Asset }[]>
+  Either<
+    AssetError[],
+    { move: Datasworn.EmbeddedMove; asset: Datasworn.Asset }[]
+  >
 > {
   const assetReader = assetWithDefnReader(charLens, dataContext);
   return reader((source) => {
