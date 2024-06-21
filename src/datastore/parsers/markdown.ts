@@ -66,10 +66,7 @@ export function inlineOracleParser(baseName: string): MarkdownDataParser {
   };
   return (content: string) => {
     try {
-      const table = extractOracleTable(
-        `user/collections/oracles/${id}`,
-        content,
-      );
+      const table = extractOracleTable(`${id}/user/oracle`, content);
       const fullTable: Datasworn.OracleTableText = {
         ...table,
         name: baseName,
@@ -78,17 +75,18 @@ export function inlineOracleParser(baseName: string): MarkdownDataParser {
       return {
         success: true,
         rules: {
-          datasworn_version: "0.0.10",
+          datasworn_version: "0.1.0",
           _id: id,
           type: "expansion",
           ruleset: "starforged", // TODO: not sure how to handle this
           oracles: {
             user: {
-              _id: "user/collections/oracles/user",
+              _id: `oracle_collection:${id}/user`,
               _source: source,
               type: "oracle_collection",
               oracle_type: "tables",
               name: "User",
+              collections: {},
               contents: {
                 table: fullTable,
               },

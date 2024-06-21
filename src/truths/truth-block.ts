@@ -1,3 +1,9 @@
+import {
+  EmbeddedOracleRollable,
+  OracleRollableRowText,
+  Truth,
+  TruthOption,
+} from "@datasworn/core/dist/Datasworn";
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { ref } from "lit-html/directives/ref.js";
@@ -7,15 +13,13 @@ import {
   MarkdownRenderChild,
   setIcon,
 } from "obsidian";
-import {
-  OracleTableRowText,
-  Truth,
-  TruthOption,
-} from "@datasworn/core/dist/Datasworn";
 
 import IronVaultPlugin from "index";
-import { md } from "utils/ui/directives";
+import { rootLogger } from "logger";
 import { Dice, DieKind } from "utils/dice";
+import { md } from "utils/ui/directives";
+
+const logger = rootLogger.getLogger("truths.truth-block");
 
 export default function registerTruthBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -63,6 +67,20 @@ class TruthRenderer extends MarkdownRenderChild {
     this.ctx = ctx;
   }
 
+  getSubOracle() {
+    const subOracles = Object.values(this.selectedOption?.oracles ?? {});
+    if (subOracles.length > 1) {
+      // TODO: do we need to handle multiple truth suboracles?
+      logger.warn(
+        "Truth option %s has %d sub oracles, but expected at most one",
+        this.selectedOption!._id,
+        subOracles.length,
+      );
+    }
+
+    return subOracles.first();
+  }
+
   render() {
     const [firstLine, inserted] = this.source.split("\n").filter((x) => x);
     if (inserted && inserted.trim().toLowerCase() === "inserted") {
@@ -87,8 +105,10 @@ class TruthRenderer extends MarkdownRenderChild {
       );
       return;
     }
+
+    const subOracle = this.getSubOracle();
     const optionSelect =
-      this.selectedOption?.table &&
+      subOracle &&
       html`<select
           @change=${(e: Event) => {
             this.selectedOptionSubIndex =
@@ -104,7 +124,7 @@ class TruthRenderer extends MarkdownRenderChild {
             Select your option...
           </option>
           ${map(
-            this.selectedOption.table.rows,
+            subOracle.rows,
             (row, i) =>
               html`<option ?selected=${i === this.selectedOptionSubIndex}>
                 ${row.text}
@@ -114,11 +134,11 @@ class TruthRenderer extends MarkdownRenderChild {
         <button
           type="button"
           @click=${async () => {
-            if (!this.selectedOption || !this.selectedOption.table) {
+            if (!this.selectedOption || !subOracle) {
               return;
             }
             this.selectedOptionSubIndex = await pickRandomSubOption(
-              this.selectedOption.table!,
+              subOracle!,
               this.plugin,
             );
             this.render();
@@ -163,7 +183,7 @@ class TruthRenderer extends MarkdownRenderChild {
             : md(
                 this.plugin,
                 this.selectedOption.description
-                  .replaceAll(/{{table:[^}]+}}/g, "")
+                  .replaceAll(/{{table>[^}]+}}/g, "")
                   .trim(),
               )}
           ${optionSelect ||
@@ -173,8 +193,7 @@ class TruthRenderer extends MarkdownRenderChild {
             ? html`<button
                 type="button"
                 @click=${() => this.appendTruth()}
-                ?disabled=${this.selectedOption.table &&
-                this.selectedOptionSubIndex == null}
+                ?disabled=${subOracle && this.selectedOptionSubIndex == null}
                 ${ref(
                   (el?: Element) => el && setIcon(el as HTMLElement, "save"),
                 )}
@@ -191,11 +210,12 @@ class TruthRenderer extends MarkdownRenderChild {
     const sectionInfo = this.ctx.getSectionInfo(
       this.containerEl as HTMLElement,
     );
+    let subOracle: EmbeddedOracleRollable | undefined = undefined;
     if (
       !editor ||
       !sectionInfo ||
       !this.selectedOption ||
-      (this.selectedOption.table &&
+      ((subOracle = this.getSubOracle()) &&
         !(
           this.selectedOptionSubIndex != null &&
           this.selectedOptionSubIndex >= 0
@@ -214,10 +234,10 @@ class TruthRenderer extends MarkdownRenderChild {
       },
     };
     const text =
-      this.selectedOption.table && this.selectedOptionSubIndex != null
+      subOracle && this.selectedOptionSubIndex != null
         ? this.selectedOption.description.replaceAll(
-            /{{table:[^}]+}}/g,
-            this.selectedOption.table.rows[this.selectedOptionSubIndex].text,
+            /{{table>[^}]+}}/g,
+            subOracle.rows[this.selectedOptionSubIndex].text,
           )
         : this.selectedOption.description;
     const to = {
@@ -268,22 +288,24 @@ class TruthRenderer extends MarkdownRenderChild {
 async function pickRandomSubOption(
   table: {
     dice: string;
-    rows: OracleTableRowText[];
+    rows: OracleRollableRowText[];
   },
   plugin: IronVaultPlugin,
 ) {
   const dice = Dice.fromDiceString(table.dice, plugin, DieKind.Oracle);
   const res = await dice.roll();
-  return table.rows.findIndex((row) => row.min! <= res && res <= row.max!);
+  return table.rows.findIndex(
+    (row) => row.roll!.min <= res && res <= row.roll!.max,
+  );
 }
 
 async function pickRandomOption(truth: Truth, plugin: IronVaultPlugin) {
   const options = truth.options;
-  if (options.every((option) => option.min != null && option.max != null)) {
+  if (options.every((option) => option.roll != null)) {
     // Do a dice roll
     const die = Dice.fromDiceString(truth.dice, plugin, DieKind.Oracle);
     const res = await die.roll();
-    return options.find((opt) => opt.min! <= res && res <= opt.max!);
+    return options.find((opt) => opt.roll.min <= res && res <= opt.roll.max);
   } else {
     return options[Math.floor(Math.random() * options.length)];
   }

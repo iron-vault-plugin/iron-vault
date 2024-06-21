@@ -4,15 +4,12 @@ import {
   CharacterActionContext,
   determineCharacterActionContext,
 } from "characters/action-context";
+import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
-import {
-  type App,
-  type Editor,
-  type FuzzyMatch,
-  type MarkdownView,
-} from "obsidian";
+import { type App, type Editor, type MarkdownView } from "obsidian";
 import { MeterCommon } from "rules/ruleset";
+import { DiceGroup } from "utils/dice-group";
 import { numberRange } from "utils/numbers";
 import {
   MeterWithLens,
@@ -36,7 +33,6 @@ import { ActionMoveWrapper } from "../wrapper";
 import { checkForMomentumBurn } from "./action-modal";
 import { AddsModal } from "./adds-modal";
 import { renderMechanics } from "./format";
-import { DiceGroup } from "utils/dice-group";
 
 const logger = rootLogger.getLogger("moves");
 
@@ -46,7 +42,7 @@ enum MoveKind {
   Other = "Other",
 }
 
-function getMoveKind(move: Datasworn.Move): MoveKind {
+function getMoveKind(move: Datasworn.Move | Datasworn.EmbeddedMove): MoveKind {
   switch (move.roll_type) {
     case "action_roll":
       return MoveKind.Action;
@@ -57,8 +53,8 @@ function getMoveKind(move: Datasworn.Move): MoveKind {
       return MoveKind.Other;
     default:
       throw new Error(
-        `unexpected roll type ${(move as Datasworn.Move).roll_type} on move id ${
-          (move as Datasworn.Move)._id
+        `unexpected roll type ${(move as Datasworn.EmbeddedMove).roll_type} on move id ${
+          (move as Datasworn.EmbeddedMove)._id
         }`,
       );
   }
@@ -74,18 +70,20 @@ const ROLL_TYPES: Record<Datasworn.Move["roll_type"], string> = {
 async function promptForMove(
   app: App,
   context: ActionContext,
-): Promise<Datasworn.Move> {
+): Promise<Datasworn.Move | Datasworn.EmbeddedMove> {
   const moves = [...context.moves.values()].sort((a, b) =>
     a.name.localeCompare(b.name),
   );
-  const choice = await CustomSuggestModal.selectWithUserEntry(
+  const choice = await CustomSuggestModal.selectWithUserEntry<
+    Datasworn.Move | Datasworn.EmbeddedMove
+  >(
     app,
     moves,
     (move) => move.name,
     (input, el) => {
       el.setText(`Use custom move '${input}'`);
     },
-    ({ item: move }: FuzzyMatch<Datasworn.Move>, el: HTMLElement) => {
+    ({ item: move }, el: HTMLElement) => {
       const moveKind = getMoveKind(move);
       el.createEl("small", {
         text: `(${moveKind}) ${move.trigger.text}`,
@@ -112,15 +110,8 @@ async function promptForMove(
     type: "move",
     _id: "",
     name: choice.custom,
-    _source: {
-      title: "Adhoc",
-      authors: [],
-      date: "0000-00-00",
-      license: null,
-      url: "",
-    },
     text: "",
-  } satisfies Partial<Datasworn.Move>;
+  } satisfies Partial<Datasworn.EmbeddedMove>;
 
   switch (baseMove.roll_type) {
     case "action_roll":
@@ -133,14 +124,16 @@ async function promptForMove(
           weak_hit: { text: "" },
           miss: { text: "" },
         },
-      } satisfies Datasworn.MoveActionRoll;
+        allow_momentum_burn: true,
+      } satisfies Datasworn.EmbeddedActionRollMove;
     case "no_roll":
       return {
         ...baseMove,
         roll_type: baseMove.roll_type,
         trigger: { conditions: [], text: "" },
         outcomes: null,
-      } satisfies Datasworn.MoveNoRoll;
+        allow_momentum_burn: false,
+      } satisfies Datasworn.EmbeddedNoRollMove;
     case "progress_roll":
       return {
         ...baseMove,
@@ -152,7 +145,8 @@ async function promptForMove(
           miss: { text: "" },
         },
         tracks: { category: "*" },
-      } satisfies Datasworn.MoveProgressRoll;
+        allow_momentum_burn: false,
+      } satisfies Datasworn.EmbeddedProgressRollMove;
     case "special_track":
       return {
         ...baseMove,
@@ -163,7 +157,8 @@ async function promptForMove(
           weak_hit: { text: "" },
           miss: { text: "" },
         },
-      } satisfies Datasworn.MoveSpecialTrack;
+        allow_momentum_burn: false,
+      } satisfies Datasworn.EmbeddedSpecialTrackMove;
   }
 }
 
@@ -182,7 +177,7 @@ function assertInRange(
 
 async function processActionMove(
   plugin: IronVaultPlugin,
-  move: Datasworn.Move,
+  move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
   stat: string,
   statVal: number,
   adds: ActionMoveAdd[],
@@ -220,7 +215,7 @@ async function processActionMove(
 }
 
 async function processProgressMove(
-  move: Datasworn.Move,
+  move: Datasworn.MoveProgressRoll | Datasworn.EmbeddedProgressRollMove,
   tracker: ProgressTrackWriterContext,
   plugin: IronVaultPlugin,
   roll?: { challenge1: number; challenge2: number },
@@ -263,7 +258,7 @@ export async function runMoveCommand(
   plugin: IronVaultPlugin,
   editor: Editor,
   view: MarkdownView,
-  chosenMove?: Datasworn.Move,
+  chosenMove?: AnyDataswornMove,
   chosenMeter?: MeterWithLens | MeterWithoutLens,
 ): Promise<void> {
   if (view.file?.path == null) {
@@ -274,7 +269,7 @@ export async function runMoveCommand(
   const context = await determineCharacterActionContext(plugin);
 
   // Use the provided move, or prompt the user for a move appropriate to the current action context.
-  const move: Datasworn.Move =
+  const move: Datasworn.Move | Datasworn.EmbeddedMove =
     chosenMove ?? (await promptForMove(plugin.app, context));
 
   let moveDescription: MoveDescription;
@@ -319,7 +314,7 @@ export async function runMoveCommand(
 async function handleProgressRoll(
   plugin: IronVaultPlugin,
   progressContext: ProgressContext,
-  move: Datasworn.MoveProgressRoll,
+  move: Datasworn.MoveProgressRoll | Datasworn.EmbeddedProgressRollMove,
 ): Promise<MoveDescription> {
   const progressTrack = await selectProgressTrack(
     progressContext,
@@ -370,7 +365,7 @@ const ORDINALS = [
 ];
 
 export function suggestedRollablesForMove(
-  move: Datasworn.MoveActionRoll,
+  move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
 ): Record<
   string,
   Array<Omit<Datasworn.TriggerActionRollCondition, "roll_options">>
@@ -407,7 +402,7 @@ export function suggestedRollablesForMove(
 async function handleActionRoll(
   plugin: IronVaultPlugin,
   actionContext: ActionContext,
-  move: Datasworn.MoveActionRoll,
+  move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
   meter?: MeterWithLens | MeterWithoutLens,
 ) {
   const suggestedRollables = suggestedRollablesForMove(move);
@@ -518,7 +513,7 @@ async function promptForRollable(
     string,
     Omit<Datasworn.TriggerActionRollCondition, "roll_options">[]
   >,
-  move: Datasworn.MoveActionRoll,
+  move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
 ): Promise<
   (MeterWithLens | MeterWithoutLens) & {
     condition: Omit<Datasworn.TriggerActionRollCondition, "roll_options">[];

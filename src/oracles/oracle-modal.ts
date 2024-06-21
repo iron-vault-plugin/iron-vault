@@ -77,12 +77,12 @@ export class OracleModal extends Modal {
       for (const row of oracleDesc.rows) {
         const tr = table.createEl("tr");
         let rangeText;
-        if (!row.min || !row.max) {
+        if (!row.roll) {
           rangeText = "";
-        } else if (row.min === row.max) {
-          rangeText = "" + row.min;
+        } else if (row.roll.min === row.roll.max) {
+          rangeText = "" + row.roll.min;
         } else {
-          rangeText = `${row.min} - ${row.max}`;
+          rangeText = `${row.roll.min} - ${row.roll.max}`;
         }
         tr.createEl("td", { text: rangeText });
         const td = tr.createEl("td");
@@ -91,14 +91,14 @@ export class OracleModal extends Modal {
           const td = tr.createEl("td");
           this.renderMarkdown(
             td,
-            (row as Datasworn.OracleTableRowText2).text2 ?? "",
+            (row as Datasworn.OracleRollableRowText2).text2 ?? "",
           );
         }
         if (numColumns >= 3) {
           const td = tr.createEl("td");
           this.renderMarkdown(
             td,
-            (row as Datasworn.OracleTableRowText3).text3 ?? "",
+            (row as Datasworn.OracleRollableRowText3).text3 ?? "",
           );
         }
       }

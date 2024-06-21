@@ -18,7 +18,8 @@ import { DataswornOracle } from "./parsers/datasworn/oracles";
 
 export const moveOrigin: unique symbol = Symbol("moveOrigin");
 
-export type MoveWithSelector = Datasworn.Move & {
+export type AnyDataswornMove = Datasworn.Move | Datasworn.EmbeddedMove;
+export type MoveWithSelector = AnyDataswornMove & {
   [moveOrigin]: { assetId?: Datasworn.AssetId };
 };
 
@@ -69,11 +70,33 @@ export function* walkDataswornRulesPackage(
     return { source, id: obj._id, kind: obj.type, value: obj };
   }
 
+  const rootGrouping: OracleRulesetGrouping = {
+    id: input._id,
+    name: input.title ?? input._id,
+    grouping_type: OracleGroupingType.Ruleset,
+  };
+
   for (const [, category] of Object.entries(input.moves ?? {})) {
     yield make(category);
 
     for (const [, move] of Object.entries(category.contents ?? {})) {
       yield make({ ...move, [moveOrigin]: {} });
+
+      const moveOracleGroup: OracleCollectionGrouping = {
+        // TODO(@cwegrzyn): should this be its own grouping type? and what should the path be?
+        grouping_type: OracleGroupingType.Collection,
+        name: move.name,
+        parent: rootGrouping,
+        id: move._id,
+      };
+      for (const [, oracle] of Object.entries(move.oracles ?? {})) {
+        yield {
+          id: oracle._id,
+          kind: "oracle",
+          value: new DataswornOracle(oracle, moveOracleGroup, plugin),
+          source,
+        };
+      }
     }
   }
 

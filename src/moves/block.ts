@@ -1,5 +1,5 @@
-import { type Datasworn } from "@datasworn/core";
 import { Datastore } from "datastore";
+import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import { rootLogger } from "logger";
 import { MarkdownRenderChild, MarkdownRenderer, type App } from "obsidian";
 import IronVaultPlugin from "../index";
@@ -56,7 +56,7 @@ function formatAdds(adds: { amount: number; desc?: string }[]): string {
 }
 
 class MoveMarkdownRenderChild extends MarkdownRenderChild {
-  protected readonly moveDefinition?: Datasworn.Move;
+  protected readonly moveDefinition?: AnyDataswornMove;
 
   constructor(
     containerEl: HTMLElement,

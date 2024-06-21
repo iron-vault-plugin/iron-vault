@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@datasworn/core': github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/core
+
 importers:
 
   .:
@@ -21,14 +24,14 @@ importers:
         specifier: ^6.26.3
         version: 6.26.3
       '@datasworn/core':
-        specifier: 0.0.10
-        version: 0.0.10
+        specifier: github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/core
+        version: https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5#path:pkg/nodejs/@datasworn/core
       '@datasworn/ironsworn-classic':
-        specifier: ^0.0.10
-        version: 0.0.10
+        specifier: github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic
+        version: https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5#path:pkg/nodejs/@datasworn/ironsworn-classic
       '@datasworn/starforged':
-        specifier: 0.0.10
-        version: 0.0.10
+        specifier: github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/starforged
+        version: https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5#path:pkg/nodejs/@datasworn/starforged
       '@jgoz/esbuild-plugin-typecheck':
         specifier: ^4.0.0
         version: 4.0.0(esbuild@0.21.3)(typescript@5.4.5)
@@ -354,14 +357,17 @@ packages:
   '@codemirror/view@6.26.3':
     resolution: {integrity: sha512-gmqxkPALZjkgSxIeeweY/wGQXBfwTUaLs8h7OKtSwfbj9Ct3L11lD+u1sS7XHppxFQoMDiMDp07P9f3I2jWOHw==}
 
-  '@datasworn/core@0.0.10':
-    resolution: {integrity: sha512-MpZHQ87haKJVJlzyo6mhHgfkLUgrwIW+Rj4Pu4k66oEchlg+vmHVTkVSF9oRBitq//eTqx5jZLesmo43Nhnq+w==}
+  '@datasworn/core@https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5#path:pkg/nodejs/@datasworn/core':
+    resolution: {path: pkg/nodejs/@datasworn/core, tarball: https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5}
+    version: 0.0.10
 
-  '@datasworn/ironsworn-classic@0.0.10':
-    resolution: {integrity: sha512-yNoeKcL2qL6I3JH9XfCjMX1u7k83FXnyRzIxQLd32lO9If2Su4Oq6xe4FigQWHsZtkyuYWyj7/B3fMNW24H1xg==}
+  '@datasworn/ironsworn-classic@https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5#path:pkg/nodejs/@datasworn/ironsworn-classic':
+    resolution: {path: pkg/nodejs/@datasworn/ironsworn-classic, tarball: https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5}
+    version: 0.1.0
 
-  '@datasworn/starforged@0.0.10':
-    resolution: {integrity: sha512-EN++YMiFRfc/ues5WG4sSZQjfPLd5X40fIvrQ2W4iqBKaI0aloWagai1o/yRCdXINz4P1VF+fW7FoDJr6SGrDg==}
+  '@datasworn/starforged@https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5#path:pkg/nodejs/@datasworn/starforged':
+    resolution: {path: pkg/nodejs/@datasworn/starforged, tarball: https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5}
+    version: 0.1.0
 
   '@esbuild/aix-ppc64@0.21.3':
     resolution: {integrity: sha512-yTgnwQpFVYfvvo4SvRFB0SwrW8YjOxEoT7wfMT7Ol5v7v5LDNvSGo67aExmxOb87nQNeWPVvaGBNfQ7BXcrZ9w==}
@@ -2571,15 +2577,15 @@ snapshots:
       style-mod: 4.1.2
       w3c-keyname: 2.2.8
 
-  '@datasworn/core@0.0.10': {}
+  '@datasworn/core@https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5#path:pkg/nodejs/@datasworn/core': {}
 
-  '@datasworn/ironsworn-classic@0.0.10':
+  '@datasworn/ironsworn-classic@https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5#path:pkg/nodejs/@datasworn/ironsworn-classic':
     dependencies:
-      '@datasworn/core': 0.0.10
+      '@datasworn/core': https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5#path:pkg/nodejs/@datasworn/core
 
-  '@datasworn/starforged@0.0.10':
+  '@datasworn/starforged@https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5#path:pkg/nodejs/@datasworn/starforged':
     dependencies:
-      '@datasworn/core': 0.0.10
+      '@datasworn/core': https://codeload.github.com/rsek/datasworn/tar.gz/715a4cdea0a0a25d30f05b6d859a2aec1c3892b5#path:pkg/nodejs/@datasworn/core
 
   '@esbuild/aix-ppc64@0.21.3':
     optional: true

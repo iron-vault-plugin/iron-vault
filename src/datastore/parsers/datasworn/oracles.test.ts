@@ -5,6 +5,8 @@ import { DataswornOracle } from "./oracles";
 
 import rawSfData from "@datasworn/starforged/json/starforged.json" with { type: "json" };
 
+// @ts-expect-error Type inference of the raw SF json data seems to end up not matching Datasworn types.
+// Hoping it will be corrected in future tsc.
 const data = rawSfData as Datasworn.Ruleset;
 
 function loadOracle(...[first, ...rest]: string[]): DataswornOracle {
@@ -47,7 +49,7 @@ function loadOracle(...[first, ...rest]: string[]): DataswornOracle {
 describe("DataswornOracle", () => {
   describe(".row", () => {
     it("returns a row of the oracle", () => {
-      const fringeOracle = loadOracle("factions", "fringe_group");
+      const fringeOracle = loadOracle("faction", "fringe_group");
       expect(fringeOracle.row(18)).toEqual({
         result: "Gangsters",
         range: { min: 16, max: 25 },
@@ -55,9 +57,9 @@ describe("DataswornOracle", () => {
       });
     });
     it("throws error for missing row", () => {
-      const fringeOracle = loadOracle("factions", "fringe_group");
+      const fringeOracle = loadOracle("faction", "fringe_group");
       expect(() => fringeOracle.row(101)).toThrow(
-        "roll 101 is off the charts for starforged/oracles/factions/fringe_group",
+        "roll 101 is off the charts for oracle_rollable:starforged/faction/fringe_group",
       );
     });
   });
