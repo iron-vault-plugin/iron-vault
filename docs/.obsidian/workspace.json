@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Blocks/Mechanics Blocks.md",
+                "file": "Other Features/Rulesets and Homebrew.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Blocks/Mechanics Blocks.md",
+                "file": "Other Features/Rulesets and Homebrew.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Blocks/Mechanics Blocks.md",
+                "file": "Other Features/Rulesets and Homebrew.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Blocks/Mechanics Blocks.md"
+                "file": "Other Features/Rulesets and Homebrew.md"
               }
             }
           },
@@ -160,12 +160,24 @@
   "active": "e241c2813ce59ca4",
   "lastOpenFiles": [
     "index.md",
+    "Player's Guide/Getting Started/03 - Choose Your Truths.md",
+    "Player's Guide/Getting Started/02 - Your First Campaign.md",
+    "Other Features/Settings.md",
+    "Other Features/Rulesets and Homebrew.md",
+    "Entities/Truths.md",
+    "Commands/Make a move.md",
+    "Commands/Add asset to character.md",
+    "Blocks/Mechanics Blocks.md",
     "Player's Guide/index.md",
     "Player's Guide/Getting Started/05 - Build a Starting Sector.md",
     "Player's Guide/Getting Started/04 - Create Your Character.md",
-    "Player's Guide/Getting Started/03 - Choose Your Truths.md",
-    "Player's Guide/Getting Started/02 - Your First Campaign.md",
     "Player's Guide/Getting Started/01 - Initial Setup.md",
+    "Entities/Factions.md",
+    "Entities/Assets.md",
+    "Commands/Generate Truths.md",
+    "Commands/Generate an entity.md",
+    "Commands/index.md",
+    "Blocks/index.md",
     "Other Features/index.md",
     "Other Features/Callouts.md",
     "Entities/Settlements.md",
@@ -173,18 +185,6 @@
     "Entities/Planets.md",
     "Entities/Creatures.md",
     "Entities/index.md",
-    "Commands/Open documentation in your browser.md",
-    "Commands/Open documentation in a tab.md",
-    "Blocks/index.md",
-    "Commands/index.md",
-    "Other Features/Special Links.md",
-    "Other Features/Sidebar.md",
-    "Other Features/Settings.md",
-    "Other Features/Rulesets.md",
-    "Other Features/CSS Tweaks.md",
-    "Other Features/API.md",
-    "Entities/Vaults.md",
-    "Entities/Truths.md",
     "Support/img/Player's Guide/finalized-sector.png",
     "Support/img/Player's Guide/sector-trouble.png",
     "Support/img/Player's Guide/completed-connection.png",

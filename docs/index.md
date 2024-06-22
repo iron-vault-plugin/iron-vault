@@ -28,7 +28,7 @@ You can start reading about the various Iron Vault features here:
 * [[Callouts]] - Special formatting and generation for game-related callouts.
 * [[Settings]] - Various configurations available to tweak your Iron Vault experience.
 * [[API]] - (Coming Soon) Are you a developer? We expose the plugin for easy access, for folks who want to do fancier things with Iron Vault features.
-* [[Rulesets and homebrew]] (Coming Soon) - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the [Datasworn](https://github.com/rsek/datasworn) data model.
+* [[Rulesets and Homebrew]] (Coming Soon) - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the [Datasworn](https://github.com/rsek/datasworn) data model.
 
 #### Installing the Plugin
 

@@ -1,4 +1,4 @@
-As part of this guide, we'll walk you from initial setup of your campaign through to the end of a short combat scene. This Guide will use Starforged as an example, but you can use any supported [[Rulesets and homebrew|Ruleset]] in Iron Vault to play!
+As part of this guide, we'll walk you from initial setup of your campaign through to the end of a short combat scene. This Guide will use Starforged as an example, but you can use any supported [[Rulesets and Homebrew|Ruleset]] in Iron Vault to play!
 
 ### Launching Your Campaign
 

@@ -7,14 +7,14 @@
 
 You must load a single complete base ruleset for functionality like characters to function properly. It is currently possible to load multiple rulesets at once, but this may behave in unexpected ways.
 
-For more on rulesets, see [[Rulesets and homebrew]].
+For more on rulesets, see [[Rulesets and Homebrew]].
 
 * **Enable Ironsworn ruleset**: when enabled, the *Ironsworn* base ruleset will be loaded.
 * **Enable Starforged ruleset**: when enabled, the *Starforged* base ruleset will be loaded.
 
 ### Homebrew
 
-For more on homebrew, see [[Rulesets and homebrew#Homebrew]].
+For more on homebrew, see [[Rulesets and Homebrew#Homebrew]].
 
 * **Enable Homebrew content**: when enabled, content from the folder below will be loaded and available for play.
 * **Homebrew content folder**: a folder (which must exist if **Enable Homebrew content** is on) from which to load homebrew content. Currently all JSON files in Datasworn format in the root of this folder will be loaded.
