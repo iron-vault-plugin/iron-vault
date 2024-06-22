@@ -19,3 +19,5 @@ Iron Vault supports custom homebrew rules packages. In the future, we will add a
 Custom rules packages can be loaded from JSON files following the [Datasworn](https://github.com/rsek/datasworn) specification.
 
 To enable this, put your homebrew content in a folder in your vault. In settings, turn on _Enable Homebrew content_ in _Settings_ and set _Homebrew content folder_ to the folder with your content.
+
+Note that, in addition, you might need to enable `Settings > Files and links > Detect all file extensions` in order for .json files to show up in your vault. The file will be there, you just won't see it.
