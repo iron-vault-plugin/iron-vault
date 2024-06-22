@@ -131,6 +131,8 @@ export class EntityModal<T extends EntitySpec> extends Modal {
   async onOpen(): Promise<void> {
     const { contentEl } = this;
 
+    contentEl.toggleClass("iron-vault-modal", true);
+
     const settings: Record<keyof T, { setting: Setting; table: Oracle }> =
       {} as Record<keyof T, { setting: Setting; table: Oracle }>;
 

@@ -21,6 +21,7 @@ export class AssetModal extends Modal {
     contentEl.empty();
     contentEl.toggleClass("iron-vault-modal-content", true);
     contentEl.toggleClass("iron-vault-asset-modal", true);
+    contentEl.toggleClass("iron-vault-modal", true);
     render(
       html`
         ${renderAssetCard(this.plugin, {
