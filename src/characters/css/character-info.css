@@ -7,6 +7,9 @@
   & ul > li, & ol > li {
     margin-inline-start: 0;
   }
+  & .initiative {
+    margin-bottom: 1em;
+  }
   & .name input {
     font-size: 1.6em;
     height: 1.6em;
