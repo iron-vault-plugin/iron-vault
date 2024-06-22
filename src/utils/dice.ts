@@ -53,7 +53,8 @@ export class Dice {
         sides: this.sides,
         themeColor: this.themeColor,
       });
-      return res.reduce((acc, roll) => acc + roll.value, 0);
+      // @3d-dice return "0" for percentile dice when when both are "0", instead of "10"
+      return res.reduce((acc, roll) => acc + roll.value, 0) || 100;
     } else {
       let total = 0;
       for (let i = 0; i < this.count; i++) {

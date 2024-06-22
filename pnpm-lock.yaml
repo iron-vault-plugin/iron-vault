@@ -11,6 +11,9 @@ importers:
       '@3d-dice/dice-box':
         specifier: ^1.0.12
         version: 1.0.12(babylonjs-gltf2interface@5.57.1)
+      '@3d-dice/theme-smooth':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@codemirror/language':
         specifier: ^6.10.1
         version: 6.10.1
@@ -142,6 +145,9 @@ packages:
 
   '@3d-dice/dice-box@1.0.12':
     resolution: {integrity: sha512-3vkwJZilXeb8e6PhxJeeKpP1lX1Oda03YcW23E+XYeNRq5fSDaj3Hf560Xtfu9pSzhYdBTXgB3uVpfpvH++PjA==}
+
+  '@3d-dice/theme-smooth@0.1.0':
+    resolution: {integrity: sha512-NmKjyCoc9FNT1c6Ja2bl2bHlsf4U/MqLtW6Knuo2rhMLUcAetIMherLLdZI04JZr9dQo+tLvuN5zxMRYyEsj5Q==}
 
   '@ampproject/remapping@2.2.1':
     resolution: {integrity: sha512-lFMjJTrFL3j7L9yBxwYfCq2k6qqwHyzuUl/XBnif78PWTJYyL/dfowQHWE3sp6U6ZzqWiiIZnpTMO96zhkjwtg==}
@@ -2315,6 +2321,8 @@ snapshots:
       node-abort-controller: 3.1.1
     transitivePeerDependencies:
       - babylonjs-gltf2interface
+
+  '@3d-dice/theme-smooth@0.1.0': {}
 
   '@ampproject/remapping@2.2.1':
     dependencies:

@@ -1,14 +1,18 @@
 import DiceBox, { Roll, RollResult } from "@3d-dice/dice-box";
-import { normalizePath } from "obsidian";
+import { Platform, normalizePath } from "obsidian";
 
 import ammo from "@3d-dice/dice-box/dist/assets/ammo/ammo.wasm.wasm";
 import defaultModels from "@3d-dice/dice-box/dist/assets/models/default.json";
-import diffuseDark from "@3d-dice/dice-box/dist/assets/themes/default/diffuse-dark.png";
-import diffuseLight from "@3d-dice/dice-box/dist/assets/themes/default/diffuse-light.png";
-import normal from "@3d-dice/dice-box/dist/assets/themes/default/normal.png";
-import specular from "@3d-dice/dice-box/dist/assets/themes/default/specular.jpg";
+import diffuseDark from "@3d-dice/theme-smooth/diffuse-dark.png";
+import diffuseLight from "@3d-dice/theme-smooth/diffuse-light.png";
+import normal from "@3d-dice/theme-smooth/normal.png";
+import smoothDice from "@3d-dice/theme-smooth/smoothDice.json";
+import themeConfig from "@3d-dice/theme-smooth/theme.config.json";
 
 import IronVaultPlugin from "index";
+import { rootLogger } from "logger";
+
+const logger = rootLogger.getLogger("dice-overlay");
 
 export class DiceOverlay {
   diceBox: DiceBox;
@@ -39,10 +43,9 @@ export class DiceOverlay {
     this.diceBox = new DiceBox("#iron-vault-dice-box", {
       assetPath: "/",
       origin: originUrl.toString(),
-      gravity: 6,
-      scale: plugin.app.isMobile ? 9 : 6,
-      angularDamping: 0.5,
-      linearDamping: 0.5,
+      gravity: 3,
+      scale: Platform.isMobile ? 8 : 6,
+      theme: "iv-theme",
     });
   }
 
@@ -72,40 +75,28 @@ function pluginAssetsPath(plugin: IronVaultPlugin) {
 
 async function ensureAssets(plugin: IronVaultPlugin) {
   const assetsPath = pluginAssetsPath(plugin);
-  const allExists = await Promise.all([
-    remove("ammo/ammo.wasm.wasm"),
-    remove("models/default.json"),
-    remove("themes/default/diffuse-dark.png"),
-    remove("themes/default/diffuse-light.png"),
-    remove("themes/default/normal.png"),
-    remove("themes/default/specular.jpg"),
-  ]);
-  if (!allExists.every((x) => x)) {
-    await mkdir("");
-    await mkdir("ammo");
-    await mkdir("models");
-    await mkdir("themes");
-    await mkdir("themes/default");
-    await Promise.all([
-      writeFile("ammo/ammo.wasm.wasm", ammo),
-      writeFile("models/default.json", JSON.stringify(defaultModels)),
-      writeFile("themes/default/diffuse-dark.png", diffuseDark),
-      writeFile("themes/default/diffuse-light.png", diffuseLight),
-      writeFile("themes/default/normal.png", normal),
-      writeFile("themes/default/specular.jpg", specular),
-    ]);
+  try {
+    await plugin.app.vault.adapter.rmdir(assetsPath, true);
+  } catch (e) {
+    logger.error("Failed to remove existing assets", e);
   }
+  await mkdir("");
+  await mkdir("ammo");
+  await mkdir("models");
+  await mkdir("themes");
+  await mkdir("themes/iv-theme");
+  await Promise.all([
+    writeFile("ammo/ammo.wasm.wasm", ammo),
+    writeFile("models/default.json", JSON.stringify(defaultModels)),
+    writeFile("themes/iv-theme/diffuse-dark.png", diffuseDark),
+    writeFile("themes/iv-theme/diffuse-light.png", diffuseLight),
+    writeFile("themes/iv-theme/normal.png", normal),
+    writeFile("themes/iv-theme/smoothDice.json", JSON.stringify(smoothDice)),
+    writeFile("themes/iv-theme/theme.config.json", JSON.stringify(themeConfig)),
+  ]);
   function mkdir(path: string) {
     const dest = normalizePath(assetsPath + "/" + path);
     return plugin.app.vault.adapter.mkdir(dest);
-  }
-  async function remove(path: string) {
-    const dest = normalizePath([assetsPath, path].join("/"));
-    try {
-      return await plugin.app.vault.adapter.remove(dest);
-    } catch (e) {
-      return;
-    }
   }
   function writeFile(path: string, data: Uint8Array | string) {
     const dest = normalizePath([assetsPath, path].join("/"));
