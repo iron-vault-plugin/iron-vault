@@ -23,9 +23,10 @@ export class OracleModal extends Modal {
 
   openOracle(oracle: Oracle) {
     const { contentEl } = this;
-    contentEl.toggleClass("iron-vault-modal-content", true);
     this.setTitle(oracle.name);
+    contentEl.toggleClass("iron-vault-modal-content", true);
     contentEl.classList.toggle("iron-vault-oracle-modal", true);
+    contentEl.toggleClass("iron-vault-modal", true);
     (async () => {
       const btn = new ButtonComponent(contentEl);
       btn

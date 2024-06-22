@@ -72,3 +72,9 @@
     pointer-events: none;
   }
 }
+
+.iron-vault-modal {
+  /* Obsidian has a very aggressive `body { user-select: none; }` which makes
+  it so you can't select text in modals. */
+  user-select: text;
+}

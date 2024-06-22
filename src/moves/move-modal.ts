@@ -28,6 +28,7 @@ export class MoveModal extends Modal {
     const { contentEl } = this;
     contentEl.empty();
     contentEl.toggleClass("iron-vault-modal-content", true);
+    contentEl.toggleClass("iron-vault-modal", true);
     (async () => {
       new ButtonComponent(contentEl)
         .setButtonText("Make this move")
