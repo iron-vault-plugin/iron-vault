@@ -62,5 +62,6 @@ declare module "@3d-dice/dice-box" {
     spinForce?: number;
     throwForce?: number;
     startingHeight?: number;
+    theme?: string;
   }
 }
