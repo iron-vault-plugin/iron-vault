@@ -32,12 +32,9 @@ export type DataswornTypes = {
   truth: Datasworn.Truth;
 };
 
-export type DataswornSourced<
-  K extends keyof DataswornTypes = keyof DataswornTypes,
-> = SourcedBy<DataswornTypes, K>;
+export type DataswornSourced = SourcedBy<DataswornTypes>;
 
 export type AnyDataswornSourced = DataswornSourced;
-export type SourcedMove = DataswornSourced<"move">;
 
 export type DataswornIndexer = DataIndexer<DataswornTypes>;
 

@@ -15,17 +15,24 @@ export type Source = {
   sourceTags: Partial<Record<SourceTag, symbol>>;
 };
 
-export type SourcedBy<
-  Kinds,
-  Key extends keyof Kinds & string = keyof Kinds & string,
-> = Parameters<<K extends Key>(source: Sourced<K, Kinds[K]>) => void>[0];
+export type SourcedKinds<Kinds> = {
+  [K in keyof Kinds]: Sourced<K, Kinds[K]>;
+};
 
-export type SourcedByArray<
-  Kinds,
-  Key extends keyof Kinds & string = keyof Kinds & string,
-> = Parameters<<K extends Key>(source: Sourced<K, Kinds[K]>[]) => void>[0];
+export type SourcedKindsArray<Kinds> = {
+  [K in keyof Kinds]: Array<Sourced<K, Kinds[K]>>;
+};
 
-export interface Sourced<Kind extends string, V> {
+export type SourcedBy<Kinds> = SourcedKinds<Kinds>[keyof Kinds];
+
+// export type SourcedBy<
+//   Kinds,
+//   Key extends keyof Kinds & string = keyof Kinds & string,
+// > = Parameters<<K extends Key>(source: Sourced<K, Kinds[K]>) => void>[0];
+
+export type SourcedByArray<Kinds> = SourcedKindsArray<Kinds>[keyof Kinds];
+
+export interface Sourced<Kind, V> {
   readonly id: string;
   readonly source: Source;
   readonly kind: Kind;
@@ -35,23 +42,25 @@ export interface Sourced<Kind extends string, V> {
 export function assertIsKind<Kinds, K extends keyof Kinds & string>(
   sourced: SourcedBy<Kinds>,
   kind: K,
-): asserts sourced is Sourced<K, Kinds[K]> {
+): asserts sourced is keyof Kinds extends string
+  ? SourcedKinds<Kinds>[K]
+  : never {
   if (!sourced) {
     throw new Error(`sourced was undefined`);
   }
   if (sourced.kind !== kind) {
     throw new Error(
-      `expected kind '${String(kind)}'; received '${sourced.kind}`,
+      `expected kind '${String(kind)}'; received '${String(sourced.kind)}`,
     );
   }
 }
 
 export type StandardIndex<V> = ProjectableMap<string, V>;
 
-export function isOfKind<Kinds, Key extends keyof Kinds & string>(
+export function isOfKind<Kinds, Key extends keyof Kinds>(
   arr: SourcedByArray<Kinds>,
   kind: Key,
-): arr is SourcedByArray<Kinds, Key> {
+): arr is SourcedKindsArray<Kinds>[Key] {
   return arr[0]!.kind === kind;
 }
 
@@ -66,22 +75,16 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
 
   #revision: number = 0;
   projected<U>(
-    callbackfn: (
-      value: Sourced<keyof Kinds & string, Kinds[keyof Kinds & string]>[],
-      key: string,
-    ) => U | undefined,
+    callbackfn: (value: SourcedByArray<Kinds>, key: string) => U | undefined,
   ): ProjectableMap<string, U> {
     return projectedVersionedMap(this, callbackfn);
   }
 
   forEach(
     callbackfn: (
-      value: Sourced<keyof Kinds & string, Kinds[keyof Kinds & string]>[],
+      value: SourcedByArray<Kinds>,
       key: string,
-      map: ReadonlyMap<
-        string,
-        Sourced<keyof Kinds & string, Kinds[keyof Kinds & string]>[]
-      >,
+      map: ReadonlyMap<string, SourcedByArray<Kinds>>,
     ) => void,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     thisArg?: any,
@@ -89,9 +92,7 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
     return this.dataMap.forEach(callbackfn, thisArg);
   }
 
-  get(
-    key: string,
-  ): Sourced<keyof Kinds & string, Kinds[keyof Kinds & string]>[] | undefined {
+  get(key: string): SourcedByArray<Kinds> | undefined {
     return this.dataMap.get(key);
   }
 
@@ -103,9 +104,7 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
     return this.dataMap.size;
   }
 
-  entries(): IterableIterator<
-    [string, Sourced<keyof Kinds & string, Kinds[keyof Kinds & string]>[]]
-  > {
+  entries(): IterableIterator<[string, SourcedByArray<Kinds>]> {
     return this.dataMap.entries();
   }
 
@@ -113,15 +112,11 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
     return this.dataMap.keys();
   }
 
-  values(): IterableIterator<
-    Sourced<keyof Kinds & string, Kinds[keyof Kinds & string]>[]
-  > {
+  values(): IterableIterator<SourcedByArray<Kinds>> {
     return this.dataMap.values();
   }
 
-  [Symbol.iterator](): IterableIterator<
-    [string, Sourced<keyof Kinds & string, Kinds[keyof Kinds & string]>[]]
-  > {
+  [Symbol.iterator](): IterableIterator<[string, SourcedByArray<Kinds>]> {
     return this.dataMap[Symbol.iterator]();
   }
 
@@ -200,10 +195,10 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
           throw new Error(`datum ${id} had mismatched source`);
         }
 
-        const entries = this.dataMap.get(id) ?? [];
+        const entries: SourcedByArray<Kinds> = this.dataMap.get(id) ?? [];
         if (entries.length > 0 && entries[0].kind !== datum.kind) {
           throw new Error(
-            `while indexing '${path}', '${id}' had kind '${datum.kind}' which conflicted with existing kind '${entries[0].kind}' from '${entries[0].source.path}'`,
+            `while indexing '${path}', '${id}' had kind '${String(datum.kind)}' which conflicted with existing kind '${String(entries[0].kind)}' from '${entries[0].source.path}'`,
           );
         }
         keys.add(id);
@@ -231,18 +226,21 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
   }
 }
 
-export function getHighestPriorityChecked<K extends string, V>(
-  entries: Array<Sourced<K, V>>,
-): Sourced<K, V> {
+export function getHighestPriorityChecked<Kinds, Key extends keyof Kinds>(
+  entries: SourcedKindsArray<Kinds>[Key],
+): SourcedKinds<Kinds>[Key] {
   if (entries.length == 0) {
     throw new Error("unexpected empty entry list");
   }
   return getHighestPriority(entries)!;
 }
 
-export function getHighestPriority<K extends string, V>(
-  entries: Array<Sourced<K, V>>,
-): Sourced<K, V> | undefined {
+// TODO(@cwegrzyn): the type on this is still bad. It shouldnt need to know about SourcedKinds
+//  I think. But I couldn't get it working otherwise. It does mean that type hints need to
+//  be provided for this quite often.
+export function getHighestPriority<Kinds, Key extends keyof Kinds>(
+  entries: SourcedKindsArray<Kinds>[Key],
+): SourcedKinds<Kinds>[Key] | undefined {
   // eslint-disable-next-line prefer-const
   let [first, ...rest] = entries;
   if (first === undefined) {
