@@ -24,14 +24,14 @@ momentum: 2
 health: 5
 iron-vault-kind: character
 assets:
-  - id: starforged/assets/path/empath
+  - id: asset:starforged/path/empath
     abilities:
       - true
       - true
       - true
     controls: {}
     options: {}
-  - id: starforged/assets/command_vehicle/starship
+  - id: asset:starforged/command_vehicle/starship
     abilities:
       - true
       - false
@@ -42,7 +42,7 @@ assets:
       integrity/cursed: false
     options:
       name: Arclight
-  - id: starforged/assets/module/medbay
+  - id: asset:starforged/module/medbay
     abilities:
       - true
       - false
