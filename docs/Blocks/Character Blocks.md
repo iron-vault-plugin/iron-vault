@@ -52,3 +52,13 @@ You could, for example, use this to add headings before each section, or do the 
 Will render the following:
 
 ![[special-tracks-example.png]]
+
+#### Character blocks in non-character files
+
+You can reference a character file in a character block if you want to, say, put character blocks in a Canvas card instead of embedding a note. To do this, simply put the name of the character or a path to its filename in the body of the block:
+
+````markdown
+```iron-vault-character-stats
+Alex Starfarer
+```
+````
