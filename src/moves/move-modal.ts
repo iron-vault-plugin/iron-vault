@@ -6,9 +6,14 @@ import {
   MarkdownRenderer,
   MarkdownView,
   Modal,
+  setIcon,
 } from "obsidian";
-import { runMoveCommand } from "./action";
+import { runMoveCommand, suggestedRollablesForMove } from "./action";
 import { Datasworn } from "@datasworn/core";
+import { html, render } from "lit-html";
+import { map } from "lit-html/directives/map.js";
+import { determineCharacterActionContext } from "characters/action-context";
+import { ref } from "lit-html/directives/ref.js";
 
 const TABLE_REGEX = /\{\{table:([^}]+)\}\}/g;
 
@@ -23,53 +28,92 @@ export class MoveModal extends Modal {
     this.move = move;
   }
 
-  openMove(move: Move) {
+  async openMove(move: Move) {
     this.setTitle(move.name);
     const { contentEl } = this;
     contentEl.empty();
     contentEl.toggleClass("iron-vault-modal-content", true);
     contentEl.toggleClass("iron-vault-modal", true);
-    (async () => {
-      new ButtonComponent(contentEl)
-        .setButtonText("Make this move")
-        .onClick(() => {
-          const { workspace } = this.plugin.app;
-          const view = workspace.getActiveFileView();
-          if (view && view instanceof MarkdownView) {
-            const editor = view.editor;
-            runMoveCommand(this.plugin, editor, view, move);
-            this.close();
-          }
-        });
-      await MarkdownRenderer.render(
-        this.app,
-        this.getMoveText(move),
-        contentEl,
-        ".",
-        this.plugin,
+    contentEl.toggleClass("iron-vault-move-modal", true);
+    const context = await determineCharacterActionContext(this.plugin);
+    const suggested =
+      move.roll_type === "action_roll" && suggestedRollablesForMove(move);
+    if (suggested) {
+      const rollsList = contentEl.createEl("ul", { cls: "rollable-stats" });
+      contentEl.appendChild(rollsList);
+      const rollables = context.rollables.filter((r) => suggested[r.key]);
+      render(
+        html`${map(
+          rollables,
+          (meter) => html`
+            <li
+              @click=${() => {
+                const { workspace } = this.plugin.app;
+                const view = workspace.getActiveFileView();
+                if (view && view instanceof MarkdownView) {
+                  const editor = view.editor;
+                  runMoveCommand(this.plugin, editor, view, move, meter);
+                  this.close();
+                }
+              }}
+            >
+              <dl>
+                <dt data-value=${meter.definition.label}>
+                  ${meter.definition.label}
+                </dt>
+                <dd data-value=${meter.value}>
+                  <span
+                    ${ref((el) => el && setIcon(el as HTMLElement, "dice"))}
+                  ></span>
+                  <span>+</span>
+                  <span>${meter.value}</span>
+                </dd>
+              </dl>
+            </li>
+          `,
+        )}`,
+        rollsList,
       );
-      if (this.moveHistory.length) {
-        new ButtonComponent(contentEl)
-          .setButtonText("Back")
-          .setTooltip("Go back to the previous move.")
-          .onClick(() => {
-            this.openMove(this.moveHistory.pop()!);
-          });
-      }
-      for (const child of contentEl.querySelectorAll('a[href^="id:"]')) {
-        child.addEventListener("click", (ev) => {
-          const id = child.getAttribute("href")?.slice(3);
-          if (!id) return;
-          ev.preventDefault();
-          ev.stopPropagation();
-          const newMove = this.plugin.datastore.moves.get(id);
-          if (newMove) {
-            this.moveHistory.push(move);
-            this.openMove(newMove);
-          }
+    }
+    new ButtonComponent(contentEl)
+      .setButtonText("Make this move with prompts")
+      .onClick(() => {
+        const { workspace } = this.plugin.app;
+        const view = workspace.getActiveFileView();
+        if (view && view instanceof MarkdownView) {
+          const editor = view.editor;
+          runMoveCommand(this.plugin, editor, view, move);
+          this.close();
+        }
+      });
+    await MarkdownRenderer.render(
+      this.app,
+      this.getMoveText(move),
+      contentEl.createEl("div", { cls: "md-wrapper" }),
+      ".",
+      this.plugin,
+    );
+    if (this.moveHistory.length) {
+      new ButtonComponent(contentEl)
+        .setButtonText("Back")
+        .setTooltip("Go back to the previous move.")
+        .onClick(() => {
+          this.openMove(this.moveHistory.pop()!);
         });
-      }
-    })();
+    }
+    for (const child of contentEl.querySelectorAll('a[href^="id:"]')) {
+      child.addEventListener("click", (ev) => {
+        const id = child.getAttribute("href")?.slice(3);
+        if (!id) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        const newMove = this.plugin.datastore.moves.get(id);
+        if (newMove) {
+          this.moveHistory.push(move);
+          this.openMove(newMove);
+        }
+      });
+    }
   }
 
   onOpen() {
