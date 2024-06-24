@@ -157,8 +157,46 @@
       "iron-vault:Show Iron Vault commands": false
     }
   },
-  "active": "e241c2813ce59ca4",
+  "floating": {
+    "id": "d3a94e0d7fa61b7c",
+    "type": "floating",
+    "children": [
+      {
+        "id": "e0729d3ff9ab946b",
+        "type": "window",
+        "children": [
+          {
+            "id": "258c43517a057b6f",
+            "type": "tabs",
+            "children": [
+              {
+                "id": "d7efcf1be9337275",
+                "type": "leaf",
+                "state": {
+                  "type": "markdown",
+                  "state": {
+                    "file": "Blocks/Character Blocks.md",
+                    "mode": "source",
+                    "source": false
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "direction": "vertical",
+        "x": 270,
+        "y": 435,
+        "width": 800,
+        "height": 400,
+        "maximize": true,
+        "zoom": 0
+      }
+    ]
+  },
+  "active": "d7efcf1be9337275",
   "lastOpenFiles": [
+    "Blocks/Character Blocks.md",
     "Other Features/Rulesets and Homebrew.md",
     "index.md",
     "Player's Guide/Getting Started/03 - Choose Your Truths.md",
@@ -184,7 +222,6 @@
     "Entities/Sectors.md",
     "Entities/Planets.md",
     "Entities/Creatures.md",
-    "Entities/index.md",
     "Support/img/Player's Guide/finalized-sector.png",
     "Support/img/Player's Guide/sector-trouble.png",
     "Support/img/Player's Guide/completed-connection.png",
