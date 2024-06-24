@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Other Features/Rulesets and Homebrew.md",
+                "file": "Blocks/Character Blocks.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Other Features/Rulesets and Homebrew.md",
+                "file": "Blocks/Character Blocks.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Other Features/Rulesets and Homebrew.md",
+                "file": "Blocks/Character Blocks.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Other Features/Rulesets and Homebrew.md"
+                "file": "Blocks/Character Blocks.md"
               }
             }
           },
@@ -159,11 +159,11 @@
   },
   "active": "e241c2813ce59ca4",
   "lastOpenFiles": [
+    "Other Features/Rulesets and Homebrew.md",
     "index.md",
     "Player's Guide/Getting Started/03 - Choose Your Truths.md",
     "Player's Guide/Getting Started/02 - Your First Campaign.md",
     "Other Features/Settings.md",
-    "Other Features/Rulesets and Homebrew.md",
     "Entities/Truths.md",
     "Commands/Make a move.md",
     "Commands/Add asset to character.md",

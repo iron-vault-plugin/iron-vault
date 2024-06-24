@@ -7,7 +7,7 @@ import Sortable from "sortablejs";
 import { Asset } from "@datasworn/core/dist/Datasworn";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
-import { EventRef, MarkdownRenderChild } from "obsidian";
+import { EventRef, MarkdownRenderChild, normalizePath } from "obsidian";
 import { ProgressTrack, legacyTrackXpEarned } from "tracks/progress";
 import { renderTrack } from "tracks/track-block";
 import { Left } from "utils/either";
@@ -40,13 +40,20 @@ export default function registerCharacterBlocks(plugin: IronVaultPlugin): void {
       (source: string, el: HTMLElement, ctx) => {
         const renderer = new CharacterRenderer(
           el,
-          ctx.sourcePath,
+          resolveSourceFileName(source) || ctx.sourcePath,
           plugin,
           section && [section],
         );
         ctx.addChild(renderer);
       },
     );
+    function resolveSourceFileName(source: string) {
+      const src = normalizePath(source.trim().split("\n")[0].trim());
+      return (
+        src !== "/" &&
+        plugin.app.vault.getFiles().find((f) => f.path.contains(src))?.path
+      );
+    }
   }
 }
 
@@ -60,14 +67,14 @@ enum CharacterSheetSection {
 }
 
 class CharacterRenderer extends MarkdownRenderChild {
-  sourcePath: string;
+  charPath: string;
   plugin: IronVaultPlugin;
   sections: CharacterSheetSection[];
   fileWatcher?: EventRef;
 
   constructor(
     containerEl: HTMLElement,
-    sourcePath: string,
+    charPath: string,
     plugin: IronVaultPlugin,
     sections: CharacterSheetSection[] = [
       CharacterSheetSection.INFO,
@@ -79,7 +86,7 @@ class CharacterRenderer extends MarkdownRenderChild {
     ],
   ) {
     super(containerEl);
-    this.sourcePath = sourcePath;
+    this.charPath = charPath;
     this.plugin = plugin;
     this.sections = sections;
   }
@@ -93,7 +100,7 @@ class CharacterRenderer extends MarkdownRenderChild {
       (this.fileWatcher = this.plugin.characters.on(
         "changed",
         (changedPath) => {
-          if (changedPath === this.sourcePath) {
+          if (changedPath === this.charPath) {
             this.render();
           }
         },
@@ -105,7 +112,7 @@ class CharacterRenderer extends MarkdownRenderChild {
 
   render() {
     const result =
-      this.plugin.characters.get(this.sourcePath) ??
+      this.plugin.characters.get(this.charPath) ??
       Left.create(new Error("character not indexed"));
     logger.trace(
       "CharacterRenderer[%s] render started for %o",
@@ -158,18 +165,16 @@ class CharacterRenderer extends MarkdownRenderChild {
     ) => {
       return (e: Event) => {
         const target = e.target as HTMLInputElement;
-        charCtx.updater(
-          vaultProcess(this.plugin.app, this.sourcePath),
-          (char) => lens.update(char, target.value),
+        charCtx.updater(vaultProcess(this.plugin.app, this.charPath), (char) =>
+          lens.update(char, target.value),
         );
       };
     };
     const charNumFieldUpdater = (lens: Lens<ValidatedCharacter, number>) => {
       return (e: Event) => {
         const target = e.target as HTMLInputElement;
-        charCtx.updater(
-          vaultProcess(this.plugin.app, this.sourcePath),
-          (char) => lens.update(char, +target.value),
+        charCtx.updater(vaultProcess(this.plugin.app, this.charPath), (char) =>
+          lens.update(char, +target.value),
         );
       };
     };
@@ -178,17 +183,15 @@ class CharacterRenderer extends MarkdownRenderChild {
     ) => {
       return (e: Event) => {
         const target = e.target as HTMLInputElement;
-        charCtx.updater(
-          vaultProcess(this.plugin.app, this.sourcePath),
-          (char) =>
-            lens.update(
-              char,
-              target.value === "true"
-                ? true
-                : target.value === "false"
-                  ? false
-                  : undefined,
-            ),
+        charCtx.updater(vaultProcess(this.plugin.app, this.charPath), (char) =>
+          lens.update(
+            char,
+            target.value === "true"
+              ? true
+              : target.value === "false"
+                ? false
+                : undefined,
+          ),
         );
       };
     };
@@ -274,9 +277,8 @@ class CharacterRenderer extends MarkdownRenderChild {
     const statUpdater = (lens: Lens<ValidatedCharacter, number>) => {
       return (e: Event) => {
         const target = e.target as HTMLInputElement;
-        charCtx.updater(
-          vaultProcess(this.plugin.app, this.sourcePath),
-          (char) => lens.update(char, +target.value),
+        charCtx.updater(vaultProcess(this.plugin.app, this.charPath), (char) =>
+          lens.update(char, +target.value),
         );
       };
     };
@@ -310,13 +312,13 @@ class CharacterRenderer extends MarkdownRenderChild {
       lens: Lens<ValidatedCharacter, number>,
       delta: number,
     ) => {
-      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.charPath), (char) =>
         lens.update(char, lens.get(raw) + delta),
       );
     };
     const momOps = momentumOps(lens);
     const updateMomentum = (delta?: number) => {
-      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.charPath), (char) =>
         delta == null
           ? momOps.reset(char)
           : delta >= 0
@@ -379,7 +381,7 @@ class CharacterRenderer extends MarkdownRenderChild {
       lens: Lens<ValidatedCharacter, Record<string, boolean>>,
       impact: string,
     ) => {
-      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.charPath), (char) =>
         lens.update(char, {
           ...lens.get(raw),
           [impact]: !lens.get(raw)[impact],
@@ -427,7 +429,7 @@ class CharacterRenderer extends MarkdownRenderChild {
       track: Lens<ValidatedCharacter, ProgressTrack>,
       info: { steps?: number; ticks?: number },
     ) => {
-      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.charPath), (char) =>
         track.update(
           char,
           info.steps == null
@@ -466,7 +468,7 @@ class CharacterRenderer extends MarkdownRenderChild {
     const raw = charCtx.character;
 
     const updateAsset = (asset: Asset) => {
-      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.charPath), (char) =>
         addOrUpdateViaDataswornAsset(lens, this.plugin.datastore).update(
           char,
           asset,
@@ -475,7 +477,7 @@ class CharacterRenderer extends MarkdownRenderChild {
     };
 
     const removeAsset = (asset: { id: string }) => {
-      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
+      charCtx.updater(vaultProcess(this.plugin.app, this.charPath), (char) =>
         lens.assets.update(
           char,
           lens.assets.get(char).filter((a) => a.id !== asset.id),
@@ -499,7 +501,7 @@ class CharacterRenderer extends MarkdownRenderChild {
               assets[evt.oldIndex] = assets[evt.newIndex];
               assets[evt.newIndex] = a;
               charCtx.updater(
-                vaultProcess(this.plugin.app, this.sourcePath),
+                vaultProcess(this.plugin.app, this.charPath),
                 (char) => lens.assets.update(char, assets),
               );
             }
