@@ -251,8 +251,8 @@ export class Datastore extends Component implements IDataContext {
   get moves(): StandardIndex<DataswornTypes["move"]> {
     this.assertReady();
     return this.indexer.projected((value) =>
-      isOfKind<DataswornTypes, "move">(value, "move")
-        ? getHighestPriority(value)?.value
+      isOfKind(value, "move")
+        ? getHighestPriority<DataswornTypes, "move">(value)?.value
         : undefined,
     );
   }
@@ -260,16 +260,16 @@ export class Datastore extends Component implements IDataContext {
   get moveCategories(): StandardIndex<DataswornTypes["move_category"]> {
     this.assertReady();
     return this.indexer.projected((value) =>
-      isOfKind<DataswornTypes, "move_category">(value, "move_category")
-        ? getHighestPriority(value)?.value
+      isOfKind(value, "move_category")
+        ? getHighestPriority<DataswornTypes, "move_category">(value)?.value
         : undefined,
     );
   }
   get oracles(): StandardIndex<Oracle> {
     this.assertReady();
     return this.indexer.projected((value) =>
-      isOfKind<DataswornTypes, "oracle">(value, "oracle")
-        ? getHighestPriority(value)?.value
+      isOfKind(value, "oracle")
+        ? getHighestPriority<DataswornTypes, "oracle">(value)?.value
         : undefined,
     );
   }
@@ -277,8 +277,8 @@ export class Datastore extends Component implements IDataContext {
   get assets(): StandardIndex<Datasworn.Asset> {
     this.assertReady();
     return this.indexer.projected((value) =>
-      isOfKind<DataswornTypes, "asset">(value, "asset")
-        ? getHighestPriority(value)?.value
+      isOfKind(value, "asset")
+        ? getHighestPriority<DataswornTypes, "asset">(value)?.value
         : undefined,
     );
   }
@@ -286,8 +286,8 @@ export class Datastore extends Component implements IDataContext {
   get truths(): StandardIndex<Datasworn.Truth> {
     this.assertReady();
     return this.indexer.projected((value) =>
-      isOfKind<DataswornTypes, "truth">(value, "truth")
-        ? getHighestPriority(value)?.value
+      isOfKind(value, "truth")
+        ? getHighestPriority<DataswornTypes, "truth">(value)?.value
         : undefined,
     );
   }
