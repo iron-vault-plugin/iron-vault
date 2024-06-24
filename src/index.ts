@@ -1,20 +1,19 @@
-import { ViewPlugin, ViewUpdate } from "@codemirror/view";
+import registerAssetBlock from "assets/asset-block";
 import registerCharacterBlock from "characters/character-block";
 import registerClockBlock from "clocks/clock-block";
+import { IronVaultCommands } from "commands";
+import { IronVaultLinkView, LINK_VIEW } from "docs/docs-view";
 import { IndexManager } from "indexer/manager";
-import installMoveLinkHandler from "moves/link-override";
-import { MoveModal } from "moves/move-modal";
+import installLinkHandler from "link-handler";
+import { initLogger } from "logger";
 import { Plugin, addIcon } from "obsidian";
-import installOracleLinkHandler from "oracles/link-override";
-import { OracleModal } from "oracles/oracle-modal";
 import { IronVaultPluginSettings } from "settings";
 import registerSidebarBlocks from "sidebar/sidebar-block";
 import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
-import registerAssetBlock from "assets/asset-block";
-import { AssetModal } from "assets/asset-modal";
 import { ProgressIndex, ProgressIndexer } from "tracks/indexer";
-import installAssetLinkHandler from "assets/link-override";
 import registerTrackBlock from "tracks/track-block";
+import registerTruthBlock from "truths/truth-block";
+import { DiceOverlay } from "utils/dice-overlay";
 import { IronVaultAPI } from "./api";
 import { CharacterIndexer, CharacterTracker } from "./character-tracker";
 import { ClockIndex, ClockIndexer } from "./clocks/clock-file";
@@ -24,11 +23,6 @@ import { registerMoveBlock } from "./moves/block";
 import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
 import { pluginAsset } from "./utils/obsidian";
-import { IronVaultCommands } from "commands";
-import registerTruthBlock from "truths/truth-block";
-import { initLogger } from "logger";
-import { IronVaultLinkView, LINK_VIEW } from "docs/docs-view";
-import { DiceOverlay } from "utils/dice-overlay";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -91,10 +85,7 @@ export default class IronVaultPlugin extends Plugin {
 
     window.IronVaultAPI = this.api = new IronVaultAPI(this);
     this.register(() => delete window.IronVaultAPI);
-    installMoveLinkHandler(this);
-    installOracleLinkHandler(this);
-    installAssetLinkHandler(this);
-    this.installIdLinkHandler(this);
+    installLinkHandler(this);
 
     this.registerView(VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
     this.registerView(
@@ -176,96 +167,5 @@ export default class IronVaultPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
-  }
-
-  installIdLinkHandler(plugin: IronVaultPlugin) {
-    const handler = (ev: MouseEvent) => {
-      if (
-        !(ev.target instanceof HTMLAnchorElement) ||
-        ev.target.href !== "app://obsidian.md/index.html#"
-      )
-        return;
-      const editor = plugin.app.workspace.activeEditor?.editor;
-      if (editor) {
-        const token = editor.getClickableTokenAt(editor.posAtMouse(ev));
-        if (token && token.text.toLowerCase().startsWith("id:")) {
-          ev.stopPropagation();
-          ev.preventDefault();
-          const id = token.text
-            .slice("id:".length)
-            .replace(/\s*/g, "")
-            .toLowerCase();
-          const oracle = plugin.datastore.oracles.get(id);
-          const move =
-            !oracle &&
-            [...plugin.datastore.moves.values()].find(
-              (m) =>
-                m._id === id || m.name.replace(/\s*/g, "").toLowerCase() === id,
-            );
-          const asset =
-            !move &&
-            [...plugin.datastore.assets.values()].find(
-              (a) =>
-                a._id === id || a.name.replace(/\s*/g, "").toLowerCase() === id,
-            );
-          if (oracle) {
-            new OracleModal(plugin.app, plugin, oracle).open();
-          } else if (move) {
-            new MoveModal(plugin.app, plugin, move).open();
-          } else if (asset) {
-            new AssetModal(plugin.app, plugin, asset).open();
-          }
-        }
-      }
-    };
-    const cmPlugin = ViewPlugin.fromClass(
-      class LinkOverride {
-        update(update: ViewUpdate) {
-          const el = update.view.contentDOM;
-          el.removeEventListener("click", handler);
-          el.addEventListener("click", handler);
-          plugin.register(() => el.removeEventListener("click", handler));
-        }
-      },
-    );
-    plugin.registerEditorExtension([cmPlugin]);
-    plugin.app.workspace.updateOptions();
-    plugin.registerMarkdownPostProcessor((el) => {
-      el.querySelectorAll("a").forEach((a) => {
-        if (a.href.startsWith("id:")) {
-          const handler = (ev: MouseEvent) => {
-            ev.stopPropagation();
-            ev.preventDefault();
-            const id = a.href
-              .slice("id:".length)
-              .replace(/\s*/g, "")
-              .toLowerCase();
-            const oracle = plugin.datastore.oracles.get(id);
-            const move =
-              !oracle &&
-              [...plugin.datastore.moves.values()].find(
-                (m) =>
-                  m._id === id ||
-                  m.name.replace(/\s*/g, "").toLowerCase() === id,
-              );
-            const asset =
-              !move &&
-              [...plugin.datastore.assets.values()].find(
-                (a) =>
-                  a._id === id ||
-                  a.name.replace(/\s*/g, "").toLowerCase() === id,
-              );
-            if (oracle) {
-              new OracleModal(plugin.app, plugin, oracle).open();
-            } else if (move) {
-              new MoveModal(plugin.app, plugin, move).open();
-            } else if (asset) {
-              new AssetModal(plugin.app, plugin, asset).open();
-            }
-          };
-          plugin.registerDomEvent(a, "click", handler);
-        }
-      });
-    });
   }
 }
