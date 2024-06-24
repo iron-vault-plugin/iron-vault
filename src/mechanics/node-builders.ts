@@ -80,7 +80,7 @@ export function createOracleNode(
 ): kdl.Node {
   return node("oracle", {
     properties: {
-      name: `[${name ?? oracleNameWithParents(roll.oracle)}](oracle:${roll.oracle.id})`,
+      name: `[${name ?? oracleNameWithParents(roll.oracle)}](${roll.oracle.id})`,
       // TODO: this is preposterous
       roll: roll.roll.roll,
       result: roll.ownResult,
@@ -156,7 +156,7 @@ export function generateMechanicsNode(move: MoveDescription): Document {
 }
 
 function generateMoveLink(move: MoveDescription): string {
-  return move.id ? `[${move.name}](move:${move.id})` : move.name;
+  return move.id ? `[${move.name}](${move.id})` : move.name;
 }
 
 export function createOracleGroup(
