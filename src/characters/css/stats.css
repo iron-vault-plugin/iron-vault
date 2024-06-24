@@ -13,7 +13,6 @@
     margin-inline-start: 0;
   }
   & li {
-    background-color: var(--background-secondary);
     border-radius: 8px;
     border: 2px solid var(--background-modifier-border);
     margin: 0;
@@ -33,6 +32,7 @@
       padding: 0;
     }
     & dt {
+      background-color: var(--background-secondary-alt);
       font-size: 0.8em;
       width: 100%;
       text-align: center;

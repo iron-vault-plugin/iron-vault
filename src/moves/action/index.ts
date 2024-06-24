@@ -264,6 +264,7 @@ export async function runMoveCommand(
   editor: Editor,
   view: MarkdownView,
   chosenMove?: Datasworn.Move,
+  chosenMeter?: MeterWithLens | MeterWithoutLens,
 ): Promise<void> {
   if (view.file?.path == null) {
     logger.error("No file for view. Why?");
@@ -279,7 +280,12 @@ export async function runMoveCommand(
   let moveDescription: MoveDescription;
   switch (move.roll_type) {
     case "action_roll": {
-      moveDescription = await handleActionRoll(plugin, context, move);
+      moveDescription = await handleActionRoll(
+        plugin,
+        context,
+        move,
+        chosenMeter,
+      );
       break;
     }
     case "progress_roll": {
@@ -363,7 +369,7 @@ const ORDINALS = [
   "tenth",
 ];
 
-function suggestedRollablesForMove(
+export function suggestedRollablesForMove(
   move: Datasworn.MoveActionRoll,
 ): Record<
   string,
@@ -402,15 +408,18 @@ async function handleActionRoll(
   plugin: IronVaultPlugin,
   actionContext: ActionContext,
   move: Datasworn.MoveActionRoll,
+  meter?: MeterWithLens | MeterWithoutLens,
 ) {
   const suggestedRollables = suggestedRollablesForMove(move);
 
-  const stat = await promptForRollable(
-    plugin.app,
-    actionContext,
-    suggestedRollables,
-    move,
-  );
+  const stat =
+    meter ??
+    (await promptForRollable(
+      plugin.app,
+      actionContext,
+      suggestedRollables,
+      move,
+    ));
 
   // This stat has an unknown value, so we need to prompt the user for a value.
   if (!stat.value) {

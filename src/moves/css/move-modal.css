@@ -1,0 +1,62 @@
+.iron-vault-move-modal {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  gap: 1em;
+  & .rollable-stats {
+    display: flex;
+    flex-flow: row wrap;
+    gap: 1em;
+    list-style: none;
+    justify-content: center;
+    align-items: center;
+    &,
+    & li,
+    & dd {
+      padding: 0;
+      margin: 0;
+      margin-inline-start: 0;
+      padding-inline-start: 0;
+      margin-block-start: 0;
+    }
+    & li {
+      cursor: pointer;
+      border-radius: 10px;
+      border: 1px solid var(--background-modifier-border);
+      width: 6em;
+      &:hover {
+        background-color: var(--background-modifier-hover);
+      }
+      & dl {
+        margin: 0;
+        padding: 0;
+        font-weight: bold;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        & dt,
+        dd {
+          margin: 0;
+          padding: 0;
+        }
+        & dt {
+          background-color: var(--background-secondary-alt);
+          border-radius: 10px 10px 0 0;
+          text-transform: uppercase;
+          width: 100%;
+          text-align: center;
+          padding: 0.4em;
+          border-bottom: 2px solid var(--background-modifier-border);
+        }
+        & dd {
+          display: flex;
+          flex-flow: row nowrap;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5em;
+          padding: 0.4em;
+        }
+      }
+    }
+  }
+}
