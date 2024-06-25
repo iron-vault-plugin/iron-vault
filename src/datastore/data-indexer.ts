@@ -1,5 +1,9 @@
 import { rootLogger } from "logger";
-import { ProjectableMap, projectedVersionedMap } from "utils/versioned-map";
+import {
+  ProjectableMap,
+  projectedVersionedMap,
+  VersionedMapImpl,
+} from "utils/versioned-map";
 
 const logger = rootLogger.getLogger("data-indexer");
 
@@ -68,16 +72,16 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
   implements ProjectableMap<string, SourcedByArray<Kinds>>
 {
   /** Maps keys to source data */
-  public readonly dataMap: Map<string, SourcedByArray<Kinds>> = new Map();
+  public readonly dataMap: VersionedMapImpl<string, SourcedByArray<Kinds>> =
+    new VersionedMapImpl();
 
   /** Index of sources to source details (including key set) */
   public readonly sourceIndex: Map<string, Source> = new Map();
 
-  #revision: number = 0;
   projected<U>(
     callbackfn: (value: SourcedByArray<Kinds>, key: string) => U | undefined,
   ): ProjectableMap<string, U> {
-    return projectedVersionedMap(this, callbackfn);
+    return projectedVersionedMap(this.dataMap, callbackfn);
   }
 
   forEach(
@@ -125,7 +129,6 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
   clear(): void {
     this.dataMap.clear();
     this.sourceIndex.clear();
-    this.#revision++;
   }
 
   renameSource(oldPath: string, newPath: string): void {
@@ -145,27 +148,28 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
       return false;
     }
 
-    this.#revision++;
-
     // Remove all of the entries for this source
-    for (const key of source.keys) {
-      const entries = this.dataMap.get(key);
-      const sourceIndex =
-        entries?.findIndex(
-          ({ source: curSource }) => curSource.path === path,
-        ) ?? -1;
-      if (entries == null || sourceIndex < 0) {
-        throw new Error(
-          `index consistency violation: no ${String(
-            key,
-          )} entry with source ${path}`,
-        );
+    this.dataMap.asSingleRevision(() => {
+      for (const key of source.keys) {
+        const entries = this.dataMap.get(key);
+        const sourceIndex =
+          entries?.findIndex(
+            ({ source: curSource }) => curSource.path === path,
+          ) ?? -1;
+        if (entries == null || sourceIndex < 0) {
+          throw new Error(
+            `index consistency violation: no ${String(
+              key,
+            )} entry with source ${path}`,
+          );
+        }
+        entries.splice(sourceIndex, 1);
+        if (entries.length == 0) {
+          this.dataMap.delete(key);
+        }
       }
-      entries.splice(sourceIndex, 1);
-      if (entries.length == 0) {
-        this.dataMap.delete(key);
-      }
-    }
+    });
+
     this.sourceIndex.delete(path);
     return true;
   }
@@ -177,52 +181,51 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
 
     logger.debug("[source:%s] Starting index", source.path);
 
-    // TODO: maybe there is a more efficient way than removing and re-adding, but this will work
-    if (!this.removeSource(path)) {
-      // Remove source will bump the revision, so this ensures we get a new revision;
-      this.#revision++;
-    }
-
-    const keys: Set<string> = (source.keys = new Set());
-    this.sourceIndex.set(path, source);
-
-    try {
-      for (const datum of data) {
-        const { id } = datum;
-
-        // The data passed here should only ever originate from one source.
-        if (datum.source !== source) {
-          throw new Error(`datum ${id} had mismatched source`);
-        }
-
-        const entries: SourcedByArray<Kinds> = this.dataMap.get(id) ?? [];
-        if (entries.length > 0 && entries[0].kind !== datum.kind) {
-          throw new Error(
-            `while indexing '${path}', '${id}' had kind '${String(datum.kind)}' which conflicted with existing kind '${String(entries[0].kind)}' from '${entries[0].source.path}'`,
-          );
-        }
-        keys.add(id);
-        entries.push(datum);
-        this.dataMap.set(id, entries);
-      }
-
-      logger.debug(
-        "[source:%s] Index finished. %d entries indexed.",
-        source.path,
-        keys.size,
-      );
-    } catch (err) {
-      logger.warn(
-        "[source:%s] caught error while indexing. removing from index...",
-        path,
-      );
+    this.dataMap.asSingleRevision(() => {
+      // TODO: maybe there is a more efficient way than removing and re-adding, but this will work
       this.removeSource(path);
-      throw err;
-    }
+
+      const keys: Set<string> = (source.keys = new Set());
+      this.sourceIndex.set(path, source);
+
+      try {
+        for (const datum of data) {
+          const { id } = datum;
+
+          // The data passed here should only ever originate from one source.
+          if (datum.source !== source) {
+            throw new Error(`datum ${id} had mismatched source`);
+          }
+
+          const entries: SourcedByArray<Kinds> = this.dataMap.get(id) ?? [];
+          if (entries.length > 0 && entries[0].kind !== datum.kind) {
+            throw new Error(
+              `while indexing '${path}', '${id}' had kind '${String(datum.kind)}' which conflicted with existing kind '${String(entries[0].kind)}' from '${entries[0].source.path}'`,
+            );
+          }
+          keys.add(id);
+          entries.push(datum);
+          this.dataMap.set(id, entries);
+        }
+
+        logger.debug(
+          "[source:%s] Index finished. %d entries indexed.",
+          source.path,
+          keys.size,
+        );
+      } catch (err) {
+        logger.warn(
+          "[source:%s] caught error while indexing. removing from index...",
+          path,
+        );
+        this.removeSource(path);
+        throw err;
+      }
+    });
   }
 
   get revision(): number {
-    return this.#revision;
+    return this.dataMap.revision;
   }
 }
 
