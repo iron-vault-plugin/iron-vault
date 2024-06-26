@@ -1,5 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
-import { Rules, RulesPackage } from "@datasworn/core/dist/Datasworn";
+import { Rules } from "@datasworn/core/dist/Datasworn";
 import dataswornSchema from "@datasworn/core/json/datasworn.schema.json" assert { type: "json" };
 import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
@@ -8,10 +8,9 @@ import { IDataContext } from "characters/action-context";
 import {
   DataIndexer,
   SourceTag,
-  Sourced,
   StandardIndex,
   getHighestPriority,
-  isOfKind,
+  kindFiltered,
 } from "datastore/data-indexer";
 import {
   DataswornIndexer,
@@ -250,46 +249,36 @@ export class Datastore extends Component implements IDataContext {
 
   get moves(): StandardIndex<DataswornTypes["move"]> {
     this.assertReady();
-    return this.indexer.projected((value) =>
-      isOfKind(value, "move")
-        ? getHighestPriority<DataswornTypes, "move">(value)?.value
-        : undefined,
+    return kindFiltered("move", this.indexer).projected(
+      (value) => getHighestPriority(value)?.value,
     );
   }
 
   get moveCategories(): StandardIndex<DataswornTypes["move_category"]> {
     this.assertReady();
-    return this.indexer.projected((value) =>
-      isOfKind(value, "move_category")
-        ? getHighestPriority<DataswornTypes, "move_category">(value)?.value
-        : undefined,
-    );
+    return this.indexer.prioritized
+      .ofKind("move_category")
+      .projected((entry) => entry.value);
   }
   get oracles(): StandardIndex<Oracle> {
     this.assertReady();
-    return this.indexer.projected((value) =>
-      isOfKind(value, "oracle")
-        ? getHighestPriority<DataswornTypes, "oracle">(value)?.value
-        : undefined,
-    );
+    return this.indexer.prioritized
+      .ofKind("oracle")
+      .projected((entry) => entry.value);
   }
 
   get assets(): StandardIndex<Datasworn.Asset> {
     this.assertReady();
-    return this.indexer.projected((value) =>
-      isOfKind(value, "asset")
-        ? getHighestPriority<DataswornTypes, "asset">(value)?.value
-        : undefined,
-    );
+    return this.indexer.prioritized
+      .ofKind("asset")
+      .projected((entry) => entry.value);
   }
 
   get truths(): StandardIndex<Datasworn.Truth> {
     this.assertReady();
-    return this.indexer.projected((value) =>
-      isOfKind(value, "truth")
-        ? getHighestPriority<DataswornTypes, "truth">(value)?.value
-        : undefined,
-    );
+    return this.indexer.prioritized
+      .ofKind("truth")
+      .projected((entry) => entry.value);
   }
 
   get roller(): OracleRoller {
@@ -300,13 +289,8 @@ export class Datastore extends Component implements IDataContext {
     this.assertReady();
 
     const ids: string[] = [];
-    const rules = [...this.indexer.values()]
-      .filter((v) =>
-        isOfKind<DataswornTypes, "rules_package">(v, "rules_package"),
-      )
-      .flat()
-      .map((v) => {
-        const pkg = v as Sourced<"rules_package", RulesPackage>;
+    const rules = [...this.indexer.prioritized.ofKind("rules_package").values()]
+      .map((pkg) => {
         ids.push(pkg.id);
         return pkg.value.rules;
       })
