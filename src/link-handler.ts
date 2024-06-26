@@ -88,7 +88,6 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
       }
 
       destroy() {
-        console.debug("destroying handler");
         this.controller?.abort();
       }
     },
@@ -99,11 +98,19 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
   plugin.registerMarkdownPostProcessor((el, ctx) => {
     el.querySelectorAll("a").forEach((a) => {
       // If the link is a potential datasworn link, let's register a handler just in case.
-      if (extractDataswornLinkParts(a.href)) {
+
+      // HACK(@cwegrzyn): possibly as of Obsidian 1.6.5 (and its electron upgrade?), datasworn
+      // links seem to start with app://obsidian.md/, now.
+      const href = a.href.startsWith("app://obsidian.md/")
+        ? a.href.slice(18)
+        : a.href;
+      if (extractDataswornLinkParts(href)) {
         const component = new MarkdownRenderChild(a);
         ctx.addChild(component);
         component.registerDomEvent(a, "click", (ev) => {
-          const entry = findEntry(a.href);
+          let href = (ev.target as HTMLAnchorElement).href;
+          href = href.startsWith("app://obsidian.md/") ? href.slice(18) : href;
+          const entry = findEntry(href);
           if (entry) {
             ev.stopPropagation();
             ev.preventDefault();
