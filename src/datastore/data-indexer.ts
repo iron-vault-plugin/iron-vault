@@ -2,6 +2,7 @@ import { rootLogger } from "logger";
 import {
   ProjectableMap,
   projectedVersionedMap,
+  VersionedMap,
   VersionedMapImpl,
 } from "utils/versioned-map";
 
@@ -68,6 +69,122 @@ export function isOfKind<Kinds, Key extends keyof Kinds>(
   return arr[0]!.kind === kind;
 }
 
+export function kindFiltered<
+  Kinds extends Record<string, unknown>,
+  Kind extends keyof Kinds,
+>(
+  kind: Kind,
+  map: ProjectableMap<string, SourcedByArray<Kinds>>,
+): ProjectableMap<string, SourcedKindsArray<Kinds>[Kind]> {
+  return projectedVersionedMap(map, (entries) =>
+    isOfKind(entries, kind) ? entries : undefined,
+  );
+}
+
+export function prioritized<
+  A extends SourcedKindsArray<Kinds>[Kind],
+  Kinds extends Record<string, unknown>,
+  Kind extends keyof Kinds = keyof Kinds,
+>(
+  map: ProjectableMap<string, A>,
+): ProjectableMap<string, SourcedKinds<Kinds>[Kind]> {
+  return projectedVersionedMap(map, (entries) => getHighestPriority(entries));
+}
+
+// export interface SourcedMap<
+//   Kinds extends Record<string, unknown>,
+//   Kind extends keyof Kinds = keyof Kinds,
+// > extends VersionedMap<string, SourcedKindsArray<Kinds>[Kind]> {
+
+//   byKind<K extends Kind>(
+//     kind: K,
+//   ): ProjectableMap<string, SourcedKindsArray<Kinds>[K]>;
+
+// }
+
+/** A map of typed sourced entries that retrieves the highest-priority variant by default. */
+export interface SourcedMap<
+  Kinds extends Record<string, unknown>,
+  Kind extends keyof Kinds = keyof Kinds,
+> extends ProjectableMap<string, SourcedKinds<Kinds>[Kind]> {
+  /** Returns "inner" map that contains ALL  */
+  readonly all: VersionedMap<string, SourcedKindsArray<Kinds>[Kind]>;
+  ofKind<K extends Kind>(kind: K): SourcedMap<Kinds, K>;
+}
+
+export class SourcedMapImpl<
+  Kinds extends Record<string, unknown>,
+  Kind extends keyof Kinds = keyof Kinds,
+> implements SourcedMap<Kinds, Kind>
+{
+  constructor(
+    readonly all: VersionedMap<string, SourcedKindsArray<Kinds>[Kind]>,
+  ) {}
+
+  forEach(
+    callbackfn: (
+      value: SourcedKinds<Kinds>[Kind],
+      key: string,
+      map: ReadonlyMap<string, SourcedKinds<Kinds>[Kind]>,
+    ) => void,
+    thisArg?: unknown,
+  ): void {
+    this.all.forEach(
+      (val, key) => callbackfn(getHighestPriorityChecked(val), key, this),
+      thisArg,
+    );
+  }
+
+  get(key: string): SourcedKinds<Kinds>[Kind] | undefined {
+    const result = this.all.get(key);
+    return result && getHighestPriorityChecked(result);
+  }
+  has(key: string): boolean {
+    return this.all.has(key);
+  }
+  get size(): number {
+    return this.all.size;
+  }
+  *entries(): IterableIterator<[string, SourcedKinds<Kinds>[Kind]]> {
+    for (const [key, values] of this.all.entries()) {
+      yield [key, getHighestPriorityChecked(values)];
+    }
+  }
+  keys(): IterableIterator<string> {
+    return this.all.keys();
+  }
+  *values(): IterableIterator<SourcedKinds<Kinds>[Kind]> {
+    for (const values of this.all.values()) {
+      yield getHighestPriorityChecked(values);
+    }
+  }
+  [Symbol.iterator](): IterableIterator<[string, SourcedKinds<Kinds>[Kind]]> {
+    return this.entries();
+  }
+
+  get revision(): number {
+    return this.all.revision;
+  }
+
+  ofKind<K extends Kind>(kind: K): SourcedMapImpl<Kinds, K> {
+    // TODO(@cwegrzyn): when caching is implemented, this could be cached for each kind
+    return new SourcedMapImpl(
+      projectedVersionedMap(this.all, (entries) =>
+        isOfKind(entries, kind) ? entries : undefined,
+      ),
+    );
+  }
+
+  projected<U>(
+    callbackfn: (
+      value: SourcedKinds<Kinds>[Kind],
+      key: string,
+    ) => U | undefined,
+  ): ProjectableMap<string, U> {
+    return projectedVersionedMap(this, callbackfn);
+  }
+}
+
 export class DataIndexer<Kinds extends Record<string, unknown>>
   implements ProjectableMap<string, SourcedByArray<Kinds>>
 {
@@ -77,6 +194,10 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
 
   /** Index of sources to source details (including key set) */
   public readonly sourceIndex: Map<string, Source> = new Map();
+
+  public readonly prioritized: SourcedMap<Kinds> = new SourcedMapImpl(
+    this.dataMap,
+  );
 
   projected<U>(
     callbackfn: (value: SourcedByArray<Kinds>, key: string) => U | undefined,
@@ -229,6 +350,14 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
   }
 }
 
+export function lookupPriority<K, V>(
+  map: VersionedMap<string, Sourced<K, V>[]>,
+  id: string,
+): Sourced<K, V> | undefined {
+  const entries = map.get(id);
+  return entries && getHighestPriority(entries);
+}
+
 export function getHighestPriorityChecked<Kinds, Key extends keyof Kinds>(
   entries: SourcedKindsArray<Kinds>[Key],
 ): SourcedKinds<Kinds>[Key] {
@@ -238,12 +367,9 @@ export function getHighestPriorityChecked<Kinds, Key extends keyof Kinds>(
   return getHighestPriority(entries)!;
 }
 
-// TODO(@cwegrzyn): the type on this is still bad. It shouldnt need to know about SourcedKinds
-//  I think. But I couldn't get it working otherwise. It does mean that type hints need to
-//  be provided for this quite often.
-export function getHighestPriority<Kinds, Key extends keyof Kinds>(
-  entries: SourcedKindsArray<Kinds>[Key],
-): SourcedKinds<Kinds>[Key] | undefined {
+export function getHighestPriority<K, V>(
+  entries: Sourced<K, V>[],
+): Sourced<K, V> | undefined {
   // eslint-disable-next-line prefer-const
   let [first, ...rest] = entries;
   if (first === undefined) {
