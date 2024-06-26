@@ -1,7 +1,6 @@
 import { PluginValue, ViewPlugin, ViewUpdate } from "@codemirror/view";
 import { AssetModal } from "assets/asset-modal";
-import { getHighestPriority } from "datastore/data-indexer";
-import { DataswornSourced, DataswornTypes } from "datastore/datasworn-indexer";
+import { DataswornSourced } from "datastore/datasworn-indexer";
 import { extractDataswornLinkParts } from "datastore/parsers/datasworn/id";
 import { rootLogger } from "logger";
 import { MoveModal } from "moves/move-modal";
@@ -18,23 +17,27 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
     const linkText = text?.toLowerCase();
     const dataswornLinkCandidate =
       linkText && extractDataswornLinkParts(linkText);
-    if (dataswornLinkCandidate) {
-      // TODO(@cwegrzyn): should use campaign context when ready? at the very least, should filter to enabled vs indexed?
-      const entries = plugin.datastore.indexer.get(linkText);
-      if (!entries) return undefined;
+    if (!dataswornLinkCandidate) return undefined;
 
-      const entry = getHighestPriority<DataswornTypes, keyof DataswornTypes>(
-        entries,
-      );
+    // First, try to find the entry by ID
+    // TODO(@cwegrzyn): should use campaign context when ready? at the very least, should filter to enabled vs indexed?
+    const entry = plugin.datastore.indexer.prioritized.get(linkText);
+    if (entry) return entry;
 
-      // [...plugin.datastore.moves.values()].find(
-      //   (m) =>
-      //     m._id === id || m.name.replace(/\s*/g, "").toLowerCase() === id,
-      // TODO(@zkat): Fetch them by name, actually
+    // Then, search by name in the major asset types
+    const entityType = dataswornLinkCandidate[0];
+    if (entityType != "move" && entityType != "oracle" && entityType != "asset")
+      return undefined;
 
-      return entry;
+    function normalize(s: string) {
+      return s.replaceAll(/\s*/g, "").toLowerCase();
     }
-    return undefined;
+    const searchString = normalize(dataswornLinkCandidate[1]);
+    const index = plugin.datastore.indexer.prioritized.ofKind(entityType);
+    for (const entry of index.values()) {
+      if (normalize(entry.value.name) == searchString) return entry;
+    }
+    return entry;
   };
 
   const present = (entry: DataswornSourced) => {
@@ -73,10 +76,20 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
 
   const cmPlugin = ViewPlugin.fromClass(
     class LinkOverride implements PluginValue {
+      controller?: AbortController;
+
       update(update: ViewUpdate) {
         const el = update.view.contentDOM;
-        el.removeEventListener("click", handler);
-        plugin.registerDomEvent(el, "click", handler);
+        this.controller?.abort();
+        this.controller = new AbortController();
+        plugin.registerDomEvent(el, "click", handler, {
+          signal: this.controller.signal,
+        });
+      }
+
+      destroy() {
+        console.debug("destroying handler");
+        this.controller?.abort();
       }
     },
   );
