@@ -25,7 +25,7 @@ You can also reorder assets by going to your character sheet's asset section and
 When in your character sheet, you can edit all option fields of your assets, such as a name if the asset calls for one, or picking an associated stat. You can also mark of unmark abilities by clicking on the hexagon next to them.
 #### Asset Links
 
-You can link to an asset's definition card using [[Special Links#`asset `|`asset:` links]]. When clicked, these links will open a popup window with a read-only, default version of the asset for reference.
+You can link to an asset's definition card using [[Special Links#Assets|`asset:` links]]. When clicked, these links will open a popup window with a read-only, default version of the asset for reference.
 
 #### Asset Blocks
 
