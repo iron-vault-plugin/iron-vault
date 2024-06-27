@@ -44,6 +44,9 @@ export class IronVaultPluginSettings {
   /** Base path for homebrew content. */
   homebrewPath: string = "Homebrew";
 
+  /** Datasworn version. This is a hidden setting representing the last known Datasworn version for the content. */
+  dataswornVersion?: string;
+
   emitter?: Emittery;
 
   constructor() {

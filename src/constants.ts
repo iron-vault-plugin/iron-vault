@@ -1,3 +1,5 @@
+import dataswornData from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
+
 /* How we refer to the plugin in block names, property names, etc. */
 export const PLUGIN_SLUG = "iron-vault";
 
@@ -17,3 +19,6 @@ export enum IronVaultKind {
   Clock = "clock",
   ProgressTrack = "progress",
 }
+
+// TODO(@cwegrzyn): if Datasworn exports this from core at some point, we should use that.
+export const PLUGIN_DATASWORN_VERSION: string = dataswornData.datasworn_version;
