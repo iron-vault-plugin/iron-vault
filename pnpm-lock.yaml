@@ -27,10 +27,10 @@ importers:
         specifier: github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/core
         version: https://codeload.github.com/rsek/datasworn/tar.gz/51585c42ab6228f44028b0ea8f026e07ac7c491d#path:pkg/nodejs/@datasworn/core
       '@datasworn/ironsworn-classic':
-        specifier: github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic
-        version: git+https://git@github.com:rsek/datasworn.git#51585c42ab6228f44028b0ea8f026e07ac7c491d&path:pkg/nodejs/@datasworn/ironsworn-classic
+        specifier: git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic
+        version: https://codeload.github.com/rsek/datasworn/tar.gz/51585c42ab6228f44028b0ea8f026e07ac7c491d#path:pkg/nodejs/@datasworn/ironsworn-classic
       '@datasworn/starforged':
-        specifier: github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/starforged
+        specifier: git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/starforged
         version: https://codeload.github.com/rsek/datasworn/tar.gz/51585c42ab6228f44028b0ea8f026e07ac7c491d#path:pkg/nodejs/@datasworn/starforged
       '@jgoz/esbuild-plugin-typecheck':
         specifier: ^4.0.0
@@ -361,8 +361,8 @@ packages:
     resolution: {path: pkg/nodejs/@datasworn/core, tarball: https://codeload.github.com/rsek/datasworn/tar.gz/51585c42ab6228f44028b0ea8f026e07ac7c491d}
     version: 0.0.10
 
-  '@datasworn/ironsworn-classic@git+https://git@github.com:rsek/datasworn.git#51585c42ab6228f44028b0ea8f026e07ac7c491d&path:pkg/nodejs/@datasworn/ironsworn-classic':
-    resolution: {commit: 51585c42ab6228f44028b0ea8f026e07ac7c491d, path: pkg/nodejs/@datasworn/ironsworn-classic, repo: git@github.com:rsek/datasworn.git, type: git}
+  '@datasworn/ironsworn-classic@https://codeload.github.com/rsek/datasworn/tar.gz/51585c42ab6228f44028b0ea8f026e07ac7c491d#path:pkg/nodejs/@datasworn/ironsworn-classic':
+    resolution: {path: pkg/nodejs/@datasworn/ironsworn-classic, tarball: https://codeload.github.com/rsek/datasworn/tar.gz/51585c42ab6228f44028b0ea8f026e07ac7c491d}
     version: 0.1.0
 
   '@datasworn/starforged@https://codeload.github.com/rsek/datasworn/tar.gz/51585c42ab6228f44028b0ea8f026e07ac7c491d#path:pkg/nodejs/@datasworn/starforged':
@@ -2579,7 +2579,7 @@ snapshots:
 
   '@datasworn/core@https://codeload.github.com/rsek/datasworn/tar.gz/51585c42ab6228f44028b0ea8f026e07ac7c491d#path:pkg/nodejs/@datasworn/core': {}
 
-  '@datasworn/ironsworn-classic@git+https://git@github.com:rsek/datasworn.git#51585c42ab6228f44028b0ea8f026e07ac7c491d&path:pkg/nodejs/@datasworn/ironsworn-classic':
+  '@datasworn/ironsworn-classic@https://codeload.github.com/rsek/datasworn/tar.gz/51585c42ab6228f44028b0ea8f026e07ac7c491d#path:pkg/nodejs/@datasworn/ironsworn-classic':
     dependencies:
       '@datasworn/core': https://codeload.github.com/rsek/datasworn/tar.gz/51585c42ab6228f44028b0ea8f026e07ac7c491d#path:pkg/nodejs/@datasworn/core
 
