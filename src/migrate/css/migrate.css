@@ -1,0 +1,9 @@
+.iron-vault-migrate-diff {
+  & .before {
+    background-color: rgba(var(--color-red-rgb), 0.4);
+  }
+
+  & .after {
+    background-color: rgba(var(--color-green-rgb), 0.4);
+  }
+}
