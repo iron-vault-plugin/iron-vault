@@ -9,6 +9,7 @@ import { openDocsInBrowser, openDocsInTab } from "docs/commands";
 import { generateEntityCommand } from "entity/command";
 import IronVaultPlugin from "index";
 import { insertComment } from "mechanics/commands";
+import { migrateFileCommand } from "migrate/command";
 import { runMoveCommand } from "moves/action";
 import { rerollDie } from "moves/action/action-modal";
 import { Command, Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
@@ -254,6 +255,12 @@ export class IronVaultCommands {
       name: "Open documentation in your browser",
       icon: "globe",
       callback: () => openDocsInBrowser(),
+    },
+    {
+      id: "migrate-file",
+      name: "Migrate file",
+      editorCallback: (editor, ctx) =>
+        migrateFileCommand(this.plugin, editor, ctx),
     },
   ];
 
