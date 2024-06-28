@@ -14,6 +14,7 @@ import {
   setIcon,
 } from "obsidian";
 import { runMoveCommand, suggestedRollablesForMove } from "./action";
+import { runOracleCommand } from "oracles/command";
 
 const TABLE_REGEX = /\{\{table>([^}]+)\}\}/g;
 
@@ -86,13 +87,35 @@ export class MoveModal extends Modal {
           this.close();
         }
       });
+    const { moveText, oracles } = this.getMoveText(move);
     await MarkdownRenderer.render(
       this.app,
-      this.getMoveText(move),
+      moveText,
       contentEl.createEl("div", { cls: "md-wrapper" }),
       ".",
       this.plugin,
     );
+    for (const { oracleText, oracle } of oracles) {
+      new ButtonComponent(contentEl)
+        .setButtonText(`Roll ${oracle.name}`)
+        .setTooltip(`Roll on the ${oracle.name} oracle.`)
+        .onClick(() => {
+          const { workspace } = this.plugin.app;
+          const view = workspace.getActiveFileView();
+          if (view && view instanceof MarkdownView) {
+            const editor = view.editor;
+            runOracleCommand(this.plugin, editor, view, oracle);
+            this.close();
+          }
+        });
+      await MarkdownRenderer.render(
+        this.app,
+        oracleText,
+        contentEl.createEl("div", { cls: "md-wrapper" }),
+        ".",
+        this.plugin,
+      );
+    }
     if (this.moveHistory.length) {
       new ButtonComponent(contentEl)
         .setButtonText("Back")
@@ -127,6 +150,7 @@ export class MoveModal extends Modal {
 
   getMoveText(move: AnyDataswornMove) {
     let moveText = move.text;
+    const oracles = [];
     for (const match of move.text.matchAll(TABLE_REGEX)) {
       const oracle = this.plugin.datastore.oracles.get(match[1]);
       let oracleText = "";
@@ -186,9 +210,10 @@ export class MoveModal extends Modal {
           }
           oracleText += "\n";
         }
-        moveText = moveText.replaceAll(match[0], oracleText);
+        oracles.push({ oracleText, oracle });
+        moveText = moveText.replaceAll(match[0], "");
       }
     }
-    return moveText;
+    return { moveText, oracles };
   }
 }
