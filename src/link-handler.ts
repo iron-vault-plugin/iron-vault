@@ -4,7 +4,7 @@ import { DataswornSourced } from "datastore/datasworn-indexer";
 import { extractDataswornLinkParts } from "datastore/parsers/datasworn/id";
 import { rootLogger } from "logger";
 import { MoveModal } from "moves/move-modal";
-import { MarkdownRenderChild } from "obsidian";
+import { MarkdownRenderChild, Notice } from "obsidian";
 import IronVaultPlugin from "./index";
 import { OracleModal } from "./oracles/oracle-modal";
 
@@ -51,8 +51,11 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
       case "oracle":
         new OracleModal(plugin.app, plugin, entry.value).open();
         break;
-      default:
-        logger.warn("Clicked on link with '%s' but no modal exists!", entry.id);
+      default: {
+        const msg = `Iron Vault doesn't currently support displaying '${entry.value.type}' links.`;
+        new Notice(msg);
+        logger.warn(msg);
+      }
     }
   };
 
