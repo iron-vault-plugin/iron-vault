@@ -203,6 +203,8 @@ export async function checkIfMigrationNeededCommand(
   }
 }
 
+const NEWLINE_REGEX = /(\r\n|\r|\n)/;
+
 async function migrateAllFiles(
   plugin: IronVaultPlugin,
 ): Promise<MigrationRecord[]> {
@@ -212,11 +214,11 @@ async function migrateAllFiles(
         const record: MigrationRecord = { path: file.path, changes: [] };
 
         await plugin.app.vault.process(file, (data) => {
-          const linesAndSeps = data.split(/(\r\n|\r\n)/);
+          const linesAndSeps = data.split(NEWLINE_REGEX);
           let lineNo = 1;
           linesAndSeps.forEach((line, idx) => {
             const replacements: MigrationChange["replacements"] = [];
-            if (line.match(/(\r\n|\r|\n)/)) {
+            if (line.match(NEWLINE_REGEX)) {
               lineNo += 1;
             } else {
               linesAndSeps[idx] = replaceIds(line, replacements);

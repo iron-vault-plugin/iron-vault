@@ -21,7 +21,7 @@ Reglar link to [[Example Vow|the vow I swor3e]].
 
 ![[Example Vow|iv-embed]]
 ```iron-vault-mechanics
-move id="starforged/moves/adventure/face_danger" {
+move id="move:starforged/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"
 	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
 	clock "[[Test Clock]]" status="added"
@@ -104,12 +104,12 @@ a single multiline string.
 ```iron-vault-mechanics
 burn from=6 to=2
 
-move "[Strike](move:starforged\/moves\/combat\/strike)" {
+move "[Strike](move:starforged\/combat\/strike)" {
     roll "iron" action=2 adds=0 stat=3 vs1=10 vs2=10
 }
 
 
-move "[Endure Harm](move:starforged\/moves\/suffer\/endure_harm)" {
+move "[Endure Harm](move:starforged\/suffer\/endure_harm)" {
     add 1
     roll "health" action=3 adds=1 stat=5 vs1=2 vs2=2
 }
@@ -118,11 +118,11 @@ move "[Endure Harm](move:starforged\/moves\/suffer\/endure_harm)" {
 asdfasdf
 ```iron-vault-mechanics
 oracle-group name="Character: Curtis \"Centurion\" Shelton" {
-    oracle name="[Character Oracles \/ Character Name \/ Given Name](oracle:starforged\/oracles\/characters\/name\/given)" result="Curtis" roll=64
-    oracle name="[Character Oracles \/ Character Name \/ Callsign](oracle:starforged\/oracles\/characters\/name\/callsign)" result="Centurion" roll=19
-    oracle name="[Character Oracles \/ Character Name \/ Family Name](oracle:starforged\/oracles\/characters\/name\/family_name)" result="Shelton" roll=52
-    oracle name="[Character Oracles \/ First Look](oracle:starforged\/oracles\/characters\/first_look)" result="Weathered" roll=89
-    oracle name="[Character Oracles \/ Initial Disposition](oracle:starforged\/oracles\/characters\/initial_disposition)" result="Wanting" roll=58
+    oracle name="[Character Oracles \/ Character Name \/ Given Name](oracle_rollable:starforged\/character\/name\/given_name)" result="Curtis" roll=64
+    oracle name="[Character Oracles \/ Character Name \/ Callsign](oracle_rollable:starforged\/character\/name\/callsign)" result="Centurion" roll=19
+    oracle name="[Character Oracles \/ Character Name \/ Family Name](oracle_rollable:starforged\/character\/name\/family_name)" result="Shelton" roll=52
+    oracle name="[Character Oracles \/ First Look](oracle_rollable:starforged\/character\/first_look)" result="Weathered" roll=89
+    oracle name="[Character Oracles \/ Initial Disposition](oracle_rollable:starforged\/character\/initial_disposition)" result="Wanting" roll=58
 }
 ```
 
