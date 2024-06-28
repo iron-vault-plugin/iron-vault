@@ -1,11 +1,11 @@
 ---
 <%*
 const api = window.IronVaultAPI;
-const nameRoll = api.roll('starforged/oracles/factions/name/template');
+const nameRoll = api.roll('oracle_rollable:starforged/faction/name/template');
 const name = nameRoll.simpleResult;
 await tp.file.rename(name)
 
-const factionTypeRoll = api.roll('starforged/oracles/factions/type');
+const factionTypeRoll = api.roll('oracle_rollable:starforged/faction/type');
 const faction_type = api.stripLinks(factionTypeRoll.simpleResult);
 -%>
 name: <% name %>

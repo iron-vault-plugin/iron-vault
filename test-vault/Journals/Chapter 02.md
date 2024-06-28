@@ -9,7 +9,7 @@ initiative "has-initiative" "in a bad spot"
 > [!spoiler]- secret
 > made you look
 ```iron-vault-mechanics
-move "[Face Danger](move:starforged\/moves\/adventure\/face_danger)" {
+move "[Face Danger](move:starforged\/adventure\/face_danger)" {
     roll "iron" action=6 adds=0 stat=3 vs1=4 vs2=10
     reroll action="1"
     reroll vs2="7"

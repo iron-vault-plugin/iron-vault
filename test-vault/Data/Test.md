@@ -24,8 +24,8 @@ Oracle sets:
           - Floor: 1
             Ceiling: 100
             "$id": "starforgedsupp/oracles/templates/actiontheme/1-100"
-            "Result": "[[⏵Action](starforged/oracles/core/action)] [[⏵Theme](starforged/oracles/core/theme)]"
+            "Result": "[[⏵Action](oracle_rollable:starforged/core/action)] [[⏵Theme](oracle_rollable:starforged/core/theme)]"
             "Roll template":
               "$id": "starforgedsupp/oracles/templates/actiontheme/1-100/roll_template"
-              "Result": "{{starforged/oracles/core/action}} {{starforged/oracles/core/theme}}"
+              "Result": "{{oracle_rollable:starforged/core/action}} {{oracle_rollable:starforged/core/theme}}"
 ```
