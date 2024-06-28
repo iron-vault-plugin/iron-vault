@@ -169,7 +169,8 @@ export async function checkIfMigrationNeededCommand(plugin: IronVaultPlugin) {
     if (
       await YesNoPrompt.show(
         plugin.app,
-        "Your vault uses an old version of Datasworn and needs to be migrated. Would you like to generate a migration report?",
+        `Your vault uses an old version of Datasworn and needs to be migrated to ${PLUGIN_DATASWORN_VERSION}. Would you like to generate a migration report?`,
+        "Data migration needed",
       )
     ) {
       await writeMigrationLog(
@@ -184,7 +185,8 @@ export async function checkIfMigrationNeededCommand(plugin: IronVaultPlugin) {
     if (
       await YesNoPrompt.show(
         plugin.app,
-        "Would you like to perform a migration of your vault? Please make a backup of your vault before continuing.",
+        `Would you like to perform a migration of your vault to Datasworn ${PLUGIN_DATASWORN_VERSION}? Please make a backup of your vault before continuing.`,
+        "Data migration needed",
       )
     ) {
       const log = await migrateAllFiles(plugin);
