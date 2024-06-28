@@ -6,6 +6,7 @@ import { IronVaultLinkView, LINK_VIEW } from "docs/docs-view";
 import { IndexManager } from "indexer/manager";
 import installLinkHandler from "link-handler";
 import { initLogger } from "logger";
+import { checkIfMigrationNeededCommand } from "migrate/command";
 import { Plugin, addIcon } from "obsidian";
 import { IronVaultPluginSettings } from "settings";
 import registerSidebarBlocks from "sidebar/sidebar-block";
@@ -37,11 +38,20 @@ export default class IronVaultPlugin extends Plugin {
   api!: IronVaultAPI;
   commands!: IronVaultCommands;
   diceOverlay!: DiceOverlay;
+  initialized: boolean = false;
 
   private async initialize(): Promise<void> {
+    if (this.initialized) {
+      throw new Error("Why did we initialize again");
+    }
+    this.initialized = true;
+
     await this.datastore.initialize();
     this.indexManager.initialize();
     await this.initLeaf();
+
+    // Don't await this-- we don't care when or how it finishes.
+    checkIfMigrationNeededCommand(this, true);
   }
 
   public assetFilePath(assetPath: string) {

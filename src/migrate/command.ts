@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownFileInfo, MarkdownView, Notice } from "obsidian";
+import { App, Notice } from "obsidian";
 
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
@@ -164,7 +164,10 @@ ${report.map(({ path, changes }) => `### ${path}\n\n${changes.map((lineChange) =
   await app.workspace.getLeaf(false).openFile(file);
 }
 
-export async function checkIfMigrationNeededCommand(plugin: IronVaultPlugin) {
+export async function checkIfMigrationNeededCommand(
+  plugin: IronVaultPlugin,
+  quiet: boolean,
+) {
   if (await checkIfMigrationNeeded(plugin)) {
     if (
       await YesNoPrompt.show(
@@ -193,6 +196,10 @@ export async function checkIfMigrationNeededCommand(plugin: IronVaultPlugin) {
       await writeMigrationLog(plugin.app, log, "actual");
       await writeVaultDataswornVersion(plugin);
     }
+  } else if (!quiet) {
+    new Notice(
+      `Your vault is up-to-date with Datasworn ${PLUGIN_DATASWORN_VERSION}.`,
+    );
   }
 }
 
@@ -230,12 +237,4 @@ async function migrateAllFiles(
       }),
     )
   ).flat();
-}
-
-export async function migrateFileCommand(
-  plugin: IronVaultPlugin,
-  editor: Editor,
-  ctx: MarkdownView | MarkdownFileInfo,
-) {
-  plugin.app.vault.process(ctx.file!, (data) => replaceIds(data));
 }
