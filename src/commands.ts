@@ -259,7 +259,7 @@ export class IronVaultCommands {
     {
       id: "migrate-check",
       name: "Check if vault data migration is needed",
-      callback: () => checkIfMigrationNeededCommand(this.plugin),
+      callback: () => checkIfMigrationNeededCommand(this.plugin, false),
     },
   ];
 
