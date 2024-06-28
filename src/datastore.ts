@@ -27,6 +27,7 @@ import { Component, Notice, TFile, TFolder, type App } from "obsidian";
 import { OracleRoller } from "oracles/roller";
 import { Ruleset } from "rules/ruleset";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
+import { PLUGIN_DATASWORN_VERSION } from "./constants";
 
 const logger = rootLogger.getLogger("datastore");
 
@@ -144,7 +145,21 @@ export class Datastore extends Component implements IDataContext {
           const data = JSON.parse(await this.app.vault.cachedRead(file));
           const result = validate(data);
           if (!result) {
-            logger.error(validate.errors);
+            let msg: string;
+            if (
+              validate.errors?.find(
+                (err) =>
+                  err.instancePath == "/datasworn_version" &&
+                  err.keyword == "const",
+              )
+            ) {
+              msg = `Datasworn homebrew content file '${file.path}' uses Datasworn ${data["datasworn_version"]}, but Iron Vault expects Datasworn ${PLUGIN_DATASWORN_VERSION}.`;
+            } else {
+              msg = `Datasworn homebrew content file '${file.path}' is not a valid Datasworn ${PLUGIN_DATASWORN_VERSION}. Check the error message in the Developer tools console for more details.`;
+            }
+
+            new Notice(msg, 0);
+            logger.error(msg, validate.errors);
             continue;
           }
           const dataswornPackage = data as Datasworn.RulesPackage;
