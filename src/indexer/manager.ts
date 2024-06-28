@@ -46,7 +46,8 @@ export class IndexManager extends Component {
     this.handlers.set(indexer.id, indexer);
   }
 
-  public initialize(): void {
+  public onload(): void {
+    logger.debug("[index-manager] Starting event listeners...");
     this.registerEvent(
       this.metadataCache.on("changed", (file, data, cache) => {
         this.indexFile(file, cache);
@@ -70,9 +71,10 @@ export class IndexManager extends Component {
         }
       }),
     );
+  }
 
-    logger.debug("Starting initial index...");
-
+  public indexAll(): void {
+    logger.debug("[index-manager] Starting full index...");
     for (const file of this.vault.getMarkdownFiles()) {
       const cache = this.metadataCache.getFileCache(file);
       if (cache != null) {
@@ -81,6 +83,7 @@ export class IndexManager extends Component {
         logger.warn("no cache for %s", file.path);
       }
     }
+    logger.debug("[index-manager] Full index complete.");
   }
 
   protected currentIndexerForFile(path: string): Indexer | undefined {

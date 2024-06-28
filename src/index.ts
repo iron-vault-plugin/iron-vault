@@ -47,7 +47,6 @@ export default class IronVaultPlugin extends Plugin {
     this.initialized = true;
 
     await this.datastore.initialize();
-    this.indexManager.initialize();
     await this.initLeaf();
 
     // Don't await this-- we don't care when or how it finishes.
@@ -79,12 +78,10 @@ export default class IronVaultPlugin extends Plugin {
     );
     this.datastore = this.addChild(new Datastore(this));
     this.initializeIndexManager();
-    this.settings.on("change", ({ key }) => {
-      if (key === "enableIronsworn" || key === "enableStarforged") {
-        this.removeChild(this.indexManager);
-        this.initializeIndexManager();
-        this.indexManager.initialize();
-      }
+    this.datastore.on("initialized", () => {
+      // Because certain file schemas (characters mainly) are dependent on the loaded Datasworn
+      // data (mainly Rules), we reindex tracked entities when the datastore is refreshed.
+      this.indexManager.indexAll();
     });
 
     if (this.app.workspace.layoutReady) {
