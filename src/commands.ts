@@ -9,10 +9,7 @@ import { openDocsInBrowser, openDocsInTab } from "docs/commands";
 import { generateEntityCommand } from "entity/command";
 import IronVaultPlugin from "index";
 import { insertComment } from "mechanics/commands";
-import {
-  checkIfMigrationNeededCommand,
-  migrateFileCommand,
-} from "migrate/command";
+import { checkIfMigrationNeededCommand } from "migrate/command";
 import { runMoveCommand } from "moves/action";
 import { rerollDie } from "moves/action/action-modal";
 import { Command, Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
@@ -261,14 +258,8 @@ export class IronVaultCommands {
     },
     {
       id: "migrate-check",
-      name: "Check if data migration is needed",
+      name: "Check if vault data migration is needed",
       callback: () => checkIfMigrationNeededCommand(this.plugin),
-    },
-    {
-      id: "migrate-file",
-      name: "Migrate file",
-      editorCallback: (editor, ctx) =>
-        migrateFileCommand(this.plugin, editor, ctx),
     },
   ];
 
