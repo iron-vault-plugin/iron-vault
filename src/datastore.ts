@@ -1,8 +1,10 @@
 import { type Datasworn } from "@datasworn/core";
 import { Rules } from "@datasworn/core/dist/Datasworn";
 import dataswornSchema from "@datasworn/core/json/datasworn.schema.json" assert { type: "json" };
+import ironswornDelvePackage from "@datasworn/ironsworn-classic-delve/json/delve.json" assert { type: "json" };
 import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
+import sunderedIslesPackage from "@datasworn/sundered_isles/json/sundered_isles.json" assert { type: "json" };
 import Ajv from "ajv";
 import { IDataContext } from "characters/action-context";
 import {
@@ -50,6 +52,8 @@ export class Datastore extends Component implements IDataContext {
       if (
         key === "enableIronsworn" ||
         key === "enableStarforged" ||
+        key === "enableIronswornDelve" ||
+        key === "enableSunderedIsles" ||
         key === "useHomebrew" ||
         key === "homebrewPath"
       ) {
@@ -74,10 +78,19 @@ export class Datastore extends Component implements IDataContext {
       this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
     }
 
+    if (this.plugin.settings.enableIronswornDelve) {
+      // @ts-expect-error tsc seems to infer type of data in an incompatible way
+      this.indexBuiltInData(ironswornDelvePackage as Datasworn.Expansion);
+    }
+
     if (this.plugin.settings.enableStarforged) {
       // @ts-expect-error tsc seems to infer type of data in an incompatible way
       this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
       this.indexBuiltInData(starforgedSupp as Datasworn.Expansion, 5);
+    }
+
+    if (this.plugin.settings.enableSunderedIsles) {
+      this.indexBuiltInData(sunderedIslesPackage as Datasworn.Expansion);
     }
 
     if (this.plugin.settings.useHomebrew) {

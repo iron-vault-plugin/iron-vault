@@ -60,6 +60,19 @@ export class IronVaultSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
+      .setName("Enable Delve expansion for Ironsworn")
+      .setDesc(
+        "(experimental) If enabled, Ironsworn: Delve Core oracles, assets, and moves will be available for play.",
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(settings.enableIronswornDelve)
+          .onChange((value) =>
+            this.updateSetting("enableIronswornDelve", value),
+          );
+      });
+
+    new Setting(containerEl)
       .setName("Enable Starforged ruleset")
       .setDesc(
         "If enabled, Ironsworn: Starforged oracles, assets, truths, and moves will be available for play.",
@@ -68,6 +81,19 @@ export class IronVaultSettingTab extends PluginSettingTab {
         toggle
           .setValue(settings.enableStarforged)
           .onChange((value) => this.updateSetting("enableStarforged", value));
+      });
+
+    new Setting(containerEl)
+      .setName("Enable Sundered Isles expansion for Starforged")
+      .setDesc(
+        "(experimental) If enabled, Sundered Isles oracles, assets, and moves will be available for play.",
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(settings.enableSunderedIsles)
+          .onChange((value) =>
+            this.updateSetting("enableSunderedIsles", value),
+          );
       });
 
     new Setting(containerEl).setName("Homebrew").setHeading();

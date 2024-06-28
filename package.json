@@ -28,7 +28,9 @@
     "@codemirror/view": "^6.26.3",
     "@datasworn/core": "git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/core",
     "@datasworn/ironsworn-classic": "git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic",
+    "@datasworn/ironsworn-classic-delve": "github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic-delve",
     "@datasworn/starforged": "git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/starforged",
+    "@datasworn/sundered_isles": "github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/sundered-isles",
     "@jgoz/esbuild-plugin-typecheck": "^4.0.0",
     "@nrsk/sigma": "^3.8.0",
     "@popperjs/core": "^2.11.8",
@@ -71,7 +73,8 @@
   },
   "pnpm": {
     "overrides": {
-      "@datasworn/core": "github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/core"
+      "@datasworn/core": "github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/core",
+      "@datasworn/ironsworn-classic": "git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic"
     }
   }
 }
