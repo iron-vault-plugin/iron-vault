@@ -86,7 +86,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Enable Sundered Isles expansion for Starforged")
       .setDesc(
-        "(experimental) If enabled, Sundered Isles oracles, assets, and moves will be available for play.",
+        "(experimental) If enabled, Sundered Isles oracles, assets, and moves will be available for play. Sundered Isles data is considered in preview, pending finalization of the rulebook.",
       )
       .addToggle((toggle) => {
         toggle

@@ -17,6 +17,8 @@ Iron Vault is bundled with official [Datasworn](https://github.com/rsek/dataswor
 
 Official support for expansions like Ironsworn: Delve and Sundered Isles is on the roadmap. Right now, we have experimental support for loading expansion content. You can enable the expansions in [[Settings#Rulesets]]. Please note: new mechanics introduced by the expansion may not be implemented fully or correctly at this time. The expansions do not standalone and you are expected to enable the appropriate base game along with the expansion. Iron Vault does not enforce this at this time, but things may not work correctly if you enable an expansion without enabling the appropriate base game.
 
+> [!IMPORTANT] Sundered Isles is in preview.
+> The Datasworn Sundered Isles data is considered a preview, awaiting finalization of the Sundered Isles rulebook.
 ### Homebrew
 
 Iron Vault supports custom homebrew rules packages. In the future, we will add additional mechanisms for easily adding things like oracles, moves, and assets in simpler Markdown format.
