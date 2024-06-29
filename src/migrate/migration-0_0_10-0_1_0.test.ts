@@ -1,6 +1,6 @@
 import { hasOldId, replaceIds, replaceLinks } from "./migration-0_0_10-0_1_0";
 
-const TEST_CASES: { str: string; result: string }[] = [
+const TEST_CASES: { str: string; result: string; skipLink?: boolean }[] = [
   {
     str: "[test](id:classic/oracles/turning_point/combat_action)",
     result: "[test](oracle_rollable:classic/turning_point/combat_action)",
@@ -19,11 +19,20 @@ const TEST_CASES: { str: string; result: string }[] = [
     result:
       "[Foo \\/ Bar \\n](oracle_rollable:starforged\\/character\\/name\\/callsign)",
   },
+  {
+    str: "- id: starforged/assets/command_vehicle/starship",
+    result: "- id: asset:starforged/command_vehicle/starship",
+    skipLink: true,
+  },
+  {
+    str: "constructor(leaf)",
+    result: "constructor(leaf)",
+  },
 ];
 
 describe("replaceLinks", () => {
-  it.each(TEST_CASES)("handles $str", ({ str, result }) => {
-    expect(replaceLinks(str)).toEqual(result);
+  it.each(TEST_CASES)("handles $str", ({ str, result, skipLink }) => {
+    expect(replaceLinks(str)).toEqual(skipLink ? str : result);
   });
 });
 
@@ -49,7 +58,7 @@ describe("replaceIds", () => {
 });
 
 describe("hasOldIds", () => {
-  it.each(TEST_CASES)("finds old ID in $str", ({ str }) => {
-    expect(hasOldId(str)).toBe(true);
+  it.each(TEST_CASES)("finds old ID in $str", ({ str, result }) => {
+    expect(hasOldId(str)).toBe(str != result);
   });
 });
