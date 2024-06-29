@@ -1,6 +1,6 @@
 import idMapRaw from "../../data/datasworn-0.0.10-to-0.1.0-id_map.json" assert { type: "json" };
 
-const ID_REGEX = /(?<id>[-\w._]+(?:(?:\/|\\\/)[-\w._]+)*)/g;
+const ID_REGEX = /(?<id>[-\w._]+(?:(?:\/|\\\/)[-\w._]+)+)/g;
 const KIND_REGEX = /(?<kind>id|move|asset|oracle):/g;
 const ID_OPTIONAL_KIND_REGEX = new RegExp(
   String.raw`(?:${KIND_REGEX.source})?${ID_REGEX.source}`,
@@ -11,15 +11,15 @@ const LINK_REGEX = new RegExp(
   "g",
 );
 
-const idMap: Record<string, string | null> = idMapRaw;
+const idMap: Map<string, string | null> = new Map(Object.entries(idMapRaw));
 
-function getNewId(id: string): string | null {
+function getNewId(id: string): string | null | undefined {
   // If the string has escaped forward slashes, assume it is a KDL string, and it needs escaping
   const isKdl = id.indexOf("\\/") > -1;
   if (isKdl) {
     id = id.replaceAll("\\/", "/");
   }
-  const newId = idMap[id];
+  const newId = idMap.get(id);
   return newId && (isKdl ? newId.replaceAll("/", "\\/") : newId);
 }
 
