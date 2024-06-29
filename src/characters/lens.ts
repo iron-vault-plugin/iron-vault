@@ -53,7 +53,9 @@ export const baseIronVaultSchema = z
     pronouns: z.string().optional(),
     description: z.string().optional(),
     xp_spent: z.number().int().nonnegative().default(0),
-    momentum: z.number().int().gte(-10).lte(10),
+
+    // Starting momentum is 2 according to Starforged p111
+    momentum: z.number().int().gte(-10).lte(10).default(2),
     assets: z.array(characterAssetSchema).optional(),
     initiative: z.boolean().optional(),
   })
@@ -96,8 +98,9 @@ function legacyTrack(specialTrackRule: SpecialTrackRule) {
   const xpEarnedKey = `${formattedLabel}_XPEarned`;
   return {
     schema: {
-      [progressKey]: z.number().int().nonnegative(),
-      [xpEarnedKey]: z.number().int().nonnegative(),
+      // Note that we default missing tracks to 0 progress / 0 xp which is a safe bet
+      [progressKey]: z.number().int().nonnegative().default(0),
+      [xpEarnedKey]: z.number().int().nonnegative().default(0),
     },
     lens: {
       get(source) {
@@ -460,11 +463,16 @@ export function characterLens(ruleset: Ruleset): {
 } {
   const v = validated(ruleset);
   const stats = objectMap(ruleset.stats, (defn, key) => ({
-    schema: z.number().int().gte(defn.min).lte(defn.max),
+    schema: z.number().int().gte(defn.min).lte(defn.max).default(defn.min),
     path: key,
   }));
   const condition_meters = objectMap(ruleset.condition_meters, (defn, key) => ({
-    schema: z.number().int().gte(defn.min).lte(defn.max),
+    schema: z
+      .number()
+      .int()
+      .gte(defn.min)
+      .lte(defn.max)
+      .default(defn.defaultValue ?? defn.max),
     path: key,
   }));
   const specialTracks = objectMap(ruleset.special_tracks, (rule) =>
