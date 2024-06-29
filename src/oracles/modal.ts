@@ -1,18 +1,24 @@
-import { Oracle } from "model/oracle";
+import IronVaultPlugin from "index";
+import { CurseBehavior, Oracle } from "model/oracle";
 import { RollWrapper } from "model/rolls";
-import { Modal, Setting, type App } from "obsidian";
+import { Modal, Setting } from "obsidian";
+import { stripMarkdown } from "utils/strip-markdown";
 
 export class OracleRollerModal extends Modal {
   public accepted: boolean = false;
+  public cursedRoll?: RollWrapper;
 
   constructor(
-    app: App,
+    private plugin: IronVaultPlugin,
     protected oracle: Oracle,
     public currentRoll: RollWrapper,
-    protected readonly onAccept: (roll: RollWrapper) => void,
+    protected readonly onAccept: (
+      roll: RollWrapper,
+      cursedRoll?: RollWrapper,
+    ) => void,
     protected readonly onCancel: () => void,
   ) {
-    super(app);
+    super(plugin.app);
   }
 
   async onOpen(): Promise<void> {
@@ -34,15 +40,79 @@ export class OracleRollerModal extends Modal {
 
     const rollSetting = new Setting(contentEl).setName("Current roll");
     const flipSetting = new Setting(contentEl).setName("Flipped roll");
+    let cursedSetting: Setting | undefined;
+    if (this.currentRoll.cursedRoll != null && this.currentRoll.cursedTable) {
+      new Setting(contentEl)
+        .setName(this.currentRoll.cursedTable.name)
+        .setDesc(`Cursed die: ${this.currentRoll.cursedRoll}`)
+        .setHeading();
+      const name =
+        this.currentRoll.cursedTable?.curseBehavior === CurseBehavior.AddResult
+          ? "Add result"
+          : "Replace result";
+      const desc =
+        this.currentRoll.cursedTable?.curseBehavior === CurseBehavior.AddResult
+          ? "The cursed table's result will be added to the regular oracle roll"
+          : "The cursed table's result will replace the regular oracle roll";
+      cursedSetting = new Setting(contentEl).setName(name).setDesc(desc);
+      const onUpdateCursedRoll = async (): Promise<void> => {
+        if (cursedSetting && this.cursedRoll) {
+          cursedSetting.clear();
+          cursedSetting
+            .setDesc(render(this.cursedRoll))
+            .addExtraButton((btn) =>
+              btn.setIcon("refresh-cw").onClick(async () => {
+                if (this.cursedRoll && this.currentRoll.cursedTable) {
+                  await setCursedRoll(await this.cursedRoll.reroll());
+                }
+              }),
+            )
+            .addButton((btn) => {
+              btn
+                .setButtonText("Select")
+                .setCta()
+                .onClick(() => {
+                  this.accept(this.currentRoll, this.cursedRoll);
+                });
+            });
+        }
+      };
+      const setCursedRoll = async (roll: RollWrapper): Promise<void> => {
+        this.cursedRoll = roll;
+        await onUpdateCursedRoll();
+      };
+      cursedSetting.addButton((btn) =>
+        btn.setIcon("dice").onClick(async () => {
+          const res = await this.currentRoll.cursedTable?.roll(
+            this.currentRoll.context,
+          );
+          if (res && this.currentRoll.cursedTable) {
+            await setCursedRoll(
+              new RollWrapper(
+                this.currentRoll.cursedTable,
+                this.currentRoll.context,
+                res,
+              ),
+            );
+          }
+        }),
+      );
+    }
 
     const render = (roll: RollWrapper): string => {
       const evaledRoll = roll.dehydrate();
-      return `${evaledRoll.roll}: ${evaledRoll.results.join("; ")}`;
+      return stripMarkdown(
+        this.plugin,
+        `${evaledRoll.roll}: ${evaledRoll.results.join("; ")}`,
+      );
     };
 
     const onUpdateRoll = async (): Promise<void> => {
       rollSetting.setDesc(render(this.currentRoll));
       flipSetting.setDesc(render((await this.currentRoll.variants()).flip));
+      if (cursedSetting && this.cursedRoll) {
+        cursedSetting.setDesc(render(this.cursedRoll));
+      }
     };
 
     const setRoll = async (roll: RollWrapper): Promise<void> => {
@@ -88,10 +158,10 @@ export class OracleRollerModal extends Modal {
     });
   }
 
-  accept(roll: RollWrapper): void {
+  accept(roll: RollWrapper, cursedRoll?: RollWrapper): void {
     this.accepted = true;
     this.close();
-    this.onAccept(roll);
+    this.onAccept(roll, cursedRoll);
   }
 
   onClose(): void {

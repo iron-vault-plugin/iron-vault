@@ -1,4 +1,4 @@
-Iron Vault overrides a number of kinds of links to change their behavior: instead of trying to open a link in your browser, they will open a pop window/modal with the entity they link to.
+iIron Vault overrides a number of kinds of links to change their behavior: instead of trying to open a link in your browser, they will open a pop window/modal with the entity they link to.
 
 You can use special links using external link syntax (`[Name of Link](type:path/a/b)`), where `type:path/a/b` is one of the following:
 

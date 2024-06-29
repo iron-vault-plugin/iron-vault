@@ -3,6 +3,7 @@ import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { NoSuchOracleError } from "../../../model/errors";
 import {
+  CurseBehavior,
   Oracle,
   OracleGrouping,
   OracleRollableRow,
@@ -11,6 +12,7 @@ import {
 } from "../../../model/oracle";
 import { Roll, RollResultKind, Subroll, sameRoll } from "../../../model/rolls";
 import { Dice, DieKind } from "../../../utils/dice";
+import { DiceGroup } from "utils/dice-group";
 
 const logger = rootLogger.getLogger("datasworn/oracles");
 
@@ -69,11 +71,51 @@ export class DataswornOracle implements Oracle {
     return Dice.fromDiceString(this.table.dice, this.plugin, DieKind.Oracle);
   }
 
+  get cursedBy(): Oracle | undefined {
+    for (const val of Object.values(this.table.tags ?? {})) {
+      if (typeof val.cursed_by === "string") {
+        return this.plugin?.datastore.oracles.get(val.cursed_by);
+      }
+    }
+    return;
+  }
+
+  get curseBehavior(): CurseBehavior | undefined {
+    for (const val of Object.values(this.table.tags ?? {})) {
+      if (typeof val.curse_behavior === "string") {
+        return val.curse_behavior as CurseBehavior;
+      }
+    }
+    return;
+  }
+
   async roll(context: RollContext): Promise<Roll> {
+    const cursed = this.cursedBy;
+    if (cursed && this.plugin) {
+      const group = new DiceGroup(
+        [
+          this.dice,
+          new Dice(
+            1,
+            this.plugin.settings.cursedDieSides,
+            this.plugin,
+            DieKind.Cursed,
+          ),
+        ],
+        this.plugin,
+      );
+      const res = await group.roll();
+      return this.evaluate(context, res[0].value, res[1].value, cursed.id);
+    }
     return this.evaluate(context, await this.dice.roll());
   }
 
-  async evaluate(context: RollContext, roll: number): Promise<Roll> {
+  async evaluate(
+    context: RollContext,
+    roll: number,
+    cursedRoll?: number,
+    cursedTableId?: string,
+  ): Promise<Roll> {
     const row = this.rowFor(roll);
 
     const subrolls: Record<string, Subroll<Roll>> = {};
@@ -189,6 +231,8 @@ export class DataswornOracle implements Oracle {
       roll,
       tableId: this.id,
       subrolls,
+      cursedRoll,
+      cursedTableId,
     };
   }
 

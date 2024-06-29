@@ -470,12 +470,25 @@ export class MechanicsRenderer {
     const name = (node.properties.name ?? node.values[0]) as string;
     const roll = (node.properties.roll ?? node.values[1]) as number;
     const result = (node.properties.result ?? node.values[2]) as string;
+    const cursed = (node.properties.cursed ?? node.values[3]) as
+      | number
+      | undefined;
+    const replaced = (node.properties.replaced ?? node.values[4]) as
+      | boolean
+      | undefined;
     const wrapper = target.createDiv("oracle-container");
-    await this.renderDlist(wrapper, "oracle", {
+    const data: DataList = {
       name: { cls: "name", value: name, md: true },
       roll: { cls: "roll", value: roll },
       result: { cls: "result", value: result, md: true },
-    });
+    };
+    if (cursed != null) {
+      data.cursed = { cls: "cursed", value: cursed };
+    }
+    if (replaced != null) {
+      data.replaced = { cls: "replaced", value: replaced };
+    }
+    await this.renderDlist(wrapper, "oracle", data);
     if (node.children.length) {
       const bq = wrapper.createEl("blockquote");
       for (const child of node.children) {
