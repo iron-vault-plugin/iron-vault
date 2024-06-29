@@ -36,10 +36,6 @@ export class DiceOverlay {
     const container = document.createElement("div");
     container.id = "iron-vault-dice-box";
     target.appendChild(container);
-    container.addEventListener("click", () => {
-      container.classList.toggle("active", false);
-      this.diceBox.clear();
-    });
     this.diceBox = new DiceBox("#iron-vault-dice-box", {
       assetPath: "/",
       origin: originUrl.toString(),
@@ -54,10 +50,25 @@ export class DiceOverlay {
   }
 
   async roll(dice: string | string[] | Roll | Roll[]): Promise<RollResult[]> {
-    document
-      .getElementById("iron-vault-dice-box")
-      ?.classList.toggle("active", true);
-    return await this.diceBox.roll(dice);
+    const container = document.getElementById("iron-vault-dice-box");
+    container?.classList.toggle("active", true);
+    const roll = await this.diceBox.roll(dice);
+    const listener = (ev: KeyboardEvent | MouseEvent) => {
+      if (
+        (ev instanceof KeyboardEvent && ev.key === "Escape") ||
+        ev instanceof MouseEvent
+      ) {
+        container?.classList.toggle("active", false);
+        this.diceBox.clear();
+        container?.removeEventListener("click", listener);
+        document.removeEventListener("keydown", listener);
+        ev.stopPropagation();
+        ev.preventDefault();
+      }
+    };
+    document.addEventListener("keydown", listener);
+    container?.addEventListener("click", listener);
+    return roll;
   }
 }
 
