@@ -31,7 +31,9 @@ export class MigrationManager {
     // Update it eventually
     this.migrationNeeded = await checkIfMigrationNeeded(this.plugin);
     this.updateState(MigrationStage.Scanned);
-    this.trigger("needs-migration", this);
+    if (this.migrationNeeded) {
+      this.trigger("needs-migration", this);
+    }
   }
 
   async generateReport() {
