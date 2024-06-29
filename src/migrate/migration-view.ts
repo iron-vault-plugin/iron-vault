@@ -41,6 +41,7 @@ export class IronVaultMigrationView extends ItemView {
     if (this.manager.migrationNeeded === undefined) {
       this.manager.scan();
     }
+    this.contentEl.addClass("iron-vault-migration-view");
     this.render();
   }
 

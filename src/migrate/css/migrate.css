@@ -11,3 +11,9 @@
     background-color: rgba(var(--color-green-rgb), 0.4);
   }
 }
+
+.iron-vault-migration-view {
+  & button {
+    white-space: normal;
+  }
+}
