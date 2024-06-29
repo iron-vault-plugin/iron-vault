@@ -165,8 +165,7 @@ export class IronVaultCommands {
           this.plugin,
         );
         await advanceProgressTrack(
-          this.plugin.app,
-          this.plugin.settings,
+          this.plugin,
           editor,
           ctx as MarkdownView,
           new ProgressContext(this.plugin, actionContext),
@@ -196,8 +195,7 @@ export class IronVaultCommands {
       icon: "alarm-clock-plus",
       editorCallback: (editor: Editor, ctx: MarkdownView | MarkdownFileInfo) =>
         advanceClock(
-          this.plugin.app,
-          this.plugin.settings,
+          this.plugin,
           editor,
           ctx as MarkdownView,
           this.plugin.clockIndex,

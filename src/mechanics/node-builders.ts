@@ -9,12 +9,15 @@ import { ProgressTrackWriterContext } from "tracks/writer";
 import { node } from "utils/kdl";
 
 export function createProgressNode(
+  // NB(@zkat): passed in as separate argument because we usually strip
+  // markdown before passing it down.
+  trackName: string,
   trackContext: ProgressTrackWriterContext,
   steps: number,
 ): kdl.Node {
   return node("progress", {
     properties: {
-      name: `[[${trackContext.location}|${trackContext.name}]]`,
+      name: `[[${trackContext.location}|${trackName}]]`,
       from: trackContext.track.progress,
       rank: trackContext.track.rank,
       steps,
@@ -59,13 +62,14 @@ export function createClockCreationNode(
 }
 
 export function createClockNode(
+  clockName: string,
   clockPath: string,
   sourceClock: ClockFileAdapter,
   endValue: Clock,
 ): kdl.Node {
   return node("clock", {
     properties: {
-      name: `[[${clockPath}|${sourceClock.name}]]`,
+      name: `[[${clockPath}|${clockName}]]`,
       from: sourceClock.clock.progress,
       to: endValue.progress,
       "out-of": endValue.segments,

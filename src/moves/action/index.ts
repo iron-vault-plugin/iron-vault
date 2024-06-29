@@ -318,7 +318,7 @@ async function handleProgressRoll(
 ): Promise<MoveDescription> {
   const progressTrack = await selectProgressTrack(
     progressContext,
-    plugin.app,
+    plugin,
     (prog) =>
       (move.tracks.category == "*" || prog.trackType == move.tracks.category) &&
       !prog.track.complete,

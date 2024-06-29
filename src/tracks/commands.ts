@@ -7,8 +7,7 @@ import {
   createTrackCompletionNode,
   createTrackCreationNode,
 } from "mechanics/node-builders";
-import { App, Editor, MarkdownView } from "obsidian";
-import { IronVaultPluginSettings } from "settings";
+import { Editor, MarkdownView } from "obsidian";
 import { createNewIronVaultEntityFile } from "utils/obsidian";
 import { BLOCK_TYPE__TRACK, IronVaultKind } from "../constants";
 import { CustomSuggestModal } from "../utils/suggest";
@@ -16,22 +15,22 @@ import { ProgressContext } from "./context";
 import { ProgressTrack, ProgressTrackFileAdapter } from "./progress";
 import { ProgressTrackCreateModal } from "./progress-create";
 import { selectProgressTrack } from "./select";
+import { stripMarkdown } from "utils/strip-markdown";
 
 export async function advanceProgressTrack(
-  app: App,
-  settings: IronVaultPluginSettings,
+  plugin: IronVaultPlugin,
   editor: Editor,
   view: MarkdownView,
   progressContext: ProgressContext,
 ) {
   const trackContext = await selectProgressTrack(
     progressContext,
-    app,
+    plugin,
     ({ track }) => !track.complete && track.ticksRemaining > 0,
   );
 
   const steps = await CustomSuggestModal.select(
-    app,
+    plugin.app,
     Array(trackContext.track.stepsRemaining)
       .fill(0)
       .map((_, i) => i + 1),
@@ -44,7 +43,11 @@ export async function advanceProgressTrack(
 
   appendNodesToMoveOrMechanicsBlock(
     editor,
-    createProgressNode(trackContext, steps),
+    createProgressNode(
+      stripMarkdown(plugin, trackContext.name),
+      trackContext,
+      steps,
+    ),
   );
 }
 
@@ -82,7 +85,7 @@ export async function createProgressTrack(
 
   appendNodesToMoveOrMechanicsBlock(
     editor,
-    createTrackCreationNode(trackInput.name, file.path),
+    createTrackCreationNode(stripMarkdown(plugin, trackInput.name), file.path),
     ...(plugin.settings.inlineOnCreation
       ? [createDetailsNode(`![[${file.path}|iv-embed]]`)]
       : []),
@@ -97,7 +100,7 @@ export async function markTrackCompleted(
   const progressContext = new ProgressContext(plugin, actionContext);
   const trackContext = await selectProgressTrack(
     progressContext,
-    plugin.app,
+    plugin,
     ({ trackType, track }) => trackType !== "Legacy" && !track.complete,
   );
 
@@ -105,6 +108,9 @@ export async function markTrackCompleted(
 
   appendNodesToMoveOrMechanicsBlock(
     editor,
-    createTrackCompletionNode(trackContext.name, trackContext.location),
+    createTrackCompletionNode(
+      stripMarkdown(plugin, trackContext.name),
+      trackContext.location,
+    ),
   );
 }

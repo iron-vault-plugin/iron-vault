@@ -5,8 +5,7 @@ import {
   createClockNode,
   createDetailsNode,
 } from "mechanics/node-builders";
-import { App, Editor, MarkdownView } from "obsidian";
-import { IronVaultPluginSettings } from "settings";
+import { Editor, MarkdownView } from "obsidian";
 import {
   ClockFileAdapter,
   ClockIndex,
@@ -18,22 +17,22 @@ import { createNewIronVaultEntityFile, vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { Clock } from "./clock";
 import { ClockCreateModal } from "./clock-create-modal";
+import { stripMarkdown } from "utils/strip-markdown";
 
 export async function advanceClock(
-  app: App,
-  settings: IronVaultPluginSettings,
+  plugin: IronVaultPlugin,
   editor: Editor,
   view: MarkdownView,
   clockIndex: ClockIndex,
 ) {
   const [clockPath, clockInfo] = await selectClock(
     clockIndex,
-    app,
+    plugin,
     ([, clockInfo]) => clockInfo.clock.active && !clockInfo.clock.isFilled,
   );
 
   const ticks = await CustomSuggestModal.select(
-    app,
+    plugin.app,
     Array(clockInfo.clock.ticksRemaining())
       .fill(0)
       .map((_, i) => i + 1),
@@ -43,7 +42,7 @@ export async function advanceClock(
   );
 
   const newClock = await clockUpdater(
-    vaultProcess(app, clockPath),
+    vaultProcess(plugin.app, clockPath),
     (clockAdapter) => {
       return clockAdapter.updatingClock((clock) => clock.tick(ticks));
     },
@@ -51,7 +50,12 @@ export async function advanceClock(
 
   appendNodesToMoveOrMechanicsBlock(
     editor,
-    createClockNode(clockPath, clockInfo, newClock.clock),
+    createClockNode(
+      stripMarkdown(plugin, clockInfo.name),
+      clockPath,
+      clockInfo,
+      newClock.clock,
+    ),
   );
 }
 
@@ -88,7 +92,7 @@ export async function createClock(
 
   appendNodesToMoveOrMechanicsBlock(
     editor,
-    createClockCreationNode(clockInput.name, file.path),
+    createClockCreationNode(stripMarkdown(plugin, clockInput.name), file.path),
     ...(plugin.settings.inlineOnCreation
       ? [createDetailsNode(`![[${file.path}|iv-embed]]`)]
       : []),

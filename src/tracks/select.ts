@@ -1,18 +1,19 @@
-import { App } from "obsidian";
+import { stripMarkdown } from "utils/strip-markdown";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ProgressContext } from "./context";
 import { ProgressTrackInfo } from "./progress";
 import { ProgressTrackWriterContext } from "./writer";
+import IronVaultPlugin from "index";
 
 export async function selectProgressTrack(
   progressContext: ProgressContext,
-  app: App,
+  plugin: IronVaultPlugin,
   filter: (track: ProgressTrackInfo) => boolean = () => true,
 ): Promise<ProgressTrackWriterContext> {
   return await CustomSuggestModal.select(
-    app,
+    plugin.app,
     progressContext.tracks(filter),
-    (trackInfo) => trackInfo.name,
+    (trackInfo) => stripMarkdown(plugin, trackInfo.name),
     ({ item: trackInfo }, el) => {
       const track = trackInfo.track;
       el.createEl("small", {
