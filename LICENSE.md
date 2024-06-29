@@ -24,24 +24,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Ironsworn Content
+## Ironsworn and Ironsworn: Delve Content
 
-This work is based on Ironsworn (found at www.ironswornrpg.com), created by
+This work is based on Ironsworn and Ironsworn: Delve (found at <www.ironswornrpg.com>), created by
 Shawn Tomkin, and licensed for our use under the Creative Commons Attribution
-4.0 International License (https://creativecommons.org/licenses/by/4.0/).
+4.0 International License (<https://creativecommons.org/licenses/by/4.0/>).
 
 Ironsworn content includes all the bundled rules, assets, moves, and text when
-the Ironsworn ruleset is enabled.
+the Ironsworn ruleset is enabled. Ironsworn: Delve content includes all the
+bundled rules, assets, moves, and text when the Ironsworn: Delve expansion is enabled.
 
 ## Starforged Content
 
-This work is based on Ironsworn: Starforged (found at www.ironswornrpg.com),
+This work is based on Ironsworn: Starforged (found at <www.ironswornrpg.com>),
 created by Shawn Tomkin, and licensed for our use under the Creative Commons
 Attribution 4.0 International License
-(https://creativecommons.org/licenses/by/4.0/).
+(<https://creativecommons.org/licenses/by/4.0/>).
 
 Starforged content includes all the bundled rules, assets, moves, and text when
 the Starforged ruleset is enabled.
+
+## Sundered Isles Content
+
+Sundered Isles content is included only as a preview and is not intended for
+further redistribution. It may not reflect the final rulebook. After the rulebook
+is finalized, Datasworn will be updated with official, licensed data.
 
 ## Forged in Obsidian
 

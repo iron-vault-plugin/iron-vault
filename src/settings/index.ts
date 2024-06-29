@@ -7,8 +7,19 @@ export class IronVaultPluginSettings {
   challengeDie2Color: string = "#8b5cf5";
   oracleDiceColor: string = "#9d6910";
   cursedDieColor: string = "#017403";
+
+  /** Index and enable Ironsworn base content. */
   enableIronsworn: boolean = false;
+
+  /** Index and enable Ironsworn: Delve expansion content. */
+  enableIronswornDelve: boolean = false;
+
+  /** Index and enable Starforged base content. */
   enableStarforged: boolean = true;
+
+  /** Index and enable Sundered Isles expansion content. */
+  enableSunderedIsles: boolean = false;
+
   defaultProgressTrackFolder: string = "Progress";
   defaultClockFolder: string = "Clocks";
   defaultCharactersFolder: string = "Characters";
