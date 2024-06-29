@@ -1,3 +1,7 @@
+.iron-vault-migration-report {
+  user-select: text;
+}
+
 .iron-vault-migrate-diff {
   & .before {
     background-color: rgba(var(--color-red-rgb), 0.4);

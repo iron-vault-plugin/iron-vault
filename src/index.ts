@@ -6,7 +6,12 @@ import { IronVaultLinkView, LINK_VIEW } from "docs/docs-view";
 import { IndexManager } from "indexer/manager";
 import installLinkHandler from "link-handler";
 import { initLogger } from "logger";
-import { checkIfMigrationNeededCommand } from "migrate/command";
+import { showMigrationView } from "migrate/command";
+import { MigrationManager } from "migrate/manager";
+import {
+  IronVaultMigrationView,
+  MIGRATION_VIEW_TYPE,
+} from "migrate/migration-view";
 import { Plugin, addIcon } from "obsidian";
 import { IronVaultPluginSettings } from "settings";
 import registerSidebarBlocks from "sidebar/sidebar-block";
@@ -28,9 +33,6 @@ import { pluginAsset } from "./utils/obsidian";
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
   datastore!: Datastore;
-  // characters!: CharacterTracker;
-  // progressIndex!: ProgressIndex;
-  // clockIndex!: ClockIndex;
   characterIndexer!: CharacterIndexer;
   progressIndexer!: ProgressIndexer;
   clockIndexer!: ClockIndexer;
@@ -39,6 +41,7 @@ export default class IronVaultPlugin extends Plugin {
   commands!: IronVaultCommands;
   diceOverlay!: DiceOverlay;
   initialized: boolean = false;
+  migrationManager: MigrationManager = new MigrationManager(this);
 
   private async initialize(): Promise<void> {
     if (this.initialized) {
@@ -50,8 +53,13 @@ export default class IronVaultPlugin extends Plugin {
     this.indexManager.initialize();
     await this.initLeaf();
 
+    this.registerEvent(
+      this.migrationManager.on("needs-migration", () =>
+        showMigrationView(this.app),
+      ),
+    );
     // Don't await this-- we don't care when or how it finishes.
-    checkIfMigrationNeededCommand(this, true);
+    this.migrationManager.scan();
   }
 
   public assetFilePath(assetPath: string) {
@@ -101,6 +109,10 @@ export default class IronVaultPlugin extends Plugin {
     this.registerView(
       LINK_VIEW,
       (leaf) => new IronVaultLinkView(this.app.workspace, leaf),
+    );
+    this.registerView(
+      MIGRATION_VIEW_TYPE,
+      (leaf) => new IronVaultMigrationView(leaf, this),
     );
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
     // const statusBarItemEl = this.addStatusBarItem();

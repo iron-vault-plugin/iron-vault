@@ -1,23 +1,23 @@
-import { App, Notice } from "obsidian";
+import { App, Notice, WorkspaceLeaf } from "obsidian";
 
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import semverCompare from "semver/functions/compare";
-import { YesNoPrompt } from "utils/ui/yesno";
 import { PLUGIN_DATASWORN_VERSION } from "../constants";
 import { hasOldId, replaceIds } from "./migration-0_0_10-0_1_0";
+import { MIGRATION_VIEW_TYPE } from "./migration-view";
 
 const logger = rootLogger.getLogger("migrate");
 
 class NeedsMigrationError extends Error {}
 
-async function getVaultDataswornVersion(
+export async function getVaultDataswornVersion(
   plugin: IronVaultPlugin,
 ): Promise<string | undefined> {
   return plugin.settings.dataswornVersion;
 }
 
-async function writeVaultDataswornVersion(
+export async function writeVaultDataswornVersion(
   plugin: IronVaultPlugin,
 ): Promise<void> {
   logger.info(
@@ -81,14 +81,14 @@ export async function checkIfMigrationNeeded(
   }
 }
 
-type MigrationChange = {
+export type MigrationChange = {
   line: number;
   orig: string;
   migrated: string;
   replacements: { offset: number; length: number; newId: string }[];
 };
 
-type MigrationRecord = {
+export type MigrationRecord = {
   path: string;
   changes: MigrationChange[];
 };
@@ -115,7 +115,10 @@ export async function createMigrationReport(
   ).flat();
 }
 
-export function highlightDiff({ orig, replacements }: MigrationChange): string {
+export function highlightDiff({
+  orig,
+  replacements,
+}: MigrationChange): HTMLElement {
   const el = document.createElement("span");
   el.classList.add("cm-inline-code", "iron-vault-migrate-diff");
   let nextStart = 0;
@@ -141,7 +144,7 @@ export function highlightDiff({ orig, replacements }: MigrationChange): string {
   if (remainder) {
     el.appendText(remainder);
   }
-  return el.outerHTML;
+  return el;
 }
 
 export async function writeMigrationLog(
@@ -153,7 +156,7 @@ export async function writeMigrationLog(
 
 ${runType == "preview" ? "This is a preview of the changes that the ID migration would make." : "This is a record of the changes made by the ID migration."}
 
-${report.map(({ path, changes }) => `### ${path}\n\n${changes.map((lineChange) => `Line ${lineChange.line}:\n${highlightDiff(lineChange)}\n`).join("\n")}`).join("\n")}`;
+${report.map(({ path, changes }) => `### ${path}\n\n${changes.map((lineChange) => `Line ${lineChange.line}:\n${highlightDiff(lineChange).outerHTML}\n`).join("\n")}`).join("\n")}`;
 
   const file = await app.fileManager.createNewMarkdownFile(
     app.fileManager.getNewFileParent(""),
@@ -164,10 +167,29 @@ ${report.map(({ path, changes }) => `### ${path}\n\n${changes.map((lineChange) =
   await app.workspace.getLeaf(false).openFile(file);
 }
 
-export async function checkIfMigrationNeededCommand(
-  plugin: IronVaultPlugin,
-  quiet: boolean,
-) {
+export async function showMigrationView(app: App): Promise<void> {
+  const { workspace } = app;
+
+  let leaf: WorkspaceLeaf | null = null;
+  const leaves = workspace.getLeavesOfType(MIGRATION_VIEW_TYPE);
+
+  if (leaves.length > 0) {
+    // A leaf with our view already exists, use that
+    leaf = leaves[0];
+  } else {
+    // Our view could not be found in the workspace, create a new leaf
+    // in the right sidebar for it
+    leaf = workspace.getLeaf(true);
+    await leaf.setViewState({ type: MIGRATION_VIEW_TYPE, active: true });
+  }
+
+  // "Reveal" the leaf in case it is in a collapsed sidebar
+  workspace.revealLeaf(leaf);
+}
+
+export async function checkIfMigrationNeededCommand(plugin: IronVaultPlugin) {
+  plugin.migrationManager.scan();
+  /*
   if (await checkIfMigrationNeeded(plugin)) {
     if (
       await YesNoPrompt.show(
@@ -201,11 +223,12 @@ export async function checkIfMigrationNeededCommand(
       `Your vault is up-to-date with Datasworn ${PLUGIN_DATASWORN_VERSION}.`,
     );
   }
+    */
 }
 
 const NEWLINE_REGEX = /(\r\n|\r|\n)/;
 
-async function migrateAllFiles(
+export async function migrateAllFiles(
   plugin: IronVaultPlugin,
 ): Promise<MigrationRecord[]> {
   return (
