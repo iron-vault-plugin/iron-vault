@@ -21,11 +21,15 @@ You can roll an entire entity at a time using the [[Generate an entity]] command
 Invoking the entity generator will pop up a screen where you can choose to roll individual parts of the oracle group, or, if you look on the bottom, roll all "first look" oracles to generate the initial version of an entity.
 
 The Entity roller also gives the option of creating a new entity file with a table of the roll results in it.
-#### Cursed Dice
+#### Cursed Die
 
-(Coming Soon)
+If a [[Rulesets and Homebrew|Ruleset]] with cursed oracles is present, any oracles with associated cursed oracles will automatically roll a cursed die along with their regular oracle roll.j
 
-There is currently no direct support for cursed dice and cursed oracles from Sundered Isles in Iron Vault, but this is an upcoming feature.
+The oracle pop-up window will then include a section showing the cursed oracle table name, as well as the value of the cursed die. From there, you may click on the button with the die icon to roll the oracle table itself.
+
+If you decide you want to use the cursed result, you can click on the "Select" button next to the cursed result once you've rolled it.
+
+This will add an oracle mechanics node with a nested cursed oracle. If the cursed oracle is a replacement, the "parent"'s result will be crossed out.
 
 #### Oracle Arrays
 

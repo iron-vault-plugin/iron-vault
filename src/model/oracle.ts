@@ -24,6 +24,11 @@ export interface OracleRulesetGrouping {
   readonly name: string;
 }
 
+export enum CurseBehavior {
+  AddResult = "add_result",
+  ReplaceResult = "replace_result",
+}
+
 export type OracleGrouping = OracleRulesetGrouping | OracleCollectionGrouping;
 
 export interface Oracle {
@@ -36,6 +41,8 @@ export interface Oracle {
   // TODO(@cwegrzyn): exposed raw rollable for use in the oracle reference modal. not sure
   //   to what extent it is useful to abstract some of this stuff away...
   readonly raw: Datasworn.OracleRollable | Datasworn.EmbeddedOracleRollable;
+  readonly cursedBy?: Oracle;
+  readonly curseBehavior?: CurseBehavior;
 
   row(value: number): OracleRow;
 

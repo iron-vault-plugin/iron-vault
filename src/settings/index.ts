@@ -7,6 +7,7 @@ export class IronVaultPluginSettings {
   challengeDie2Color: string = "#8b5cf5";
   oracleDiceColor: string = "#9d6910";
   cursedDieColor: string = "#017403";
+  cursedDieSides: number = 10;
 
   /** Index and enable Ironsworn base content. */
   enableIronsworn: boolean = false;

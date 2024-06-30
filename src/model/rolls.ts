@@ -12,6 +12,15 @@ export interface Roll {
   tableId: string;
 
   /**
+   * If a cursed die was rolled, this is the resulting value.
+   */
+  cursedRoll?: number;
+  /**
+   * Table id that curses this roll.
+   */
+  cursedTableId?: string;
+
+  /**
    * Subsidiary result rolls
    */
   subrolls?: Record<string, Subroll<Roll>>;
@@ -153,6 +162,16 @@ export class RollWrapper {
       this.context,
       await this.oracle.roll(this.context),
     );
+  }
+
+  get cursedRoll(): number | undefined {
+    return this.roll.cursedRoll;
+  }
+
+  get cursedTable(): Oracle | undefined {
+    return this.roll.cursedTableId
+      ? this.context.lookup(this.roll.cursedTableId)
+      : undefined;
   }
 
   get subrolls(): Record<string, Subroll<RollWrapper>> {

@@ -82,13 +82,18 @@ export function createOracleNode(
   prompt?: string,
   name?: string,
 ): kdl.Node {
-  return node("oracle", {
-    properties: {
+  const props: { name: string; roll: number; result: string; cursed?: number } =
+    {
       name: `[${name ?? oracleNameWithParents(roll.oracle)}](${roll.oracle.id})`,
       // TODO: this is preposterous
       roll: roll.roll.roll,
       result: roll.ownResult,
-    },
+    };
+  if (roll.cursedRoll != null) {
+    props.cursed = roll.cursedRoll;
+  }
+  return node("oracle", {
+    properties: props,
     children: [
       ...(prompt ? [node("-", { values: [prompt] })] : []),
       ...Object.values(roll.subrolls)

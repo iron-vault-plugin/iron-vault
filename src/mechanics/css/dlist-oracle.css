@@ -1,4 +1,19 @@
 .iron-vault-mechanics dl.oracle {
+  &:has(dd.replaced[data-value="true"]) {
+    & dd.result {
+      text-decoration: line-through;
+      color: var(--text-faint);
+      &:before,
+      &:after {
+        color: var(--text-faint);
+      }
+    }
+  }
+  &:has(dd.cursed) ~ blockquote > .oracle-container > dl.oracle {
+    &:before {
+      content: "💀";
+    }
+  }
   &:before {
     content: "🔮";
   }
@@ -23,6 +38,14 @@
       &:before,
       &:after {
         content: '"';
+      }
+    }
+    &.replaced {
+      display: none;
+    }
+    &.cursed {
+      &:before {
+        content: "💀=";
       }
     }
   }

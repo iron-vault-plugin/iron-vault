@@ -172,12 +172,30 @@ export class IronVaultSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
-      .setName("Cursed dice color")
+      .setName("Cursed die color")
       .setDesc("Color used for the cursed die when using graphical dice.")
       .addColorPicker((color) => {
         color
           .setValue(settings.cursedDieColor)
           .onChange((value) => this.updateSetting("cursedDieColor", value));
+      });
+
+    new Setting(containerEl)
+      .setName("Cursed die kind")
+      .setDesc("Type of die to use for the cursed die.")
+      .addDropdown((dropdown) => {
+        dropdown
+          .addOptions({
+            "4": "d4",
+            "6": "d6",
+            "8": "d8",
+            "10": "d10",
+            "12": "d12",
+            "20": "d20",
+            "100": "d100",
+          })
+          .setValue("" + settings.cursedDieSides)
+          .onChange((value) => this.updateSetting("cursedDieSides", +value));
       });
 
     new Setting(containerEl).setName("New game object defaults").setHeading();

@@ -4,7 +4,7 @@ import { createOrAppendMechanics } from "mechanics/editor";
 import { createOracleNode } from "mechanics/node-builders";
 import { EditorSelection, type Editor, type MarkdownView } from "obsidian";
 import { numberRange } from "utils/numbers";
-import { Oracle, OracleGroupingType } from "../model/oracle";
+import { CurseBehavior, Oracle, OracleGroupingType } from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
@@ -120,18 +120,25 @@ export async function runOracleCommand(
   }
 
   new OracleRollerModal(
-    plugin.app,
+    plugin,
     oracle,
     new RollWrapper(
       oracle,
       rollContext,
       initialRoll || (await oracle.roll(rollContext)),
     ),
-    (roll) => {
+    (roll, cursedRoll?) => {
       // Delete the prompt and then inject the oracle node to a mechanics block
       editor.setSelection(replaceSelection.anchor, replaceSelection.head);
       editor.replaceSelection("");
-      createOrAppendMechanics(editor, [createOracleNode(roll, prompt)]);
+      const oracleNode = createOracleNode(roll, prompt);
+      const oracleNodes = [oracleNode];
+      if (cursedRoll) {
+        oracleNode.children.push(createOracleNode(cursedRoll));
+        oracleNode.properties.replaced =
+          cursedRoll.oracle.curseBehavior === CurseBehavior.ReplaceResult;
+      }
+      createOrAppendMechanics(editor, oracleNodes);
     },
     () => {},
   ).open();
