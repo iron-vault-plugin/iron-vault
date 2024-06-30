@@ -25,6 +25,7 @@ export type MoveWithSelector = AnyDataswornMove & {
 
 export type DataswornTypes = {
   move_category: Datasworn.MoveCategory;
+  move_ruleset: Datasworn.RulesPackage;
   move: MoveWithSelector;
   asset: Datasworn.Asset;
   oracle: Oracle;
@@ -78,6 +79,12 @@ export function* walkDataswornRulesPackage(
 
     for (const [, move] of Object.entries(category.contents ?? {})) {
       yield make({ ...move, [moveOrigin]: {} });
+      yield {
+        id: "ruleset_for_" + move._id,
+        kind: "move_ruleset",
+        value: input,
+        source,
+      };
 
       const moveOracleGroup: OracleCollectionGrouping = {
         // TODO(@cwegrzyn): should this be its own grouping type? and what should the path be?
@@ -104,6 +111,12 @@ export function* walkDataswornRulesPackage(
       for (const ability of asset.abilities) {
         for (const [, move] of Object.entries(ability.moves ?? {})) {
           yield make({ ...move, [moveOrigin]: { assetId: asset._id } });
+          yield {
+            id: "ruleset_for_" + move._id,
+            kind: "move_ruleset",
+            value: input,
+            source,
+          };
         }
       }
     }

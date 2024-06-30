@@ -68,7 +68,7 @@ const ROLL_TYPES: Record<Datasworn.Move["roll_type"], string> = {
 };
 
 async function promptForMove(
-  app: App,
+  plugin: IronVaultPlugin,
   context: ActionContext,
 ): Promise<Datasworn.Move | Datasworn.EmbeddedMove> {
   const moves = [...context.moves.values()].sort((a, b) =>
@@ -77,7 +77,7 @@ async function promptForMove(
   const choice = await CustomSuggestModal.selectWithUserEntry<
     Datasworn.Move | Datasworn.EmbeddedMove
   >(
-    app,
+    plugin.app,
     moves,
     (move) => move.name,
     (input, el) => {
@@ -85,10 +85,21 @@ async function promptForMove(
     },
     ({ item: move }, el: HTMLElement) => {
       const moveKind = getMoveKind(move);
+      const ruleset = moveRuleset(plugin, move);
       el.createEl("small", {
         text: `(${moveKind}) ${move.trigger.text}`,
         cls: "iron-vault-suggest-hint",
       });
+      if (ruleset) {
+        el.createEl("br");
+        el.createEl("small", {
+          cls: "iron-vault-suggest-hint",
+        })
+          .createEl("strong")
+          .createEl("em", {
+            text: ruleset,
+          });
+      }
     },
     `Select a move`,
   );
@@ -98,7 +109,7 @@ async function promptForMove(
   }
 
   const roll_type = await CustomSuggestModal.select(
-    app,
+    plugin.app,
     Object.keys(ROLL_TYPES) as Datasworn.Move["roll_type"][],
     (item) => ROLL_TYPES[item],
     undefined,
@@ -271,7 +282,7 @@ export async function runMoveCommand(
 
   // Use the provided move, or prompt the user for a move appropriate to the current action context.
   const move: Datasworn.Move | Datasworn.EmbeddedMove =
-    chosenMove ?? (await promptForMove(plugin.app, context));
+    chosenMove ?? (await promptForMove(plugin, context));
 
   let moveDescription: MoveDescription;
   if (skipRoll) {
@@ -596,4 +607,13 @@ async function promptForRollable(
     }),
   );
   return stat;
+}
+
+function moveRuleset(
+  plugin: IronVaultPlugin,
+  move: Datasworn.Move | Datasworn.EmbeddedMove,
+) {
+  return (
+    plugin.datastore.moveRulesets.get("ruleset_for_" + move._id)?.title ?? ""
+  );
 }

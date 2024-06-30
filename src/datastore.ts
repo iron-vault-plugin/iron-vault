@@ -288,6 +288,14 @@ export class Datastore extends Component implements IDataContext {
       .ofKind("move_category")
       .projected((entry) => entry.value);
   }
+
+  get moveRulesets(): StandardIndex<DataswornTypes["move_ruleset"]> {
+    this.assertReady();
+    return this.indexer.prioritized
+      .ofKind("move_ruleset")
+      .projected((entry) => entry.value);
+  }
+
   get oracles(): StandardIndex<Oracle> {
     this.assertReady();
     return this.indexer.prioritized
