@@ -5,3 +5,9 @@ When the Move has been made, the command will add a [[Mechanics Blocks#`move`|`m
 After it's made, you can also choose to invoke the [[Burn momentum]] command.
 
 ![[Mechanics Blocks#`move`#Example|iv-embed]]
+
+### Skipping action move rolls
+
+For some moves, like suffer moves, making a roll is sometimes optional. In those cases, you can still
+record that you made the move by selecting "Skip roll" when you are prompted for the stat. This will
+record an empty move block, where you can then record your meter changes and so on.

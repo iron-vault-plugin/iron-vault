@@ -260,6 +260,7 @@ export async function runMoveCommand(
   view: MarkdownView,
   chosenMove?: AnyDataswornMove,
   chosenMeter?: MeterWithLens | MeterWithoutLens,
+  skipRoll: boolean = false,
 ): Promise<void> {
   if (view.file?.path == null) {
     logger.error("No file for view. Why?");
@@ -273,42 +274,52 @@ export async function runMoveCommand(
     chosenMove ?? (await promptForMove(plugin.app, context));
 
   let moveDescription: MoveDescription;
-  switch (move.roll_type) {
-    case "action_roll": {
-      moveDescription = await handleActionRoll(
-        plugin,
-        context,
-        move,
-        chosenMeter,
-      );
-      break;
+  if (skipRoll) {
+    moveDescription = createEmptyMoveDescription(move);
+  } else {
+    switch (move.roll_type) {
+      case "action_roll": {
+        moveDescription = await handleActionRoll(
+          plugin,
+          context,
+          move,
+          chosenMeter,
+        );
+        break;
+      }
+      case "progress_roll": {
+        moveDescription = await handleProgressRoll(
+          plugin,
+          new ProgressContext(plugin, context),
+          move,
+        );
+        break;
+      }
+      case "no_roll":
+        moveDescription = createEmptyMoveDescription(move);
+        break;
+      case "special_track":
+      default:
+        // TODO: this probably makes sense with new mechanics format?
+        logger.warn(
+          "Teach me how to handle a move with roll type %s: %o",
+          move.roll_type,
+          move,
+        );
+        moveDescription = createEmptyMoveDescription(move);
     }
-    case "progress_roll": {
-      moveDescription = await handleProgressRoll(
-        plugin,
-        new ProgressContext(plugin, context),
-        move,
-      );
-      break;
-    }
-    case "no_roll":
-      moveDescription = {
-        id: move._id,
-        name: move.name,
-      } satisfies NoRollMoveDescription;
-      break;
-    case "special_track":
-    default:
-      // TODO: this probably makes sense with new mechanics format?
-      logger.warn(
-        "Teach me how to handle a move with roll type %s: %o",
-        move.roll_type,
-        move,
-      );
-      return;
   }
 
   renderMechanics(editor, moveDescription);
+}
+
+function createEmptyMoveDescription(
+  move: AnyDataswornMove,
+): NoRollMoveDescription {
+  return {
+    id: move._id,
+    name: move.name,
+  } satisfies NoRollMoveDescription;
 }
 
 async function handleProgressRoll(
@@ -416,6 +427,8 @@ async function handleActionRoll(
       move,
     ));
 
+  if (stat.key === SKIP_ROLL) return createEmptyMoveDescription(move);
+
   // This stat has an unknown value, so we need to prompt the user for a value.
   if (!stat.value) {
     stat.value = await CustomSuggestModal.select(
@@ -506,6 +519,8 @@ async function handleActionRoll(
   return description;
 }
 
+const SKIP_ROLL: unique symbol = Symbol("skip roll");
+
 async function promptForRollable(
   app: App,
   actionContext: ActionContext,
@@ -515,32 +530,45 @@ async function promptForRollable(
   >,
   move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
 ): Promise<
-  (MeterWithLens | MeterWithoutLens) & {
+  (MeterWithLens | MeterWithoutLens | { key: typeof SKIP_ROLL }) & {
     condition: Omit<Datasworn.TriggerActionRollCondition, "roll_options">[];
   }
 > {
   const availableRollables = actionContext.rollables;
 
-  const { value: stat } = await CustomSuggestModal.selectWithUserEntry(
+  const { value: stat } = await CustomSuggestModal.selectWithUserEntry<
+    (MeterWithLens | MeterWithoutLens | { key: typeof SKIP_ROLL }) & {
+      condition: Omit<Datasworn.TriggerActionRollCondition, "roll_options">[];
+    }
+  >(
     app,
-    availableRollables
-      .map((meter) => ({
-        ...meter,
-        condition: suggestedRollables[meter.key] ?? [],
-      }))
-      .sort((a, b) => {
-        if (a.condition.length > 0 && b.condition.length == 0) {
-          return -1;
-        } else if (a.condition.length == 0 && b.condition.length > 0) {
-          return 1;
-        } else {
-          return (
-            (b.value ?? 0) - (a.value ?? 0) ||
-            a.definition.label.localeCompare(b.definition.label)
-          );
-        }
-      }),
-    (m) => `${m.definition.label}: ${m.value ?? "unknown"}`,
+    [
+      ...availableRollables
+        .map((meter) => ({
+          ...meter,
+          condition: suggestedRollables[meter.key] ?? [],
+        }))
+        .sort((a, b) => {
+          if (a.condition.length > 0 && b.condition.length == 0) {
+            return -1;
+          } else if (a.condition.length == 0 && b.condition.length > 0) {
+            return 1;
+          } else {
+            return (
+              (b.value ?? 0) - (a.value ?? 0) ||
+              a.definition.label.localeCompare(b.definition.label)
+            );
+          }
+        }),
+      {
+        key: SKIP_ROLL,
+        condition: [],
+      },
+    ],
+    (m) =>
+      m.key === SKIP_ROLL
+        ? "Skip roll"
+        : `${m.definition.label}: ${m.value ?? "unknown"}`,
     (input, el) => {
       el.setText(`Use custom meter '${input}'`);
     },
