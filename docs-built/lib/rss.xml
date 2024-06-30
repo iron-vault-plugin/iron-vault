@@ -1,4 +1,4 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://iron-vault-plugin.github.io/iron-vault/</link><image><url>https://iron-vault-plugin.github.io/iron-vault/lib/media/favicon.png</url><title>Iron Vault</title><link>https://iron-vault-plugin.github.io/iron-vault/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Sun, 30 Jun 2024 20:14:59 GMT</lastBuildDate><atom:link href="https://iron-vault-plugin.github.io/iron-vault/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Sun, 30 Jun 2024 20:14:43 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://iron-vault-plugin.github.io/iron-vault/</link><image><url>https://iron-vault-plugin.github.io/iron-vault/lib/media/favicon.png</url><title>Iron Vault</title><link>https://iron-vault-plugin.github.io/iron-vault/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Sun, 30 Jun 2024 21:01:49 GMT</lastBuildDate><atom:link href="https://iron-vault-plugin.github.io/iron-vault/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Sun, 30 Jun 2024 21:01:34 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
  <br>"Blocks" are used throughout Iron Vault to provide custom rendering of various game features. Most blocks also provide interactivity, so instead of having to manually edit frontmatter data, you can do the edits through the blocks' rendered views themselves.<br>
 You can use them as much or as little as you want, just like any other Iron Vault feature.<br>All blocks are used by using triple backticks (`), the name of the block, a new line, then a closing set of triple backticks.<br>Most blocks don't contain anything in order to work, but some, like <a data-href="Mechanics Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a>, have special contents that determine how they're rendered.<br>The following blocks are supported:<br>
 <br><a data-href="Asset Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/asset-blocks.html" class="internal-link" target="_self" rel="noopener">Asset Blocks</a> (iron-vault-assets) - inline asset cards (with read-only, no settings).
@@ -177,7 +177,24 @@ iron-vault-kind: clock
 ---
 ```iron-vault-clock
 ```
-Copy<br>Will render a clock that looks like this:<br>Doomsday Device<br><br><br>To edit the number of filled-in slices, simply click on the slice you want to fill up to. Clocks fill clockwise.<br>In order to zero-out your clock, first click on the first wedge until only that first wedge is filled, then click on it again to toggle it off, leaving the clock blank.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/clock-blocks.html</link><guid isPermaLink="false">Blocks/Clock Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 04:17:52 GMT</pubDate></item><item><title><![CDATA[Mechanics Blocks]]></title><description><![CDATA[ 
+Copy<br>Will render a clock that looks like this:<br>Doomsday Device<br><br>
+      
+        
+          The Doomsday Device Explodes
+        
+
+        
+          
+        
+
+        
+          6
+          segments;
+          Complete:
+            
+        
+      
+    <br><br>To edit the number of filled-in slices, simply click on the slice you want to fill up to. Clocks fill clockwise.<br>In order to zero-out your clock, first click on the first wedge until only that first wedge is filled, then click on it again to toggle it off, leaving the clock blank.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/clock-blocks.html</link><guid isPermaLink="false">Blocks/Clock Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 04:17:52 GMT</pubDate></item><item><title><![CDATA[Mechanics Blocks]]></title><description><![CDATA[ 
  <br><br>This plugin renders a <a data-tooltip-position="top" aria-label="https://kdl.dev/" rel="noopener" class="external-link" href="https://kdl.dev/" target="_blank">KDL</a> block into a formatted Ironsworn/Starforged mechanics block, with nice styling and some interactivity.<br>It takes an Obsidian note that looks like this:<br>```iron-vault-mechanics
 move id="move:starforged/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"
@@ -3893,7 +3910,50 @@ rank: dangerous
 ---
 ```iron-vault-track
 ```
-Copy<br>Will render a track that looks like this:<br>Write the Docs<br><br><br>To mark progress on the vow, click on the + button. To remove progress, use the - button. If you want more fine-grained control over the number of ticks, such as removing only 2 ticks in a Dangerous track, you can click on the text field with the number of ticks and edit it. The number of ticks will be updated when you click away or press enter.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/track-blocks.html</link><guid isPermaLink="false">Blocks/Track Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 04:17:52 GMT</pubDate></item><item><title><![CDATA[Truth Blocks]]></title><description><![CDATA[ 
+Copy<br>Will render a track that looks like this:<br>Write the Docs<br><br>
+    
+      
+        
+              I vow to write this documentation
+      
+      
+            
+              
+                
+                      
+                            Troublesome
+                          
+                            Dangerous
+                          
+                            Formidable
+                          
+                            Extreme
+                          
+                            Epic
+                          
+                    
+              
+              
+                 
+              
+            
+          
+      
+      
+        
+          -
+        
+        
+          <br>box 4<br>box 4<br>box 4<br>box 4<br>box 4<br>box 2<br>box 0<br>box 0<br>box 0<br>box 0
+        
+        
+          +
+        
+        
+        ticks
+      
+    
+  <br><br>To mark progress on the vow, click on the + button. To remove progress, use the - button. If you want more fine-grained control over the number of ticks, such as removing only 2 ticks in a Dangerous track, you can click on the text field with the number of ticks and edit it. The number of ticks will be updated when you click away or press enter.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/track-blocks.html</link><guid isPermaLink="false">Blocks/Track Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 04:17:52 GMT</pubDate></item><item><title><![CDATA[Truth Blocks]]></title><description><![CDATA[ 
  <br>Truth blocks are used to render pickers for individual truths. When filled out and saved, they will insert the final truth text underneath themselves into the current file.<br><a data-href="Truths" href="https://iron-vault-plugin.github.io/iron-vault/entities/truths.html" class="internal-link" target="_self" rel="noopener">Truths</a> are a core Ironsworn/Starforged concept, and one of the first things you'll do when you start a campaign. You can easily generate a Truths file with all your current rulesets' truths by using the <a data-href="Generate Truths" href="https://iron-vault-plugin.github.io/iron-vault/commands/generate-truths.html" class="internal-link" target="_self" rel="noopener">Generate Truths</a> command.<br>Truth blocks expect the name of the Truth they'll be dealing with as the first line in their bodies. A second optional line with the text inserted will set the Truth block to its "click to reset" state, and is usually automatically written when you click save on the block.<br>Resetting the Truth block will reset it to its initial state and insert an Old Truth: header underneath, to separate your previously-generated truth text from the new one, so it won't delete any text you had there before that you might want to keep or reference.<br>Truth blocks let you either pick your truth options from a dropdown, or click on a die icon to randomize them according to the rules' oracle table.<br>Once the Truth is generated, you are free to edit the Truth text any way you see fit: it's just regular text in the file!<br>You can also choose to split your truths between multiple files, by just putting the iron-vault-truth blocks into separate files.<br><br>The following file:<br>## Cataclysm
 ```iron-vault-truth
 Cataclysm
@@ -4553,12 +4613,22 @@ The Datasworn Sundered Isles data is considered a preview, awaiting finalization
 <br><br>Iron Vault supports custom homebrew rules packages. In the future, we will add additional mechanisms for easily adding things like oracles, moves, and assets in simpler Markdown format.<br><br>Custom rules packages can be loaded from JSON files following the <a data-tooltip-position="top" aria-label="https://github.com/rsek/datasworn" rel="noopener" class="external-link" href="https://github.com/rsek/datasworn" target="_blank">Datasworn</a> specification. Files must be in a format compatible with the Datasworn 0.1.0 release. For more information on Datasworn versions, see <a data-href="Data versions and vault migration" href="https://iron-vault-plugin.github.io/iron-vault/other-features/data-versions-and-vault-migration.html" class="internal-link" target="_self" rel="noopener">Data versions and vault migration</a>.<br>To enable this, put your homebrew content in a folder in your vault. In settings, turn on Enable Homebrew content in Settings and set Homebrew content folder to the folder with your content.<br>Note that, in addition, you might need to enable Settings &gt; Files and links &gt; Detect all file extensions in order for .json files to show up in your vault. The file will be there, you just won't see it.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html</link><guid isPermaLink="false">Other Features/Rulesets and Homebrew.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 30 Jun 2024 20:02:13 GMT</pubDate></item><item><title><![CDATA[Settings]]></title><description><![CDATA[ 
  <br> Iron Vault includes various settings for tweaking the behavior of its features, to allow you to shape it into a better tool for your use case.<br><br>
 <br>Use character system: when enabled, this will look for an active <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://iron-vault-plugin.github.io/iron-vault/entities/characters.html" class="internal-link" target="_self" rel="noopener">Character</a> file when making moves and doing other game operations. If disabled, Iron Vault will still work, but will prompt you for values of, for example, your stats. This is a good setting to disable if you only wish to use a particular subset of Iron Vault features, like <a data-href="Mechanics Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a> or the <a data-href="Sidebar" href="https://iron-vault-plugin.github.io/iron-vault/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener">Sidebar</a> but don't really care to use the various <a data-tooltip-position="top" aria-label="Commands/index" data-href="Commands/index" href="https://iron-vault-plugin.github.io/iron-vault/commands/index.html" class="internal-link" target="_self" rel="noopener">Commands</a>.
+<br>Reset to default: returns all settings to their default values.
 <br><br>You must load a single complete base ruleset for functionality like characters to function properly. It is currently possible to load multiple rulesets at once, but this may behave in unexpected ways.<br>For more on rulesets, see <a data-href="Rulesets and Homebrew" href="https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>.<br>
 <br>Enable Ironsworn ruleset: when enabled, the Ironsworn base ruleset will be loaded.
+<br>Enable Delve expansion for Ironsworn: (experimental) when enabled, the Ironsworn: Delve core ruleset will be loaded. This assumes Ironsworn is also enabled in order to work correctly.
 <br>Enable Starforged ruleset: when enabled, the Starforged base ruleset will be loaded.
+<br>Enable Sundered Isles expansion for Starforged: (experimental) If enabled, Sundered Isles content will be enabled. This assumes Starforged to also be enabled in order to work correctly. There is currently no way to "exclude" Starforged-themed content when Sundered Isles is enabled. You just get both.
 <br><br>For more on homebrew, see <a data-href="Rulesets and Homebrew#Homebrew" href="https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html#Homebrew" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew &gt; Homebrew</a>.<br>
 <br>Enable Homebrew content: when enabled, content from the folder below will be loaded and available for play.
 <br>Homebrew content folder: a folder (which must exist if Enable Homebrew content is on) from which to load homebrew content. Currently all JSON files in Datasworn format in the root of this folder will be loaded.
+<br><br>
+<br>Prompt for rolls in Make a Move: if enabled, when you <a data-href="Make a move" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a>, the plugin will prompt you to roll your own dice and enter the values.
+<br>Prompt for rolls in Ask the Oracle: if enabled, when you <a data-href="Ask the Oracle" href="https://iron-vault-plugin.github.io/iron-vault/commands/ask-the-oracle.html" class="internal-link" target="_self" rel="noopener">Ask the Oracle</a>, the plugin will prompt you to roll your own dice and enter the values.
+<br>Cursed die kind: The type of die to roll when making cursed die rolls.
+<br>Enable cursed die: If enabled, the cursed die will be rolled along with the oracle die when rolling an oracle with an associated cursed oracle table.
+<br>Graphical dice: When enabled, 3d graphical dice will be rolled on-screen whenever a die roll is made.
+<br>(x) die color: Sets the color of the various supported dice. Challenge dice may be colored separately in order to support Sundered Isles' Twin Fates feature (Cinder/Wraith).
 <br><br>
 <br>Default (x) folder: Controls which folder to put various rollable <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://iron-vault-plugin.github.io/iron-vault/entities/index.html" class="internal-link" target="_self" rel="noopener">Entities</a> in by default. You can still pick the folder on an individual basis, or even move it, regardless of what these values are.
 <br>(x) template file: If provided, the contents of these files will be added to the end of the new entity files when they're created. (Coming Soon) This will eventually be replaced with a more involved template system that will give you more control of how files are generated and formatted, and what additional frontmatter they include.
@@ -4567,10 +4637,7 @@ The Datasworn Sundered Isles data is considered a preview, awaiting finalization
 <br>Show mechanics toggle: when enabled, mechanics blocks will have a small "Hide mechanics" toggle underneath them that, when clicked, will hide the mechanics block.
 <br>Hide mechanics completely: If enabled, mechanics blocks will not be displayed at all. Good for when you just want to read a story. You can also toggle this setting by using the <a data-href="Toggle displaying mechanics" href="https://iron-vault-plugin.github.io/iron-vault/commands/toggle-displaying-mechanics.html" class="internal-link" target="_self" rel="noopener">Toggle displaying mechanics</a> command.
 <br>Inline tracks on clock creation: If enabled, new tracks and clocks will be automatically inlined in the journal when created.
-<br><br>
-<br>Prompt for rolls in Make a Move: if enabled, when you <a data-href="Make a move" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a>, the plugin will prompt you to roll your own dice and enter the values.
-<br>Prompt for rolls in Ask the Oracle: if enabled, when you <a data-href="Ask the Oracle" href="https://iron-vault-plugin.github.io/iron-vault/commands/ask-the-oracle.html" class="internal-link" target="_self" rel="noopener">Ask the Oracle</a>, the plugin will prompt you to roll your own dice and enter the values.
-]]></description><link>https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html</link><guid isPermaLink="false">Other Features/Settings.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 22 Jun 2024 02:34:03 GMT</pubDate></item><item><title><![CDATA[Sidebar]]></title><description><![CDATA[ 
+]]></description><link>https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html</link><guid isPermaLink="false">Other Features/Settings.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 30 Jun 2024 20:54:13 GMT</pubDate></item><item><title><![CDATA[Sidebar]]></title><description><![CDATA[ 
  <br>Iron Vault includes a Sidebar that can be opened by invoking the <a data-href="Show sidebar" href="https://iron-vault-plugin.github.io/iron-vault/commands/show-sidebar.html" class="internal-link" target="_self" rel="noopener">Show sidebar</a> command, or clicking on the hexagon-with-checkmark icon in the <a data-tooltip-position="top" aria-label="https://help.obsidian.md/User+interface/Ribbon" rel="noopener" class="external-link" href="https://help.obsidian.md/User+interface/Ribbon" target="_blank">Obsidian Ribbon</a> and selecting the <a data-href="Show sidebar" href="https://iron-vault-plugin.github.io/iron-vault/commands/show-sidebar.html" class="internal-link" target="_self" rel="noopener">Show sidebar</a> command from the list. Launching the sidebar will make it available on the <a data-tooltip-position="top" aria-label="https://help.obsidian.md/User+interface/Sidebar" rel="noopener" class="external-link" href="https://help.obsidian.md/User+interface/Sidebar" target="_blank">right-hand Obsidian Sidebar</a>. On mobile, you can then access it simply by swiping left as-needed.<br>The Iron Vault Sidebar then has three tabs providing some handy quick-access features:<br>
 <br><a data-href="#Oracle Tab" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#Oracle_Tab" class="internal-link" target="_self" rel="noopener">Oracle Tab</a>
 <br><a data-href="#Move Tab" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#Move_Tab" class="internal-link" target="_self" rel="noopener">Move Tab</a>

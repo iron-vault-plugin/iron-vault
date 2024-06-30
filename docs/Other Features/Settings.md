@@ -2,6 +2,7 @@
 ### General
 
 * **Use character system**: when enabled, this will look for an active [[Characters|Character]] file when making moves and doing other game operations. If disabled, Iron Vault will still work, but will prompt you for values of, for example, your stats. This is a good setting to disable if you only wish to use a particular subset of Iron Vault features, like [[Mechanics Blocks]] or the [[Sidebar]] but don't really care to use the various [[Commands/index|Commands]].
+* **Reset to default**: returns all settings to their default values.
 
 ### Rulesets
 
@@ -10,7 +11,9 @@ You must load a single complete base ruleset for functionality like characters t
 For more on rulesets, see [[Rulesets and Homebrew]].
 
 * **Enable Ironsworn ruleset**: when enabled, the *Ironsworn* base ruleset will be loaded.
+* **Enable Delve expansion for Ironsworn**: (experimental) when enabled, the _Ironsworn: Delve_ core ruleset will be loaded. This assumes _Ironsworn_ is also enabled in order to work correctly.
 * **Enable Starforged ruleset**: when enabled, the *Starforged* base ruleset will be loaded.
+* **Enable Sundered Isles expansion for Starforged**: (experimental) If enabled, _Sundered Isles_ content will be enabled. This assumes _Starforged_ to also be enabled in order to work correctly. There is currently no way to "exclude" _Starforged_-themed content when _Sundered Isles_ is enabled. You just get both.
 
 ### Homebrew
 
@@ -18,6 +21,14 @@ For more on homebrew, see [[Rulesets and Homebrew#Homebrew]].
 
 * **Enable Homebrew content**: when enabled, content from the folder below will be loaded and available for play.
 * **Homebrew content folder**: a folder (which must exist if **Enable Homebrew content** is on) from which to load homebrew content. Currently all JSON files in Datasworn format in the root of this folder will be loaded.
+### Dice
+
+* **Prompt for rolls in Make a Move**: if enabled, when you [[Make a move]], the plugin will prompt you to roll your own dice and enter the values.
+* **Prompt for rolls in Ask the Oracle**: if enabled, when you [[Ask the Oracle]], the plugin will prompt you to roll your own dice and enter the values.
+* **Cursed die kind**: The type of die to roll when making cursed die rolls.
+* **Enable cursed die**: If enabled, the cursed die will be rolled along with the oracle die when rolling an oracle with an associated cursed oracle table.
+* **Graphical dice**: When enabled, 3d graphical dice will be rolled on-screen whenever a die roll is made.
+* **(x) die color**: Sets the color of the various supported dice. Challenge dice may be colored separately in order to support _Sundered Isles_' Twin Fates feature (Cinder/Wraith).
 
 ### New game object defaults
 
@@ -33,7 +44,5 @@ These options control various parts of how [[Mechanics Blocks]] are rendered.
 * **Hide mechanics completely**: If enabled, mechanics blocks will not be displayed at all. Good for when you just want to read a story. You can also toggle this setting by using the [[Toggle displaying mechanics]] command.
 * **Inline tracks on clock creation**: If enabled, new tracks and clocks will be automatically inlined in the journal when created.
 
-### Dice rolling
 
-* **Prompt for rolls in Make a Move**: if enabled, when you [[Make a move]], the plugin will prompt you to roll your own dice and enter the values.
-* **Prompt for rolls in Ask the Oracle**: if enabled, when you [[Ask the Oracle]], the plugin will prompt you to roll your own dice and enter the values.
+
