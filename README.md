@@ -1,5 +1,7 @@
 # Iron Vault
 
+![Iron Vault](./docs/Support/img/iron-vault-screenshot.png)
+
 Obsidian plugin to play Ironsworn/Starforged system games, using the data in
 [datasworn](https://github.com/rsek/datasworn) format.
 
@@ -19,6 +21,7 @@ find what you're looking for.
 
 You can start reading about the various Iron Vault features here:
 
+* [Built-in Official Rulesets](https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html#Built-in_Rulesets) - Includes support for Ironsworn Classic, Ironsworn: Delve, Ironsworn: Starforged, and Sundered Isles.
 * [Blocks](https://iron-vault-plugin.github.io/iron-vault/blocks/about-blocks.html) -
   Special blocks used throughout the tool to render things nicely and give you
   handy interactive widgets for editing game data.
@@ -35,26 +38,21 @@ You can start reading about the various Iron Vault features here:
   mobile.
 * [Special
   Links](https://iron-vault-plugin.github.io/iron-vault/other-features/special-links.html) -
-  There are `oracle:`, `move:`, `asset:` and `id:` links that, instead of
-  trying to open a web page, will instead open a modal window with the
-  contents of the thing you're trying to link to. For example, `[My
-  Oracle](oracle:MyOracleName)` will pop up a window with the description and
-  roll table for "My Oracle".
+  There are special external links that, instead of trying to open a web
+  page, will open a modal window with the contents of the thing you're trying
+  to link to. For example, `[My Move](move:MyMoveName)` will pop up a window
+  with the description and roll buttons for "My Move".
 * [CSS
   Tweaks](https://iron-vault-plugin.github.io/iron-vault/other-features/css-tweaks.html) -
   Styling tweaks to make some things look nicer or more customized, such as
   the `iron-vault-embed` option for inlining embeds.
-* [Callouts](https://iron-vault-plugin.github.io/iron-vault/other-features/callouts.html)
-  - Special formatting and generation for game-related callouts.
+* [Callouts](https://iron-vault-plugin.github.io/iron-vault/other-features/callouts.html) - Special formatting and generation for game-related callouts.
+* [Homebrew](https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html#Homebrew) - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the [Datasworn](https://github.com/rsek/datasworn) data model.
 * [Settings](https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html) -
   Various configurations available to tweak your Iron Vault experience.
 * [API](https://iron-vault-plugin.github.io/iron-vault/other-features/api.html) -
   (Coming Soon) Are you a developer? We expose the plugin for easy access, for
   folks who want to do fancier things with Iron Vault features.
-* [Rulesets](https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets.html)
-  (Coming Soon) - BYO Rulesets! Import custom assets, oracles, or even entire
-  rulesets/games that conform to the
-  [Datasworn](https://github.com/rsek/datasworn) data model.
 
 ## Installing the plugin
 

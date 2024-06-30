@@ -19,6 +19,7 @@ Official support for expansions like Ironsworn: Delve and Sundered Isles is on t
 
 > [!IMPORTANT] Sundered Isles is in preview.
 > The Datasworn Sundered Isles data is considered a preview, awaiting finalization of the Sundered Isles rulebook.
+
 ### Homebrew
 
 Iron Vault supports custom homebrew rules packages. In the future, we will add additional mechanisms for easily adding things like oracles, moves, and assets in simpler Markdown format.

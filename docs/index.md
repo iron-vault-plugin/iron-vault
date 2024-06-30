@@ -1,6 +1,8 @@
 ---
 title: About Iron Vault
 ---
+![[iron-vault-screenshot.png]]
+
 This is the documentation for [Iron Vault](https://github.com/iron-vault-plugin/iron-vault), a plugin for [Obsidian](https://obsidian.md) that turns the beloved note-taking/journaling tool into a full-fledged Virtual Tabletop (VTT) for the [Ironsworn/Starforged family of games](https://ironswornrpg.com).
 
 It has features ranging from a full character sheet, to commands for making moves, and even an entire featureset for rendering pretty mechanics blocks in your story journals describing the mechanics involved in your story, as they happen.
@@ -19,16 +21,17 @@ You can also open this documentation at any time while in Obsidian by running th
 
 You can start reading about the various Iron Vault features here:
 
+* [[Rulesets and Homebrew#Built-in Rulesets|Built-in Official Rulesets]] - Includes support for Ironsworn Classic, Ironsworn: Delve, Ironsworn: Starforged, and Sundered Isles.
 * [[Blocks/index|Blocks]] - Special blocks used throughout the tool to render things nicely and give you handy interactive widgets for editing game data.
 * [[Commands/index|Commands]] - Various Obsidian commands, all of which can be bound to hotkeys or the quick access bar, for performing all sorts of game actions, like making moves, creating progress tracks, etc.
 * [[Entities/index|Entities]] - How Iron Vault represents all sorts of different game concepts, or some ways that you might choose to represent them yourself.
 * [[Sidebar]] - A handy right-panel sidebar for quick access to Moves, Oracles, and your Character Sheet, all in one, easy-access place. Particularly useful on mobile.
-* [[Special Links]] - There are `oracle:`, `move:`, `asset:` and `id:` links that, instead of trying to open a web page, will instead open a modal window with the contents of the thing you're trying to link to. For example, `[My Oracle](oracle:MyOracleName)` will pop up a window with the description and roll table for "My Oracle".
+* [[Special Links]] - There are special external links that, instead of trying to open a web page, will open a modal window with the contents of the thing you're trying to link to. For example, `[My Move](move:MyMoveName)` will pop up a window with the description and roll buttons for "My Move".
 * [[CSS Tweaks]] - Styling tweaks to make some things look nicer or more customized, such as the `iron-vault-embed` option for inlining embeds.
 * [[Callouts]] - Special formatting and generation for game-related callouts.
+* [[Rulesets and Homebrew#Homebrew|Homebrew]] - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the [Datasworn](https://github.com/rsek/datasworn) data model.
 * [[Settings]] - Various configurations available to tweak your Iron Vault experience.
 * [[API]] - (Coming Soon) Are you a developer? We expose the plugin for easy access, for folks who want to do fancier things with Iron Vault features.
-* [[Rulesets and Homebrew]] (Coming Soon) - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the [Datasworn](https://github.com/rsek/datasworn) data model.
 
 #### Installing the Plugin
 
