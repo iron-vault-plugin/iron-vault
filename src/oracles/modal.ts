@@ -2,6 +2,7 @@ import IronVaultPlugin from "index";
 import { CurseBehavior, Oracle } from "model/oracle";
 import { RollWrapper } from "model/rolls";
 import { Modal, Setting } from "obsidian";
+import { Dice, DieKind } from "utils/dice";
 import { stripMarkdown } from "utils/strip-markdown";
 
 export class OracleRollerModal extends Modal {
@@ -42,10 +43,22 @@ export class OracleRollerModal extends Modal {
     const flipSetting = new Setting(contentEl).setName("Flipped roll");
     let cursedSetting: Setting | undefined;
     if (this.currentRoll.cursedRoll != null && this.currentRoll.cursedTable) {
-      new Setting(contentEl)
+      const cursedHeading = new Setting(contentEl)
         .setName(this.currentRoll.cursedTable.name)
         .setDesc(`Cursed die: ${this.currentRoll.cursedRoll}`)
-        .setHeading();
+        .setHeading()
+        .addButton((btn) =>
+          btn.setIcon("refresh-cw").onClick(async () => {
+            const newCursedRoll = await new Dice(
+              1,
+              this.plugin.settings.cursedDieSides,
+              this.plugin,
+              DieKind.Cursed,
+            ).roll();
+            await setRoll(this.currentRoll.withCursedRoll(newCursedRoll));
+            await onUpdateCursedRoll();
+          }),
+        );
       const name =
         this.currentRoll.cursedTable?.curseBehavior === CurseBehavior.AddResult
           ? "Add result"
@@ -56,6 +69,7 @@ export class OracleRollerModal extends Modal {
           : "The cursed table's result will replace the regular oracle roll";
       cursedSetting = new Setting(contentEl).setName(name).setDesc(desc);
       const onUpdateCursedRoll = async (): Promise<void> => {
+        cursedHeading.setDesc(`Cursed die: ${this.currentRoll.cursedRoll}`);
         if (cursedSetting && this.cursedRoll) {
           cursedSetting.clear();
           cursedSetting

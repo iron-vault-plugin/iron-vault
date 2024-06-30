@@ -174,6 +174,14 @@ export class RollWrapper {
       : undefined;
   }
 
+  withCursedRoll(cursedRoll: number | undefined, cursedTableId?: string) {
+    return new RollWrapper(this.oracle, this.context, {
+      ...this.roll,
+      cursedRoll,
+      cursedTableId: cursedTableId ?? this.roll.cursedTableId,
+    });
+  }
+
   get subrolls(): Record<string, Subroll<RollWrapper>> {
     if (!this._subrolls) {
       this._subrolls = {};
