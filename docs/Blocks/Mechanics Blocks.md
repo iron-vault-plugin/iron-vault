@@ -6,7 +6,7 @@ It takes an Obsidian note that looks like this:
 
 ````
 ```iron-vault-mechanics
-move id="starforged/moves/adventure/face_danger" {
+move id="move:starforged/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"
 	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
 }
@@ -28,7 +28,7 @@ move "Undertake an Expedition" {
 and turns it into this:
 
 ```iron-vault-mechanics
-move id="starforged/moves/adventure/face_danger" {
+move id="move:starforged/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"
 	roll "shadow" 1 3 1 9 9 // <statname> <action-die> <stat> <adds> <vs1> <vs2>
 }
