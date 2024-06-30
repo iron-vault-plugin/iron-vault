@@ -69,7 +69,7 @@ const VALID_INPUT = {
 };
 
 describe("validater", () => {
-  const { validater } = characterLens(TEST_RULESET);
+  const { validater, lens } = characterLens(TEST_RULESET);
 
   it("returns a validated character on valid input", () => {
     expect(
@@ -77,14 +77,14 @@ describe("validater", () => {
     ).toBeTruthy();
   });
 
-  it("requires stat properties", () => {
+  it("sets a default for missing stat properties", () => {
     const data = { ...VALID_INPUT, wits: undefined };
-    expect(validater(data).unwrapError().message).toMatch(/wits/);
+    expect(lens.stats.wits.get(validater(data).unwrap())).toBe(0);
   });
 
   it("requires condition meter properties", () => {
     const data = { ...VALID_INPUT, health: undefined };
-    expect(validater(data).unwrapError().message).toMatch(/health/);
+    expect(lens.condition_meters.health.get(validater(data).unwrap())).toBe(3);
   });
 });
 
@@ -355,16 +355,12 @@ describe("Special Tracks", () => {
     },
   });
 
-  it("requires Progress field", () => {
+  it("defaults Progress field to 0", () => {
     expect(
-      validater({ ...VALID_INPUT, Quests_XPEarned: 0 }).unwrapError().message,
-    ).toMatch(/Quests_Progress/);
-  });
-
-  it("requires XPEarned field", () => {
-    expect(
-      validater({ ...VALID_INPUT, Quests_Progress: 0 }).unwrapError().message,
-    ).toMatch(/Quests_XPEarned/);
+      lens.special_tracks["quests_legacy"].get(
+        validater({ ...VALID_INPUT, Quests_XPEarned: 0 }).unwrap(),
+      ).progress,
+    ).toBe(0);
   });
 
   it("extracts a progress track", () => {
