@@ -123,6 +123,59 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("Dice").setHeading();
 
     new Setting(containerEl)
+      .setName("Prompt for rolls in Make a Move")
+      .setDesc(
+        "If enabled, when you Make a Move, the plugin will prompt you to roll your own dice and enter the values.",
+      )
+      .addToggle((btn) =>
+        btn
+          .setValue(settings.promptForRollsInMoves)
+          .onChange((val) => this.updateSetting("promptForRollsInMoves", val)),
+      );
+
+    new Setting(containerEl)
+      .setName("Prompt for rolls in Ask the Oracle")
+      .setDesc(
+        "If enabled, when you Ask the Oracle, the plugin will prompt you to roll your own dice and enter the values.",
+      )
+      .addToggle((btn) =>
+        btn
+          .setValue(settings.promptForRollsInOracles)
+          .onChange((val) =>
+            this.updateSetting("promptForRollsInOracles", val),
+          ),
+      );
+
+    new Setting(containerEl)
+      .setName("Cursed die kind")
+      .setDesc("Type of die to use for the cursed die.")
+      .addDropdown((dropdown) => {
+        dropdown
+          .addOptions({
+            "4": "d4",
+            "6": "d6",
+            "8": "d8",
+            "10": "d10",
+            "12": "d12",
+            "20": "d20",
+            "100": "d100",
+          })
+          .setValue("" + settings.cursedDieSides)
+          .onChange((value) => this.updateSetting("cursedDieSides", +value));
+      });
+
+    new Setting(containerEl)
+      .setName("Enable cursed die")
+      .setDesc(
+        "If enabled, the cursed die will be rolled together with your oracle roll for any tables that have cursed variants.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.enableCursedDie)
+          .onChange((value) => this.updateSetting("enableCursedDie", value)),
+      );
+
+    new Setting(containerEl)
       .setName("Graphical dice")
       .setDesc("If enabled, dice rolls will use on-screen 3d graphical dice.")
       .addToggle((toggle) => {
@@ -178,24 +231,6 @@ export class IronVaultSettingTab extends PluginSettingTab {
         color
           .setValue(settings.cursedDieColor)
           .onChange((value) => this.updateSetting("cursedDieColor", value));
-      });
-
-    new Setting(containerEl)
-      .setName("Cursed die kind")
-      .setDesc("Type of die to use for the cursed die.")
-      .addDropdown((dropdown) => {
-        dropdown
-          .addOptions({
-            "4": "d4",
-            "6": "d6",
-            "8": "d8",
-            "10": "d10",
-            "12": "d12",
-            "20": "d20",
-            "100": "d100",
-          })
-          .setValue("" + settings.cursedDieSides)
-          .onChange((value) => this.updateSetting("cursedDieSides", +value));
       });
 
     new Setting(containerEl).setName("New game object defaults").setHeading();
@@ -325,32 +360,6 @@ export class IronVaultSettingTab extends PluginSettingTab {
         toggle
           .setValue(settings.inlineOnCreation)
           .onChange((value) => this.updateSetting("inlineOnCreation", value)),
-      );
-
-    new Setting(containerEl).setName("Dice rolling").setHeading();
-
-    new Setting(containerEl)
-      .setName("Prompt for rolls in Make a Move")
-      .setDesc(
-        "If enabled, when you Make a Move, the plugin will prompt you to roll your own dice and enter the values.",
-      )
-      .addToggle((btn) =>
-        btn
-          .setValue(settings.promptForRollsInMoves)
-          .onChange((val) => this.updateSetting("promptForRollsInMoves", val)),
-      );
-
-    new Setting(containerEl)
-      .setName("Prompt for rolls in Ask the Oracle")
-      .setDesc(
-        "If enabled, when you Ask the Oracle, the plugin will prompt you to roll your own dice and enter the values.",
-      )
-      .addToggle((btn) =>
-        btn
-          .setValue(settings.promptForRollsInOracles)
-          .onChange((val) =>
-            this.updateSetting("promptForRollsInOracles", val),
-          ),
       );
   }
 }

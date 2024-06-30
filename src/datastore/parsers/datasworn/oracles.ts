@@ -91,7 +91,7 @@ export class DataswornOracle implements Oracle {
 
   async roll(context: RollContext): Promise<Roll> {
     const cursed = this.cursedBy;
-    if (cursed && this.plugin) {
+    if (cursed && this.plugin && this.plugin.settings.enableCursedDie) {
       const group = new DiceGroup(
         [
           this.dice,
