@@ -94,7 +94,9 @@ export async function runOracleCommand(
       formatOraclePath,
       (match, el) => {
         const ruleset = oracleRuleset(match.item);
-        el.createEl("small", { text: ruleset, cls: "iron-vault-suggest-hint" });
+        el.createEl("small", { cls: "iron-vault-suggest-hint" })
+          .createEl("strong")
+          .createEl("em", { text: ruleset });
       },
       prompt ? `Select an oracle to answer '${prompt}'` : "Select an oracle",
     );
