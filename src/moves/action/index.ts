@@ -7,6 +7,13 @@ import {
 import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
+import {
+  createOrAppendMechanics,
+  findAdjacentMechanicsBlock,
+  updatePreviousMoveOrCreateBlock,
+} from "mechanics/editor";
+import { generateActionRoll } from "mechanics/node-builders";
+import { getMoveIdFromNode, getTerminalMoveNode } from "mechanics/utils";
 import { type App, type Editor, type MarkdownView } from "obsidian";
 import { MeterCommon } from "rules/ruleset";
 import { DiceGroup } from "utils/dice-group";
@@ -116,11 +123,39 @@ async function promptForMove(
     "Select a roll type for this move",
   );
 
+  return createPlaceholderMove(roll_type, choice.custom);
+}
+
+/** Creates a move with only a roll_type and name. */
+function createPlaceholderMove(
+  roll_type: "action_roll",
+  name: string,
+): Datasworn.EmbeddedActionRollMove;
+function createPlaceholderMove(
+  roll_type: "progress_roll",
+  name: string,
+): Datasworn.EmbeddedProgressRollMove;
+function createPlaceholderMove(
+  roll_type: "special_track",
+  name: string,
+): Datasworn.EmbeddedSpecialTrackMove;
+function createPlaceholderMove(
+  roll_type: "no_roll",
+  name: string,
+): Datasworn.EmbeddedNoRollMove;
+function createPlaceholderMove(
+  roll_type: Datasworn.MoveRollType,
+  name: string,
+): Datasworn.EmbeddedMove;
+function createPlaceholderMove(
+  roll_type: Datasworn.MoveRollType,
+  name: string,
+): Datasworn.EmbeddedMove {
   const baseMove = {
     roll_type,
     type: "move",
     _id: "",
-    name: choice.custom,
+    name,
     text: "",
   } satisfies Partial<Datasworn.EmbeddedMove>;
 
@@ -294,6 +329,7 @@ export async function runMoveCommand(
           plugin,
           context,
           move,
+          true,
           chosenMeter,
         );
         break;
@@ -425,8 +461,23 @@ async function handleActionRoll(
   plugin: IronVaultPlugin,
   actionContext: ActionContext,
   move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
+  allowSkip: true,
   meter?: MeterWithLens | MeterWithoutLens,
-) {
+): Promise<NoRollMoveDescription | ActionMoveDescription>;
+async function handleActionRoll(
+  plugin: IronVaultPlugin,
+  actionContext: ActionContext,
+  move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
+  allowSkip: false,
+  meter?: MeterWithLens | MeterWithoutLens,
+): Promise<ActionMoveDescription>;
+async function handleActionRoll(
+  plugin: IronVaultPlugin,
+  actionContext: ActionContext,
+  move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
+  allowSkip: boolean,
+  meter?: MeterWithLens | MeterWithoutLens,
+): Promise<NoRollMoveDescription | ActionMoveDescription> {
   const suggestedRollables = suggestedRollablesForMove(move);
 
   const stat =
@@ -436,6 +487,7 @@ async function handleActionRoll(
       actionContext,
       suggestedRollables,
       move,
+      allowSkip,
     ));
 
   if (stat.key === SKIP_ROLL) return createEmptyMoveDescription(move);
@@ -540,6 +592,7 @@ async function promptForRollable(
     Omit<Datasworn.TriggerActionRollCondition, "roll_options">[]
   >,
   move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
+  allowSkip: boolean,
 ): Promise<
   (MeterWithLens | MeterWithoutLens | { key: typeof SKIP_ROLL }) & {
     condition: Omit<Datasworn.TriggerActionRollCondition, "roll_options">[];
@@ -571,10 +624,14 @@ async function promptForRollable(
             );
           }
         }),
-      {
-        key: SKIP_ROLL,
-        condition: [],
-      },
+      ...((allowSkip
+        ? [
+            {
+              key: SKIP_ROLL,
+              condition: [],
+            },
+          ]
+        : []) as { key: typeof SKIP_ROLL; condition: [] }[]),
     ],
     (m) =>
       m.key === SKIP_ROLL
@@ -616,4 +673,67 @@ function moveRuleset(
   return (
     plugin.datastore.moveRulesets.get("ruleset_for_" + move._id)?.title ?? ""
   );
+}
+
+export async function makeActionRollCommand(
+  plugin: IronVaultPlugin,
+  editor: Editor,
+): Promise<void> {
+  const context = await determineCharacterActionContext(plugin);
+
+  const priorBlock = findAdjacentMechanicsBlock(editor);
+  let updatePriorMove = false;
+  let move: Datasworn.EmbeddedActionRollMove | Datasworn.MoveActionRoll =
+    createPlaceholderMove("action_roll", "Generic action roll");
+  if (priorBlock) {
+    const moveNode = getTerminalMoveNode(priorBlock);
+    if (moveNode) {
+      logger.debug("Found previous move for block %o", moveNode);
+      const rollIndex = moveNode.children.findIndex(
+        (node) => node.name === "roll",
+      );
+      if (rollIndex == -1) {
+        // No roll found, so we're going to update this move
+        updatePriorMove = true;
+
+        const id = getMoveIdFromNode(moveNode);
+        const namedMove = id ? context.moves.get(id) : undefined;
+        if (namedMove) {
+          if (namedMove.roll_type == "action_roll") {
+            // Previous move is an empty action roll -- so let's use
+            move = namedMove;
+          } else {
+            // Previous empty move is not an action roll move. So this probably should
+            // not be nested under it.
+            updatePriorMove = false;
+          }
+        }
+      }
+    }
+  }
+
+  const moveDescription: ActionMoveDescription = await handleActionRoll(
+    plugin,
+    context,
+    move,
+    false,
+  );
+
+  const rollNode = generateActionRoll(moveDescription);
+
+  if (updatePriorMove) {
+    updatePreviousMoveOrCreateBlock(
+      editor,
+      (moveNode) => {
+        // TODO: maybe in theory we should validate that this is actually still the same node?
+        moveNode.children.push(rollNode);
+        return moveNode;
+      },
+      () => {
+        throw new Error("Unexpectedly missing block");
+      },
+    );
+  } else {
+    createOrAppendMechanics(editor, [rollNode]);
+  }
 }

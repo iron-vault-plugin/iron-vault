@@ -2,6 +2,7 @@ import * as kdl from "kdljs";
 import { Editor, EditorRange } from "obsidian";
 import {
   findAdjacentCodeBlock,
+  interiorRange,
   reverseLineIterator,
   updateCodeBlockInterior,
 } from "../utils/editor";
@@ -34,6 +35,36 @@ export function createOrUpdateBlock(
   }
 }
 
+/** Returns the KDL contents of a prior adjacent mechanics block if one exists. */
+export function findAdjacentMechanicsBlock(
+  editor: Editor,
+): kdl.Document | undefined {
+  const lastBlockRange = findAdjacentCodeBlock(
+    reverseLineIterator(editor, editor.getCursor()),
+    MECHANICS_CODE_BLOCK_TAG,
+  );
+  if (!lastBlockRange) return undefined;
+
+  const range = interiorRange(lastBlockRange);
+  const block = editor.getRange(range.from, range.to);
+  const parsed = kdl.parse(block);
+  if (parsed.errors.length > 0) {
+    return undefined;
+  }
+  return parsed.output;
+}
+
+function parseMechanicsBlock(block: string): kdl.Document {
+  const parsed = kdl.parse(block);
+  if (parsed.errors.length > 0 || !parsed.output) {
+    // TODO: maybe if this happens, it's a sign that we should just insert the block as a new block?
+    throw new Error(`Error while parsing mechanics block: ${block}`, {
+      cause: parsed.errors,
+    });
+  }
+  return parsed.output;
+}
+
 /** Appends nodes to an existing mechanics block or inserts a new block. */
 export function createOrAppendMechanics(
   editor: Editor,
@@ -41,13 +72,8 @@ export function createOrAppendMechanics(
 ): void {
   createOrUpdateBlock(editor, MECHANICS_CODE_BLOCK_TAG, (existing) => {
     if (existing) {
-      const parsed = kdl.parse(existing);
-      if (parsed.errors.length > 0 || !parsed.output) {
-        // TODO: maybe if this happens, it's a sign that we should just insert the block as a new block?
-        throw new Error(`Error while parsing mechanics block: ${existing}`, {
-          cause: parsed.errors,
-        });
-      }
+      // Parse throws an error if the block is invalid
+      parseMechanicsBlock(existing);
     }
     return (existing ? existing + "\n" : "") + kdl.format(newItems);
   });
@@ -61,12 +87,7 @@ export function updatePreviousMoveOrCreateBlock(
 ) {
   createOrUpdateBlock(editor, MECHANICS_CODE_BLOCK_TAG, (existing) => {
     if (existing) {
-      const { errors, output } = kdl.parse(existing);
-      if (errors.length > 0 || !output) {
-        throw new Error(`Error while parsing mechanics block: ${existing}`, {
-          cause: errors,
-        });
-      }
+      const output = parseMechanicsBlock(existing);
 
       // If the last node is a move, update it. Otherwise, create a new top-level node.
       const lastIndex = output.length - 1;
@@ -89,12 +110,7 @@ export function appendNodesToMoveOrMechanicsBlock(
 ) {
   createOrUpdateBlock(editor, MECHANICS_CODE_BLOCK_TAG, (existing) => {
     if (existing) {
-      const { errors, output } = kdl.parse(existing);
-      if (errors.length > 0 || !output) {
-        throw new Error(`Error while parsing mechanics block: ${existing}`, {
-          cause: errors,
-        });
-      }
+      const output = parseMechanicsBlock(existing);
 
       // If the last node is a move, update it. Otherwise, create a new top-level node.
       const lastIndex = output.length - 1;

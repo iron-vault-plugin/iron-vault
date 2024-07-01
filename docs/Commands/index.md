@@ -13,6 +13,7 @@ The following commands are supported:
 * [[Create new character]]
 * [[Generate an entity]]
 * [[Generate Truths]]
+* [[Make an action roll]]
 * [[Make a move]]
 * [[Open documentation in a tab]]
 * [[Open documentation in your browser]]

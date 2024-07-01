@@ -3,7 +3,12 @@ import { ClockFileAdapter } from "clocks/clock-file";
 import * as kdl from "kdljs";
 import { Document, Node } from "kdljs";
 import { RollWrapper } from "model/rolls";
-import { MoveDescription, moveIsAction, moveIsProgress } from "moves/desc";
+import {
+  ActionMoveDescription,
+  MoveDescription,
+  moveIsAction,
+  moveIsProgress,
+} from "moves/desc";
 import { oracleNameWithParents } from "oracles/render";
 import { ProgressTrackWriterContext } from "tracks/writer";
 import { node } from "utils/kdl";
@@ -103,11 +108,23 @@ export function createOracleNode(
   });
 }
 
+export function generateActionRoll(move: ActionMoveDescription): Node {
+  const adds = (move.adds ?? []).reduce((acc, { amount }) => acc + amount, 0);
+  return node("roll", {
+    values: [move.stat],
+    properties: {
+      action: move.action,
+      stat: move.statVal,
+      adds,
+      vs1: move.challenge1,
+      vs2: move.challenge2,
+    },
+  });
+}
+
 export function generateMechanicsNode(move: MoveDescription): Document {
   const children: Node[] = [];
   if (moveIsAction(move)) {
-    const adds = (move.adds ?? []).reduce((acc, { amount }) => acc + amount, 0);
-
     // Add "add" nodes for each non-zero add
     children.push(
       ...(move.adds ?? [])
@@ -118,18 +135,7 @@ export function generateMechanicsNode(move: MoveDescription): Document {
     );
 
     // Main roll node
-    children.push(
-      node("roll", {
-        values: [move.stat],
-        properties: {
-          action: move.action,
-          stat: move.statVal,
-          adds,
-          vs1: move.challenge1,
-          vs2: move.challenge2,
-        },
-      }),
-    );
+    children.push(generateActionRoll(move));
 
     // Momentum burn
     if (move.burn) {

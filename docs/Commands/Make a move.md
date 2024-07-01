@@ -8,6 +8,12 @@ After it's made, you can also choose to invoke the [[Burn momentum]] command.
 
 ### Skipping action move rolls
 
-For some moves, like suffer moves, making a roll is sometimes optional. In those cases, you can still
-record that you made the move by selecting "Skip roll" when you are prompted for the stat. This will
-record an empty move block, where you can then record your meter changes and so on.
+For some moves, like suffer moves, making a roll is sometimes optional. In those cases, you can still record that you made the move by selecting "Skip roll" when you are prompted for the stat. This will record an empty move block, where you can then record your meter changes and so on.
+
+If you then wish to add an action roll, you can run [[Make an action roll]]. As long as the move with the skipped roll is still the last entry in the preceding mechanics block, the roll will be added to that move, after all other children.
+
+You can use this process to create the Endure Harm node as above:
+
+1. [[Make a move]] with "Endure Harm", picking "Skip roll" as the rollable stat when prompted.
+2. Use other commands, such as [[Suffer on a meter]], to add other entries to the Endure Harm node.
+3. Finally, if you decide you wish to make the Endure Harm roll, run [[Make an action roll]]. It will detect that the last move was Endure Harm and prompt you appropriately. The roll will be added to your Endure Harm block!
