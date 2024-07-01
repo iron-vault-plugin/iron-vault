@@ -10,7 +10,7 @@ import { generateEntityCommand } from "entity/command";
 import IronVaultPlugin from "index";
 import { insertComment } from "mechanics/commands";
 import { checkIfMigrationNeededCommand } from "migrate/command";
-import { runMoveCommand } from "moves/action";
+import { makeActionRollCommand, runMoveCommand } from "moves/action";
 import { rerollDie } from "moves/action/action-modal";
 import { Command, Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
 import { runOracleCommand } from "oracles/command";
@@ -46,6 +46,11 @@ export class IronVaultCommands {
       editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
         // TODO: what if view is just a fileinfo?
         runMoveCommand(this.plugin, editor, view as MarkdownView),
+    },
+    {
+      id: "make-action-roll",
+      name: "Make an action roll",
+      editorCallback: (editor) => makeActionRollCommand(this.plugin, editor),
     },
     {
       id: "ask-the-oracle",

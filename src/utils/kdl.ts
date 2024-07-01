@@ -1,6 +1,9 @@
 import { Node } from "kdljs";
 
-export function node(name: string, data: Omit<Partial<Node>, "name">): Node {
+export function node(
+  name: string,
+  data: Omit<Partial<Node>, "name"> = {},
+): Node {
   return {
     name,
     properties: {},
