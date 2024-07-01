@@ -313,12 +313,24 @@ function renderControl(
           .value=${control.value}
           @click=${updateControlValue}
         >
-          ${map(
-            Object.keys(control.choices),
-            (key) =>
-              html`<option ?selected=${control.value === key} value=${key}>
-                ${key}
-              </option>`,
+          <option ?selected=${control.value == null}></option>
+          ${map(Object.entries(control.choices), ([key, choice]) =>
+            choice.choice_type === "choice_group"
+              ? html`<optgroup label=${choice.name}>
+                  ${map(
+                    Object.entries(choice.choices),
+                    ([key, choice]) =>
+                      html`<option
+                        ?selected=${control.value === key}
+                        value=${key}
+                      >
+                        ${choice.label}
+                      </option>`,
+                  )}
+                </optgroup>`
+              : html`<option ?selected=${control.value === key} value=${key}>
+                  ${choice.label}
+                </option>`,
           )}
         </select>
       </label>`;
