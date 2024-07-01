@@ -3,9 +3,10 @@ import { ENTITIES } from "entity/specs";
 import IronVaultPlugin from "index";
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
+import { ref } from "lit-html/directives/ref.js";
 import MiniSearch from "minisearch";
 import { Oracle, OracleRulesetGrouping } from "model/oracle";
-import { MarkdownView, getIcon } from "obsidian";
+import { MarkdownView, getIcon, setIcon } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { OracleModal } from "oracles/oracle-modal";
 
@@ -155,13 +156,15 @@ function renderGroup(
           <summary><span>${group.name}</span></summary>
         </details>
         <ul class="content">
-          <li>
-            <button
-              type="button"
-              @click=${() => rollOracleBatch(plugin, group)}
+          <li @click=${() => rollOracleBatch(plugin, group)}>
+            <span>
+              <span
+                ${ref(
+                  (el?: Element) => el && setIcon(el as HTMLElement, "dice"),
+                )}
+              ></span>
+              Roll All</span
             >
-              ${getIcon("dice")}
-            </button>
           </li>
           ${map(group.children, (oracle) => renderOracle(plugin, oracle))}
         </ul>
@@ -178,7 +181,12 @@ function renderOracle(plugin: IronVaultPlugin, oracle: Oracle) {
         handleOracleRoll(ev, plugin, oracle);
       }}
     >
-      <span>${oracle.name}</span>
+      <span>
+        <span
+          ${ref((el?: Element) => el && setIcon(el as HTMLElement, "dice"))}
+        ></span>
+        ${oracle.name}</span
+      >
       <button
         type="button"
         @click=${(ev: MouseEvent) => {
