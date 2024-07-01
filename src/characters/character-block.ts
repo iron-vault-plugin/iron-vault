@@ -511,33 +511,33 @@ class CharacterRenderer extends MarkdownRenderChild {
     };
 
     return html`
-      <ul class="assets" ${ref(makeSortable)}>
-        ${repeat(
-          lens.assets.get(raw),
-          (asset) => asset.id,
-          (asset) => html`
-            <li class="asset-card-wrapper">
-              <button
-                type="button"
-                class="remove-asset"
-                @click=${() => removeAsset(asset)}
-              >
-                ✕
-              </button>
-              ${renderAssetCard(this.plugin, asset, updateAsset)}
-            </li>
-          `,
-        )}
-        <li>
-          <button
-            class="add-asset"
-            type="button"
-            @click=${() => addAssetToCharacter(this.plugin)}
-          >
-            Add Asset
-          </button>
-        </li>
-      </ul>
+      <section class="assets">
+        <ul ${ref(makeSortable)}>
+          ${repeat(
+            lens.assets.get(raw),
+            (asset) => asset.id,
+            (asset) => html`
+              <li class="asset-card-wrapper">
+                <button
+                  type="button"
+                  class="remove-asset"
+                  @click=${() => removeAsset(asset)}
+                >
+                  ✕
+                </button>
+                ${renderAssetCard(this.plugin, asset, updateAsset)}
+              </li>
+            `,
+          )}
+        </ul>
+        <button
+          class="add-asset"
+          type="button"
+          @click=${() => addAssetToCharacter(this.plugin)}
+        >
+          Add Asset
+        </button>
+      </section>
     `;
   }
 
