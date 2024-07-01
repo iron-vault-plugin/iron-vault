@@ -6,9 +6,9 @@
   width: 300px;
   background-color: var(--background-primary);
   & dl,
-  dt,
-  dd,
-  ul {
+  & dt,
+  & dd,
+  & ul {
     padding: 0;
     margin: 0;
   }
@@ -122,6 +122,12 @@
       display: flex;
       flex-flow: row nowrap;
       align-items: flex-start !important;
+    }
+    & .markdown-wrapper ul {
+      list-style: square;
+      & > li {
+        margin-inline-start: 1em;
+      }
     }
   }
   & .condition-meter > .controls {
