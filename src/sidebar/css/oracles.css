@@ -14,7 +14,7 @@
       border-bottom: 1px solid var(--background-secondary);
     }
   }
-  & .oracle-group li:not(:first-child) {
+  & .oracle-group li {
     display: flex;
     flex-direction: row;
     padding: 0.5em;
@@ -26,8 +26,13 @@
     &:active {
       background-color: var(--background-modifier-active-hover);
     }
-    & span {
+    & > span {
       flex-grow: 1;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.4em;
     }
   }
   & .ruleset > .wrapper > .content {
