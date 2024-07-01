@@ -1,6 +1,6 @@
 .iron-vault-mechanics .progress {
   &:before {
-    content: "🚀";
+    content: "⏩";
   }
   & dd {
     &.track-name {
