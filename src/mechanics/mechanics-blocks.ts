@@ -112,14 +112,14 @@ export class MechanicsRenderer {
     }
     const btn = new ButtonComponent(this.mechNode);
     btn
-      .setButtonText("Hide Mechanics")
+      .setButtonText("Hide mechanics")
       .setClass("toggle")
       .setTooltip("Toggle displaying mechanics")
       .onClick(() => {
         this.hideMechanics = !this.hideMechanics;
         this.mechNode?.classList.toggle("collapsed", this.hideMechanics);
         btn.setButtonText(
-          this.hideMechanics ? "Show Mechanics" : "Hide Mechanics",
+          this.hideMechanics ? "Show mechanics" : "Hide mechanics",
         );
       });
   }
@@ -333,12 +333,12 @@ export class MechanicsRenderer {
     } else if (this.lastRoll) {
       const vs1 = this.lastRoll.properties.vs1 as number;
       const vs2 = this.lastRoll.properties.vs2 as number;
-      def["New Score"] = { cls: "score", value: from };
-      def["Challenge Die 1"] = {
+      def["New score"] = { cls: "score", value: from };
+      def["Challenge die 1"] = {
         cls: "challenge-die vs1",
         value: vs1,
       };
-      def["Challenge Die 2"] = {
+      def["Challenge die 2"] = {
         cls: "challenge-die vs2",
         value: vs2,
       };
@@ -378,16 +378,16 @@ export class MechanicsRenderer {
     const endTrack = startTrack.advanced(steps);
     const [toBoxes, toTicks] = endTrack.boxesAndTicks();
     await this.renderDlist(target, "progress", {
-      "Track Name": { cls: "track-name", value: trackName, md: true },
+      "Track name": { cls: "track-name", value: trackName, md: true },
       Steps: {
         cls: "steps " + (steps < 0 ? "negative" : "positive"),
         value: steps,
       },
       Rank: { cls: "rank", value: rank },
-      "From Boxes": { cls: "from-boxes", value: fromBoxes },
-      "From Ticks": { cls: "from-ticks", value: fromTicks },
-      "To Boxes": { cls: "to-boxes", value: toBoxes },
-      "To Ticks": { cls: "to-ticks", value: toTicks },
+      "From boxes": { cls: "from-boxes", value: fromBoxes },
+      "From ticks": { cls: "from-ticks", value: fromTicks },
+      "To boxes": { cls: "to-boxes", value: toBoxes },
+      "To ticks": { cls: "to-ticks", value: toTicks },
     });
   }
 
@@ -421,11 +421,11 @@ export class MechanicsRenderer {
       to = toBoxes * 4 + toTicks;
     }
     await this.renderDlist(target, "track", {
-      "Track Name": { cls: "track-name", value: trackName, md: true },
-      "From Boxes": { cls: "from-boxes", value: fromBoxes },
-      "From Ticks": { cls: "from-ticks", value: fromTicks },
-      "To Boxes": { cls: "to-boxes", value: toBoxes },
-      "To Ticks": { cls: "to-ticks", value: toTicks },
+      "Track name": { cls: "track-name", value: trackName, md: true },
+      "From boxes": { cls: "from-boxes", value: fromBoxes },
+      "From ticks": { cls: "from-ticks", value: fromTicks },
+      "To boxes": { cls: "to-boxes", value: toBoxes },
+      "To ticks": { cls: "to-ticks", value: toTicks },
     });
   }
 
@@ -460,9 +460,9 @@ export class MechanicsRenderer {
     await this.renderDlist(target, "clock", {
       Clock: { cls: "clock-name", value: name, md: true },
       From: { cls: "from", value: from },
-      OutOfFrom: { cls: "out-of", value: outOf },
+      "Out of from": { cls: "out-of", value: outOf },
       To: { cls: "to", value: to },
-      OutOfTo: { cls: "out-of", value: outOf },
+      "Out of to": { cls: "out-of", value: outOf },
     });
   }
 
@@ -478,9 +478,9 @@ export class MechanicsRenderer {
       | undefined;
     const wrapper = target.createDiv("oracle-container");
     const data: DataList = {
-      name: { cls: "name", value: name, md: true },
-      roll: { cls: "roll", value: roll },
-      result: { cls: "result", value: result, md: true },
+      Name: { cls: "name", value: name, md: true },
+      Roll: { cls: "roll", value: roll },
+      Result: { cls: "result", value: result, md: true },
     };
     if (cursed != null) {
       data.cursed = { cls: "cursed", value: cursed };
@@ -524,17 +524,17 @@ export class MechanicsRenderer {
     } = rollOutcome(score, challenge1, challenge2);
     this.setMoveHit(outcomeClass, match);
     const def: DataList = {
-      "Action Die": { cls: "action-die", value: action },
+      "Action die": { cls: "action-die", value: action },
       Stat: { cls: "stat", value: stat },
     };
     if (statName) {
-      def["Stat Name"] = { cls: "stat-name", value: statName };
+      def["Stat name"] = { cls: "stat-name", value: statName };
     }
     Object.assign(def, {
       Adds: { cls: "adds", value: adds },
       Score: { cls: "score", value: score },
-      "Challenge Die 1": { cls: "challenge-die vs1", value: challenge1 },
-      "Challenge Die 2": { cls: "challenge-die vs2", value: challenge2 },
+      "Challenge die 1": { cls: "challenge-die vs1", value: challenge1 },
+      "Challenge die 2": { cls: "challenge-die vs2", value: challenge2 },
       Outcome: { cls: "outcome", value: outcome, dataProp: false },
     });
     await this.renderDlist(target, "roll " + outcomeClass, def);
@@ -552,10 +552,10 @@ export class MechanicsRenderer {
     } = rollOutcome(score, challenge1, challenge2);
     this.setMoveHit(outcomeClass, match);
     await this.renderDlist(target, "roll progress " + outcomeClass, {
-      "Track Name": { cls: "track-name", value: trackName, md: true },
-      "Progress Score": { cls: "progress-score", value: score },
-      "Challenge Die 1": { cls: "challenge-die vs1", value: challenge1 },
-      "Challenge Die 2": { cls: "challenge-die vs2", value: challenge2 },
+      "Track name": { cls: "track-name", value: trackName, md: true },
+      "Progress score": { cls: "progress-score", value: score },
+      "Challenge die 1": { cls: "challenge-die vs1", value: challenge1 },
+      "Challenge die 2": { cls: "challenge-die vs2", value: challenge2 },
       Outcome: { cls: "outcome", value: outcome, dataProp: false },
     });
   }
@@ -600,20 +600,20 @@ export class MechanicsRenderer {
       const newAction = node.properties.action as number;
       const lastAction = this.lastRoll.properties.action as number;
       this.lastRoll.properties.action = newAction;
-      def["Old Action Die"] = {
+      def["Old action die"] = {
         cls: "action-die from",
         value: lastAction ?? 0,
       };
-      def["New Action Die"] = { cls: "action-die to", value: newAction };
+      def["New action die"] = { cls: "action-die to", value: newAction };
     }
     if (node.properties.vs1 != null) {
       const newVs1 = node.properties.vs1 as number;
       this.lastRoll.properties.vs1 = newVs1;
-      def["Old Challenge Die 1"] = {
+      def["Old challenge die 1"] = {
         cls: "challenge-die from vs1",
         value: lastVs1,
       };
-      def["New Challenge Die 1"] = {
+      def["New challenge die 1"] = {
         cls: "challenge-die to vs1",
         value: newVs1,
       };
@@ -621,18 +621,18 @@ export class MechanicsRenderer {
     if (node.properties.vs2 != null) {
       const newVs2 = node.properties.vs2 as number;
       this.lastRoll.properties.vs2 = newVs2;
-      def["Old Challenge Die 2"] = {
+      def["Old challenge die 2"] = {
         cls: "challenge-die from vs2",
         value: lastVs2,
       };
-      def["New Challenge Die 2"] = {
+      def["New challenge die 2"] = {
         cls: "challenge-die to vs2",
         value: newVs2,
       };
     }
-    def["New Score"] = { cls: "score", value: newScore };
-    def["Challenge Die 1"] = { cls: "challenge-die vs1", value: newVs1 };
-    def["Challenge Die 2"] = { cls: "challenge-die vs2", value: newVs2 };
+    def["New score"] = { cls: "score", value: newScore };
+    def["Challenge die 1"] = { cls: "challenge-die vs1", value: newVs1 };
+    def["Challenge die 2"] = { cls: "challenge-die vs2", value: newVs2 };
     def["Outcome"] = { cls: "outcome", value: outcome, dataProp: false };
     this.setMoveHit(outcomeClass, match);
     await this.renderDlist(target, "reroll " + outcomeClass, def);
@@ -688,14 +688,14 @@ export class MechanicsRenderer {
     }
     function initText(init: string) {
       return init.match(/bad.spot/i)
-        ? "In a Bad Spot"
+        ? "In a bad spot"
         : init.match(/no.initiative/i)
-          ? "No Initiative"
+          ? "No initiative"
           : init.match(/in.control/i)
-            ? "In Control"
+            ? "In control"
             : init.match(/initiative/i)
-              ? "Has Initiative"
-              : "Out of Combat";
+              ? "Has initiative"
+              : "Out of combat";
     }
   }
 
@@ -777,17 +777,17 @@ function rollOutcome(
   let outcome;
   if (score > challenge1 && score > challenge2) {
     outcomeClass = "strong-hit";
-    outcome = "Strong Hit";
+    outcome = "Strong hit";
   } else if (score > challenge1 || score > challenge2) {
     outcomeClass = "weak-hit";
-    outcome = "Weak Hit";
+    outcome = "Weak hit";
   } else {
     outcomeClass = "miss";
     outcome = "Miss";
   }
   if (challenge1 === challenge2) {
     outcomeClass += " match";
-    outcome += " (Match)";
+    outcome += " (match)";
   }
   return {
     cls: outcomeClass,

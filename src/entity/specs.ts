@@ -165,7 +165,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
       basicForm: {
         id: "starforged/oracles/creatures/basic_form/{{environment}}",
         firstLook: true,
-        name: "Basic Form",
+        name: "Basic form",
       },
       scale: {
         id: "starforged/oracles/creatures/scale",
@@ -222,12 +222,12 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
         id: "starforged/oracles/settlements/first_look",
         // lol this is ironic, but that's what the rulebook says
         firstLook: false,
-        name: "First Look",
+        name: "First look",
       },
       initialContact: {
         id: "starforged/oracles/settlements/initial_contact",
         firstLook: false,
-        name: "Initial Contact",
+        name: "Initial contact",
       },
       trouble: {
         id: "starforged/oracles/settlements/trouble",
@@ -260,7 +260,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
       name: {
         id: "starforged/oracles/planets/{{class}}/name",
         firstLook: true,
-        name: "Planet Name",
+        name: "Planet name",
       },
       atmosphere: {
         id: "starforged/oracles/planets/{{class}}/atmosphere",
@@ -284,28 +284,28 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
     spec: {
       nameA: {
         id: "classic/oracles/name/ironlander/a",
-        name: "Name Table A",
+        name: "Name table A",
         firstLook: true,
       },
       nameB: {
         id: "classic/oracles/name/ironlander/b",
-        name: "Name Table B",
+        name: "Name table B",
         firstLook: false,
       },
       role: {
         id: "classic/oracles/character/role",
         firstLook: true,
-        name: "Character Role",
+        name: "Character role",
       },
       descriptor: {
         id: "classic/oracles/character/descriptor",
         firstLook: true,
-        name: "Character Descriptor",
+        name: "Character descriptor",
       },
       goal: {
         id: "classic/oracles/character/goal",
         firstLook: false,
-        name: "Character Goal",
+        name: "Character goal",
       },
     },
   },

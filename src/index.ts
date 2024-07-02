@@ -45,7 +45,9 @@ export default class IronVaultPlugin extends Plugin {
 
   private async initialize(): Promise<void> {
     if (this.initialized) {
-      throw new Error("Why did we initialize again");
+      throw new Error(
+        "Plugin re-initialized after initial load. This is likely a bug in Iron Vault.",
+      );
     }
     this.initialized = true;
 
@@ -92,11 +94,7 @@ export default class IronVaultPlugin extends Plugin {
       this.indexManager.indexAll();
     });
 
-    if (this.app.workspace.layoutReady) {
-      await this.initialize();
-    } else {
-      this.app.workspace.onLayoutReady(() => this.initialize());
-    }
+    this.app.workspace.onLayoutReady(() => this.initialize());
 
     window.IronVaultAPI = this.api = new IronVaultAPI(this);
     this.register(() => delete window.IronVaultAPI);
@@ -111,9 +109,6 @@ export default class IronVaultPlugin extends Plugin {
       MIGRATION_VIEW_TYPE,
       (leaf) => new IronVaultMigrationView(leaf, this),
     );
-    // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-    // const statusBarItemEl = this.addStatusBarItem();
-    // statusBarItemEl.setText("Status Bar Text");
 
     this.commands = new IronVaultCommands(this);
     this.commands.addCommands();

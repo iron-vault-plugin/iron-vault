@@ -268,7 +268,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
 
     new Setting(contentEl)
       .addButton((btn) =>
-        btn.setButtonText("Roll First Look").onClick(async () => {
+        btn.setButtonText("Roll first look").onClick(async () => {
           for (const [key, spec] of slots) {
             if (spec.firstLook) {
               await rollForKey(key);

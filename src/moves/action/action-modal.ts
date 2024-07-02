@@ -1,15 +1,15 @@
 import { type Datasworn } from "@datasworn/core";
+import IronVaultPlugin from "index";
+import { updatePreviousMoveOrCreateBlock } from "mechanics/editor";
 import { App, Editor, Modal, Setting } from "obsidian";
+import { Dice, DieKind } from "utils/dice";
+import { node } from "utils/kdl";
+import { CustomSuggestModal } from "utils/suggest";
+import { PromptModal } from "utils/ui/prompt";
 import { CharacterContext } from "../../character-tracker";
 import { MomentumTracker, momentumTrackerReader } from "../../characters/lens";
 import { ActionMoveDescription } from "../desc";
 import { ActionMoveWrapper, formatRollResult } from "../wrapper";
-import { PromptModal } from "utils/ui/prompt";
-import { CustomSuggestModal } from "utils/suggest";
-import { node } from "utils/kdl";
-import IronVaultPlugin from "index";
-import { updatePreviousMoveOrCreateBlock } from "mechanics/editor";
-import { Dice, DieKind } from "utils/dice";
 
 export async function checkForMomentumBurn(
   app: App,
@@ -114,11 +114,11 @@ export async function rerollDie(plugin: IronVaultPlugin, editor: Editor) {
     ["action", "vs1", "vs2"],
     (item) =>
       item === "action"
-        ? "Action Die"
+        ? "Action die"
         : item === "vs1"
-          ? "Challenge Die 1"
+          ? "Challenge die 1"
           : item === "vs2"
-            ? "Challenge Die 2"
+            ? "Challenge die 2"
             : "Other",
     undefined,
     "Select the die to reroll",

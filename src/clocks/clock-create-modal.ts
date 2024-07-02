@@ -46,7 +46,7 @@ export class ClockCreateModal extends Modal {
     this.accepted = false;
 
     const { contentEl } = this;
-    new Setting(contentEl).setName("New Clock").setHeading();
+    new Setting(contentEl).setName("New clock").setHeading();
 
     let fileNameText: TextComponent;
 

@@ -1,8 +1,14 @@
-import { App, FuzzyMatch, prepareFuzzySearch } from "obsidian";
+import {
+  AbstractInputSuggest,
+  App,
+  FuzzyMatch,
+  prepareFuzzySearch,
+} from "obsidian";
 import { processMatches } from "utils/suggest";
-import { TextInputSuggest } from "../suggest";
 
-export class GenericTextSuggest extends TextInputSuggest<FuzzyMatch<string>> {
+export class GenericTextSuggest extends AbstractInputSuggest<
+  FuzzyMatch<string>
+> {
   constructor(
     app: App,
     inputEl: HTMLInputElement,
@@ -46,8 +52,7 @@ export class GenericTextSuggest extends TextInputSuggest<FuzzyMatch<string>> {
   }
 
   selectSuggestion({ item }: FuzzyMatch<string>): void {
-    this.inputEl.value = item;
-    this.inputEl.trigger("input");
+    this.setValue(item);
     this.close();
   }
 }

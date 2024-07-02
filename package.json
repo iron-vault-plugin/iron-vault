@@ -33,7 +33,6 @@
     "@datasworn/sundered_isles": "github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/sundered-isles",
     "@jgoz/esbuild-plugin-typecheck": "^4.0.0",
     "@nrsk/sigma": "^3.8.0",
-    "@popperjs/core": "^2.11.8",
     "@swc/core": "^1.5.7",
     "@swc/jest": "^0.2.36",
     "@types/electron": "npm:@ophidian/electron-types@^24.3.1",

@@ -101,9 +101,9 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
       case RollResult.Miss:
         return "Miss" + (wrap.isMatch() ? " with Match" : "");
       case RollResult.StrongHit:
-        return "Strong Hit" + (wrap.isMatch() ? " with Match" : "");
+        return "Strong hit" + (wrap.isMatch() ? " with Match" : "");
       case RollResult.WeakHit:
-        return "Weak Hit";
+        return "Weak hit";
     }
   }
 

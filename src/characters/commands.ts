@@ -155,19 +155,19 @@ export function initiativeValueLabel(
 ): string {
   const labels = [];
   if (val === true && ruleset.ids.contains("classic")) {
-    labels.push("Has Initiative");
+    labels.push("Has initiative");
   }
   if (val === false && ruleset.ids.contains("classic")) {
-    labels.push("No Initiative");
+    labels.push("No initiative");
   }
   if (val === true && ruleset.ids.contains("starforged")) {
-    labels.push("In Control");
+    labels.push("In control");
   }
   if (val === false && ruleset.ids.contains("starforged")) {
-    labels.push("In a Bad Spot");
+    labels.push("In a bad spot");
   }
   if (val == null) {
-    labels.push("Out of Combat");
+    labels.push("Out of combat");
   }
   return labels.join("/");
 }
