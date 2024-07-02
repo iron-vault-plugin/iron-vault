@@ -50,6 +50,16 @@ assets:
     controls:
       broken: false
     options: {}
+  - id: asset:starforged/companion/protocol_bot
+    abilities:
+      - true
+      - false
+      - false
+    controls:
+      health: 2
+      health/out_of_action: false
+    options:
+      name: Jeeves
 spirit: 5
 supply: 4
 Quests_Progress: 4

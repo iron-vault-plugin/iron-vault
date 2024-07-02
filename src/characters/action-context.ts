@@ -138,14 +138,7 @@ export class CharacterActionContext implements IActionContext {
 
   get conditionMeters(): MeterWithLens<ConditionMeterDefinition>[] {
     const { character, lens } = this.characterContext;
-    return Object.values(meterLenses(lens, character, this)).map(
-      ({ key, definition, lens }) => ({
-        key,
-        definition,
-        lens,
-        value: lens.get(character),
-      }),
-    );
+    return meterLenses(lens, character, this);
   }
 
   async update(

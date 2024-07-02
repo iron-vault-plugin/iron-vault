@@ -4,6 +4,7 @@ import {
   CharacterActionContext,
   determineCharacterActionContext,
 } from "characters/action-context";
+import { labelForMeter } from "characters/display";
 import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
@@ -493,8 +494,9 @@ async function handleActionRoll(
   if (stat.key === SKIP_ROLL) return createEmptyMoveDescription(move);
 
   // This stat has an unknown value, so we need to prompt the user for a value.
-  if (!stat.value) {
-    stat.value = await CustomSuggestModal.select(
+  let statValue = stat.value;
+  if (statValue == null) {
+    statValue = await CustomSuggestModal.select(
       plugin.app,
       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       (n) => n.toString(10),
@@ -508,7 +510,7 @@ async function handleActionRoll(
   while (adds.length < 5) {
     const addValue = await CustomSuggestModal.select(
       plugin.app,
-      validAdds(stat.value ?? 0),
+      validAdds(statValue ?? 0),
       (n) => n.toString(10),
       undefined,
       `Choose an amount for the ${ORDINALS[adds.length + 1]} add.`,
@@ -555,8 +557,8 @@ async function handleActionRoll(
   let description = await processActionMove(
     plugin,
     move,
-    stat.key,
-    stat.value ?? 0,
+    labelForMeter(stat),
+    statValue,
     adds,
     rolls,
   );
@@ -636,7 +638,7 @@ async function promptForRollable(
     (m) =>
       m.key === SKIP_ROLL
         ? "Skip roll"
-        : `${m.definition.label}: ${m.value ?? "unknown"}`,
+        : `${labelForMeter(m)}: ${m.value ?? "unknown"}`,
     (input, el) => {
       el.setText(`Use custom meter '${input}'`);
     },

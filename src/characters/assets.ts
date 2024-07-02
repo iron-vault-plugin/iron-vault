@@ -252,14 +252,15 @@ export function assetMeters(
 
   return meters.map(([key, control]) => {
     return {
-      key,
-      definition: {
-        kind: "condition_meter",
+      key: `${asset._id}@${key}`,
+      definition: new ConditionMeterDefinition({
         label: control.label,
         min: control.min,
         max: control.max,
         rollable: control.rollable,
-      },
+        value: control.value,
+      }),
+      parent: { label: asset.name },
       lens: {
         get(source) {
           const assets = charLens.assets.get(source);

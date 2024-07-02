@@ -11,6 +11,7 @@ import {
   IronVaultSheetAssetInput,
   characterLens,
   createValidCharacter,
+  meterLenses,
   momentumOps,
   movesReader,
   validatedAgainst,
@@ -252,21 +253,24 @@ describe("momentumOps", () => {
   });
 });
 
-// TODO: generate an actual test asset
-const TestAsset: Datasworn.Asset = starforgedData.assets.path.contents
-  .empath as unknown as Datasworn.Asset;
+function createMockDataContext(...assets: Datasworn.Asset[]): IDataContext {
+  const assetMap = new VersionedMapImpl<string, Datasworn.Asset>();
+  for (const asset of assets) {
+    assetMap.set(asset._id, asset);
+  }
+  return {
+    assets: assetMap,
+    moves: new VersionedMapImpl(),
+  };
+}
 
 describe("movesReader", () => {
   let mockDataContext: IDataContext;
 
   beforeAll(() => {
-    mockDataContext = {
-      assets: new VersionedMapImpl<string, Datasworn.Asset>().set(
-        TestAsset._id,
-        TestAsset,
-      ),
-      moves: new VersionedMapImpl(),
-    };
+    mockDataContext = createMockDataContext(
+      starforgedData.assets.path.contents.empath as unknown as Datasworn.Asset,
+    );
   });
 
   describe("moves", () => {
@@ -338,6 +342,59 @@ describe("movesReader", () => {
         },
       ]);
     });
+  });
+});
+
+describe("meterLenses", () => {
+  let mockDataContext: IDataContext;
+
+  beforeAll(() => {
+    mockDataContext = createMockDataContext(
+      starforgedData.assets.companion.contents
+        .protocol_bot as unknown as Datasworn.Asset,
+    );
+  });
+
+  const { validater, lens } = characterLens(TEST_RULESET);
+  const character = validater({
+    ...VALID_INPUT,
+    assets: [
+      {
+        id: "asset:starforged/companion/protocol_bot",
+        abilities: [true, false, false],
+      },
+    ],
+  }).expect("valid character");
+
+  it("returns base meters", () => {
+    const result = meterLenses(lens, character, mockDataContext);
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: "health",
+          definition: expect.objectContaining({ max: 5 }),
+        }),
+      ]),
+    );
+  });
+
+  it("returns asset meters", () => {
+    const result = meterLenses(lens, character, mockDataContext);
+    expect(result).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: "asset:starforged/companion/protocol_bot@health",
+          parent: { label: "Protocol Bot" },
+          definition: expect.objectContaining({ max: 3 }),
+        }),
+      ]),
+    );
+  });
+
+  it("has no duplicate keys", () => {
+    const meters = meterLenses(lens, character, mockDataContext);
+
+    expect(meters.length).toBe(new Set(meters.map(({ key }) => key)).size);
   });
 });
 
