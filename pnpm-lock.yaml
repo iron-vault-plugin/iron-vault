@@ -45,9 +45,6 @@ importers:
       '@nrsk/sigma':
         specifier: ^3.8.0
         version: 3.8.0
-      '@popperjs/core':
-        specifier: ^2.11.8
-        version: 2.11.8
       '@swc/core':
         specifier: ^1.5.7
         version: 1.5.7
@@ -694,9 +691,6 @@ packages:
   '@pkgr/core@0.1.1':
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
-
-  '@popperjs/core@2.11.8':
-    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
@@ -2940,8 +2934,6 @@ snapshots:
   '@ophidian/electron-types@24.3.1': {}
 
   '@pkgr/core@0.1.1': {}
-
-  '@popperjs/core@2.11.8': {}
 
   '@sinclair/typebox@0.27.8': {}
 
