@@ -109,9 +109,6 @@ export default class IronVaultPlugin extends Plugin {
       MIGRATION_VIEW_TYPE,
       (leaf) => new IronVaultMigrationView(leaf, this),
     );
-    // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-    // const statusBarItemEl = this.addStatusBarItem();
-    // statusBarItemEl.setText("Status Bar Text");
 
     this.commands = new IronVaultCommands(this);
     this.commands.addCommands();

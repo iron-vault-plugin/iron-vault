@@ -40,7 +40,7 @@ export class AssetPickerModal extends Modal {
   }
 
   onOpen() {
-    this.setTitle("Add Asset to Character");
+    this.setTitle("Add asset to character");
     const { contentEl } = this;
     contentEl.empty();
     contentEl.toggleClass("iron-vault-modal-content", true);

@@ -124,9 +124,9 @@ export class ProgressMoveWrapper extends MoveWrapper<ProgressMoveDescription> {
 export function formatRollResult(roll: RollResult): string {
   switch (roll) {
     case RollResult.StrongHit:
-      return "Strong Hit";
+      return "Strong hit";
     case RollResult.WeakHit:
-      return "Weak Hit";
+      return "Weak hit";
     case RollResult.Miss:
       return "Miss";
   }
