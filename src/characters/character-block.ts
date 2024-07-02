@@ -246,20 +246,20 @@ class CharacterRenderer extends MarkdownRenderChild {
           data-replicated-value=${lens.description.get(raw) || ""}
         >
           <textarea
-            placeholder="About Me"
+            placeholder="About me"
             onInput="this.parentNode.dataset.replicatedValue = this.value"
             .value=${lens.description.get(raw) || ""}
             @change=${charFieldUpdater(lens.description)}
           >
           </textarea>
         </dd>
-        <dt>XP Earned</dt>
+        <dt>XP earned</dt>
         <dd class="xp-earned">
           ${Object.values(lens.special_tracks).reduce((acc, track) => {
             return acc + legacyTrackXpEarned(track.get(raw));
           }, 0)}
         </dd>
-        <dt>XP Spent</dt>
+        <dt>XP spent</dt>
         <dd class="xp-spent">
           <input
             type="number"
@@ -544,19 +544,19 @@ class CharacterRenderer extends MarkdownRenderChild {
   initiativeValueLabel(lens: CharacterLens, val: boolean | undefined) {
     const labels = [];
     if (val === true && lens.ruleset.ids.contains("classic")) {
-      labels.push("Has Initiative");
+      labels.push("Has initiative");
     }
     if (val === false && lens.ruleset.ids.contains("classic")) {
-      labels.push("No Initiative");
+      labels.push("No initiative");
     }
     if (val === true && lens.ruleset.ids.contains("starforged")) {
-      labels.push("In Control");
+      labels.push("In control");
     }
     if (val === false && lens.ruleset.ids.contains("starforged")) {
-      labels.push("In a Bad Spot");
+      labels.push("In a bad spot");
     }
     if (val == null) {
-      labels.push("Out of Combat");
+      labels.push("Out of combat");
     }
     return labels.join("/");
   }

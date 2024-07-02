@@ -52,7 +52,7 @@ export class ProgressTrackCreateModal extends Modal {
     this.accepted = false;
 
     const { contentEl } = this;
-    new Setting(contentEl).setName("New Progress Track").setHeading();
+    new Setting(contentEl).setName("New progress track").setHeading();
 
     let fileNameText: TextComponent;
 

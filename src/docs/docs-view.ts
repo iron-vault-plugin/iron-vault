@@ -25,7 +25,7 @@ export class IronVaultLinkView extends ItemView {
   }
 
   getDisplayText() {
-    return "Iron Vault Documentation";
+    return "Iron Vault documentation";
   }
 
   setLink(link: string) {
