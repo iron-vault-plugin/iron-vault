@@ -13,6 +13,7 @@ import {
   determineCharacterActionContext,
   requireActiveCharacterContext,
 } from "./action-context";
+import { labelForMeter } from "./display";
 import { MeterWithLens, MeterWithoutLens, momentumOps } from "./lens";
 
 export async function burnMomentum(
@@ -66,7 +67,7 @@ export async function promptForMeter(
   const { value: meter } = await CustomSuggestModal.selectWithUserEntry(
     app,
     actionContext.conditionMeters.filter(meterFilter),
-    ({ definition }) => definition.label,
+    labelForMeter,
     (input, el) => {
       el.setText(`Use custom meter '${input}'`);
     },
@@ -114,7 +115,7 @@ export const modifyMeterCommand = async (
     | (Omit<MeterWithoutLens<ConditionMeterDefinition>, "value"> & {
         value: number;
       });
-  if (!choice.value) {
+  if (choice.value == null) {
     const value = await CustomSuggestModal.select(
       plugin.app,
       numberRange(choice.definition.min, choice.definition.max),
@@ -147,7 +148,7 @@ export const modifyMeterCommand = async (
   }
 
   const meterNode = node("meter", {
-    values: [measure.key],
+    values: [labelForMeter(measure)],
     properties: { from: measure.value, to: newValue },
   });
   updatePreviousMoveOrCreateBlock(

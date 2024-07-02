@@ -1,4 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
+import { ensureUnique } from "utils/ensure-unique";
 import { zodResultToEither } from "utils/zodutils";
 import { z } from "zod";
 import {
@@ -353,44 +354,57 @@ export const MOMENTUM_METER_DEFINITION: MeterWithoutLens<ConditionMeterDefinitio
     }),
   };
 
+/** Returns lenses for each meter available to a character across rulesets and assets. */
 export function meterLenses(
   charLens: CharacterLens,
   character: ValidatedCharacter,
   dataContext: IDataContext,
-): Record<string, MeterWithLens<ConditionMeterDefinition>> {
-  const baseMeters = Object.fromEntries(
-    Object.entries(charLens.condition_meters).map(([key, lens]) => [
+): MeterWithLens<ConditionMeterDefinition>[] {
+  const meters: MeterWithLens<ConditionMeterDefinition>[] = [];
+  meters.push(
+    ...Object.entries(charLens.condition_meters).map(([key, lens]) => ({
       key,
-      {
-        key,
-        lens,
-        definition: charLens.ruleset.condition_meters[key],
-      },
-    ]),
+      lens,
+      value: lens.get(character),
+      definition: charLens.ruleset.condition_meters[key],
+    })),
   );
-  const allAssetMeters = assetWithDefnReader(charLens, dataContext)
-    .get(character)
-    .flatMap((assetResult) => {
-      if (assetResult.isLeft()) {
-        // TODO: should we handle this error differently? pass it up?
-        console.warn("Missing asset: %o", assetResult.error);
-        return [];
-      } else {
-        const { asset, defn } = assetResult.value;
-        return assetMeters(charLens, defn, asset.abilities);
-      }
-    })
-    .map((val) => [val.key, val]);
-  return {
-    ...baseMeters,
-    momentum: { ...MOMENTUM_METER_DEFINITION, lens: charLens.momentum },
-    ...Object.fromEntries(allAssetMeters),
-  };
+
+  meters.push({
+    ...MOMENTUM_METER_DEFINITION,
+    lens: charLens.momentum,
+    value: charLens.momentum.get(character),
+  });
+
+  meters.push(
+    ...assetWithDefnReader(charLens, dataContext)
+      .get(character)
+      .flatMap((assetResult) => {
+        if (assetResult.isLeft()) {
+          // TODO: should we handle this error differently? pass it up?
+          console.warn("Missing asset: %o", assetResult.error);
+          return [];
+        } else {
+          const { asset, defn } = assetResult.value;
+          return assetMeters(charLens, defn, asset.abilities);
+        }
+      })
+      .map((meter) => ({ ...meter, value: meter.lens.get(character) })),
+  );
+  ensureUnique(meters.map(({ key }) => key));
+  return meters;
 }
 
-export type KeyWithDefinition<T> = { key: string; definition: T };
+export type KeyWithDefinition<T> = {
+  key: string;
+  definition: T;
+  parent?: { label: string };
+};
 
-export type WithCharLens<Base, T> = Base & { lens: CharLens<T>; value: T };
+export type WithCharLens<Base, T> = Base & {
+  lens: CharLens<T>;
+  value: T;
+};
 export type WithoutCharLens<Base> = Base & {
   lens: undefined;
   value: undefined;
@@ -410,14 +424,7 @@ export function rollablesReader(
 ): CharReader<MeterWithLens[]> {
   return reader((character) => {
     return [
-      ...Object.values(meterLenses(charLens, character, dataContext)).map(
-        ({ key, definition, lens }) => ({
-          key,
-          definition,
-          lens,
-          value: lens.get(character),
-        }),
-      ),
+      ...meterLenses(charLens, character, dataContext),
       ...Object.entries(charLens.stats).map(([key, lens]) => ({
         key,
         definition: charLens.ruleset.stats[key],
