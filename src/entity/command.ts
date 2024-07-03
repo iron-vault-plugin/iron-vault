@@ -128,9 +128,9 @@ export async function generateEntityCommand(
       Object.entries(ENTITIES).filter(
         ([_k, v]) =>
           (plugin.settings.enableStarforged &&
-            v.collectionId?.startsWith("starforged/")) ||
+            v.collectionId?.startsWith("oracle_collection:starforged/")) ||
           (plugin.settings.enableIronsworn &&
-            v.collectionId?.startsWith("classic/")),
+            v.collectionId?.startsWith("oracle_collection:classic/")),
       ),
       ([_key, { label }]) => label,
       undefined,

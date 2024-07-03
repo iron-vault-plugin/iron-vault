@@ -1,3 +1,4 @@
+import { DATASWORN_LINK_REGEX } from "datastore/parsers/datasworn/id";
 import {
   App,
   ButtonComponent,
@@ -24,7 +25,6 @@ import {
 
 const SAFE_SNAKECASE_RESULT = /^[a-z0-9\s]+$/i;
 // [Rocky World](id:starforged/collections/oracles/planets/rocky)
-const ATTRIBUTE_LINK = /\[([\w ]*)\]\(id:([\w/:]+)\)/;
 
 function evaluateAttribute(
   spec: EntityAttributeFieldSpec,
@@ -42,9 +42,9 @@ function evaluateAttribute(
         );
       return rawResult.replaceAll(/\s+/g, "_").toLowerCase();
     case AttributeMechanism.ParseId: {
-      const match = rawResult.match(ATTRIBUTE_LINK);
+      const match = rawResult.match(DATASWORN_LINK_REGEX);
       if (!match) throw new Error(`no id link found: ${rawResult}`);
-      const parts = match[2].split("/");
+      const parts = match.groups!.uri.split("/");
       if (parts.length < 2) throw new Error(`no / separator in ${rawResult}`);
       return parts.last()!;
     }
