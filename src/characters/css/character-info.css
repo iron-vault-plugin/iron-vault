@@ -20,6 +20,16 @@
     text-align: center;
     border: none;
   }
+  & .active-char {
+    font-size: 0.8em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-weight: var(--font-semibold);
+    margin-bottom: 0.5em;
+  }
+  & .set-active {
+    margin-bottom: 0.5em;
+  }
   & dl,
   & dt,
   & dd {

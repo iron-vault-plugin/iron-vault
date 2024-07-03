@@ -1,7 +1,7 @@
 import { syntaxTree } from "@codemirror/language";
 import { rootLogger, setLogLevel } from "logger";
 import loglevel from "loglevel";
-import { App } from "obsidian";
+import { App, getLinkpath, parseLinktext } from "obsidian";
 import { ProgressIndex } from "tracks/indexer";
 import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
@@ -47,6 +47,10 @@ export class IronVaultAPI {
   set logLevel(level: loglevel.LogLevelDesc) {
     setLogLevel(level);
   }
+
+  parseLinkText = parseLinktext;
+
+  getLinkpath = getLinkpath;
 }
 
 export const getAPI = (app?: App): IronVaultAPI | undefined => {

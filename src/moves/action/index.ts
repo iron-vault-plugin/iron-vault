@@ -9,11 +9,14 @@ import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import {
-  createOrAppendMechanics,
+  createOrAppendMechanicsWithActor,
   findAdjacentMechanicsBlock,
-  updatePreviousMoveOrCreateBlock,
+  updatePreviousMoveOrCreateBlockWithActor,
 } from "mechanics/editor";
-import { generateActionRoll } from "mechanics/node-builders";
+import {
+  generateActionRoll,
+  generateMechanicsNode,
+} from "mechanics/node-builders";
 import { getMoveIdFromNode, getTerminalMoveNode } from "mechanics/utils";
 import { type App, type Editor, type MarkdownView } from "obsidian";
 import { MeterCommon } from "rules/ruleset";
@@ -40,7 +43,6 @@ import {
 import { ActionMoveWrapper } from "../wrapper";
 import { checkForMomentumBurn } from "./action-modal";
 import { AddsModal } from "./adds-modal";
-import { renderMechanics } from "./format";
 
 const logger = rootLogger.getLogger("moves");
 
@@ -358,7 +360,12 @@ export async function runMoveCommand(
     }
   }
 
-  renderMechanics(editor, moveDescription);
+  createOrAppendMechanicsWithActor(
+    editor,
+    plugin,
+    context,
+    generateMechanicsNode(moveDescription),
+  );
 }
 
 function createEmptyMoveDescription(
@@ -724,8 +731,10 @@ export async function makeActionRollCommand(
   const rollNode = generateActionRoll(moveDescription);
 
   if (updatePriorMove) {
-    updatePreviousMoveOrCreateBlock(
+    updatePreviousMoveOrCreateBlockWithActor(
       editor,
+      plugin,
+      context,
       (moveNode) => {
         // TODO: maybe in theory we should validate that this is actually still the same node?
         moveNode.children.push(rollNode);
@@ -736,6 +745,6 @@ export async function makeActionRollCommand(
       },
     );
   } else {
-    createOrAppendMechanics(editor, [rollNode]);
+    createOrAppendMechanicsWithActor(editor, plugin, context, [rollNode]);
   }
 }

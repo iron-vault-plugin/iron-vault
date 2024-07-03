@@ -1,4 +1,4 @@
-import { updatePreviousMoveOrCreateBlock } from "mechanics/editor";
+import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
 import { App, Editor } from "obsidian";
 import { ConditionMeterDefinition } from "rules/ruleset";
 import { node } from "utils/kdl";
@@ -39,15 +39,11 @@ export async function burnMomentum(
     const burnNode = node("burn", {
       properties: { from: oldValue, to: newValue },
     });
-    updatePreviousMoveOrCreateBlock(
+    appendNodesToMoveOrMechanicsBlockWithActor(
       editor,
-      (move) => {
-        return {
-          ...move,
-          children: [...move.children, burnNode],
-        };
-      },
-      () => burnNode,
+      plugin,
+      actionContext,
+      burnNode,
     );
   }
 }
@@ -151,14 +147,11 @@ export const modifyMeterCommand = async (
     values: [labelForMeter(measure)],
     properties: { from: measure.value, to: newValue },
   });
-  updatePreviousMoveOrCreateBlock(
+
+  appendNodesToMoveOrMechanicsBlockWithActor(
     editor,
-    (move) => {
-      return {
-        ...move,
-        children: [...move.children, meterNode],
-      };
-    },
-    () => meterNode,
+    plugin,
+    actionContext,
+    meterNode,
   );
 };

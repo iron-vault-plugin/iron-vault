@@ -1,3 +1,8 @@
+import {
+  ActionContext,
+  CharacterActionContext,
+} from "characters/action-context";
+import IronVaultPlugin from "index";
 import * as kdl from "kdljs";
 import { Editor, EditorRange } from "obsidian";
 import {
@@ -6,6 +11,8 @@ import {
   reverseLineIterator,
   updateCodeBlockInterior,
 } from "../utils/editor";
+import { ActorDescription } from "./actor";
+import * as ops from "./operations";
 
 export const MECHANICS_CODE_BLOCK_TAG = "iron-vault-mechanics";
 
@@ -54,74 +61,96 @@ export function findAdjacentMechanicsBlock(
   return parsed.output;
 }
 
-function parseMechanicsBlock(block: string): kdl.Document {
-  const parsed = kdl.parse(block);
-  if (parsed.errors.length > 0 || !parsed.output) {
-    // TODO: maybe if this happens, it's a sign that we should just insert the block as a new block?
-    throw new Error(`Error while parsing mechanics block: ${block}`, {
-      cause: parsed.errors,
-    });
-  }
-  return parsed.output;
+function makeEditorOp<F extends (...args: never[]) => ops.KdlDocumentTransform>(
+  op: F,
+): (editor: Editor, ...params: Parameters<F>) => void {
+  return (editor, ...params) =>
+    createOrUpdateBlock(
+      editor,
+      MECHANICS_CODE_BLOCK_TAG,
+      ops.transformAsKdl(op(...params)),
+    );
+}
+
+function makeActorAwareEditorOp<
+  F extends (...args: never[]) => ops.KdlDocumentTransform,
+>(
+  op: F,
+): (
+  editor: Editor,
+  plugin: IronVaultPlugin,
+  actionContext: ActionContext,
+  ...params: Parameters<F>
+) => void {
+  return (editor, plugin, actionContext, ...params) =>
+    createOrUpdateBlock(
+      editor,
+      MECHANICS_CODE_BLOCK_TAG,
+      ops.transformAsKdl(
+        ops.usingActor(
+          actorForActionContext(plugin, actionContext),
+          op(...params),
+        ),
+      ),
+    );
 }
 
 /** Appends nodes to an existing mechanics block or inserts a new block. */
-export function createOrAppendMechanics(
-  editor: Editor,
-  newItems: kdl.Node[],
-): void {
-  createOrUpdateBlock(editor, MECHANICS_CODE_BLOCK_TAG, (existing) => {
-    if (existing) {
-      // Parse throws an error if the block is invalid
-      parseMechanicsBlock(existing);
-    }
-    return (existing ? existing + "\n" : "") + kdl.format(newItems);
-  });
-}
+export const createOrAppendMechanics = makeEditorOp(ops.appendNodes);
+
+/** Appends nodes to an existing mechanics block or inserts a new block. */
+export const createOrAppendMechanicsWithActor = makeActorAwareEditorOp(
+  ops.appendNodes,
+);
+
+// export function createOrAppendMechanics(
+//   editor: Editor,
+//   newItems: kdl.Node[],
+// ): void {
+//   createOrUpdateBlock(
+//     editor,
+//     MECHANICS_CODE_BLOCK_TAG,
+//     ops.transformAsKdl(ops.appendNodes(newItems)),
+//   );
+// }
 
 /** Allows adding to previous move or creating a new mechanics block. */
-export function updatePreviousMoveOrCreateBlock(
-  editor: Editor,
-  update: (moveNode: kdl.Node) => kdl.Node,
-  createTopLevel: () => kdl.Node,
-) {
-  createOrUpdateBlock(editor, MECHANICS_CODE_BLOCK_TAG, (existing) => {
-    if (existing) {
-      const output = parseMechanicsBlock(existing);
+export const updatePreviousMoveOrCreateBlock = makeEditorOp(
+  ops.updatePreviousMoveOrCreate,
+);
 
-      // If the last node is a move, update it. Otherwise, create a new top-level node.
-      const lastIndex = output.length - 1;
-      if (lastIndex >= 0 && output[lastIndex].name == "move") {
-        output[lastIndex] = update(output[lastIndex]);
-      } else {
-        output.push(createTopLevel());
-      }
-      return kdl.format(output);
-    } else {
-      return kdl.format([createTopLevel()]);
-    }
-  });
-}
+/** Allows adding to previous move or creating a new mechanics block. */
+export const updatePreviousMoveOrCreateBlockWithActor = makeActorAwareEditorOp(
+  ops.updatePreviousMoveOrCreate,
+);
 
 /** Adds nodes to the end of a preceding move or block, or creates a new block. */
-export function appendNodesToMoveOrMechanicsBlock(
-  editor: Editor,
-  ...nodes: kdl.Node[]
-) {
-  createOrUpdateBlock(editor, MECHANICS_CODE_BLOCK_TAG, (existing) => {
-    if (existing) {
-      const output = parseMechanicsBlock(existing);
+export const appendNodesToMoveOrMechanicsBlock = makeEditorOp(
+  ops.appendNodesToMoveOrTopLevel,
+);
 
-      // If the last node is a move, update it. Otherwise, create a new top-level node.
-      const lastIndex = output.length - 1;
-      if (lastIndex >= 0 && output[lastIndex].name == "move") {
-        output[lastIndex].children.push(...nodes);
-      } else {
-        output.push(...nodes);
-      }
-      return kdl.format(output);
-    } else {
-      return kdl.format(nodes);
+/** Adds nodes to the end of a preceding move or block, or creates a new block. */
+export const appendNodesToMoveOrMechanicsBlockWithActor =
+  makeActorAwareEditorOp(ops.appendNodesToMoveOrTopLevel);
+
+export function actorForActionContext(
+  plugin: IronVaultPlugin,
+  actionContext: ActionContext,
+): ActorDescription | undefined {
+  if (actionContext instanceof CharacterActionContext) {
+    if (
+      plugin.settings.alwaysRecordActor ||
+      plugin.characters.ofValid.size > 1
+    ) {
+      return {
+        name: actionContext.getWithLens((_) => _.name),
+        path: actionContext.characterPath,
+      };
     }
-  });
+  } else {
+    // Player is not playing with characters
+    // TODO: should we still let players change actors somehow?
+  }
+
+  return undefined;
 }

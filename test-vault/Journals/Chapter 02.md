@@ -17,6 +17,5 @@ move "[Face Danger](move:starforged\/adventure\/face_danger)" {
     reroll action="5"
     reroll action="3"
 }
-
 ```
 

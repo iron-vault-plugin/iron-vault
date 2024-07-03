@@ -18,11 +18,12 @@ import {
   TrackedEntityRenderer,
 } from "utils/ui/tracked-entity-renderer";
 import { ZodError } from "zod";
+import { CharacterContext, setActiveCharacter } from "../character-tracker";
 import renderAssetCard from "../assets/asset-card";
-import { CharacterContext } from "../character-tracker";
 import { addOrUpdateViaDataswornAsset } from "./assets";
 import { addAssetToCharacter } from "./commands";
 import { CharacterLens, ValidatedCharacter, momentumOps } from "./lens";
+import { CharacterActionContext } from "./action-context";
 
 export default function registerCharacterBlocks(plugin: IronVaultPlugin): void {
   registerBlock();
@@ -175,6 +176,21 @@ class CharacterRenderer extends TrackedEntityRenderer<
           @change=${charFieldUpdater(lens.name)}
         />
       </header>
+      ${this.plugin.characters.size > 1 &&
+      this.plugin.localSettings.activeCharacter !== this.sourcePath
+        ? html`<button
+            type="button"
+            class="set-active"
+            @click=${async () => {
+              await setActiveCharacter(this.plugin, this.sourcePath);
+              this.render();
+            }}
+          >
+            Make active character
+          </button>`
+        : this.plugin.characters.size > 1
+          ? html`<span class="active-char">Active character</span>`
+          : null}
       <select
         class="initiative"
         .value=${"" + (lens.initiative.get(raw) ?? "out-of-combat")}
@@ -506,7 +522,18 @@ class CharacterRenderer extends TrackedEntityRenderer<
         <button
           class="add-asset"
           type="button"
-          @click=${() => addAssetToCharacter(this.plugin)}
+          @click=${() =>
+            addAssetToCharacter(
+              this.plugin,
+              undefined,
+              undefined,
+              undefined,
+              new CharacterActionContext(
+                this.plugin.datastore,
+                this.sourcePath,
+                charCtx,
+              ),
+            )}
         >
           Add Asset
         </button>

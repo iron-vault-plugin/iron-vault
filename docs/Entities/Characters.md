@@ -1,11 +1,10 @@
-Iron Vault supports maintaining a character sheet for your main character. This character sheet is expected to have [[#schema|certain metadata]] that, when present, unlocks various features like automatically [[Make a move|adding your stats to rolls]], [[Add asset to character|managing your assets]], and even [[Character Blocks|rendering a nice graphical character sheet]].
+Iron Vault supports maintaining character sheets for your player character. This character sheet is expected to have [[#schema|certain metadata]] that, when present, unlocks various features like automatically [[Make a move|adding your stats to rolls]], [[Add asset to character|managing your assets]], and even [[Character Blocks|rendering a nice graphical character sheet]].
 
 As long as you have the schema in frontmatter, you can put anything you want in your character file. Even the graphical character sheet is optional. The file is a normal file so you can take any notes you want. The main catch is that you can only have one character per file.
 
 You can create a new character by using the [[Create new character]] command and then filling in the resulting character sheet.
 
-(Coming Soon)
-For now, Iron Vault only supports *one character* per vault. Future updates will add support for multi-campaign vaults, and multi-character campaigns.
+Iron Vault supports multiple characters per vault. By default, most actions will use the current "active" character as the actor for, say, moves or oracles. You can switch active characters using the [[Pick active character]]. You can also enable the `Always prompt for active character` setting in [[Settings#General|General Settings]], to have Iron Vault ask you every time, though this might get noisy.
 
 #### Example
 

@@ -9,6 +9,7 @@ export class IronVaultPluginSettings {
   cursedDieColor: string = "#017403";
   enableCursedDie: boolean = true;
   cursedDieSides: number = 10;
+  alwaysPromptActiveCharacter: boolean = false;
 
   /** Index and enable Ironsworn base content. */
   enableIronsworn: boolean = false;
@@ -59,6 +60,9 @@ export class IronVaultPluginSettings {
 
   /** Datasworn version. This is a hidden setting representing the last known Datasworn version for the content. */
   dataswornVersion?: string;
+
+  /** Whether to generate an actor block even in a single PC campaign. */
+  alwaysRecordActor: boolean = false;
 
   emitter?: Emittery;
 
