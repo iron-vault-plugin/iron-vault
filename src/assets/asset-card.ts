@@ -17,6 +17,23 @@ import { md } from "utils/ui/directives";
 import { integratedAssetLens } from "../characters/assets";
 import { IronVaultSheetAssetSchema } from "../characters/lens";
 
+export function makeDefaultSheetAsset(asset: Asset) {
+  return {
+    id: asset._id,
+    abilities: asset.abilities.map((a) => a.enabled),
+    options: Object.fromEntries(
+      [...Object.entries(asset.options ?? {})].map(([key, opt]) => {
+        return [key, opt.value];
+      }),
+    ),
+    controls: Object.fromEntries(
+      [...Object.entries(asset.controls ?? {})].map(([key, control]) => {
+        return [key, control.value];
+      }),
+    ),
+  };
+}
+
 export default function renderAssetCard(
   plugin: IronVaultPlugin,
   sheetAsset: IronVaultSheetAssetSchema,
@@ -258,7 +275,10 @@ function renderControl(
 
   switch (control.field_type) {
     case "condition_meter": {
-      return html`<div class="condition-meter">
+      return html`<form
+        class="condition-meter"
+        @submit=${(ev: Event) => ev.preventDefault()}
+      >
         ${control.controls &&
         renderControls(control, control.controls, updateControl)}
         <ul class="meter">
@@ -275,6 +295,7 @@ function renderControl(
                     ?checked=${control.value === i}
                     ?disabled=${!updateControl}
                     .value=${i}
+                    value=${i}
                     name=${control.label}
                     @click=${updateControlValueNumeric}
                   />
@@ -282,7 +303,7 @@ function renderControl(
               </li> `,
           )}
         </ul>
-      </div>`;
+      </form>`;
     }
     case "card_flip": {
       return html`<label class="checkbox"

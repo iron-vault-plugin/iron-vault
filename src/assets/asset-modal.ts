@@ -3,7 +3,7 @@ import { App, Modal } from "obsidian";
 
 import { Asset } from "@datasworn/core/dist/Datasworn";
 import IronVaultPlugin from "index";
-import renderAssetCard from "./asset-card";
+import renderAssetCard, { makeDefaultSheetAsset } from "./asset-card";
 import { addAssetToCharacter } from "characters/commands";
 
 export class AssetModal extends Modal {
@@ -24,12 +24,7 @@ export class AssetModal extends Modal {
     contentEl.toggleClass("iron-vault-modal", true);
     render(
       html`
-        ${renderAssetCard(this.plugin, {
-          id: asset._id,
-          abilities: [true, false, false],
-          options: {},
-          controls: {},
-        })}
+        ${renderAssetCard(this.plugin, makeDefaultSheetAsset(asset))}
         <button
           type="button"
           @click=${() => {
