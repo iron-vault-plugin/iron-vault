@@ -56,7 +56,7 @@ export type EntityResults<T extends EntitySpec> = {
 // pull the appropriate ones for our active rulesets?
 export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
   sfCharacter: {
-    collectionId: "starforged/collections/oracles/characters",
+    collectionId: "oracle_collection:starforged/character",
     label: "NPC",
     nameGen: (ent) =>
       // NB(@zkat): We use smart quotes here because `"` is an invalid
@@ -65,35 +65,35 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
       `${ent.givenName[0]?.simpleResult}${ent.callSign.length > 0 ? " “" + ent.callSign[0].simpleResult + "”" : ""} ${ent.familyName[0]?.simpleResult}`,
     spec: {
       givenName: {
-        id: "starforged/oracles/characters/name/given",
+        id: "oracle_rollable:starforged/character/name/given_name",
         firstLook: true,
       },
       callSign: {
-        id: "starforged/oracles/characters/name/callsign",
+        id: "oracle_rollable:starforged/character/name/callsign",
         firstLook: true,
       },
       familyName: {
-        id: "starforged/oracles/characters/name/family_name",
+        id: "oracle_rollable:starforged/character/name/family_name",
         firstLook: true,
       },
       firstLook: {
-        id: "starforged/oracles/characters/first_look",
+        id: "oracle_rollable:starforged/character/first_look",
         firstLook: true,
       },
       initialDisposition: {
-        id: "starforged/oracles/characters/initial_disposition",
+        id: "oracle_rollable:starforged/character/initial_disposition",
         firstLook: true,
       },
       role: {
-        id: "starforged/oracles/characters/role",
+        id: "oracle_rollable:starforged/character/role",
         firstLook: false,
       },
       goal: {
-        id: "starforged/oracles/characters/goal",
+        id: "oracle_rollable:starforged/character/goal",
         firstLook: false,
       },
       revealedAspect: {
-        id: "starforged/oracles/characters/revealed_aspect",
+        id: "oracle_rollable:starforged/character/revealed_aspect",
         firstLook: false,
       },
     },
@@ -101,11 +101,11 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
 
   sfFaction: {
     label: "Faction",
-    collectionId: "starforged/collections/oracles/factions",
+    collectionId: "oracle_collection:starforged/faction",
     nameGen: (ent) => ent.name[0]?.simpleResult,
     spec: {
       factionType: {
-        id: "starforged/oracles/factions/type",
+        id: "oracle_rollable:starforged/faction/type",
         firstLook: true,
         definesAttribute: {
           order: 1,
@@ -113,49 +113,49 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
         },
       },
       name: {
-        id: "starforged/oracles/factions/name/template",
+        id: "oracle_rollable:starforged/faction/name/template",
         firstLook: true,
       },
       dominionType: {
-        id: "starforged/oracles/factions/dominion",
+        id: "oracle_rollable:starforged/faction/dominion",
         firstLook: true,
         condition: [{ factionType: "dominion" }],
       },
       dominionLeadership: {
-        id: "starforged/oracles/factions/dominion_leadership",
+        id: "oracle_rollable:starforged/faction/dominion_leadership",
         firstLook: true,
         condition: [{ factionType: "dominion" }],
       },
       guildType: {
-        id: "starforged/oracles/factions/guild",
+        id: "oracle_rollable:starforged/faction/guild",
         firstLook: true,
         condition: [{ factionType: "guild" }],
       },
       fringeGroupType: {
-        id: "starforged/oracles/factions/fringe_group",
+        id: "oracle_rollable:starforged/faction/fringe_group",
         firstLook: true,
         condition: [{ factionType: "fringe_group" }],
       },
       factionProjects: {
-        id: "starforged/oracles/factions/projects",
+        id: "oracle_rollable:starforged/faction/projects",
       },
       factionQuirks: {
-        id: "starforged/oracles/factions/quirks",
+        id: "oracle_rollable:starforged/faction/quirks",
       },
       factionRumors: {
-        id: "starforged/oracles/factions/rumors",
+        id: "oracle_rollable:starforged/faction/rumors",
       },
     },
   },
 
   sfCreature: {
     label: "Creature",
-    collectionId: "starforged/collections/oracles/creatures",
+    collectionId: "oracle_collection:starforged/creature",
     // TODO(@cwegrzyn): should we generate a name based on other aspects?
     // nameGen: (_ent) => "TBD",
     spec: {
       environment: {
-        id: "starforged/oracles/creatures/environment",
+        id: "oracle_rollable:starforged/creature/environment",
         firstLook: true,
         definesAttribute: {
           order: 1,
@@ -163,23 +163,23 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
         },
       },
       basicForm: {
-        id: "starforged/oracles/creatures/basic_form/{{environment}}",
+        id: "oracle_rollable:starforged/creature/basic_form/{{environment}}",
         firstLook: true,
         name: "Basic form",
       },
       scale: {
-        id: "starforged/oracles/creatures/scale",
+        id: "oracle_rollable:starforged/creature/scale",
         firstLook: true,
       },
       firstLook: {
-        id: "starforged/oracles/creatures/first_look",
+        id: "oracle_rollable:starforged/creature/first_look",
         firstLook: true,
       },
       encounteredBehavior: {
-        id: "starforged/oracles/creatures/encountered_behavior",
+        id: "oracle_rollable:starforged/creature/encountered_behavior",
       },
       revealedAspect: {
-        id: "starforged/oracles/creatures/revealed_aspect",
+        id: "oracle_rollable:starforged/creature/revealed_aspect",
       },
     },
   },
@@ -187,10 +187,10 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
   sfSettlement: {
     label: "Settlement",
     nameGen: (ent) => ent.name[0]?.simpleResult,
-    collectionId: "starforged/collections/oracles/settlements",
+    collectionId: "oracle_collection:starforged/settlement",
     spec: {
       region: {
-        id: "starforgedsupp/oracles/core/region",
+        id: "oracle_rollable:starforgedsupp/core/region",
         firstLook: true,
         definesAttribute: {
           order: 1,
@@ -198,39 +198,39 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
         },
       },
       name: {
-        id: "starforged/oracles/settlements/name",
+        id: "oracle_rollable:starforged/settlement/name",
         firstLook: true,
       },
       location: {
-        id: "starforged/oracles/settlements/location",
+        id: "oracle_rollable:starforged/settlement/location",
         firstLook: true,
       },
       population: {
-        id: "starforged/oracles/settlements/population/{{region}}",
+        id: "oracle_rollable:starforged/settlement/population/{{region}}",
         firstLook: true,
         name: "Population",
       },
       authority: {
-        id: "starforged/oracles/settlements/authority",
+        id: "oracle_rollable:starforged/settlement/authority",
         firstLook: true,
       },
       project: {
-        id: "starforged/oracles/settlements/projects",
+        id: "oracle_rollable:starforged/settlement/projects",
         firstLook: true,
       },
       firstLook: {
-        id: "starforged/oracles/settlements/first_look",
+        id: "oracle_rollable:starforged/settlement/first_look",
         // lol this is ironic, but that's what the rulebook says
         firstLook: false,
         name: "First look",
       },
       initialContact: {
-        id: "starforged/oracles/settlements/initial_contact",
+        id: "oracle_rollable:starforged/settlement/initial_contact",
         firstLook: false,
         name: "Initial contact",
       },
       trouble: {
-        id: "starforged/oracles/settlements/trouble",
+        id: "oracle_rollable:starforged/settlement/trouble",
         firstLook: false,
       },
     },
@@ -239,10 +239,10 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
   sfPlanet: {
     label: "Planet",
     nameGen: (ent) => ent.name[0]?.simpleResult,
-    collectionId: "starforged/collections/oracles/planets",
+    collectionId: "oracle_collection:starforged/planet",
     spec: {
       region: {
-        id: "starforgedsupp/oracles/core/region",
+        id: "oracle_rollable:starforgedsupp/core/region",
         firstLook: true,
         definesAttribute: {
           order: 1,
@@ -250,7 +250,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
         },
       },
       class: {
-        id: "starforged/oracles/planets/class",
+        id: "oracle_rollable:starforged/planet/class",
         firstLook: true,
         definesAttribute: {
           order: 2,
@@ -258,52 +258,52 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
         },
       },
       name: {
-        id: "starforged/oracles/planets/{{class}}/name",
+        id: "oracle_rollable:starforged/planet/{{class}}/name",
         firstLook: true,
         name: "Planet name",
       },
       atmosphere: {
-        id: "starforged/oracles/planets/{{class}}/atmosphere",
+        id: "oracle_rollable:starforged/planet/{{class}}/atmosphere",
         firstLook: true,
       },
       observed_from_space: {
-        id: "starforged/oracles/planets/{{class}}/observed_from_space",
+        id: "oracle_rollable:starforged/planet/{{class}}/observed_from_space",
         firstLook: true,
       },
       settlements: {
-        id: "starforged/oracles/planets/{{class}}/settlements/{{region}}",
+        id: "oracle_rollable:starforged/planet/{{class}}/settlements/{{region}}",
         firstLook: true,
         name: "Settlements",
       },
     },
   },
   isIronlander: {
-    collectionId: "classic/collections/oracles/character",
+    collectionId: "oracle_collection:classic/character",
     label: "Ironlander",
     nameGen: (ent) => ent.nameA[0]?.simpleResult ?? ent.nameB[0]?.simpleResult,
     spec: {
       nameA: {
-        id: "classic/oracles/name/ironlander/a",
+        id: "oracle_rollable:classic/name/ironlander/a",
         name: "Name table A",
         firstLook: true,
       },
       nameB: {
-        id: "classic/oracles/name/ironlander/b",
+        id: "oracle_rollable:classic/name/ironlander/b",
         name: "Name table B",
         firstLook: false,
       },
       role: {
-        id: "classic/oracles/character/role",
+        id: "oracle_rollable:classic/character/role",
         firstLook: true,
         name: "Character role",
       },
       descriptor: {
-        id: "classic/oracles/character/descriptor",
+        id: "oracle_rollable:classic/character/descriptor",
         firstLook: true,
         name: "Character descriptor",
       },
       goal: {
-        id: "classic/oracles/character/goal",
+        id: "oracle_rollable:classic/character/goal",
         firstLook: false,
         name: "Character goal",
       },
