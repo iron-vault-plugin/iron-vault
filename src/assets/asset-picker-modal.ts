@@ -4,7 +4,7 @@ import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import MiniSearch from "minisearch";
 import { App, Modal } from "obsidian";
-import renderAssetCard from "./asset-card";
+import renderAssetCard, { makeDefaultSheetAsset } from "./asset-card";
 
 export class AssetPickerModal extends Modal {
   plugin: IronVaultPlugin;
@@ -123,12 +123,10 @@ export class AssetPickerModal extends Modal {
                     <button type="button" @click=${() => this.onSelect(asset)}>
                       Add this Asset
                     </button>
-                    ${renderAssetCard(this.plugin, {
-                      id: asset._id,
-                      abilities: [true, false, false],
-                      options: {},
-                      controls: {},
-                    })}
+                    ${renderAssetCard(
+                      this.plugin,
+                      makeDefaultSheetAsset(asset),
+                    )}
                   </div>
                 </div>`,
             )}
