@@ -11,6 +11,7 @@ if you want to view the source, please visit the github repository of this plugi
 `;
 
 const prod = process.argv[2] === "production";
+const watch = !prod && process.argv[2] !== "nowatch";
 
 const context = await esbuild.context({
   banner: {
@@ -46,7 +47,7 @@ const context = await esbuild.context({
   treeShaking: true,
   outfile: "main.js",
   plugins: [
-    typecheckPlugin({ watch: !prod }),
+    typecheckPlugin({ watch }),
     copy({
       // this is equal to process.cwd(), which means we use cwd path as base path to resolve `to` path
       // if not specified, this plugin uses ESBuild.build outdir/outfile options as base path.
@@ -74,7 +75,7 @@ const context = await esbuild.context({
           ],
         },
       ],
-      watch: !prod,
+      watch,
     }),
   ],
 });
@@ -102,12 +103,12 @@ const cssCtx = await esbuild.context({
           ],
         },
       ],
-      watch: !prod,
+      watch,
     }),
   ],
 });
 
-if (prod) {
+if (!watch) {
   await Promise.all([context.rebuild(), cssCtx.rebuild()]);
   process.exit(0);
 } else {
