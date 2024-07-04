@@ -4,8 +4,19 @@ import { Either } from "utils/either";
 export interface Index<T, E extends Error> extends Map<string, Either<E, T>> {
   readonly ofValid: ReadonlyMap<string, T>;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  on(name: "changed", callback: (path: string) => any, ctx?: any): EventRef;
+  /** Rename the old key to the new key, returning true if old key was found. */
+  rename(oldPath: string, newPath: string): boolean;
+
+  on(
+    name: "changed",
+    callback: (path: string) => unknown,
+    ctx?: unknown,
+  ): EventRef;
+  on(
+    name: "renamed",
+    callback: (oldPath: string, newPath: string) => unknown,
+    ctx?: unknown,
+  ): EventRef;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   on(name: string, callback: (...data: any) => any, ctx?: any): EventRef;
@@ -14,8 +25,4 @@ export interface Index<T, E extends Error> extends Map<string, Either<E, T>> {
   off(name: string, callback: (...data: any) => any): void;
 
   offref(ref: EventRef): void;
-
-  trigger(name: "changed", path: string): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  trigger(name: string, ...data: any[]): void;
 }

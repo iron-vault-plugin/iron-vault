@@ -2,10 +2,10 @@ import { html, render } from "lit-html";
 import { md } from "utils/ui/directives";
 
 import IronVaultPlugin from "index";
-import { EventRef, MarkdownRenderChild } from "obsidian";
-import { Left } from "utils/either";
 import { vaultProcess } from "utils/obsidian";
 import { capitalize } from "utils/strings";
+import { TrackedEntityRenderer } from "utils/ui/tracked-entity-renderer";
+import { ZodError } from "zod";
 import {
   ChallengeRanks,
   ProgressTrack,
@@ -20,15 +20,14 @@ export default function registerTrackBlock(plugin: IronVaultPlugin): void {
     async (_source: string, el: HTMLElement, ctx) => {
       const renderer = new TrackRenderer(el, ctx.sourcePath, plugin);
       ctx.addChild(renderer);
-      renderer.render();
     },
   );
 }
 
-class TrackRenderer extends MarkdownRenderChild {
-  sourcePath: string;
-  plugin: IronVaultPlugin;
-  fileWatcher?: EventRef;
+class TrackRenderer extends TrackedEntityRenderer<
+  ProgressTrackFileAdapter,
+  ZodError
+> {
   editingName = false;
 
   constructor(
@@ -36,43 +35,10 @@ class TrackRenderer extends MarkdownRenderChild {
     sourcePath: string,
     plugin: IronVaultPlugin,
   ) {
-    super(containerEl);
-    this.sourcePath = sourcePath;
-    this.plugin = plugin;
+    super(containerEl, sourcePath, plugin, plugin.progressIndex, "track");
   }
 
-  async onload() {
-    if (this.fileWatcher) {
-      this.plugin.progressIndex.offref(this.fileWatcher);
-    }
-    this.registerEvent(
-      (this.fileWatcher = this.plugin.progressIndex.on(
-        "changed",
-        (changedPath) => {
-          if (changedPath === this.sourcePath) {
-            this.render();
-          }
-        },
-      )),
-    );
-    this.render();
-  }
-
-  render() {
-    const result =
-      this.plugin.progressIndex.get(this.sourcePath) ??
-      Left.create(new Error("track not indexed"));
-    if (result.isLeft()) {
-      render(
-        html`<pre>Error rendering track: ${result.error.message}</pre>`,
-        this.containerEl,
-      );
-      return;
-    }
-    this.renderProgress(result.value);
-  }
-
-  renderProgress(trackFile: ProgressTrackFileAdapter) {
+  renderEntity(trackFile: ProgressTrackFileAdapter) {
     render(
       renderTrack(
         this.plugin,

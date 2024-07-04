@@ -3,12 +3,12 @@ import { map } from "lit-html/directives/map.js";
 import { range } from "lit-html/directives/range.js";
 
 import IronVaultPlugin from "index";
-import { EventRef, MarkdownRenderChild } from "obsidian";
-import { Left } from "utils/either";
 import { vaultProcess } from "utils/obsidian";
 import { md } from "utils/ui/directives";
-import { ClockFileAdapter, clockUpdater } from "./clock-file";
+import { TrackedEntityRenderer } from "utils/ui/tracked-entity-renderer";
+import { ZodError } from "zod";
 import { Clock } from "./clock";
+import { ClockFileAdapter, clockUpdater } from "./clock-file";
 
 export default function registerClockBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -16,15 +16,16 @@ export default function registerClockBlock(plugin: IronVaultPlugin): void {
     async (_source: string, el: HTMLElement, ctx) => {
       const renderer = new ClockRenderer(el, ctx.sourcePath, plugin);
       ctx.addChild(renderer);
-      renderer.render();
+      // NOTE(@cwegrzyn): with debug logging, I haven't seen a case where we need this. But leaving
+      // a note here to say that in the past, the ctx has no always been loaded. Calling load
+      // on the renderer MAY be more appropriate in any case, because that's a no-op for a loaded
+      // component.
+      // renderer.render();
     },
   );
 }
 
-class ClockRenderer extends MarkdownRenderChild {
-  sourcePath: string;
-  plugin: IronVaultPlugin;
-  fileWatcher?: EventRef;
+class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
   editingName = false;
   editingSegments = false;
 
@@ -33,43 +34,10 @@ class ClockRenderer extends MarkdownRenderChild {
     sourcePath: string,
     plugin: IronVaultPlugin,
   ) {
-    super(containerEl);
-    this.sourcePath = sourcePath;
-    this.plugin = plugin;
+    super(containerEl, sourcePath, plugin, plugin.clockIndex, "clock");
   }
 
-  async onload() {
-    if (this.fileWatcher) {
-      this.plugin.clockIndex.offref(this.fileWatcher);
-    }
-    this.registerEvent(
-      (this.fileWatcher = this.plugin.clockIndex.on(
-        "changed",
-        (changedPath) => {
-          if (changedPath === this.sourcePath) {
-            this.render();
-          }
-        },
-      )),
-    );
-    this.render();
-  }
-
-  render() {
-    const result =
-      this.plugin.clockIndex.get(this.sourcePath) ??
-      Left.create(new Error("clock not indexed"));
-    if (result.isLeft()) {
-      render(
-        html`<pre>Error rendering clock: ${result.error.message}</pre>`,
-        this.containerEl,
-      );
-      return;
-    }
-    this.renderClock(result.value);
-  }
-
-  renderClock(clockFile: ClockFileAdapter) {
+  renderEntity(clockFile: ClockFileAdapter) {
     const tpl = html`
       <article class="iron-vault-clock">
         <header class="clock-name">

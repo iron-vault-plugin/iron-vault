@@ -79,11 +79,33 @@ export class IndexImpl<T, E extends Error> implements Index<T, E> {
     return this.#map[Symbol.toStringTag];
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  on(name: "changed", callback: (path: string) => any, ctx?: any): EventRef;
+  rename(oldPath: string, newPath: string): boolean {
+    const previous = this.get(oldPath);
+    if (previous) {
+      this.#map.delete(oldPath);
+      this.#map.set(newPath, previous);
+      this.trigger("renamed", oldPath, newPath);
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  on(name: string, callback: (...data: any) => any, ctx?: any): EventRef {
+  on(
+    name: "changed",
+    callback: (path: string) => unknown,
+    ctx?: unknown,
+  ): EventRef;
+  on(
+    name: "renamed",
+    callback: (oldPath: string, newPath: string) => unknown,
+    ctx?: unknown,
+  ): EventRef;
+  on(
+    name: string,
+    callback: (...data: never[]) => unknown,
+    ctx?: unknown,
+  ): EventRef {
     return this.events.on(name, callback, ctx);
   }
 
@@ -96,9 +118,9 @@ export class IndexImpl<T, E extends Error> implements Index<T, E> {
     this.events.offref(ref);
   }
 
-  trigger(name: "changed", path: string): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  trigger(name: string, ...data: any[]): void {
+  protected trigger(name: "changed", path: string): void;
+  protected trigger(name: "renamed", oldPath: string, newPath: string): void;
+  protected trigger(name: string, ...data: never[]): void {
     this.events.trigger(name, ...data);
   }
 }
