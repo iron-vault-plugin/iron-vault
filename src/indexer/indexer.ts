@@ -1,10 +1,10 @@
 import { Index } from "indexer/index-interface";
 import { rootLogger } from "logger";
+import { Logger } from "loglevel";
 import { type CachedMetadata } from "obsidian";
 import { Either, Left } from "utils/either";
 import { IronVaultKind } from "../constants";
 import { IndexImpl } from "./index-impl";
-import { Logger } from "loglevel";
 
 export type IndexErrorResult<E extends Error> = { type: "error"; error: E };
 export type IndexUpdateResult<V, E extends Error> =
@@ -117,10 +117,11 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
   }
 
   onRename(oldPath: string, newPath: string): void {
-    const previous = this.index.get(oldPath);
-    if (previous) {
-      this.index.delete(oldPath);
-      this.index.set(newPath, previous);
+    if (!this.index.rename(oldPath, newPath)) {
+      this.#logger.warn(
+        "Missing expected key '%s' in rename operation",
+        oldPath,
+      );
     }
   }
 

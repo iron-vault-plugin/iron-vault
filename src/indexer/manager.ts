@@ -62,7 +62,7 @@ export class IndexManager extends Component {
 
     this.registerEvent(
       this.vault.on("rename", (file, oldPath) => {
-        const indexer = this.currentIndexerForFile(file.path);
+        const indexer = this.currentIndexerForFile(oldPath);
         if (indexer != null) {
           this.indexedFiles.delete(oldPath);
           indexer.onRename(oldPath, file.path);
