@@ -1,4 +1,4 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://iron-vault-plugin.github.io/iron-vault/</link><image><url>https://iron-vault-plugin.github.io/iron-vault/lib/media/favicon.png</url><title>Iron Vault</title><link>https://iron-vault-plugin.github.io/iron-vault/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Sun, 30 Jun 2024 21:01:49 GMT</lastBuildDate><atom:link href="https://iron-vault-plugin.github.io/iron-vault/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Sun, 30 Jun 2024 21:01:34 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://iron-vault-plugin.github.io/iron-vault/</link><image><url>https://iron-vault-plugin.github.io/iron-vault/lib/media/favicon.png</url><title>Iron Vault</title><link>https://iron-vault-plugin.github.io/iron-vault/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Sat, 06 Jul 2024 17:06:33 GMT</lastBuildDate><atom:link href="https://iron-vault-plugin.github.io/iron-vault/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Sat, 06 Jul 2024 17:06:16 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
  <br>"Blocks" are used throughout Iron Vault to provide custom rendering of various game features. Most blocks also provide interactivity, so instead of having to manually edit frontmatter data, you can do the edits through the blocks' rendered views themselves.<br>
 You can use them as much or as little as you want, just like any other Iron Vault feature.<br>All blocks are used by using triple backticks (`), the name of the block, a new line, then a closing set of triple backticks.<br>Most blocks don't contain anything in order to work, but some, like <a data-href="Mechanics Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a>, have special contents that determine how they're rendered.<br>The following blocks are supported:<br>
 <br><a data-href="Asset Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/asset-blocks.html" class="internal-link" target="_self" rel="noopener">Asset Blocks</a> (iron-vault-assets) - inline asset cards (with read-only, no settings).
@@ -177,24 +177,7 @@ iron-vault-kind: clock
 ---
 ```iron-vault-clock
 ```
-Copy<br>Will render a clock that looks like this:<br>Doomsday Device<br><br>
-      
-        
-          The Doomsday Device Explodes
-        
-
-        
-          
-        
-
-        
-          6
-          segments;
-          Complete:
-            
-        
-      
-    <br><br>To edit the number of filled-in slices, simply click on the slice you want to fill up to. Clocks fill clockwise.<br>In order to zero-out your clock, first click on the first wedge until only that first wedge is filled, then click on it again to toggle it off, leaving the clock blank.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/clock-blocks.html</link><guid isPermaLink="false">Blocks/Clock Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 04:17:52 GMT</pubDate></item><item><title><![CDATA[Mechanics Blocks]]></title><description><![CDATA[ 
+Copy<br>Will render a clock that looks like this:<br>Doomsday Device<br><br><br>To edit the number of filled-in slices, simply click on the slice you want to fill up to. Clocks fill clockwise.<br>In order to zero-out your clock, first click on the first wedge until only that first wedge is filled, then click on it again to toggle it off, leaving the clock blank.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/clock-blocks.html</link><guid isPermaLink="false">Blocks/Clock Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 04:17:52 GMT</pubDate></item><item><title><![CDATA[Mechanics Blocks]]></title><description><![CDATA[ 
  <br><br>This plugin renders a <a data-tooltip-position="top" aria-label="https://kdl.dev/" rel="noopener" class="external-link" href="https://kdl.dev/" target="_blank">KDL</a> block into a formatted Ironsworn/Starforged mechanics block, with nice styling and some interactivity.<br>It takes an Obsidian note that looks like this:<br>```iron-vault-mechanics
 move id="move:starforged/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"
@@ -213,18 +196,18 @@ move "Undertake an Expedition" {
     burn from=10 to=2
 }
 ```
-Copy<br>and turns it into this:<br>Face DangerAmount1Frombecause I'm cool <a data-href="Ash Barlowe" href="https://iron-vault-plugin.github.io/iron-vault/Ash Barlowe" class="internal-link" target="_self" rel="noopener">Ash Barlowe</a>Action Die1Stat3Stat NameshadowAdds1Score5Challenge Die 19Challenge Die 29OutcomeMiss (Match)
+Copy<br>and turns it into this:<br>Face DangerAmount1Frombecause I'm cool <a data-href="Ash Barlowe" href="https://iron-vault-plugin.github.io/iron-vault/Ash Barlowe" class="internal-link" target="_self" rel="noopener">Ash Barlowe</a>Action die1Stat3Stat nameshadowAdds1Score5Challenge die 19Challenge die 29OutcomeMiss (match)
 Oh nooo. This is gonna hurt. Time to <a data-tooltip-position="top" aria-label="move:EndureHarm" rel="noopener" class="external-link" href="https://iron-vault-plugin.github.io/iron-vault/move:EndureHarm" target="_blank">Endure Harm</a>.
-Endure HarmMeterhealthDelta1From3To2Action Die3Stat4Stat NamehealthAdds0Score7Challenge Die 13Challenge Die 28OutcomeWeak HitMetermomentumDelta1From7To6MeterhealthDelta1From2To3Undertake an ExpeditionAction Die3Stat1Adds0Score4Challenge Die 13Challenge Die 25OutcomeWeak HitOld Action Die3New Action Die1Old Challenge Die 13New Challenge Die 16New Score2Challenge Die 16Challenge Die 25OutcomeMissFrom10To2New Score10Challenge Die 16Challenge Die 25OutcomeStrong Hit<br>Most mechanics nodes accept arguments either as properties, or BOA (by order of arguments).<br>That is, a node with arguments a, b, and c can be written as:<br>node 1 2 3
+Endure HarmMeterhealthDelta1From3To2Action die3Stat4Stat namehealthAdds0Score7Challenge die 13Challenge die 28OutcomeWeak hitMetermomentumDelta1From7To6MeterhealthDelta1From2To3Undertake an ExpeditionAction die3Stat1Adds0Score4Challenge die 13Challenge die 25OutcomeWeak hitOld action die3New action die1Old challenge die 13New challenge die 16New score2Challenge die 16Challenge die 25OutcomeMissFrom10To2New score10Challenge die 16Challenge die 25OutcomeStrong hit<br>Most mechanics nodes accept arguments either as properties, or BOA (by order of arguments).<br>That is, a node with arguments a, b, and c can be written as:<br>node 1 2 3
 Copy<br>or as:<br>node a=1 b=2 c=3
 Copy<br>Exceptions are noted in node documentation with ("not BOA").<br>Some arguments also support markdown rendering, and are marked as md.<br>Note: This block was previously called just mechanics. Blocks marked with this tag will still render as iron-vault-mechanics for legacy purposes, but commands will no longer append to them unless they use iron-vault-mechanics.<br><br>There are <a data-tooltip-position="top" aria-label="Settings > Mechanics blocks" data-href="Settings#Mechanics blocks" href="https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html#Mechanics_blocks" class="internal-link" target="_self" rel="noopener">various settings</a> for tweaking how and whether mechanics blocks are rendered. See the Settings documentation for more information.<br><br><br>Declares a new move. Can contain any other nodes except for move. Shows<br>
 icons for hit kind and whether there was a match, and can be expanded or<br>
 collapsed to show or hide the contained nodes.<br><br>
 <br>id (optional): datasworn ID of the move
 <br>name (optional, md): the name of the move
-<br><br>Any node, except for move.<br><br>Face DangerAction Die6Stat3Adds0Score9Challenge Die 18Challenge Die 29OutcomeWeak Hit
+<br><br>Any node, except for move.<br><br>Face DangerAction die6Stat3Adds0Score9Challenge die 18Challenge die 29OutcomeWeak hit
 ouch
-Endure HarmMeterhealthDelta1From3To2Action Die3Stat4Adds0Score7Challenge Die 13Challenge Die 25OutcomeStrong Hit<br>```iron-vault-mechanics
+Endure HarmMeterhealthDelta1From3To2Action die3Stat4Adds0Score7Challenge die 13Challenge die 25OutcomeStrong hit<br>```iron-vault-mechanics
 move "Face Danger" {
     roll action=6 stat=3 adds=0 vs1=8 vs2=9
     - "ouch"
@@ -255,7 +238,7 @@ result.<br><br>
 <br>adds (optional, default: 0): the total value of the adds
 <br>vs1: the first challenge die
 <br>vs2: the second challenge die
-<br><br>Action Die3Stat2Stat NameheartAdds1Score6Challenge Die 13Challenge Die 27OutcomeWeak Hit<br>```iron-vault-mechanics
+<br><br>Action die3Stat2Stat nameheartAdds1Score6Challenge die 13Challenge die 27OutcomeWeak hit<br>```iron-vault-mechanics
 // This will be rendered as a Weak Hit
 roll "heart" action=3 stat=2 adds=1 score=6 vs1=3 vs2=7
 ```
@@ -263,7 +246,7 @@ Copy<br><br>Renders a progress roll. If used inside a move block, will set its r
 <br>score: the number of filled track boxes the progress move is rolling against
 <br>vs1: the first challenge die
 <br>vs2: the second challenge die
-<br><br>Track NameProgress Score5Challenge Die 16Challenge Die 27OutcomeMiss<br>```iron-vault-mechanics
+<br><br>Track nameProgress score5Challenge die 16Challenge die 27OutcomeMiss<br>```iron-vault-mechanics
 // This will render as a Miss on progress
 progress-roll score=5 vs1=6 vs2=7
 ```
@@ -272,7 +255,7 @@ move's result will be automatically updated. It's an error to use this if there'
 <br>action (optional): the new value of the action die
 <br>vs1 (optional): the new value of the first challenge die
 <br>vs2 (optional): the new value of the second challenge die
-<br><br>Face DangerAction Die3Stat2Adds1Score6Challenge Die 13Challenge Die 27OutcomeWeak HitOld Action Die3New Action Die6Old Challenge Die 13New Challenge Die 15New Score9Challenge Die 15Challenge Die 27OutcomeStrong Hit<br>```iron-vault-mechanics
+<br><br>Face DangerAction die3Stat2Adds1Score6Challenge die 13Challenge die 27OutcomeWeak hitOld action die3New action die6Old challenge die 13New challenge die 15New score9Challenge die 15Challenge die 27OutcomeStrong hit<br>```iron-vault-mechanics
 move "Face Danger" {
     // weak hit (score = 6)
     roll action=3 stat=2 adds=1 vs1=3 vs2=7
@@ -292,9 +275,9 @@ meter "health" from=2 to=4
 Copy<br><br>Burn momentum. Note that for "normal" momentum changes, you should use <a class="internal-link" data-href="#meter" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#meter" target="_self" rel="noopener"><code></code></a>meter instead.<br><br>
 <br>from: the starting momentum amount.
 <br>to: the ending momentum amount.
-<br><br>Face DangerAction Die4Stat2Adds0Score6Challenge Die 18Challenge Die 29OutcomeMiss
+<br><br>Face DangerAction die4Stat2Adds0Score6Challenge die 18Challenge die 29OutcomeMiss
 ouch
-From9To2New Score9Challenge Die 18Challenge Die 29OutcomeWeak Hit
+From9To2New score9Challenge die 18Challenge die 29OutcomeWeak hit
 that's better...
 <br>```iron-vault-mechanics
 move "Face Danger" {
@@ -315,7 +298,7 @@ from-boxes/from-ticks.<br>(not BOA)<br><br>
 filled into the last unfilled box.
 <br>rank - the challenge rank of the progress track (e.g. "formidable", "epic", etc).
 <br>steps (optional, default: 1) - number of times to mark progress.
-<br><br>Track NameI vow to write this documentationSteps2RankformidableFrom Boxes3From Ticks2To Boxes5To Ticks2<br>```iron-vault-mechanics
+<br><br>Track nameI vow to write this documentationSteps2RankformidableFrom boxes3From ticks2To boxes5To ticks2<br>```iron-vault-mechanics
 progress "I vow to write this documentation" from-boxes=3 from-ticks=2 rank="formidable" steps=2
 ```
 Copy<br><br>Marks progress on a progress track. Can be used interchangeably with<br>
@@ -332,7 +315,7 @@ filled into the last unfilled box.
 <br>to-boxes (optional): the ending value of the progress track, in boxes.
 <br>to-ticks (optional): the ending value of the progress track, in ticks<br>
 filled into the last unfilled box.
-<br><br>TrackMy Background VowStatusaddedTrack NameMy Background VowFrom Boxes3From Ticks2To Boxes4To Ticks1<br>```iron-vault-mechanics
+<br><br>TrackMy Background VowStatusaddedTrack nameMy Background VowFrom boxes3From ticks2To boxes4To ticks1<br>```iron-vault-mechanics
 track "My Background Vow" status="added"
 track "My Background Vow" from-boxes=3 from-ticks=2 to-boxes=4 to-ticks=1
 ```
@@ -348,7 +331,7 @@ Copy<br><br>Renders a change in a clock.<br><br>
 <br>from: the starting number of segments filled.
 <br>to: the ending number of segments filled.
 <br>out-of: the total number of segments in the clock.
-<br><br>ClockThe Doomsday Device ExplodesStatusaddedClockThe Doomsday Device ExplodesFrom3OutOfFrom6To5OutOfTo6<br>```iron-vault-mechanics
+<br><br>ClockThe Doomsday Device ExplodesStatusaddedClockThe Doomsday Device ExplodesFrom3Out of from6To5Out of to6<br>```iron-vault-mechanics
 clock "The Doomsday Device Explodes" status="added"
 clock "The Doomsday Device Explodes" from=3 to=5 out-of=6
 ```
@@ -356,14 +339,14 @@ Copy<br><br>Records an oracle roll and its result.<br><br>
 <br>name (md): the name of the oracle
 <br>roll: the value of the percentile die roll
 <br>result (md): The resulting value of the oracle roll.
-<br><br>oracle nodes may be nested, meaning you can have oracles inside oracles.<br><br>name<a data-tooltip-position="top" aria-label="oracle:GivenName" rel="noopener" class="external-link" href="https://iron-vault-plugin.github.io/iron-vault/oracle:GivenName" target="_blank">Character Name &gt; Given Name</a>roll34resultEsananameSomething elseroll2resultfoo<br>```iron-vault-mechanics
+<br><br>oracle nodes may be nested, meaning you can have oracles inside oracles.<br><br>Name<a data-tooltip-position="top" aria-label="oracle:GivenName" rel="noopener" class="external-link" href="https://iron-vault-plugin.github.io/iron-vault/oracle:GivenName" target="_blank">Character Name &gt; Given Name</a>Roll34ResultEsanaNameSomething elseRoll2Resultfoo<br>```iron-vault-mechanics
 oracle "[Character Name &gt; Given Name](oracle:GivenName)" roll=34 result="Esana" {
   oracle "Something else" 2 "foo"
 }
 ```
 Copy<br><br>Utility node for grouping related <a data-tooltip-position="top" aria-label="`oracle`" data-href="#`oracle`" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#`oracle`" class="internal-link" target="_self" rel="noopener">`oracle`</a>s together.<br><br>
 <br>name (md): a label for this group
-<br><br>Any oracle or oracle-group nodes.<br><br>Character NamenameGiven Nameroll30resultErennameCallsignroll72resultRooknameFamily Nameroll42resultBridger<br>```iron-vault-mechanics
+<br><br>Any oracle or oracle-group nodes.<br><br>Character NameNameGiven NameRoll30ResultErenNameCallsignRoll72ResultRookNameFamily NameRoll42ResultBridger<br>```iron-vault-mechanics
 oracle-group "Character Name" {
   oracle "Given Name" roll=30 result="Eren"
   oracle "Callsign" roll=72 result="Rook"
@@ -392,7 +375,7 @@ Copy<br><br>Records changes in the initiative or position in a combat. Initiativ
 <br><br>
 <br>from: starting initiative value
 <br>to: new initiative value
-<br><br>FromHas InitiativeToNo InitiativeFromIn a Bad SpotToOut of Combat<br>```iron-vault-mechanics
+<br><br>FromHas initiativeToNo initiativeFromIn a bad spotToOut of combat<br>```iron-vault-mechanics
 initiative "has initiative" "no initiative"
 position from="in a bad spot" to="out of combat"
 ```
@@ -850,11 +833,13 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Begin a Session
+      
+        
+        Begin a Session
       
         
       
@@ -873,11 +858,13 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Make a Discovery
+      
+        
+        Make a Discovery
       
         
       
@@ -896,11 +883,13 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Confront Chaos
+      
+        
+        Confront Chaos
       
         
       
@@ -919,11 +908,13 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Take Decisive Action
+      
+        
+        Take Decisive Action
       
         
       
@@ -942,11 +933,13 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Endure Harm
+      
+        
+        Endure Harm
       
         
       
@@ -965,11 +958,13 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Endure Stress
+      
+        
+        Endure Stress
       
         
       
@@ -988,11 +983,13 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Withstand Damage
+      
+        
+        Withstand Damage
       
         
       
@@ -1011,39 +1008,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Almost Certain
+      
+        
+        Almost Certain
       
         
       
     
   
     <br>
-      Likely
+      
+        
+        Likely
       
         
       
     
   
     <br>
-      50/50
+      
+        
+        50/50
       
         
       
     
   
     <br>
-      Unlikely
+      
+        
+        Unlikely
       
         
       
     
   
     <br>
-      Small Chance
+      
+        
+        Small Chance
       
         
       
@@ -1062,11 +1069,13 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Pay the Price
+      
+        
+        Pay the Price
       
         
       
@@ -1085,46 +1094,58 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Background Assets
+      
+        
+        Background Assets
       
         
       
     
   
     <br>
-      Backstory Prompts
+      
+        
+        Backstory Prompts
       
         
       
     
   
     <br>
-      Starship History
+      
+        
+        Starship History
       
         
       
     
   
     <br>
-      Starship Quirks
+      
+        
+        Starship Quirks
       
         
       
     
   
     <br>
-      Sector Trouble
+      
+        
+        Sector Trouble
       
         
       
     
   
     <br>
-      Inciting Incident
+      
+        
+        Inciting Incident
       
         
       
@@ -1143,39 +1164,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      First Look
+      
+        
+        First Look
       
         
       
     
   
     <br>
-      Initial Disposition
+      
+        
+        Initial Disposition
       
         
       
     
   
     <br>
-      Character Role
+      
+        
+        Character Role
       
         
       
     
   
     <br>
-      Character Goal
+      
+        
+        Character Goal
       
         
       
     
   
     <br>
-      Revealed Character Aspect
+      
+        
+        Revealed Character Aspect
       
         
       
@@ -1194,25 +1225,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Given Name
+      
+        
+        Given Name
       
         
       
     
   
     <br>
-      Callsign
+      
+        
+        Callsign
       
         
       
     
   
     <br>
-      Family Name
+      
+        
+        Family Name
       
         
       
@@ -1231,32 +1268,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Action
+      
+        
+        Action
       
         
       
     
   
     <br>
-      Theme
+      
+        
+        Theme
       
         
       
     
   
     <br>
-      Descriptor
+      
+        
+        Descriptor
       
         
       
     
   
     <br>
-      Focus
+      
+        
+        Focus
       
         
       
@@ -1275,46 +1320,58 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Environment
+      
+        
+        Environment
       
         
       
     
   
     <br>
-      Scale
+      
+        
+        Scale
       
         
       
     
   
     <br>
-      Ultra-scale
+      
+        
+        Ultra-scale
       
         
       
     
   
     <br>
-      Creature First Look
+      
+        
+        Creature First Look
       
         
       
     
   
     <br>
-      Encountered Behavior
+      
+        
+        Encountered Behavior
       
         
       
     
   
     <br>
-      Revealed Creature Aspect
+      
+        
+        Revealed Creature Aspect
       
         
       
@@ -1333,39 +1390,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Space
+      
+        
+        Space
       
         
       
     
   
     <br>
-      Interior
+      
+        
+        Interior
       
         
       
     
   
     <br>
-      Land
+      
+        
+        Land
       
         
       
     
   
     <br>
-      Liquid
+      
+        
+        Liquid
       
         
       
     
   
     <br>
-      Air
+      
+        
+        Air
       
         
       
@@ -1384,32 +1451,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Location
+      
+        
+        Location
       
         
       
     
   
     <br>
-      Condition
+      
+        
+        Condition
       
         
       
     
   
     <br>
-      Outer First Look
+      
+        
+        Outer First Look
       
         
       
     
   
     <br>
-      Inner First Look
+      
+        
+        Inner First Look
       
         
       
@@ -1428,32 +1503,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Area
+      
+        
+        Area
       
         
       
     
   
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -1472,32 +1555,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Area
+      
+        
+        Area
       
         
       
     
   
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -1516,32 +1607,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Area
+      
+        
+        Area
       
         
       
     
   
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -1560,32 +1659,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Area
+      
+        
+        Area
       
         
       
     
   
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -1604,32 +1711,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Area
+      
+        
+        Area
       
         
       
     
   
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -1648,32 +1763,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Area
+      
+        
+        Area
       
         
       
     
   
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -1692,32 +1815,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Area
+      
+        
+        Area
       
         
       
     
   
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -1736,32 +1867,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Area
+      
+        
+        Area
       
         
       
     
   
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -1780,25 +1919,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Planetside
+      
+        
+        Planetside
       
         
       
     
   
     <br>
-      Orbital
+      
+        
+        Orbital
       
         
       
     
   
     <br>
-      Deep Space
+      
+        
+        Deep Space
       
         
       
@@ -1817,18 +1962,22 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Starship
+      
+        
+        Starship
       
         
       
     
   
     <br>
-      Settlement
+      
+        
+        Settlement
       
         
       
@@ -1847,74 +1996,94 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Faction Type
+      
+        
+        Faction Type
       
         
       
     
   
     <br>
-      Influence
+      
+        
+        Influence
       
         
       
     
   
     <br>
-      Dominion
+      
+        
+        Dominion
       
         
       
     
   
     <br>
-      Dominion: Leadership
+      
+        
+        Dominion: Leadership
       
         
       
     
   
     <br>
-      Guild
+      
+        
+        Guild
       
         
       
     
   
     <br>
-      Fringe Group
+      
+        
+        Fringe Group
       
         
       
     
   
     <br>
-      Faction Projects
+      
+        
+        Faction Projects
       
         
       
     
   
     <br>
-      Faction Relationships
+      
+        
+        Faction Relationships
       
         
       
     
   
     <br>
-      Faction Quirks
+      
+        
+        Faction Quirks
       
         
       
     
   
     <br>
-      Faction Rumors
+      
+        
+        Faction Rumors
       
         
       
@@ -1933,32 +2102,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Faction Name Template
+      
+        
+        Faction Name Template
       
         
       
     
   
     <br>
-      Legacy
+      
+        
+        Legacy
       
         
       
     
   
     <br>
-      Affiliation
+      
+        
+        Affiliation
       
         
       
     
   
     <br>
-      Identity
+      
+        
+        Identity
       
         
       
@@ -1977,11 +2154,13 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Theme Type
+      
+        
+        Theme Type
       
         
       
@@ -2000,25 +2179,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -2037,25 +2222,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -2074,25 +2265,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -2111,25 +2308,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -2148,25 +2351,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -2185,25 +2394,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -2222,25 +2437,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -2259,25 +2480,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Feature
+      
+        
+        Feature
       
         
       
     
   
     <br>
-      Peril
+      
+        
+        Peril
       
         
       
     
   
     <br>
-      Opportunity
+      
+        
+        Opportunity
       
         
       
@@ -2296,32 +2523,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Story Complication
+      
+        
+        Story Complication
       
         
       
     
   
     <br>
-      Story Clue
+      
+        
+        Story Clue
       
         
       
     
   
     <br>
-      Anomaly Effect
+      
+        
+        Anomaly Effect
       
         
       
     
   
     <br>
-      Combat Action
+      
+        
+        Combat Action
       
         
       
@@ -2340,11 +2575,13 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Planetary Class
+      
+        
+        Planetary Class
       
         
       
@@ -2363,39 +2600,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Sample Names
+      
+        
+        Sample Names
       
         
       
     
   
     <br>
-      Atmosphere
+      
+        
+        Atmosphere
       
         
       
     
   
     <br>
-      Observed From Space
+      
+        
+        Observed From Space
       
         
       
     
   
     <br>
-      Planetside Feature
+      
+        
+        Planetside Feature
       
         
       
     
   
     <br>
-      Life
+      
+        
+        Life
       
         
       
@@ -2414,25 +2661,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -2451,39 +2704,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Sample Names
+      
+        
+        Sample Names
       
         
       
     
   
     <br>
-      Atmosphere
+      
+        
+        Atmosphere
       
         
       
     
   
     <br>
-      Observed From Space
+      
+        
+        Observed From Space
       
         
       
     
   
     <br>
-      Planetside Feature
+      
+        
+        Planetside Feature
       
         
       
     
   
     <br>
-      Life
+      
+        
+        Life
       
         
       
@@ -2502,25 +2765,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -2539,39 +2808,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Sample Names
+      
+        
+        Sample Names
       
         
       
     
   
     <br>
-      Atmosphere
+      
+        
+        Atmosphere
       
         
       
     
   
     <br>
-      Observed From Space
+      
+        
+        Observed From Space
       
         
       
     
   
     <br>
-      Planetside Feature
+      
+        
+        Planetside Feature
       
         
       
     
   
     <br>
-      Life
+      
+        
+        Life
       
         
       
@@ -2590,25 +2869,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -2627,39 +2912,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Sample Names
+      
+        
+        Sample Names
       
         
       
     
   
     <br>
-      Atmosphere
+      
+        
+        Atmosphere
       
         
       
     
   
     <br>
-      Observed From Space
+      
+        
+        Observed From Space
       
         
       
     
   
     <br>
-      Planetside Feature
+      
+        
+        Planetside Feature
       
         
       
     
   
     <br>
-      Life
+      
+        
+        Life
       
         
       
@@ -2678,25 +2973,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -2715,39 +3016,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Sample Names
+      
+        
+        Sample Names
       
         
       
     
   
     <br>
-      Atmosphere
+      
+        
+        Atmosphere
       
         
       
     
   
     <br>
-      Observed From Space
+      
+        
+        Observed From Space
       
         
       
     
   
     <br>
-      Planetside Feature
+      
+        
+        Planetside Feature
       
         
       
     
   
     <br>
-      Life
+      
+        
+        Life
       
         
       
@@ -2766,25 +3077,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -2803,39 +3120,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Sample Names
+      
+        
+        Sample Names
       
         
       
     
   
     <br>
-      Atmosphere
+      
+        
+        Atmosphere
       
         
       
     
   
     <br>
-      Observed From Space
+      
+        
+        Observed From Space
       
         
       
     
   
     <br>
-      Planetside Feature
+      
+        
+        Planetside Feature
       
         
       
     
   
     <br>
-      Life
+      
+        
+        Life
       
         
       
@@ -2854,25 +3181,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -2891,39 +3224,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Sample Names
+      
+        
+        Sample Names
       
         
       
     
   
     <br>
-      Atmosphere
+      
+        
+        Atmosphere
       
         
       
     
   
     <br>
-      Observed From Space
+      
+        
+        Observed From Space
       
         
       
     
   
     <br>
-      Planetside Feature
+      
+        
+        Planetside Feature
       
         
       
     
   
     <br>
-      Life
+      
+        
+        Life
       
         
       
@@ -2942,25 +3285,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -2979,39 +3328,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Sample Names
+      
+        
+        Sample Names
       
         
       
     
   
     <br>
-      Atmosphere
+      
+        
+        Atmosphere
       
         
       
     
   
     <br>
-      Observed From Space
+      
+        
+        Observed From Space
       
         
       
     
   
     <br>
-      Planetside Feature
+      
+        
+        Planetside Feature
       
         
       
     
   
     <br>
-      Life
+      
+        
+        Life
       
         
       
@@ -3030,25 +3389,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -3067,39 +3432,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Sample Names
+      
+        
+        Sample Names
       
         
       
     
   
     <br>
-      Atmosphere
+      
+        
+        Atmosphere
       
         
       
     
   
     <br>
-      Observed From Space
+      
+        
+        Observed From Space
       
         
       
     
   
     <br>
-      Planetside Feature
+      
+        
+        Planetside Feature
       
         
       
     
   
     <br>
-      Life
+      
+        
+        Life
       
         
       
@@ -3118,25 +3493,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -3155,39 +3536,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Sample Names
+      
+        
+        Sample Names
       
         
       
     
   
     <br>
-      Atmosphere
+      
+        
+        Atmosphere
       
         
       
     
   
     <br>
-      Observed From Space
+      
+        
+        Observed From Space
       
         
       
     
   
     <br>
-      Planetside Feature
+      
+        
+        Planetside Feature
       
         
       
     
   
     <br>
-      Life
+      
+        
+        Life
       
         
       
@@ -3206,25 +3597,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -3243,53 +3640,67 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Sample Names
+      
+        
+        Sample Names
       
         
       
     
   
     <br>
-      Atmosphere
+      
+        
+        Atmosphere
       
         
       
     
   
     <br>
-      Observed From Space
+      
+        
+        Observed From Space
       
         
       
     
   
     <br>
-      Planetside Feature
+      
+        
+        Planetside Feature
       
         
       
     
   
     <br>
-      Life
+      
+        
+        Life
       
         
       
     
   
     <br>
-      Diversity
+      
+        
+        Diversity
       
         
       
     
   
     <br>
-      Biomes
+      
+        
+        Biomes
       
         
       
@@ -3308,25 +3719,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -3345,18 +3762,22 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Lifebearing
+      
+        
+        Lifebearing
       
         
       
     
   
     <br>
-      Lifeless
+      
+        
+        Lifeless
       
         
       
@@ -3375,18 +3796,22 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Lifebearing
+      
+        
+        Lifebearing
       
         
       
     
   
     <br>
-      Lifeless
+      
+        
+        Lifeless
       
         
       
@@ -3405,46 +3830,58 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Location
+      
+        
+        Location
       
         
       
     
   
     <br>
-      Scale
+      
+        
+        Scale
       
         
       
     
   
     <br>
-      Form
+      
+        
+        Form
       
         
       
     
   
     <br>
-      Shape
+      
+        
+        Shape
       
         
       
     
   
     <br>
-      Material
+      
+        
+        Material
       
         
       
     
   
     <br>
-      Outer First Look
+      
+        
+        Outer First Look
       
         
       
@@ -3463,32 +3900,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Inner First Look
+      
+        
+        Inner First Look
       
         
       
     
   
     <br>
-      Interior Feature
+      
+        
+        Interior Feature
       
         
       
     
   
     <br>
-      Interior Peril
+      
+        
+        Interior Peril
       
         
       
     
   
     <br>
-      Interior Opportunity
+      
+        
+        Interior Opportunity
       
         
       
@@ -3507,32 +3952,40 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Vault Purpose
+      
+        
+        Vault Purpose
       
         
       
     
   
     <br>
-      Sanctum Feature
+      
+        
+        Sanctum Feature
       
         
       
     
   
     <br>
-      Sanctum Peril
+      
+        
+        Sanctum Peril
       
         
       
     
   
     <br>
-      Sanctum Opportunity
+      
+        
+        Sanctum Opportunity
       
         
       
@@ -3551,60 +4004,76 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Location
+      
+        
+        Location
       
         
       
     
   
     <br>
-      First Look
+      
+        
+        First Look
       
         
       
     
   
     <br>
-      Initial Contact
+      
+        
+        Initial Contact
       
         
       
     
   
     <br>
-      Authority
+      
+        
+        Authority
       
         
       
     
   
     <br>
-      Settlement Projects
+      
+        
+        Settlement Projects
       
         
       
     
   
     <br>
-      Settlement Trouble
+      
+        
+        Settlement Trouble
       
         
       
     
   
     <br>
-      Settlement Name
+      
+        
+        Settlement Name
       
         
       
     
   
     <br>
-      Name tags
+      
+        
+        Name tags
       
         
       
@@ -3623,25 +4092,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -3660,25 +4135,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Stellar Object
+      
+        
+        Stellar Object
       
         
       
     
   
     <br>
-      Spaceborne Peril
+      
+        
+        Spaceborne Peril
       
         
       
     
   
     <br>
-      Spaceborne Opportunity
+      
+        
+        Spaceborne Opportunity
       
         
       
@@ -3697,25 +4178,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -3734,18 +4221,22 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Prefix
+      
+        
+        Prefix
       
         
       
     
   
     <br>
-      Suffix
+      
+        
+        Suffix
       
         
       
@@ -3764,39 +4255,49 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Starship Type
+      
+        
+        Starship Type
       
         
       
     
   
     <br>
-      Fleet
+      
+        
+        Fleet
       
         
       
     
   
     <br>
-      Initial Contact
+      
+        
+        Initial Contact
       
         
       
     
   
     <br>
-      First Look
+      
+        
+        First Look
       
         
       
     
   
     <br>
-      Starship Name
+      
+        
+        Starship Name
       
         
       
@@ -3815,25 +4316,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Terminus
+      
+        
+        Terminus
       
         
       
     
   
     <br>
-      Outlands
+      
+        
+        Outlands
       
         
       
     
   
     <br>
-      Expanse
+      
+        
+        Expanse
       
         
       
@@ -3863,25 +4370,31 @@ Copy<br>Which will render this:<br>
           <br>
             
               
-            
+              Roll All
           
           
     <br>
-      Action + Theme
+      
+        
+        Action + Theme
       
         
       
     
   
     <br>
-      Descriptor+Focus
+      
+        
+        Descriptor+Focus
       
         
       
     
   
     <br>
-      Region
+      
+        
+        Region
       
         
       
@@ -3910,50 +4423,7 @@ rank: dangerous
 ---
 ```iron-vault-track
 ```
-Copy<br>Will render a track that looks like this:<br>Write the Docs<br><br>
-    
-      
-        
-              I vow to write this documentation
-      
-      
-            
-              
-                
-                      
-                            Troublesome
-                          
-                            Dangerous
-                          
-                            Formidable
-                          
-                            Extreme
-                          
-                            Epic
-                          
-                    
-              
-              
-                 
-              
-            
-          
-      
-      
-        
-          -
-        
-        
-          <br>box 4<br>box 4<br>box 4<br>box 4<br>box 4<br>box 2<br>box 0<br>box 0<br>box 0<br>box 0
-        
-        
-          +
-        
-        
-        ticks
-      
-    
-  <br><br>To mark progress on the vow, click on the + button. To remove progress, use the - button. If you want more fine-grained control over the number of ticks, such as removing only 2 ticks in a Dangerous track, you can click on the text field with the number of ticks and edit it. The number of ticks will be updated when you click away or press enter.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/track-blocks.html</link><guid isPermaLink="false">Blocks/Track Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 04:17:52 GMT</pubDate></item><item><title><![CDATA[Truth Blocks]]></title><description><![CDATA[ 
+Copy<br>Will render a track that looks like this:<br>Write the Docs<br><br><br>To mark progress on the vow, click on the + button. To remove progress, use the - button. If you want more fine-grained control over the number of ticks, such as removing only 2 ticks in a Dangerous track, you can click on the text field with the number of ticks and edit it. The number of ticks will be updated when you click away or press enter.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/blocks/track-blocks.html</link><guid isPermaLink="false">Blocks/Track Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 04:17:52 GMT</pubDate></item><item><title><![CDATA[Truth Blocks]]></title><description><![CDATA[ 
  <br>Truth blocks are used to render pickers for individual truths. When filled out and saved, they will insert the final truth text underneath themselves into the current file.<br><a data-href="Truths" href="https://iron-vault-plugin.github.io/iron-vault/entities/truths.html" class="internal-link" target="_self" rel="noopener">Truths</a> are a core Ironsworn/Starforged concept, and one of the first things you'll do when you start a campaign. You can easily generate a Truths file with all your current rulesets' truths by using the <a data-href="Generate Truths" href="https://iron-vault-plugin.github.io/iron-vault/commands/generate-truths.html" class="internal-link" target="_self" rel="noopener">Generate Truths</a> command.<br>Truth blocks expect the name of the Truth they'll be dealing with as the first line in their bodies. A second optional line with the text inserted will set the Truth block to its "click to reset" state, and is usually automatically written when you click save on the block.<br>Resetting the Truth block will reset it to its initial state and insert an Old Truth: header underneath, to separate your previously-generated truth text from the new one, so it won't delete any text you had there before that you might want to keep or reference.<br>Truth blocks let you either pick your truth options from a dropdown, or click on a die icon to randomize them according to the rules' oracle table.<br>Once the Truth is generated, you are free to edit the Truth text any way you see fit: it's just regular text in the file!<br>You can also choose to split your truths between multiple files, by just putting the iron-vault-truth blocks into separate files.<br><br>The following file:<br>## Cataclysm
 ```iron-vault-truth
 Cataclysm
@@ -4033,16 +4503,18 @@ Copy<br>Will generate something that looks like this:<br><br>Truths.md<br><br>
 <br><a data-href="Generate an entity" href="https://iron-vault-plugin.github.io/iron-vault/commands/generate-an-entity.html" class="internal-link" target="_self" rel="noopener">Generate an entity</a>
 <br><a data-href="Generate Truths" href="https://iron-vault-plugin.github.io/iron-vault/commands/generate-truths.html" class="internal-link" target="_self" rel="noopener">Generate Truths</a>
 <br><a data-href="Make a move" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a>
+<br><a data-href="Make an action roll" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-an-action-roll.html" class="internal-link" target="_self" rel="noopener">Make an action roll</a>
 <br><a data-href="Open documentation in a tab" href="https://iron-vault-plugin.github.io/iron-vault/commands/open-documentation-in-a-tab.html" class="internal-link" target="_self" rel="noopener">Open documentation in a tab</a>
 <br><a data-href="Open documentation in your browser" href="https://iron-vault-plugin.github.io/iron-vault/commands/open-documentation-in-your-browser.html" class="internal-link" target="_self" rel="noopener">Open documentation in your browser</a>
+<br><a data-href="Pick active character" href="https://iron-vault-plugin.github.io/iron-vault/commands/pick-active-character.html" class="internal-link" target="_self" rel="noopener">Pick active character</a>
 <br><a data-href="Show all commands" href="https://iron-vault-plugin.github.io/iron-vault/commands/show-all-commands.html" class="internal-link" target="_self" rel="noopener">Show all commands</a>
 <br><a data-href="Show sidebar" href="https://iron-vault-plugin.github.io/iron-vault/commands/show-sidebar.html" class="internal-link" target="_self" rel="noopener">Show sidebar</a>
 <br><a data-href="Suffer on a meter" href="https://iron-vault-plugin.github.io/iron-vault/commands/suffer-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Suffer on a meter</a>
 <br><a data-href="Take on a meter" href="https://iron-vault-plugin.github.io/iron-vault/commands/take-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Take on a meter</a>
 <br><a data-href="Toggle displaying mechanics" href="https://iron-vault-plugin.github.io/iron-vault/commands/toggle-displaying-mechanics.html" class="internal-link" target="_self" rel="noopener">Toggle displaying mechanics</a>
-<br><br>Many commands have some mechanical effect, but additionally "add a mechanics entry to your journal". Right now, the "current journal" is determined simply by whatever file you have open when the command was invoked. That means that if you're looking at an <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://iron-vault-plugin.github.io/iron-vault/entities/index.html" class="internal-link" target="_self" rel="noopener">Entity</a> file, the command result will get appended to that file, not your "actual" journal.<br>(Coming Soon)<br>Since the above can be a bit of a footgun, Iron Vault will eventually add a system for tagging or otherwise tracking what your actual journals are, so that commands make a better effort of inserting their results.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/index.html</link><guid isPermaLink="false">Commands/index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Wed, 19 Jun 2024 15:17:18 GMT</pubDate></item><item><title><![CDATA[Add asset to character]]></title><description><![CDATA[ 
+<br><br>Many commands have some mechanical effect, but additionally "add a mechanics entry to your journal". Right now, the "current journal" is determined simply by whatever file you have open when the command was invoked. That means that if you're looking at an <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://iron-vault-plugin.github.io/iron-vault/entities/index.html" class="internal-link" target="_self" rel="noopener">Entity</a> file, the command result will get appended to that file, not your "actual" journal.<br>(Coming Soon)<br>Since the above can be a bit of a footgun, Iron Vault will eventually add a system for tagging or otherwise tracking what your actual journals are, so that commands make a better effort of inserting their results.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/index.html</link><guid isPermaLink="false">Commands/index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 06 Jul 2024 17:05:58 GMT</pubDate></item><item><title><![CDATA[Add asset to character]]></title><description><![CDATA[ 
  <br>Adds an <a data-tooltip-position="top" aria-label="Assets" data-href="Assets" href="https://iron-vault-plugin.github.io/iron-vault/entities/assets.html" class="internal-link" target="_self" rel="noopener">Asset</a> to your <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://iron-vault-plugin.github.io/iron-vault/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a>. The command will prompt you for an asset to add, letting you filter your choice from all available assets in your active <a data-href="Rulesets and Homebrew" href="https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>.<br>This asset will have default settings and will appear in your character sheet, where you can then customize it as needed.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/add-asset-to-character.html</link><guid isPermaLink="false">Commands/Add asset to character.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 22 Jun 2024 02:34:03 GMT</pubDate></item><item><title><![CDATA[Advance a clock]]></title><description><![CDATA[ 
- <br>Advances a <a data-tooltip-position="top" aria-label="Clocks" data-href="Clocks" href="https://iron-vault-plugin.github.io/iron-vault/entities/clocks.html" class="internal-link" target="_self" rel="noopener">Clock</a>, modifying its frontmatter, and inserts a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `clock`" data-href="Mechanics Blocks#`clock`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`clock`" class="internal-link" target="_self" rel="noopener">`clock` mechanics node</a> into your active journal. Clocks which are already filled, or which are completed, cannot be advanced (and will not show up at all in the picker for the command).<br>Advancing a Clock to completion will not automatically be marked as closed. In keeping with the spirit of Iron Vault letting the player take care of actual mechanics instead of playing the game for them, this is left up to you to manage as you see fit.<br><br><br><br>ClockThe Doomsday Device ExplodesStatusaddedClockThe Doomsday Device ExplodesFrom3OutOfFrom6To5OutOfTo6<br>```iron-vault-mechanics
+ <br>Advances a <a data-tooltip-position="top" aria-label="Clocks" data-href="Clocks" href="https://iron-vault-plugin.github.io/iron-vault/entities/clocks.html" class="internal-link" target="_self" rel="noopener">Clock</a>, modifying its frontmatter, and inserts a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `clock`" data-href="Mechanics Blocks#`clock`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`clock`" class="internal-link" target="_self" rel="noopener">`clock` mechanics node</a> into your active journal. Clocks which are already filled, or which are completed, cannot be advanced (and will not show up at all in the picker for the command).<br>Advancing a Clock to completion will not automatically be marked as closed. In keeping with the spirit of Iron Vault letting the player take care of actual mechanics instead of playing the game for them, this is left up to you to manage as you see fit.<br><br><br><br>ClockThe Doomsday Device ExplodesStatusaddedClockThe Doomsday Device ExplodesFrom3Out of from6To5Out of to6<br>```iron-vault-mechanics
 clock "The Doomsday Device Explodes" status="added"
 clock "The Doomsday Device Explodes" from=3 to=5 out-of=6
 ```
@@ -4065,7 +4537,7 @@ Doomsday Device<br><br>
         
       
     ]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/advance-a-clock.html</link><guid isPermaLink="false">Commands/Advance a clock.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Advance a progress track]]></title><description><![CDATA[ 
- <br>Advances a <a data-tooltip-position="top" aria-label="Progress Tracks" data-href="Progress Tracks" href="https://iron-vault-plugin.github.io/iron-vault/entities/progress-tracks.html" class="internal-link" target="_self" rel="noopener">Progress Track</a>, modifying its frontmatter, and inserts a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `progress`" data-href="Mechanics Blocks#`progress`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`progress`" class="internal-link" target="_self" rel="noopener">`progress` mechanic node</a> into your active journal. Progress Tracks which are already filled, or which are completed, cannot be advanced (and will not show up at all in the picker for the command).<br><br><br><br>Track NameI vow to write this documentationSteps2RankformidableFrom Boxes3From Ticks2To Boxes5To Ticks2<br>```iron-vault-mechanics
+ <br>Advances a <a data-tooltip-position="top" aria-label="Progress Tracks" data-href="Progress Tracks" href="https://iron-vault-plugin.github.io/iron-vault/entities/progress-tracks.html" class="internal-link" target="_self" rel="noopener">Progress Track</a>, modifying its frontmatter, and inserts a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `progress`" data-href="Mechanics Blocks#`progress`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`progress`" class="internal-link" target="_self" rel="noopener">`progress` mechanic node</a> into your active journal. Progress Tracks which are already filled, or which are completed, cannot be advanced (and will not show up at all in the picker for the command).<br><br><br><br>Track nameI vow to write this documentationSteps2RankformidableFrom boxes3From ticks2To boxes5To ticks2<br>```iron-vault-mechanics
 progress "I vow to write this documentation" from-boxes=3 from-ticks=2 rank="formidable" steps=2
 ```
 Copy<br>
@@ -4113,15 +4585,15 @@ Write the Docs<br><br>
       
     
   ]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/advance-a-progress-track.html</link><guid isPermaLink="false">Commands/Advance a progress track.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Ask the Oracle]]></title><description><![CDATA[ 
- <br>This command lets you pick an <a data-tooltip-position="top" aria-label="Oracles" data-href="Oracles" href="https://iron-vault-plugin.github.io/iron-vault/entities/oracles.html" class="internal-link" target="_self" rel="noopener">Oracle</a> to roll, and will then record the result in your active journal. When invoked through the <a data-tooltip-position="top" aria-label="Sidebar > Oracles Tab" data-href="Sidebar#Oracles Tab" href="https://iron-vault-plugin.github.io/iron-vault/other-features/sidebar.html#Oracles_Tab" class="internal-link" target="_self" rel="noopener">Sidebar</a>, it won't prompt you for what Oracle to roll.<br>If you want to Ask the Oracle in order to roll an <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://iron-vault-plugin.github.io/iron-vault/entities/index.html" class="internal-link" target="_self" rel="noopener">Entity</a>, you can use the <a data-href="Generate an entity" href="https://iron-vault-plugin.github.io/iron-vault/commands/generate-an-entity.html" class="internal-link" target="_self" rel="noopener">Generate an entity</a> command to roll its Oracle Group together, with First Look logic and such.<br><br><br><br>name<a data-tooltip-position="top" aria-label="oracle:GivenName" rel="noopener" class="external-link" href="https://iron-vault-plugin.github.io/iron-vault/oracle:GivenName" target="_blank">Character Name &gt; Given Name</a>roll34resultEsananameSomething elseroll2resultfoo<br>```iron-vault-mechanics
+ <br>This command lets you pick an <a data-tooltip-position="top" aria-label="Oracles" data-href="Oracles" href="https://iron-vault-plugin.github.io/iron-vault/entities/oracles.html" class="internal-link" target="_self" rel="noopener">Oracle</a> to roll, and will then record the result in your active journal. When invoked through the <a data-tooltip-position="top" aria-label="Sidebar > Oracles Tab" data-href="Sidebar#Oracles Tab" href="https://iron-vault-plugin.github.io/iron-vault/other-features/sidebar.html#Oracles_Tab" class="internal-link" target="_self" rel="noopener">Sidebar</a>, it won't prompt you for what Oracle to roll.<br>If you want to Ask the Oracle in order to roll an <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://iron-vault-plugin.github.io/iron-vault/entities/index.html" class="internal-link" target="_self" rel="noopener">Entity</a>, you can use the <a data-href="Generate an entity" href="https://iron-vault-plugin.github.io/iron-vault/commands/generate-an-entity.html" class="internal-link" target="_self" rel="noopener">Generate an entity</a> command to roll its Oracle Group together, with First Look logic and such.<br><br><br><br>Name<a data-tooltip-position="top" aria-label="oracle:GivenName" rel="noopener" class="external-link" href="https://iron-vault-plugin.github.io/iron-vault/oracle:GivenName" target="_blank">Character Name &gt; Given Name</a>Roll34ResultEsanaNameSomething elseRoll2Resultfoo<br>```iron-vault-mechanics
 oracle "[Character Name &gt; Given Name](oracle:GivenName)" roll=34 result="Esana" {
   oracle "Something else" 2 "foo"
 }
 ```
 Copy]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/ask-the-oracle.html</link><guid isPermaLink="false">Commands/Ask the Oracle.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 04:17:52 GMT</pubDate></item><item><title><![CDATA[Burn momentum]]></title><description><![CDATA[ 
- <br>Burns momentum, resetting your <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://iron-vault-plugin.github.io/iron-vault/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a>'s momentum to their momentum reset value, and replacing the action value of the last action roll with your previous momentum value, then it records this operation in your current journal with a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `burn`" data-href="Mechanics Blocks#`burn`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`burn`" class="internal-link" target="_self" rel="noopener">`burn` mechanics node</a>. If done after <a data-href="Make a move" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a>, this will automatically change the result of the roll.<br>This command can only be used when you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, and thus requires an actual <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://iron-vault-plugin.github.io/iron-vault/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a> to work at all.<br>If you don't want to use the Character System but still want to record burning momentum, you can write the <a data-tooltip-position="top" aria-label="Mechanics Blocks > `burn`" data-href="Mechanics Blocks#`burn`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`burn`" class="internal-link" target="_self" rel="noopener">`burn` mechanics node</a> directly into your journal, and it will also alter the displayed Move result.<br><br><br><br>Face DangerAction Die4Stat2Adds0Score6Challenge Die 18Challenge Die 29OutcomeMiss
+ <br>Burns momentum, resetting your <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://iron-vault-plugin.github.io/iron-vault/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a>'s momentum to their momentum reset value, and replacing the action value of the last action roll with your previous momentum value, then it records this operation in your current journal with a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `burn`" data-href="Mechanics Blocks#`burn`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`burn`" class="internal-link" target="_self" rel="noopener">`burn` mechanics node</a>. If done after <a data-href="Make a move" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a>, this will automatically change the result of the roll.<br>This command can only be used when you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, and thus requires an actual <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://iron-vault-plugin.github.io/iron-vault/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a> to work at all.<br>If you don't want to use the Character System but still want to record burning momentum, you can write the <a data-tooltip-position="top" aria-label="Mechanics Blocks > `burn`" data-href="Mechanics Blocks#`burn`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`burn`" class="internal-link" target="_self" rel="noopener">`burn` mechanics node</a> directly into your journal, and it will also alter the displayed Move result.<br><br><br><br>Face DangerAction die4Stat2Adds0Score6Challenge die 18Challenge die 29OutcomeMiss
 ouch
-From9To2New Score9Challenge Die 18Challenge Die 29OutcomeWeak Hit
+From9To2New score9Challenge die 18Challenge die 29OutcomeWeak hit
 that's better...
 <br>```iron-vault-mechanics
 move "Face Danger" {
@@ -4132,7 +4604,7 @@ move "Face Danger" {
 }
 ```
 Copy]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/burn-momentum.html</link><guid isPermaLink="false">Commands/Burn momentum.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Create a clock]]></title><description><![CDATA[ 
- <br>Creates a <a data-tooltip-position="top" aria-label="Entities/Clocks" data-href="Entities/Clocks" href="https://iron-vault-plugin.github.io/iron-vault/entities/clocks.html" class="internal-link" target="_self" rel="noopener">Clock</a> file and appends a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `clock`" data-href="Mechanics Blocks#`clock`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`clock`" class="internal-link" target="_self" rel="noopener">`clock` mechanics node</a> to the current journal. The Clock file will have all necessary frontmatter for commands like <a data-href="Advance a clock" href="https://iron-vault-plugin.github.io/iron-vault/commands/advance-a-clock.html" class="internal-link" target="_self" rel="noopener">Advance a clock</a> to work.<br>This command will also write a <a data-tooltip-position="top" aria-label="Clock Blocks" data-href="Clock Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/clock-blocks.html" class="internal-link" target="_self" rel="noopener">Clock Block</a> to the newly-made Clock file:<br><br><br><br>ClockThe Doomsday Device ExplodesStatusaddedClockThe Doomsday Device ExplodesFrom3OutOfFrom6To5OutOfTo6<br>```iron-vault-mechanics
+ <br>Creates a <a data-tooltip-position="top" aria-label="Entities/Clocks" data-href="Entities/Clocks" href="https://iron-vault-plugin.github.io/iron-vault/entities/clocks.html" class="internal-link" target="_self" rel="noopener">Clock</a> file and appends a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `clock`" data-href="Mechanics Blocks#`clock`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`clock`" class="internal-link" target="_self" rel="noopener">`clock` mechanics node</a> to the current journal. The Clock file will have all necessary frontmatter for commands like <a data-href="Advance a clock" href="https://iron-vault-plugin.github.io/iron-vault/commands/advance-a-clock.html" class="internal-link" target="_self" rel="noopener">Advance a clock</a> to work.<br>This command will also write a <a data-tooltip-position="top" aria-label="Clock Blocks" data-href="Clock Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/clock-blocks.html" class="internal-link" target="_self" rel="noopener">Clock Block</a> to the newly-made Clock file:<br><br><br><br>ClockThe Doomsday Device ExplodesStatusaddedClockThe Doomsday Device ExplodesFrom3Out of from6To5Out of to6<br>```iron-vault-mechanics
 clock "The Doomsday Device Explodes" status="added"
 clock "The Doomsday Device Explodes" from=3 to=5 out-of=6
 ```
@@ -4155,7 +4627,7 @@ Doomsday Device<br><br>
         
       
     ]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/create-a-clock.html</link><guid isPermaLink="false">Commands/Create a clock.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Create a progress track]]></title><description><![CDATA[ 
- <br>Creates a <a data-tooltip-position="top" aria-label="Progress Tracks" data-href="Progress Tracks" href="https://iron-vault-plugin.github.io/iron-vault/entities/progress-tracks.html" class="internal-link" target="_self" rel="noopener">Progress Track</a> file and appends a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `track`" data-href="Mechanics Blocks#`track`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`track`" class="internal-link" target="_self" rel="noopener">`track` mechanics node</a> to the current journal. The Progress Track file will have all necessary frontmatter for commands like <a data-href="Advance a progress track" href="https://iron-vault-plugin.github.io/iron-vault/commands/advance-a-progress-track.html" class="internal-link" target="_self" rel="noopener">Advance a progress track</a> to work.<br>This command will also append a <a data-tooltip-position="top" aria-label="Track Blocks" data-href="Track Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/track-blocks.html" class="internal-link" target="_self" rel="noopener">Track Block</a> to the newly-made Progress Track file.<br><br><br><br>TrackMy Background VowStatusaddedTrack NameMy Background VowFrom Boxes3From Ticks2To Boxes4To Ticks1<br>```iron-vault-mechanics
+ <br>Creates a <a data-tooltip-position="top" aria-label="Progress Tracks" data-href="Progress Tracks" href="https://iron-vault-plugin.github.io/iron-vault/entities/progress-tracks.html" class="internal-link" target="_self" rel="noopener">Progress Track</a> file and appends a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `track`" data-href="Mechanics Blocks#`track`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`track`" class="internal-link" target="_self" rel="noopener">`track` mechanics node</a> to the current journal. The Progress Track file will have all necessary frontmatter for commands like <a data-href="Advance a progress track" href="https://iron-vault-plugin.github.io/iron-vault/commands/advance-a-progress-track.html" class="internal-link" target="_self" rel="noopener">Advance a progress track</a> to work.<br>This command will also append a <a data-tooltip-position="top" aria-label="Track Blocks" data-href="Track Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/track-blocks.html" class="internal-link" target="_self" rel="noopener">Track Block</a> to the newly-made Progress Track file.<br><br><br><br>TrackMy Background VowStatusaddedTrack nameMy Background VowFrom boxes3From ticks2To boxes4To ticks1<br>```iron-vault-mechanics
 track "My Background Vow" status="added"
 track "My Background Vow" from-boxes=3 from-ticks=2 to-boxes=4 to-ticks=1
 ```
@@ -4207,9 +4679,9 @@ Write the Docs<br><br>
  <br>Generates a new (PC) character with all the necessary frontmatter fields necessary for Iron Vault features like the <a data-href="Make a move" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a> and <a data-href="Add asset to character" href="https://iron-vault-plugin.github.io/iron-vault/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">Add asset to character</a> commands to work.<br>Additionally, it will write a <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">Character Block</a> character sheet to the file.<br><img alt="character-sheet.png" src="https://iron-vault-plugin.github.io/iron-vault/lib/media/character-sheet.png">]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/create-new-character.html</link><guid isPermaLink="false">Commands/Create new character.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate><enclosure url="https://iron-vault-plugin.github.io/iron-vault/lib/media/character-sheet.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://iron-vault-plugin.github.io/iron-vault/lib/media/character-sheet.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[Generate an entity]]></title><description><![CDATA[ 
  <br>This command is similar to <a data-href="Ask the Oracle" href="https://iron-vault-plugin.github.io/iron-vault/commands/ask-the-oracle.html" class="internal-link" target="_self" rel="noopener">Ask the Oracle</a>, except that instead of rolling a single Oracle, it pops up a window that will let you roll multiple related Oracles together to generate a new <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://iron-vault-plugin.github.io/iron-vault/entities/index.html" class="internal-link" target="_self" rel="noopener">Entity</a>. You can choose to roll all fields indicated as "first look" fields in the rulebook and/or you can roll individual fields. You can also choose whether to write the results into a new file representing that Entity. In any event, the rolls you choose will be logged in an <a data-tooltip-position="top" aria-label="Mechanics Blocks > oracle-group" data-href="Mechanics Blocks#oracle-group" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#oracle-group" class="internal-link" target="_self" rel="noopener">oracle group node</a> in your journal.<br>You can also execute this command by clicking on the button with a die icon that appears when you open a category in the <a data-tooltip-position="top" aria-label="Sidebar > Oracles Tab" data-href="Sidebar#Oracles Tab" href="https://iron-vault-plugin.github.io/iron-vault/other-features/sidebar.html#Oracles_Tab" class="internal-link" target="_self" rel="noopener">Sidebar's Oracles Tab</a>.<br>Only some Entities are currently supported, with more being added over time.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/generate-an-entity.html</link><guid isPermaLink="false">Commands/Generate an entity.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Thu, 20 Jun 2024 05:39:57 GMT</pubDate></item><item><title><![CDATA[Generate Truths]]></title><description><![CDATA[ 
  <br>Generates a <a data-href="Truths" href="https://iron-vault-plugin.github.io/iron-vault/entities/truths.html" class="internal-link" target="_self" rel="noopener">Truths</a> file with headers for each Truth in your current <a data-href="Rulesets and Homebrew" href="https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>, followed by corresponding <a data-href="Truth Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/truth-blocks.html" class="internal-link" target="_self" rel="noopener">Truth Blocks</a>.<br>See <a data-tooltip-position="top" aria-label="Truth Blocks > Example" data-href="Truth Blocks#Example" href="https://iron-vault-plugin.github.io/iron-vault/blocks/truth-blocks.html#Example" class="internal-link" target="_self" rel="noopener">the Truth Blocks example</a> for more information on how to interact with them once generated.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/generate-truths.html</link><guid isPermaLink="false">Commands/Generate Truths.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 22 Jun 2024 02:34:03 GMT</pubDate></item><item><title><![CDATA[Make a move]]></title><description><![CDATA[ 
- <br>Makes a Move based on the Moves available in the active <a data-tooltip-position="top" aria-label="Rulesets and Homebrew" data-href="Rulesets and Homebrew" href="https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>. If you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, rollable moves will use values from your character sheet for your Stats. Otherwise, it will prompt you for the relevant Stat value. It will also prompt you for which Stat to roll as necessary.<br>When the Move has been made, the command will add a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `move`" data-href="Mechanics Blocks#`move`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`move`" class="internal-link" target="_self" rel="noopener">`move` mechanics node</a> with the Move results into your current journal.<br>After it's made, you can also choose to invoke the <a data-href="Burn momentum" href="https://iron-vault-plugin.github.io/iron-vault/commands/burn-momentum.html" class="internal-link" target="_self" rel="noopener">Burn momentum</a> command.<br><br><br><br>Face DangerAction Die6Stat3Adds0Score9Challenge Die 18Challenge Die 29OutcomeWeak Hit
+ <br>Makes a Move based on the Moves available in the active <a data-tooltip-position="top" aria-label="Rulesets and Homebrew" data-href="Rulesets and Homebrew" href="https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>. If you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, rollable moves will use values from your character sheet for your Stats. Otherwise, it will prompt you for the relevant Stat value. It will also prompt you for which Stat to roll as necessary.<br>When the Move has been made, the command will add a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `move`" data-href="Mechanics Blocks#`move`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`move`" class="internal-link" target="_self" rel="noopener">`move` mechanics node</a> with the Move results into your current journal.<br>After it's made, you can also choose to invoke the <a data-href="Burn momentum" href="https://iron-vault-plugin.github.io/iron-vault/commands/burn-momentum.html" class="internal-link" target="_self" rel="noopener">Burn momentum</a> command.<br><br><br><br>Face DangerAction die6Stat3Adds0Score9Challenge die 18Challenge die 29OutcomeWeak hit
 ouch
-Endure HarmMeterhealthDelta1From3To2Action Die3Stat4Adds0Score7Challenge Die 13Challenge Die 25OutcomeStrong Hit<br>```iron-vault-mechanics
+Endure HarmMeterhealthDelta1From3To2Action die3Stat4Adds0Score7Challenge die 13Challenge die 25OutcomeStrong hit<br>```iron-vault-mechanics
 move "Face Danger" {
     roll action=6 stat=3 adds=0 vs1=8 vs2=9
     - "ouch"
@@ -4219,11 +4691,15 @@ move "Endure Harm" {
     roll action=3 stat=4 adds=0 vs1=3 vs2=5
 }
 ```
-Copy<br><br>For some moves, like suffer moves, making a roll is sometimes optional. In those cases, you can still<br>
-record that you made the move by selecting "Skip roll" when you are prompted for the stat. This will<br>
-record an empty move block, where you can then record your meter changes and so on.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html</link><guid isPermaLink="false">Commands/Make a move.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 30 Jun 2024 17:36:32 GMT</pubDate></item><item><title><![CDATA[Open documentation in a tab]]></title><description><![CDATA[ 
+Copy<br><br>For some moves, like suffer moves, making a roll is sometimes optional. In those cases, you can still record that you made the move by selecting "Skip roll" when you are prompted for the stat. This will record an empty move block, where you can then record your meter changes and so on.<br>If you then wish to add an action roll, you can run <a data-href="Make an action roll" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-an-action-roll.html" class="internal-link" target="_self" rel="noopener">Make an action roll</a>. As long as the move with the skipped roll is still the last entry in the preceding mechanics block, the roll will be added to that move, after all other children.<br>You can use this process to create the Endure Harm node as above:<br>
+<br><a data-href="Make a move" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a> with "Endure Harm", picking "Skip roll" as the rollable stat when prompted.
+<br>Use other commands, such as <a data-href="Suffer on a meter" href="https://iron-vault-plugin.github.io/iron-vault/commands/suffer-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Suffer on a meter</a>, to add other entries to the Endure Harm node.
+<br>Finally, if you decide you wish to make the Endure Harm roll, run <a data-href="Make an action roll" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-an-action-roll.html" class="internal-link" target="_self" rel="noopener">Make an action roll</a>. It will detect that the last move was Endure Harm and prompt you appropriately. The roll will be added to your Endure Harm block!
+]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html</link><guid isPermaLink="false">Commands/Make a move.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Mon, 01 Jul 2024 23:27:51 GMT</pubDate></item><item><title><![CDATA[Make an action roll]]></title><description><![CDATA[ 
+ <br>Action die6Stat2Stat nameedgeAdds0Score8Challenge die 19Challenge die 25OutcomeWeak hit<br>If you Make an action roll right after an empty move, Make an action roll will add the roll to that move, rather than making it a freestanding top-level entry. As described in <a data-href="Make a move#Skipping action move rolls" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html#Skipping_action_move_rolls" class="internal-link" target="_self" rel="noopener">Make a move &gt; Skipping action move rolls</a>, this is useful for using suffer moves like "Endure Harm", if you wish to record the meter change under the move heading and then decide whether you want to make the roll to prevent the harm.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/make-an-action-roll.html</link><guid isPermaLink="false">Commands/Make an action roll.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 06 Jul 2024 17:05:58 GMT</pubDate></item><item><title><![CDATA[Open documentation in a tab]]></title><description><![CDATA[ 
  <br>Running this command will open the Iron Vault documentation (at <a data-tooltip-position="top" aria-label="index" data-href="index" href="https://iron-vault-plugin.github.io/iron-vault/index.html" class="internal-link" target="_self" rel="noopener">Home</a>) in a new Obsidian tab, keeping everything right within Obsidian.<br>To open docs in a browser, you can use the <a data-href="Open documentation in your browser" href="https://iron-vault-plugin.github.io/iron-vault/commands/open-documentation-in-your-browser.html" class="internal-link" target="_self" rel="noopener">Open documentation in your browser</a> command.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/open-documentation-in-a-tab.html</link><guid isPermaLink="false">Commands/Open documentation in a tab.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 18 Jun 2024 02:06:27 GMT</pubDate></item><item><title><![CDATA[Open documentation in your browser]]></title><description><![CDATA[ 
- <br>Opens the Iron Vault documentation (at <a data-tooltip-position="top" aria-label="index" data-href="index" href="https://iron-vault-plugin.github.io/iron-vault/index.html" class="internal-link" target="_self" rel="noopener">Home</a>) in your default browser.<br>If you want to stay inside Obsidian, you can instead open the docs in a new tab using the <a data-href="Open documentation in a tab" href="https://iron-vault-plugin.github.io/iron-vault/commands/open-documentation-in-a-tab.html" class="internal-link" target="_self" rel="noopener">Open documentation in a tab</a> command.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/open-documentation-in-your-browser.html</link><guid isPermaLink="false">Commands/Open documentation in your browser.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 18 Jun 2024 02:06:27 GMT</pubDate></item><item><title><![CDATA[Show all commands]]></title><description><![CDATA[ 
+ <br>Opens the Iron Vault documentation (at <a data-tooltip-position="top" aria-label="index" data-href="index" href="https://iron-vault-plugin.github.io/iron-vault/index.html" class="internal-link" target="_self" rel="noopener">Home</a>) in your default browser.<br>If you want to stay inside Obsidian, you can instead open the docs in a new tab using the <a data-href="Open documentation in a tab" href="https://iron-vault-plugin.github.io/iron-vault/commands/open-documentation-in-a-tab.html" class="internal-link" target="_self" rel="noopener">Open documentation in a tab</a> command.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/open-documentation-in-your-browser.html</link><guid isPermaLink="false">Commands/Open documentation in your browser.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 18 Jun 2024 02:06:27 GMT</pubDate></item><item><title><![CDATA[Pick active character]]></title><description><![CDATA[ 
+ <br>This command will open up a menu that will allow you to change the current active <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://iron-vault-plugin.github.io/iron-vault/entities/characters.html" class="internal-link" target="_self" rel="noopener">Character</a> when multiple characters are present in a vault.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/pick-active-character.html</link><guid isPermaLink="false">Commands/Pick active character.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 06 Jul 2024 17:05:58 GMT</pubDate></item><item><title><![CDATA[Show all commands]]></title><description><![CDATA[ 
  <br>This command invokes popup window with a list of Iron Vault commands only. It's like the regular command picker, but only for Iron Vault commands.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/show-all-commands.html</link><guid isPermaLink="false">Commands/Show all commands.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 06:10:20 GMT</pubDate></item><item><title><![CDATA[Show sidebar]]></title><description><![CDATA[ 
  <br>This command opens and focuses the Iron Vault <a data-href="Sidebar" href="https://iron-vault-plugin.github.io/iron-vault/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener">Sidebar</a>.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/commands/show-sidebar.html</link><guid isPermaLink="false">Commands/Show sidebar.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 06:10:20 GMT</pubDate></item><item><title><![CDATA[Suffer on a meter]]></title><description><![CDATA[ 
  <br>Reduces one of your Meters by a certain amount, then records the results in your current journal as a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `meter`" data-href="Mechanics Blocks#`meter`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`meter`" class="internal-link" target="_self" rel="noopener">`meter` mechanics node</a>.<br>This command can only be used when you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, and thus requires an actual <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://iron-vault-plugin.github.io/iron-vault/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a> to work at all.<br>If you don't want to use the Character System but still want to record suffering on a meter, you can write the <a data-tooltip-position="top" aria-label="Mechanics Blocks > `meter`" data-href="Mechanics Blocks#`meter`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`meter`" class="internal-link" target="_self" rel="noopener">`meter` mechanics node</a> directly into your journal.<br><br><br><br>MeterhealthDelta1From3To2MeterhealthDelta2From2To4<br>```iron-vault-mechanics
@@ -4375,8 +4851,7 @@ Copy]]></description><link>https://iron-vault-plugin.github.io/iron-vault/comman
 <br>Using the <a data-href="Add asset to character" href="https://iron-vault-plugin.github.io/iron-vault/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">Add asset to character</a> command.
 <br>Click on the Add Asset button in the <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">Character Sheet</a>
 <br>Both of these methods will add the asset directly to your character sheet. The first method will also add a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `asset`" data-href="Mechanics Blocks#`asset`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`asset`" class="internal-link" target="_self" rel="noopener">mechanics block `asset` node</a> to your journal denoting that an asset was added.<br>Once you have an asset in your character sheet, you can remove it by clicking the "x" button on the top right of the asset.<br>You can also reorder assets by going to your character sheet's asset section and click-dragging the top section of the asset card then dropping it in the spot you want it to move to.<br>When in your character sheet, you can edit all option fields of your assets, such as a name if the asset calls for one, or picking an associated stat. You can also mark of unmark abilities by clicking on the hexagon next to them.<br><br>You can link to an asset's definition card using <a data-tooltip-position="top" aria-label="Special Links > Assets" data-href="Special Links#Assets" href="https://iron-vault-plugin.github.io/iron-vault/other-features/special-links.html#Assets" class="internal-link" target="_self" rel="noopener">`asset:` links</a>. When clicked, these links will open a popup window with a read-only, default version of the asset for reference.<br><br>You can embed an asset's read-only card using <a data-href="Asset Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/asset-blocks.html" class="internal-link" target="_self" rel="noopener">Asset Blocks</a>. These blocks will not be associated with your character's assets and are only for reference of the original asset definition.<br><br>(Coming Soon)<br>In the future, Iron Vault will support custom <a data-href="Rulesets and Homebrew" href="https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>, including individual homebrew assets.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/entities/assets.html</link><guid isPermaLink="false">Entities/Assets.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 28 Jun 2024 19:27:05 GMT</pubDate></item><item><title><![CDATA[Characters]]></title><description><![CDATA[ 
- <br>Iron Vault supports maintaining a character sheet for your main character. This character sheet is expected to have <a data-tooltip-position="top" aria-label="schema" data-href="#schema" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#schema" class="internal-link" target="_self" rel="noopener">certain metadata</a> that, when present, unlocks various features like automatically <a data-tooltip-position="top" aria-label="Make a move" data-href="Make a move" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">adding your stats to rolls</a>, <a data-tooltip-position="top" aria-label="Add asset to character" data-href="Add asset to character" href="https://iron-vault-plugin.github.io/iron-vault/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">managing your assets</a>, and even <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">rendering a nice graphical character sheet</a>.<br>As long as you have the schema in frontmatter, you can put anything you want in your character file. Even the graphical character sheet is optional. The file is a normal file so you can take any notes you want. The main catch is that you can only have one character per file.<br>You can create a new character by using the <a data-href="Create new character" href="https://iron-vault-plugin.github.io/iron-vault/commands/create-new-character.html" class="internal-link" target="_self" rel="noopener">Create new character</a> command and then filling in the resulting character sheet.<br>(Coming Soon)<br>
-For now, Iron Vault only supports one character per vault. Future updates will add support for multi-campaign vaults, and multi-character campaigns.<br><br><img alt="character-sheet.png" src="https://iron-vault-plugin.github.io/iron-vault/lib/media/character-sheet.png" style="width: 400px; max-width: 100%;"><br><br>The following schema describes the expected structure of character file frontmatter in order for Iron Vault to be able to treat it as a character. It is automatically generated by the <a data-href="Create new character" href="https://iron-vault-plugin.github.io/iron-vault/commands/create-new-character.html" class="internal-link" target="_self" rel="noopener">Create new character</a> command. It can be modified by direct interaction with a <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">Character Block</a>, or using the <a data-href="Take on a meter" href="https://iron-vault-plugin.github.io/iron-vault/commands/take-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Take on a meter</a>, <a data-href="Suffer on a meter" href="https://iron-vault-plugin.github.io/iron-vault/commands/suffer-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Suffer on a meter</a>, and <a data-href="Add asset to character" href="https://iron-vault-plugin.github.io/iron-vault/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">Add asset to character</a> commands.<br>]]></description><link>https://iron-vault-plugin.github.io/iron-vault/entities/characters.html</link><guid isPermaLink="false">Entities/Characters.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate><enclosure url="https://iron-vault-plugin.github.io/iron-vault/lib/media/character-sheet.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://iron-vault-plugin.github.io/iron-vault/lib/media/character-sheet.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[Clocks]]></title><description><![CDATA[ 
+ <br>Iron Vault supports maintaining character sheets for your player character. This character sheet is expected to have <a data-tooltip-position="top" aria-label="schema" data-href="#schema" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#schema" class="internal-link" target="_self" rel="noopener">certain metadata</a> that, when present, unlocks various features like automatically <a data-tooltip-position="top" aria-label="Make a move" data-href="Make a move" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">adding your stats to rolls</a>, <a data-tooltip-position="top" aria-label="Add asset to character" data-href="Add asset to character" href="https://iron-vault-plugin.github.io/iron-vault/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">managing your assets</a>, and even <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">rendering a nice graphical character sheet</a>.<br>As long as you have the schema in frontmatter, you can put anything you want in your character file. Even the graphical character sheet is optional. The file is a normal file so you can take any notes you want. The main catch is that you can only have one character per file.<br>You can create a new character by using the <a data-href="Create new character" href="https://iron-vault-plugin.github.io/iron-vault/commands/create-new-character.html" class="internal-link" target="_self" rel="noopener">Create new character</a> command and then filling in the resulting character sheet.<br>Iron Vault supports multiple characters per vault. By default, most actions will use the current "active" character as the actor for, say, moves or oracles. You can switch active characters using the <a data-href="Pick active character" href="https://iron-vault-plugin.github.io/iron-vault/commands/pick-active-character.html" class="internal-link" target="_self" rel="noopener">Pick active character</a>. You can also enable the Always prompt for active character setting in <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">General Settings</a>, to have Iron Vault ask you every time, though this might get noisy.<br><br><img alt="character-sheet.png" src="https://iron-vault-plugin.github.io/iron-vault/lib/media/character-sheet.png" style="width: 400px; max-width: 100%;"><br><br>The following schema describes the expected structure of character file frontmatter in order for Iron Vault to be able to treat it as a character. It is automatically generated by the <a data-href="Create new character" href="https://iron-vault-plugin.github.io/iron-vault/commands/create-new-character.html" class="internal-link" target="_self" rel="noopener">Create new character</a> command. It can be modified by direct interaction with a <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">Character Block</a>, or using the <a data-href="Take on a meter" href="https://iron-vault-plugin.github.io/iron-vault/commands/take-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Take on a meter</a>, <a data-href="Suffer on a meter" href="https://iron-vault-plugin.github.io/iron-vault/commands/suffer-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Suffer on a meter</a>, and <a data-href="Add asset to character" href="https://iron-vault-plugin.github.io/iron-vault/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">Add asset to character</a> commands.<br>]]></description><link>https://iron-vault-plugin.github.io/iron-vault/entities/characters.html</link><guid isPermaLink="false">Entities/Characters.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 06 Jul 2024 17:05:58 GMT</pubDate><enclosure url="https://iron-vault-plugin.github.io/iron-vault/lib/media/character-sheet.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://iron-vault-plugin.github.io/iron-vault/lib/media/character-sheet.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[Clocks]]></title><description><![CDATA[ 
  <br>Starforged introduced a mechanic called "clocks", which Iron Vault has direct support for. There are two main types of clock: Tension Clocks, and Campaign Clocks. Both are represented by a single "Clock" entity in Iron Vault, and it does not distinguish between them. Clocks are managed/advanced manually.<br>You can create a clock using the <a data-href="Create a clock" href="https://iron-vault-plugin.github.io/iron-vault/commands/create-a-clock.html" class="internal-link" target="_self" rel="noopener">Create a clock</a> command. To advance the clock and record the step in your journal, use the <a data-href="Advance a clock" href="https://iron-vault-plugin.github.io/iron-vault/commands/advance-a-clock.html" class="internal-link" target="_self" rel="noopener">Advance a clock</a> command. You can also click on the clock itself, but that will not update your journal automatically.<br><br>Doomsday Device<br><br>
       
         
@@ -4404,9 +4879,9 @@ For now, Iron Vault only supports one character per vault. Future updates will a
 <br>Find your desired Move on the <a data-href="Sidebar" href="https://iron-vault-plugin.github.io/iron-vault/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener">Sidebar</a>'s Moves tab and click on it to execute it.
 <br>Roll the Move yourself with your physical dice or preferred dice roller and record the results in a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `move`" data-href="Mechanics Blocks#`move`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`move`" class="internal-link" target="_self" rel="noopener">`move` mechanics block node</a>.
 <br>The first two will automatically create move mechanics nodes in your active journal note.<br><br>You can record your moves as a regular part of the narrative in your journal in any format you want, or you can use the <a data-tooltip-position="top" aria-label="Mechanics Blocks > `move`" data-href="Mechanics Blocks#`move`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`move`" class="internal-link" target="_self" rel="noopener">`move` mechanics block node</a> to have the move rendered nicely, showing the results and such. <a data-href="Make a move" href="https://iron-vault-plugin.github.io/iron-vault/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a> will automatically generate move blocks for you.<br>
-<br><br><br>Face DangerAction Die6Stat3Adds0Score9Challenge Die 18Challenge Die 29OutcomeWeak Hit
+<br><br><br>Face DangerAction die6Stat3Adds0Score9Challenge die 18Challenge die 29OutcomeWeak hit
 ouch
-Endure HarmMeterhealthDelta1From3To2Action Die3Stat4Adds0Score7Challenge Die 13Challenge Die 25OutcomeStrong Hit<br>```iron-vault-mechanics
+Endure HarmMeterhealthDelta1From3To2Action die3Stat4Adds0Score7Challenge die 13Challenge die 25OutcomeStrong hit<br>```iron-vault-mechanics
 move "Face Danger" {
     roll action=6 stat=3 adds=0 vs1=8 vs2=9
     - "ouch"
@@ -4422,7 +4897,7 @@ Copy]]></description><link>https://iron-vault-plugin.github.io/iron-vault/entiti
 <br>Use the <a data-href="Ask the Oracle" href="https://iron-vault-plugin.github.io/iron-vault/commands/ask-the-oracle.html" class="internal-link" target="_self" rel="noopener">Ask the Oracle</a> command.
 <br>Find the Oracle on the <a data-href="Sidebar" href="https://iron-vault-plugin.github.io/iron-vault/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener">Sidebar</a>'s Oracles tab and either click on the Oracle itself, or click on the dice icon in order to view its roll table in a popup window. You can also use these to roll oracle groups/Entities.
 <br>Manually roll the oracle using whatever reference you have and your preferred dice roller, or physical dice, and record the results in your journal using <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle`" data-href="Mechanics Blocks#`oracle`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`oracle`" class="internal-link" target="_self" rel="noopener">`oracle`</a> and <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle-group`" data-href="Mechanics Blocks#`oracle-group`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`oracle-group`" class="internal-link" target="_self" rel="noopener">`oracle-group`</a> <a data-href="Mechanics Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a> nodes.
-<br>The first two options will automatically record your oracle results in your active journal note.<br><br>You can record the results in your journal using <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle`" data-href="Mechanics Blocks#`oracle`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`oracle`" class="internal-link" target="_self" rel="noopener">`oracle`</a> and <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle-group`" data-href="Mechanics Blocks#`oracle-group`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`oracle-group`" class="internal-link" target="_self" rel="noopener">`oracle-group`</a> <a data-href="Mechanics Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a> nodes, which will be rendered nicely in your journal pages.<br><br><br><br>Character NamenameGiven Nameroll30resultErennameCallsignroll72resultRooknameFamily Nameroll42resultBridger<br>```iron-vault-mechanics
+<br>The first two options will automatically record your oracle results in your active journal note.<br><br>You can record the results in your journal using <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle`" data-href="Mechanics Blocks#`oracle`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`oracle`" class="internal-link" target="_self" rel="noopener">`oracle`</a> and <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle-group`" data-href="Mechanics Blocks#`oracle-group`" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html#`oracle-group`" class="internal-link" target="_self" rel="noopener">`oracle-group`</a> <a data-href="Mechanics Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a> nodes, which will be rendered nicely in your journal pages.<br><br><br><br>Character NameNameGiven NameRoll30ResultErenNameCallsignRoll72ResultRookNameFamily NameRoll42ResultBridger<br>```iron-vault-mechanics
 oracle-group "Character Name" {
   oracle "Given Name" roll=30 result="Eren"
   oracle "Callsign" roll=72 result="Rook"
@@ -4601,7 +5076,8 @@ Copy<br>The level you set is stored in browser localStorage, so it is preserved 
 <br>verbose
 <br>debug
 <br>silly
-]]></description><link>https://iron-vault-plugin.github.io/iron-vault/other-features/debug-logging.html</link><guid isPermaLink="false">Other Features/Debug Logging.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 20:13:38 GMT</pubDate></item><item><title><![CDATA[Other Features]]></title><description><![CDATA[ 
+]]></description><link>https://iron-vault-plugin.github.io/iron-vault/other-features/debug-logging.html</link><guid isPermaLink="false">Other Features/Debug Logging.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 20:13:38 GMT</pubDate></item><item><title><![CDATA[Multiplayer]]></title><description><![CDATA[ 
+ <br>Iron Vault supports multiple characters per vault, which means it's possible to play multiplayer campaigns. Each player can have a different "active" character, and their actions will be based around that character.<br>In order to play with multiple players, you will also need some method of synchronizing your vault across multiple machines. Currently, none of the available alternatives support showing cursors of other players, or true realtime sync. There's always a slight delay. Most offerings support some sort of conflict resolution/merging for when two players are editing the same note.<br>The following are the current tested options for cross-player synchronization:<br><br><a data-tooltip-position="top" aria-label="https://obsidian.md/sync" rel="noopener" class="external-link" href="https://obsidian.md/sync" target="_blank">Obsidian Sync</a> is Obsidian's official sync product. It's a paid product, and all the players would need an active account in order to play. Subscriptions start at $4-$5/mo for one "hosted" vault per player (that is, one of each player can host a different campaign, since inviting others to your vault doesn't count against your limit), or $8-$10 for 10 vaults per player.<br>While it's a paid product, Obsidian Sync is the easiest to get working across platforms, and the most effective and fastest at synchronization.<br>Sharing a single Obsidian Sync account between all players and splitting the costs (or having one person shoulder them) is against Obsidian's terms of service, which prohibit account sharing.<br>It is likely Obsidian Sync will eventually support multiple cursors and more realtime document editing like in Google Docs. But it's not in the near-future roadmap.<br><br>The <a data-tooltip-position="top" aria-label="https://github.com/vrtmrz/obsidian-livesync" rel="noopener" class="external-link" href="https://github.com/vrtmrz/obsidian-livesync" target="_blank">Self-hosted LiveSync</a> plugin is a cheaper alternative to native Obsidian Sync. It's not as smooth an experience, but is well documented as far as setting up the hosted server.<br>Like Obsidian Sync, it supports smart conflict merging if multiple players are editing the same note at the same time, and reasonably-fast live updates.<br>This solution is best for folks with some technical ability or experience, or those who are willing to take the time to learn and deal with unexpected issues.<br><br>The <a data-tooltip-position="top" aria-label="https://github.com/remotely-save/remotely-save" rel="noopener" class="external-link" href="https://github.com/remotely-save/remotely-save" target="_blank">Remotely Save</a> plugin is a viable alternative for synchronization, and can be fully free. Unfortunately, you either have to wait one minute for it to sync remote changes, or run a sync manually. This can be workable if you're, say, on a video call where a screen is being shared and don't need constant updates, for example if you have a single note taker.<br>You will still need some kind of cloud hosting service, and those often cost money. A dedicated account for OneDrive, though, is free and viable.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/other-features/multiplayer.html</link><guid isPermaLink="false">Other Features/Multiplayer.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 06 Jul 2024 17:05:58 GMT</pubDate></item><item><title><![CDATA[Other Features]]></title><description><![CDATA[ 
  <br>Iron Vault supports a number of other features:<br>list from "Other Features" where file.name != "index"
 Copy]]></description><link>https://iron-vault-plugin.github.io/iron-vault/other-features/index.html</link><guid isPermaLink="false">Other Features/index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 18 Jun 2024 02:06:27 GMT</pubDate></item><item><title><![CDATA[Ribbon Button]]></title><description><![CDATA[ 
  <br>Iron Vault installs a button in the <a data-tooltip-position="top" aria-label="https://help.obsidian.md/User+interface/Ribbon" rel="noopener" class="external-link" href="https://help.obsidian.md/User+interface/Ribbon" target="_blank">Obsidian Ribbon</a> with a hexagon-with-checkmark icon. Clicking on this button calls the <a data-href="Show all commands" href="https://iron-vault-plugin.github.io/iron-vault/commands/show-all-commands.html" class="internal-link" target="_self" rel="noopener">Show all commands</a> command, letting you pick from a filtered list of all Iron Vault commands.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/other-features/ribbon-button.html</link><guid isPermaLink="false">Other Features/Ribbon Button.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 09 Jun 2024 06:35:14 GMT</pubDate></item><item><title><![CDATA[Rulesets and Homebrew]]></title><description><![CDATA[ 
@@ -4613,6 +5089,7 @@ The Datasworn Sundered Isles data is considered a preview, awaiting finalization
 <br><br>Iron Vault supports custom homebrew rules packages. In the future, we will add additional mechanisms for easily adding things like oracles, moves, and assets in simpler Markdown format.<br><br>Custom rules packages can be loaded from JSON files following the <a data-tooltip-position="top" aria-label="https://github.com/rsek/datasworn" rel="noopener" class="external-link" href="https://github.com/rsek/datasworn" target="_blank">Datasworn</a> specification. Files must be in a format compatible with the Datasworn 0.1.0 release. For more information on Datasworn versions, see <a data-href="Data versions and vault migration" href="https://iron-vault-plugin.github.io/iron-vault/other-features/data-versions-and-vault-migration.html" class="internal-link" target="_self" rel="noopener">Data versions and vault migration</a>.<br>To enable this, put your homebrew content in a folder in your vault. In settings, turn on Enable Homebrew content in Settings and set Homebrew content folder to the folder with your content.<br>Note that, in addition, you might need to enable Settings &gt; Files and links &gt; Detect all file extensions in order for .json files to show up in your vault. The file will be there, you just won't see it.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html</link><guid isPermaLink="false">Other Features/Rulesets and Homebrew.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 30 Jun 2024 20:02:13 GMT</pubDate></item><item><title><![CDATA[Settings]]></title><description><![CDATA[ 
  <br> Iron Vault includes various settings for tweaking the behavior of its features, to allow you to shape it into a better tool for your use case.<br><br>
 <br>Use character system: when enabled, this will look for an active <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://iron-vault-plugin.github.io/iron-vault/entities/characters.html" class="internal-link" target="_self" rel="noopener">Character</a> file when making moves and doing other game operations. If disabled, Iron Vault will still work, but will prompt you for values of, for example, your stats. This is a good setting to disable if you only wish to use a particular subset of Iron Vault features, like <a data-href="Mechanics Blocks" href="https://iron-vault-plugin.github.io/iron-vault/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a> or the <a data-href="Sidebar" href="https://iron-vault-plugin.github.io/iron-vault/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener">Sidebar</a> but don't really care to use the various <a data-tooltip-position="top" aria-label="Commands/index" data-href="Commands/index" href="https://iron-vault-plugin.github.io/iron-vault/commands/index.html" class="internal-link" target="_self" rel="noopener">Commands</a>.
+<br>Always prompt for active character: If enabled, the plugin will always prompt when taking an action where an active character is required, if there are multiple characters in the campaign. Otherwise, it will remember the last used active character. You can also change the active character with the <a data-href="Pick active character" href="https://iron-vault-plugin.github.io/iron-vault/commands/pick-active-character.html" class="internal-link" target="_self" rel="noopener">Pick active character</a> command.
 <br>Reset to default: returns all settings to their default values.
 <br><br>You must load a single complete base ruleset for functionality like characters to function properly. It is currently possible to load multiple rulesets at once, but this may behave in unexpected ways.<br>For more on rulesets, see <a data-href="Rulesets and Homebrew" href="https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>.<br>
 <br>Enable Ironsworn ruleset: when enabled, the Ironsworn base ruleset will be loaded.
@@ -4637,7 +5114,7 @@ The Datasworn Sundered Isles data is considered a preview, awaiting finalization
 <br>Show mechanics toggle: when enabled, mechanics blocks will have a small "Hide mechanics" toggle underneath them that, when clicked, will hide the mechanics block.
 <br>Hide mechanics completely: If enabled, mechanics blocks will not be displayed at all. Good for when you just want to read a story. You can also toggle this setting by using the <a data-href="Toggle displaying mechanics" href="https://iron-vault-plugin.github.io/iron-vault/commands/toggle-displaying-mechanics.html" class="internal-link" target="_self" rel="noopener">Toggle displaying mechanics</a> command.
 <br>Inline tracks on clock creation: If enabled, new tracks and clocks will be automatically inlined in the journal when created.
-]]></description><link>https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html</link><guid isPermaLink="false">Other Features/Settings.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 30 Jun 2024 20:54:13 GMT</pubDate></item><item><title><![CDATA[Sidebar]]></title><description><![CDATA[ 
+]]></description><link>https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html</link><guid isPermaLink="false">Other Features/Settings.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 06 Jul 2024 17:05:58 GMT</pubDate></item><item><title><![CDATA[Sidebar]]></title><description><![CDATA[ 
  <br>Iron Vault includes a Sidebar that can be opened by invoking the <a data-href="Show sidebar" href="https://iron-vault-plugin.github.io/iron-vault/commands/show-sidebar.html" class="internal-link" target="_self" rel="noopener">Show sidebar</a> command, or clicking on the hexagon-with-checkmark icon in the <a data-tooltip-position="top" aria-label="https://help.obsidian.md/User+interface/Ribbon" rel="noopener" class="external-link" href="https://help.obsidian.md/User+interface/Ribbon" target="_blank">Obsidian Ribbon</a> and selecting the <a data-href="Show sidebar" href="https://iron-vault-plugin.github.io/iron-vault/commands/show-sidebar.html" class="internal-link" target="_self" rel="noopener">Show sidebar</a> command from the list. Launching the sidebar will make it available on the <a data-tooltip-position="top" aria-label="https://help.obsidian.md/User+interface/Sidebar" rel="noopener" class="external-link" href="https://help.obsidian.md/User+interface/Sidebar" target="_blank">right-hand Obsidian Sidebar</a>. On mobile, you can then access it simply by swiping left as-needed.<br>The Iron Vault Sidebar then has three tabs providing some handy quick-access features:<br>
 <br><a data-href="#Oracle Tab" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#Oracle_Tab" class="internal-link" target="_self" rel="noopener">Oracle Tab</a>
 <br><a data-href="#Move Tab" href="https://iron-vault-plugin.github.io/iron-vault/about:blank#Move_Tab" class="internal-link" target="_self" rel="noopener">Move Tab</a>
@@ -4754,6 +5231,7 @@ What's this? Well, that's a <a data-tooltip-position="top" aria-label="Mechanics
 <br><a data-tooltip-position="top" aria-label="Blocks/index" data-href="Blocks/index" href="https://iron-vault-plugin.github.io/iron-vault/blocks/index.html" class="internal-link" target="_self" rel="noopener">Blocks</a> - Special blocks used throughout the tool to render things nicely and give you handy interactive widgets for editing game data.
 <br><a data-tooltip-position="top" aria-label="Commands/index" data-href="Commands/index" href="https://iron-vault-plugin.github.io/iron-vault/commands/index.html" class="internal-link" target="_self" rel="noopener">Commands</a> - Various Obsidian commands, all of which can be bound to hotkeys or the quick access bar, for performing all sorts of game actions, like making moves, creating progress tracks, etc.
 <br><a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://iron-vault-plugin.github.io/iron-vault/entities/index.html" class="internal-link" target="_self" rel="noopener">Entities</a> - How Iron Vault represents all sorts of different game concepts, or some ways that you might choose to represent them yourself.
+<br><a data-href="Multiplayer" href="https://iron-vault-plugin.github.io/iron-vault/other-features/multiplayer.html" class="internal-link" target="_self" rel="noopener">Multiplayer</a> - Play online or locally with other players!
 <br><a data-href="Sidebar" href="https://iron-vault-plugin.github.io/iron-vault/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener">Sidebar</a> - A handy right-panel sidebar for quick access to Moves, Oracles, and your Character Sheet, all in one, easy-access place. Particularly useful on mobile.
 <br><a data-href="Special Links" href="https://iron-vault-plugin.github.io/iron-vault/other-features/special-links.html" class="internal-link" target="_self" rel="noopener">Special Links</a> - There are special external links that, instead of trying to open a web page, will open a modal window with the contents of the thing you're trying to link to. For example, [My Move](move:MyMoveName) will pop up a window with the description and roll buttons for "My Move".
 <br><a data-href="CSS Tweaks" href="https://iron-vault-plugin.github.io/iron-vault/other-features/css-tweaks.html" class="internal-link" target="_self" rel="noopener">CSS Tweaks</a> - Styling tweaks to make some things look nicer or more customized, such as the iron-vault-embed option for inlining embeds.
@@ -4761,4 +5239,4 @@ What's this? Well, that's a <a data-tooltip-position="top" aria-label="Mechanics
 <br><a data-tooltip-position="top" aria-label="Rulesets and Homebrew > Homebrew" data-href="Rulesets and Homebrew#Homebrew" href="https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html#Homebrew" class="internal-link" target="_self" rel="noopener">Homebrew</a> - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the <a data-tooltip-position="top" aria-label="https://github.com/rsek/datasworn" rel="noopener" class="external-link" href="https://github.com/rsek/datasworn" target="_blank">Datasworn</a> data model.
 <br><a data-href="Settings" href="https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html" class="internal-link" target="_self" rel="noopener">Settings</a> - Various configurations available to tweak your Iron Vault experience.
 <br><a data-href="API" href="https://iron-vault-plugin.github.io/iron-vault/other-features/api.html" class="internal-link" target="_self" rel="noopener">API</a> - (Coming Soon) Are you a developer? We expose the plugin for easy access, for folks who want to do fancier things with Iron Vault features.
-<br><br>For now, the easiest way to install is via <a data-tooltip-position="top" aria-label="https://tfthacker.com/brat-plugins" rel="noopener" class="external-link" href="https://tfthacker.com/brat-plugins" target="_blank">BRAT</a>. You should be able to add this repo to BRAT, and it will install the latest release of this plugin<br>You can also install it manually by downloading the latest files from <a data-tooltip-position="top" aria-label="https://github.com/iron-vault-plugin/iron-vault/releases/latest" rel="noopener" class="external-link" href="https://github.com/iron-vault-plugin/iron-vault/releases/latest" target="_blank">Github Release</a>. You'll want to put main.js, manifest.json, and styles.css in your-vault/.obsidian/plugins/iron-vault.<br>To build the code and copy it to your vault yourself, run pnpm build to generate the production files, which will be in the repo root. You can then copy these to the location above.<br>You should then be able to enable the plugin in your vault (after restarting/reloading Obsidian).<br><br>Iron Vault is a community project built by players, for players, and we welcome contributions! Please see <a data-tooltip-position="top" aria-label="https://github.com/iron-vault-plugin/iron-vault/blob/main/README.md" rel="noopener" class="external-link" href="https://github.com/iron-vault-plugin/iron-vault/blob/main/README.md" target="_blank">CONTRIBUTING.md</a> for details.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/index.html</link><guid isPermaLink="false">index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 30 Jun 2024 20:13:34 GMT</pubDate><enclosure url="https://iron-vault-plugin.github.io/iron-vault/support/img/iron-vault-screenshot.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://iron-vault-plugin.github.io/iron-vault/support/img/iron-vault-screenshot.png"&gt;&lt;/figure&gt;</content:encoded></item></channel></rss>
+<br><br>For now, the easiest way to install is via <a data-tooltip-position="top" aria-label="https://tfthacker.com/brat-plugins" rel="noopener" class="external-link" href="https://tfthacker.com/brat-plugins" target="_blank">BRAT</a>. You should be able to add this repo to BRAT, and it will install the latest release of this plugin<br>You can also install it manually by downloading the latest files from <a data-tooltip-position="top" aria-label="https://github.com/iron-vault-plugin/iron-vault/releases/latest" rel="noopener" class="external-link" href="https://github.com/iron-vault-plugin/iron-vault/releases/latest" target="_blank">Github Release</a>. You'll want to put main.js, manifest.json, and styles.css in your-vault/.obsidian/plugins/iron-vault.<br>To build the code and copy it to your vault yourself, run pnpm build to generate the production files, which will be in the repo root. You can then copy these to the location above.<br>You should then be able to enable the plugin in your vault (after restarting/reloading Obsidian).<br><br>Iron Vault is a community project built by players, for players, and we welcome contributions! Please see <a data-tooltip-position="top" aria-label="https://github.com/iron-vault-plugin/iron-vault/blob/main/README.md" rel="noopener" class="external-link" href="https://github.com/iron-vault-plugin/iron-vault/blob/main/README.md" target="_blank">CONTRIBUTING.md</a> for details.]]></description><link>https://iron-vault-plugin.github.io/iron-vault/index.html</link><guid isPermaLink="false">index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 06 Jul 2024 17:05:58 GMT</pubDate><enclosure url="https://iron-vault-plugin.github.io/iron-vault/support/img/iron-vault-screenshot.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://iron-vault-plugin.github.io/iron-vault/support/img/iron-vault-screenshot.png"&gt;&lt;/figure&gt;</content:encoded></item></channel></rss>
