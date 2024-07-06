@@ -1,4 +1,5 @@
 import registerAssetBlock from "assets/asset-block";
+import { CampaignIndex, CampaignIndexer } from "campaigns/indexer";
 import registerCharacterBlock from "characters/character-block";
 import registerClockBlock from "clocks/clock-block";
 import { IronVaultCommands } from "commands";
@@ -14,6 +15,7 @@ import {
 } from "migrate/migration-view";
 import { Plugin, addIcon } from "obsidian";
 import { IronVaultPluginSettings } from "settings";
+import { IronVaultPluginLocalSettings } from "settings/local";
 import registerSidebarBlocks from "sidebar/sidebar-block";
 import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
 import { ProgressIndex, ProgressIndexer } from "tracks/indexer";
@@ -29,7 +31,6 @@ import { registerMoveBlock } from "./moves/block";
 import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
 import { pluginAsset } from "./utils/obsidian";
-import { IronVaultPluginLocalSettings } from "settings/local";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
@@ -38,6 +39,7 @@ export default class IronVaultPlugin extends Plugin {
   characterIndexer!: CharacterIndexer;
   progressIndexer!: ProgressIndexer;
   clockIndexer!: ClockIndexer;
+  campaignIndexer!: CampaignIndexer;
   indexManager!: IndexManager;
   api!: IronVaultAPI;
   commands!: IronVaultCommands;
@@ -79,6 +81,10 @@ export default class IronVaultPlugin extends Plugin {
 
   get progressIndex(): ProgressIndex {
     return this.progressIndexer.index;
+  }
+
+  get campaignIndex(): CampaignIndex {
+    return this.campaignIndexer.index;
   }
 
   async onload(): Promise<void> {
@@ -134,6 +140,9 @@ export default class IronVaultPlugin extends Plugin {
       (this.progressIndexer = new ProgressIndexer()),
     );
     this.indexManager.registerHandler((this.clockIndexer = new ClockIndexer()));
+    this.indexManager.registerHandler(
+      (this.campaignIndexer = new CampaignIndexer()),
+    );
   }
 
   registerBlocks() {
