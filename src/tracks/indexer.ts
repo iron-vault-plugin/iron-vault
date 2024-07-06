@@ -1,4 +1,4 @@
-import { CachedMetadata } from "obsidian";
+import { CachedMetadata, TFile } from "obsidian";
 import { z } from "zod";
 import { IronVaultKind } from "../constants";
 import { BaseIndexer, IndexOf, IndexUpdate } from "../indexer/indexer";
@@ -11,7 +11,7 @@ export class ProgressIndexer extends BaseIndexer<
   readonly id = IronVaultKind.ProgressTrack;
 
   processFile(
-    path: string,
+    file: TFile,
     cache: CachedMetadata,
   ): IndexUpdate<ProgressTrackFileAdapter, z.ZodError> {
     return ProgressTrackFileAdapter.create(cache.frontmatter);

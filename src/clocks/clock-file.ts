@@ -1,6 +1,6 @@
 import { produce } from "immer";
 import { Index } from "indexer";
-import { CachedMetadata } from "obsidian";
+import { CachedMetadata, TFile } from "obsidian";
 import { normalizeKeys } from "utils/zodutils";
 import { z } from "zod";
 import { IronVaultKind, PLUGIN_KIND_FIELD } from "../constants";
@@ -107,7 +107,7 @@ export class ClockIndexer extends BaseIndexer<ClockFileAdapter, z.ZodError> {
   readonly id = IronVaultKind.Clock;
 
   processFile(
-    path: string,
+    file: TFile,
     cache: CachedMetadata,
   ): IndexUpdate<ClockFileAdapter, z.ZodError> {
     return ClockFileAdapter.create(cache.frontmatter);

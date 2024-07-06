@@ -1,5 +1,5 @@
 import IronVaultPlugin from "index";
-import { type CachedMetadata } from "obsidian";
+import { TFile, type CachedMetadata } from "obsidian";
 import { Right } from "utils/either";
 import { CustomSuggestModal } from "utils/suggest";
 import { updaterWithContext } from "utils/update";
@@ -31,7 +31,7 @@ export class CharacterIndexer extends BaseIndexer<
   }
 
   processFile(
-    path: string,
+    file: TFile,
     cache: CachedMetadata,
   ): IndexUpdate<CharacterContext, z.ZodError> {
     if (cache.frontmatter == null) {

@@ -162,16 +162,15 @@ export class IndexManager extends Component {
 
     if (newIndexer) {
       logger.debug(
-        "[file:%s] using indexer %s for file",
-        indexKey,
+        "[indexer:%s] [file:%s] attempting to index",
         newIndexer.id,
+        indexKey,
       );
 
-      let result: ReturnType<Indexer["onChanged"]>;
+      let result: ReturnType<Indexer["onChanged"]> | undefined = undefined;
       try {
-        result = newIndexer.onChanged(file.path, cache);
+        result = newIndexer.onChanged(file, cache);
       } catch (error) {
-        result = "error";
         logger.error(
           "[indexer:%s] [file:%s] unexpected error or result while indexing %o",
           newIndexer.id,
@@ -179,12 +178,15 @@ export class IndexManager extends Component {
           error,
         );
       }
+
       switch (result) {
         case "indexed":
+        case "error":
           logger.debug(
-            "[indexer:%s] [file:%s] indexed",
+            "[indexer:%s] [file:%s] %s",
             newIndexer.id,
             indexKey,
+            result == "error" ? "handled error" : "indexed",
           );
           this.indexedFiles.set(indexKey, newIndexer.id);
           break;
@@ -195,14 +197,8 @@ export class IndexManager extends Component {
             indexKey,
           );
           break;
-        case "error":
-        default:
-          logger.error(
-            "[indexer:%s] [file:%s] error while indexing",
-            newIndexer.id,
-            indexKey,
-            result,
-          );
+        case undefined:
+        // We don't do anything in this case.
       }
     }
   }
