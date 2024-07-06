@@ -1,4 +1,3 @@
-*Make an action roll* can be used to create a freestanding action roll, not attached to a move. You'll follow similar prompts to when you [[Make a move]] with an action roll-- only you won't select a move, and the roll will be inserted by itself:
 
 ```iron-vault-mechanics
 roll "edge" action=6 adds=0 stat=2 vs1=9 vs2=5

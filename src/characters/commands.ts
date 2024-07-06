@@ -3,7 +3,7 @@ import { Asset } from "@datasworn/core/dist/Datasworn";
 import { AssetPickerModal } from "assets/asset-picker-modal";
 import { produce } from "immer";
 import IronVaultPlugin from "index";
-import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
+import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
 import { createInitiativeNode } from "mechanics/node-builders";
 import { Editor, MarkdownView } from "obsidian";
 import { Ruleset } from "rules/ruleset";
@@ -12,7 +12,10 @@ import { capitalize } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
 import { IronVaultKind, pluginPrefixed } from "../constants";
-import { requireActiveCharacterContext } from "./action-context";
+import {
+  CharacterActionContext,
+  requireActiveCharacterContext,
+} from "./action-context";
 import {
   addOrUpdateViaDataswornAsset,
   defaultMarkedAbilitiesForAsset,
@@ -25,10 +28,12 @@ export async function addAssetToCharacter(
   _editor?: Editor,
   _view?: MarkdownView,
   asset?: Asset,
+  charCtx?: CharacterActionContext,
 ): Promise<void> {
   // TODO: maybe we could make this part of the checkCallback? (i.e., if we are in no character
   // mode, don't even bother to list this command?)
-  const actionContext = await requireActiveCharacterContext(plugin);
+  const actionContext =
+    charCtx || (await requireActiveCharacterContext(plugin));
 
   const path = actionContext.characterPath;
   const context = actionContext.characterContext;
@@ -43,7 +48,8 @@ export async function addAssetToCharacter(
     }
   }
 
-  const selectedAsset = asset ?? (await AssetPickerModal.pick(plugin));
+  const selectedAsset =
+    asset ?? (await AssetPickerModal.pick(plugin, charCtx?.characterContext));
 
   if (!selectedAsset) {
     return;
@@ -196,8 +202,10 @@ export const changeInitiative = async (
     lens.initiative.update(char, newInitiative),
   );
 
-  appendNodesToMoveOrMechanicsBlock(
+  appendNodesToMoveOrMechanicsBlockWithActor(
     editor,
+    plugin,
+    actionContext,
     createInitiativeNode(
       // TODO(@cwegrzyn): once we have a setting that controls which version of position/initiative
       //   to use, we'll use that instead here and in determining the label.

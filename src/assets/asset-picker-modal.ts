@@ -5,12 +5,13 @@ import { map } from "lit-html/directives/map.js";
 import MiniSearch from "minisearch";
 import { App, Modal } from "obsidian";
 import renderAssetCard, { makeDefaultSheetAsset } from "./asset-card";
+import { CharacterContext, activeCharacter } from "character-tracker";
 
 export class AssetPickerModal extends Modal {
   plugin: IronVaultPlugin;
   searchIdx: MiniSearch<Asset>;
 
-  static pick(plugin: IronVaultPlugin) {
+  static pick(plugin: IronVaultPlugin, charCtx?: CharacterContext) {
     return new Promise<Asset | undefined>((resolve, reject) => {
       const modal = new AssetPickerModal(
         plugin.app,
@@ -23,6 +24,7 @@ export class AssetPickerModal extends Modal {
           modal.close();
           reject();
         },
+        charCtx,
       );
       modal.open();
     });
@@ -33,14 +35,17 @@ export class AssetPickerModal extends Modal {
     plugin: IronVaultPlugin,
     protected readonly onSelect: (asset: Asset) => void,
     protected readonly onCancel: () => void,
+    private readonly charCtx?: CharacterContext,
   ) {
     super(app);
     this.plugin = plugin;
     this.searchIdx = this.makeIndex();
   }
 
-  onOpen() {
-    this.setTitle("Add asset to character");
+  async onOpen() {
+    this.setTitle("Loading...");
+    const char = this.charCtx ?? (await activeCharacter(this.plugin))[1];
+    this.setTitle(`Add asset to ${char.lens.name.get(char.character)}`);
     const { contentEl } = this;
     contentEl.empty();
     contentEl.toggleClass("iron-vault-modal-content", true);

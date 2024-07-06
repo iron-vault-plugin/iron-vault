@@ -65,6 +65,13 @@ export class SidebarView extends ItemView {
         );
       }),
     );
+    this.register(
+      this.plugin.localSettings.on("change", ({ key, oldValue, newValue }) => {
+        if (key === "activeCharacter" && oldValue !== newValue) {
+          this.renderCharacter();
+        }
+      }),
+    );
 
     renderIronVaultOracles(
       container.querySelector(".content.oracle-tab")!,

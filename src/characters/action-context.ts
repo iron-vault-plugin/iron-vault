@@ -7,6 +7,7 @@ import { vaultProcess } from "utils/obsidian";
 import { CharacterContext, activeCharacter } from "../character-tracker";
 import {
   CharReader,
+  CharacterLens,
   MOMENTUM_METER_DEFINITION,
   MeterWithLens,
   MeterWithoutLens,
@@ -34,7 +35,7 @@ export interface IActionContext extends IDataContext {
 
   readonly momentum?: number;
 
-  getWithLens<T>(lens: CharReader<T>): T | undefined;
+  getWithLens<T>(op: (lenses: CharacterLens) => CharReader<T>): T | undefined;
 }
 
 export class NoCharacterActionConext implements IActionContext {
@@ -60,7 +61,7 @@ export class NoCharacterActionConext implements IActionContext {
     }));
   }
 
-  getWithLens<T>(_lens: CharReader<T>): undefined {
+  getWithLens<T>(_op: (lenses: CharacterLens) => CharReader<T>): undefined {
     return undefined;
   }
 
@@ -132,8 +133,8 @@ export class CharacterActionContext implements IActionContext {
     );
   }
 
-  getWithLens<T>(lens: CharReader<T>): T {
-    return lens.get(this.characterContext.character);
+  getWithLens<T>(op: (lenses: CharacterLens) => CharReader<T>): T {
+    return op(this.characterContext.lens).get(this.characterContext.character);
   }
 
   get conditionMeters(): MeterWithLens<ConditionMeterDefinition>[] {
@@ -189,9 +190,7 @@ export async function determineCharacterActionContext(
 ): Promise<ActionContext> {
   if (plugin.settings.useCharacterSystem) {
     try {
-      const [characterPath, characterContext] = activeCharacter(
-        plugin.characters,
-      );
+      const [characterPath, characterContext] = await activeCharacter(plugin);
       return new CharacterActionContext(
         plugin.datastore,
         characterPath,

@@ -1,4 +1,7 @@
+import IronVaultPlugin from "index";
 import { type CachedMetadata } from "obsidian";
+import { Right } from "utils/either";
+import { CustomSuggestModal } from "utils/suggest";
 import { updaterWithContext } from "utils/update";
 import { z } from "zod";
 import {
@@ -59,19 +62,64 @@ export class CharacterContext {
 
 export type CharacterTracker = IndexOf<CharacterIndexer>;
 
-export function activeCharacter(
-  characters: CharacterTracker,
-): [string, CharacterContext] {
-  if (characters.size == 0) {
+export async function activeCharacter(
+  plugin: IronVaultPlugin,
+): Promise<[string, CharacterContext]> {
+  const characters = [...plugin.characters.ofValid.entries()];
+  if (!characters.length) {
     throw new MissingCharacterError("no valid characters found");
-  } else if (characters.size > 1) {
-    throw new MissingCharacterError("we don't yet support multiple characters");
   }
 
-  const [[key, val]] = characters.entries();
-  if (val.isLeft()) {
-    throw val.error;
+  const [charPath] =
+    characters.length === 1
+      ? [characters[0][0]]
+      : plugin.localSettings.activeCharacter &&
+          !plugin.settings.alwaysPromptActiveCharacter
+        ? [plugin.localSettings.activeCharacter]
+        : await CustomSuggestModal.select(
+            plugin.app,
+            characters,
+            ([, char]) => char.lens.name.get(char.character),
+            undefined,
+            "Pick active character",
+          );
+
+  if (!charPath) {
+    throw new MissingCharacterError("no valid characters found");
   }
 
-  return [key, val.value];
+  plugin.localSettings.activeCharacter = charPath;
+  await plugin.saveSettings();
+
+  return [charPath, plugin.characters.get(charPath)!.unwrap()] as [
+    string,
+    CharacterContext,
+  ];
+}
+
+export async function setActiveCharacter(
+  plugin: IronVaultPlugin,
+  charPath?: string,
+) {
+  const newCharPath =
+    charPath ??
+    (
+      await CustomSuggestModal.select(
+        plugin.app,
+        [...plugin.characters]
+          .filter((x) => x[1].isRight())
+          .map(
+            ([key, val]) =>
+              [key, (val as Right<CharacterContext>).value] as [
+                string,
+                CharacterContext,
+              ],
+          ),
+        ([, char]) => char.lens.name.get(char.character),
+        undefined,
+        "Pick active character",
+      )
+    )[0];
+  plugin.localSettings.activeCharacter = newCharPath;
+  await plugin.saveSettings();
 }

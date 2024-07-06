@@ -27,6 +27,7 @@ import {
 } from "utils/ui/generic-fuzzy-suggester";
 import { PromptModal } from "utils/ui/prompt";
 import * as meterCommands from "./characters/meter-commands";
+import { setActiveCharacter as pickActiveCharacter } from "character-tracker";
 
 export class IronVaultCommands {
   plugin: IronVaultPlugin;
@@ -225,6 +226,12 @@ export class IronVaultCommands {
     /*
      * UTILITY
      */
+    {
+      id: "pick-active-character",
+      name: "Pick active character",
+      icon: "user-circle",
+      callback: () => pickActiveCharacter(this.plugin),
+    },
     {
       id: "toggle-mechanics",
       name: "Toggle displaying mechanics",

@@ -5,13 +5,13 @@ import IronVaultPlugin from "index";
 import { Component } from "obsidian";
 import { md } from "utils/ui/directives";
 
-export default function renderIronVaultCharacter(
+export default async function renderIronVaultCharacter(
   containerEl: HTMLElement,
   plugin: IronVaultPlugin,
   parent: Component,
 ) {
   try {
-    const [charPath] = activeCharacter(plugin.characters);
+    const [charPath] = await activeCharacter(plugin);
     render(
       html`${md(plugin, `![[${charPath}|iv-embed]]`, ".", parent)}`,
       containerEl,

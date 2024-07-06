@@ -37,6 +37,19 @@ export class IronVaultSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
+      .setName("Always prompt for active character")
+      .setDesc(
+        "If enabled, the plugin will always prompt when taking an action where an active character is required, if there are multiple characters in the campaign. Otherwise, it will remember the last used active character. You can also change the active character with the 'Pick active character' command.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.alwaysPromptActiveCharacter)
+          .onChange((value) =>
+            this.updateSetting("alwaysPromptActiveCharacter", value),
+          ),
+      );
+
+    new Setting(containerEl)
       .setName("Reset to defaults")
       .setDesc("Set all Iron Vault settings back to their default values.")
       .addButton((button) => {
@@ -360,6 +373,17 @@ export class IronVaultSettingTab extends PluginSettingTab {
         toggle
           .setValue(settings.inlineOnCreation)
           .onChange((value) => this.updateSetting("inlineOnCreation", value)),
+      );
+
+    new Setting(containerEl)
+      .setName("Always record actor")
+      .setDesc(
+        "Enable this to generate actor blocks, even in a campaign with only one PC.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.alwaysRecordActor)
+          .onChange((value) => this.updateSetting("alwaysRecordActor", value)),
       );
   }
 }

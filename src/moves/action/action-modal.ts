@@ -1,6 +1,6 @@
 import { type Datasworn } from "@datasworn/core";
 import IronVaultPlugin from "index";
-import { updatePreviousMoveOrCreateBlock } from "mechanics/editor";
+import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
 import { App, Editor, Modal, Setting } from "obsidian";
 import { Dice, DieKind } from "utils/dice";
 import { node } from "utils/kdl";
@@ -148,14 +148,7 @@ export async function rerollDie(plugin: IronVaultPlugin, editor: Editor) {
   const rerollNode = node("reroll", {
     properties: props,
   });
-  updatePreviousMoveOrCreateBlock(
-    editor,
-    (move) => {
-      return {
-        ...move,
-        children: [...move.children, rerollNode],
-      };
-    },
-    () => rerollNode,
-  );
+  // TODO(@cwegrzyn): should this be changed to work with the last move even if it is in
+  // an actor block? Or should it be based on a specific character?
+  appendNodesToMoveOrMechanicsBlock(editor, rerollNode);
 }

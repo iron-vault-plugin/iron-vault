@@ -235,6 +235,10 @@ export class MechanicsRenderer {
         await this.renderInitiative(target, node);
         break;
       }
+      case "actor": {
+        await this.renderActor(target, node);
+        break;
+      }
       default: {
         this.renderUnknown(target, node.name);
       }
@@ -696,6 +700,18 @@ export class MechanicsRenderer {
             : init.match(/initiative/i)
               ? "Has initiative"
               : "Out of combat";
+    }
+  }
+
+  async renderActor(target: HTMLElement, node: KdlNode) {
+    const name = (node.properties.name ?? node.values[0]) as string;
+    const wrapper = target.createEl("section", { cls: "actor" });
+    const header = wrapper.createEl("header");
+    await this.renderMarkdown(header, name);
+    if (node.children.length) {
+      for (const child of node.children) {
+        await this.renderNode(wrapper, child);
+      }
     }
   }
 

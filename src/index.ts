@@ -29,9 +29,11 @@ import { registerMoveBlock } from "./moves/block";
 import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
 import { pluginAsset } from "./utils/obsidian";
+import { IronVaultPluginLocalSettings } from "settings/local";
 
 export default class IronVaultPlugin extends Plugin {
   settings!: IronVaultPluginSettings;
+  localSettings!: IronVaultPluginLocalSettings;
   datastore!: Datastore;
   characterIndexer!: CharacterIndexer;
   progressIndexer!: ProgressIndexer;
@@ -173,6 +175,10 @@ export default class IronVaultPlugin extends Plugin {
       { moveBlockFormat: undefined },
     );
     this.settings = settings;
+    this.localSettings = Object.assign(
+      new IronVaultPluginLocalSettings(),
+      await IronVaultPluginLocalSettings.loadData(this),
+    );
   }
 
   async onExternalSettingsChange() {
@@ -181,5 +187,6 @@ export default class IronVaultPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+    await this.localSettings.saveData(this);
   }
 }

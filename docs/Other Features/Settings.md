@@ -2,6 +2,7 @@
 ### General
 
 * **Use character system**: when enabled, this will look for an active [[Characters|Character]] file when making moves and doing other game operations. If disabled, Iron Vault will still work, but will prompt you for values of, for example, your stats. This is a good setting to disable if you only wish to use a particular subset of Iron Vault features, like [[Mechanics Blocks]] or the [[Sidebar]] but don't really care to use the various [[Commands/index|Commands]].
+* **Always prompt for active character**: If enabled, the plugin will always prompt when taking an action where an active character is required, if there are multiple characters in the campaign. Otherwise, it will remember the last used active character. You can also change the active character with the [[Pick active character]] command.
 * **Reset to default**: returns all settings to their default values.
 
 ### Rulesets
