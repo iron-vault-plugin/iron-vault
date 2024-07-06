@@ -183,59 +183,6 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
       },
     },
   },
-
-  sfSettlement: {
-    label: "Settlement",
-    nameGen: (ent) => ent.name[0]?.simpleResult,
-    collectionId: "oracle_collection:starforged/settlement",
-    spec: {
-      region: {
-        id: "oracle_rollable:starforgedsupp/core/region",
-        firstLook: true,
-        definesAttribute: {
-          order: 1,
-          mechanism: AttributeMechanism.Snakecase,
-        },
-      },
-      name: {
-        id: "oracle_rollable:starforged/settlement/name",
-        firstLook: true,
-      },
-      location: {
-        id: "oracle_rollable:starforged/settlement/location",
-        firstLook: true,
-      },
-      population: {
-        id: "oracle_rollable:starforged/settlement/population/{{region}}",
-        firstLook: true,
-        name: "Population",
-      },
-      authority: {
-        id: "oracle_rollable:starforged/settlement/authority",
-        firstLook: true,
-      },
-      project: {
-        id: "oracle_rollable:starforged/settlement/projects",
-        firstLook: true,
-      },
-      firstLook: {
-        id: "oracle_rollable:starforged/settlement/first_look",
-        // lol this is ironic, but that's what the rulebook says
-        firstLook: false,
-        name: "First look",
-      },
-      initialContact: {
-        id: "oracle_rollable:starforged/settlement/initial_contact",
-        firstLook: false,
-        name: "Initial contact",
-      },
-      trouble: {
-        id: "oracle_rollable:starforged/settlement/trouble",
-        firstLook: false,
-      },
-    },
-  },
-
   sfPlanet: {
     label: "Planet",
     nameGen: (ent) => ent.name[0]?.simpleResult,
@@ -306,6 +253,53 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
         id: "oracle_rollable:classic/character/goal",
         firstLook: false,
         name: "Character goal",
+      },
+    },
+  },
+  siIsland: {
+    label: "Island",
+    nameGen: (ent) => ent.name[0]?.simpleResult,
+    collectionId: "oracle_collection:sundered_isles/island",
+    spec: {
+      region: {
+        id: "oracle_rollable:sundered_isles_supp/core/region",
+        firstLook: true,
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.Snakecase,
+        },
+      },
+      name: {
+        id: "oracle_rollable:sundered_isles/island/name",
+        firstLook: true,
+      },
+      size: {
+        id: "oracle_rollable:sundered_isles/island/landscape/size",
+        firstLook: true,
+      },
+      terrain: {
+        id: "oracle_rollable:sundered_isles/island/landscape/terrain",
+        firstLook: true,
+      },
+      vitality: {
+        id: "oracle_rollable:sundered_isles/island/landscape/vitality/{{region}}",
+        firstLook: true,
+        name: "Vitality",
+      },
+      nearby_islands: {
+        id: "oracle_rollable:sundered_isles/island/nearby_islands/{{region}}",
+        firstLook: true,
+        name: "Nearby islands",
+      },
+      coastline_aspects: {
+        id: "oracle_rollable:sundered_isles/island/coastline_aspects",
+      },
+      offshore_observations: {
+        id: "oracle_rollable:sundered_isles/island/offshore_observations",
+      },
+      visible_habitation: {
+        id: "oracle_rollable:sundered_isles/island/visible_habitation/{{region}}",
+        name: "Visible habitation",
       },
     },
   },

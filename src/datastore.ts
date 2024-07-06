@@ -29,6 +29,7 @@ import { Component, Notice, TFile, TFolder, type App } from "obsidian";
 import { OracleRoller } from "oracles/roller";
 import { Ruleset } from "rules/ruleset";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
+import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type: "json" };
 import { PLUGIN_DATASWORN_VERSION } from "./constants";
 
 const logger = rootLogger.getLogger("datastore");
@@ -91,6 +92,7 @@ export class Datastore extends Component implements IDataContext {
 
     if (this.plugin.settings.enableSunderedIsles) {
       this.indexBuiltInData(sunderedIslesPackage as Datasworn.Expansion);
+      this.indexBuiltInData(sunderedSupp as Datasworn.Expansion, 5);
     }
 
     if (this.plugin.settings.useHomebrew) {

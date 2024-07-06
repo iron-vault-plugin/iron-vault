@@ -130,7 +130,11 @@ export async function generateEntityCommand(
           (plugin.settings.enableStarforged &&
             v.collectionId?.startsWith("oracle_collection:starforged/")) ||
           (plugin.settings.enableIronsworn &&
-            v.collectionId?.startsWith("oracle_collection:classic/")),
+            v.collectionId?.startsWith("oracle_collection:classic/")) ||
+          (plugin.settings.enableIronswornDelve &&
+            v.collectionId?.startsWith("oracle_collection:delve/")) ||
+          (plugin.settings.enableSunderedIsles &&
+            v.collectionId?.startsWith("oracle_collection:sundered_isles/")),
       ),
       ([_key, { label }]) => label,
       undefined,
