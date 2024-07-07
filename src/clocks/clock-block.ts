@@ -34,7 +34,7 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
     sourcePath: string,
     plugin: IronVaultPlugin,
   ) {
-    super(containerEl, sourcePath, plugin, plugin.clockIndex, "clock");
+    super(containerEl, sourcePath, plugin, plugin.clocks, "clock");
   }
 
   renderEntity(clockFile: ClockFileAdapter) {

@@ -18,6 +18,7 @@ import { IronVaultPluginSettings } from "settings";
 import { IronVaultPluginLocalSettings } from "settings/local";
 import registerSidebarBlocks from "sidebar/sidebar-block";
 import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
+import { TrackedEntities } from "te/index-interface";
 import { ProgressIndex, ProgressIndexer } from "tracks/indexer";
 import registerTrackBlock from "tracks/track-block";
 import registerTruthBlock from "truths/truth-block";
@@ -32,7 +33,7 @@ import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
 import { pluginAsset } from "./utils/obsidian";
 
-export default class IronVaultPlugin extends Plugin {
+export default class IronVaultPlugin extends Plugin implements TrackedEntities {
   settings!: IronVaultPluginSettings;
   localSettings!: IronVaultPluginLocalSettings;
   datastore!: Datastore;
@@ -75,15 +76,15 @@ export default class IronVaultPlugin extends Plugin {
     return this.characterIndexer.index;
   }
 
-  get clockIndex(): ClockIndex {
+  get clocks(): ClockIndex {
     return this.clockIndexer.index;
   }
 
-  get progressIndex(): ProgressIndex {
+  get progressTracks(): ProgressIndex {
     return this.progressIndexer.index;
   }
 
-  get campaignIndex(): CampaignIndex {
+  get campaigns(): CampaignIndex {
     return this.campaignIndexer.index;
   }
 

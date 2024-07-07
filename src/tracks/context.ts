@@ -22,7 +22,7 @@ export class ProgressContext {
     private readonly actionContext: ActionContext,
   ) {
     this.app = plugin.app;
-    this.progressIndex = plugin.progressIndex;
+    this.progressIndex = plugin.progressTracks;
   }
 
   tracks(

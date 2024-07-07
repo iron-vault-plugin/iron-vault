@@ -24,7 +24,7 @@ export class IronVaultAPI {
   }
 
   get progress(): ProgressIndex {
-    return this.plugin.progressIndex;
+    return this.plugin.progressTracks;
   }
 
   public async roll(oracle: string): Promise<RollWrapper> {

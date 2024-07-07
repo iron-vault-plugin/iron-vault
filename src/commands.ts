@@ -1,3 +1,4 @@
+import { setActiveCharacter as pickActiveCharacter } from "character-tracker";
 import { determineCharacterActionContext } from "characters/action-context";
 import {
   addAssetToCharacter,
@@ -27,7 +28,6 @@ import {
 } from "utils/ui/generic-fuzzy-suggester";
 import { PromptModal } from "utils/ui/prompt";
 import * as meterCommands from "./characters/meter-commands";
-import { setActiveCharacter as pickActiveCharacter } from "character-tracker";
 
 export class IronVaultCommands {
   plugin: IronVaultPlugin;
@@ -204,7 +204,7 @@ export class IronVaultCommands {
           this.plugin,
           editor,
           ctx as MarkdownView,
-          this.plugin.clockIndex,
+          this.plugin.clocks,
         ),
     },
 
