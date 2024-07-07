@@ -2,6 +2,7 @@ import {
   ActionContext,
   CharacterActionContext,
 } from "characters/action-context";
+import { onlyValid } from "indexer/index-impl";
 import { App } from "obsidian";
 import IronVaultPlugin from "../index";
 import { vaultProcess } from "../utils/obsidian";
@@ -29,10 +30,9 @@ export class ProgressContext {
     filter: (track: ProgressTrackInfo) => boolean = () => true,
   ): ProgressTrackWriterContext[] {
     const tracks = [];
-    for (const [
-      trackPath,
-      trackAdapter,
-    ] of this.progressIndex.ofValid.entries()) {
+    for (const [trackPath, trackAdapter] of onlyValid(
+      this.progressIndex,
+    ).entries()) {
       tracks.push(
         new ProgressTrackFileWriter(
           trackAdapter,

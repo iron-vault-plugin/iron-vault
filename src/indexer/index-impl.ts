@@ -1,17 +1,23 @@
 import { EventRef, Events } from "obsidian";
 import { Either } from "utils/either";
 import {
+  ProjectableMap,
   projectedVersionedMap,
+  ReadonlyVersionedMap,
   VersionedMap,
   VersionedMapImpl,
 } from "utils/versioned-map";
-import { Index } from "./index-interface";
+import { EmittingIndex } from "./index-interface";
 
-export class IndexImpl<T, E extends Error> implements Index<T, E> {
-  readonly ofValid: ReadonlyMap<string, T> = projectedVersionedMap(
-    this,
-    (result) => (result.isRight() ? result.value : undefined),
+export function onlyValid<K, T, E extends Error>(
+  map: ReadonlyVersionedMap<K, Either<E, T>>,
+): ProjectableMap<K, T> {
+  return projectedVersionedMap(map, (result) =>
+    result.isRight() ? result.value : undefined,
   );
+}
+
+export class IndexImpl<T, E extends Error> implements EmittingIndex<T, E> {
   readonly events: Events = new Events();
   readonly #map: VersionedMap<string, Either<E, T>> = new VersionedMapImpl();
 

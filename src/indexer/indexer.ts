@@ -1,4 +1,4 @@
-import { Index } from "indexer/index-interface";
+import { EmittingIndex, ReadonlyIndex } from "indexer/index-interface";
 import { rootLogger } from "logger";
 import { Logger } from "loglevel";
 import { TFile, type CachedMetadata } from "obsidian";
@@ -53,11 +53,11 @@ export interface Indexer {
 export type IndexerId = string;
 
 export type IndexOf<Idx> =
-  Idx extends BaseIndexer<infer T, infer E> ? Index<T, E> : never;
+  Idx extends BaseIndexer<infer T, infer E> ? ReadonlyIndex<T, E> : never;
 
 export abstract class BaseIndexer<T, E extends Error> implements Indexer {
   abstract readonly id: IronVaultKind;
-  public readonly index: Index<T, E> = new IndexImpl();
+  public readonly index: EmittingIndex<T, E> = new IndexImpl();
 
   #_logger?: Logger;
 

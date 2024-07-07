@@ -1,5 +1,5 @@
 import IronVaultPlugin from "index";
-import { Index } from "indexer";
+import { EmittingIndex } from "indexer/index-interface";
 import { html, render } from "lit-html";
 import { rootLogger } from "logger";
 import { debounce, MarkdownRenderChild } from "obsidian";
@@ -17,7 +17,7 @@ export abstract class TrackedEntityRenderer<
     containerEl: HTMLElement,
     sourcePath: string,
     public readonly plugin: IronVaultPlugin,
-    public readonly index: Index<T, E>,
+    public readonly index: EmittingIndex<T, E>,
     public readonly kind: string,
   ) {
     super(containerEl);

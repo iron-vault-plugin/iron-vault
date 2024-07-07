@@ -3,6 +3,7 @@ import {
   CharacterActionContext,
 } from "characters/action-context";
 import IronVaultPlugin from "index";
+import { onlyValid } from "indexer/index-impl";
 import * as kdl from "kdljs";
 import { Editor, EditorRange } from "obsidian";
 import {
@@ -140,7 +141,7 @@ export function actorForActionContext(
   if (actionContext instanceof CharacterActionContext) {
     if (
       plugin.settings.alwaysRecordActor ||
-      plugin.characters.ofValid.size > 1
+      onlyValid(plugin.characters).size > 1
     ) {
       return {
         name: actionContext.getWithLens((_) => _.name),

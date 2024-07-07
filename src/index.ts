@@ -5,6 +5,7 @@ import registerCharacterBlock from "characters/character-block";
 import registerClockBlock from "clocks/clock-block";
 import { IronVaultCommands } from "commands";
 import { IronVaultLinkView, LINK_VIEW } from "docs/docs-view";
+import { AsEmitting } from "indexer/index-interface";
 import { IndexManager } from "indexer/manager";
 import installLinkHandler from "link-handler";
 import { initLogger } from "logger";
@@ -74,19 +75,19 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     return pluginAsset(this, assetPath);
   }
 
-  get characters(): CharacterTracker {
+  get characters(): AsEmitting<CharacterTracker> {
     return this.characterIndexer.index;
   }
 
-  get clocks(): ClockIndex {
+  get clocks(): AsEmitting<ClockIndex> {
     return this.clockIndexer.index;
   }
 
-  get progressTracks(): ProgressIndex {
+  get progressTracks(): AsEmitting<ProgressIndex> {
     return this.progressIndexer.index;
   }
 
-  get campaigns(): CampaignIndex {
+  get campaigns(): AsEmitting<CampaignIndex> {
     return this.campaignIndexer.index;
   }
 

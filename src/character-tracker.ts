@@ -1,4 +1,5 @@
 import IronVaultPlugin from "index";
+import { onlyValid } from "indexer/index-impl";
 import { TFile, type CachedMetadata } from "obsidian";
 import { Right } from "utils/either";
 import { CustomSuggestModal } from "utils/suggest";
@@ -65,7 +66,7 @@ export type CharacterTracker = IndexOf<CharacterIndexer>;
 export async function activeCharacter(
   plugin: IronVaultPlugin,
 ): Promise<[string, CharacterContext]> {
-  const characters = [...plugin.characters.ofValid.entries()];
+  const characters = [...onlyValid(plugin.characters).entries()];
   if (!characters.length) {
     throw new MissingCharacterError("no valid characters found");
   }

@@ -1,10 +1,9 @@
 import { produce } from "immer";
-import { Index } from "indexer";
 import { CachedMetadata, TFile } from "obsidian";
 import { normalizeKeys } from "utils/zodutils";
 import { z } from "zod";
 import { IronVaultKind, PLUGIN_KIND_FIELD } from "../constants";
-import { BaseIndexer, IndexUpdate } from "../indexer/indexer";
+import { BaseIndexer, IndexOf, IndexUpdate } from "../indexer/indexer";
 import { Either, Left } from "../utils/either";
 import { updater } from "../utils/update";
 import { Clock } from "./clock";
@@ -121,4 +120,4 @@ export const clockUpdater = updater<ClockFileAdapter>(
   (tracker) => tracker.raw,
 );
 
-export type ClockIndex = Index<ClockFileAdapter, z.ZodError>;
+export type ClockIndex = IndexOf<ClockIndexer>;

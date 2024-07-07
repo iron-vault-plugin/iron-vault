@@ -6,18 +6,14 @@ import {
   createDetailsNode,
 } from "mechanics/node-builders";
 import { Editor, MarkdownView } from "obsidian";
-import {
-  ClockFileAdapter,
-  ClockIndex,
-  clockUpdater,
-} from "../clocks/clock-file";
+import { stripMarkdown } from "utils/strip-markdown";
+import { ClockFileAdapter, clockUpdater } from "../clocks/clock-file";
 import { selectClock } from "../clocks/select-clock";
 import { BLOCK_TYPE__CLOCK, IronVaultKind } from "../constants";
 import { createNewIronVaultEntityFile, vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { Clock } from "./clock";
 import { ClockCreateModal } from "./clock-create-modal";
-import { stripMarkdown } from "utils/strip-markdown";
 
 export async function advanceClock(
   plugin: IronVaultPlugin,
@@ -26,7 +22,7 @@ export async function advanceClock(
   clockIndex: ClockIndex,
 ) {
   const [clockPath, clockInfo] = await selectClock(
-    clockIndex,
+    plugin.clocks,
     plugin,
     ([, clockInfo]) => clockInfo.clock.active && !clockInfo.clock.isFilled,
   );
