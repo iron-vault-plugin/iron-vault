@@ -1,6 +1,9 @@
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
+import { rootLogger } from "logger";
 import { normalizePath } from "obsidian";
+
+const logger = rootLogger.getLogger("local-settings");
 
 export class IronVaultPluginLocalSettings {
   activeCharacter?: string;
@@ -37,16 +40,17 @@ export class IronVaultPluginLocalSettings {
   }
 
   static async loadData(plugin: IronVaultPlugin) {
+    const path = this.dataPath(plugin);
     try {
+      if (!(await plugin.app.vault.adapter.exists(path))) {
+        return {};
+      }
       return JSON.parse(
         await plugin.app.vault.adapter.read(this.dataPath(plugin)),
       );
     } catch (e) {
-      if (e instanceof Error && e.message.includes("ENOENT")) {
-        return {};
-      } else {
-        throw e;
-      }
+      logger.warn("Failed to load local settings. Resetting to defaults...", e);
+      return {};
     }
   }
 
