@@ -1,7 +1,9 @@
 import { EventRef } from "obsidian";
 import { Either } from "utils/either";
+import { VersionedMap } from "utils/versioned-map";
 
-export interface Index<T, E extends Error> extends Map<string, Either<E, T>> {
+export interface Index<T, E extends Error>
+  extends VersionedMap<string, Either<E, T>> {
   readonly ofValid: ReadonlyMap<string, T>;
 
   /** Rename the old key to the new key, returning true if old key was found. */

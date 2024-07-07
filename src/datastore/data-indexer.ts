@@ -2,7 +2,7 @@ import { rootLogger } from "logger";
 import {
   ProjectableMap,
   projectedVersionedMap,
-  VersionedMap,
+  ReadonlyVersionedMap,
   VersionedMapImpl,
 } from "utils/versioned-map";
 
@@ -108,7 +108,7 @@ export interface SourcedMap<
   Kind extends keyof Kinds = keyof Kinds,
 > extends ProjectableMap<string, SourcedKinds<Kinds>[Kind]> {
   /** Returns "inner" map that contains ALL  */
-  readonly all: VersionedMap<string, SourcedKindsArray<Kinds>[Kind]>;
+  readonly all: ReadonlyVersionedMap<string, SourcedKindsArray<Kinds>[Kind]>;
   ofKind<K extends Kind>(kind: K): SourcedMap<Kinds, K>;
 }
 
@@ -118,7 +118,7 @@ export class SourcedMapImpl<
 > implements SourcedMap<Kinds, Kind>
 {
   constructor(
-    readonly all: VersionedMap<string, SourcedKindsArray<Kinds>[Kind]>,
+    readonly all: ReadonlyVersionedMap<string, SourcedKindsArray<Kinds>[Kind]>,
   ) {}
 
   forEach(
@@ -351,7 +351,7 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
 }
 
 export function lookupPriority<K, V>(
-  map: VersionedMap<string, Sourced<K, V>[]>,
+  map: ReadonlyVersionedMap<string, Sourced<K, V>[]>,
   id: string,
 ): Sourced<K, V> | undefined {
   const entries = map.get(id);

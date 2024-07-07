@@ -1,16 +1,23 @@
 import { EventRef, Events } from "obsidian";
 import { Either } from "utils/either";
-import { resultFilteredMapClass } from "../utils/filtered-map";
+import {
+  projectedVersionedMap,
+  VersionedMap,
+  VersionedMapImpl,
+} from "utils/versioned-map";
 import { Index } from "./index-interface";
 
 export class IndexImpl<T, E extends Error> implements Index<T, E> {
-  readonly ofValid: ReadonlyMap<string, T> = new (resultFilteredMapClass<
-    string,
-    T,
-    E
-  >())(this);
+  readonly ofValid: ReadonlyMap<string, T> = projectedVersionedMap(
+    this,
+    (result) => (result.isRight() ? result.value : undefined),
+  );
   readonly events: Events = new Events();
-  readonly #map: Map<string, Either<E, T>> = new Map();
+  readonly #map: VersionedMap<string, Either<E, T>> = new VersionedMapImpl();
+
+  get revision(): number {
+    return this.#map.revision;
+  }
 
   clear(): void {
     const keys = [...this.#map.keys()];
