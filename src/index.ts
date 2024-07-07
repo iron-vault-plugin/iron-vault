@@ -1,5 +1,6 @@
 import registerAssetBlock from "assets/asset-block";
 import { CampaignIndex, CampaignIndexer } from "campaigns/indexer";
+import { CampaignManager } from "campaigns/manager";
 import registerCharacterBlock from "characters/character-block";
 import registerClockBlock from "clocks/clock-block";
 import { IronVaultCommands } from "commands";
@@ -41,6 +42,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
   progressIndexer!: ProgressIndexer;
   clockIndexer!: ClockIndexer;
   campaignIndexer!: CampaignIndexer;
+  campaignManager!: CampaignManager;
   indexManager!: IndexManager;
   api!: IronVaultAPI;
   commands!: IronVaultCommands;
@@ -97,6 +99,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     );
     this.datastore = this.addChild(new Datastore(this));
     this.initializeIndexManager();
+    this.campaignManager = this.addChild(new CampaignManager(this));
     this.datastore.on("initialized", () => {
       // Because certain file schemas (characters mainly) are dependent on the loaded Datasworn
       // data (mainly Rules), we reindex tracked entities when the datastore is refreshed.
