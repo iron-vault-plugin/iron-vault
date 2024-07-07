@@ -13,6 +13,7 @@ import { RollWrapper } from "../model/rolls";
 import { OracleRoller } from "./roller";
 import { oracleSchema, type OracleSchema, type RollSchema } from "./schema";
 import IronVaultPlugin from "index";
+import { Datasworn } from "@datasworn/core";
 
 export function registerOracleBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -193,4 +194,88 @@ export function formatOracleBlock({
     roll: roll.dehydrate(),
   };
   return `\`\`\`oracle\n${stringifyYaml(oracle)}\`\`\`\n\n`;
+}
+
+export async function generateOracleTable(
+  plugin: IronVaultPlugin,
+  oracle: Oracle,
+): Promise<HTMLTableElement> {
+  const table = document.createElement("table");
+  table.toggleClass("iron-vault-oracle-table", true);
+  const oracleDesc = oracle.raw;
+  let numColumns: number = 1;
+  if (
+    oracleDesc.oracle_type == "table_text2" ||
+    oracleDesc.oracle_type == "column_text2"
+  ) {
+    numColumns = 2;
+  } else if (
+    oracleDesc.oracle_type == "table_text3" ||
+    oracleDesc.oracle_type == "column_text3"
+  ) {
+    numColumns = 3;
+  }
+
+  if ("column_labels" in oracleDesc) {
+    const thead = table.createEl("thead");
+    const tr = thead.createEl("tr");
+    tr.createEl("th", { text: oracleDesc.column_labels.roll });
+    tr.createEl("th", { text: oracleDesc.column_labels.text });
+    if (numColumns >= 2) {
+      tr.createEl("th", {
+        text: (oracleDesc as Datasworn.OracleTableText2).column_labels.text2,
+      });
+    }
+    if (numColumns >= 3) {
+      tr.createEl("th", {
+        text: (oracleDesc as Datasworn.OracleTableText3).column_labels.text3,
+      });
+    }
+  }
+  const body = table.createEl("tbody");
+  for (const row of oracleDesc.rows) {
+    const tr = body.createEl("tr");
+    let rangeText;
+    if (!row.roll) {
+      rangeText = "";
+    } else if (row.roll.min === row.roll.max) {
+      rangeText = "" + row.roll.min;
+    } else {
+      rangeText = `${row.roll.min} - ${row.roll.max}`;
+    }
+    tr.createEl("td", { text: rangeText });
+    const td = tr.createEl("td");
+    await renderMarkdown(plugin, td, row.text);
+    if (numColumns >= 2) {
+      const td = tr.createEl("td");
+      await renderMarkdown(
+        plugin,
+        td,
+        (row as Datasworn.OracleRollableRowText2).text2 ?? "",
+      );
+    }
+    if (numColumns >= 3) {
+      const td = tr.createEl("td");
+      await renderMarkdown(
+        plugin,
+        td,
+        (row as Datasworn.OracleRollableRowText3).text3 ?? "",
+      );
+    }
+  }
+  return table;
+}
+
+async function renderMarkdown(
+  plugin: IronVaultPlugin,
+  target: HTMLElement,
+  md: string,
+) {
+  await MarkdownRenderer.render(
+    plugin.app,
+    md,
+    target,
+    "",
+    new MarkdownRenderChild(target),
+  );
 }

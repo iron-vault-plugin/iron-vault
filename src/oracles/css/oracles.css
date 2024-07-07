@@ -1,12 +1,32 @@
-.iron-vault-oracle-modal {
-  & table {
-    width: 100%;
-    & td {
-      padding: 0.2em;
+table.iron-vault-oracle-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: var(--shadow);
+  margin-top: 1em;
+  & thead tr {
+    background-color: var(--background-primary);
+  }
+  & th, & td {
+    padding: 0.6em;
+  }
+  & tbody tr {
+    background-color: var(--background-primary-alt);
+    border-bottom: 1px solid var(--background-modifier-border);
+    &:nth-of-type(even) {
+      background-color: var(--background-secondary-alt);
     }
-    & td:has(+ td) {
-      width: 0.1%;
-      white-space: nowrap;
+    &:last-child {
+      border-bottom: none;
+    }
+    & td {
+      & > p {
+        margin: 0;
+      }
+      &:first-child {
+        text-align: center;
+        font-weight: var(--font-semibold);
+        white-space: nowrap;
+      }
     }
   }
 }
