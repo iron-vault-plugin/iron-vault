@@ -25,6 +25,7 @@ import {
   EntityResults,
   EntitySpec,
 } from "./specs";
+import { extractDataswornLinkParts } from "datastore/parsers/datasworn/id";
 
 type OraclePromptOption =
   | { action: "pick"; row: OracleRollableRow }
@@ -137,7 +138,19 @@ export async function generateEntityCommand(
             v.collectionId?.startsWith("oracle_collection:sundered_isles/")),
       ),
       ([_key, { label }]) => label,
-      undefined,
+      (match, el) => {
+        const collId = match.item[1].collectionId;
+        if (collId) {
+          const path = extractDataswornLinkParts(collId)![1];
+          const [rulesetId] = path.split("/");
+          const ruleset = plugin.datastore.rulesPackages.get(rulesetId);
+          if (ruleset) {
+            el.createEl("small", { cls: "iron-vault-suggest-hint" })
+              .createEl("strong")
+              .createEl("em", { text: ruleset.title });
+          }
+        }
+      },
       "What kind of entity?",
     );
     entityDesc = desc;

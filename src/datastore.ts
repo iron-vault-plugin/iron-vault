@@ -323,6 +323,13 @@ export class Datastore extends Component implements IDataContext {
     return new OracleRoller(this.oracles);
   }
 
+  get rulesPackages(): StandardIndex<Datasworn.RulesPackage> {
+    this.assertReady();
+    return this.indexer.prioritized
+      .ofKind("rules_package")
+      .projected((entry) => entry.value);
+  }
+
   get ruleset(): Ruleset {
     this.assertReady();
 

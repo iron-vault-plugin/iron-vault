@@ -303,4 +303,100 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
       },
     },
   },
+  siRuin: {
+    label: "Ruin",
+    collectionId: "oracle_collection:sundered_isles/ruin",
+    spec: {
+      location: {
+        id: "oracle_rollable:sundered_isles/ruin/location",
+        firstLook: true,
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.Snakecase,
+        },
+      },
+      condition: {
+        id: "oracle_rollable:sundered_isles/ruin/condition",
+        firstLook: true,
+      },
+      scope: {
+        id: "oracle_rollable:sundered_isles/ruin/scope",
+        firstLook: true,
+      },
+      first_look: {
+        id: "oracle_rollable:sundered_isles/ruin/first_look",
+        firstLook: true,
+      },
+      mystery: {
+        id: "oracle_rollable:sundered_isles/ruin/mystery",
+      },
+      cipher: {
+        id: "oracle_rollable:sundered_isles/ruin/cipher",
+      },
+      feature: {
+        id: "oracle_rollable:sundered_isles/ruin/feature",
+      },
+      peril: {
+        id: "oracle_rollable:sundered_isles/ruin/peril",
+      },
+      opportunity: {
+        id: "oracle_rollable:sundered_isles/ruin/opportunity",
+      },
+    },
+  },
+  siCharacter: {
+    label: "NPC",
+    collectionId: "oracle_collection:sundered_isles/character",
+    nameGen: (ent) =>
+      // NB(@zkat): We use smart quotes here because `"` is an invalid
+      // character in Windows filenames and `'` looks like shit. They look
+      // nice anyway.
+      `${ent.given_name[0]?.simpleResult}${ent.moniker.length > 0 ? " “" + ent.moniker[0].simpleResult + "”" : ""} ${ent.family_name[0]?.simpleResult}`,
+    spec: {
+      given_name: {
+        id: "oracle_rollable:sundered_isles/character/name/given_name",
+        firstLook: true,
+      },
+      moniker: {
+        id: "oracle_rollable:sundered_isles/character/name/moniker",
+        firstLook: true,
+      },
+      family_name: {
+        id: "oracle_rollable:sundered_isles/character/name/family_name",
+        firstLook: true,
+      },
+      first_look: {
+        id: "oracle_rollable:sundered_isles/character/first_look",
+        firstLook: true,
+        name: "First look",
+      },
+      disposition: {
+        id: "oracle_rollable:sundered_isles/character/initial_disposition",
+        firstLook: true,
+      },
+      roles: {
+        id: "oracle_rollable:sundered_isles/character/roles",
+        firstLook: true,
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.ParseId,
+        },
+      },
+      role_details: {
+        id: "oracle_rollable:sundered_isles/character/role_details/{{roles}}",
+      },
+      trademark_accessories: {
+        id: "oracle_rollable:sundered_isles/character/trademark_accessories",
+      },
+      trademark_weapons: {
+        id: "oracle_rollable:sundered_isles/character/trademark_weapons",
+      },
+      details: {
+        id: "oracle_rollable:sundered_isles/character/details",
+      },
+      goals: {
+        id: "oracle_rollable:sundered_isles/character/goals",
+      },
+    },
+  },
 };
