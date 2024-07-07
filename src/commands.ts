@@ -138,7 +138,7 @@ export class IronVaultCommands {
     },
     {
       id: "character-change-initiative",
-      name: "Change character position / intiative",
+      name: "Change position or intiative",
       icon: "activity",
       editorCallback: (editor: Editor) => changeInitiative(this.plugin, editor),
     },

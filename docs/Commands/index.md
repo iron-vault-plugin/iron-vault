@@ -8,6 +8,7 @@ The following commands are supported:
 * [[Advance a progress track]]
 * [[Ask the Oracle]]
 * [[Burn momentum]]
+* [[Change position or initiative]]
 * [[Create a clock]]
 * [[Create a progress track]]
 * [[Create new character]]
