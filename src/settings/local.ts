@@ -41,10 +41,10 @@ export class IronVaultPluginLocalSettings {
 
   static async loadData(plugin: IronVaultPlugin) {
     const path = this.dataPath(plugin);
-    if (!plugin.app.vault.adapter.exists(path)) {
-      return {};
-    }
     try {
+      if (!(await plugin.app.vault.adapter.exists(path))) {
+        return {};
+      }
       return JSON.parse(
         await plugin.app.vault.adapter.read(this.dataPath(plugin)),
       );
