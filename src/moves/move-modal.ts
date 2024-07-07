@@ -1,4 +1,3 @@
-import { Datasworn } from "@datasworn/core";
 import { determineCharacterActionContext } from "characters/action-context";
 import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
@@ -15,6 +14,7 @@ import {
 } from "obsidian";
 import { runMoveCommand, suggestedRollablesForMove } from "./action";
 import { runOracleCommand } from "oracles/command";
+import { generateOracleTable } from "oracles/render";
 
 const TABLE_REGEX = /\{\{table>([^}]+)\}\}/g;
 
@@ -87,7 +87,7 @@ export class MoveModal extends Modal {
           this.close();
         }
       });
-    const { moveText, oracles } = this.getMoveText(move);
+    const { moveText, oracles } = await this.getMoveText(move);
     await MarkdownRenderer.render(
       this.app,
       moveText,
@@ -148,68 +148,14 @@ export class MoveModal extends Modal {
     contentEl.empty();
   }
 
-  getMoveText(move: AnyDataswornMove) {
+  async getMoveText(move: AnyDataswornMove) {
     let moveText = move.text;
     const oracles = [];
     for (const match of move.text.matchAll(TABLE_REGEX)) {
       const oracle = this.plugin.datastore.oracles.get(match[1]);
-      let oracleText = "";
       if (oracle) {
-        const rollable = oracle.raw;
-        let numColumns: number = 1;
-        if (
-          rollable.oracle_type == "table_text2" ||
-          rollable.oracle_type == "column_text2"
-        ) {
-          numColumns = 2;
-        } else if (
-          rollable.oracle_type == "table_text3" ||
-          rollable.oracle_type == "column_text3"
-        ) {
-          numColumns = 3;
-        }
-        oracleText += "| ";
-        if ("column_labels" in rollable) {
-          oracleText += rollable.column_labels.roll + "|";
-          oracleText += rollable.column_labels.text + "|";
-          if (numColumns >= 2) {
-            oracleText += (rollable as Datasworn.OracleTableText2).column_labels
-              .text2;
-            oracleText += "|";
-          }
-          if (numColumns >= 3) {
-            oracleText += (rollable as Datasworn.OracleTableText3).column_labels
-              .text2;
-            oracleText += "|";
-          }
-        }
-        oracleText += "\n";
-        oracleText += "|---|---|";
-        if (numColumns >= 2) {
-          oracleText += "---|";
-        }
-        if (numColumns >= 3) {
-          oracleText += "---|";
-        }
-        oracleText += "\n";
-        for (const row of rollable.rows) {
-          oracleText +=
-            row.roll?.max === row.roll?.min
-              ? row.roll?.min
-              : `${row.roll?.min} - ${row.roll?.max}`;
-          oracleText += "|";
-          oracleText += row.text;
-          oracleText += "|";
-          if (numColumns >= 2) {
-            oracleText += (row as Datasworn.OracleRollableRowText2).text2 ?? "";
-            oracleText += "|";
-          }
-          if (numColumns >= 3) {
-            oracleText += (row as Datasworn.OracleRollableRowText3).text3 ?? "";
-            oracleText += "|";
-          }
-          oracleText += "\n";
-        }
+        const dom = await generateOracleTable(this.plugin, oracle);
+        const oracleText = dom.outerHTML + "\n";
         oracles.push({ oracleText, oracle });
         moveText = moveText.replaceAll(match[0], "");
       }
