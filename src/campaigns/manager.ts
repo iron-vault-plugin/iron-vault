@@ -1,12 +1,6 @@
 import IronVaultPlugin from "index";
-import {
-  Component,
-  Notice,
-  TAbstractFile,
-  TFile,
-  TFolder,
-  Vault,
-} from "obsidian";
+import { Component, Notice, TAbstractFile, TFolder, Vault } from "obsidian";
+import { CampaignTrackedEntities } from "./context";
 import { CampaignFile } from "./entity";
 
 export class CampaignManager extends Component {
@@ -41,8 +35,23 @@ export class CampaignManager extends Component {
     return assignments;
   }
 
-  campaignForFile(file: TFile): CampaignFile | undefined {
-    return this.campaignFolderAssignment().get(file.parent!);
+  campaignForFile(file: TAbstractFile): CampaignFile | undefined {
+    const folder = file instanceof TFolder ? file : file.parent!;
+    return this.campaignFolderAssignment().get(folder);
+  }
+
+  campaignForPath(path: string): CampaignFile | undefined {
+    const file = this.plugin.app.vault.getAbstractFileByPath(path);
+    if (file == null) return undefined;
+    return this.campaignForFile(file);
+  }
+
+  campaignContextFor(campaign: CampaignFile): CampaignTrackedEntities {
+    return new CampaignTrackedEntities(
+      this.plugin,
+      // TODO(cwegrzyn): need to confirm that file equality comparison is safe
+      (path) => this.campaignForPath(path)?.file === campaign.file,
+    );
   }
 }
 
