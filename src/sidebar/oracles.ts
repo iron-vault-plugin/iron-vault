@@ -82,7 +82,7 @@ function getOracleTree(
       rulesets.set(ruleset.id, ruleset);
     }
 
-    let grouping = groupings.get(groupName);
+    let grouping = groupings.get(oracle.parent.id);
     if (!grouping) {
       grouping = {
         id: oracle.parent.id,
@@ -90,7 +90,7 @@ function getOracleTree(
         children: [],
       };
       ruleset.children.push(grouping);
-      groupings.set(groupName, grouping);
+      groupings.set(oracle.parent.id, grouping);
     }
 
     grouping.children.push(oracle);

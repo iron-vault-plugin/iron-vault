@@ -183,59 +183,6 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
       },
     },
   },
-
-  sfSettlement: {
-    label: "Settlement",
-    nameGen: (ent) => ent.name[0]?.simpleResult,
-    collectionId: "oracle_collection:starforged/settlement",
-    spec: {
-      region: {
-        id: "oracle_rollable:starforgedsupp/core/region",
-        firstLook: true,
-        definesAttribute: {
-          order: 1,
-          mechanism: AttributeMechanism.Snakecase,
-        },
-      },
-      name: {
-        id: "oracle_rollable:starforged/settlement/name",
-        firstLook: true,
-      },
-      location: {
-        id: "oracle_rollable:starforged/settlement/location",
-        firstLook: true,
-      },
-      population: {
-        id: "oracle_rollable:starforged/settlement/population/{{region}}",
-        firstLook: true,
-        name: "Population",
-      },
-      authority: {
-        id: "oracle_rollable:starforged/settlement/authority",
-        firstLook: true,
-      },
-      project: {
-        id: "oracle_rollable:starforged/settlement/projects",
-        firstLook: true,
-      },
-      firstLook: {
-        id: "oracle_rollable:starforged/settlement/first_look",
-        // lol this is ironic, but that's what the rulebook says
-        firstLook: false,
-        name: "First look",
-      },
-      initialContact: {
-        id: "oracle_rollable:starforged/settlement/initial_contact",
-        firstLook: false,
-        name: "Initial contact",
-      },
-      trouble: {
-        id: "oracle_rollable:starforged/settlement/trouble",
-        firstLook: false,
-      },
-    },
-  },
-
   sfPlanet: {
     label: "Planet",
     nameGen: (ent) => ent.name[0]?.simpleResult,
@@ -306,6 +253,149 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
         id: "oracle_rollable:classic/character/goal",
         firstLook: false,
         name: "Character goal",
+      },
+    },
+  },
+  siIsland: {
+    label: "Island",
+    nameGen: (ent) => ent.name[0]?.simpleResult,
+    collectionId: "oracle_collection:sundered_isles/island",
+    spec: {
+      region: {
+        id: "oracle_rollable:sundered_isles_supp/core/region",
+        firstLook: true,
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.Snakecase,
+        },
+      },
+      name: {
+        id: "oracle_rollable:sundered_isles/island/name",
+        firstLook: true,
+      },
+      size: {
+        id: "oracle_rollable:sundered_isles/island/landscape/size",
+        firstLook: true,
+      },
+      terrain: {
+        id: "oracle_rollable:sundered_isles/island/landscape/terrain",
+        firstLook: true,
+      },
+      vitality: {
+        id: "oracle_rollable:sundered_isles/island/landscape/vitality/{{region}}",
+        firstLook: true,
+        name: "Vitality",
+      },
+      nearby_islands: {
+        id: "oracle_rollable:sundered_isles/island/nearby_islands/{{region}}",
+        firstLook: true,
+        name: "Nearby islands",
+      },
+      coastline_aspects: {
+        id: "oracle_rollable:sundered_isles/island/coastline_aspects",
+      },
+      offshore_observations: {
+        id: "oracle_rollable:sundered_isles/island/offshore_observations",
+      },
+      visible_habitation: {
+        id: "oracle_rollable:sundered_isles/island/visible_habitation/{{region}}",
+        name: "Visible habitation",
+      },
+    },
+  },
+  siRuin: {
+    label: "Ruin",
+    collectionId: "oracle_collection:sundered_isles/ruin",
+    spec: {
+      location: {
+        id: "oracle_rollable:sundered_isles/ruin/location",
+        firstLook: true,
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.Snakecase,
+        },
+      },
+      condition: {
+        id: "oracle_rollable:sundered_isles/ruin/condition",
+        firstLook: true,
+      },
+      scope: {
+        id: "oracle_rollable:sundered_isles/ruin/scope",
+        firstLook: true,
+      },
+      first_look: {
+        id: "oracle_rollable:sundered_isles/ruin/first_look",
+        firstLook: true,
+      },
+      mystery: {
+        id: "oracle_rollable:sundered_isles/ruin/mystery",
+      },
+      cipher: {
+        id: "oracle_rollable:sundered_isles/ruin/cipher",
+      },
+      feature: {
+        id: "oracle_rollable:sundered_isles/ruin/feature",
+      },
+      peril: {
+        id: "oracle_rollable:sundered_isles/ruin/peril",
+      },
+      opportunity: {
+        id: "oracle_rollable:sundered_isles/ruin/opportunity",
+      },
+    },
+  },
+  siCharacter: {
+    label: "NPC",
+    collectionId: "oracle_collection:sundered_isles/character",
+    nameGen: (ent) =>
+      // NB(@zkat): We use smart quotes here because `"` is an invalid
+      // character in Windows filenames and `'` looks like shit. They look
+      // nice anyway.
+      `${ent.given_name[0]?.simpleResult}${ent.moniker.length > 0 ? " “" + ent.moniker[0].simpleResult + "”" : ""} ${ent.family_name[0]?.simpleResult}`,
+    spec: {
+      given_name: {
+        id: "oracle_rollable:sundered_isles/character/name/given_name",
+        firstLook: true,
+      },
+      moniker: {
+        id: "oracle_rollable:sundered_isles/character/name/moniker",
+        firstLook: true,
+      },
+      family_name: {
+        id: "oracle_rollable:sundered_isles/character/name/family_name",
+        firstLook: true,
+      },
+      first_look: {
+        id: "oracle_rollable:sundered_isles/character/first_look",
+        firstLook: true,
+        name: "First look",
+      },
+      disposition: {
+        id: "oracle_rollable:sundered_isles/character/initial_disposition",
+        firstLook: true,
+      },
+      roles: {
+        id: "oracle_rollable:sundered_isles/character/roles",
+        firstLook: true,
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.ParseId,
+        },
+      },
+      role_details: {
+        id: "oracle_rollable:sundered_isles/character/role_details/{{roles}}",
+      },
+      trademark_accessories: {
+        id: "oracle_rollable:sundered_isles/character/trademark_accessories",
+      },
+      trademark_weapons: {
+        id: "oracle_rollable:sundered_isles/character/trademark_weapons",
+      },
+      details: {
+        id: "oracle_rollable:sundered_isles/character/details",
+      },
+      goals: {
+        id: "oracle_rollable:sundered_isles/character/goals",
       },
     },
   },

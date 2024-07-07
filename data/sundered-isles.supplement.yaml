@@ -1,0 +1,53 @@
+---
+type: expansion
+_id: sundered_isles_supp
+title: "Sundered Isles Iron Vault Support"
+datasworn_version: 0.1.0
+ruleset: sundered_isles
+oracles:
+  templates:
+    _id: oracle_collection:sundered_isles_supp/templates
+    name: Templates
+    type: oracle_collection
+    oracle_type: tables
+    _source:
+      title: Iron Vault Support Oracles for Sundered Isles
+      authors:
+        - name: Iron Vault Dev Team
+      date: "2024-06-15"
+      url: "https://github.com/iron-vault-plugin/iron-vault"
+      license: "MIT"
+    collections: {}
+    contents:
+      "region":
+        _id: oracle_rollable:sundered_isles_supp/core/region
+        name: Region
+        dice: "1d100"
+        type: oracle_rollable
+        oracle_type: table_text
+        _source:
+          title: Iron Vault Support Oracles for Sundered Isles
+          authors:
+            - name: Iron Vault Dev Team
+          date: "2024-06-15"
+          url: "https://github.com/iron-vault-plugin/iron-vault"
+          license: "MIT"
+        column_labels:
+          roll: Roll
+          text: Region
+        rows:
+          - _id: oracle_rollable.row:sundered_isles_supp/core/region.0
+            roll:
+              min: 1
+              max: 45
+            text: "Myriads"
+          - _id: oracle_rollable.row:sundered_isles_supp/core/region.1
+            roll:
+              min: 46
+              max: 80
+            text: "Margins"
+          - _id: oracle_rollable.row:sundered_isles_supp/core/region.2
+            roll:
+              min: 81
+              max: 100
+            text: "Reaches"
