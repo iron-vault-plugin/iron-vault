@@ -1,6 +1,7 @@
 import { type Datasworn } from "@datasworn/core";
+import { determineCharacterActionContext } from "characters/action-context";
 import IronVaultPlugin from "index";
-import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
+import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
 import { App, Editor, Modal, Setting } from "obsidian";
 import { Dice, DieKind } from "utils/dice";
 import { node } from "utils/kdl";
@@ -109,6 +110,8 @@ export class ActionModal extends Modal {
 }
 
 export async function rerollDie(plugin: IronVaultPlugin, editor: Editor) {
+  const actionContext = await determineCharacterActionContext(plugin);
+
   const dieName: "action" | "vs1" | "vs2" = await CustomSuggestModal.select(
     plugin.app,
     ["action", "vs1", "vs2"],
@@ -148,7 +151,13 @@ export async function rerollDie(plugin: IronVaultPlugin, editor: Editor) {
   const rerollNode = node("reroll", {
     properties: props,
   });
-  // TODO(@cwegrzyn): should this be changed to work with the last move even if it is in
-  // an actor block? Or should it be based on a specific character?
-  appendNodesToMoveOrMechanicsBlock(editor, rerollNode);
+
+  // See https://github.com/iron-vault-plugin/iron-vault/issues/382 for discussion of
+  // how this should work w/ actor nodes.
+  appendNodesToMoveOrMechanicsBlockWithActor(
+    editor,
+    plugin,
+    actionContext,
+    rerollNode,
+  );
 }
