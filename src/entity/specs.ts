@@ -399,4 +399,61 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
       },
     },
   },
+  siSettlement: {
+    label: "Settlement",
+    collectionId: "oracle_collection:sundered_isles/settlement",
+    nameGen: (ent) => `${ent.name[0].simpleResult}`,
+    spec: {
+      region: {
+        id: "oracle_rollable:sundered_isles_supp/core/region",
+        firstLook: true,
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.Snakecase,
+        },
+      },
+      location: {
+        id: "oracle_rollable:sundered_isles/settlement/location",
+        firstLook: true,
+        definesAttribute: {
+          order: 2,
+          mechanism: AttributeMechanism.Snakecase,
+        },
+      },
+      size: {
+        name: "Size",
+        id: "oracle_rollable:sundered_isles/settlement/size/{{region}}",
+        firstLook: true,
+      },
+      name: {
+        firstLook: true,
+        id: "oracle_rollable:sundered_isles/settlement/name",
+      },
+      aesthetics: {
+        id: "oracle_rollable:sundered_isles/settlement/aesthetics",
+        firstLook: true,
+      },
+      first_look: {
+        id: "oracle_rollable:sundered_isles/settlement/first_look",
+        firstLook: true,
+      },
+      controlling_faction: {
+        name: "Controlling faction",
+        id: "oracle_rollable:sundered_isles/settlement/identity/controlling_faction/{{region}}",
+      },
+      disposition: {
+        id: "oracle_rollable:sundered_isles/settlement/identity/disposition",
+      },
+      authority: {
+        id: "oracle_rollable:sundered_isles/settlement/identity/authority",
+      },
+      focus: {
+        name: "Focus",
+        id: "oracle_rollable:sundered_isles/settlement/identity/focus/{{location}}",
+      },
+      details: {
+        id: "oracle_rollable:sundered_isles/settlement/details",
+      },
+    },
+  },
 };
