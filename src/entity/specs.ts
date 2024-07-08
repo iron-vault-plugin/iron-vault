@@ -402,7 +402,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
   siSettlement: {
     label: "Settlement",
     collectionId: "oracle_collection:sundered_isles/settlement",
-    nameGen: (ent) => `${ent.name[0].simpleResult}`,
+    nameGen: (ent) => `${ent.name[0]?.simpleResult}`,
     spec: {
       region: {
         id: "oracle_rollable:sundered_isles_supp/core/region",
