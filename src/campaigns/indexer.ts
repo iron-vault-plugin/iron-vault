@@ -14,6 +14,8 @@ export class CampaignIndexer extends BaseIndexer<CampaignFile, z.ZodError> {
   ): IndexUpdate<CampaignFile, z.ZodError> {
     return CampaignFile.parse(file, cache.frontmatter);
   }
+
+  protected reprocessRenamedFiles: boolean = true;
 }
 
 export type CampaignIndex = Index<CampaignFile, z.ZodError>;

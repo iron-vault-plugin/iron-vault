@@ -47,7 +47,7 @@ export interface Indexer {
     cache: CachedMetadata,
   ): IndexUpdateResult<unknown, Error>["type"];
   onDeleted(path: string): IndexDeleteResult;
-  onRename(oldPath: string, newPath: string): void;
+  onRename(oldPath: string, newFile: TFile, cache: CachedMetadata): void;
 }
 
 export type IndexerId = string;
@@ -122,8 +122,13 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
     }
   }
 
-  onRename(oldPath: string, newPath: string): void {
-    if (!this.index.rename(oldPath, newPath)) {
+  onRename(oldPath: string, newFile: TFile, cache: CachedMetadata): void {
+    if (this.index.rename(oldPath, newFile.path)) {
+      if (this.reprocessRenamedFiles) {
+        // TODO: this is all hacky, and also what do I do if this returns something unexpected?
+        this.onChanged(newFile, cache);
+      }
+    } else {
       this.#logger.warn(
         "Missing expected key '%s' in rename operation",
         oldPath,
@@ -131,5 +136,9 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
     }
   }
 
+  /** This defines how your indexer processes the files into its indexed type. */
   abstract processFile(file: TFile, cache: CachedMetadata): IndexUpdate<T, E>;
+
+  /** Defines whether renamed files should be reindexed (e.g., if they include their path) */
+  protected readonly reprocessRenamedFiles: boolean = false;
 }
