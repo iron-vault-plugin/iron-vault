@@ -78,7 +78,10 @@ export async function createProgressTrack(
     trackInput.targetFolder,
     trackInput.fileName,
     IronVaultKind.ProgressTrack,
-    track.raw,
+    {
+      ...track.raw,
+      "track-type": trackInput.trackType,
+    },
     plugin.settings.progressTrackTemplateFile,
     `\n\`\`\`${BLOCK_TYPE__TRACK}\n\`\`\`\n\n`,
   );

@@ -123,6 +123,9 @@ export class ProgressTrackCreateModal extends Modal {
       search.onChange((value) => {
         this.result.trackType = value;
       });
+      search.inputEl.addEventListener("change", () => {
+        this.result.trackType = search.inputEl.value;
+      });
     });
 
     new Setting(contentEl)
