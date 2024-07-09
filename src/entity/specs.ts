@@ -224,6 +224,61 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
       },
     },
   },
+  sfSettlement: {
+    label: "Settlement",
+    nameGen: (ent) => {
+      if (ent.name_tags && ent.name_tags.length > 0) {
+        return `${ent.name[0]?.simpleResult} ${ent.name_tags[0].simpleResult}`;
+      }
+      return ent.name[0]?.simpleResult;
+    },
+    collectionId: "oracle_collection:starforged/settlement",
+    spec: {
+      region: {
+        id: "oracle_rollable:starforgedsupp/core/region",
+        firstLook: true,
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.Snakecase,
+        },
+      },
+      name: {
+        id: "oracle_rollable:starforged/settlement/name",
+        firstLook: true,
+      },
+      name_tags: {
+        name: "Name Suffix",
+        id: "oracle_rollable:starforged/settlement/name_tags",
+      },
+      location: {
+        id: "oracle_rollable:starforged/settlement/location",
+        firstLook: true,
+      },
+      population: {
+        name: "Population",
+        id: "oracle_rollable:starforged/settlement/population/{{region}}",
+        firstLook: true,
+      },
+      first_look: {
+        id: "oracle_rollable:starforged/settlement/first_look",
+        firstLook: true,
+      },
+      initial_contact: {
+        id: "oracle_rollable:starforged/settlement/initial_contact",
+      },
+      authority: {
+        id: "oracle_rollable:starforged/settlement/authority",
+      },
+      projects: {
+        name: "Settlement Projects",
+        id: "oracle_rollable:starforged/settlement/projects",
+      },
+      trouble: {
+        name: "Settlement Trouble",
+        id: "oracle_rollable:starforged/settlement/trouble",
+      },
+    },
+  },
   isIronlander: {
     collectionId: "oracle_collection:classic/character",
     label: "Ironlander",
