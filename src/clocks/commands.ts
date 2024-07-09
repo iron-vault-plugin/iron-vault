@@ -1,3 +1,4 @@
+import { determineCampaignContext } from "campaigns/manager";
 import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
 import {
@@ -19,10 +20,10 @@ export async function advanceClock(
   plugin: IronVaultPlugin,
   editor: Editor,
   view: MarkdownView,
-  clockIndex: ClockIndex,
 ) {
+  const campaignContext = await determineCampaignContext(plugin, view);
   const [clockPath, clockInfo] = await selectClock(
-    plugin.clocks,
+    campaignContext.clocks,
     plugin,
     ([, clockInfo]) => clockInfo.clock.active && !clockInfo.clock.isFilled,
   );

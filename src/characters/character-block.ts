@@ -18,12 +18,12 @@ import {
   TrackedEntityRenderer,
 } from "utils/ui/tracked-entity-renderer";
 import { ZodError } from "zod";
-import { CharacterContext, setActiveCharacter } from "../character-tracker";
 import renderAssetCard from "../assets/asset-card";
+import { CharacterContext, setActiveCharacter } from "../character-tracker";
+import { CharacterActionContext } from "./action-context";
 import { addOrUpdateViaDataswornAsset } from "./assets";
 import { addAssetToCharacter } from "./commands";
 import { CharacterLens, ValidatedCharacter, momentumOps } from "./lens";
-import { CharacterActionContext } from "./action-context";
 
 export default function registerCharacterBlocks(plugin: IronVaultPlugin): void {
   registerBlock();
@@ -558,8 +558,13 @@ class CharacterRenderer extends TrackedEntityRenderer<
               undefined,
               undefined,
               undefined,
+              // TODO(@cwegrzyn): should we be getting the character action context some other way here?
+              //   getting the campaign context here is also hacky
               new CharacterActionContext(
                 this.plugin.datastore,
+                this.plugin.campaignManager.campaignContextFor(
+                  this.plugin.campaignManager.campaignForPath(this.sourcePath)!,
+                ),
                 this.sourcePath,
                 charCtx,
               ),

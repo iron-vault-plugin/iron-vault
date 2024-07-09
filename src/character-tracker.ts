@@ -75,7 +75,11 @@ export async function activeCharacter(
     characters.length === 1
       ? [characters[0][0]]
       : plugin.localSettings.activeCharacter &&
-          !plugin.settings.alwaysPromptActiveCharacter
+          !plugin.settings.alwaysPromptActiveCharacter &&
+          // If active character isn't in this campaign, we need a new one!
+          characters.find(
+            ([charPath]) => charPath === plugin.localSettings.activeCharacter,
+          )
         ? [plugin.localSettings.activeCharacter]
         : await CustomSuggestModal.select(
             plugin.app,

@@ -1,5 +1,15 @@
 import IronVaultPlugin from "index";
-import { Component, Notice, TAbstractFile, TFolder, Vault } from "obsidian";
+import { onlyValid } from "indexer/index-impl";
+import {
+  Component,
+  MarkdownFileInfo,
+  MarkdownView,
+  Notice,
+  TAbstractFile,
+  TFolder,
+  Vault,
+} from "obsidian";
+import { CustomSuggestModal } from "utils/suggest";
 import { CampaignTrackedEntities } from "./context";
 import { CampaignFile } from "./entity";
 
@@ -53,6 +63,24 @@ export class CampaignManager extends Component {
       (path) => this.campaignForPath(path)?.file === campaign.file,
     );
   }
+}
+
+export async function determineCampaignContext(
+  plugin: IronVaultPlugin,
+  view?: MarkdownView | MarkdownFileInfo,
+): Promise<CampaignTrackedEntities> {
+  const file = view?.file;
+  let campaign = file && plugin.campaignManager.campaignForFile(file);
+  if (!campaign) {
+    campaign = await CustomSuggestModal.select(
+      plugin.app,
+      [...onlyValid(plugin.campaigns).values()],
+      (campaign) => campaign.name,
+      undefined,
+      "No active campaign. Select a campaign...",
+    );
+  }
+  return plugin.campaignManager.campaignContextFor(campaign);
 }
 
 /** Checks if the first file is a parent of the second. */

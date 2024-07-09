@@ -18,7 +18,12 @@ import {
   generateMechanicsNode,
 } from "mechanics/node-builders";
 import { getMoveIdFromNode, getTerminalMoveNode } from "mechanics/utils";
-import { type App, type Editor, type MarkdownView } from "obsidian";
+import {
+  MarkdownFileInfo,
+  type App,
+  type Editor,
+  type MarkdownView,
+} from "obsidian";
 import { MeterCommon } from "rules/ruleset";
 import { DiceGroup } from "utils/dice-group";
 import { numberRange } from "utils/numbers";
@@ -306,7 +311,7 @@ export function validAdds(baseStat: number): number[] {
 export async function runMoveCommand(
   plugin: IronVaultPlugin,
   editor: Editor,
-  view: MarkdownView,
+  view: MarkdownView | MarkdownFileInfo,
   chosenMove?: AnyDataswornMove,
   chosenMeter?: MeterWithLens | MeterWithoutLens,
   skipRoll: boolean = false,
@@ -316,7 +321,7 @@ export async function runMoveCommand(
     return;
   }
 
-  const context = await determineCharacterActionContext(plugin);
+  const context = await determineCharacterActionContext(plugin, view);
 
   // Use the provided move, or prompt the user for a move appropriate to the current action context.
   const move: Datasworn.Move | Datasworn.EmbeddedMove =
@@ -687,8 +692,9 @@ function moveRuleset(
 export async function makeActionRollCommand(
   plugin: IronVaultPlugin,
   editor: Editor,
+  view: MarkdownView | MarkdownFileInfo,
 ): Promise<void> {
-  const context = await determineCharacterActionContext(plugin);
+  const context = await determineCharacterActionContext(plugin, view);
 
   const priorBlock = findAdjacentMechanicsBlock(editor);
   let updatePriorMove = false;

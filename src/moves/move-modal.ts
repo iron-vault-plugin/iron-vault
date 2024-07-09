@@ -12,9 +12,9 @@ import {
   Modal,
   setIcon,
 } from "obsidian";
-import { runMoveCommand, suggestedRollablesForMove } from "./action";
 import { runOracleCommand } from "oracles/command";
 import { generateOracleTable } from "oracles/render";
+import { runMoveCommand, suggestedRollablesForMove } from "./action";
 
 const TABLE_REGEX = /\{\{table>([^}]+)\}\}/g;
 
@@ -29,6 +29,11 @@ export class MoveModal extends Modal {
     this.move = move;
   }
 
+  private getActiveMarkdownView(): MarkdownView | undefined {
+    const view = this.plugin.app.workspace.getActiveFileView();
+    return view && view instanceof MarkdownView ? view : undefined;
+  }
+
   async openMove(move: AnyDataswornMove) {
     this.setTitle(move.name);
     const { contentEl } = this;
@@ -36,10 +41,14 @@ export class MoveModal extends Modal {
     contentEl.toggleClass("iron-vault-modal-content", true);
     contentEl.toggleClass("iron-vault-modal", true);
     contentEl.toggleClass("iron-vault-move-modal", true);
-    const context = await determineCharacterActionContext(this.plugin);
+    const view = this.getActiveMarkdownView();
+    // NOTE(@cwegrzyn): I've taken the approach here that if there is no active view, let's
+    // not prompt the user for a campaign/character just to view a move.
+    const context =
+      view && (await determineCharacterActionContext(this.plugin, view));
     const suggested =
       move.roll_type === "action_roll" && suggestedRollablesForMove(move);
-    if (suggested) {
+    if (suggested && context) {
       const rollsList = contentEl.createEl("ul", { cls: "rollable-stats" });
       contentEl.appendChild(rollsList);
       const rollables = context.rollables.filter((r) => suggested[r.key]);
@@ -49,11 +58,9 @@ export class MoveModal extends Modal {
           (meter) => html`
             <li
               @click=${() => {
-                const { workspace } = this.plugin.app;
-                const view = workspace.getActiveFileView();
-                if (view && view instanceof MarkdownView) {
-                  const editor = view.editor;
-                  runMoveCommand(this.plugin, editor, view, move, meter);
+                const view = this.getActiveMarkdownView();
+                if (view) {
+                  runMoveCommand(this.plugin, view.editor, view, move, meter);
                   this.close();
                 }
               }}
@@ -79,11 +86,9 @@ export class MoveModal extends Modal {
     new ButtonComponent(contentEl)
       .setButtonText("Make this move with prompts")
       .onClick(() => {
-        const { workspace } = this.plugin.app;
-        const view = workspace.getActiveFileView();
-        if (view && view instanceof MarkdownView) {
-          const editor = view.editor;
-          runMoveCommand(this.plugin, editor, view, move);
+        const view = this.getActiveMarkdownView();
+        if (view) {
+          runMoveCommand(this.plugin, view.editor, view, move);
           this.close();
         }
       });
@@ -100,11 +105,9 @@ export class MoveModal extends Modal {
         .setButtonText(`Roll ${oracle.name}`)
         .setTooltip(`Roll on the ${oracle.name} oracle.`)
         .onClick(() => {
-          const { workspace } = this.plugin.app;
-          const view = workspace.getActiveFileView();
-          if (view && view instanceof MarkdownView) {
-            const editor = view.editor;
-            runOracleCommand(this.plugin, editor, view, oracle);
+          const view = this.getActiveMarkdownView();
+          if (view) {
+            runOracleCommand(this.plugin, view.editor, view, oracle);
             this.close();
           }
         });

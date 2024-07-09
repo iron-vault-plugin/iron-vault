@@ -1,5 +1,5 @@
 import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
-import { App, Editor } from "obsidian";
+import { App, Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
 import { ConditionMeterDefinition } from "rules/ruleset";
 import { node } from "utils/kdl";
 import { updating } from "utils/lens";
@@ -19,8 +19,9 @@ import { MeterWithLens, MeterWithoutLens, momentumOps } from "./lens";
 export async function burnMomentum(
   plugin: IronVaultPlugin,
   editor: Editor,
+  view: MarkdownView | MarkdownFileInfo,
 ): Promise<void> {
-  const actionContext = await requireActiveCharacterContext(plugin);
+  const actionContext = await requireActiveCharacterContext(plugin, view);
   const [path, charContext] = [
     actionContext.characterPath,
     actionContext.characterContext,
@@ -90,6 +91,7 @@ export async function promptForMeter(
 export const modifyMeterCommand = async (
   plugin: IronVaultPlugin,
   editor: Editor,
+  view: MarkdownView | MarkdownFileInfo,
   verb: string,
   meterFilter: (
     meter:
@@ -101,8 +103,7 @@ export const modifyMeterCommand = async (
     measure: Omit<MeterWithLens<ConditionMeterDefinition>, "lens">,
   ) => number[],
 ) => {
-  // todo: multichar
-  const actionContext = await determineCharacterActionContext(plugin);
+  const actionContext = await determineCharacterActionContext(plugin, view);
 
   const choice = await promptForMeter(plugin.app, actionContext, meterFilter);
 

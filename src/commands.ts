@@ -1,5 +1,4 @@
 import { setActiveCharacter as pickActiveCharacter } from "character-tracker";
-import { determineCharacterActionContext } from "characters/action-context";
 import {
   addAssetToCharacter,
   changeInitiative,
@@ -20,7 +19,6 @@ import {
   createProgressTrack,
   markTrackCompleted,
 } from "tracks/commands";
-import { ProgressContext } from "tracks/context";
 import { generateTruthsCommand } from "truths/command";
 import {
   GenericFuzzySuggester,
@@ -45,20 +43,20 @@ export class IronVaultCommands {
       name: "Make a move",
       icon: "zap",
       editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
-        // TODO: what if view is just a fileinfo?
-        runMoveCommand(this.plugin, editor, view as MarkdownView),
+        runMoveCommand(this.plugin, editor, view),
     },
     {
       id: "make-action-roll",
       name: "Make an action roll",
-      editorCallback: (editor) => makeActionRollCommand(this.plugin, editor),
+      editorCallback: (editor, view) =>
+        makeActionRollCommand(this.plugin, editor, view),
     },
     {
       id: "ask-the-oracle",
       name: "Ask the Oracle",
       icon: "message-circle-question",
-      editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
-        runOracleCommand(this.plugin, editor, view as MarkdownView),
+      editorCallback: (editor, view) =>
+        runOracleCommand(this.plugin, editor, view),
     },
     {
       id: "show-sidebar",
@@ -88,17 +86,18 @@ export class IronVaultCommands {
       id: "burn-momentum",
       name: "Burn momentum",
       icon: "flame",
-      editorCallback: (editor: Editor) =>
-        meterCommands.burnMomentum(this.plugin, editor),
+      editorCallback: (editor, view) =>
+        meterCommands.burnMomentum(this.plugin, editor, view),
     },
     {
       id: "take-meter",
       name: "Take on a meter",
       icon: "trending-up",
-      editorCallback: async (editor: Editor) =>
+      editorCallback: async (editor, view) =>
         meterCommands.modifyMeterCommand(
           this.plugin,
           editor,
+          view,
           "take",
           ({ value, definition: { max } }) =>
             value === undefined || value < max,
@@ -112,10 +111,11 @@ export class IronVaultCommands {
       id: "suffer-meter",
       name: "Suffer on a meter",
       icon: "trending-down",
-      editorCallback: async (editor: Editor) =>
+      editorCallback: async (editor, view) =>
         meterCommands.modifyMeterCommand(
           this.plugin,
           editor,
+          view,
           "suffer",
           ({ value, definition: { min } }) =>
             value === undefined || value > min,
@@ -140,13 +140,15 @@ export class IronVaultCommands {
       id: "character-change-initiative",
       name: "Change position or intiative",
       icon: "activity",
-      editorCallback: (editor: Editor) => changeInitiative(this.plugin, editor),
+      editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
+        changeInitiative(this.plugin, editor, view),
     },
     {
       id: "reroll-die",
       name: "Reroll a die",
       icon: "dice",
-      editorCallback: (editor: Editor) => rerollDie(this.plugin, editor),
+      editorCallback: (editor: Editor, view) =>
+        rerollDie(this.plugin, editor, view),
     },
 
     /*
@@ -167,22 +169,15 @@ export class IronVaultCommands {
         editor: Editor,
         ctx: MarkdownView | MarkdownFileInfo,
       ) => {
-        const actionContext = await determineCharacterActionContext(
-          this.plugin,
-        );
-        await advanceProgressTrack(
-          this.plugin,
-          editor,
-          ctx as MarkdownView,
-          new ProgressContext(this.plugin, actionContext),
-        );
+        await advanceProgressTrack(this.plugin, editor, ctx as MarkdownView);
       },
     },
     {
       id: "progress-complete",
       name: "Progress: Complete a progress track",
       icon: "square-check",
-      editorCallback: (editor) => markTrackCompleted(this.plugin, editor),
+      editorCallback: (editor, view) =>
+        markTrackCompleted(this.plugin, editor, view),
     },
 
     /*
@@ -200,12 +195,7 @@ export class IronVaultCommands {
       name: "Clock: Advance a clock",
       icon: "alarm-clock-plus",
       editorCallback: (editor: Editor, ctx: MarkdownView | MarkdownFileInfo) =>
-        advanceClock(
-          this.plugin,
-          editor,
-          ctx as MarkdownView,
-          this.plugin.clocks,
-        ),
+        advanceClock(this.plugin, editor, ctx as MarkdownView),
     },
 
     /*
