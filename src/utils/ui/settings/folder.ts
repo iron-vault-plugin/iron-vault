@@ -1,6 +1,13 @@
-import { AbstractInputSuggest, TFolder } from "obsidian";
+import { AbstractInputSuggest, App, TFolder } from "obsidian";
 
 export class FolderTextSuggest extends AbstractInputSuggest<TFolder> {
+  constructor(
+    app: App,
+    textInputEl: HTMLInputElement | HTMLDivElement,
+    private onSelectCallBack: (value: string) => void = () => {},
+  ) {
+    super(app, textInputEl);
+  }
   getSuggestions(inputStr: string): TFolder[] {
     const searchStr = inputStr.toLowerCase();
 
@@ -19,6 +26,7 @@ export class FolderTextSuggest extends AbstractInputSuggest<TFolder> {
 
   selectSuggestion(item: TFolder): void {
     this.setValue(item.path);
+    this.onSelectCallBack(item.path);
     this.close();
   }
 }

@@ -323,12 +323,16 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     const targetFolderSetting = new Setting(contentEl)
       .setName("Target folder")
       .addSearch((search) => {
-        new FolderTextSuggest(this.app, search.inputEl);
+        new FolderTextSuggest(this.app, search.inputEl, (val: string) => {
+          search.setValue(val);
+          search.onChanged();
+        });
+
         search
           .setPlaceholder("Choose a folder")
           .setValue(this.results.targetFolder)
-          .onChange((newFolder) => {
-            const normalized = normalizePath(newFolder);
+          .onChange(() => {
+            const normalized = normalizePath(search.getValue());
             this.results.targetFolder = normalized;
             if (this.app.vault.getFolderByPath(normalized)) {
               targetFolderSetting.setDesc(
