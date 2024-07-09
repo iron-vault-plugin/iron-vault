@@ -69,7 +69,11 @@ export class ClockCreateModal extends Modal {
     const folderSetting = new Setting(contentEl)
       .setName("Target folder")
       .addSearch((search) => {
-        new FolderTextSuggest(this.app, search.inputEl);
+        new FolderTextSuggest(this.app, search.inputEl, (val: string) => {
+          search.setValue(val);
+          search.onChanged();
+        });
+
         folderComponent = search
           .setPlaceholder("Choose a folder")
           .setValue(this.result.targetFolder)
