@@ -331,8 +331,8 @@ export class EntityModal<T extends EntitySpec> extends Modal {
         search
           .setPlaceholder("Choose a folder")
           .setValue(this.results.targetFolder)
-          .onChange(() => {
-            const normalized = normalizePath(search.getValue());
+          .onChange((newFolder) => {
+            const normalized = normalizePath(newFolder);
             this.results.targetFolder = normalized;
             if (this.app.vault.getFolderByPath(normalized)) {
               targetFolderSetting.setDesc(
