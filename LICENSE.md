@@ -72,6 +72,9 @@ Hexagon with checkmark icon by
 [SVG Repo](https://www.svgrepo.com/), with some modifications for proper
 scaling.
 
+Iron Vault logo and icon by [megane](https://snw-0.github.io), [CC BY
+4.0](https://creativecommons.org/licenses/by/4.0/).
+
 ## BRAT code
 
 The GenericFuzzySuggester was copied from the [BRAT
