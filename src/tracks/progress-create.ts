@@ -115,19 +115,18 @@ export class ProgressTrackCreateModal extends Modal {
         "What kind of track is this? (e.g., Vow, Connection)",
       );
 
-      new GenericTextSuggest(this.app, search.inputEl, [
-        "Vow",
-        "Connection",
-        "Combat",
-        "Scene Challenge",
-        "Expedition",
-      ]);
+      new GenericTextSuggest(
+        this.app,
+        search.inputEl,
+        ["Vow", "Connection", "Combat", "Scene Challenge", "Expedition"],
+        (val) => {
+          search.setValue(val);
+          search.onChanged();
+        },
+      );
 
       search.onChange((value) => {
         this.result.trackType = value;
-      });
-      search.inputEl.addEventListener("change", () => {
-        this.result.trackType = search.inputEl.value;
       });
     });
 
