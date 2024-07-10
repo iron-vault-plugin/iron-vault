@@ -39,8 +39,9 @@
   }
 }
 
-.internal-embed[alt~=iv-embed] {
-  & .markdown-embed-title, & .markdown-embed-link {
+.internal-embed[alt~="iv-embed"] {
+  & .markdown-embed-title,
+  & .markdown-embed-link {
     display: none;
   }
   & .markdown-preview-view {
@@ -51,6 +52,12 @@
     border: none;
     box-shadow: none;
   }
+}
+
+.ruleset-img {
+  height: 3.5em;
+  width: 3.5em;
+  padding: 0.2em 0;
 }
 
 #iron-vault-dice-box {
