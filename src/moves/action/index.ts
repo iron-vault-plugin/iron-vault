@@ -3,6 +3,7 @@ import {
   ActionContext,
   CharacterActionContext,
   determineCharacterActionContext,
+  formatActionContextDescription,
 } from "characters/action-context";
 import { labelForMeter } from "characters/display";
 import { AnyDataswornMove } from "datastore/datasworn-indexer";
@@ -116,7 +117,7 @@ async function promptForMove(
           });
       }
     },
-    `Select a move`,
+    `Select a move ${formatActionContextDescription(context)}`,
   );
 
   if (choice.kind == "pick") {

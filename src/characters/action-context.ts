@@ -230,3 +230,11 @@ export async function determineCharacterActionContext(
     return new NoCharacterActionConext(plugin.datastore, campaignContext);
   }
 }
+
+export function formatActionContextDescription(
+  actionContext: ActionContext,
+): string {
+  const campaign = actionContext.campaignContext.campaign;
+  const character = actionContext.getWithLens((_) => _.name);
+  return `${character != null ? `for '${character}' ` : ""}in '${campaign.name}'`;
+}
