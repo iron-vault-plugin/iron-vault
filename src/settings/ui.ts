@@ -165,10 +165,28 @@ export class IronVaultSettingTab extends PluginSettingTab {
           search.onChanged();
         });
 
+        let isValidPath = true;
+
+        search.inputEl.addEventListener("blur", () => {
+          if (!isValidPath) {
+            search.inputEl.addClass("iv-invalid-setting");
+          } else {
+            search.inputEl.removeClass("iv-invalid-setting");
+          }
+        });
+
         search
           .setPlaceholder("Type the name of a folder")
           .setValue(settings.homebrewPath)
-          .onChange((value) => this.updateSetting("homebrewPath", value));
+          .onChange((value) => {
+            const homebrewFolder = this.plugin.app.vault.getFolderByPath(value);
+            if (homebrewFolder === null) {
+              isValidPath = false;
+              return;
+            }
+            isValidPath = true;
+            this.updateSetting("homebrewPath", value);
+          });
       });
 
     new Setting(containerEl).setName("Dice").setHeading();

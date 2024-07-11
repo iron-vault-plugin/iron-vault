@@ -192,6 +192,7 @@ export class Datastore extends Component implements IDataContext {
             walkDataswornRulesPackage(source, dataswornPackage, this.plugin),
           );
         } catch (e) {
+          new Notice(`Unable to import homebrew file: ${file.basename}`, 0);
           logger.error(e);
           continue;
         }
