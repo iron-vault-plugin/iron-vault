@@ -80,3 +80,7 @@
   it so you can't select text in modals. */
   user-select: text;
 }
+
+.iv-invalid-setting {
+  border-color: var(--color-red, red) !important;
+}
