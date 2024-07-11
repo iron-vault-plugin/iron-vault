@@ -1,6 +1,9 @@
 import { html, render } from "lit-html";
 
-import { activeCharacter, MissingCharacterError } from "character-tracker";
+import {
+  currentActiveCharacterForCampaign,
+  MissingCharacterError,
+} from "character-tracker";
 import IronVaultPlugin from "index";
 import { Component } from "obsidian";
 import { md } from "utils/ui/directives";
@@ -11,10 +14,29 @@ export default async function renderIronVaultCharacter(
   parent: Component,
 ) {
   try {
-    // TODO(@cwegrzyn): this needs to be fixed
-    const [charPath] = await activeCharacter(plugin, undefined as never);
+    const campaign = plugin.campaignManager.lastActiveCampaign();
+    if (!campaign) {
+      render(html`<p>No active campaign</p>`, containerEl);
+      return;
+    }
+    const context = currentActiveCharacterForCampaign(
+      plugin,
+      plugin.campaignManager.campaignContextFor(campaign),
+    );
+    if (!context) {
+      render(
+        html`<p>No active character for campaign '${campaign.name}'</p>`,
+        containerEl,
+      );
+      return;
+    }
     render(
-      html`${md(plugin, `![[${charPath}|iv-embed]]`, ".", parent)}`,
+      html`${md(
+        plugin,
+        `![[${context.characterPath}|iv-embed]]`,
+        ".",
+        parent,
+      )}`,
       containerEl,
     );
   } catch (e) {

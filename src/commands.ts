@@ -1,8 +1,8 @@
-import { pickActiveCharacter } from "character-tracker";
 import {
   addAssetToCharacter,
   changeInitiative,
   createNewCharacter,
+  pickActiveCharacter,
 } from "characters/commands";
 import { advanceClock, createClock } from "clocks/commands";
 import { openDocsInBrowser, openDocsInTab } from "docs/commands";

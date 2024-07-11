@@ -1,5 +1,5 @@
 import { html, render } from "lit-html";
-import { ItemView, WorkspaceLeaf } from "obsidian";
+import { debounce, ItemView, WorkspaceLeaf } from "obsidian";
 
 import IronVaultPlugin from "index";
 import renderIronVaultCharacter from "./character";
@@ -65,16 +65,28 @@ export class SidebarView extends ItemView {
         );
       }),
     );
-    // this.register(
-    //   this.plugin.localSettings.on(
-    //     "change",
-    //     ({ key, campaignFile, oldValue, newValue }) => {
-    //       if (key === "activeCharacter" && oldValue !== newValue) {
-    //         this.renderCharacter();
-    //       }
-    //     },
-    //   ),
-    // );
+
+    const renderCharacter = debounce(() => this.renderCharacter(), 100, true);
+
+    this.registerEvent(
+      this.plugin.campaignManager.on(
+        "active-campaign-changed",
+        renderCharacter,
+      ),
+    );
+
+    this.registerEvent(
+      this.plugin.campaignManager.on(
+        "active-campaign-settings-changed",
+        ({ key }) => {
+          if (key === "activeCharacter") {
+            renderCharacter();
+          }
+        },
+      ),
+    );
+
+    this.registerEvent(this.plugin.characters.on("changed", renderCharacter));
 
     renderIronVaultOracles(
       container.querySelector(".content.oracle-tab")!,
@@ -84,11 +96,6 @@ export class SidebarView extends ItemView {
       container.querySelector(".content.move-tab")!,
       this.plugin,
     );
-
-    // this.registerEvent(
-    //   this.plugin.characters.on("changed", () => this.renderCharacter()),
-    // );
-    // this.renderCharacter();
   }
 
   async onClose() {

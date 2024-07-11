@@ -1,6 +1,11 @@
 import { type Datasworn } from "@datasworn/core";
 import { Asset } from "@datasworn/core/dist/Datasworn";
 import { AssetPickerModal } from "assets/asset-picker-modal";
+import { determineCampaignContext } from "campaigns/manager";
+import {
+  promptForCampaignCharacter,
+  setActiveCharacter,
+} from "character-tracker";
 import { produce } from "immer";
 import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
@@ -216,3 +221,18 @@ export const changeInitiative = async (
     ),
   );
 };
+export async function pickActiveCharacter(
+  plugin: IronVaultPlugin,
+  view?: MarkdownView | MarkdownFileInfo,
+) {
+  const campaignContext = await determineCampaignContext(plugin, view);
+  const actionContext = await promptForCampaignCharacter(
+    plugin,
+    campaignContext,
+  );
+  await setActiveCharacter(
+    plugin,
+    campaignContext.campaign,
+    actionContext.characterPath,
+  );
+}

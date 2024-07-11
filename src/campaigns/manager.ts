@@ -3,13 +3,17 @@ import { onlyValid } from "indexer/index-impl";
 import { rootLogger } from "logger";
 import {
   Component,
+  EventRef,
+  Events,
   MarkdownFileInfo,
   MarkdownView,
   Notice,
   TAbstractFile,
+  TFile,
   TFolder,
   Vault,
 } from "obsidian";
+import { EVENT_TYPES as LOCAL_SETTINGS_EVENT_TYPES } from "settings/local";
 import { CustomSuggestModal } from "utils/suggest";
 import { CampaignTrackedEntities } from "./context";
 import { CampaignFile } from "./entity";
@@ -17,8 +21,52 @@ import { CampaignFile } from "./entity";
 const logger = rootLogger.getLogger("campaign-manager");
 
 export class CampaignManager extends Component {
+  #events: Events = new Events();
+
+  #lastActiveCampaignFile: TFile | undefined = undefined;
+
   constructor(readonly plugin: IronVaultPlugin) {
     super();
+  }
+
+  lastActiveCampaign(): CampaignFile | undefined {
+    return this.#lastActiveCampaignFile != null
+      ? this.plugin.campaigns
+          .get(this.#lastActiveCampaignFile.path)
+          ?.expect(
+            `Campaign at ${this.#lastActiveCampaignFile.path} should be valid.`,
+          )
+      : undefined;
+  }
+
+  onload(): void {
+    this.registerEvent(
+      this.plugin.app.workspace.on("active-leaf-change", (leaf) => {
+        if (leaf?.view instanceof MarkdownView && leaf.view.file) {
+          const viewCampaign = this.campaignForFile(leaf.view.file);
+          const lastActiveCampaignFile = this.#lastActiveCampaignFile;
+          if (viewCampaign && viewCampaign.file !== lastActiveCampaignFile) {
+            logger.trace(
+              "Active campaign changed from %s to %s",
+              lastActiveCampaignFile?.path,
+              viewCampaign.file.path,
+            );
+            this.#lastActiveCampaignFile = viewCampaign.file;
+            this.trigger("active-campaign-changed", {
+              newCampaign: viewCampaign,
+            });
+          }
+        }
+      }),
+    );
+
+    this.register(
+      this.plugin.localSettings.on("change", (change) => {
+        if (change.campaignFile === this.#lastActiveCampaignFile) {
+          this.trigger("active-campaign-settings-changed", change);
+        }
+      }),
+    );
   }
 
   campaignFolderAssignment(): ReadonlyMap<TFolder, CampaignFile> {
@@ -67,7 +115,37 @@ export class CampaignManager extends Component {
       (path) => this.campaignForPath(path)?.file === campaign.file,
     );
   }
+
+  on<K extends keyof EVENT_TYPES>(
+    name: K,
+    callback: (params: EVENT_TYPES[K]) => unknown,
+    ctx?: unknown,
+  ): EventRef {
+    return this.#events.on(name, callback, ctx);
+  }
+
+  off(name: string, callback: (...data: never[]) => unknown): void {
+    this.#events.off(name, callback);
+  }
+
+  offref(ref: EventRef): void {
+    this.#events.offref(ref);
+  }
+
+  private trigger<K extends keyof EVENT_TYPES>(
+    name: K,
+    data: EVENT_TYPES[K],
+  ): void {
+    this.#events.trigger(name, data);
+  }
 }
+
+export type EVENT_TYPES = {
+  "active-campaign-changed": {
+    newCampaign: CampaignFile;
+  };
+  "active-campaign-settings-changed": LOCAL_SETTINGS_EVENT_TYPES["change"];
+};
 
 export async function determineCampaignContext(
   plugin: IronVaultPlugin,

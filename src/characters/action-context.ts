@@ -6,7 +6,10 @@ import { produce } from "immer";
 import { App, MarkdownFileInfo } from "obsidian";
 import { ConditionMeterDefinition } from "rules/ruleset";
 import { vaultProcess } from "utils/obsidian";
-import { CharacterContext, activeCharacter } from "../character-tracker";
+import {
+  CharacterContext,
+  requireActiveCharacterForCampaign,
+} from "../character-tracker";
 import {
   CharReader,
   CharacterLens,
@@ -200,16 +203,7 @@ export async function determineCharacterActionContext(
   const campaignContext = await determineCampaignContext(plugin, view);
   if (plugin.settings.useCharacterSystem) {
     try {
-      const [characterPath, characterContext] = await activeCharacter(
-        plugin,
-        campaignContext,
-      );
-      return new CharacterActionContext(
-        plugin.datastore,
-        campaignContext,
-        characterPath,
-        characterContext,
-      );
+      return await requireActiveCharacterForCampaign(plugin, campaignContext);
     } catch (e) {
       const div = document.createElement("div");
       div.createEl("p", {
