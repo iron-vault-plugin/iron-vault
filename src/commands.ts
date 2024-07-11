@@ -1,4 +1,4 @@
-import { setActiveCharacter as pickActiveCharacter } from "character-tracker";
+import { pickActiveCharacter } from "character-tracker";
 import {
   addAssetToCharacter,
   changeInitiative,
@@ -220,7 +220,7 @@ export class IronVaultCommands {
       id: "pick-active-character",
       name: "Pick active character",
       icon: "user-circle",
-      callback: () => pickActiveCharacter(this.plugin),
+      editorCallback: (editor, view) => pickActiveCharacter(this.plugin, view),
     },
     {
       id: "toggle-mechanics",

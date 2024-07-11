@@ -48,6 +48,15 @@ export class IronVaultAPI {
     setLogLevel(level);
   }
 
+  setLogLevelFor(loggerName: string, level: loglevel.LogLevelDesc | null) {
+    const logger = rootLogger.getLogger(loggerName);
+    if (level == null) {
+      logger.resetLevel();
+    } else {
+      logger.setLevel(level);
+    }
+  }
+
   parseLinkText = parseLinktext;
 
   getLinkpath = getLinkpath;

@@ -189,10 +189,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
       { moveBlockFormat: undefined },
     );
     this.settings = settings;
-    this.localSettings = Object.assign(
-      new IronVaultPluginLocalSettings(),
-      await IronVaultPluginLocalSettings.loadData(this),
-    );
+    this.localSettings = await IronVaultPluginLocalSettings.loadData(this);
   }
 
   async onExternalSettingsChange() {

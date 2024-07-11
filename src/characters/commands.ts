@@ -49,7 +49,7 @@ export async function addAssetToCharacter(
   }
 
   const selectedAsset =
-    asset ?? (await AssetPickerModal.pick(plugin, charCtx?.characterContext));
+    asset ?? (await AssetPickerModal.pick(plugin, actionContext));
 
   if (!selectedAsset) {
     return;

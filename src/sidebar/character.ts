@@ -11,7 +11,8 @@ export default async function renderIronVaultCharacter(
   parent: Component,
 ) {
   try {
-    const [charPath] = await activeCharacter(plugin);
+    // TODO(@cwegrzyn): this needs to be fixed
+    const [charPath] = await activeCharacter(plugin, undefined as never);
     render(
       html`${md(plugin, `![[${charPath}|iv-embed]]`, ".", parent)}`,
       containerEl,

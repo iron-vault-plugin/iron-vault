@@ -1,5 +1,6 @@
 import IronVaultPlugin from "index";
 import { onlyValid } from "indexer/index-impl";
+import { rootLogger } from "logger";
 import {
   Component,
   MarkdownFileInfo,
@@ -12,6 +13,8 @@ import {
 import { CustomSuggestModal } from "utils/suggest";
 import { CampaignTrackedEntities } from "./context";
 import { CampaignFile } from "./entity";
+
+const logger = rootLogger.getLogger("campaign-manager");
 
 export class CampaignManager extends Component {
   constructor(readonly plugin: IronVaultPlugin) {
@@ -59,6 +62,7 @@ export class CampaignManager extends Component {
   campaignContextFor(campaign: CampaignFile): CampaignTrackedEntities {
     return new CampaignTrackedEntities(
       this.plugin,
+      campaign,
       // TODO(cwegrzyn): need to confirm that file equality comparison is safe
       (path) => this.campaignForPath(path)?.file === campaign.file,
     );
@@ -69,6 +73,7 @@ export async function determineCampaignContext(
   plugin: IronVaultPlugin,
   view?: MarkdownView | MarkdownFileInfo,
 ): Promise<CampaignTrackedEntities> {
+  logger.trace("Determining campaign context for", view);
   const file = view?.file;
   let campaign = file && plugin.campaignManager.campaignForFile(file);
   if (!campaign) {

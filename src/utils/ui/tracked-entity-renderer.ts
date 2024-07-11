@@ -1,3 +1,5 @@
+import { CampaignTrackedEntities } from "campaigns/context";
+import { CampaignFile } from "campaigns/entity";
 import IronVaultPlugin from "index";
 import { EmittingIndex } from "indexer/index-interface";
 import { html, render } from "lit-html";
@@ -36,6 +38,16 @@ export abstract class TrackedEntityRenderer<
 
   get sourcePath(): string {
     return this.#sourcePath;
+  }
+
+  // TODO(@cwegrzyn): should it be possible to have a tracked entity outside of a campaign?
+  campaign(): CampaignFile | undefined {
+    return this.plugin.campaignManager.campaignForPath(this.sourcePath);
+  }
+
+  campaignContext(): CampaignTrackedEntities | undefined {
+    const campaign = this.campaign();
+    return campaign && this.plugin.campaignManager.campaignContextFor(campaign);
   }
 
   async onload() {

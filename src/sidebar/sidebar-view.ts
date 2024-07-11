@@ -65,13 +65,16 @@ export class SidebarView extends ItemView {
         );
       }),
     );
-    this.register(
-      this.plugin.localSettings.on("change", ({ key, oldValue, newValue }) => {
-        if (key === "activeCharacter" && oldValue !== newValue) {
-          this.renderCharacter();
-        }
-      }),
-    );
+    // this.register(
+    //   this.plugin.localSettings.on(
+    //     "change",
+    //     ({ key, campaignFile, oldValue, newValue }) => {
+    //       if (key === "activeCharacter" && oldValue !== newValue) {
+    //         this.renderCharacter();
+    //       }
+    //     },
+    //   ),
+    // );
 
     renderIronVaultOracles(
       container.querySelector(".content.oracle-tab")!,
@@ -82,10 +85,10 @@ export class SidebarView extends ItemView {
       this.plugin,
     );
 
-    this.registerEvent(
-      this.plugin.characters.on("changed", () => this.renderCharacter()),
-    );
-    this.renderCharacter();
+    // this.registerEvent(
+    //   this.plugin.characters.on("changed", () => this.renderCharacter()),
+    // );
+    // this.renderCharacter();
   }
 
   async onClose() {

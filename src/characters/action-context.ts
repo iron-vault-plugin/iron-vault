@@ -200,7 +200,10 @@ export async function determineCharacterActionContext(
   const campaignContext = await determineCampaignContext(plugin, view);
   if (plugin.settings.useCharacterSystem) {
     try {
-      const [characterPath, characterContext] = await activeCharacter(plugin);
+      const [characterPath, characterContext] = await activeCharacter(
+        plugin,
+        campaignContext,
+      );
       return new CharacterActionContext(
         plugin.datastore,
         campaignContext,

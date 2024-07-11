@@ -1,4 +1,3 @@
-import { determineCampaignContext } from "campaigns/manager";
 import { determineCharacterActionContext } from "characters/action-context";
 import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
@@ -104,10 +103,7 @@ export async function markTrackCompleted(
   editor: Editor,
   view: MarkdownView | MarkdownFileInfo,
 ): Promise<void> {
-  const actionContext = await determineCharacterActionContext(
-    plugin,
-    await determineCampaignContext(plugin, view),
-  );
+  const actionContext = await determineCharacterActionContext(plugin, view);
   const progressContext = new ProgressContext(plugin, actionContext);
   const trackContext = await selectProgressTrack(
     progressContext,

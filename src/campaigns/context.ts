@@ -10,6 +10,7 @@ import { CampaignFile } from "./entity";
 export class CampaignTrackedEntities implements TrackedEntities {
   constructor(
     private readonly base: TrackedEntities,
+    public readonly campaign: CampaignFile,
     resolver: (path: string) => boolean,
   ) {
     const projection = <T>(value: T, key: string): T | undefined =>
