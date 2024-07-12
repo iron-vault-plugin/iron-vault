@@ -10,7 +10,13 @@ import {
   OracleRow,
   RollContext,
 } from "../../../model/oracle";
-import { Roll, RollResultKind, Subroll, sameRoll } from "../../../model/rolls";
+import {
+  NumberRange,
+  Roll,
+  RollResultKind,
+  Subroll,
+  sameRoll,
+} from "../../../model/rolls";
 import { Dice, DieKind } from "../../../utils/dice";
 import { DiceGroup } from "utils/dice-group";
 
@@ -65,6 +71,10 @@ export class DataswornOracle implements Oracle {
 
   get id(): string {
     return this.table._id;
+  }
+
+  get recommended_rolls(): NumberRange | undefined {
+    return this.table.recommended_rolls;
   }
 
   get dice(): Dice {

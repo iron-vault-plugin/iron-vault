@@ -171,6 +171,22 @@ export class EntityModal<T extends EntitySpec> extends Modal {
       ]);
     };
 
+    const appendRoll = async (key: keyof T): Promise<void> => {
+      const { table } = settings[key];
+      this.results.entity[key];
+
+      const setting = [
+        ...this.results.entity[key],
+        new RollWrapper(
+          table,
+          this.rollContext,
+          await table.roll(this.rollContext),
+        ),
+      ];
+
+      updateSetting(key, setting);
+    };
+
     const clearKey = (key: keyof T): void => {
       updateSetting(key, []);
     };
@@ -248,20 +264,33 @@ export class EntityModal<T extends EntitySpec> extends Modal {
         throw new Error("missing table " + formattedId);
       }
 
+      const isReRollerOracle = (table.recommended_rolls?.max ?? 0) > 1;
+
+      let description = name ?? table.name;
+      if (isReRollerOracle) {
+        description = `${description} (Rolls: ${table.recommended_rolls?.min} - ${table.recommended_rolls?.max})`;
+      }
+
       const setting = new Setting(contentEl)
         .setName("")
-        .setDesc(name ?? table.name)
-        // .addText((text) => text.setDisabled(true).setValue(""))
+        .setDesc(description)
         .addExtraButton((btn) =>
           btn.setIcon("dices").onClick(() => {
-            rollForKey(key);
-          }),
-        )
-        .addExtraButton((btn) =>
-          btn.setIcon("delete").onClick(() => {
-            clearKey(key);
+            if (!isReRollerOracle) {
+              rollForKey(key);
+              return;
+            }
+            appendRoll(key);
+            btn.setIcon("rotate-cw");
           }),
         );
+
+      setting.addExtraButton((btn) =>
+        btn.setIcon("delete").onClick(() => {
+          clearKey(key);
+        }),
+      );
+
       setting.descEl.ariaLabel = `(id: ${table.id})`;
       settings[key] = { setting, table };
     }

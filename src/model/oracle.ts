@@ -43,6 +43,7 @@ export interface Oracle {
   readonly raw: Datasworn.OracleRollable | Datasworn.EmbeddedOracleRollable;
   readonly cursedBy?: Oracle;
   readonly curseBehavior?: CurseBehavior;
+  readonly recommended_rolls?: NumberRange;
 
   row(value: number): OracleRow;
 
