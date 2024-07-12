@@ -10,17 +10,6 @@ import {
 } from "obsidian";
 import { Indexer, IndexerId } from "./indexer";
 
-// function isCharacterFile(
-//   md: CachedMetadata,
-// ): md is CachedMetadata & { frontmatter: FrontMatterCache } {
-//   const tags = md != null ? getAllTags(md) ?? [] : [];
-//   if (tags.contains("#character")) {
-//     return true;
-//   } else {
-//     return false;
-//   }
-// }
-
 const logger = rootLogger.getLogger("index-manager");
 
 export class IndexManager extends Component {
@@ -136,12 +125,6 @@ export class IndexManager extends Component {
     file: TFile,
     cache: CachedMetadata,
   ): Indexer | undefined {
-    // const tags = cache != null ? getAllTags(cache) ?? [] : [];
-    // if (tags.contains("#character")) {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
     const kind = cache.frontmatter?.["iron-vault-kind"];
     if (kind) {
       const indexer = this.handlers.get(kind);
@@ -176,6 +159,9 @@ export class IndexManager extends Component {
       try {
         result = newIndexer.onChanged(file, cache);
       } catch (error) {
+        // This was a truly exceptional error -- the indexer would not have recorded it, so we
+        // do NOT want this to go down the 'indexed'/'error' path below, which marks this file
+        // as having been indexed.
         logger.error(
           "[indexer:%s] [file:%s] unexpected error or result while indexing %o",
           newIndexer.id,
@@ -185,8 +171,8 @@ export class IndexManager extends Component {
       }
 
       switch (result) {
-        case "indexed":
-        case "error":
+        case "indexed": // Indexed as a success
+        case "error": // Indexed as an error (this differs from the unexpected error above)
           logger.debug(
             "[indexer:%s] [file:%s] %s",
             newIndexer.id,
