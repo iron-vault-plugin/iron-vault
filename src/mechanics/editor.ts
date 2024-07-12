@@ -141,7 +141,7 @@ export function actorForActionContext(
   if (actionContext instanceof CharacterActionContext) {
     if (
       plugin.settings.alwaysRecordActor ||
-      onlyValid(plugin.characters).size > 1
+      onlyValid(actionContext.campaignContext.characters).size > 1
     ) {
       return {
         name: actionContext.getWithLens((_) => _.name),
