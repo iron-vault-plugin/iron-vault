@@ -75,10 +75,7 @@ export class ProgressTrackCreateModal extends Modal {
     const folderSetting = new Setting(contentEl)
       .setName("Target folder")
       .addSearch((search) => {
-        new FolderTextSuggest(this.app, search.inputEl, (val: string) => {
-          search.setValue(val);
-          search.onChanged();
-        });
+        new FolderTextSuggest(this.app, search.inputEl);
         folderComponent = search
           .setPlaceholder("Choose a folder")
           .setValue(this.result.targetFolder)
@@ -115,15 +112,13 @@ export class ProgressTrackCreateModal extends Modal {
         "What kind of track is this? (e.g., Vow, Connection)",
       );
 
-      new GenericTextSuggest(
-        this.app,
-        search.inputEl,
-        ["Vow", "Connection", "Combat", "Scene Challenge", "Expedition"],
-        (val) => {
-          search.setValue(val);
-          search.onChanged();
-        },
-      );
+      new GenericTextSuggest(this.app, search.inputEl, [
+        "Vow",
+        "Connection",
+        "Combat",
+        "Scene Challenge",
+        "Expedition",
+      ]);
 
       search.onChange((value) => {
         this.result.trackType = value;

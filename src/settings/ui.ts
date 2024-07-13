@@ -2,8 +2,8 @@ import IronVaultPlugin from "index";
 import { PluginSettingTab, Setting, type App } from "obsidian";
 import { IronVaultPluginSettings } from "settings";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
-import ironswornLogoBin from "../../media/ironvault_logo_ironsworn.png";
 import delveLogoBin from "../../media/ironvault_logo_delve.png";
+import ironswornLogoBin from "../../media/ironvault_logo_ironsworn.png";
 import starforgedLogoBin from "../../media/ironvault_logo_starforged.png";
 import sunderedIslesLogoBin from "../../media/ironvault_logo_sunderedisles.png";
 
@@ -160,10 +160,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
       .setName("Homebrew content folder")
       .setDesc("Load custom rulesets from this folder.")
       .addSearch((search) => {
-        new FolderTextSuggest(this.app, search.inputEl, (val: string) => {
-          search.setValue(val);
-          search.onChanged();
-        });
+        new FolderTextSuggest(this.app, search.inputEl);
 
         let isValidPath = true;
 
@@ -308,10 +305,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
       .setName("Default progress track folder")
       .setDesc("Create progress tracks in this folder by default.")
       .addSearch((search) => {
-        new FolderTextSuggest(this.app, search.inputEl, (val: string) => {
-          search.setValue(val);
-          search.onChanged();
-        });
+        new FolderTextSuggest(this.app, search.inputEl);
 
         search
           .setPlaceholder("Type the name of a folder")
@@ -339,10 +333,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
       .setName("Default clock folder")
       .setDesc("Create clocks in this folder by default.")
       .addSearch((search) => {
-        new FolderTextSuggest(this.app, search.inputEl, (val: string) => {
-          search.setValue(val);
-          search.onChanged();
-        });
+        new FolderTextSuggest(this.app, search.inputEl);
 
         search
           .setPlaceholder("Type the name of a folder")
@@ -366,10 +357,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
       .setName("Default characters folder")
       .setDesc("Create player characters in this folder by default.")
       .addSearch((search) => {
-        new FolderTextSuggest(this.app, search.inputEl, (val: string) => {
-          search.setValue(val);
-          search.onChanged();
-        });
+        new FolderTextSuggest(this.app, search.inputEl);
 
         search
           .setPlaceholder("Type the name of a folder")

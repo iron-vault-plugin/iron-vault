@@ -11,9 +11,8 @@ export class GenericTextSuggest extends AbstractInputSuggest<
 > {
   constructor(
     app: App,
-    inputEl: HTMLInputElement,
+    readonly inputEl: HTMLInputElement,
     public readonly items: string[],
-    private onSelectCallBack: (value: string) => void = () => {},
   ) {
     super(app, inputEl);
   }
@@ -54,7 +53,8 @@ export class GenericTextSuggest extends AbstractInputSuggest<
 
   selectSuggestion({ item }: FuzzyMatch<string>): void {
     this.setValue(item);
-    this.onSelectCallBack(item);
+    if (this.inputEl.instanceOf(HTMLInputElement))
+      this.inputEl.trigger("input");
     this.close();
   }
 }
