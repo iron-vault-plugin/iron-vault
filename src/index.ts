@@ -114,10 +114,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     installLinkHandler(this);
 
     this.registerView(VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
-    this.registerView(
-      LINK_VIEW,
-      (leaf) => new IronVaultLinkView(this.app.workspace, leaf),
-    );
+    this.registerView(LINK_VIEW, (leaf) => new IronVaultLinkView(leaf));
     this.registerView(
       MIGRATION_VIEW_TYPE,
       (leaf) => new IronVaultMigrationView(leaf, this),
