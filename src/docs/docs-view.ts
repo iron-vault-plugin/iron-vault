@@ -3,8 +3,7 @@
 // LICENSE.md for more details.
 import { ItemView, Workspace, WorkspaceLeaf } from "obsidian";
 export const LINK_VIEW = "iron-vault-link-view";
-export const IRON_VAULT_DOCS_URL =
-  "https://iron-vault-plugin.github.io/iron-vault";
+export const IRON_VAULT_DOCS_URL = "https://ironvault.quest";
 
 export class IronVaultLinkView extends ItemView {
   link: string;

@@ -36,7 +36,9 @@ You can start reading about the various Iron Vault features here:
 
 #### Installing the Plugin
 
-For now, the easiest way to install is via [BRAT](https://tfthacker.com/brat-plugins). You should be able to add this repo to BRAT, and it will install the latest release of this plugin
+The easiest way to install Iron Vault is directly through the Community Plugins registry in Obsidian itself. Simply search for "Iron Vault", click "install", then "enable", and you're good to go!
+
+You can also install it via [BRAT](https://tfthacker.com/brat-plugins). You should be able to add `iron-vault-plugin/iron-vault` to BRAT, and it will install the latest beta release of this plugin.
 
 You can also install it manually by downloading the latest files from [Github Release](https://github.com/iron-vault-plugin/iron-vault/releases/latest). You'll want to put `main.js`, `manifest.json`, and `styles.css` in `your-vault/.obsidian/plugins/iron-vault`.
 

@@ -24,13 +24,15 @@ You can go ahead and close the graph tab, then right click (or long tap) on the 
 
 ### Installing the Plugin
 
-Currently, the best way to install the plugin is through the [BRAT Obsidian Plugin](https://tfthacker.com/brat-quick-guide), a tool to help you install beta plugins on Obsidian quickly and easily. BRAT is available when you browse the "Community Plugins" section of your Obsidian Settings. You'll also want to make sure to enable it, since this does not happen automatically.
+The easiest way to install Iron Vault is to install it directly from the Community Plugins registry in Obsidian itself. Open Settings, then navigate to Community Plugins:
 
-Once BRAT is installed and enabled, press `Ctrl+P` or `Cmd+P` (on mobile, open up your ribbon by tapping on the bottom-right button), then select the "BRAT: Plugins: Add a beta plugin for testing" command and run it. You'll be greeted by this screen:
+![[community-plugins.png]]
 
-![[brat-menu.png]]
+Then click "Browse" and search for "Iron Vault":
 
-Enter the following URL into the box to install and enable Iron Vault: https://github.com/iron-vault-plugin/iron-vault. BRAT will automatically enable the plugin for you.
+![[iron-vault-plugin-search.png]]
+
+Finally, click "Install", and make sure to click "Enable" once the install is complete!
 
 ### Next Steps
 

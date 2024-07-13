@@ -13,7 +13,7 @@ functionality with this plugin.
 ## Documentation
 
 The full documentation is available on the docs site at
-https://iron-vault-plugin.github.io/iron-vault/. It covers all current (and some
+https://ironvault.quest/. It covers all current (and some
 future!) features of the plugin, how to use them, and even lets you search to
 find what you're looking for.
 
@@ -21,36 +21,37 @@ find what you're looking for.
 
 You can start reading about the various Iron Vault features here:
 
-* [Built-in Official Rulesets](https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html#Built-in_Rulesets) - Includes support for Ironsworn Classic, Ironsworn: Delve, Ironsworn: Starforged, and Sundered Isles.
-* [Blocks](https://iron-vault-plugin.github.io/iron-vault/blocks/about-blocks.html) -
+* [Built-in Official Rulesets](https://ironvault.quest/other-features/rulesets-and-homebrew.html#Built-in_Rulesets) - Includes support for Ironsworn Classic, Ironsworn: Delve, Ironsworn: Starforged, and Sundered Isles.
+* [Blocks](https://ironvault.quest/blocks/about-blocks.html) -
   Special blocks used throughout the tool to render things nicely and give you
   handy interactive widgets for editing game data.
-* [Commands](https://iron-vault-plugin.github.io/iron-vault/commands/about-commands.html) -
+* [Commands](https://ironvault.quest/commands/about-commands.html) -
   Various Obsidian commands, all of which can be bound to hotkeys or the
   quick access bar, for performing all sorts of game actions, like making
   moves, creating progress tracks, etc.
-* [Entities](https://iron-vault-plugin.github.io/iron-vault/entities/about-entities.html) -
+* [Entities](https://ironvault.quest/entities/about-entities.html) -
   How Iron Vault represents all sorts of different game concepts, or some
   ways that you might choose to represent them yourself.
-* [Sidebar](https://iron-vault-plugin.github.io/iron-vault/other-features/sidebar.html) -
+* [Multiplayer](https://ironvault.quest/other-features/multiplayer.html) - Play online or locally with other players!
+* [Sidebar](https://ironvault.quest/other-features/sidebar.html) -
   A handy right-panel sidebar for quick access to Moves, Oracles, and your
   Character Sheet, all in one, easy-access place. Particularly useful on
   mobile.
 * [Special
-  Links](https://iron-vault-plugin.github.io/iron-vault/other-features/special-links.html) -
+  Links](https://ironvault.quest/other-features/special-links.html) -
   There are special external links that, instead of trying to open a web
   page, will open a modal window with the contents of the thing you're trying
   to link to. For example, `[My Move](move:MyMoveName)` will pop up a window
   with the description and roll buttons for "My Move".
 * [CSS
-  Tweaks](https://iron-vault-plugin.github.io/iron-vault/other-features/css-tweaks.html) -
+  Tweaks](https://ironvault.quest/other-features/css-tweaks.html) -
   Styling tweaks to make some things look nicer or more customized, such as
   the `iron-vault-embed` option for inlining embeds.
-* [Callouts](https://iron-vault-plugin.github.io/iron-vault/other-features/callouts.html) - Special formatting and generation for game-related callouts.
-* [Homebrew](https://iron-vault-plugin.github.io/iron-vault/other-features/rulesets-and-homebrew.html#Homebrew) - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the [Datasworn](https://github.com/rsek/datasworn) data model.
-* [Settings](https://iron-vault-plugin.github.io/iron-vault/other-features/settings.html) -
+* [Callouts](https://ironvault.quest/other-features/callouts.html) - Special formatting and generation for game-related callouts.
+* [Homebrew](https://ironvault.quest/other-features/rulesets-and-homebrew.html#Homebrew) - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the [Datasworn](https://github.com/rsek/datasworn) data model.
+* [Settings](https://ironvault.quest/other-features/settings.html) -
   Various configurations available to tweak your Iron Vault experience.
-* [API](https://iron-vault-plugin.github.io/iron-vault/other-features/api.html) -
+* [API](https://ironvault.quest/other-features/api.html) -
   (Coming Soon) Are you a developer? We expose the plugin for easy access, for
   folks who want to do fancier things with Iron Vault features.
 
