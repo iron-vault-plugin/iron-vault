@@ -40,20 +40,74 @@
     display: grid;
     max-width: 460px;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr auto 1fr;
-    grid-template-areas: "name pronouns" "description description" "xp-earned xp-spent";
+    grid-template-rows: 1fr 1fr 1fr auto 1fr 1fr 1fr 1fr 1fr;
+    grid-template-areas:
+      "callsign pronouns"
+      "callsign-txt pronouns-txt"
+      "description description"
+      "description-txt description-txt"
+      "player player"
+      "player-txt player-txt"
+      "xp-from-tracks xp-added"
+      "xp-from-tracks-txt xp-added-txt"
+      "total-xp xp-spent"
+      "total-xp-txt xp-spent-txt";
     column-gap: 0.2em;
     align-items: end;
+    & dt:has(+ .callsign) {
+      grid-area: callsign;
+    }
+    & dd.callsign {
+      grid-area: callsign-txt;
+    }
+    & dt:has(+ .pronouns) {
+      grid-area: pronouns;
+    }
+    & dd.pronouns {
+      grid-area: pronouns-txt;
+    }
+    & dt:has(+ .description) {
+      grid-area: description;
+    }
+    & dd.description {
+      grid-area: description-txt;
+    }
+    & dt:has(+ .player) {
+      grid-area: player;
+    }
+    & dd.player {
+      grid-area: player-txt;
+    }
+    & dt:has(+ .xp-from-tracks) {
+      grid-area: xp-from-tracks;
+    }
+    & dd.xp-from-tracks {
+      grid-area: xp-from-tracks-txt;
+    }
+    & dt:has(+ .xp-added) {
+      grid-area: xp-added;
+    }
+    & dd.xp-added {
+      grid-area: xp-added-txt;
+    }
+    & dt:has(+ .total-xp) {
+      grid-area: total-xp;
+    }
+    & dd.total-xp {
+      grid-area: total-xp-txt;
+    }
+    & dt:has(+ .xp-spent) {
+      grid-area: xp-spent;
+    }
+    & dd.xp-spent {
+      grid-area: xp-spent-txt;
+    }
     & dt {
       vertical-align: bottom;
       font-weight: var(--font-semibold);
       font-size: 0.8em;
       text-transform: uppercase;
       color: var(--text-faint);
-      grid-row-start: 5;
-      &:has(~ .description) {
-        grid-row-start: 1;
-      }
     }
     & dd input, & dd textarea, & dd:has(textarea) {
       padding: 0.4em;
@@ -85,15 +139,7 @@
         grid-area: 1 / 1 / 2 / 2;
       }
     }
-    & dt:has(+ .description) {
-      grid-column: 1 / span 2;
-      grid-row-start: 3;
-    }
-    & dd.description {
-      grid-column: 1 / span 2;
-      grid-row-start: 4;
-    }
-    & dd.xp-earned {
+    & dd.xp-earned, & dd.xp-from-tracks {
       padding-left: 0.4em;
     }
   }

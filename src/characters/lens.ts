@@ -53,7 +53,9 @@ export const baseIronVaultSchema = z
     callsign: z.string().optional(),
     pronouns: z.string().optional(),
     description: z.string().optional(),
+    player: z.string().optional(),
     xp_spent: z.number().int().nonnegative().default(0),
+    xp_added: z.number().int().nonnegative().default(0),
 
     // Starting momentum is 2 according to Starforged p111
     momentum: z.number().int().gte(-10).lte(10).default(2),
@@ -74,7 +76,9 @@ export interface CharacterLens {
   callsign: Lens<ValidatedCharacter, string | undefined>;
   pronouns: Lens<ValidatedCharacter, string | undefined>;
   description: Lens<ValidatedCharacter, string | undefined>;
+  player: Lens<ValidatedCharacter, string | undefined>;
   xp_spent: Lens<ValidatedCharacter, number>;
+  xp_added: Lens<ValidatedCharacter, number>;
   momentum: Lens<ValidatedCharacter, number>;
   stats: Record<string, Lens<ValidatedCharacter, number>>;
   condition_meters: Record<string, Lens<ValidatedCharacter, number>>;
@@ -520,10 +524,22 @@ export function characterLens(ruleset: Ruleset): {
         schema: baseIronVaultSchema.shape.description,
       }),
     ),
+    player: v(
+      lensForSchemaProp({
+        path: "player",
+        schema: baseIronVaultSchema.shape.player,
+      }),
+    ),
     xp_spent: v(
       lensForSchemaProp({
         path: "xp_spent",
         schema: baseIronVaultSchema.shape.xp_spent,
+      }),
+    ),
+    xp_added: v(
+      lensForSchemaProp({
+        path: "xp_added",
+        schema: baseIronVaultSchema.shape.xp_added,
       }),
     ),
     momentum: v(

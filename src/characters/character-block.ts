@@ -210,7 +210,13 @@ class CharacterRenderer extends TrackedEntityRenderer<
         </option>
       </select>
       <dl>
-        <dt>${this.plugin.settings.enableIronsworn ? "Alias" : "Callsign"}</dt>
+        <dt>
+          ${this.plugin.settings.enableIronsworn
+            ? "Alias"
+            : this.plugin.settings.enableSunderedIsles
+              ? "Moniker"
+              : "Callsign"}
+        </dt>
         <dd class="callsign">
           <input
             type="text"
@@ -241,9 +247,33 @@ class CharacterRenderer extends TrackedEntityRenderer<
           >
           </textarea>
         </dd>
-        <dt>XP earned</dt>
-        <dd class="xp-earned">
+        <dt>Player</dt>
+        <dd class="player">
+          <input
+            type="text"
+            placeholder="You"
+            .value=${lens.player.get(raw) || ""}
+            @change=${charFieldUpdater(lens.player)}
+          />
+        </dd>
+        <dt>XP From Tracks</dt>
+        <dd class="xp-from-tracks">
           ${Object.values(lens.special_tracks).reduce((acc, track) => {
+            return acc + legacyTrackXpEarned(track.get(raw));
+          }, 0)}
+        </dd>
+        <dt>XP added</dt>
+        <dd class="xp-added">
+          <input
+            type="number"
+            .value=${lens.xp_added.get(raw) ?? ""}
+            @change=${charNumFieldUpdater(lens.xp_added)}
+          />
+        </dd>
+        <dt>Total XP earned</dt>
+        <dd class="xp-earned">
+          ${(lens.xp_added.get(raw) ?? 0) +
+          Object.values(lens.special_tracks).reduce((acc, track) => {
             return acc + legacyTrackXpEarned(track.get(raw));
           }, 0)}
         </dd>
