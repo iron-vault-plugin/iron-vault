@@ -6,7 +6,20 @@ import { getExistingOrNewFolder } from "utils/obsidian";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
 
 export async function generateTruthsCommand(plugin: IronVaultPlugin) {
-  const truths = [...plugin.datastore.truths.values()];
+  const truths = [...plugin.datastore.truths.values()].filter((truth) => {
+    // HACK(@zkat): This is a quick fix for
+    // https://github.com/iron-vault-plugin/iron-vault/issues/337. What we
+    // actually want to do here is to use Playsets to filter out truths as
+    // needed.
+    if (
+      plugin.settings.enableStarforged &&
+      plugin.settings.enableSunderedIsles &&
+      truth._id.startsWith("truth:starforged")
+    ) {
+      return false;
+    }
+    return true;
+  });
   const text = Handlebars.compile(
     `{{#each truths}}\n## {{name}}\n\`\`\`iron-vault-truth\n{{_id}}\n\`\`\`\n\n{{/each}}`,
   )({ truths });
