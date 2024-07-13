@@ -3,10 +3,10 @@
     content: "🔮🔁";
     margin-right: 0.5em;
   }
-  & > :first-child {
+  & .markdown-wrapper > :first-child {
     display: inline;
   }
-  & > blockquote {
+  & .markdown-wrapper > blockquote {
     margin-left: 0.5em;
     padding-left: 1.2em;
     border-left-style: dashed;

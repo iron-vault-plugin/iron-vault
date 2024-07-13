@@ -6,11 +6,11 @@
   --blockquote-background-color: var(--background-secondary);
   --blockquote-color: var(--text-muted);
   border-radius: 10px;
-  & > :first-child {
+  & .markdown-wrapper > :first-child {
     margin-left: 0.5em;
     padding-left: 1.2em;
   }
-  & > :first-child:not(blockquote) {
+  & .markdown-wrapper > :first-child:not(blockquote) {
     display: inline;
   }
 }

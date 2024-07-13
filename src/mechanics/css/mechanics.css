@@ -30,10 +30,16 @@
   padding: 1em;
   border-radius: 10px;
   box-shadow: var(--shadow);
+  & .markdown-wrapper {
+    display: inline;
+    & > * {
+      margin: 0;
+    }
+  }
   &.collapsed > :not(.toggle) {
     display: none;
   }
-  > .toggle {
+  & .toggle {
     background: none;
     border: none;
     padding: 0;
