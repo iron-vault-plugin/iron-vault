@@ -1,13 +1,17 @@
-import { Node as KdlNode, parse } from "kdljs";
-import {
-  ButtonComponent,
-  MarkdownPostProcessorContext,
-  MarkdownRenderChild,
-  MarkdownRenderer,
-} from "obsidian";
+import { Node as KdlNodeBare, Document as KdlDocument, parse } from "kdljs";
+import { ButtonComponent, MarkdownPostProcessorContext } from "obsidian";
+import { render, html, TemplateResult } from "lit-html";
+import { styleMap } from "lit-html/directives/style-map.js";
+import { ref } from "lit-html/directives/ref.js";
 
 import { ProgressTrack } from "tracks/progress";
 import IronVaultPlugin from "../index";
+import { md } from "utils/ui/directives";
+import { map } from "lit-html/directives/map.js";
+
+interface KdlNode extends KdlNodeBare {
+  parent?: KdlNode;
+}
 
 function makeHandler(plugin: IronVaultPlugin) {
   return async (
@@ -25,7 +29,7 @@ function makeHandler(plugin: IronVaultPlugin) {
         ctx.sourcePath,
       );
     }
-    await el.mechanicsRenderer.render();
+    el.mechanicsRenderer.render();
   };
 }
 
@@ -46,6 +50,7 @@ export class MechanicsRenderer {
   sourcePath: string;
   lastRoll: KdlNode | undefined;
   moveEl: HTMLElement | undefined;
+  doc?: KdlDocument;
   details: string[] = [];
   contentEl: HTMLElement;
   source: string;
@@ -76,90 +81,94 @@ export class MechanicsRenderer {
     );
   }
 
-  async render(): Promise<void> {
-    this.contentEl.empty();
+  fillParents(nodes: KdlNode[], parent?: KdlNode) {
+    for (const node of nodes) {
+      node.parent = parent;
+      this.fillParents(node.children, node);
+    }
+  }
+
+  render() {
     if (this.plugin.settings.hideMechanics) {
+      render(html``, this.contentEl);
       return;
     }
     const res = parse(this.source);
     if (!res.output) {
       // TODO: give line/column information for errors.
-      this.contentEl.createEl("pre", {
-        text: `Error parsing mechanics block: KDL text was invalid.\nSee https://kdl.dev for syntax.`,
-      });
+      render(
+        html`<pre>
+Error parsing mechanics block: KDL text was invalid.
+See https://kdl.dev for syntax.</pre
+        >`,
+        this.contentEl,
+      );
       return;
     }
-    const doc = res.output;
-    this.mechNode = this.contentEl.createEl("article", {
-      cls: "iron-vault-mechanics",
-    });
-    this.mechNode.classList.toggle("collapsed", this.hideMechanics);
-    this.mechNode.style.setProperty(
-      "--vs1-color",
-      this.plugin.settings.challengeDie1Color,
+    this.doc = res.output;
+    this.fillParents(this.doc);
+    render(
+      html`<article
+        ${(el?: Element) => (this.mechNode = el as HTMLElement | undefined)}
+        class="iron-vault-mechanics"
+        style=${styleMap({
+          "--vs1-color": this.plugin.settings.challengeDie1Color,
+          "--vs2-color": this.plugin.settings.challengeDie2Color,
+        })}
+        ${ref((el?: Element) => {
+          if (
+            !el ||
+            !this.plugin.settings.showMechanicsToggle ||
+            (el as HTMLElement).querySelector(".toggle")
+          )
+            return;
+          const btn = new ButtonComponent(el as HTMLElement);
+          btn
+            .setButtonText(
+              this.hideMechanics ? "Show mechanics" : "Hide mechanics",
+            )
+            .setClass("toggle")
+            .setTooltip("Toggle displaying mechanics")
+            .onClick(() => {
+              this.hideMechanics = !this.hideMechanics;
+              btn.setButtonText(
+                this.hideMechanics ? "Show mechanics" : "Hide mechanics",
+              );
+              this.render();
+            });
+        })}
+      >
+        ${this.hideMechanics ? null : this.renderChildren(this.doc)}
+      </article>`,
+      this.contentEl,
     );
-    this.mechNode.style.setProperty(
-      "--vs2-color",
-      this.plugin.settings.challengeDie2Color,
-    );
-    await this.renderChildren(this.mechNode, doc);
-    await this.renderToggleButton();
   }
 
-  async renderToggleButton() {
-    if (!this.mechNode || !this.plugin.settings.showMechanicsToggle) {
-      return;
-    }
-    const btn = new ButtonComponent(this.mechNode);
-    btn
-      .setButtonText("Hide mechanics")
-      .setClass("toggle")
-      .setTooltip("Toggle displaying mechanics")
-      .onClick(() => {
-        this.hideMechanics = !this.hideMechanics;
-        this.mechNode?.classList.toggle("collapsed", this.hideMechanics);
-        btn.setButtonText(
-          this.hideMechanics ? "Show mechanics" : "Hide mechanics",
-        );
-      });
+  renderChildren(nodes: KdlNode[]): TemplateResult {
+    return html`${map(
+      nodes.reduce((acc, node) => {
+        if (node.name === "-" && acc[acc.length - 1]?.name === "-") {
+          acc[acc.length - 1].values.push(...node.values);
+        } else {
+          acc.push(node);
+        }
+        return acc;
+      }, [] as KdlNode[]),
+      (node) => this.renderNode(node),
+    )}`;
   }
 
-  async renderChildren(
-    target: HTMLElement,
-    nodes: KdlNode[],
-    keepMoveEl = false,
-  ): Promise<void> {
-    for (const node of nodes) {
-      const name = node.name.toLowerCase();
-      if (this.details.length && name !== "-") {
-        await this.renderDetails(target);
-      }
-      if (this.moveEl && !keepMoveEl) {
-        this.moveEl = undefined;
-      }
-      await this.renderNode(target, node);
-    }
-    if (this.details.length) {
-      await this.renderDetails(target);
-    }
-  }
-
-  async renderNode(target: HTMLElement, node: KdlNode): Promise<void> {
-    if (this.details.length && node.name !== "-") {
-      await this.renderDetails(target);
-    }
+  renderNode(node: KdlNode) {
     switch (node.name.toLowerCase()) {
       case "move": {
-        await this.renderMove(target, node);
-        break;
+        return this.renderMove(node);
       }
       case "-": {
-        this.details.push(...(node.values[0] as string).split("\n"));
-        break;
+        return this.renderDetails(node);
+        // this.details.push(...(node.values[0] as string).split("\n"));
       }
       case "add": {
-        await this.renderAdd(target, node);
-        break;
+        return this.renderAdd(node);
       }
       case "roll": {
         this.lastRoll = node;
@@ -169,7 +178,7 @@ export class MechanicsRenderer {
         this.lastRoll.properties.adds = node.properties.adds ?? node.values[3];
         this.lastRoll.properties.vs1 = node.properties.vs1 ?? node.values[4];
         this.lastRoll.properties.vs2 = node.properties.vs2 ?? node.values[5];
-        await this.renderRoll(target, node);
+        return this.renderRoll(node);
         break;
       }
       case "progress-roll": {
@@ -178,84 +187,62 @@ export class MechanicsRenderer {
           node.properties.score ?? node.values[1];
         this.lastRoll.properties.vs1 = node.properties.vs1 ?? node.values[2];
         this.lastRoll.properties.vs2 = node.properties.vs2 ?? node.values[3];
-        await this.renderProgressRoll(target, node);
+        return this.renderProgressRoll(node);
         break;
       }
       case "die-roll": {
         // TODO: actually style these.
-        await this.renderDieRoll(target, node);
-        break;
+        return this.renderDieRoll(node);
       }
       case "reroll": {
-        await this.renderReroll(target, node);
-        break;
+        return this.renderReroll(node);
       }
       case "meter": {
-        await this.renderMeter(target, node);
-        break;
+        return this.renderMeter(node);
       }
       case "burn": {
-        await this.renderBurn(target, node);
-        break;
+        return this.renderBurn(node);
       }
       case "progress": {
-        await this.renderProgress(target, node);
-        break;
+        return this.renderProgress(node);
       }
       case "track": {
-        await this.renderTrack(target, node);
-        break;
+        return this.renderTrack(node);
       }
       case "xp": {
-        await this.renderXp(target, node);
-        break;
+        return this.renderXp(node);
       }
       case "clock": {
-        await this.renderClock(target, node);
-        break;
+        return this.renderClock(node);
       }
       case "oracle": {
-        await this.renderOracle(target, node);
-        break;
+        return this.renderOracle(node);
       }
       case "oracle-group": {
-        await this.renderOracleGroup(target, node);
+        return this.renderOracleGroup(node);
         break;
       }
       case "asset": {
-        await this.renderAsset(target, node);
-        break;
+        return this.renderAsset(node);
       }
       case "impact": {
-        await this.renderImpact(target, node);
+        return this.renderImpact(node);
         break;
       }
       case "initiative":
       case "position": {
-        await this.renderInitiative(target, node);
-        break;
+        return this.renderInitiative(node);
       }
       case "actor": {
-        await this.renderActor(target, node);
-        break;
+        return this.renderActor(node);
       }
       default: {
-        this.renderUnknown(target, node.name);
+        return this.renderUnknown(node.name);
       }
     }
   }
 
-  async renderMarkdown(target: HTMLElement, md: string) {
-    await MarkdownRenderer.render(
-      this.plugin.app,
-      md,
-      target,
-      this.sourcePath,
-      new MarkdownRenderChild(target),
-    );
-  }
-
-  async renderMove(target: HTMLElement, node: KdlNode) {
+  renderMove(node: KdlNode): TemplateResult {
     const moves = [...this.plugin.datastore.moves.values()];
     const id = node.properties.id as string | undefined;
     const name = (node.properties.name ?? node.values[0]) as string | undefined;
@@ -263,25 +250,30 @@ export class MechanicsRenderer {
       ? moves.find((x) => x._id === id) ??
         moves.find((x) => x.name.toLowerCase() === name?.toLowerCase())
       : moves.find((x) => x.name.toLowerCase() === name?.toLowerCase());
-    const moveName = name ?? move?.name;
-    this.moveEl = target.createEl("details", { cls: "move" });
-    if (!this.plugin.settings.collapseMoves) {
-      this.moveEl.setAttribute("open", "open");
-    }
-    const summary = this.moveEl.createEl("summary");
-    if (moveName) {
-      await this.renderMarkdown(summary, moveName);
-    }
-    await this.renderChildren(this.moveEl, node.children, true);
+    const moveName = name ?? move?.name ?? "Unknown move";
+    return html`<details
+      class="move"
+      ?open=${!this.plugin.settings.collapseMoves}
+      ${ref((el) => (this.moveEl = el as HTMLElement | undefined))}
+    >
+      <summary>${md(this.plugin, moveName)}</summary>
+      ${this.renderChildren(node.children)}
+    </details>`;
   }
 
-  async renderDetails(target: HTMLElement) {
-    const aside = target.createEl("aside", { cls: "detail" });
-    await this.renderMarkdown(aside, "> " + this.details.join("\n> "));
-    this.details = [];
+  renderDetails(node: KdlNode) {
+    const details = node.values.reduce((acc, val) => {
+      if (typeof val === "string") {
+        acc.push(...val.split("\n"));
+      }
+      return acc;
+    }, [] as string[]);
+    return html`<aside class="detail">
+      ${md(this.plugin, "> " + details.join("\n> "))}
+    </aside>`;
   }
 
-  async renderAdd(target: HTMLElement, node: KdlNode) {
+  renderAdd(node: KdlNode) {
     const amount = (node.properties.amount ?? node.values[0]) as number;
     const from = (node.properties.from ?? node.values[1]) as string;
     const neg = amount < 0;
@@ -294,16 +286,16 @@ export class MechanicsRenderer {
     if (from) {
       def["From"] = { cls: "from", value: from, md: true };
     }
-    await this.renderDlist(target, "add", def);
+    return this.renderDlist("add", def);
   }
 
-  async renderMeter(target: HTMLElement, node: KdlNode) {
+  renderMeter(node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
     const from = (node.properties.from ?? node.values[1]) as number;
     const to = (node.properties.to ?? node.values[2]) as number;
     const delta = to - from;
     const neg = delta < 0;
-    await this.renderDlist(target, "meter", {
+    return this.renderDlist("meter", {
       Meter: { cls: "meter-name", value: name, md: true },
       Delta: {
         cls: "delta" + " " + (neg ? "negative" : "positive"),
@@ -314,7 +306,7 @@ export class MechanicsRenderer {
     });
   }
 
-  async renderBurn(target: HTMLElement, node: KdlNode) {
+  renderBurn(node: KdlNode) {
     const from = Math.max(
       -6,
       Math.min((node.properties.from ?? node.values[0]) as number, 10),
@@ -329,11 +321,7 @@ export class MechanicsRenderer {
     };
     let nodeCls = "burn";
     if (this.lastRoll && this.lastRoll.name === "progress-roll") {
-      target.createEl("p", {
-        text: "Can't burn momentum on progress rolls.",
-        cls: "error",
-      });
-      return;
+      return html`<p class="error">Can't burn momentum on progress rolls.</p>`;
     } else if (this.lastRoll) {
       const vs1 = this.lastRoll.properties.vs1 as number;
       const vs2 = this.lastRoll.properties.vs2 as number;
@@ -351,10 +339,10 @@ export class MechanicsRenderer {
       def["Outcome"] = { cls: "outcome", value: text, dataProp: false };
       nodeCls += " " + cls;
     }
-    await this.renderDlist(target, nodeCls, def);
+    return this.renderDlist(nodeCls, def);
   }
 
-  async renderProgress(target: HTMLElement, node: KdlNode) {
+  renderProgress(node: KdlNode) {
     const trackName = (node.properties.name ?? node.values[0]) as string;
     const result = ProgressTrack.create({
       progress:
@@ -367,11 +355,10 @@ export class MechanicsRenderer {
     });
     if (result.isLeft()) {
       // todo: Better error display
-      target.createEl("pre", {
-        text: `Invalid track:\n${result.error.toString()}`,
-        cls: "error",
-      });
-      return;
+      return html`<pre class="error">
+Invalid track:
+${result.error.toString()}</pre
+      >`;
     }
     const startTrack = result.value;
 
@@ -381,7 +368,7 @@ export class MechanicsRenderer {
 
     const endTrack = startTrack.advanced(steps);
     const [toBoxes, toTicks] = endTrack.boxesAndTicks();
-    await this.renderDlist(target, "progress", {
+    return this.renderDlist("progress", {
       "Track name": { cls: "track-name", value: trackName, md: true },
       Steps: {
         cls: "steps " + (steps < 0 ? "negative" : "positive"),
@@ -395,15 +382,14 @@ export class MechanicsRenderer {
     });
   }
 
-  async renderTrack(target: HTMLElement, node: KdlNode) {
+  renderTrack(node: KdlNode) {
     const trackName = (node.properties.name ?? node.values[0]) as string;
     const status = node.properties.status as string | undefined;
     if (status != null) {
-      await this.renderDlist(target, "track-status", {
+      return this.renderDlist("track-status", {
         Track: { cls: "track-name", value: trackName, md: true },
         Status: { cls: "track-status", value: status },
       });
-      return;
     }
     let from = node.properties.from as number;
     const fromBoxes =
@@ -424,7 +410,7 @@ export class MechanicsRenderer {
     if (to == null) {
       to = toBoxes * 4 + toTicks;
     }
-    await this.renderDlist(target, "track", {
+    return this.renderDlist("track", {
       "Track name": { cls: "track-name", value: trackName, md: true },
       "From boxes": { cls: "from-boxes", value: fromBoxes },
       "From ticks": { cls: "from-ticks", value: fromTicks },
@@ -433,12 +419,12 @@ export class MechanicsRenderer {
     });
   }
 
-  async renderXp(target: HTMLElement, node: KdlNode) {
+  renderXp(node: KdlNode) {
     const from = (node.properties.from ?? node.values[0]) as number;
     const to = (node.properties.to ?? node.values[1]) as number;
     const delta = to - from;
     const neg = delta < 0;
-    await this.renderDlist(target, "xp", {
+    return this.renderDlist("xp", {
       Delta: {
         cls: "delta" + " " + (neg ? "negative" : "positive"),
         value: Math.abs(delta),
@@ -448,20 +434,19 @@ export class MechanicsRenderer {
     });
   }
 
-  async renderClock(target: HTMLElement, node: KdlNode) {
+  renderClock(node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
     const status = node.properties.status as string | undefined;
     if (status != null) {
-      await this.renderDlist(target, "clock-status", {
+      return this.renderDlist("clock-status", {
         Clock: { cls: "clock-name", value: name, md: true },
         Status: { cls: "clock-status", value: status },
       });
-      return;
     }
     const from = (node.properties.from ?? node.values[1]) as number;
     const to = (node.properties.to ?? node.values[2]) as number;
     const outOf = (node.properties["out-of"] ?? node.values[3]) as number;
-    await this.renderDlist(target, "clock", {
+    return this.renderDlist("clock", {
       Clock: { cls: "clock-name", value: name, md: true },
       From: { cls: "from", value: from },
       "Out of from": { cls: "out-of", value: outOf },
@@ -470,7 +455,7 @@ export class MechanicsRenderer {
     });
   }
 
-  async renderOracle(target: HTMLElement, node: KdlNode) {
+  renderOracle(node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
     const roll = (node.properties.roll ?? node.values[1]) as number;
     const result = (node.properties.result ?? node.values[2]) as string;
@@ -480,7 +465,6 @@ export class MechanicsRenderer {
     const replaced = (node.properties.replaced ?? node.values[4]) as
       | boolean
       | undefined;
-    const wrapper = target.createDiv("oracle-container");
     const data: DataList = {
       Name: { cls: "name", value: name, md: true },
       Roll: { cls: "roll", value: roll },
@@ -492,28 +476,25 @@ export class MechanicsRenderer {
     if (replaced != null) {
       data.replaced = { cls: "replaced", value: replaced };
     }
-    await this.renderDlist(wrapper, "oracle", data);
-    if (node.children.length) {
-      const bq = wrapper.createEl("blockquote");
-      for (const child of node.children) {
-        await this.renderNode(bq, child);
-      }
-    }
+    return html`<div class="oracle-container">
+      ${this.renderDlist("oracle", data)}
+      ${node.children.length
+        ? html`<blockquote>${this.renderChildren(node.children)}</blockquote>`
+        : null}
+    </div>`;
   }
 
-  async renderOracleGroup(target: HTMLElement, node: KdlNode) {
+  renderOracleGroup(node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
-    const wrapper = target.createEl("article", { cls: "oracle-group" });
-    await this.renderMarkdown(wrapper, name);
-    if (node.children.length) {
-      const bq = wrapper.createEl("blockquote");
-      for (const child of node.children) {
-        await this.renderNode(bq, child);
-      }
-    }
+    return html`<article class="oracle-group">
+      ${md(this.plugin, name)}
+      ${node.children.length
+        ? html`<blockquote>${this.renderChildren(node.children)}</blockquote>`
+        : null}
+    </article>`;
   }
 
-  async renderRoll(target: HTMLElement, node: KdlNode) {
+  renderRoll(node: KdlNode) {
     const statName = (node.properties["stat-name"] ?? node.values[0]) as string;
     const action = (node.properties.action ?? node.values[1]) as number;
     const stat = (node.properties.stat ?? node.values[2]) as number;
@@ -541,10 +522,10 @@ export class MechanicsRenderer {
       "Challenge die 2": { cls: "challenge-die vs2", value: challenge2 },
       Outcome: { cls: "outcome", value: outcome, dataProp: false },
     });
-    await this.renderDlist(target, "roll " + outcomeClass, def);
+    return this.renderDlist("roll " + outcomeClass, def);
   }
 
-  async renderProgressRoll(target: HTMLElement, node: KdlNode) {
+  renderProgressRoll(node: KdlNode) {
     const trackName = (node.properties.name ?? node.values[0]) as string;
     const score = (node.properties.score ?? node.values[1]) as number;
     const challenge1 = (node.properties.vs1 ?? node.values[2]) as number;
@@ -555,7 +536,7 @@ export class MechanicsRenderer {
       match,
     } = rollOutcome(score, challenge1, challenge2);
     this.setMoveHit(outcomeClass, match);
-    await this.renderDlist(target, "roll progress " + outcomeClass, {
+    return this.renderDlist("roll progress " + outcomeClass, {
       "Track name": { cls: "track-name", value: trackName, md: true },
       "Progress score": { cls: "progress-score", value: score },
       "Challenge die 1": { cls: "challenge-die vs1", value: challenge1 },
@@ -564,22 +545,18 @@ export class MechanicsRenderer {
     });
   }
 
-  async renderDieRoll(target: HTMLElement, node: KdlNode) {
+  renderDieRoll(node: KdlNode) {
     const reason = node.values[0] as string;
     const value = node.values[1] as number;
-    await this.renderDlist(target, "die-roll", {
+    return this.renderDlist("die-roll", {
       Reason: { cls: "reason", value: reason, md: true },
       Result: { cls: "result", value },
     });
   }
 
-  async renderReroll(target: HTMLElement, node: KdlNode) {
+  renderReroll(node: KdlNode) {
     if (!this.lastRoll) {
-      target.createEl("p", {
-        text: "No previous roll to reroll.",
-        cls: "error",
-      });
-      return;
+      return html`<p>No previous roll to reroll.</p>`;
     }
 
     const newScore = Math.min(
@@ -639,10 +616,10 @@ export class MechanicsRenderer {
     def["Challenge die 2"] = { cls: "challenge-die vs2", value: newVs2 };
     def["Outcome"] = { cls: "outcome", value: outcome, dataProp: false };
     this.setMoveHit(outcomeClass, match);
-    await this.renderDlist(target, "reroll " + outcomeClass, def);
+    return this.renderDlist("reroll " + outcomeClass, def);
   }
 
-  async renderAsset(target: HTMLElement, node: KdlNode) {
+  renderAsset(node: KdlNode) {
     const assetName = (node.properties.name ?? node.values[0]) as string;
     const status = (node.properties.status ?? node.values[1]) as string;
     const ability = (node.properties.ability ?? node.values[2]) as
@@ -655,25 +632,24 @@ export class MechanicsRenderer {
     if (ability) {
       dl.Ability = { cls: "asset-ability", value: ability };
     }
-    await this.renderDlist(target, "asset", dl);
-    return;
+    return this.renderDlist("asset", dl);
   }
 
-  async renderImpact(target: HTMLElement, node: KdlNode) {
+  renderImpact(node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
     const marked = (node.properties.marked ?? node.values[1]) as boolean;
-    await this.renderDlist(target, "impact", {
+    return this.renderDlist("impact", {
       Impact: { cls: "impact-name", value: name, md: true },
       Status: { cls: "impact-marked", value: "" + marked },
     });
   }
 
-  async renderInitiative(target: HTMLElement, node: KdlNode) {
+  renderInitiative(node: KdlNode) {
     const from =
       ((node.properties.from ?? node.values[0]) as string) || "out-of-combat";
     const to =
       ((node.properties.to ?? node.values[1]) as string) || "out-of-combat";
-    await this.renderDlist(target, "initiative", {
+    return this.renderDlist("initiative", {
       From: {
         cls: "from " + initClass(from),
         value: initText(from),
@@ -703,49 +679,35 @@ export class MechanicsRenderer {
     }
   }
 
-  async renderActor(target: HTMLElement, node: KdlNode) {
+  renderActor(node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
-    const wrapper = target.createEl("section", { cls: "actor" });
-    const header = wrapper.createEl("header");
-    await this.renderMarkdown(header, name);
-    if (node.children.length) {
-      for (const child of node.children) {
-        await this.renderNode(wrapper, child);
-      }
-    }
+    return html`<section class="actor">
+      <header>${md(this.plugin, name)}</header>
+      ${this.renderChildren(node.children)}
+    </section>`;
   }
 
-  renderUnknown(target: HTMLElement, name: string) {
-    target.createEl("p", {
-      text: `Unknown move node: "${name}"`,
-      cls: "error",
-    });
+  renderUnknown(name: string) {
+    return html`<p class="error">Unknown node: "${name}"</p>`;
   }
 
-  async renderDlist(target: HTMLElement, cls: string, data: DataList) {
-    const dl = target.createEl("dl", { cls });
-    for (const [key, { cls, value, dataProp, md }] of Object.entries(data)) {
-      dl.createEl("dt", {
-        text: key,
-      });
-      let dd;
-      if (md) {
-        dd = dl.createEl("dd", {
-          cls,
-        });
-        await this.renderMarkdown(dd, value as string);
-      } else {
-        dd = dl.createEl("dd", {
-          cls,
-          text: "" + value,
-        });
-      }
-      if (dataProp !== false) {
-        dd.setAttribute("data-value", "" + value);
-      }
-    }
-    return dl;
+  renderDlist(cls: string, data: DataList): TemplateResult {
+    return html`<dl class=${cls}>
+      ${map(
+        Object.entries(data),
+        ([key, { cls, value, dataProp, md: renderMd }]) => {
+          return html`<dt>${key}</dt>
+            <dd
+              class=${cls}
+              data-value=${dataProp !== false ? "" + value : undefined}
+            >
+              ${renderMd ? md(this.plugin, "" + value) : value}
+            </dd>`;
+        },
+      )}
+    </dl>`;
   }
+
   setMoveHit(hitKind: string, match: boolean) {
     const moveEl = this.moveEl;
     if (!moveEl) {
