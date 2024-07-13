@@ -95,9 +95,11 @@ class TruthRenderer extends MarkdownRenderChild {
       return;
     }
     const truthName = firstLine.trim().toLowerCase();
-    const truth = [...this.plugin.datastore.truths.values()].find((truth) => {
-      return truth.name.toLowerCase() === truthName;
-    });
+    const truth =
+      this.plugin.datastore.truths.get(truthName) ??
+      [...this.plugin.datastore.truths.values()].find((truth) => {
+        return truth.name.toLowerCase() === truthName;
+      });
     if (!truth) {
       render(
         html`<article class="error">Truth not found: ${this.source}</article>`,
