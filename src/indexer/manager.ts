@@ -1,6 +1,8 @@
 import { rootLogger } from "logger";
 import {
   Component,
+  EventRef,
+  Events,
   TFile,
   type App,
   type CachedMetadata,
@@ -10,20 +12,11 @@ import {
 } from "obsidian";
 import { Indexer, IndexerId } from "./indexer";
 
-// function isCharacterFile(
-//   md: CachedMetadata,
-// ): md is CachedMetadata & { frontmatter: FrontMatterCache } {
-//   const tags = md != null ? getAllTags(md) ?? [] : [];
-//   if (tags.contains("#character")) {
-//     return true;
-//   } else {
-//     return false;
-//   }
-// }
-
 const logger = rootLogger.getLogger("index-manager");
 
 export class IndexManager extends Component {
+  #events: Events = new Events();
+
   protected readonly metadataCache: MetadataCache;
   protected readonly vault: Vault;
   protected readonly fileManager: FileManager;
@@ -62,10 +55,15 @@ export class IndexManager extends Component {
 
     this.registerEvent(
       this.vault.on("rename", (file, oldPath) => {
+        if (!(file instanceof TFile)) return;
         const indexer = this.currentIndexerForFile(oldPath);
         if (indexer != null) {
           this.indexedFiles.delete(oldPath);
-          indexer.onRename(oldPath, file.path);
+          indexer.onRename(
+            oldPath,
+            file,
+            this.metadataCache.getFileCache(file)!,
+          );
           // if onRename fails, we won't re-add the file here.
           this.indexedFiles.set(file.path, indexer.id);
         }
@@ -84,6 +82,7 @@ export class IndexManager extends Component {
       }
     }
     logger.debug("[index-manager] Full index complete.");
+    this.trigger("initialized", {});
   }
 
   protected currentIndexerForFile(path: string): Indexer | undefined {
@@ -131,12 +130,6 @@ export class IndexManager extends Component {
     file: TFile,
     cache: CachedMetadata,
   ): Indexer | undefined {
-    // const tags = cache != null ? getAllTags(cache) ?? [] : [];
-    // if (tags.contains("#character")) {
-    //   return true;
-    // } else {
-    //   return false;
-    // }
     const kind = cache.frontmatter?.["iron-vault-kind"];
     if (kind) {
       const indexer = this.handlers.get(kind);
@@ -162,16 +155,18 @@ export class IndexManager extends Component {
 
     if (newIndexer) {
       logger.debug(
-        "[file:%s] using indexer %s for file",
-        indexKey,
+        "[indexer:%s] [file:%s] attempting to index",
         newIndexer.id,
+        indexKey,
       );
 
-      let result: ReturnType<Indexer["onChanged"]>;
+      let result: ReturnType<Indexer["onChanged"]> | undefined = undefined;
       try {
-        result = newIndexer.onChanged(file.path, cache);
+        result = newIndexer.onChanged(file, cache);
       } catch (error) {
-        result = "error";
+        // This was a truly exceptional error -- the indexer would not have recorded it, so we
+        // do NOT want this to go down the 'indexed'/'error' path below, which marks this file
+        // as having been indexed.
         logger.error(
           "[indexer:%s] [file:%s] unexpected error or result while indexing %o",
           newIndexer.id,
@@ -179,12 +174,15 @@ export class IndexManager extends Component {
           error,
         );
       }
+
       switch (result) {
-        case "indexed":
+        case "indexed": // Indexed as a success
+        case "error": // Indexed as an error (this differs from the unexpected error above)
           logger.debug(
-            "[indexer:%s] [file:%s] indexed",
+            "[indexer:%s] [file:%s] %s",
             newIndexer.id,
             indexKey,
+            result == "error" ? "handled error" : "indexed",
           );
           this.indexedFiles.set(indexKey, newIndexer.id);
           break;
@@ -195,15 +193,36 @@ export class IndexManager extends Component {
             indexKey,
           );
           break;
-        case "error":
-        default:
-          logger.error(
-            "[indexer:%s] [file:%s] error while indexing",
-            newIndexer.id,
-            indexKey,
-            result,
-          );
+        case undefined:
+        // We don't do anything in this case.
       }
     }
   }
+
+  on<K extends keyof EVENT_TYPES>(
+    name: K,
+    callback: (params: EVENT_TYPES[K]) => unknown,
+    ctx?: unknown,
+  ): EventRef {
+    return this.#events.on(name, callback, ctx);
+  }
+
+  off(name: string, callback: (...data: never[]) => unknown): void {
+    this.#events.off(name, callback);
+  }
+
+  offref(ref: EventRef): void {
+    this.#events.offref(ref);
+  }
+
+  private trigger<K extends keyof EVENT_TYPES>(
+    name: K,
+    data: EVENT_TYPES[K],
+  ): void {
+    this.#events.trigger(name, data);
+  }
 }
+
+export type EVENT_TYPES = {
+  initialized: Record<string, never>;
+};

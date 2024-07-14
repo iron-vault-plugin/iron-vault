@@ -1,5 +1,7 @@
+import { CampaignTrackedEntities } from "campaigns/context";
+import { CampaignFile } from "campaigns/entity";
 import IronVaultPlugin from "index";
-import { Index } from "indexer";
+import { EmittingIndex } from "indexer/index-interface";
 import { html, render } from "lit-html";
 import { rootLogger } from "logger";
 import { debounce, MarkdownRenderChild } from "obsidian";
@@ -17,15 +19,20 @@ export abstract class TrackedEntityRenderer<
     containerEl: HTMLElement,
     sourcePath: string,
     public readonly plugin: IronVaultPlugin,
-    public readonly index: Index<T, E>,
+    public readonly index: EmittingIndex<T, E>,
     public readonly kind: string,
   ) {
     super(containerEl);
     this.#sourcePath = sourcePath;
-    logger.debug(
-      "[tracked-entity-renderer(%s): %s] Initializing",
+    this.trace("Initializing");
+  }
+
+  protected trace(msg: string, ...args: unknown[]) {
+    logger.trace(
+      "[tracked-entity(%s): %s] " + msg,
       this.kind,
-      this.sourcePath,
+      this.#sourcePath,
+      ...args,
     );
   }
 
@@ -33,23 +40,25 @@ export abstract class TrackedEntityRenderer<
     return this.#sourcePath;
   }
 
+  // TODO(@cwegrzyn): should it be possible to have a tracked entity outside of a campaign?
+  campaign(): CampaignFile | undefined {
+    return this.plugin.campaignManager.campaignForPath(this.sourcePath);
+  }
+
+  campaignContext(): CampaignTrackedEntities | undefined {
+    const campaign = this.campaign();
+    return campaign && this.plugin.campaignManager.campaignContextFor(campaign);
+  }
+
   async onload() {
-    logger.debug(
-      "[tracked-entity-renderer(%s): %s] onload",
-      this.kind,
-      this.sourcePath,
-    );
+    this.trace("onload");
 
     const rerender = debounce(() => this.render(), 100);
 
     this.registerEvent(
       this.index.on("changed", (changedPath) => {
         if (changedPath === this.sourcePath) {
-          logger.debug(
-            "[tracked-entity-renderer(%s): %s] changed",
-            this.kind,
-            this.sourcePath,
-          );
+          this.trace("changed");
           rerender();
         }
       }),
@@ -59,7 +68,7 @@ export abstract class TrackedEntityRenderer<
       this.index.on("renamed", (oldPath, newPath) => {
         if (this.#sourcePath === oldPath) {
           logger.debug(
-            "[tracked-entity-renderer(%s): %s] renaming to %s",
+            "[tracked-entity(%s): %s] detected rename to %s",
             this.kind,
             this.sourcePath,
             newPath,
@@ -90,11 +99,7 @@ export abstract class TrackedEntityRenderer<
   }
 
   render(): void | Promise<void> {
-    logger.debug(
-      "[tracked-entity-renderer(%s): %s] render",
-      this.kind,
-      this.sourcePath,
-    );
+    this.trace("render");
 
     const result = this.index.get(this.sourcePath);
     if (result == null) {

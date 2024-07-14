@@ -1,15 +1,16 @@
 import { CustomSuggestModal } from "utils/suggest";
 
-import { ClockFileAdapter, ClockIndex } from "./clock-file";
 import IronVaultPlugin from "index";
+import { onlyValid } from "indexer/index-impl";
 import { stripMarkdown } from "utils/strip-markdown";
+import { ClockFileAdapter, ClockIndex } from "./clock-file";
 
 export async function selectClock(
   clockIndex: ClockIndex,
   plugin: IronVaultPlugin,
   filter?: (track: [string, ClockFileAdapter]) => boolean,
 ): Promise<[string, ClockFileAdapter]> {
-  let clocks = [...clockIndex.ofValid.entries()];
+  let clocks = [...onlyValid(clockIndex).entries()];
   if (filter) {
     clocks = clocks.filter(filter);
   }

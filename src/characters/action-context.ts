@@ -1,10 +1,15 @@
+import { CampaignTrackedEntities } from "campaigns/context";
+import { determineCampaignContext } from "campaigns/manager";
 import { StandardIndex } from "datastore/data-indexer";
 import { DataswornTypes, moveOrigin } from "datastore/datasworn-indexer";
 import { produce } from "immer";
-import { App } from "obsidian";
+import { App, MarkdownFileInfo } from "obsidian";
 import { ConditionMeterDefinition } from "rules/ruleset";
 import { vaultProcess } from "utils/obsidian";
-import { CharacterContext, activeCharacter } from "../character-tracker";
+import {
+  CharacterContext,
+  requireActiveCharacterForCampaign,
+} from "../character-tracker";
 import {
   CharReader,
   CharacterLens,
@@ -26,6 +31,7 @@ export interface IDataContext {
 }
 
 export interface IActionContext extends IDataContext {
+  readonly campaignContext: CampaignTrackedEntities;
   readonly kind: "no_character" | "character";
   readonly rollables: (MeterWithLens | MeterWithoutLens)[];
   readonly conditionMeters: (
@@ -42,7 +48,10 @@ export class NoCharacterActionConext implements IActionContext {
   readonly kind = "no_character";
   readonly momentum: undefined = undefined;
 
-  constructor(public readonly datastore: Datastore) {}
+  constructor(
+    public readonly datastore: Datastore,
+    public readonly campaignContext: CampaignTrackedEntities,
+  ) {}
 
   get moves() {
     return this.datastore.moves;
@@ -86,6 +95,7 @@ export class CharacterActionContext implements IActionContext {
 
   constructor(
     public readonly datastore: Datastore,
+    public readonly campaignContext: CampaignTrackedEntities,
     public readonly characterPath: string,
     public readonly characterContext: CharacterContext,
   ) {}
@@ -170,8 +180,9 @@ export class NoValidContextError extends Error {}
 
 export async function requireActiveCharacterContext(
   plugin: IronVaultPlugin,
+  view?: MarkdownFileInfo,
 ): Promise<CharacterActionContext> {
-  const context = await determineCharacterActionContext(plugin);
+  const context = await determineCharacterActionContext(plugin, view);
   if (!(context instanceof CharacterActionContext)) {
     await InfoModal.show(
       plugin.app,
@@ -187,15 +198,12 @@ export async function requireActiveCharacterContext(
 
 export async function determineCharacterActionContext(
   plugin: IronVaultPlugin,
+  view?: MarkdownFileInfo,
 ): Promise<ActionContext> {
+  const campaignContext = await determineCampaignContext(plugin, view);
   if (plugin.settings.useCharacterSystem) {
     try {
-      const [characterPath, characterContext] = await activeCharacter(plugin);
-      return new CharacterActionContext(
-        plugin.datastore,
-        characterPath,
-        characterContext,
-      );
+      return await requireActiveCharacterForCampaign(plugin, campaignContext);
     } catch (e) {
       const div = document.createElement("div");
       div.createEl("p", {
@@ -213,6 +221,14 @@ export async function determineCharacterActionContext(
       throw new NoValidContextError("No valid character found", { cause: e });
     }
   } else {
-    return new NoCharacterActionConext(plugin.datastore);
+    return new NoCharacterActionConext(plugin.datastore, campaignContext);
   }
+}
+
+export function formatActionContextDescription(
+  actionContext: ActionContext,
+): string {
+  const campaign = actionContext.campaignContext.campaign;
+  const character = actionContext.getWithLens((_) => _.name);
+  return `${character != null ? `for '${character}' ` : ""}in '${campaign.name}'`;
 }

@@ -18,6 +18,7 @@ export enum IronVaultKind {
   Character = "character",
   Clock = "clock",
   ProgressTrack = "progress",
+  Campaign = "campaign",
 }
 
 // TODO(@cwegrzyn): if Datasworn exports this from core at some point, we should use that.

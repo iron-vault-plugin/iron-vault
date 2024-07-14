@@ -35,7 +35,7 @@ class TrackRenderer extends TrackedEntityRenderer<
     sourcePath: string,
     plugin: IronVaultPlugin,
   ) {
-    super(containerEl, sourcePath, plugin, plugin.progressIndex, "track");
+    super(containerEl, sourcePath, plugin, plugin.progressTracks, "track");
   }
 
   renderEntity(trackFile: ProgressTrackFileAdapter) {

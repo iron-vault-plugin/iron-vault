@@ -1,0 +1,3 @@
+---
+iron-vault-kind: campaign
+---

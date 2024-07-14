@@ -18,7 +18,7 @@ docs/.obsidian/workspace.json
 !test-vault/.obsidian/hot-reload-master/*
 
 # Don't track this folder. For random things to try.
-# If its import to test though, add it somewhere where other
+# If it's important to test, add it somewhere where other
 # people can test it too.
-test-vault/untracked/*
-!test-vault/untracked/README.md
+test-vault/**/untracked/*
+!test-vault/**/untracked/README.md

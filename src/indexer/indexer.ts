@@ -1,7 +1,7 @@
-import { Index } from "indexer/index-interface";
+import { EmittingIndex, ReadonlyIndex } from "indexer/index-interface";
 import { rootLogger } from "logger";
 import { Logger } from "loglevel";
-import { type CachedMetadata } from "obsidian";
+import { TFile, type CachedMetadata } from "obsidian";
 import { Either, Left } from "utils/either";
 import { IronVaultKind } from "../constants";
 import { IndexImpl } from "./index-impl";
@@ -43,21 +43,21 @@ export function wrapIndexUpdateError(
 export interface Indexer {
   readonly id: IronVaultKind;
   onChanged(
-    path: string,
+    file: TFile,
     cache: CachedMetadata,
   ): IndexUpdateResult<unknown, Error>["type"];
   onDeleted(path: string): IndexDeleteResult;
-  onRename(oldPath: string, newPath: string): void;
+  onRename(oldPath: string, newFile: TFile, cache: CachedMetadata): void;
 }
 
 export type IndexerId = string;
 
 export type IndexOf<Idx> =
-  Idx extends BaseIndexer<infer T, infer E> ? Index<T, E> : never;
+  Idx extends BaseIndexer<infer T, infer E> ? ReadonlyIndex<T, E> : never;
 
 export abstract class BaseIndexer<T, E extends Error> implements Indexer {
   abstract readonly id: IronVaultKind;
-  public readonly index: Index<T, E> = new IndexImpl();
+  public readonly index: EmittingIndex<T, E> = new IndexImpl();
 
   #_logger?: Logger;
 
@@ -72,35 +72,41 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
   }
 
   onChanged(
-    path: string,
+    file: TFile,
     cache: CachedMetadata,
   ): IndexUpdateResult<unknown, Error>["type"] {
     let result: IndexUpdate<T, E>;
     try {
-      result = this.processFile(path, cache);
+      result = this.processFile(file, cache);
     } catch (error) {
       result = wrapIndexUpdateError(error);
     }
 
     if (result.isRight()) {
-      this.index.set(path, result);
+      this.index.set(file.path, result);
       return "indexed";
     } else {
       if (result.error instanceof WontIndexError) {
         // "Won't index" is intended for a situation where this indexer decides it doesn't
         // apply to this file. We remove it from the index entirely.
-        if (this.index.delete(path)) {
+        if (this.index.delete(file.path)) {
           this.#logger.debug(
             "[indexer:%s] [file:%s] removing because no longer indexable",
             this.id,
-            path,
+            file.path,
           );
         }
         return "wont_index";
       } else {
         // Otherwise, when an error occurs while indexing a file, we consider that an
         // indication of fault in the file. We index it as an error and present that to the user.
-        this.index.set(path, result as Left<E>);
+        this.#logger.error(
+          "[indexer:%s] [file:%s] error while processing file",
+          this.id,
+          file.path,
+          result.error,
+        );
+        this.index.set(file.path, result as Left<E>);
         return "error";
       }
     }
@@ -116,8 +122,13 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
     }
   }
 
-  onRename(oldPath: string, newPath: string): void {
-    if (!this.index.rename(oldPath, newPath)) {
+  onRename(oldPath: string, newFile: TFile, cache: CachedMetadata): void {
+    if (this.index.rename(oldPath, newFile.path)) {
+      if (this.reprocessRenamedFiles) {
+        // TODO: this is all hacky, and also what do I do if this returns something unexpected?
+        this.onChanged(newFile, cache);
+      }
+    } else {
       this.#logger.warn(
         "Missing expected key '%s' in rename operation",
         oldPath,
@@ -125,5 +136,9 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
     }
   }
 
-  abstract processFile(path: string, cache: CachedMetadata): IndexUpdate<T, E>;
+  /** This defines how your indexer processes the files into its indexed type. */
+  abstract processFile(file: TFile, cache: CachedMetadata): IndexUpdate<T, E>;
+
+  /** Defines whether renamed files should be reindexed (e.g., if they include their path) */
+  protected readonly reprocessRenamedFiles: boolean = false;
 }

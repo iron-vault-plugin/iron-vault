@@ -1,6 +1,9 @@
+import { CampaignTrackedEntities } from "campaigns/context";
+import { CampaignFile } from "campaigns/entity";
+import { CharacterActionContext } from "characters/action-context";
 import IronVaultPlugin from "index";
-import { type CachedMetadata } from "obsidian";
-import { Right } from "utils/either";
+import { onlyValid } from "indexer/index-impl";
+import { TFile, type CachedMetadata } from "obsidian";
 import { CustomSuggestModal } from "utils/suggest";
 import { updaterWithContext } from "utils/update";
 import { z } from "zod";
@@ -31,7 +34,7 @@ export class CharacterIndexer extends BaseIndexer<
   }
 
   processFile(
-    path: string,
+    file: TFile,
     cache: CachedMetadata,
   ): IndexUpdate<CharacterContext, z.ZodError> {
     if (cache.frontmatter == null) {
@@ -62,64 +65,94 @@ export class CharacterContext {
 
 export type CharacterTracker = IndexOf<CharacterIndexer>;
 
-export async function activeCharacter(
+export function currentActiveCharacterForCampaign(
   plugin: IronVaultPlugin,
-): Promise<[string, CharacterContext]> {
-  const characters = [...plugin.characters.ofValid.entries()];
-  if (!characters.length) {
+  campaignContext: CampaignTrackedEntities,
+): CharacterActionContext | undefined {
+  const characters = onlyValid(campaignContext.characters);
+  if (characters.size === 0) {
     throw new MissingCharacterError("no valid characters found");
   }
 
-  const [charPath] =
-    characters.length === 1
-      ? [characters[0][0]]
-      : plugin.localSettings.activeCharacter &&
-          !plugin.settings.alwaysPromptActiveCharacter
-        ? [plugin.localSettings.activeCharacter]
-        : await CustomSuggestModal.select(
-            plugin.app,
-            characters,
-            ([, char]) => char.lens.name.get(char.character),
-            undefined,
-            "Pick active character",
-          );
+  const localSettings = plugin.localSettings.forCampaign(
+    campaignContext.campaign.file,
+  );
+  const activeCharacter =
+    localSettings.activeCharacter != null
+      ? characters.get(localSettings.activeCharacter)
+      : undefined;
 
-  if (!charPath) {
-    throw new MissingCharacterError("no valid characters found");
-  }
+  const charContext: [string, CharacterContext] | undefined =
+    characters.size === 1
+      ? [...characters.entries()][0]
+      : activeCharacter && !plugin.settings.alwaysPromptActiveCharacter
+        ? [localSettings.activeCharacter!, activeCharacter]
+        : undefined;
 
-  plugin.localSettings.activeCharacter = charPath;
-  await plugin.saveSettings();
-
-  return [charPath, plugin.characters.get(charPath)!.unwrap()] as [
-    string,
-    CharacterContext,
-  ];
+  return (
+    charContext &&
+    new CharacterActionContext(
+      plugin.datastore,
+      campaignContext,
+      charContext[0],
+      charContext[1],
+    )
+  );
 }
 
+/** Returns an ActionContext for current active character in a campaign, or prompts if no such active
+ * character can be determined.
+ */
+export async function requireActiveCharacterForCampaign(
+  plugin: IronVaultPlugin,
+  campaignContext: CampaignTrackedEntities,
+): Promise<CharacterActionContext> {
+  let activeCharacter = currentActiveCharacterForCampaign(
+    plugin,
+    campaignContext,
+  );
+  if (!activeCharacter) {
+    activeCharacter = await promptForCampaignCharacter(plugin, campaignContext);
+  }
+
+  setActiveCharacter(
+    plugin,
+    campaignContext.campaign,
+    activeCharacter.characterPath,
+  );
+  return activeCharacter;
+}
+
+/** Shows a suggest modal listing the current campaign characters. */
+export async function promptForCampaignCharacter(
+  plugin: IronVaultPlugin,
+  campaignContext: CampaignTrackedEntities,
+): Promise<CharacterActionContext> {
+  // TODO(@cwegrzyn): would be nice if this showed the current active character when one is available
+  const [path, charCtx] = await CustomSuggestModal.select(
+    plugin.app,
+    [...onlyValid(campaignContext.characters)],
+    ([, char]) => char.lens.name.get(char.character),
+    undefined,
+    "Pick active character",
+  );
+  return new CharacterActionContext(
+    plugin.datastore,
+    campaignContext,
+    path,
+    charCtx,
+  );
+}
+
+/** Updates the active character for a campaign. */
 export async function setActiveCharacter(
   plugin: IronVaultPlugin,
-  charPath?: string,
+  campaign: CampaignFile,
+  charPath: string,
 ) {
-  const newCharPath =
-    charPath ??
-    (
-      await CustomSuggestModal.select(
-        plugin.app,
-        [...plugin.characters]
-          .filter((x) => x[1].isRight())
-          .map(
-            ([key, val]) =>
-              [key, (val as Right<CharacterContext>).value] as [
-                string,
-                CharacterContext,
-              ],
-          ),
-        ([, char]) => char.lens.name.get(char.character),
-        undefined,
-        "Pick active character",
-      )
-    )[0];
-  plugin.localSettings.activeCharacter = newCharPath;
-  await plugin.saveSettings();
+  const localSettings = plugin.localSettings.forCampaign(campaign.file);
+  if (localSettings.activeCharacter !== charPath) {
+    localSettings.activeCharacter = charPath;
+    await plugin.saveSettings();
+  }
 }

@@ -2,7 +2,12 @@ import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { createOrAppendMechanics } from "mechanics/editor";
 import { createOracleNode } from "mechanics/node-builders";
-import { EditorSelection, type Editor, type MarkdownView } from "obsidian";
+import {
+  EditorSelection,
+  MarkdownFileInfo,
+  type Editor,
+  type MarkdownView,
+} from "obsidian";
 import { numberRange } from "utils/numbers";
 import { CurseBehavior, Oracle, OracleGroupingType } from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
@@ -40,14 +45,9 @@ export function oracleRuleset(oracle: Oracle): string {
 export async function runOracleCommand(
   plugin: IronVaultPlugin,
   editor: Editor,
-  _view: MarkdownView,
+  view: MarkdownView | MarkdownFileInfo,
   chosenOracle?: Oracle,
 ): Promise<void> {
-  if (!plugin.datastore.ready) {
-    logger.warn("data not ready");
-    return;
-  }
-
   // Detect if the line already has text on it-- this is the prompt
   let prompt: string | undefined = undefined;
   const [selection, ...rest] = editor.listSelections();

@@ -1,4 +1,8 @@
-export interface VersionedMap<K, V> extends ReadonlyMap<K, V> {
+export interface ReadonlyVersionedMap<K, V> extends ReadonlyMap<K, V> {
+  get revision(): number;
+}
+
+export interface VersionedMap<K, V> extends Map<K, V> {
   get revision(): number;
 }
 
@@ -49,24 +53,27 @@ export class VersionedMapImpl<K, V>
   }
 }
 
-export interface ProjectableMap<K, V> extends VersionedMap<K, V> {
+export interface ProjectableMap<K, V> extends ReadonlyVersionedMap<K, V> {
   projected<U>(
     callbackfn: (value: V, key: K) => U | undefined,
   ): ProjectableMap<K, U>;
 }
 
+/** Returns a view over a versioned map that filters and transforms the given map.
+ * @param select Callback that should return the value for this entry in the new map, or undefined if it should be excluded.
+ */
 export function projectedVersionedMap<K, V, U>(
-  baseMap: VersionedMap<K, V>,
+  baseMap: ReadonlyVersionedMap<K, V>,
   select: (value: V, key: K) => U | undefined,
 ): ProjectableMap<K, U> {
   return new ProjectedVersionedMap(baseMap, select);
 }
 
 class ProjectedVersionedMap<K, V, U> implements ProjectableMap<K, U> {
-  #innerMap: VersionedMap<K, V>;
+  #innerMap: ReadonlyVersionedMap<K, V>;
 
   constructor(
-    innerMap: VersionedMap<K, V>,
+    innerMap: ReadonlyVersionedMap<K, V>,
     readonly select: (value: V, key: K) => U | undefined,
   ) {
     this.#innerMap = innerMap;
@@ -83,7 +90,7 @@ class ProjectedVersionedMap<K, V, U> implements ProjectableMap<K, U> {
   }
 
   forEach(
-    callbackfn: (value: U, key: K, map: VersionedMap<K, U>) => void,
+    callbackfn: (value: U, key: K, map: ReadonlyVersionedMap<K, U>) => void,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     thisArg?: any,
   ): void {

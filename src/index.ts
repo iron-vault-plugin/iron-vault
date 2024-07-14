@@ -1,8 +1,11 @@
 import registerAssetBlock from "assets/asset-block";
+import { CampaignIndex, CampaignIndexer } from "campaigns/indexer";
+import { CampaignManager } from "campaigns/manager";
 import registerCharacterBlock from "characters/character-block";
 import registerClockBlock from "clocks/clock-block";
 import { IronVaultCommands } from "commands";
 import { IronVaultLinkView, LINK_VIEW } from "docs/docs-view";
+import { AsEmitting } from "indexer/index-interface";
 import { IndexManager } from "indexer/manager";
 import installLinkHandler from "link-handler";
 import { initLogger } from "logger";
@@ -12,10 +15,17 @@ import {
   IronVaultMigrationView,
   MIGRATION_VIEW_TYPE,
 } from "migrate/migration-view";
-import { Plugin, addIcon } from "obsidian";
+import { addIcon, Plugin } from "obsidian";
+import {
+  checkForOnboarding,
+  ONBOARDING_VIEW_TYPE,
+  OnboardingView,
+} from "onboarding/view";
 import { IronVaultPluginSettings } from "settings";
+import { IronVaultPluginLocalSettings } from "settings/local";
 import registerSidebarBlocks from "sidebar/sidebar-block";
 import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
+import { TrackedEntities } from "te/index-interface";
 import { ProgressIndex, ProgressIndexer } from "tracks/indexer";
 import registerTrackBlock from "tracks/track-block";
 import registerTruthBlock from "truths/truth-block";
@@ -29,15 +39,16 @@ import { registerMoveBlock } from "./moves/block";
 import { registerOracleBlock } from "./oracles/render";
 import { IronVaultSettingTab } from "./settings/ui";
 import { pluginAsset } from "./utils/obsidian";
-import { IronVaultPluginLocalSettings } from "settings/local";
 
-export default class IronVaultPlugin extends Plugin {
+export default class IronVaultPlugin extends Plugin implements TrackedEntities {
   settings!: IronVaultPluginSettings;
   localSettings!: IronVaultPluginLocalSettings;
   datastore!: Datastore;
   characterIndexer!: CharacterIndexer;
   progressIndexer!: ProgressIndexer;
   clockIndexer!: ClockIndexer;
+  campaignIndexer!: CampaignIndexer;
+  campaignManager!: CampaignManager;
   indexManager!: IndexManager;
   api!: IronVaultAPI;
   commands!: IronVaultCommands;
@@ -45,6 +56,8 @@ export default class IronVaultPlugin extends Plugin {
   initialized: boolean = false;
   migrationManager: MigrationManager = new MigrationManager(this);
 
+  /** Called once Obsidian signals layout ready (at which point all files in the vault should
+   * be in the fileMap. */
   private async initialize(): Promise<void> {
     if (this.initialized) {
       throw new Error(
@@ -53,6 +66,7 @@ export default class IronVaultPlugin extends Plugin {
     }
     this.initialized = true;
 
+    await this.localSettings.loadData(this);
     await this.datastore.initialize();
     await this.initLeaf();
 
@@ -69,16 +83,20 @@ export default class IronVaultPlugin extends Plugin {
     return pluginAsset(this, assetPath);
   }
 
-  get characters(): CharacterTracker {
+  get characters(): AsEmitting<CharacterTracker> {
     return this.characterIndexer.index;
   }
 
-  get clockIndex(): ClockIndex {
+  get clocks(): AsEmitting<ClockIndex> {
     return this.clockIndexer.index;
   }
 
-  get progressIndex(): ProgressIndex {
+  get progressTracks(): AsEmitting<ProgressIndex> {
     return this.progressIndexer.index;
+  }
+
+  get campaigns(): AsEmitting<CampaignIndex> {
+    return this.campaignIndexer.index;
   }
 
   async onload(): Promise<void> {
@@ -90,11 +108,18 @@ export default class IronVaultPlugin extends Plugin {
     );
     this.datastore = this.addChild(new Datastore(this));
     this.initializeIndexManager();
-    this.datastore.on("initialized", () => {
-      // Because certain file schemas (characters mainly) are dependent on the loaded Datasworn
-      // data (mainly Rules), we reindex tracked entities when the datastore is refreshed.
-      this.indexManager.indexAll();
-    });
+    this.campaignManager = this.addChild(new CampaignManager(this));
+    this.register(
+      this.datastore.on("initialized", () => {
+        // Because certain file schemas (characters mainly) are dependent on the loaded Datasworn
+        // data (mainly Rules), we reindex tracked entities when the datastore is refreshed.
+        this.indexManager.indexAll();
+      }),
+    );
+
+    this.registerEvent(
+      this.indexManager.on("initialized", () => checkForOnboarding(this)),
+    );
 
     this.app.workspace.onLayoutReady(() => this.initialize());
 
@@ -103,13 +128,14 @@ export default class IronVaultPlugin extends Plugin {
     installLinkHandler(this);
 
     this.registerView(VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
-    this.registerView(
-      LINK_VIEW,
-      (leaf) => new IronVaultLinkView(this.app.workspace, leaf),
-    );
+    this.registerView(LINK_VIEW, (leaf) => new IronVaultLinkView(leaf));
     this.registerView(
       MIGRATION_VIEW_TYPE,
       (leaf) => new IronVaultMigrationView(leaf, this),
+    );
+    this.registerView(
+      ONBOARDING_VIEW_TYPE,
+      (leaf) => new OnboardingView(leaf, this),
     );
 
     this.commands = new IronVaultCommands(this);
@@ -134,6 +160,9 @@ export default class IronVaultPlugin extends Plugin {
       (this.progressIndexer = new ProgressIndexer()),
     );
     this.indexManager.registerHandler((this.clockIndexer = new ClockIndexer()));
+    this.indexManager.registerHandler(
+      (this.campaignIndexer = new CampaignIndexer()),
+    );
   }
 
   registerBlocks() {
@@ -175,10 +204,10 @@ export default class IronVaultPlugin extends Plugin {
       { moveBlockFormat: undefined },
     );
     this.settings = settings;
-    this.localSettings = Object.assign(
-      new IronVaultPluginLocalSettings(),
-      await IronVaultPluginLocalSettings.loadData(this),
-    );
+
+    // We initialize local settings here (so things can watch it)-- but we don't load it
+    // until after layout is ready (when fileMap is available)
+    this.localSettings = new IronVaultPluginLocalSettings();
   }
 
   async onExternalSettingsChange() {

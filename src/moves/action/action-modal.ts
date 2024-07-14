@@ -2,7 +2,14 @@ import { type Datasworn } from "@datasworn/core";
 import { determineCharacterActionContext } from "characters/action-context";
 import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
-import { App, Editor, Modal, Setting } from "obsidian";
+import {
+  App,
+  Editor,
+  MarkdownFileInfo,
+  MarkdownView,
+  Modal,
+  Setting,
+} from "obsidian";
 import { Dice, DieKind } from "utils/dice";
 import { node } from "utils/kdl";
 import { CustomSuggestModal } from "utils/suggest";
@@ -109,8 +116,12 @@ export class ActionModal extends Modal {
   }
 }
 
-export async function rerollDie(plugin: IronVaultPlugin, editor: Editor) {
-  const actionContext = await determineCharacterActionContext(plugin);
+export async function rerollDie(
+  plugin: IronVaultPlugin,
+  editor: Editor,
+  view: MarkdownView | MarkdownFileInfo,
+) {
+  const actionContext = await determineCharacterActionContext(plugin, view);
 
   const dieName: "action" | "vs1" | "vs2" = await CustomSuggestModal.select(
     plugin.app,

@@ -7,22 +7,25 @@ import {
   createTrackCompletionNode,
   createTrackCreationNode,
 } from "mechanics/node-builders";
-import { Editor, MarkdownView } from "obsidian";
+import { Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
 import { createNewIronVaultEntityFile } from "utils/obsidian";
+import { stripMarkdown } from "utils/strip-markdown";
 import { BLOCK_TYPE__TRACK, IronVaultKind } from "../constants";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ProgressContext } from "./context";
 import { ProgressTrack, ProgressTrackFileAdapter } from "./progress";
 import { ProgressTrackCreateModal } from "./progress-create";
 import { selectProgressTrack } from "./select";
-import { stripMarkdown } from "utils/strip-markdown";
 
 export async function advanceProgressTrack(
   plugin: IronVaultPlugin,
   editor: Editor,
   view: MarkdownView,
-  progressContext: ProgressContext,
 ) {
+  const actionContext = await determineCharacterActionContext(plugin, view);
+
+  const progressContext = new ProgressContext(plugin, actionContext);
+
   const trackContext = await selectProgressTrack(
     progressContext,
     plugin,
@@ -98,8 +101,9 @@ export async function createProgressTrack(
 export async function markTrackCompleted(
   plugin: IronVaultPlugin,
   editor: Editor,
+  view: MarkdownView | MarkdownFileInfo,
 ): Promise<void> {
-  const actionContext = await determineCharacterActionContext(plugin);
+  const actionContext = await determineCharacterActionContext(plugin, view);
   const progressContext = new ProgressContext(plugin, actionContext);
   const trackContext = await selectProgressTrack(
     progressContext,

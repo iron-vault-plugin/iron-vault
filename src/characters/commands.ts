@@ -1,11 +1,16 @@
 import { type Datasworn } from "@datasworn/core";
 import { Asset } from "@datasworn/core/dist/Datasworn";
 import { AssetPickerModal } from "assets/asset-picker-modal";
+import { determineCampaignContext } from "campaigns/manager";
+import {
+  promptForCampaignCharacter,
+  setActiveCharacter,
+} from "character-tracker";
 import { produce } from "immer";
 import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
 import { createInitiativeNode } from "mechanics/node-builders";
-import { Editor, MarkdownView } from "obsidian";
+import { Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
 import { Ruleset } from "rules/ruleset";
 import { createNewIronVaultEntityFile, vaultProcess } from "utils/obsidian";
 import { capitalize } from "utils/strings";
@@ -26,14 +31,14 @@ import { characterLens, createValidCharacter } from "./lens";
 export async function addAssetToCharacter(
   plugin: IronVaultPlugin,
   _editor?: Editor,
-  _view?: MarkdownView,
+  view?: MarkdownView,
   asset?: Asset,
   charCtx?: CharacterActionContext,
 ): Promise<void> {
   // TODO: maybe we could make this part of the checkCallback? (i.e., if we are in no character
   // mode, don't even bother to list this command?)
   const actionContext =
-    charCtx || (await requireActiveCharacterContext(plugin));
+    charCtx || (await requireActiveCharacterContext(plugin, view));
 
   const path = actionContext.characterPath;
   const context = actionContext.characterContext;
@@ -49,7 +54,7 @@ export async function addAssetToCharacter(
   }
 
   const selectedAsset =
-    asset ?? (await AssetPickerModal.pick(plugin, charCtx?.characterContext));
+    asset ?? (await AssetPickerModal.pick(plugin, actionContext));
 
   if (!selectedAsset) {
     return;
@@ -181,8 +186,9 @@ export function initiativeValueLabel(
 export const changeInitiative = async (
   plugin: IronVaultPlugin,
   editor: Editor,
+  view: MarkdownView | MarkdownFileInfo,
 ) => {
-  const actionContext = await requireActiveCharacterContext(plugin);
+  const actionContext = await requireActiveCharacterContext(plugin, view);
 
   const ruleset = actionContext.datastore.ruleset;
 
@@ -215,3 +221,18 @@ export const changeInitiative = async (
     ),
   );
 };
+export async function pickActiveCharacter(
+  plugin: IronVaultPlugin,
+  view?: MarkdownView | MarkdownFileInfo,
+) {
+  const campaignContext = await determineCampaignContext(plugin, view);
+  const actionContext = await promptForCampaignCharacter(
+    plugin,
+    campaignContext,
+  );
+  await setActiveCharacter(
+    plugin,
+    campaignContext.campaign,
+    actionContext.characterPath,
+  );
+}

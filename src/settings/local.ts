@@ -1,31 +1,24 @@
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
-import { normalizePath } from "obsidian";
+import { normalizePath, TFile } from "obsidian";
 
 const logger = rootLogger.getLogger("local-settings");
 
 export class IronVaultPluginLocalSettings {
-  activeCharacter?: string;
+  #campaigns: Map<TFile, CampaignLocalSettings> = new Map();
   emitter?: Emittery;
 
   constructor() {
     this.emitter = new Emittery();
-    return new Proxy(this, {
-      set<K extends keyof IronVaultPluginLocalSettings>(
-        target: IronVaultPluginLocalSettings,
-        key: K,
-        newValue: IronVaultPluginLocalSettings[K],
-      ) {
-        if (key === "emitter") {
-          return true;
-        }
-        const oldValue = target[key];
-        target[key] = newValue;
-        target.emitter!.emit("change", { key, oldValue, newValue });
-        return true;
-      },
-    });
+  }
+
+  forCampaign(file: TFile): CampaignLocalSettings {
+    let existing = this.#campaigns.get(file);
+    if (existing == null) {
+      this.#campaigns.set(file, (existing = new CampaignLocalSettings(this)));
+    }
+    return existing;
   }
 
   static dataPath(plugin: IronVaultPlugin) {
@@ -39,7 +32,25 @@ export class IronVaultPluginLocalSettings {
     );
   }
 
-  static async loadData(plugin: IronVaultPlugin) {
+  async loadData(plugin: IronVaultPlugin): Promise<void> {
+    const raw = await IronVaultPluginLocalSettings.loadDataRaw(plugin);
+
+    const { vault } = plugin.app;
+
+    for (const [path, config] of Object.entries(raw.campaigns ?? {})) {
+      const file = vault.getFileByPath(path);
+      if (!file) {
+        logger.warn(
+          "Local settings references campaign at path '%s', but that file does not exist.",
+          path,
+        );
+        continue;
+      }
+      Object.assign(this.forCampaign(file), config);
+    }
+  }
+
+  static async loadDataRaw(plugin: IronVaultPlugin) {
     const path = this.dataPath(plugin);
     try {
       if (!(await plugin.app.vault.adapter.exists(path))) {
@@ -54,10 +65,21 @@ export class IronVaultPluginLocalSettings {
     }
   }
 
+  toJSON() {
+    return {
+      campaigns: Object.fromEntries(
+        [...this.#campaigns.entries()].map(([campaignFile, settings]) => [
+          campaignFile.path,
+          settings,
+        ]),
+      ),
+    };
+  }
+
   async saveData(plugin: IronVaultPlugin) {
     return plugin.app.vault.adapter.write(
       IronVaultPluginLocalSettings.dataPath(plugin),
-      JSON.stringify(this, null, 2),
+      JSON.stringify(this.toJSON(), null, 2),
     );
   }
 
@@ -82,18 +104,36 @@ export class IronVaultPluginLocalSettings {
   events<K extends keyof EVENT_TYPES>(event: K) {
     return this.emitter!.events(event);
   }
-
-  reset() {
-    const fresh = Object.assign({}, new IronVaultPluginLocalSettings());
-    delete fresh.emitter;
-    Object.assign(this, fresh);
-  }
 }
 
-export type EVENT_TYPES = {
-  change: {
-    key: keyof IronVaultPluginLocalSettings;
-    oldValue: IronVaultPluginLocalSettings[keyof IronVaultPluginLocalSettings];
-    newValue: IronVaultPluginLocalSettings[keyof IronVaultPluginLocalSettings];
+type CHANGE_TYPES = {
+  [K in keyof CampaignLocalSettings]: {
+    campaignFile: TFile;
+    key: K;
+    oldValue: CampaignLocalSettings[K];
+    newValue: CampaignLocalSettings[K];
   };
 };
+
+export type EVENT_TYPES = {
+  change: CHANGE_TYPES[keyof CampaignLocalSettings];
+};
+
+export class CampaignLocalSettings {
+  activeCharacter: string | undefined = undefined;
+
+  constructor(parent: IronVaultPluginLocalSettings) {
+    return new Proxy(this, {
+      set<K extends keyof CampaignLocalSettings>(
+        target: CampaignLocalSettings,
+        key: K,
+        newValue: CampaignLocalSettings[K],
+      ) {
+        const oldValue = target[key];
+        target[key] = newValue;
+        parent.emitter!.emit("change", { key, oldValue, newValue });
+        return true;
+      },
+    });
+  }
+}

@@ -18,12 +18,12 @@ import {
   TrackedEntityRenderer,
 } from "utils/ui/tracked-entity-renderer";
 import { ZodError } from "zod";
-import { CharacterContext, setActiveCharacter } from "../character-tracker";
 import renderAssetCard from "../assets/asset-card";
+import { CharacterContext, setActiveCharacter } from "../character-tracker";
+import { CharacterActionContext } from "./action-context";
 import { addOrUpdateViaDataswornAsset } from "./assets";
 import { addAssetToCharacter } from "./commands";
 import { CharacterLens, ValidatedCharacter, momentumOps } from "./lens";
-import { CharacterActionContext } from "./action-context";
 
 export default function registerCharacterBlocks(plugin: IronVaultPlugin): void {
   registerBlock();
@@ -168,6 +168,7 @@ class CharacterRenderer extends TrackedEntityRenderer<
         );
       };
     };
+    const campaignContext = this.campaignContext();
     return html`<section class="character-info">
       <header class="name">
         <input
@@ -176,19 +177,25 @@ class CharacterRenderer extends TrackedEntityRenderer<
           @change=${charFieldUpdater(lens.name)}
         />
       </header>
-      ${this.plugin.characters.size > 1 &&
-      this.plugin.localSettings.activeCharacter !== this.sourcePath
+      ${campaignContext &&
+      campaignContext.characters.size > 1 &&
+      this.plugin.localSettings.forCampaign(campaignContext.campaign.file)
+        .activeCharacter !== this.sourcePath
         ? html`<button
             type="button"
             class="set-active"
             @click=${async () => {
-              await setActiveCharacter(this.plugin, this.sourcePath);
+              await setActiveCharacter(
+                this.plugin,
+                campaignContext.campaign,
+                this.sourcePath,
+              );
               this.render();
             }}
           >
             Make active character
           </button>`
-        : this.plugin.characters.size > 1
+        : campaignContext && campaignContext.characters.size > 1
           ? html`<span class="active-char">Active character</span>`
           : null}
       <select
@@ -558,8 +565,13 @@ class CharacterRenderer extends TrackedEntityRenderer<
               undefined,
               undefined,
               undefined,
+              // TODO(@cwegrzyn): should we be getting the character action context some other way here?
+              //   getting the campaign context here is also hacky
               new CharacterActionContext(
                 this.plugin.datastore,
+                this.plugin.campaignManager.campaignContextFor(
+                  this.plugin.campaignManager.campaignForPath(this.sourcePath)!,
+                ),
                 this.sourcePath,
                 charCtx,
               ),

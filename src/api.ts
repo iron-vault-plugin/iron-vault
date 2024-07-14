@@ -24,7 +24,7 @@ export class IronVaultAPI {
   }
 
   get progress(): ProgressIndex {
-    return this.plugin.progressIndex;
+    return this.plugin.progressTracks;
   }
 
   public async roll(oracle: string): Promise<RollWrapper> {
@@ -46,6 +46,15 @@ export class IronVaultAPI {
 
   set logLevel(level: loglevel.LogLevelDesc) {
     setLogLevel(level);
+  }
+
+  setLogLevelFor(loggerName: string, level: loglevel.LogLevelDesc | null) {
+    const logger = rootLogger.getLogger(loggerName);
+    if (level == null) {
+      logger.resetLevel();
+    } else {
+      logger.setLevel(level);
+    }
   }
 
   parseLinkText = parseLinktext;
