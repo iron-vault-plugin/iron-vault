@@ -83,6 +83,7 @@ export class NewCampaignModal extends Modal {
             this.campaignInfo.campaignName = val;
             folderInput.setValue(this.campaignInfo.campaignName);
             folderInput.onChanged();
+            validate();
           }),
       );
 
