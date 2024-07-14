@@ -201,31 +201,6 @@
               "controls": {},
               "rollable": true,
               "min": 0
-            },
-            "supply": {
-              "label": "supply (hold)",
-              "field_type": "condition_meter",
-              "max": 5,
-              "value": 5,
-              "moves": {
-                "suffer": [
-                  "move:starforged/suffer/withstand_damage"
-                ],
-                "recover": [
-                  "move:starforged/recover/repair"
-                ]
-              },
-              "controls": {
-                "unequipped": {
-                  "field_type": "checkbox",
-                  "label": "unequipped (hold)",
-                  "is_impact": true,
-                  "value": false,
-                  "disables_asset": false
-                }
-              },
-              "rollable": true,
-              "min": 0
             }
           },
           "count_as_impact": false,
