@@ -6,7 +6,7 @@
   & .markdown-wrapper > :first-child {
     display: inline;
   }
-  & .markdown-wrapper > blockquote {
+  & > blockquote {
     margin-left: 0.5em;
     padding-left: 1.2em;
     border-left-style: dashed;
