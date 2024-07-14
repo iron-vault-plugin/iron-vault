@@ -52,7 +52,7 @@ export class NewCampaignModal extends Modal {
       );
       if (!existing) {
         resultSetting.setDesc(
-          `Camapign will be created in new folder '${this.campaignInfo.folder}'.`,
+          `Campaign will be created in new folder '${this.campaignInfo.folder}'.`,
         );
       } else if (existing instanceof TFolder) {
         resultSetting.setDesc(
