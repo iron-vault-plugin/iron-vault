@@ -37,7 +37,7 @@ export class IronVaultPluginLocalSettings {
 
     const { vault } = plugin.app;
 
-    for (const [path, config] of Object.entries(raw.campaigns)) {
+    for (const [path, config] of Object.entries(raw.campaigns ?? {})) {
       const file = vault.getFileByPath(path);
       if (!file) {
         logger.warn(
