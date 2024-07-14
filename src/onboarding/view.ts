@@ -86,13 +86,15 @@ export class OnboardingView extends ItemView {
 
     <ul>
       <li>
-        <em>If you only plan to use this vault for a single campaign,</em>
-        create your new campaign at the root of your vault.
+        <strong>If you only plan to use this vault for a single campaign</strong
+        >, create your new campaign at the root of your vault. (write the folder
+        name as "/")
       </li>
 
       <li>
-        <em>If you wish to play multiple campaigns in this vault,</em> create
-        your new campaign in a subfolder.
+        <strong>If you wish to play multiple campaigns in this vault</strong>,
+        create your new campaign in a subfolder. This is the default as you pick
+        a name for your campaign.
       </li>
     </ul>
 
@@ -104,12 +106,12 @@ export class OnboardingView extends ItemView {
 
     <p>
       It looks like your vault is from a previous version of Iron Vault. Iron
-      Vault now requires that all vaults have a campaign.
+      Vault now requires that all vaults have a campaign index file.
     </p>
 
     <p>
-      Your vault does not contain any campaigns, and you must create one in
-      order to resume your campaign. Use the
+      Your vault does not contain any campaign index files, and you must create
+      one in order to resume your campaign. Use the
       <a @click="${this._createCampaignClickHandler.bind(this)}"
         >create a campaign</a
       >
@@ -118,20 +120,32 @@ export class OnboardingView extends ItemView {
 
     <ul>
       <li>
-        <em>If your vault only has a single campaign</em>, the easiest thing to
-        do is put a new campaign in the root folder of your vault. All of your
-        existing content will be detected as being part of that campaign, and
-        you can continue as before.
+        <strong
+          >If your vault only has a single campaign and you want to keep it that
+          way</strong
+        >, the easiest thing to do is put a new campaign in the root folder of
+        your vault (set the folder as "/"). All of your existing content will be
+        detected as being part of that campaign, and you can continue as before.
       </li>
 
       <li>
-        <em
+        <strong
           >If your vault contains multiple campaigns (or you wish to in the
-          future)</em
+          future)</strong
         >, you'll want to organize your vault with a folder for each campaign.
-        Once the folders are created, create a campaign in each folder.
+        Once the folders are created,
+        <a @click="${this._createCampaignClickHandler.bind(this)}"
+          >create a campaign</a
+        >
+        in each folder.
       </li>
     </ul>
+
+    <p>
+      If you decide to make this a single-campaign vault and change your mind
+      later, simply move all your campaign files and folders inside a new
+      folder, and your "root" campaign will be moved there.
+    </p>
 
     ${this.CAMPAIGN_EXPLAINER}
   `;
