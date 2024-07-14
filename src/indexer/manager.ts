@@ -1,6 +1,8 @@
 import { rootLogger } from "logger";
 import {
   Component,
+  EventRef,
+  Events,
   TFile,
   type App,
   type CachedMetadata,
@@ -13,6 +15,8 @@ import { Indexer, IndexerId } from "./indexer";
 const logger = rootLogger.getLogger("index-manager");
 
 export class IndexManager extends Component {
+  #events: Events = new Events();
+
   protected readonly metadataCache: MetadataCache;
   protected readonly vault: Vault;
   protected readonly fileManager: FileManager;
@@ -78,6 +82,7 @@ export class IndexManager extends Component {
       }
     }
     logger.debug("[index-manager] Full index complete.");
+    this.trigger("initialized", {});
   }
 
   protected currentIndexerForFile(path: string): Indexer | undefined {
@@ -193,4 +198,31 @@ export class IndexManager extends Component {
       }
     }
   }
+
+  on<K extends keyof EVENT_TYPES>(
+    name: K,
+    callback: (params: EVENT_TYPES[K]) => unknown,
+    ctx?: unknown,
+  ): EventRef {
+    return this.#events.on(name, callback, ctx);
+  }
+
+  off(name: string, callback: (...data: never[]) => unknown): void {
+    this.#events.off(name, callback);
+  }
+
+  offref(ref: EventRef): void {
+    this.#events.offref(ref);
+  }
+
+  private trigger<K extends keyof EVENT_TYPES>(
+    name: K,
+    data: EVENT_TYPES[K],
+  ): void {
+    this.#events.trigger(name, data);
+  }
 }
+
+export type EVENT_TYPES = {
+  initialized: Record<string, never>;
+};

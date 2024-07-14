@@ -15,7 +15,12 @@ import {
   IronVaultMigrationView,
   MIGRATION_VIEW_TYPE,
 } from "migrate/migration-view";
-import { Plugin, addIcon } from "obsidian";
+import { addIcon, Plugin } from "obsidian";
+import {
+  checkForOnboarding,
+  ONBOARDING_VIEW_TYPE,
+  OnboardingView,
+} from "onboarding/view";
 import { IronVaultPluginSettings } from "settings";
 import { IronVaultPluginLocalSettings } from "settings/local";
 import registerSidebarBlocks from "sidebar/sidebar-block";
@@ -51,6 +56,8 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
   initialized: boolean = false;
   migrationManager: MigrationManager = new MigrationManager(this);
 
+  /** Called once Obsidian signals layout ready (at which point all files in the vault should
+   * be in the fileMap. */
   private async initialize(): Promise<void> {
     if (this.initialized) {
       throw new Error(
@@ -59,6 +66,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     }
     this.initialized = true;
 
+    await this.localSettings.loadData(this);
     await this.datastore.initialize();
     await this.initLeaf();
 
@@ -101,11 +109,17 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     this.datastore = this.addChild(new Datastore(this));
     this.initializeIndexManager();
     this.campaignManager = this.addChild(new CampaignManager(this));
-    this.datastore.on("initialized", () => {
-      // Because certain file schemas (characters mainly) are dependent on the loaded Datasworn
-      // data (mainly Rules), we reindex tracked entities when the datastore is refreshed.
-      this.indexManager.indexAll();
-    });
+    this.register(
+      this.datastore.on("initialized", () => {
+        // Because certain file schemas (characters mainly) are dependent on the loaded Datasworn
+        // data (mainly Rules), we reindex tracked entities when the datastore is refreshed.
+        this.indexManager.indexAll();
+      }),
+    );
+
+    this.registerEvent(
+      this.indexManager.on("initialized", () => checkForOnboarding(this)),
+    );
 
     this.app.workspace.onLayoutReady(() => this.initialize());
 
@@ -118,6 +132,10 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     this.registerView(
       MIGRATION_VIEW_TYPE,
       (leaf) => new IronVaultMigrationView(leaf, this),
+    );
+    this.registerView(
+      ONBOARDING_VIEW_TYPE,
+      (leaf) => new OnboardingView(leaf, this),
     );
 
     this.commands = new IronVaultCommands(this);
@@ -186,7 +204,10 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
       { moveBlockFormat: undefined },
     );
     this.settings = settings;
-    this.localSettings = await IronVaultPluginLocalSettings.loadData(this);
+
+    // We initialize local settings here (so things can watch it)-- but we don't load it
+    // until after layout is ready (when fileMap is available)
+    this.localSettings = new IronVaultPluginLocalSettings();
   }
 
   async onExternalSettingsChange() {

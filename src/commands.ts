@@ -1,3 +1,4 @@
+import { createNewCampaignCommand } from "campaigns/commands";
 import {
   addAssetToCharacter,
   changeInitiative,
@@ -260,6 +261,11 @@ export class IronVaultCommands {
       id: "migrate-check",
       name: "Check if vault data migration is needed",
       callback: () => checkIfMigrationNeededCommand(this.plugin),
+    },
+    {
+      id: "create-campaign",
+      name: "Create a new campaign",
+      callback: () => createNewCampaignCommand(this.plugin),
     },
   ];
 

@@ -32,15 +32,12 @@ export class IronVaultPluginLocalSettings {
     );
   }
 
-  static async loadData(
-    plugin: IronVaultPlugin,
-  ): Promise<IronVaultPluginLocalSettings> {
+  async loadData(plugin: IronVaultPlugin): Promise<void> {
     const raw = await IronVaultPluginLocalSettings.loadDataRaw(plugin);
 
     const { vault } = plugin.app;
-    const settings = new IronVaultPluginLocalSettings();
 
-    for (const [path, config] of Object.entries(raw)) {
+    for (const [path, config] of Object.entries(raw.campaigns)) {
       const file = vault.getFileByPath(path);
       if (!file) {
         logger.warn(
@@ -49,9 +46,8 @@ export class IronVaultPluginLocalSettings {
         );
         continue;
       }
-      Object.assign(settings.forCampaign(file), config);
+      Object.assign(this.forCampaign(file), config);
     }
-    return settings;
   }
 
   static async loadDataRaw(plugin: IronVaultPlugin) {
