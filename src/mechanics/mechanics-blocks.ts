@@ -1,5 +1,11 @@
-import { Node as KdlNodeBare, Document as KdlDocument, parse } from "kdljs";
-import { ButtonComponent, MarkdownPostProcessorContext } from "obsidian";
+import { Node as KdlNodeBare, parse, format } from "kdljs";
+import {
+  ButtonComponent,
+  MarkdownPostProcessorContext,
+  MarkdownPreviewView,
+  MarkdownView,
+  Menu,
+} from "obsidian";
 import { render, html, TemplateResult } from "lit-html";
 import { styleMap } from "lit-html/directives/style-map.js";
 import { ref } from "lit-html/directives/ref.js";
@@ -8,6 +14,7 @@ import { ProgressTrack } from "tracks/progress";
 import IronVaultPlugin from "../index";
 import { md } from "utils/ui/directives";
 import { map } from "lit-html/directives/map.js";
+import { node } from "utils/kdl";
 
 interface KdlNode extends KdlNodeBare {
   parent?: KdlNode;
@@ -22,12 +29,7 @@ function makeHandler(plugin: IronVaultPlugin) {
     // We can't render blocks until datastore is ready.
     await plugin.datastore.waitForReady;
     if (!el.mechanicsRenderer) {
-      el.mechanicsRenderer = new MechanicsRenderer(
-        el,
-        source,
-        plugin,
-        ctx.sourcePath,
-      );
+      el.mechanicsRenderer = new MechanicsRenderer(el, source, plugin, ctx);
     }
     el.mechanicsRenderer.render();
   };
@@ -46,27 +48,26 @@ interface MechanicsContainerEl extends HTMLElement {
 }
 
 export class MechanicsRenderer {
-  plugin: IronVaultPlugin;
   sourcePath: string;
   lastRoll: KdlNode | undefined;
   moveEl: HTMLElement | undefined;
-  doc?: KdlDocument;
+  doc?: KdlNode;
   details: string[] = [];
-  contentEl: HTMLElement;
-  source: string;
   mechNode?: HTMLElement;
   hideMechanics = false;
 
   constructor(
-    contentEl: HTMLElement,
-    source: string,
-    plugin: IronVaultPlugin,
-    sourcePath: string,
+    public contentEl: HTMLElement,
+    public source: string,
+    public plugin: IronVaultPlugin,
+    public ctx: MarkdownPostProcessorContext,
   ) {
-    this.contentEl = contentEl;
-    this.source = source;
-    this.plugin = plugin;
-    this.sourcePath = sourcePath;
+    this.sourcePath = ctx.sourcePath;
+    const res = parse(this.source);
+    if (res.output) {
+      this.doc = node("doc", { children: res.output });
+      this.fillParents(this.doc.children, this.doc);
+    }
     plugin.register(
       plugin.settings.on("change", ({ key, oldValue, newValue }) => {
         if (
@@ -93,8 +94,7 @@ export class MechanicsRenderer {
       render(html``, this.contentEl);
       return;
     }
-    const res = parse(this.source);
-    if (!res.output) {
+    if (!this.doc) {
       // TODO: give line/column information for errors.
       render(
         html`<pre>
@@ -105,16 +105,14 @@ See https://kdl.dev for syntax.</pre
       );
       return;
     }
-    this.doc = res.output;
-    this.fillParents(this.doc);
     render(
       html`<article
-        ${(el?: Element) => (this.mechNode = el as HTMLElement | undefined)}
         class="iron-vault-mechanics"
         style=${styleMap({
           "--vs1-color": this.plugin.settings.challengeDie1Color,
           "--vs2-color": this.plugin.settings.challengeDie2Color,
         })}
+        @contextmenu=${this.makeMenuHandler(this.doc)}
         ${ref((el?: Element) => {
           if (
             !el ||
@@ -138,10 +136,89 @@ See https://kdl.dev for syntax.</pre
             });
         })}
       >
-        ${this.hideMechanics ? null : this.renderChildren(this.doc)}
+        ${this.hideMechanics ? null : this.renderChildren(this.doc.children)}
       </article>`,
       this.contentEl,
     );
+  }
+
+  makeMenuHandler(node: KdlNode) {
+    return (ev: MouseEvent) => {
+      const view = this.plugin.app.workspace.getActiveViewOfType(MarkdownView);
+      if (!view || view.currentMode instanceof MarkdownPreviewView) {
+        return;
+      }
+
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      const menu = new Menu();
+
+      menu.addItem((item) => {
+        item
+          .setTitle(
+            `Delete ${node.name === "-" ? "comment" : node === this.doc ? "mechanics block" : node.name}`,
+          )
+          .setIcon("trash")
+          .onClick(() => {
+            if (node.parent) {
+              const idx = node.parent.children.indexOf(node);
+              if (idx >= 0) {
+                node.parent.children.splice(idx, 1);
+                this.updateBlock();
+              }
+            } else if (node === this.doc) {
+              // We probably don't need this if, but just to make sure.
+              node.children = [];
+              this.updateBlock();
+            }
+          });
+      });
+
+      menu.showAtMouseEvent(ev);
+    };
+  }
+
+  updateBlock() {
+    const view = this.plugin.app.workspace.getActiveViewOfType(MarkdownView);
+    const editor = this.plugin.app.workspace.activeEditor?.editor;
+    const sectionInfo = this.ctx.getSectionInfo(this.contentEl as HTMLElement);
+    if (
+      !editor ||
+      !sectionInfo ||
+      !this.doc ||
+      !view ||
+      view.currentMode instanceof MarkdownPreviewView
+    ) {
+      return;
+    }
+    const editorRange = {
+      from: {
+        ch: 0,
+        line: sectionInfo.lineStart,
+      },
+      to: {
+        ch: 0,
+        line: sectionInfo.lineEnd,
+      },
+    };
+    const to = {
+      line: editorRange.to.line,
+      ch:
+        editor.getLine(editorRange.to.line).length +
+        (this.doc.children.length ? 0 : 1),
+    };
+    editor.replaceRange(
+      this.doc.children.length
+        ? `\`\`\`iron-vault-mechanics\n${format(this.doc.children)}\`\`\``
+        : "",
+      editorRange.from,
+      to,
+    );
+    editor.focus();
+    const moveTo = editorRange.from.line - (this.doc.children.length ? 1 : 0);
+    // NB(@zkat): This prevents the editor jumping around.
+    editor.setCursor({ ch: 0, line: moveTo >= 0 ? moveTo : 0 });
   }
 
   renderChildren(nodes: KdlNode[]): TemplateResult {
@@ -179,7 +256,6 @@ See https://kdl.dev for syntax.</pre
         this.lastRoll.properties.vs1 = node.properties.vs1 ?? node.values[4];
         this.lastRoll.properties.vs2 = node.properties.vs2 ?? node.values[5];
         return this.renderRoll(node);
-        break;
       }
       case "progress-roll": {
         this.lastRoll = node;
@@ -188,7 +264,6 @@ See https://kdl.dev for syntax.</pre
         this.lastRoll.properties.vs1 = node.properties.vs1 ?? node.values[2];
         this.lastRoll.properties.vs2 = node.properties.vs2 ?? node.values[3];
         return this.renderProgressRoll(node);
-        break;
       }
       case "die-roll": {
         // TODO: actually style these.
@@ -220,7 +295,6 @@ See https://kdl.dev for syntax.</pre
       }
       case "oracle-group": {
         return this.renderOracleGroup(node);
-        break;
       }
       case "asset": {
         return this.renderAsset(node);
@@ -237,7 +311,7 @@ See https://kdl.dev for syntax.</pre
         return this.renderActor(node);
       }
       default: {
-        return this.renderUnknown(node.name);
+        return this.renderUnknown(node);
       }
     }
   }
@@ -254,6 +328,7 @@ See https://kdl.dev for syntax.</pre
     return html`<details
       class="move"
       ?open=${!this.plugin.settings.collapseMoves}
+      @contextmenu=${this.makeMenuHandler(node)}
       ${ref((el) => (this.moveEl = el as HTMLElement | undefined))}
     >
       <summary>${md(this.plugin, moveName)}</summary>
@@ -268,7 +343,10 @@ See https://kdl.dev for syntax.</pre
       }
       return acc;
     }, [] as string[]);
-    return html`<aside class="detail">
+    return html`<aside
+      class="detail"
+      @contextmenu=${this.makeMenuHandler(node)}
+    >
       ${md(this.plugin, "> " + details.join("\n> "))}
     </aside>`;
   }
@@ -286,7 +364,7 @@ See https://kdl.dev for syntax.</pre
     if (from) {
       def["From"] = { cls: "from", value: from, md: true };
     }
-    return this.renderDlist("add", def);
+    return this.renderDlist("add", def, node);
   }
 
   renderMeter(node: KdlNode) {
@@ -295,15 +373,19 @@ See https://kdl.dev for syntax.</pre
     const to = (node.properties.to ?? node.values[2]) as number;
     const delta = to - from;
     const neg = delta < 0;
-    return this.renderDlist("meter", {
-      Meter: { cls: "meter-name", value: name, md: true },
-      Delta: {
-        cls: "delta" + " " + (neg ? "negative" : "positive"),
-        value: Math.abs(delta),
+    return this.renderDlist(
+      "meter",
+      {
+        Meter: { cls: "meter-name", value: name, md: true },
+        Delta: {
+          cls: "delta" + " " + (neg ? "negative" : "positive"),
+          value: Math.abs(delta),
+        },
+        From: { cls: "from", value: from },
+        To: { cls: "to", value: to },
       },
-      From: { cls: "from", value: from },
-      To: { cls: "to", value: to },
-    });
+      node,
+    );
   }
 
   renderBurn(node: KdlNode) {
@@ -339,7 +421,7 @@ See https://kdl.dev for syntax.</pre
       def["Outcome"] = { cls: "outcome", value: text, dataProp: false };
       nodeCls += " " + cls;
     }
-    return this.renderDlist(nodeCls, def);
+    return this.renderDlist(nodeCls, def, node);
   }
 
   renderProgress(node: KdlNode) {
@@ -368,28 +450,36 @@ ${result.error.toString()}</pre
 
     const endTrack = startTrack.advanced(steps);
     const [toBoxes, toTicks] = endTrack.boxesAndTicks();
-    return this.renderDlist("progress", {
-      "Track name": { cls: "track-name", value: trackName, md: true },
-      Steps: {
-        cls: "steps " + (steps < 0 ? "negative" : "positive"),
-        value: steps,
+    return this.renderDlist(
+      "progress",
+      {
+        "Track name": { cls: "track-name", value: trackName, md: true },
+        Steps: {
+          cls: "steps " + (steps < 0 ? "negative" : "positive"),
+          value: steps,
+        },
+        Rank: { cls: "rank", value: rank },
+        "From boxes": { cls: "from-boxes", value: fromBoxes },
+        "From ticks": { cls: "from-ticks", value: fromTicks },
+        "To boxes": { cls: "to-boxes", value: toBoxes },
+        "To ticks": { cls: "to-ticks", value: toTicks },
       },
-      Rank: { cls: "rank", value: rank },
-      "From boxes": { cls: "from-boxes", value: fromBoxes },
-      "From ticks": { cls: "from-ticks", value: fromTicks },
-      "To boxes": { cls: "to-boxes", value: toBoxes },
-      "To ticks": { cls: "to-ticks", value: toTicks },
-    });
+      node,
+    );
   }
 
   renderTrack(node: KdlNode) {
     const trackName = (node.properties.name ?? node.values[0]) as string;
     const status = node.properties.status as string | undefined;
     if (status != null) {
-      return this.renderDlist("track-status", {
-        Track: { cls: "track-name", value: trackName, md: true },
-        Status: { cls: "track-status", value: status },
-      });
+      return this.renderDlist(
+        "track-status",
+        {
+          Track: { cls: "track-name", value: trackName, md: true },
+          Status: { cls: "track-status", value: status },
+        },
+        node,
+      );
     }
     let from = node.properties.from as number;
     const fromBoxes =
@@ -410,13 +500,17 @@ ${result.error.toString()}</pre
     if (to == null) {
       to = toBoxes * 4 + toTicks;
     }
-    return this.renderDlist("track", {
-      "Track name": { cls: "track-name", value: trackName, md: true },
-      "From boxes": { cls: "from-boxes", value: fromBoxes },
-      "From ticks": { cls: "from-ticks", value: fromTicks },
-      "To boxes": { cls: "to-boxes", value: toBoxes },
-      "To ticks": { cls: "to-ticks", value: toTicks },
-    });
+    return this.renderDlist(
+      "track",
+      {
+        "Track name": { cls: "track-name", value: trackName, md: true },
+        "From boxes": { cls: "from-boxes", value: fromBoxes },
+        "From ticks": { cls: "from-ticks", value: fromTicks },
+        "To boxes": { cls: "to-boxes", value: toBoxes },
+        "To ticks": { cls: "to-ticks", value: toTicks },
+      },
+      node,
+    );
   }
 
   renderXp(node: KdlNode) {
@@ -424,35 +518,47 @@ ${result.error.toString()}</pre
     const to = (node.properties.to ?? node.values[1]) as number;
     const delta = to - from;
     const neg = delta < 0;
-    return this.renderDlist("xp", {
-      Delta: {
-        cls: "delta" + " " + (neg ? "negative" : "positive"),
-        value: Math.abs(delta),
+    return this.renderDlist(
+      "xp",
+      {
+        Delta: {
+          cls: "delta" + " " + (neg ? "negative" : "positive"),
+          value: Math.abs(delta),
+        },
+        From: { cls: "from", value: from },
+        To: { cls: "to", value: to },
       },
-      From: { cls: "from", value: from },
-      To: { cls: "to", value: to },
-    });
+      node,
+    );
   }
 
   renderClock(node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
     const status = node.properties.status as string | undefined;
     if (status != null) {
-      return this.renderDlist("clock-status", {
-        Clock: { cls: "clock-name", value: name, md: true },
-        Status: { cls: "clock-status", value: status },
-      });
+      return this.renderDlist(
+        "clock-status",
+        {
+          Clock: { cls: "clock-name", value: name, md: true },
+          Status: { cls: "clock-status", value: status },
+        },
+        node,
+      );
     }
     const from = (node.properties.from ?? node.values[1]) as number;
     const to = (node.properties.to ?? node.values[2]) as number;
     const outOf = (node.properties["out-of"] ?? node.values[3]) as number;
-    return this.renderDlist("clock", {
-      Clock: { cls: "clock-name", value: name, md: true },
-      From: { cls: "from", value: from },
-      "Out of from": { cls: "out-of", value: outOf },
-      To: { cls: "to", value: to },
-      "Out of to": { cls: "out-of", value: outOf },
-    });
+    return this.renderDlist(
+      "clock",
+      {
+        Clock: { cls: "clock-name", value: name, md: true },
+        From: { cls: "from", value: from },
+        "Out of from": { cls: "out-of", value: outOf },
+        To: { cls: "to", value: to },
+        "Out of to": { cls: "out-of", value: outOf },
+      },
+      node,
+    );
   }
 
   renderOracle(node: KdlNode) {
@@ -476,8 +582,11 @@ ${result.error.toString()}</pre
     if (replaced != null) {
       data.replaced = { cls: "replaced", value: replaced };
     }
-    return html`<div class="oracle-container">
-      ${this.renderDlist("oracle", data)}
+    return html`<div
+      class="oracle-container"
+      @contextmenu=${this.makeMenuHandler(node)}
+    >
+      ${this.renderDlist("oracle", data, node)}
       ${node.children.length
         ? html`<blockquote>${this.renderChildren(node.children)}</blockquote>`
         : null}
@@ -486,7 +595,10 @@ ${result.error.toString()}</pre
 
   renderOracleGroup(node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
-    return html`<article class="oracle-group">
+    return html`<article
+      class="oracle-group"
+      @contextmenu=${this.makeMenuHandler(node)}
+    >
       ${md(this.plugin, name)}
       ${node.children.length
         ? html`<blockquote>${this.renderChildren(node.children)}</blockquote>`
@@ -522,7 +634,7 @@ ${result.error.toString()}</pre
       "Challenge die 2": { cls: "challenge-die vs2", value: challenge2 },
       Outcome: { cls: "outcome", value: outcome, dataProp: false },
     });
-    return this.renderDlist("roll " + outcomeClass, def);
+    return this.renderDlist("roll " + outcomeClass, def, node);
   }
 
   renderProgressRoll(node: KdlNode) {
@@ -536,22 +648,30 @@ ${result.error.toString()}</pre
       match,
     } = rollOutcome(score, challenge1, challenge2);
     this.setMoveHit(outcomeClass, match);
-    return this.renderDlist("roll progress " + outcomeClass, {
-      "Track name": { cls: "track-name", value: trackName, md: true },
-      "Progress score": { cls: "progress-score", value: score },
-      "Challenge die 1": { cls: "challenge-die vs1", value: challenge1 },
-      "Challenge die 2": { cls: "challenge-die vs2", value: challenge2 },
-      Outcome: { cls: "outcome", value: outcome, dataProp: false },
-    });
+    return this.renderDlist(
+      "roll progress " + outcomeClass,
+      {
+        "Track name": { cls: "track-name", value: trackName, md: true },
+        "Progress score": { cls: "progress-score", value: score },
+        "Challenge die 1": { cls: "challenge-die vs1", value: challenge1 },
+        "Challenge die 2": { cls: "challenge-die vs2", value: challenge2 },
+        Outcome: { cls: "outcome", value: outcome, dataProp: false },
+      },
+      node,
+    );
   }
 
   renderDieRoll(node: KdlNode) {
     const reason = node.values[0] as string;
     const value = node.values[1] as number;
-    return this.renderDlist("die-roll", {
-      Reason: { cls: "reason", value: reason, md: true },
-      Result: { cls: "result", value },
-    });
+    return this.renderDlist(
+      "die-roll",
+      {
+        Reason: { cls: "reason", value: reason, md: true },
+        Result: { cls: "result", value },
+      },
+      node,
+    );
   }
 
   renderReroll(node: KdlNode) {
@@ -616,7 +736,7 @@ ${result.error.toString()}</pre
     def["Challenge die 2"] = { cls: "challenge-die vs2", value: newVs2 };
     def["Outcome"] = { cls: "outcome", value: outcome, dataProp: false };
     this.setMoveHit(outcomeClass, match);
-    return this.renderDlist("reroll " + outcomeClass, def);
+    return this.renderDlist("reroll " + outcomeClass, def, node);
   }
 
   renderAsset(node: KdlNode) {
@@ -632,16 +752,20 @@ ${result.error.toString()}</pre
     if (ability) {
       dl.Ability = { cls: "asset-ability", value: ability };
     }
-    return this.renderDlist("asset", dl);
+    return this.renderDlist("asset", dl, node);
   }
 
   renderImpact(node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
     const marked = (node.properties.marked ?? node.values[1]) as boolean;
-    return this.renderDlist("impact", {
-      Impact: { cls: "impact-name", value: name, md: true },
-      Status: { cls: "impact-marked", value: "" + marked },
-    });
+    return this.renderDlist(
+      "impact",
+      {
+        Impact: { cls: "impact-name", value: name, md: true },
+        Status: { cls: "impact-marked", value: "" + marked },
+      },
+      node,
+    );
   }
 
   renderInitiative(node: KdlNode) {
@@ -649,16 +773,20 @@ ${result.error.toString()}</pre
       ((node.properties.from ?? node.values[0]) as string) || "out-of-combat";
     const to =
       ((node.properties.to ?? node.values[1]) as string) || "out-of-combat";
-    return this.renderDlist("initiative", {
-      From: {
-        cls: "from " + initClass(from),
-        value: initText(from),
+    return this.renderDlist(
+      "initiative",
+      {
+        From: {
+          cls: "from " + initClass(from),
+          value: initText(from),
+        },
+        To: {
+          cls: "to " + initClass(to),
+          value: initText(to),
+        },
       },
-      To: {
-        cls: "to " + initClass(to),
-        value: initText(to),
-      },
-    });
+      node,
+    );
     function initClass(init: string) {
       return init.match(/bad.spot|no.initiative/i)
         ? "no-initiative"
@@ -681,18 +809,23 @@ ${result.error.toString()}</pre
 
   renderActor(node: KdlNode) {
     const name = (node.properties.name ?? node.values[0]) as string;
-    return html`<section class="actor">
+    return html`<section
+      class="actor"
+      @contextmenu=${this.makeMenuHandler(node)}
+    >
       <header>${md(this.plugin, name)}</header>
       ${this.renderChildren(node.children)}
     </section>`;
   }
 
-  renderUnknown(name: string) {
-    return html`<p class="error">Unknown node: "${name}"</p>`;
+  renderUnknown(node: KdlNode) {
+    return html`<p class="error" @contextmenu=${this.makeMenuHandler(node)}>
+      Unknown node: "${node.name}"
+    </p>`;
   }
 
-  renderDlist(cls: string, data: DataList): TemplateResult {
-    return html`<dl class=${cls}>
+  renderDlist(cls: string, data: DataList, node: KdlNode): TemplateResult {
+    return html`<dl class=${cls} @contextmenu=${this.makeMenuHandler(node)}>
       ${map(
         Object.entries(data),
         ([key, { cls, value, dataProp, md: renderMd }]) => {
