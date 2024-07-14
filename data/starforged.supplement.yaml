@@ -99,3 +99,72 @@ oracles:
               min: 81
               max: 100
             text: "Expanse"
+assets:
+  incidental_vehicle:
+    name: "Incidental Vehicle"
+    type: asset_collection
+    _source:
+      title: Iron Vault Support Assets for Starforged
+      authors:
+        - name: Iron Vault Dev Team
+      date: "2024-06-15"
+      url: "https://github.com/iron-vault-plugin/iron-vault"
+      license: "MIT"
+    contents:
+      incidental_vehicle:
+        name: "Incidental Vehicle"
+        type: asset
+        category: "Incidental Vehicle"
+        shared: true
+        options:
+          name:
+            field_type: text
+            label: name
+            value: null
+        abilities: []
+        _source:
+          title: Iron Vault Support Assets for Starforged
+          authors:
+            - name: Iron Vault Dev Team
+          date: "2024-06-15"
+          url: "https://github.com/iron-vault-plugin/iron-vault"
+          license: "MIT"
+        requirement: |
+          An incidental vehicle is one you temporarily acquire through the course of your story. For example, if you need to journey across the surface of an ocean world, you might borrow a sea-skimmer from a local settlement. Incidental vehicles have an integrity meter, but cannot be marked as battered. When you board an incidental vehicle, envision its nature and assign a max integrity as follows.
+
+          * **Heavy** - 5 integrity
+          * **Medium** - 4 integrity
+          * **Light** - 3 integrity
+        controls:
+          integrity:
+            label: integrity
+            field_type: condition_meter
+            max: 5
+            value: 5
+            moves:
+              suffer: ["move:starforged/suffer/withstand_damage"]
+              recover: ["move:starforged/recover/repair"]
+            controls: {}
+            rollable: true
+            min: 0
+          supply:
+            label: supply (hold)
+            field_type: condition_meter
+            max: 5
+            value: 5
+            moves:
+              suffer: ["move:starforged/suffer/withstand_damage"]
+              recover: ["move:starforged/recover/repair"]
+            controls:
+              unequipped:
+                field_type: checkbox
+                label: "unequipped (hold)"
+                is_impact: true
+                value: false
+                disables_asset: false
+            rollable: true
+            min: 0
+        count_as_impact: false
+        _id: asset:starforgedsupp/incidental_vehicle/sailing_ship
+    collections: {}
+    _id: asset_collection:starforgedsupp/incidental_vehicle
