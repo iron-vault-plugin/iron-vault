@@ -27,6 +27,7 @@ import {
   walkAsset,
 } from "./assets";
 import { characterLens, createValidCharacter } from "./lens";
+import { CharacterCreateModal } from "./ui/new-character-modal";
 
 export async function addAssetToCharacter(
   plugin: IronVaultPlugin,
@@ -124,15 +125,14 @@ export async function addAssetToCharacter(
 
 export async function createNewCharacter(plugin: IronVaultPlugin) {
   const { lens, validater } = characterLens(plugin.datastore.ruleset);
-  const name = await PromptModal.prompt(
-    plugin.app,
-    "What is the name of the character?",
-  );
+
+  const { fileName, name, targetFolder } =
+    await CharacterCreateModal.show(plugin);
 
   await createNewIronVaultEntityFile(
     plugin.app,
-    plugin.settings.defaultCharactersFolder,
-    name,
+    targetFolder,
+    fileName,
     IronVaultKind.Character,
     createValidCharacter(lens, validater, name).raw,
     plugin.settings.characterTemplateFile,
