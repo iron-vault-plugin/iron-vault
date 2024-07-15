@@ -1,5 +1,10 @@
 import IronVaultPlugin from "index";
-import { Component, MarkdownPreviewView, MarkdownRenderChild } from "obsidian";
+import {
+  Component,
+  MarkdownPreviewView,
+  MarkdownRenderChild,
+  Setting,
+} from "obsidian";
 import { html } from "lit-html";
 import { directive, Directive } from "lit-html/directive.js";
 
@@ -24,3 +29,14 @@ class RenderMarkdownDirective extends Directive {
 }
 
 export const md = directive(RenderMarkdownDirective);
+
+class SettingDirective extends Directive {
+  render(cb: (s: Setting) => void) {
+    const wrapper = document.createElement("div");
+    const setting = new Setting(wrapper);
+    cb(setting);
+    return html`${setting.settingEl}`;
+  }
+}
+
+export const setting = directive(SettingDirective);
