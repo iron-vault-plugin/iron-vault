@@ -5,7 +5,7 @@ title: About Iron Vault
 
 This is the documentation for [Iron Vault](https://github.com/iron-vault-plugin/iron-vault), a plugin for [Obsidian](https://obsidian.md) that turns the beloved note-taking/journaling tool into a full-fledged Virtual Tabletop (VTT) for the [Ironsworn/Starforged family of games](https://ironswornrpg.com).
 
-It has features ranging from a full character sheet, to commands for making moves, and even an entire featureset for rendering pretty mechanics blocks in your story journals describing the mechanics involved in your story, as they happen.
+It has features ranging from a full character sheet, to commands for making moves, and even an entire featureset for rendering pretty mechanics blocks in your story journals describing the mechanics involved in your story, as they happen. You can even house multiple campaigns in the same vault!
 
 The plugin is designed to be used piecemeal: you can use as much or as little as you want, and our only hope is that some part of it will be useful enough to make you enjoy your experience a little more.
 
@@ -21,6 +21,7 @@ You can also open this documentation at any time while in Obsidian by running th
 
 You can start reading about the various Iron Vault features here:
 
+* [[Campaigns]] - All functionality in Iron Vault is centered on a *campaign*-- which includes all of the game entities, such as player characters, that are part of the game.
 * [[Rulesets and Homebrew#Built-in Rulesets|Built-in Official Rulesets]] - Includes support for Ironsworn Classic, Ironsworn: Delve, Ironsworn: Starforged, and Sundered Isles.
 * [[Blocks/index|Blocks]] - Special blocks used throughout the tool to render things nicely and give you handy interactive widgets for editing game data.
 * [[Commands/index|Commands]] - Various Obsidian commands, all of which can be bound to hotkeys or the quick access bar, for performing all sorts of game actions, like making moves, creating progress tracks, etc.

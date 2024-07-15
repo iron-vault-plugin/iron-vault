@@ -34,6 +34,10 @@ Then click "Browse" and search for "Iron Vault":
 
 Finally, click "Install", and make sure to click "Enable" once the install is complete!
 
+You should see an onboarding screen similar to this one:
+![[Onboarding screen.png]]
+
+Don't worry about it too much for now-- we'll address it in the next chapter.
 ### Next Steps
 
 Now we have an empty vault and the plugin installed, we're ready for adventure! Let's get started with [[02 - Your First Campaign]].
