@@ -1,21 +1,17 @@
 import { CampaignFile } from "campaigns/entity";
 import IronVaultPlugin from "index";
-import { onlyValid } from "indexer/index-impl";
 import {
   ButtonComponent,
   debounce,
   Modal,
-  Notice,
-  SearchComponent,
   Setting,
   TextComponent,
 } from "obsidian";
 import { generateObsidianFilename } from "utils/filename";
-import { joinPaths } from "utils/obsidian";
-import { FolderTextSuggest } from "utils/ui/settings/folder";
+import { CampaignSelectComponent } from "utils/ui/settings/campaign-suggest";
+import { RelativeFolderSearchComponent } from "utils/ui/settings/relative-folder-search";
 
 export type CharacterCreateResultType = {
-  campaign: CampaignFile;
   name: string;
   fileName: string;
   targetFolder: string;
@@ -35,17 +31,22 @@ export class CharacterCreateModal extends Modal {
     });
   }
 
-  public result!: CharacterCreateResultType;
+  public result: CharacterCreateResultType = {
+    fileName: "",
+    name: "",
+    targetFolder: "",
+  };
 
   public accepted: boolean = false;
 
   constructor(
     readonly plugin: IronVaultPlugin,
-    protected readonly defaults: Partial<CharacterCreateResultType> = {},
+    defaults: Partial<CharacterCreateResultType> = {},
     protected readonly onAccept: (arg: CharacterCreateResultType) => void,
     protected readonly onCancel: () => void,
   ) {
     super(plugin.app);
+    Object.assign(this.result, defaults);
   }
 
   onOpen(): void {
@@ -53,34 +54,12 @@ export class CharacterCreateModal extends Modal {
 
     let fileNameText: TextComponent;
 
-    const availCampaigns = [...onlyValid(this.plugin.campaigns).entries()];
-    const campaigns: [string, string][] = availCampaigns.map(
-      ([key, campaign]) => [key, campaign.name],
-    );
-    if (campaigns.length == 0) {
-      new Notice(
-        "You must create a campaign before you can create a character.",
-      );
-      this.close();
-      return;
-    }
-
-    this.result = Object.assign(
-      {
-        campaign:
-          this.plugin.campaignManager.lastActiveCampaign() ??
-          availCampaigns[0][1],
-        name: "",
-        fileName: "",
-        targetFolder: "",
-      } as CharacterCreateResultType,
-      this.defaults,
-    );
+    let campaign!: CampaignFile;
 
     const onChangeCampaign = () => {
       //TODO(@cwegrzyn): this should update to use the campaign-specific folder
-      folderSuggest.setBaseFolder(this.result.campaign.file.parent!);
       folderComponent
+        .setBaseFolder(campaign.file.parent!)
         .setValue(this.plugin.settings.defaultCharactersFolder)
         .onChanged();
     };
@@ -94,21 +73,21 @@ export class CharacterCreateModal extends Modal {
 
     const { contentEl } = this;
     new Setting(contentEl).setName("New character").setHeading();
-    new Setting(contentEl)
-      .setName("Campaign")
-      .setDesc("New character will be created in this campaign.")
-      .addDropdown((dropdown) => {
-        dropdown
-          .addOptions(Object.fromEntries(campaigns))
-          .setValue(this.result.campaign.file.path)
-          .onChange((val) => {
-            this.result.campaign = this.plugin.campaigns
-              .get(val)!
-              .expect("should be a valid campaign");
-            onChangeCampaign();
-            validate();
-          });
-      });
+
+    CampaignSelectComponent.addToSetting(
+      new Setting(contentEl)
+        .setName("Campaign")
+        .setDesc("New character will be created in this campaign."),
+      this.plugin,
+      (dropdown) => {
+        dropdown.onChange((val) => {
+          campaign = val;
+          onChangeCampaign();
+          validate();
+        });
+        campaign = dropdown.getValue();
+      },
+    );
 
     new Setting(contentEl).setName("Name").addText((text) =>
       text.onChange((value) => {
@@ -127,33 +106,28 @@ export class CharacterCreateModal extends Modal {
         })),
     );
 
-    let folderComponent!: SearchComponent;
-    let folderSuggest!: FolderTextSuggest;
-    const folderSetting = new Setting(contentEl)
-      .setName("Target folder")
-      .addSearch((search) => {
-        folderSuggest = new FolderTextSuggest(this.app, search.inputEl);
-
+    let folderComponent!: RelativeFolderSearchComponent;
+    const folderSetting = RelativeFolderSearchComponent.addToSetting(
+      new Setting(contentEl).setName("Target folder"),
+      this.app,
+      (search) => {
         folderComponent = search
           .setPlaceholder("Choose a folder")
           .setValue(this.result.targetFolder ?? "")
-          .onChange((newFolder) => {
-            const normalized = joinPaths(
-              this.result.campaign.file.parent!,
-              newFolder,
-            );
-            this.result.targetFolder = normalized;
-            if (this.app.vault.getFolderByPath(normalized)) {
+          .onChange((newRelPath, newAbsPath, folder) => {
+            this.result.targetFolder = newAbsPath;
+            if (folder) {
               folderSetting.setDesc(
-                `Creating character in existing folder '${normalized}'`,
+                `Creating character in existing folder '${newAbsPath}'`,
               );
             } else {
               folderSetting.setDesc(
-                `Creating character in new folder '${normalized}`,
+                `Creating character in new folder '${newAbsPath}`,
               );
             }
           });
-      });
+      },
+    );
 
     onChangeCampaign();
     validate();
