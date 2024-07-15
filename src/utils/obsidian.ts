@@ -1,6 +1,7 @@
 import { rootLogger } from "logger";
 import {
   App,
+  TAbstractFile,
   TFile,
   TFolder,
   normalizePath,
@@ -147,4 +148,30 @@ export async function createNewIronVaultEntityFile(
   }
 
   return file;
+}
+
+/** Gets the path of `file` relative to `baseFolder`.
+ *
+ * Raises an error if `baseFolder` is not a parent of `file`.
+ */
+export function getRelativePath(
+  baseFolder: TFolder,
+  file: TAbstractFile,
+): string {
+  if (baseFolder.isRoot()) return file.path;
+  if (baseFolder == file) return "";
+
+  const prefix = baseFolder.path + "/";
+  if (file.path.startsWith(prefix)) {
+    return file.path.slice(prefix.length);
+  } else {
+    throw new Error(`'${file.path}' is not in '${baseFolder.path}'`);
+  }
+}
+
+/** Concatenates path segments onto a folder and normalizes the path. */
+export function joinPaths(folder: TFolder, ...segments: string[]): string {
+  return normalizePath(
+    (folder.isRoot() ? "" : folder.path + "/") + segments.join("/"),
+  );
 }
