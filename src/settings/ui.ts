@@ -303,11 +303,11 @@ export class IronVaultSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Default progress track folder")
-      .setDesc("Create progress tracks in this folder by default.")
-      .addSearch((search) => {
-        new FolderTextSuggest(this.app, search.inputEl);
-
-        search
+      .setDesc(
+        "Default path within a campaign folder to use for new progress tracks. If provided, this folder will be created when you first create a campaign.",
+      )
+      .addText((text) => {
+        text
           .setPlaceholder("Type the name of a folder")
           .setValue(settings.defaultProgressTrackFolder)
           .onChange((value) =>
@@ -331,11 +331,11 @@ export class IronVaultSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Default clock folder")
-      .setDesc("Create clocks in this folder by default.")
-      .addSearch((search) => {
-        new FolderTextSuggest(this.app, search.inputEl);
-
-        search
+      .setDesc(
+        "Default path within a campaign folder to use for new clocks. If provided, this folder will be created when you first create a campaign.",
+      )
+      .addText((text) => {
+        text
           .setPlaceholder("Type the name of a folder")
           .setValue(settings.defaultClockFolder)
           .onChange((value) => this.updateSetting("defaultClockFolder", value));
@@ -355,11 +355,11 @@ export class IronVaultSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Default characters folder")
-      .setDesc("Create player characters in this folder by default.")
-      .addSearch((search) => {
-        new FolderTextSuggest(this.app, search.inputEl);
-
-        search
+      .setDesc(
+        "Default path within a campaign folder to use for new campaigns. If provided, this folder will be created when you first create a campaign.",
+      )
+      .addText((text) => {
+        text
           .setPlaceholder("Type the name of a folder")
           .setValue(settings.defaultCharactersFolder)
           .onChange((value) =>
