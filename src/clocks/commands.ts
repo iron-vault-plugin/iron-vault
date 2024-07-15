@@ -66,12 +66,7 @@ export async function createClock(
     name: string;
     clock: Clock;
   } = await new Promise((onAccept, onReject) => {
-    new ClockCreateModal(
-      plugin.app,
-      { targetFolder: plugin.settings.defaultClockFolder },
-      onAccept,
-      onReject,
-    ).open();
+    new ClockCreateModal(plugin, {}, onAccept, onReject).open();
   });
 
   const clock =
