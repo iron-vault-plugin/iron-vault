@@ -1,7 +1,16 @@
 {
   "type": "expansion",
   "_id": "sundered_isles_supp",
-  "title": "Sundered Isles Iron Vault Support",
+  "title": "Iron Vault support for Sundered Isles",
+  "description": "Collection of utility oracles and assets for use with Sundered Isles",
+  "authors": [
+    {
+      "name": "Iron Vault Dev Team"
+    }
+  ],
+  "date": "2024-07-16",
+  "license": "MIT",
+  "url": "https://ironvault.quest",
   "datasworn_version": "0.1.0",
   "ruleset": "sundered_isles",
   "oracles": {
@@ -166,5 +175,6 @@
       "collections": {},
       "_id": "asset_collection:sundered_isles_supp/incidental_vehicle"
     }
-  }
+  },
+  "moves": {}
 }
