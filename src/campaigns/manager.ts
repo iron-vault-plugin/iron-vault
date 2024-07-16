@@ -43,19 +43,7 @@ export class CampaignManager extends Component {
     this.registerEvent(
       this.plugin.app.workspace.on("active-leaf-change", (leaf) => {
         if (leaf?.view instanceof MarkdownView && leaf.view.file) {
-          const viewCampaign = this.campaignForFile(leaf.view.file);
-          const lastActiveCampaignFile = this.#lastActiveCampaignFile;
-          if (viewCampaign && viewCampaign.file !== lastActiveCampaignFile) {
-            logger.trace(
-              "Active campaign changed from %s to %s",
-              lastActiveCampaignFile?.path,
-              viewCampaign.file.path,
-            );
-            this.#lastActiveCampaignFile = viewCampaign.file;
-            this.trigger("active-campaign-changed", {
-              newCampaign: viewCampaign,
-            });
-          }
+          this.setActiveCampaignFromFile(leaf.view.file);
         }
       }),
     );
@@ -67,6 +55,30 @@ export class CampaignManager extends Component {
         }
       }),
     );
+  }
+
+  private setActiveCampaignFromFile(file: TFile) {
+    const viewCampaign = this.campaignForFile(file);
+    const lastActiveCampaignFile = this.#lastActiveCampaignFile;
+
+    if (viewCampaign?.file !== lastActiveCampaignFile) {
+      logger.trace(
+        "Active campaign changed from %s to %s",
+        lastActiveCampaignFile?.path,
+        viewCampaign?.file.path,
+      );
+      this.#lastActiveCampaignFile = viewCampaign?.file;
+      this.trigger("active-campaign-changed", {
+        newCampaign: viewCampaign,
+      });
+    }
+  }
+
+  resetActiveCampaign(): void {
+    const activeEditorFile = this.plugin.app.workspace.activeEditor?.file;
+    if (activeEditorFile) {
+      this.setActiveCampaignFromFile(activeEditorFile);
+    }
   }
 
   campaignFolderAssignment(): ReadonlyMap<TFolder, CampaignFile> {
@@ -142,7 +154,7 @@ export class CampaignManager extends Component {
 
 export type EVENT_TYPES = {
   "active-campaign-changed": {
-    newCampaign: CampaignFile;
+    newCampaign: CampaignFile | undefined;
   };
   "active-campaign-settings-changed": LOCAL_SETTINGS_EVENT_TYPES["change"];
 };

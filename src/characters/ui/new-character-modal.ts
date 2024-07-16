@@ -2,34 +2,38 @@ import { CampaignFile } from "campaigns/entity";
 import IronVaultPlugin from "index";
 import {
   ButtonComponent,
+  debounce,
   Modal,
   Setting,
   TextComponent,
-  debounce,
 } from "obsidian";
 import { generateObsidianFilename } from "utils/filename";
-import { FolderTextSuggest } from "utils/ui/settings/folder";
-import { GenericTextSuggest } from "utils/ui/settings/generic-text-suggest";
-import { ChallengeRanks, ProgressTrack } from "./progress";
 import { CampaignSelectComponent } from "utils/ui/settings/campaign-suggest";
 import { RelativeFolderSearchComponent } from "utils/ui/settings/relative-folder-search";
 
-export type ProgressTrackCreateResultType = {
-  rank: ChallengeRanks;
-  progress: number;
+export type CharacterCreateResultType = {
   name: string;
-  trackType: string;
   fileName: string;
   targetFolder: string;
 };
 
-export class ProgressTrackCreateModal extends Modal {
-  public result: ProgressTrackCreateResultType = {
-    rank: ChallengeRanks.Dangerous,
-    progress: 0,
-    name: "",
-    trackType: "",
+export class CharacterCreateModal extends Modal {
+  static show(
+    plugin: IronVaultPlugin,
+    defaults: Partial<CharacterCreateResultType> = {},
+  ): Promise<CharacterCreateResultType> {
+    return new Promise((resolve, reject) => {
+      try {
+        new this(plugin, defaults, resolve, reject).open();
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  public result: CharacterCreateResultType = {
     fileName: "",
+    name: "",
     targetFolder: "",
   };
 
@@ -37,14 +41,8 @@ export class ProgressTrackCreateModal extends Modal {
 
   constructor(
     readonly plugin: IronVaultPlugin,
-    defaults: Partial<ProgressTrackCreateResultType> = {},
-    protected readonly onAccept: (arg: {
-      name: string;
-      trackType: string;
-      targetFolder: string;
-      fileName: string;
-      track: ProgressTrack;
-    }) => void,
+    defaults: Partial<CharacterCreateResultType> = {},
+    protected readonly onAccept: (arg: CharacterCreateResultType) => void,
     protected readonly onCancel: () => void,
   ) {
     super(plugin.app);
@@ -54,8 +52,7 @@ export class ProgressTrackCreateModal extends Modal {
   onOpen(): void {
     this.accepted = false;
 
-    const { contentEl } = this;
-    new Setting(contentEl).setName("New progress track").setHeading();
+    let fileNameText: TextComponent;
 
     let campaign!: CampaignFile;
 
@@ -63,7 +60,7 @@ export class ProgressTrackCreateModal extends Modal {
       //TODO(@cwegrzyn): this should update to use the campaign-specific folder
       folderComponent
         .setBaseFolder(campaign.file.parent!)
-        .setValue(this.plugin.settings.defaultProgressTrackFolder)
+        .setValue(this.plugin.settings.defaultCharactersFolder)
         .onChanged();
     };
 
@@ -74,10 +71,13 @@ export class ProgressTrackCreateModal extends Modal {
       createButton.setDisabled(!valid);
     }, 0);
 
+    const { contentEl } = this;
+    new Setting(contentEl).setName("New character").setHeading();
+
     CampaignSelectComponent.addToSetting(
       new Setting(contentEl)
         .setName("Campaign")
-        .setDesc("New track will be created in this campaign."),
+        .setDesc("New character will be created in this campaign."),
       this.plugin,
       (dropdown) => {
         dropdown.onChange((val) => {
@@ -98,7 +98,6 @@ export class ProgressTrackCreateModal extends Modal {
       }),
     );
 
-    let fileNameText!: TextComponent;
     new Setting(contentEl).setName("File name").addText(
       (text) =>
         (fileNameText = text.onChange((value) => {
@@ -110,21 +109,20 @@ export class ProgressTrackCreateModal extends Modal {
     let folderComponent!: RelativeFolderSearchComponent;
     const folderSetting = RelativeFolderSearchComponent.addToSetting(
       new Setting(contentEl).setName("Target folder"),
-      this.plugin.app,
+      this.app,
       (search) => {
-        new FolderTextSuggest(this.app, search.inputEl);
         folderComponent = search
           .setPlaceholder("Choose a folder")
-          .setValue(this.result.targetFolder)
-          .onChange((_relpath, newPath, folder) => {
-            this.result.targetFolder = newPath;
+          .setValue(this.result.targetFolder ?? "")
+          .onChange((newRelPath, newAbsPath, folder) => {
+            this.result.targetFolder = newAbsPath;
             if (folder) {
               folderSetting.setDesc(
-                `Creating track in existing folder '${newPath}'`,
+                `Creating character in existing folder '${newAbsPath}'`,
               );
             } else {
               folderSetting.setDesc(
-                `Creating track in new folder '${newPath}'`,
+                `Creating character in new folder '${newAbsPath}'`,
               );
             }
           });
@@ -134,45 +132,15 @@ export class ProgressTrackCreateModal extends Modal {
     onChangeCampaign();
     validate();
 
-    // TODO: since the string value equals the display string, i don't actually know if this
-    //   is working as intended with the options
-    new Setting(contentEl).setName("Rank").addDropdown((dropdown) =>
-      dropdown
-        .addOptions(ChallengeRanks)
-        .onChange((value) => {
-          this.result.rank = value as ChallengeRanks;
-        })
-        .setValue(this.result.rank),
-    );
-
-    new Setting(contentEl).setName("Type").addSearch((search) => {
-      search.setPlaceholder(
-        "What kind of track is this? (e.g., Vow, Connection)",
-      );
-
-      new GenericTextSuggest(this.app, search.inputEl, [
-        "Vow",
-        "Connection",
-        "Combat",
-        "Scene Challenge",
-        "Expedition",
-      ]);
-
-      search.onChange((value) => {
-        this.result.trackType = value;
-      });
-    });
-
     let createButton!: ButtonComponent;
     new Setting(contentEl)
-      .addButton(
-        (btn) =>
-          (createButton = btn
-            .setButtonText("Create")
-            .setCta()
-            .onClick(() => {
-              this.accept();
-            })),
+      .addButton((btn) =>
+        (createButton = btn)
+          .setButtonText("Create")
+          .setCta()
+          .onClick(() => {
+            this.accept();
+          }),
       )
       .addButton((btn) =>
         btn.setButtonText("Cancel").onClick(() => {
@@ -185,18 +153,7 @@ export class ProgressTrackCreateModal extends Modal {
   accept(): void {
     this.accepted = true;
     this.close();
-    this.onAccept({
-      name: this.result.name,
-      trackType: this.result.trackType,
-      fileName: this.result.fileName,
-      targetFolder: this.result.targetFolder,
-      track: ProgressTrack.create_({
-        rank: this.result.rank,
-        progress: this.result.progress,
-        complete: false,
-        unbounded: false,
-      }),
-    });
+    this.onAccept(this.result as CharacterCreateResultType);
   }
 
   onClose(): void {

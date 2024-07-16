@@ -1,13 +1,15 @@
+import { CampaignFile } from "campaigns/entity";
+import IronVaultPlugin from "index";
 import {
-  App,
+  ButtonComponent,
   Modal,
-  SearchComponent,
   Setting,
   TextComponent,
-  normalizePath,
+  debounce,
 } from "obsidian";
 import { generateObsidianFilename } from "utils/filename";
-import { FolderTextSuggest } from "utils/ui/settings/folder";
+import { CampaignSelectComponent } from "utils/ui/settings/campaign-suggest";
+import { RelativeFolderSearchComponent } from "utils/ui/settings/relative-folder-search";
 import { Clock } from "./clock";
 
 export type ClockCreateResultType = {
@@ -28,7 +30,7 @@ export class ClockCreateModal extends Modal {
   public accepted: boolean = false;
 
   constructor(
-    app: App,
+    readonly plugin: IronVaultPlugin,
     defaults: Partial<ClockCreateResultType> = {},
     protected readonly onAccept: (arg: {
       name: string;
@@ -38,7 +40,7 @@ export class ClockCreateModal extends Modal {
     }) => void,
     protected readonly onCancel: () => void,
   ) {
-    super(app);
+    super(plugin.app);
     Object.assign(this.result, defaults);
   }
 
@@ -48,46 +50,78 @@ export class ClockCreateModal extends Modal {
     const { contentEl } = this;
     new Setting(contentEl).setName("New clock").setHeading();
 
-    let fileNameText: TextComponent;
+    let campaign!: CampaignFile;
+
+    const onChangeCampaign = () => {
+      //TODO(@cwegrzyn): this should update to use the campaign-specific folder
+      folderComponent
+        .setBaseFolder(campaign.file.parent!)
+        .setValue(this.plugin.settings.defaultClockFolder)
+        .onChanged();
+    };
+
+    const validate = debounce(() => {
+      const valid =
+        this.result.name.trim().length > 0 &&
+        this.result.fileName.trim().length > 0;
+      createButton.setDisabled(!valid);
+    }, 0);
+
+    CampaignSelectComponent.addToSetting(
+      new Setting(contentEl)
+        .setName("Campaign")
+        .setDesc("New clock will be created in this campaign."),
+      this.plugin,
+      (dropdown) => {
+        dropdown.onChange((val) => {
+          campaign = val;
+          onChangeCampaign();
+          validate();
+        });
+        campaign = dropdown.getValue();
+      },
+    );
 
     new Setting(contentEl).setName("Name").addText((text) =>
       text.onChange((value) => {
         this.result.name = value;
         // TODO: could add smarter logic to only update if user hasn't made a specific value
         fileNameText.setValue(generateObsidianFilename(value)).onChanged();
+        validate();
       }),
     );
 
+    let fileNameText!: TextComponent;
     new Setting(contentEl).setName("File name").addText(
       (text) =>
         (fileNameText = text.onChange((value) => {
           this.result.fileName = value;
+          validate();
         })),
     );
 
-    let folderComponent!: SearchComponent;
-    const folderSetting = new Setting(contentEl)
-      .setName("Target folder")
-      .addSearch((search) => {
-        new FolderTextSuggest(this.app, search.inputEl);
-
+    let folderComponent!: RelativeFolderSearchComponent;
+    const folderSetting = RelativeFolderSearchComponent.addToSetting(
+      new Setting(contentEl).setName("Target folder"),
+      this.plugin.app,
+      (search) => {
         folderComponent = search
           .setPlaceholder("Choose a folder")
           .setValue(this.result.targetFolder)
-          .onChange((newFolder) => {
-            const normalized = normalizePath(newFolder);
-            this.result.targetFolder = normalized;
-            if (this.app.vault.getFolderByPath(normalized)) {
+          .onChange((_relPath, newPath, folder) => {
+            this.result.targetFolder = newPath;
+            if (folder) {
               folderSetting.setDesc(
-                `Creating clock in existing folder '${normalized}'`,
+                `Creating clock in existing folder '${newPath}'`,
               );
             } else {
               folderSetting.setDesc(
-                `Creating clock in new folder '${normalized}`,
+                `Creating clock in new folder '${newPath}'`,
               );
             }
           });
-      });
+      },
+    );
 
     new Setting(contentEl).setName("Segments").addSlider((slider) =>
       slider
@@ -99,11 +133,13 @@ export class ClockCreateModal extends Modal {
         }),
     );
 
-    folderComponent.onChanged();
+    onChangeCampaign();
+    validate();
 
+    let createButton!: ButtonComponent;
     new Setting(contentEl)
       .addButton((btn) =>
-        btn
+        (createButton = btn)
           .setButtonText("Create")
           .setCta()
           .onClick(() => {

@@ -66,7 +66,7 @@ export async function createProgressTrack(
     track: ProgressTrack;
   } = await new Promise((onAccept, onReject) => {
     new ProgressTrackCreateModal(
-      plugin.app,
+      plugin,
       { targetFolder: plugin.settings.defaultProgressTrackFolder },
       onAccept,
       onReject,

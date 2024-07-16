@@ -66,8 +66,13 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     }
     this.initialized = true;
 
+    // Load local settings first
     await this.localSettings.loadData(this);
+
+    // Load the data store data
     await this.datastore.initialize();
+
+    // Configure the sidebar
     await this.initLeaf();
 
     this.registerEvent(
@@ -119,6 +124,14 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
 
     this.registerEvent(
       this.indexManager.on("initialized", () => checkForOnboarding(this)),
+    );
+
+    this.registerEvent(
+      this.indexManager.on("initialized", () => {
+        // Once content has been indexed, attempt to update the active campaign from the open
+        // editor.
+        this.campaignManager.resetActiveCampaign();
+      }),
     );
 
     this.app.workspace.onLayoutReady(() => this.initialize());
