@@ -1,15 +1,65 @@
-import { extractDataswornLinkParts } from "./id";
+import {
+  extractDataswornLinkParts,
+  matchDataswornLink,
+  ParsedDataswornId,
+} from "./id";
 
 describe("extractDataswornLinkParts", () => {
-  it.each([
-    ["asset:starforged/path/empath", ["asset", "starforged/path/empath"]],
+  const VALID_TEST_CASES: [string, ParsedDataswornId][] = [
+    [
+      "asset:starforged/path/empath",
+      {
+        kind: "asset",
+        path: "starforged/path/empath",
+        id: "asset:starforged/path/empath",
+      },
+    ],
     [
       "asset.ability.move:starforged/path/empath.0.read_heart",
-      ["asset.ability.move", "starforged/path/empath.0.read_heart"],
+      {
+        kind: "asset.ability.move",
+        path: "starforged/path/empath.0.read_heart",
+        id: "asset.ability.move:starforged/path/empath.0.read_heart",
+      },
     ],
-    ["http://asdf", null],
-    ["./foo", null],
-  ])("should properly handle '%s'", (link, result) => {
+  ];
+
+  it.each(VALID_TEST_CASES)("matches old-style link '%s'", (link, result) => {
     expect(extractDataswornLinkParts(link)).toEqual(result);
   });
+
+  it.each(VALID_TEST_CASES)(
+    "matches new-style link 'datasworn:%s'",
+    (link, result) => {
+      expect(extractDataswornLinkParts("datasworn:" + link)).toEqual(result);
+    },
+  );
+
+  it.each([
+    ["http://asdf", null],
+    ["./foo", null],
+  ])("returns null for '%s'", (link, result) => {
+    expect(extractDataswornLinkParts(link)).toEqual(result);
+  });
+});
+
+describe("matchDataswornLink", () => {
+  it.each`
+    text                                                     | result
+    ${"[Foo](datasworn:asset:starforged/path/empath)"}       | ${{ label: "Foo", id: "asset:starforged/path/empath" }}
+    ${"[Foo  With  Spaces -](asset:starforged/path/empath)"} | ${{ label: "Foo  With  Spaces -", id: "asset:starforged/path/empath" }}
+    ${"[Foo](https://foo)"}                                  | ${null}
+    ${"datasworn:asset:starforged/path/empath"}              | ${null}
+  `(
+    "should handle '%s'",
+    ({
+      text,
+      result,
+    }: {
+      text: string;
+      result: ReturnType<typeof matchDataswornLink>;
+    }) => {
+      expect(matchDataswornLink(text)).toEqual(result);
+    },
+  );
 });

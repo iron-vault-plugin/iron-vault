@@ -1,3 +1,4 @@
+import { createDataswornMarkdownLink } from "datastore/parsers/datasworn/id";
 import idMapRaw from "../../data/datasworn-0.0.10-to-0.1.0-id_map.json" assert { type: "json" };
 
 const ID_REGEX = /(?<id>[-\w._]+(?:(?:\/|\\\/)[-\w._]+)+)/g;
@@ -36,7 +37,8 @@ export function replaceIds(
   input: string,
   log?: { offset: number; length: number; newId: string }[],
 ): string {
-  return input.replaceAll(
+  // First, replace links, to handle datasworn link syntax. Then, replace everything else.
+  return replaceLinks(input).replaceAll(
     ID_OPTIONAL_KIND_REGEX,
     (orig, kind: string, id: string, offset: number) => {
       const newId = getNewId(id);
@@ -53,7 +55,7 @@ export function replaceLinks(input: string): string {
     LINK_REGEX,
     (orig, label: string, kind: string, id: string) => {
       const newId = getNewId(id);
-      return newId ? `[${label}](${newId})` : orig;
+      return newId ? createDataswornMarkdownLink(label, newId) : orig;
     },
   );
 }

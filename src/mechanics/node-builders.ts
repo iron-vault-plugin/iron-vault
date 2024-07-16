@@ -1,5 +1,6 @@
 import { Clock } from "clocks/clock";
 import { ClockFileAdapter } from "clocks/clock-file";
+import { createDataswornMarkdownLink } from "datastore/parsers/datasworn/id";
 import * as kdl from "kdljs";
 import { Document, Node } from "kdljs";
 import { RollWrapper } from "model/rolls";
@@ -89,7 +90,10 @@ export function createOracleNode(
 ): kdl.Node {
   const props: { name: string; roll: number; result: string; cursed?: number } =
     {
-      name: `[${name ?? oracleNameWithParents(roll.oracle)}](${roll.oracle.id})`,
+      name: createDataswornMarkdownLink(
+        name ?? oracleNameWithParents(roll.oracle),
+        roll.oracle.id,
+      ),
       // TODO: this is preposterous
       roll: roll.roll.roll,
       result: roll.ownResult,
@@ -171,7 +175,7 @@ export function generateMechanicsNode(move: MoveDescription): Document {
 }
 
 function generateMoveLink(move: MoveDescription): string {
-  return move.id ? `[${move.name}](${move.id})` : move.name;
+  return move.id ? createDataswornMarkdownLink(move.name, move.id) : move.name;
 }
 
 export function createOracleGroup(
