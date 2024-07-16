@@ -1,4 +1,4 @@
-import { DATASWORN_LINK_REGEX } from "datastore/parsers/datasworn/id";
+import { matchDataswornLink } from "datastore/parsers/datasworn/id";
 import {
   App,
   ButtonComponent,
@@ -42,9 +42,9 @@ function evaluateAttribute(
         );
       return rawResult.replaceAll(/\s+/g, "_").toLowerCase();
     case AttributeMechanism.ParseId: {
-      const match = rawResult.match(DATASWORN_LINK_REGEX);
+      const match = matchDataswornLink(rawResult);
       if (!match) throw new Error(`no id link found: ${rawResult}`);
-      const parts = match.groups!.uri.split("/");
+      const parts = match.id.split("/");
       if (parts.length < 2) throw new Error(`no / separator in ${rawResult}`);
       return parts.last()!;
     }

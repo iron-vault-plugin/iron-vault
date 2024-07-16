@@ -17,22 +17,25 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
     const linkText = text?.toLowerCase();
     const dataswornLinkCandidate =
       linkText && extractDataswornLinkParts(linkText);
+    logger.trace("findEntry: %s -> %o", linkText, dataswornLinkCandidate);
     if (!dataswornLinkCandidate) return undefined;
 
     // First, try to find the entry by ID
     // TODO(@cwegrzyn): should use campaign context when ready? at the very least, should filter to enabled vs indexed?
-    const entry = plugin.datastore.indexer.prioritized.get(linkText);
+    const entry = plugin.datastore.indexer.prioritized.get(
+      dataswornLinkCandidate.id,
+    );
     if (entry) return entry;
 
     // Then, search by name in the major asset types
-    const entityType = dataswornLinkCandidate[0];
+    const entityType = dataswornLinkCandidate.kind;
     if (entityType != "move" && entityType != "oracle" && entityType != "asset")
       return undefined;
 
     function normalize(s: string) {
       return s.replaceAll(/\s*/g, "").toLowerCase();
     }
-    const searchString = normalize(dataswornLinkCandidate[1]);
+    const searchString = normalize(dataswornLinkCandidate.path);
     const index = plugin.datastore.indexer.prioritized.ofKind(entityType);
     for (const entry of index.values()) {
       if (normalize(entry.value.name) == searchString) return entry;

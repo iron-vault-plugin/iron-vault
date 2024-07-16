@@ -1,3 +1,4 @@
+import { extractDataswornLinkParts } from "datastore/parsers/datasworn/id";
 import Handlebars from "handlebars";
 import { createOrAppendMechanics } from "mechanics/editor";
 import { createOracleGroup } from "mechanics/node-builders";
@@ -25,7 +26,6 @@ import {
   EntityResults,
   EntitySpec,
 } from "./specs";
-import { extractDataswornLinkParts } from "datastore/parsers/datasworn/id";
 
 type OraclePromptOption =
   | { action: "pick"; row: OracleRollableRow }
@@ -141,7 +141,7 @@ export async function generateEntityCommand(
       (match, el) => {
         const collId = match.item[1].collectionId;
         if (collId) {
-          const path = extractDataswornLinkParts(collId)![1];
+          const path = extractDataswornLinkParts(collId)!.path;
           const [rulesetId] = path.split("/");
           const ruleset = plugin.datastore.rulesPackages.get(rulesetId);
           if (ruleset) {

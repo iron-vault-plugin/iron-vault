@@ -1,4 +1,4 @@
-import { DATASWORN_LINK_REGEX } from "datastore/parsers/datasworn/id";
+import { matchDataswornLink } from "datastore/parsers/datasworn/id";
 import * as kdl from "kdljs";
 
 export function isMoveNode(
@@ -21,10 +21,7 @@ export function getMoveIdFromNode(node: kdl.Node): string | undefined {
   if (node.properties["id"] && typeof node.properties["id"] == "string")
     return node.properties["id"];
   if (node.values.length > 0 && typeof node.values[0] == "string") {
-    const link = node.values[0].match(DATASWORN_LINK_REGEX);
-    if (link) {
-      return link.groups?.uri;
-    }
+    return matchDataswornLink(node.values[0])?.id;
   }
 
   return undefined;
