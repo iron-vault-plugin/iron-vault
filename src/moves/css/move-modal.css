@@ -3,6 +3,13 @@
   flex-flow: column nowrap;
   align-items: center;
   gap: 1em;
+  & header {
+    align-self: flex-start;
+    padding: 0 0 1em 0;
+    font-size: 1em;
+    color: var(--text-muted);
+    font-weight: var(--font-semibold);
+  }
   & .rollable-stats {
     display: flex;
     flex-flow: row wrap;

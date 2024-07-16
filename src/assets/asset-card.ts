@@ -103,6 +103,7 @@ export default function renderAssetCard(
       html`<section class="controls-section">
         ${renderControls(asset, asset.controls, updateAsset)}
       </section>`}
+      <footer>${asset._source.title}</footer>
     </article>
   `;
 }
