@@ -1,4 +1,4 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://ironvault.quest/</link><image><url>https://ironvault.quest/lib/media/favicon.png</url><title>Iron Vault</title><link>https://ironvault.quest/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Sat, 13 Jul 2024 15:27:10 GMT</lastBuildDate><atom:link href="https://ironvault.quest/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Sat, 13 Jul 2024 15:26:52 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://ironvault.quest/</link><image><url>https://ironvault.quest/lib/media/favicon.png</url><title>Iron Vault</title><link>https://ironvault.quest/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Tue, 16 Jul 2024 02:40:15 GMT</lastBuildDate><atom:link href="https://ironvault.quest/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Tue, 16 Jul 2024 02:39:58 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
  <br>"Blocks" are used throughout Iron Vault to provide custom rendering of various game features. Most blocks also provide interactivity, so instead of having to manually edit frontmatter data, you can do the edits through the blocks' rendered views themselves.<br>
 You can use them as much or as little as you want, just like any other Iron Vault feature.<br>All blocks are used by using triple backticks (`), the name of the block, a new line, then a closing set of triple backticks.<br>Most blocks don't contain anything in order to work, but some, like <a data-href="Mechanics Blocks" href="https://ironvault.quest/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a>, have special contents that determine how they're rendered.<br>The following blocks are supported:<br>
 <br><a data-href="Asset Blocks" href="https://ironvault.quest/blocks/asset-blocks.html" class="internal-link" target="_self" rel="noopener">Asset Blocks</a> (iron-vault-assets) - inline asset cards (with read-only, no settings).
@@ -138,6 +138,7 @@ Copy<br>Will render this:<br>
     
   
       
+      Ironsworn: Starforged Assets
     
   ]]></description><link>https://ironvault.quest/blocks/asset-blocks.html</link><guid isPermaLink="false">Blocks/Asset Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Character Blocks]]></title><description><![CDATA[ 
  <br>Character blocks are intended to be used in dedicated character notes with specially-formatted frontmatter. They render a full-featured character sheet that lets you see and manage your character.<br>They look like this:<br>
@@ -196,18 +197,272 @@ move "Undertake an Expedition" {
     burn from=10 to=2
 }
 ```
-Copy<br>and turns it into this:<br>Face DangerAmount1Frombecause I'm cool <a data-href="Ash Barlowe" href="https://ironvault.quest/Ash Barlowe" class="internal-link" target="_self" rel="noopener">Ash Barlowe</a>Action die1Stat3Stat nameshadowAdds1Score5Challenge die 19Challenge die 29OutcomeMiss (match)
+Copy<br>and turns it into this:<br>
+        
+      Face Danger
+      
+      Amount
+            
+              1
+            From
+            
+              because I'm cool <a data-href="Ash Barlowe" href="https://ironvault.quest/Ash Barlowe" class="internal-link" target="_self" rel="noopener">Ash Barlowe</a>
+            
+    
+      Action die
+            
+              1
+            Stat
+            
+              3
+            Stat name
+            
+              shadow
+            Adds
+            
+              1
+            Score
+            
+              5
+            Challenge die 1
+            
+              9
+            Challenge die 2
+            
+              9
+            Outcome
+            
+              Miss (match)
+            
+    
+    
+      
 Oh nooo. This is gonna hurt. Time to <a data-tooltip-position="top" aria-label="move:EndureHarm" rel="noopener" class="external-link" href="https://ironvault.quest/move:EndureHarm" target="_blank">Endure Harm</a>.
-Endure HarmMeterhealthDelta1From3To2Action die3Stat4Stat namehealthAdds0Score7Challenge die 13Challenge die 28OutcomeWeak hitMetermomentumDelta1From7To6MeterhealthDelta1From2To3Undertake an ExpeditionAction die3Stat1Adds0Score4Challenge die 13Challenge die 25OutcomeWeak hitOld action die3New action die1Old challenge die 13New challenge die 16New score2Challenge die 16Challenge die 25OutcomeMissFrom10To2New score10Challenge die 16Challenge die 25OutcomeStrong hit<br>Most mechanics nodes accept arguments either as properties, or BOA (by order of arguments).<br>That is, a node with arguments a, b, and c can be written as:<br>node 1 2 3
+
+    
+      Endure Harm
+      
+      Meter
+            
+              health
+            Delta
+            
+              1
+            From
+            
+              3
+            To
+            
+              2
+            
+    
+      Action die
+            
+              3
+            Stat
+            
+              4
+            Stat name
+            
+              health
+            Adds
+            
+              0
+            Score
+            
+              7
+            Challenge die 1
+            
+              3
+            Challenge die 2
+            
+              8
+            Outcome
+            
+              Weak hit
+            
+    
+      Meter
+            
+              momentum
+            Delta
+            
+              1
+            From
+            
+              7
+            To
+            
+              6
+            
+    
+      Meter
+            
+              health
+            Delta
+            
+              1
+            From
+            
+              2
+            To
+            
+              3
+            
+    
+    
+      Undertake an Expedition
+      
+      Action die
+            
+              3
+            Stat
+            
+              1
+            Adds
+            
+              0
+            Score
+            
+              4
+            Challenge die 1
+            
+              3
+            Challenge die 2
+            
+              5
+            Outcome
+            
+              Weak hit
+            
+    
+      Old action die
+            
+              3
+            New action die
+            
+              1
+            Old challenge die 1
+            
+              3
+            New challenge die 1
+            
+              6
+            New score
+            
+              2
+            Challenge die 1
+            
+              6
+            Challenge die 2
+            
+              5
+            Outcome
+            
+              Miss
+            
+    
+      From
+            
+              10
+            To
+            
+              2
+            New score
+            
+              10
+            Challenge die 1
+            
+              6
+            Challenge die 2
+            
+              5
+            Outcome
+            
+              Strong hit
+            
+    
+    
+      <br>Most mechanics nodes accept arguments either as properties, or BOA (by order of arguments).<br>That is, a node with arguments a, b, and c can be written as:<br>node 1 2 3
 Copy<br>or as:<br>node a=1 b=2 c=3
 Copy<br>Exceptions are noted in node documentation with ("not BOA").<br>Some arguments also support markdown rendering, and are marked as md.<br>Note: This block was previously called just mechanics. Blocks marked with this tag will still render as iron-vault-mechanics for legacy purposes, but commands will no longer append to them unless they use iron-vault-mechanics.<br><br>There are <a data-tooltip-position="top" aria-label="Settings > Mechanics blocks" data-href="Settings#Mechanics blocks" href="https://ironvault.quest/other-features/settings.html#Mechanics_blocks" class="internal-link" target="_self" rel="noopener">various settings</a> for tweaking how and whether mechanics blocks are rendered. See the Settings documentation for more information.<br><br><br>Declares a new move. Can contain any other nodes except for move. Shows<br>
 icons for hit kind and whether there was a match, and can be expanded or<br>
 collapsed to show or hide the contained nodes.<br><br>
 <br>id (optional): datasworn ID of the move
 <br>name (optional, md): the name of the move
-<br><br>Any node, except for move.<br><br>Face DangerAction die6Stat3Adds0Score9Challenge die 18Challenge die 29OutcomeWeak hit
+<br><br>Any node, except for move.<br><br>
+        
+      Face Danger
+      
+      Action die
+            
+              6
+            Stat
+            
+              3
+            Adds
+            
+              0
+            Score
+            
+              9
+            Challenge die 1
+            
+              8
+            Challenge die 2
+            
+              9
+            Outcome
+            
+              Weak hit
+            
+    
+      
 ouch
-Endure HarmMeterhealthDelta1From3To2Action die3Stat4Adds0Score7Challenge die 13Challenge die 25OutcomeStrong hit<br>```iron-vault-mechanics
+
+    
+    
+      Endure Harm
+      
+      Meter
+            
+              health
+            Delta
+            
+              1
+            From
+            
+              3
+            To
+            
+              2
+            
+    
+      Action die
+            
+              3
+            Stat
+            
+              4
+            Adds
+            
+              0
+            Score
+            
+              7
+            Challenge die 1
+            
+              3
+            Challenge die 2
+            
+              5
+            Outcome
+            
+              Strong hit
+            
+    
+    
+      <br>```iron-vault-mechanics
 move "Face Danger" {
     roll action=6 stat=3 adds=0 vs1=8 vs2=9
     - "ouch"
@@ -220,14 +475,28 @@ move "Endure Harm" {
 Copy<br><br>Adds an "arbitrary" text entry under the move. You can put anything in here.<br>(BOA only)<br><br>
 <br>text (md): the text to display
 <br><br>
+        
+      
 Oh man that was interesting
-<br>```iron-vault-mechanics
+
+    
+      <br>```iron-vault-mechanics
 - "Oh man that was interesting"
 ```
 Copy<br><br>Records an "add" for an upcoming challenge roll, along with its reason.<br><br>
 <br>amount: the number of points to add to the roll
 <br>from (optional, md): the reason for the add (e.g. from="Bond with [[Ash]])
-<br><br>Amount2FromBond with <a data-href="Ash" href="https://ironvault.quest/Ash" class="internal-link" target="_self" rel="noopener">Ash</a><br>```iron-vault-mechanics
+<br><br>
+        
+      Amount
+            
+              2
+            From
+            
+              Bond with <a data-href="Ash" href="https://ironvault.quest/Ash" class="internal-link" target="_self" rel="noopener">Ash</a>
+            
+    
+      <br>```iron-vault-mechanics
 add 2 "Bond with [[Ash]]"
 ```
 Copy<br><br>Adds a regular roll to the move. If used inside a move block, will set its<br>
@@ -238,7 +507,35 @@ result.<br><br>
 <br>adds (optional, default: 0): the total value of the adds
 <br>vs1: the first challenge die
 <br>vs2: the second challenge die
-<br><br>Action die3Stat2Stat nameheartAdds1Score6Challenge die 13Challenge die 27OutcomeWeak hit<br>```iron-vault-mechanics
+<br><br>
+        
+      Action die
+            
+              3
+            Stat
+            
+              2
+            Stat name
+            
+              heart
+            Adds
+            
+              1
+            Score
+            
+              6
+            Challenge die 1
+            
+              3
+            Challenge die 2
+            
+              7
+            Outcome
+            
+              Weak hit
+            
+    
+      <br>```iron-vault-mechanics
 // This will be rendered as a Weak Hit
 roll "heart" action=3 stat=2 adds=1 score=6 vs1=3 vs2=7
 ```
@@ -246,7 +543,26 @@ Copy<br><br>Renders a progress roll. If used inside a move block, will set its r
 <br>score: the number of filled track boxes the progress move is rolling against
 <br>vs1: the first challenge die
 <br>vs2: the second challenge die
-<br><br>Track nameProgress score5Challenge die 16Challenge die 27OutcomeMiss<br>```iron-vault-mechanics
+<br><br>
+        
+      Track name
+            
+              undefined
+            Progress score
+            
+              5
+            Challenge die 1
+            
+              6
+            Challenge die 2
+            
+              7
+            Outcome
+            
+              Miss
+            
+    
+      <br>```iron-vault-mechanics
 // This will render as a Miss on progress
 progress-roll score=5 vs1=6 vs2=7
 ```
@@ -255,7 +571,61 @@ move's result will be automatically updated. It's an error to use this if there'
 <br>action (optional): the new value of the action die
 <br>vs1 (optional): the new value of the first challenge die
 <br>vs2 (optional): the new value of the second challenge die
-<br><br>Face DangerAction die3Stat2Adds1Score6Challenge die 13Challenge die 27OutcomeWeak hitOld action die3New action die6Old challenge die 13New challenge die 15New score9Challenge die 15Challenge die 27OutcomeStrong hit<br>```iron-vault-mechanics
+<br><br>
+        
+      Face Danger
+      
+      Action die
+            
+              3
+            Stat
+            
+              2
+            Adds
+            
+              1
+            Score
+            
+              6
+            Challenge die 1
+            
+              3
+            Challenge die 2
+            
+              7
+            Outcome
+            
+              Weak hit
+            
+    
+      Old action die
+            
+              3
+            New action die
+            
+              6
+            Old challenge die 1
+            
+              3
+            New challenge die 1
+            
+              5
+            New score
+            
+              9
+            Challenge die 1
+            
+              5
+            Challenge die 2
+            
+              7
+            Outcome
+            
+              Strong hit
+            
+    
+    
+      <br>```iron-vault-mechanics
 move "Face Danger" {
     // weak hit (score = 6)
     roll action=3 stat=2 adds=1 vs1=3 vs2=7
@@ -268,18 +638,100 @@ Copy<br><br>Shows meter changes.<br><br>
 <br>name: the name of the meter (e.g. "health")
 <br>from: the starting value of the meter
 <br>to: the ending value of the meter
-<br><br>MeterhealthDelta1From3To2MeterhealthDelta2From2To4<br>```iron-vault-mechanics
+<br><br>
+        
+      Meter
+            
+              health
+            Delta
+            
+              1
+            From
+            
+              3
+            To
+            
+              2
+            
+    
+      Meter
+            
+              health
+            Delta
+            
+              2
+            From
+            
+              2
+            To
+            
+              4
+            
+    
+      <br>```iron-vault-mechanics
 meter "health" from=3 to=2
 meter "health" from=2 to=4
 ```
 Copy<br><br>Burn momentum. Note that for "normal" momentum changes, you should use <a class="internal-link" data-href="#meter" href="https://ironvault.quest/about:blank#meter" target="_self" rel="noopener"><code></code></a>meter instead.<br><br>
 <br>from: the starting momentum amount.
 <br>to: the ending momentum amount.
-<br><br>Face DangerAction die4Stat2Adds0Score6Challenge die 18Challenge die 29OutcomeMiss
+<br><br>
+        
+      Face Danger
+      
+      Action die
+            
+              4
+            Stat
+            
+              2
+            Adds
+            
+              0
+            Score
+            
+              6
+            Challenge die 1
+            
+              8
+            Challenge die 2
+            
+              9
+            Outcome
+            
+              Miss
+            
+    
+      
 ouch
-From9To2New score9Challenge die 18Challenge die 29OutcomeWeak hit
+
+    
+      From
+            
+              9
+            To
+            
+              2
+            New score
+            
+              9
+            Challenge die 1
+            
+              8
+            Challenge die 2
+            
+              9
+            Outcome
+            
+              Weak hit
+            
+    
+      
 that's better...
-<br>```iron-vault-mechanics
+
+    
+    
+      <br>```iron-vault-mechanics
 move "Face Danger" {
     roll action=4 stat=2 adds=0 vs1=8 vs2=9
     - "ouch"
@@ -298,7 +750,32 @@ from-boxes/from-ticks.<br>(not BOA)<br><br>
 filled into the last unfilled box.
 <br>rank - the challenge rank of the progress track (e.g. "formidable", "epic", etc).
 <br>steps (optional, default: 1) - number of times to mark progress.
-<br><br>Track nameI vow to write this documentationSteps2RankformidableFrom boxes3From ticks2To boxes5To ticks2<br>```iron-vault-mechanics
+<br><br>
+        
+      Track name
+            
+              I vow to write this documentation
+            Steps
+            
+              2
+            Rank
+            
+              formidable
+            From boxes
+            
+              3
+            From ticks
+            
+              2
+            To boxes
+            
+              5
+            To ticks
+            
+              2
+            
+    
+      <br>```iron-vault-mechanics
 progress "I vow to write this documentation" from-boxes=3 from-ticks=2 rank="formidable" steps=2
 ```
 Copy<br><br>Marks progress on a progress track. Can be used interchangeably with<br>
@@ -315,14 +792,54 @@ filled into the last unfilled box.
 <br>to-boxes (optional): the ending value of the progress track, in boxes.
 <br>to-ticks (optional): the ending value of the progress track, in ticks<br>
 filled into the last unfilled box.
-<br><br>TrackMy Background VowStatusaddedTrack nameMy Background VowFrom boxes3From ticks2To boxes4To ticks1<br>```iron-vault-mechanics
+<br><br>
+        
+      Track
+            
+              My Background Vow
+            Status
+            
+              added
+            
+    
+      Track name
+            
+              My Background Vow
+            From boxes
+            
+              3
+            From ticks
+            
+              2
+            To boxes
+            
+              4
+            To ticks
+            
+              1
+            
+    
+      <br>```iron-vault-mechanics
 track "My Background Vow" status="added"
 track "My Background Vow" from-boxes=3 from-ticks=2 to-boxes=4 to-ticks=1
 ```
 Copy<br><br>Renders a change (positive or negative) in experience points.<br><br>
 <br>from: the starting number of experience points.
 <br>to: the ending number of experience points.
-<br><br>Delta2From3To5<br>```iron-vault-mechanics
+<br><br>
+        
+      Delta
+            
+              2
+            From
+            
+              3
+            To
+            
+              5
+            
+    
+      <br>```iron-vault-mechanics
 xp from=3 to=5
 ```
 Copy<br><br>Renders a change in a clock.<br><br>
@@ -331,7 +848,34 @@ Copy<br><br>Renders a change in a clock.<br><br>
 <br>from: the starting number of segments filled.
 <br>to: the ending number of segments filled.
 <br>out-of: the total number of segments in the clock.
-<br><br>ClockThe Doomsday Device ExplodesStatusaddedClockThe Doomsday Device ExplodesFrom3Out of from6To5Out of to6<br>```iron-vault-mechanics
+<br><br>
+        
+      Clock
+            
+              The Doomsday Device Explodes
+            Status
+            
+              added
+            
+    
+      Clock
+            
+              The Doomsday Device Explodes
+            From
+            
+              3
+            Out of from
+            
+              6
+            To
+            
+              5
+            Out of to
+            
+              6
+            
+    
+      <br>```iron-vault-mechanics
 clock "The Doomsday Device Explodes" status="added"
 clock "The Doomsday Device Explodes" from=3 to=5 out-of=6
 ```
@@ -339,14 +883,91 @@ Copy<br><br>Records an oracle roll and its result.<br><br>
 <br>name (md): the name of the oracle
 <br>roll: the value of the percentile die roll
 <br>result (md): The resulting value of the oracle roll.
-<br><br>oracle nodes may be nested, meaning you can have oracles inside oracles.<br><br>Name<a data-tooltip-position="top" aria-label="oracle:GivenName" rel="noopener" class="external-link" href="https://ironvault.quest/oracle:GivenName" target="_blank">Character Name &gt; Given Name</a>Roll34ResultEsanaNameSomething elseRoll2Resultfoo<br>```iron-vault-mechanics
+<br><br>oracle nodes may be nested, meaning you can have oracles inside oracles.<br><br>
+        
+      
+      Name
+            
+              <a data-tooltip-position="top" aria-label="oracle:GivenName" rel="noopener" class="external-link" href="https://ironvault.quest/oracle:GivenName" target="_blank">Character Name &gt; Given Name</a>
+            Roll
+            
+              34
+            Result
+            
+              Esana
+            
+    
+      
+      
+      Name
+            
+              Something else
+            Roll
+            
+              2
+            Result
+            
+              foo
+            
+    
+      
+    
+    
+      <br>```iron-vault-mechanics
 oracle "[Character Name &gt; Given Name](oracle:GivenName)" roll=34 result="Esana" {
   oracle "Something else" 2 "foo"
 }
 ```
 Copy<br><br>Utility node for grouping related <a data-tooltip-position="top" aria-label="`oracle`" data-href="#`oracle`" href="https://ironvault.quest/about:blank#`oracle`" class="internal-link" target="_self" rel="noopener">`oracle`</a>s together.<br><br>
 <br>name (md): a label for this group
-<br><br>Any oracle or oracle-group nodes.<br><br>Character NameNameGiven NameRoll30ResultErenNameCallsignRoll72ResultRookNameFamily NameRoll42ResultBridger<br>```iron-vault-mechanics
+<br><br>Any oracle or oracle-group nodes.<br><br>
+        
+      Character Name
+      
+      
+      Name
+            
+              Given Name
+            Roll
+            
+              30
+            Result
+            
+              Eren
+            
+    
+      
+    
+      
+      Name
+            
+              Callsign
+            Roll
+            
+              72
+            Result
+            
+              Rook
+            
+    
+      
+    
+      
+      Name
+            
+              Family Name
+            Roll
+            
+              42
+            Result
+            
+              Bridger
+            
+    
+      
+    
+    
+      <br>```iron-vault-mechanics
 oracle-group "Character Name" {
   oracle "Given Name" roll=30 result="Eren"
   oracle "Callsign" roll=72 result="Rook"
@@ -357,13 +978,36 @@ Copy<br><br>Records additions, removals, and upgrades of character assets.<br><b
 <br>name (md): the name of the asset
 <br>status: the operation being performed on the asset. One of added, removed, upgraded.
 <br>ability (optional): the (1-based) index of the ability being upgraded. This should only be used when status is upgraded.
-<br><br>Asset<a data-tooltip-position="top" aria-label="asset:Empath" rel="noopener" class="external-link" href="https://ironvault.quest/asset:Empath" target="_blank">Empath</a>StatusupgradedAbility1<br>```iron-vault-mechanics
+<br><br>
+        
+      Asset
+            
+              <a data-tooltip-position="top" aria-label="asset:Empath" rel="noopener" class="external-link" href="https://ironvault.quest/asset:Empath" target="_blank">Empath</a>
+            Status
+            
+              upgraded
+            Ability
+            
+              1
+            
+    
+      <br>```iron-vault-mechanics
 asset "[Empath](asset:Empath)" status="upgraded" ability=1
 ```
 Copy<br><br>Records marking and unmarking of impacts.<br><br>
 <br>name (md): the name of the impact
 <br>marked: the new status of the impact. true or false.
-<br><br>ImpactPermanently HarmedStatustrue<br>```iron-vault-mechanics
+<br><br>
+        
+      Impact
+            
+              Permanently Harmed
+            Status
+            
+              true
+            
+    
+      <br>```iron-vault-mechanics
 impact "Permanently Harmed" true
 ```
 Copy<br><br>Records changes in the initiative or position in a combat. Initiative is an Ironsworn concept and Position ("in control"/"in a bad spot") is a Starforged concept. Both initiative and position nodes are provided but they have identical semantics and accept the same arguments.<br>Valid initiative values are:<br>
@@ -375,7 +1019,25 @@ Copy<br><br>Records changes in the initiative or position in a combat. Initiativ
 <br><br>
 <br>from: starting initiative value
 <br>to: new initiative value
-<br><br>FromHas initiativeToNo initiativeFromIn a bad spotToOut of combat<br>```iron-vault-mechanics
+<br><br>
+        
+      From
+            
+              Has initiative
+            To
+            
+              No initiative
+            
+    
+      From
+            
+              In a bad spot
+            To
+            
+              Out of combat
+            
+    
+      <br>```iron-vault-mechanics
 initiative "has initiative" "no initiative"
 position from="in a bad spot" to="out of combat"
 ```
@@ -4513,9 +5175,36 @@ Copy<br>Will generate something that looks like this:<br><br>Truths.md<br><br>
 <br><a data-href="Suffer on a meter" href="https://ironvault.quest/commands/suffer-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Suffer on a meter</a>
 <br><a data-href="Take on a meter" href="https://ironvault.quest/commands/take-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Take on a meter</a>
 <br><a data-href="Toggle displaying mechanics" href="https://ironvault.quest/commands/toggle-displaying-mechanics.html" class="internal-link" target="_self" rel="noopener">Toggle displaying mechanics</a>
-<br><br>Many commands have some mechanical effect, but additionally "add a mechanics entry to your journal". Right now, the "current journal" is determined simply by whatever file you have open when the command was invoked. That means that if you're looking at an <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://ironvault.quest/entities/index.html" class="internal-link" target="_self" rel="noopener">Entity</a> file, the command result will get appended to that file, not your "actual" journal.<br>(Coming Soon)<br>Since the above can be a bit of a footgun, Iron Vault will eventually add a system for tagging or otherwise tracking what your actual journals are, so that commands make a better effort of inserting their results.]]></description><link>https://ironvault.quest/commands/index.html</link><guid isPermaLink="false">Commands/index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 12 Jul 2024 05:00:46 GMT</pubDate></item><item><title><![CDATA[Add asset to character]]></title><description><![CDATA[ 
+<br><br>Many commands have some mechanical effect, but additionally "add a mechanics entry to your journal". Right now, the "current journal" is determined simply by whatever file you have open when the command was invoked. That means that if you're looking at an <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://ironvault.quest/entities/index.html" class="internal-link" target="_self" rel="noopener">Entity</a> file, the command result will get appended to that file, not your "actual" journal.<br>(Coming Soon)<br>Since the above can be a bit of a footgun, Iron Vault will eventually add a system for tagging or otherwise tracking what your actual journals are, so that commands make a better effort of inserting their results.]]></description><link>https://ironvault.quest/commands/index.html</link><guid isPermaLink="false">Commands/index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 14 Jul 2024 17:43:16 GMT</pubDate></item><item><title><![CDATA[Add asset to character]]></title><description><![CDATA[ 
  <br>Adds an <a data-tooltip-position="top" aria-label="Assets" data-href="Assets" href="https://ironvault.quest/entities/assets.html" class="internal-link" target="_self" rel="noopener">Asset</a> to your <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a>. The command will prompt you for an asset to add, letting you filter your choice from all available assets in your active <a data-href="Rulesets and Homebrew" href="https://ironvault.quest/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>.<br>This asset will have default settings and will appear in your character sheet, where you can then customize it as needed.]]></description><link>https://ironvault.quest/commands/add-asset-to-character.html</link><guid isPermaLink="false">Commands/Add asset to character.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 22 Jun 2024 02:34:03 GMT</pubDate></item><item><title><![CDATA[Advance a clock]]></title><description><![CDATA[ 
- <br>Advances a <a data-tooltip-position="top" aria-label="Clocks" data-href="Clocks" href="https://ironvault.quest/entities/clocks.html" class="internal-link" target="_self" rel="noopener">Clock</a>, modifying its frontmatter, and inserts a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `clock`" data-href="Mechanics Blocks#`clock`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`clock`" class="internal-link" target="_self" rel="noopener">`clock` mechanics node</a> into your active journal. Clocks which are already filled, or which are completed, cannot be advanced (and will not show up at all in the picker for the command).<br>Advancing a Clock to completion will not automatically be marked as closed. In keeping with the spirit of Iron Vault letting the player take care of actual mechanics instead of playing the game for them, this is left up to you to manage as you see fit.<br><br><br><br>ClockThe Doomsday Device ExplodesStatusaddedClockThe Doomsday Device ExplodesFrom3Out of from6To5Out of to6<br>```iron-vault-mechanics
+ <br>Advances a <a data-tooltip-position="top" aria-label="Clocks" data-href="Clocks" href="https://ironvault.quest/entities/clocks.html" class="internal-link" target="_self" rel="noopener">Clock</a>, modifying its frontmatter, and inserts a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `clock`" data-href="Mechanics Blocks#`clock`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`clock`" class="internal-link" target="_self" rel="noopener">`clock` mechanics node</a> into your active journal. Clocks which are already filled, or which are completed, cannot be advanced (and will not show up at all in the picker for the command).<br>Advancing a Clock to completion will not automatically be marked as closed. In keeping with the spirit of Iron Vault letting the player take care of actual mechanics instead of playing the game for them, this is left up to you to manage as you see fit.<br><br><br><br>
+        
+      Clock
+            
+              The Doomsday Device Explodes
+            Status
+            
+              added
+            
+    
+      Clock
+            
+              The Doomsday Device Explodes
+            From
+            
+              3
+            Out of from
+            
+              6
+            To
+            
+              5
+            Out of to
+            
+              6
+            
+    
+      <br>```iron-vault-mechanics
 clock "The Doomsday Device Explodes" status="added"
 clock "The Doomsday Device Explodes" from=3 to=5 out-of=6
 ```
@@ -4538,7 +5227,32 @@ Doomsday Device<br><br>
         
       
     ]]></description><link>https://ironvault.quest/commands/advance-a-clock.html</link><guid isPermaLink="false">Commands/Advance a clock.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Advance a progress track]]></title><description><![CDATA[ 
- <br>Advances a <a data-tooltip-position="top" aria-label="Progress Tracks" data-href="Progress Tracks" href="https://ironvault.quest/entities/progress-tracks.html" class="internal-link" target="_self" rel="noopener">Progress Track</a>, modifying its frontmatter, and inserts a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `progress`" data-href="Mechanics Blocks#`progress`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`progress`" class="internal-link" target="_self" rel="noopener">`progress` mechanic node</a> into your active journal. Progress Tracks which are already filled, or which are completed, cannot be advanced (and will not show up at all in the picker for the command).<br><br><br><br>Track nameI vow to write this documentationSteps2RankformidableFrom boxes3From ticks2To boxes5To ticks2<br>```iron-vault-mechanics
+ <br>Advances a <a data-tooltip-position="top" aria-label="Progress Tracks" data-href="Progress Tracks" href="https://ironvault.quest/entities/progress-tracks.html" class="internal-link" target="_self" rel="noopener">Progress Track</a>, modifying its frontmatter, and inserts a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `progress`" data-href="Mechanics Blocks#`progress`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`progress`" class="internal-link" target="_self" rel="noopener">`progress` mechanic node</a> into your active journal. Progress Tracks which are already filled, or which are completed, cannot be advanced (and will not show up at all in the picker for the command).<br><br><br><br>
+        
+      Track name
+            
+              I vow to write this documentation
+            Steps
+            
+              2
+            Rank
+            
+              formidable
+            From boxes
+            
+              3
+            From ticks
+            
+              2
+            To boxes
+            
+              5
+            To ticks
+            
+              2
+            
+    
+      <br>```iron-vault-mechanics
 progress "I vow to write this documentation" from-boxes=3 from-ticks=2 rank="formidable" steps=2
 ```
 Copy<br>
@@ -4586,17 +5300,99 @@ Write the Docs<br><br>
       
     
   ]]></description><link>https://ironvault.quest/commands/advance-a-progress-track.html</link><guid isPermaLink="false">Commands/Advance a progress track.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Ask the Oracle]]></title><description><![CDATA[ 
- <br>This command lets you pick an <a data-tooltip-position="top" aria-label="Oracles" data-href="Oracles" href="https://ironvault.quest/entities/oracles.html" class="internal-link" target="_self" rel="noopener">Oracle</a> to roll, and will then record the result in your active journal. When invoked through the <a data-tooltip-position="top" aria-label="Sidebar > Oracles Tab" data-href="Sidebar#Oracles Tab" href="https://ironvault.quest/other-features/sidebar.html#Oracles_Tab" class="internal-link" target="_self" rel="noopener">Sidebar</a>, it won't prompt you for what Oracle to roll.<br>If you want to Ask the Oracle in order to roll an <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://ironvault.quest/entities/index.html" class="internal-link" target="_self" rel="noopener">Entity</a>, you can use the <a data-href="Generate an entity" href="https://ironvault.quest/commands/generate-an-entity.html" class="internal-link" target="_self" rel="noopener">Generate an entity</a> command to roll its Oracle Group together, with First Look logic and such.<br><br><br><br>Name<a data-tooltip-position="top" aria-label="oracle:GivenName" rel="noopener" class="external-link" href="https://ironvault.quest/oracle:GivenName" target="_blank">Character Name &gt; Given Name</a>Roll34ResultEsanaNameSomething elseRoll2Resultfoo<br>```iron-vault-mechanics
+ <br>This command lets you pick an <a data-tooltip-position="top" aria-label="Oracles" data-href="Oracles" href="https://ironvault.quest/entities/oracles.html" class="internal-link" target="_self" rel="noopener">Oracle</a> to roll, and will then record the result in your active journal. When invoked through the <a data-tooltip-position="top" aria-label="Sidebar > Oracles Tab" data-href="Sidebar#Oracles Tab" href="https://ironvault.quest/other-features/sidebar.html#Oracles_Tab" class="internal-link" target="_self" rel="noopener">Sidebar</a>, it won't prompt you for what Oracle to roll.<br>If you want to Ask the Oracle in order to roll an <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://ironvault.quest/entities/index.html" class="internal-link" target="_self" rel="noopener">Entity</a>, you can use the <a data-href="Generate an entity" href="https://ironvault.quest/commands/generate-an-entity.html" class="internal-link" target="_self" rel="noopener">Generate an entity</a> command to roll its Oracle Group together, with First Look logic and such.<br><br><br><br>
+        
+      
+      Name
+            
+              <a data-tooltip-position="top" aria-label="oracle:GivenName" rel="noopener" class="external-link" href="https://ironvault.quest/oracle:GivenName" target="_blank">Character Name &gt; Given Name</a>
+            Roll
+            
+              34
+            Result
+            
+              Esana
+            
+    
+      
+      
+      Name
+            
+              Something else
+            Roll
+            
+              2
+            Result
+            
+              foo
+            
+    
+      
+    
+    
+      <br>```iron-vault-mechanics
 oracle "[Character Name &gt; Given Name](oracle:GivenName)" roll=34 result="Esana" {
   oracle "Something else" 2 "foo"
 }
 ```
 Copy]]></description><link>https://ironvault.quest/commands/ask-the-oracle.html</link><guid isPermaLink="false">Commands/Ask the Oracle.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 11 Jun 2024 04:17:52 GMT</pubDate></item><item><title><![CDATA[Burn momentum]]></title><description><![CDATA[ 
- <br>Burns momentum, resetting your <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a>'s momentum to their momentum reset value, and replacing the action value of the last action roll with your previous momentum value, then it records this operation in your current journal with a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `burn`" data-href="Mechanics Blocks#`burn`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`burn`" class="internal-link" target="_self" rel="noopener">`burn` mechanics node</a>. If done after <a data-href="Make a move" href="https://ironvault.quest/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a>, this will automatically change the result of the roll.<br>This command can only be used when you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://ironvault.quest/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, and thus requires an actual <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a> to work at all.<br>If you don't want to use the Character System but still want to record burning momentum, you can write the <a data-tooltip-position="top" aria-label="Mechanics Blocks > `burn`" data-href="Mechanics Blocks#`burn`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`burn`" class="internal-link" target="_self" rel="noopener">`burn` mechanics node</a> directly into your journal, and it will also alter the displayed Move result.<br><br><br><br>Face DangerAction die4Stat2Adds0Score6Challenge die 18Challenge die 29OutcomeMiss
+ <br>Burns momentum, resetting your <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a>'s momentum to their momentum reset value, and replacing the action value of the last action roll with your previous momentum value, then it records this operation in your current journal with a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `burn`" data-href="Mechanics Blocks#`burn`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`burn`" class="internal-link" target="_self" rel="noopener">`burn` mechanics node</a>. If done after <a data-href="Make a move" href="https://ironvault.quest/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a>, this will automatically change the result of the roll.<br>This command can only be used when you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://ironvault.quest/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, and thus requires an actual <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a> to work at all.<br>If you don't want to use the Character System but still want to record burning momentum, you can write the <a data-tooltip-position="top" aria-label="Mechanics Blocks > `burn`" data-href="Mechanics Blocks#`burn`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`burn`" class="internal-link" target="_self" rel="noopener">`burn` mechanics node</a> directly into your journal, and it will also alter the displayed Move result.<br><br><br><br>
+        
+      Face Danger
+      
+      Action die
+            
+              4
+            Stat
+            
+              2
+            Adds
+            
+              0
+            Score
+            
+              6
+            Challenge die 1
+            
+              8
+            Challenge die 2
+            
+              9
+            Outcome
+            
+              Miss
+            
+    
+      
 ouch
-From9To2New score9Challenge die 18Challenge die 29OutcomeWeak hit
+
+    
+      From
+            
+              9
+            To
+            
+              2
+            New score
+            
+              9
+            Challenge die 1
+            
+              8
+            Challenge die 2
+            
+              9
+            Outcome
+            
+              Weak hit
+            
+    
+      
 that's better...
-<br>```iron-vault-mechanics
+
+    
+    
+      <br>```iron-vault-mechanics
 move "Face Danger" {
     roll action=4 stat=2 adds=0 vs1=8 vs2=9
     - "ouch"
@@ -4605,8 +5401,35 @@ move "Face Danger" {
 }
 ```
 Copy]]></description><link>https://ironvault.quest/commands/burn-momentum.html</link><guid isPermaLink="false">Commands/Burn momentum.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Change position or initiative]]></title><description><![CDATA[ 
- <br>Changes the initiative status for the active character.<br>When Ironsworn is enabled, this will be "Has initiative"/"No initiative"/"Out of combat".<br>When Starforged is enabled, this will be "In control"/"In a bad spot"/"Out of combat".<br>When both are enabled, it will be both with a / between them.<br>The new position will be added to the journal, and changed in the position dropdown in the character sheet.]]></description><link>https://ironvault.quest/commands/change-position-or-initiative.html</link><guid isPermaLink="false">Commands/Change position or initiative.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 12 Jul 2024 05:00:46 GMT</pubDate></item><item><title><![CDATA[Create a clock]]></title><description><![CDATA[ 
- <br>Creates a <a data-tooltip-position="top" aria-label="Entities/Clocks" data-href="Entities/Clocks" href="https://ironvault.quest/entities/clocks.html" class="internal-link" target="_self" rel="noopener">Clock</a> file and appends a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `clock`" data-href="Mechanics Blocks#`clock`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`clock`" class="internal-link" target="_self" rel="noopener">`clock` mechanics node</a> to the current journal. The Clock file will have all necessary frontmatter for commands like <a data-href="Advance a clock" href="https://ironvault.quest/commands/advance-a-clock.html" class="internal-link" target="_self" rel="noopener">Advance a clock</a> to work.<br>This command will also write a <a data-tooltip-position="top" aria-label="Clock Blocks" data-href="Clock Blocks" href="https://ironvault.quest/blocks/clock-blocks.html" class="internal-link" target="_self" rel="noopener">Clock Block</a> to the newly-made Clock file:<br><br><br><br>ClockThe Doomsday Device ExplodesStatusaddedClockThe Doomsday Device ExplodesFrom3Out of from6To5Out of to6<br>```iron-vault-mechanics
+ <br>Changes the initiative status for the active character.<br>When Ironsworn is enabled, this will be "Has initiative"/"No initiative"/"Out of combat".<br>When Starforged is enabled, this will be "In control"/"In a bad spot"/"Out of combat".<br>When both are enabled, it will be both with a / between them.<br>The new position will be added to the journal, and changed in the position dropdown in the character sheet.]]></description><link>https://ironvault.quest/commands/change-position-or-initiative.html</link><guid isPermaLink="false">Commands/Change position or initiative.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 14 Jul 2024 17:43:16 GMT</pubDate></item><item><title><![CDATA[Create a clock]]></title><description><![CDATA[ 
+ <br>Creates a <a data-tooltip-position="top" aria-label="Entities/Clocks" data-href="Entities/Clocks" href="https://ironvault.quest/entities/clocks.html" class="internal-link" target="_self" rel="noopener">Clock</a> file and appends a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `clock`" data-href="Mechanics Blocks#`clock`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`clock`" class="internal-link" target="_self" rel="noopener">`clock` mechanics node</a> to the current journal. The Clock file will have all necessary frontmatter for commands like <a data-href="Advance a clock" href="https://ironvault.quest/commands/advance-a-clock.html" class="internal-link" target="_self" rel="noopener">Advance a clock</a> to work.<br>This command will also write a <a data-tooltip-position="top" aria-label="Clock Blocks" data-href="Clock Blocks" href="https://ironvault.quest/blocks/clock-blocks.html" class="internal-link" target="_self" rel="noopener">Clock Block</a> to the newly-made Clock file:<br><br><br><br>
+        
+      Clock
+            
+              The Doomsday Device Explodes
+            Status
+            
+              added
+            
+    
+      Clock
+            
+              The Doomsday Device Explodes
+            From
+            
+              3
+            Out of from
+            
+              6
+            To
+            
+              5
+            Out of to
+            
+              6
+            
+    
+      <br>```iron-vault-mechanics
 clock "The Doomsday Device Explodes" status="added"
 clock "The Doomsday Device Explodes" from=3 to=5 out-of=6
 ```
@@ -4628,8 +5451,36 @@ Doomsday Device<br><br>
             
         
       
-    ]]></description><link>https://ironvault.quest/commands/create-a-clock.html</link><guid isPermaLink="false">Commands/Create a clock.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Create a progress track]]></title><description><![CDATA[ 
- <br>Creates a <a data-tooltip-position="top" aria-label="Progress Tracks" data-href="Progress Tracks" href="https://ironvault.quest/entities/progress-tracks.html" class="internal-link" target="_self" rel="noopener">Progress Track</a> file and appends a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `track`" data-href="Mechanics Blocks#`track`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`track`" class="internal-link" target="_self" rel="noopener">`track` mechanics node</a> to the current journal. The Progress Track file will have all necessary frontmatter for commands like <a data-href="Advance a progress track" href="https://ironvault.quest/commands/advance-a-progress-track.html" class="internal-link" target="_self" rel="noopener">Advance a progress track</a> to work.<br>This command will also append a <a data-tooltip-position="top" aria-label="Track Blocks" data-href="Track Blocks" href="https://ironvault.quest/blocks/track-blocks.html" class="internal-link" target="_self" rel="noopener">Track Block</a> to the newly-made Progress Track file.<br><br><br><br>TrackMy Background VowStatusaddedTrack nameMy Background VowFrom boxes3From ticks2To boxes4To ticks1<br>```iron-vault-mechanics
+    ]]></description><link>https://ironvault.quest/commands/create-a-clock.html</link><guid isPermaLink="false">Commands/Create a clock.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Create a new campaign]]></title><description><![CDATA[ 
+ <br>Use this command to create a new <a data-tooltip-position="top" aria-label="Campaigns" data-href="Campaigns" href="https://ironvault.quest/other-features/campaigns.html" class="internal-link" target="_self" rel="noopener">campaign</a> in your vault.<br><img alt="Create a new campaign.png" src="https://ironvault.quest/lib/media/create-a-new-campaign.png" style="width: 500px; max-width: 100%;"><br>The command will create a folder and a file representing your campaign. You can use the campaign file as a home page for your campaign-- the important data for Iron Vault is stored in the frontmatter. Use caution when editing the frontmatter.]]></description><link>https://ironvault.quest/commands/create-a-new-campaign.html</link><guid isPermaLink="false">Commands/Create a new campaign.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 16 Jul 2024 02:22:25 GMT</pubDate><enclosure url="https://ironvault.quest/lib/media/create-a-new-campaign.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/lib/media/create-a-new-campaign.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[Create a progress track]]></title><description><![CDATA[ 
+ <br>Creates a <a data-tooltip-position="top" aria-label="Progress Tracks" data-href="Progress Tracks" href="https://ironvault.quest/entities/progress-tracks.html" class="internal-link" target="_self" rel="noopener">Progress Track</a> file and appends a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `track`" data-href="Mechanics Blocks#`track`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`track`" class="internal-link" target="_self" rel="noopener">`track` mechanics node</a> to the current journal. The Progress Track file will have all necessary frontmatter for commands like <a data-href="Advance a progress track" href="https://ironvault.quest/commands/advance-a-progress-track.html" class="internal-link" target="_self" rel="noopener">Advance a progress track</a> to work.<br>This command will also append a <a data-tooltip-position="top" aria-label="Track Blocks" data-href="Track Blocks" href="https://ironvault.quest/blocks/track-blocks.html" class="internal-link" target="_self" rel="noopener">Track Block</a> to the newly-made Progress Track file.<br><br><br><br>
+        
+      Track
+            
+              My Background Vow
+            Status
+            
+              added
+            
+    
+      Track name
+            
+              My Background Vow
+            From boxes
+            
+              3
+            From ticks
+            
+              2
+            To boxes
+            
+              4
+            To ticks
+            
+              1
+            
+    
+      <br>```iron-vault-mechanics
 track "My Background Vow" status="added"
 track "My Background Vow" from-boxes=3 from-ticks=2 to-boxes=4 to-ticks=1
 ```
@@ -4681,9 +5532,79 @@ Write the Docs<br><br>
  <br>Generates a new (PC) character with all the necessary frontmatter fields necessary for Iron Vault features like the <a data-href="Make a move" href="https://ironvault.quest/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a> and <a data-href="Add asset to character" href="https://ironvault.quest/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">Add asset to character</a> commands to work.<br>Additionally, it will write a <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://ironvault.quest/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">Character Block</a> character sheet to the file.<br><img alt="character-sheet.png" src="https://ironvault.quest/lib/media/character-sheet.png">]]></description><link>https://ironvault.quest/commands/create-new-character.html</link><guid isPermaLink="false">Commands/Create new character.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate><enclosure url="https://ironvault.quest/lib/media/character-sheet.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/lib/media/character-sheet.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[Generate an entity]]></title><description><![CDATA[ 
  <br>This command is similar to <a data-href="Ask the Oracle" href="https://ironvault.quest/commands/ask-the-oracle.html" class="internal-link" target="_self" rel="noopener">Ask the Oracle</a>, except that instead of rolling a single Oracle, it pops up a window that will let you roll multiple related Oracles together to generate a new <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://ironvault.quest/entities/index.html" class="internal-link" target="_self" rel="noopener">Entity</a>. You can choose to roll all fields indicated as "first look" fields in the rulebook and/or you can roll individual fields. You can also choose whether to write the results into a new file representing that Entity. In any event, the rolls you choose will be logged in an <a data-tooltip-position="top" aria-label="Mechanics Blocks > oracle-group" data-href="Mechanics Blocks#oracle-group" href="https://ironvault.quest/blocks/mechanics-blocks.html#oracle-group" class="internal-link" target="_self" rel="noopener">oracle group node</a> in your journal.<br>You can also execute this command by clicking on the button with a die icon that appears when you open a category in the <a data-tooltip-position="top" aria-label="Sidebar > Oracles Tab" data-href="Sidebar#Oracles Tab" href="https://ironvault.quest/other-features/sidebar.html#Oracles_Tab" class="internal-link" target="_self" rel="noopener">Sidebar's Oracles Tab</a>.<br>Only some Entities are currently supported, with more being added over time.]]></description><link>https://ironvault.quest/commands/generate-an-entity.html</link><guid isPermaLink="false">Commands/Generate an entity.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Thu, 20 Jun 2024 05:39:57 GMT</pubDate></item><item><title><![CDATA[Generate Truths]]></title><description><![CDATA[ 
  <br>Generates a <a data-href="Truths" href="https://ironvault.quest/entities/truths.html" class="internal-link" target="_self" rel="noopener">Truths</a> file with headers for each Truth in your current <a data-href="Rulesets and Homebrew" href="https://ironvault.quest/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>, followed by corresponding <a data-href="Truth Blocks" href="https://ironvault.quest/blocks/truth-blocks.html" class="internal-link" target="_self" rel="noopener">Truth Blocks</a>.<br>See <a data-tooltip-position="top" aria-label="Truth Blocks > Example" data-href="Truth Blocks#Example" href="https://ironvault.quest/blocks/truth-blocks.html#Example" class="internal-link" target="_self" rel="noopener">the Truth Blocks example</a> for more information on how to interact with them once generated.]]></description><link>https://ironvault.quest/commands/generate-truths.html</link><guid isPermaLink="false">Commands/Generate Truths.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 22 Jun 2024 02:34:03 GMT</pubDate></item><item><title><![CDATA[Make a move]]></title><description><![CDATA[ 
- <br>Makes a Move based on the Moves available in the active <a data-tooltip-position="top" aria-label="Rulesets and Homebrew" data-href="Rulesets and Homebrew" href="https://ironvault.quest/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>. If you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://ironvault.quest/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, rollable moves will use values from your character sheet for your Stats. Otherwise, it will prompt you for the relevant Stat value. It will also prompt you for which Stat to roll as necessary.<br>When the Move has been made, the command will add a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `move`" data-href="Mechanics Blocks#`move`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`move`" class="internal-link" target="_self" rel="noopener">`move` mechanics node</a> with the Move results into your current journal.<br>After it's made, you can also choose to invoke the <a data-href="Burn momentum" href="https://ironvault.quest/commands/burn-momentum.html" class="internal-link" target="_self" rel="noopener">Burn momentum</a> command.<br><br><br><br>Face DangerAction die6Stat3Adds0Score9Challenge die 18Challenge die 29OutcomeWeak hit
+ <br>Makes a Move based on the Moves available in the active <a data-tooltip-position="top" aria-label="Rulesets and Homebrew" data-href="Rulesets and Homebrew" href="https://ironvault.quest/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>. If you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://ironvault.quest/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, rollable moves will use values from your character sheet for your Stats. Otherwise, it will prompt you for the relevant Stat value. It will also prompt you for which Stat to roll as necessary.<br>When the Move has been made, the command will add a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `move`" data-href="Mechanics Blocks#`move`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`move`" class="internal-link" target="_self" rel="noopener">`move` mechanics node</a> with the Move results into your current journal.<br>After it's made, you can also choose to invoke the <a data-href="Burn momentum" href="https://ironvault.quest/commands/burn-momentum.html" class="internal-link" target="_self" rel="noopener">Burn momentum</a> command.<br><br><br><br>
+        
+      Face Danger
+      
+      Action die
+            
+              6
+            Stat
+            
+              3
+            Adds
+            
+              0
+            Score
+            
+              9
+            Challenge die 1
+            
+              8
+            Challenge die 2
+            
+              9
+            Outcome
+            
+              Weak hit
+            
+    
+      
 ouch
-Endure HarmMeterhealthDelta1From3To2Action die3Stat4Adds0Score7Challenge die 13Challenge die 25OutcomeStrong hit<br>```iron-vault-mechanics
+
+    
+    
+      Endure Harm
+      
+      Meter
+            
+              health
+            Delta
+            
+              1
+            From
+            
+              3
+            To
+            
+              2
+            
+    
+      Action die
+            
+              3
+            Stat
+            
+              4
+            Adds
+            
+              0
+            Score
+            
+              7
+            Challenge die 1
+            
+              3
+            Challenge die 2
+            
+              5
+            Outcome
+            
+              Strong hit
+            
+    
+    
+      <br>```iron-vault-mechanics
 move "Face Danger" {
     roll action=6 stat=3 adds=0 vs1=8 vs2=9
     - "ouch"
@@ -4698,27 +5619,118 @@ Copy<br><br>For some moves, like suffer moves, making a roll is sometimes option
 <br>Use other commands, such as <a data-href="Suffer on a meter" href="https://ironvault.quest/commands/suffer-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Suffer on a meter</a>, to add other entries to the Endure Harm node.
 <br>Finally, if you decide you wish to make the Endure Harm roll, run <a data-href="Make an action roll" href="https://ironvault.quest/commands/make-an-action-roll.html" class="internal-link" target="_self" rel="noopener">Make an action roll</a>. It will detect that the last move was Endure Harm and prompt you appropriately. The roll will be added to your Endure Harm block!
 ]]></description><link>https://ironvault.quest/commands/make-a-move.html</link><guid isPermaLink="false">Commands/Make a move.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Mon, 01 Jul 2024 23:27:51 GMT</pubDate></item><item><title><![CDATA[Make an action roll]]></title><description><![CDATA[ 
- <br>Action die6Stat2Stat nameedgeAdds0Score8Challenge die 19Challenge die 25OutcomeWeak hit<br>If you Make an action roll right after an empty move, Make an action roll will add the roll to that move, rather than making it a freestanding top-level entry. As described in <a data-href="Make a move#Skipping action move rolls" href="https://ironvault.quest/commands/make-a-move.html#Skipping_action_move_rolls" class="internal-link" target="_self" rel="noopener">Make a move &gt; Skipping action move rolls</a>, this is useful for using suffer moves like "Endure Harm", if you wish to record the meter change under the move heading and then decide whether you want to make the roll to prevent the harm.]]></description><link>https://ironvault.quest/commands/make-an-action-roll.html</link><guid isPermaLink="false">Commands/Make an action roll.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 07 Jul 2024 18:01:47 GMT</pubDate></item><item><title><![CDATA[Open documentation in a tab]]></title><description><![CDATA[ 
+ <br>
+        
+      Action die
+            
+              6
+            Stat
+            
+              2
+            Stat name
+            
+              edge
+            Adds
+            
+              0
+            Score
+            
+              8
+            Challenge die 1
+            
+              9
+            Challenge die 2
+            
+              5
+            Outcome
+            
+              Weak hit
+            
+    
+      <br>If you Make an action roll right after an empty move, Make an action roll will add the roll to that move, rather than making it a freestanding top-level entry. As described in <a data-href="Make a move#Skipping action move rolls" href="https://ironvault.quest/commands/make-a-move.html#Skipping_action_move_rolls" class="internal-link" target="_self" rel="noopener">Make a move &gt; Skipping action move rolls</a>, this is useful for using suffer moves like "Endure Harm", if you wish to record the meter change under the move heading and then decide whether you want to make the roll to prevent the harm.]]></description><link>https://ironvault.quest/commands/make-an-action-roll.html</link><guid isPermaLink="false">Commands/Make an action roll.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 07 Jul 2024 18:01:47 GMT</pubDate></item><item><title><![CDATA[Open documentation in a tab]]></title><description><![CDATA[ 
  <br>Running this command will open the Iron Vault documentation (at <a data-tooltip-position="top" aria-label="index" data-href="index" href="https://ironvault.quest/index.html" class="internal-link" target="_self" rel="noopener">Home</a>) in a new Obsidian tab, keeping everything right within Obsidian.<br>To open docs in a browser, you can use the <a data-href="Open documentation in your browser" href="https://ironvault.quest/commands/open-documentation-in-your-browser.html" class="internal-link" target="_self" rel="noopener">Open documentation in your browser</a> command.]]></description><link>https://ironvault.quest/commands/open-documentation-in-a-tab.html</link><guid isPermaLink="false">Commands/Open documentation in a tab.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 18 Jun 2024 02:06:27 GMT</pubDate></item><item><title><![CDATA[Open documentation in your browser]]></title><description><![CDATA[ 
  <br>Opens the Iron Vault documentation (at <a data-tooltip-position="top" aria-label="index" data-href="index" href="https://ironvault.quest/index.html" class="internal-link" target="_self" rel="noopener">Home</a>) in your default browser.<br>If you want to stay inside Obsidian, you can instead open the docs in a new tab using the <a data-href="Open documentation in a tab" href="https://ironvault.quest/commands/open-documentation-in-a-tab.html" class="internal-link" target="_self" rel="noopener">Open documentation in a tab</a> command.]]></description><link>https://ironvault.quest/commands/open-documentation-in-your-browser.html</link><guid isPermaLink="false">Commands/Open documentation in your browser.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 18 Jun 2024 02:06:27 GMT</pubDate></item><item><title><![CDATA[Pick active character]]></title><description><![CDATA[ 
- <br>This command will open up a menu that will allow you to change the current active <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Character</a> when multiple characters are present in a vault.]]></description><link>https://ironvault.quest/commands/pick-active-character.html</link><guid isPermaLink="false">Commands/Pick active character.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 07 Jul 2024 18:01:47 GMT</pubDate></item><item><title><![CDATA[Show all commands]]></title><description><![CDATA[ 
+ <br>This command will open up a menu that will allow you to change the current active <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Character</a> when multiple characters are present in the <a data-tooltip-position="top" aria-label="Campaigns" data-href="Campaigns" href="https://ironvault.quest/other-features/campaigns.html" class="internal-link" target="_self" rel="noopener">active campaign</a>.]]></description><link>https://ironvault.quest/commands/pick-active-character.html</link><guid isPermaLink="false">Commands/Pick active character.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 16 Jul 2024 02:22:25 GMT</pubDate></item><item><title><![CDATA[Show all commands]]></title><description><![CDATA[ 
  <br>This command invokes popup window with a list of Iron Vault commands only. It's like the regular command picker, but only for Iron Vault commands.]]></description><link>https://ironvault.quest/commands/show-all-commands.html</link><guid isPermaLink="false">Commands/Show all commands.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 06:10:20 GMT</pubDate></item><item><title><![CDATA[Show sidebar]]></title><description><![CDATA[ 
  <br>This command opens and focuses the Iron Vault <a data-href="Sidebar" href="https://ironvault.quest/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener">Sidebar</a>.]]></description><link>https://ironvault.quest/commands/show-sidebar.html</link><guid isPermaLink="false">Commands/Show sidebar.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 06:10:20 GMT</pubDate></item><item><title><![CDATA[Suffer on a meter]]></title><description><![CDATA[ 
- <br>Reduces one of your Meters by a certain amount, then records the results in your current journal as a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `meter`" data-href="Mechanics Blocks#`meter`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`meter`" class="internal-link" target="_self" rel="noopener">`meter` mechanics node</a>.<br>This command can only be used when you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://ironvault.quest/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, and thus requires an actual <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a> to work at all.<br>If you don't want to use the Character System but still want to record suffering on a meter, you can write the <a data-tooltip-position="top" aria-label="Mechanics Blocks > `meter`" data-href="Mechanics Blocks#`meter`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`meter`" class="internal-link" target="_self" rel="noopener">`meter` mechanics node</a> directly into your journal.<br><br><br><br>MeterhealthDelta1From3To2MeterhealthDelta2From2To4<br>```iron-vault-mechanics
+ <br>Reduces one of your Meters by a certain amount, then records the results in your current journal as a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `meter`" data-href="Mechanics Blocks#`meter`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`meter`" class="internal-link" target="_self" rel="noopener">`meter` mechanics node</a>.<br>This command can only be used when you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://ironvault.quest/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, and thus requires an actual <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a> to work at all.<br>If you don't want to use the Character System but still want to record suffering on a meter, you can write the <a data-tooltip-position="top" aria-label="Mechanics Blocks > `meter`" data-href="Mechanics Blocks#`meter`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`meter`" class="internal-link" target="_self" rel="noopener">`meter` mechanics node</a> directly into your journal.<br><br><br><br>
+        
+      Meter
+            
+              health
+            Delta
+            
+              1
+            From
+            
+              3
+            To
+            
+              2
+            
+    
+      Meter
+            
+              health
+            Delta
+            
+              2
+            From
+            
+              2
+            To
+            
+              4
+            
+    
+      <br>```iron-vault-mechanics
 meter "health" from=3 to=2
 meter "health" from=2 to=4
 ```
 Copy]]></description><link>https://ironvault.quest/commands/suffer-on-a-meter.html</link><guid isPermaLink="false">Commands/Suffer on a meter.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Take on a meter]]></title><description><![CDATA[ 
- <br>Increases one of your Meters by a certain amount, then records the results in your current journal as a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `meter`" data-href="Mechanics Blocks#`meter`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`meter`" class="internal-link" target="_self" rel="noopener">`meter` mechanics node</a>.<br>This command can only be used when you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://ironvault.quest/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, and thus requires an actual <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a> to work at all.<br>If you don't want to use the Character System but still want to record suffering on a meter, you can write the <a data-tooltip-position="top" aria-label="Mechanics Blocks > `meter`" data-href="Mechanics Blocks#`meter`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`meter`" class="internal-link" target="_self" rel="noopener">`meter` mechanics node</a> directly into your journal.<br><br><br><br>MeterhealthDelta1From3To2MeterhealthDelta2From2To4<br>```iron-vault-mechanics
+ <br>Increases one of your Meters by a certain amount, then records the results in your current journal as a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `meter`" data-href="Mechanics Blocks#`meter`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`meter`" class="internal-link" target="_self" rel="noopener">`meter` mechanics node</a>.<br>This command can only be used when you've activated the <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://ironvault.quest/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">Use character system Setting</a>, and thus requires an actual <a data-tooltip-position="top" aria-label="Characters" data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Active Character</a> to work at all.<br>If you don't want to use the Character System but still want to record suffering on a meter, you can write the <a data-tooltip-position="top" aria-label="Mechanics Blocks > `meter`" data-href="Mechanics Blocks#`meter`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`meter`" class="internal-link" target="_self" rel="noopener">`meter` mechanics node</a> directly into your journal.<br><br><br><br>
+        
+      Meter
+            
+              health
+            Delta
+            
+              1
+            From
+            
+              3
+            To
+            
+              2
+            
+    
+      Meter
+            
+              health
+            Delta
+            
+              2
+            From
+            
+              2
+            To
+            
+              4
+            
+    
+      <br>```iron-vault-mechanics
 meter "health" from=3 to=2
 meter "health" from=2 to=4
 ```
 Copy]]></description><link>https://ironvault.quest/commands/take-on-a-meter.html</link><guid isPermaLink="false">Commands/Take on a meter.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[Toggle displaying mechanics]]></title><description><![CDATA[ 
  <br>Toggles the "Hide mechanics completely" <a data-tooltip-position="top" aria-label="Settings > Mechanics blocks" data-href="Settings#Mechanics blocks" href="https://ironvault.quest/other-features/settings.html#Mechanics_blocks" class="internal-link" target="_self" rel="noopener">Mechanics Block Setting</a> on and off. The change will be saved.]]></description><link>https://ironvault.quest/commands/toggle-displaying-mechanics.html</link><guid isPermaLink="false">Commands/Toggle displaying mechanics.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 08 Jun 2024 03:44:13 GMT</pubDate></item><item><title><![CDATA[About Entities]]></title><description><![CDATA[ 
- <br>Iron Vault represents various game concepts as something called "Entities". This section lists all current entities, their data models, and links to how to use them throughout the plugin.<br>Some Entities are "Rollable Entities", that is, they can be generated using the <a data-href="Generate an entity" href="https://ironvault.quest/commands/generate-an-entity.html" class="internal-link" target="_self" rel="noopener">Generate an entity</a> command, through oracles.<br>The current supported entities are:<br>
-<br><a data-tooltip-position="top" aria-label="Entities/Assets" data-href="Entities/Assets" href="https://ironvault.quest/entities/assets.html" class="internal-link" target="_self" rel="noopener">Assets</a>
+ <br>Iron Vault represents various game concepts as something called "Entities". This section lists all current entities, their data models, and links to how to use them throughout the plugin.<br>Some Entities are "Rollable Entities", that is, they can be generated using the <a data-href="Generate an entity" href="https://ironvault.quest/commands/generate-an-entity.html" class="internal-link" target="_self" rel="noopener">Generate an entity</a> command, through oracles.<br>Some entities have special handling in Iron Vault. These are called tracked entities. Iron Vault requires special information in the frontmatter of these entities and implements various commands for working with them.<br>The tracked entities are:<br>
+<br><a data-href="Campaigns" href="https://ironvault.quest/other-features/campaigns.html" class="internal-link" target="_self" rel="noopener">Campaigns</a> (all other tracked entities are part of a campaign)
 <br><a data-tooltip-position="top" aria-label="Entities/Characters" data-href="Entities/Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Characters</a>
 <br><a data-tooltip-position="top" aria-label="Clocks" data-href="Clocks" href="https://ironvault.quest/entities/clocks.html" class="internal-link" target="_self" rel="noopener">Clocks</a>
+<br><a data-href="Progress Tracks" href="https://ironvault.quest/entities/progress-tracks.html" class="internal-link" target="_self" rel="noopener">Progress Tracks</a>
+<br>The supported untracked entities are:<br>
+<br><a data-tooltip-position="top" aria-label="Entities/Assets" data-href="Entities/Assets" href="https://ironvault.quest/entities/assets.html" class="internal-link" target="_self" rel="noopener">Assets</a>
 <br><a data-href="Creatures" href="https://ironvault.quest/entities/creatures.html" class="internal-link" target="_self" rel="noopener">Creatures</a>
 <br><a data-href="Delves" href="https://ironvault.quest/entities/delves.html" class="internal-link" target="_self" rel="noopener">Delves</a>
 <br><a data-href="Derelicts" href="https://ironvault.quest/entities/derelicts.html" class="internal-link" target="_self" rel="noopener">Derelicts</a>
@@ -4727,12 +5739,11 @@ Copy]]></description><link>https://ironvault.quest/commands/take-on-a-meter.html
 <br><a data-href="NPCs" href="https://ironvault.quest/entities/npcs.html" class="internal-link" target="_self" rel="noopener">NPCs</a>
 <br><a data-href="Oracles" href="https://ironvault.quest/entities/oracles.html" class="internal-link" target="_self" rel="noopener">Oracles</a>
 <br><a data-href="Planets" href="https://ironvault.quest/entities/planets.html" class="internal-link" target="_self" rel="noopener">Planets</a>
-<br><a data-href="Progress Tracks" href="https://ironvault.quest/entities/progress-tracks.html" class="internal-link" target="_self" rel="noopener">Progress Tracks</a>
 <br><a data-href="Sectors" href="https://ironvault.quest/entities/sectors.html" class="internal-link" target="_self" rel="noopener">Sectors</a>
 <br><a data-href="Settlements" href="https://ironvault.quest/entities/settlements.html" class="internal-link" target="_self" rel="noopener">Settlements</a>
 <br><a data-href="Truths" href="https://ironvault.quest/entities/truths.html" class="internal-link" target="_self" rel="noopener">Truths</a>
 <br><a data-href="Vaults" href="https://ironvault.quest/entities/vaults.html" class="internal-link" target="_self" rel="noopener">Vaults</a>
-]]></description><link>https://ironvault.quest/entities/index.html</link><guid isPermaLink="false">Entities/index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Wed, 19 Jun 2024 15:17:18 GMT</pubDate></item><item><title><![CDATA[Assets]]></title><description><![CDATA[ 
+]]></description><link>https://ironvault.quest/entities/index.html</link><guid isPermaLink="false">Entities/index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 16 Jul 2024 02:22:25 GMT</pubDate></item><item><title><![CDATA[Assets]]></title><description><![CDATA[ 
  <br>Assets in Ironsworn/Starforged are a core mechanic for building up a character's "class" and their "inventory", of sorts. It's a fairly open-ended system that allows for interesting combinations, and it's also the core progression system of the game, where you grow your character not by upgrading their stats, but by buying new assets with XP and upgrading ones you already have.<br>Iron Vault directly supports assets in a number of ways.<br><br>Assets in most places in Iron Vault are represented as asset cards. These cards are shown in a number of places, including popup windows and your character sheet. They are only editable in the character sheet itself; otherwise, they will be shown as a read-only example:<br>
     
       
@@ -4848,12 +5859,13 @@ Copy]]></description><link>https://ironvault.quest/commands/take-on-a-meter.html
     
   
       
+      Ironsworn: Starforged Assets
     
   <br><br>You can add assets to your character two different ways:<br>
 <br>Using the <a data-href="Add asset to character" href="https://ironvault.quest/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">Add asset to character</a> command.
 <br>Click on the Add Asset button in the <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://ironvault.quest/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">Character Sheet</a>
 <br>Both of these methods will add the asset directly to your character sheet. The first method will also add a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `asset`" data-href="Mechanics Blocks#`asset`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`asset`" class="internal-link" target="_self" rel="noopener">mechanics block `asset` node</a> to your journal denoting that an asset was added.<br>Once you have an asset in your character sheet, you can remove it by clicking the "x" button on the top right of the asset.<br>You can also reorder assets by going to your character sheet's asset section and click-dragging the top section of the asset card then dropping it in the spot you want it to move to.<br>When in your character sheet, you can edit all option fields of your assets, such as a name if the asset calls for one, or picking an associated stat. You can also mark of unmark abilities by clicking on the hexagon next to them.<br><br>You can link to an asset's definition card using <a data-tooltip-position="top" aria-label="Special Links > Assets" data-href="Special Links#Assets" href="https://ironvault.quest/other-features/special-links.html#Assets" class="internal-link" target="_self" rel="noopener">`asset:` links</a>. When clicked, these links will open a popup window with a read-only, default version of the asset for reference.<br><br>You can embed an asset's read-only card using <a data-href="Asset Blocks" href="https://ironvault.quest/blocks/asset-blocks.html" class="internal-link" target="_self" rel="noopener">Asset Blocks</a>. These blocks will not be associated with your character's assets and are only for reference of the original asset definition.<br><br>(Coming Soon)<br>In the future, Iron Vault will support custom <a data-href="Rulesets and Homebrew" href="https://ironvault.quest/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Rulesets and Homebrew</a>, including individual homebrew assets.]]></description><link>https://ironvault.quest/entities/assets.html</link><guid isPermaLink="false">Entities/Assets.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 28 Jun 2024 19:27:05 GMT</pubDate></item><item><title><![CDATA[Characters]]></title><description><![CDATA[ 
- <br>Iron Vault supports maintaining character sheets for your player character. This character sheet is expected to have <a data-tooltip-position="top" aria-label="schema" data-href="#schema" href="https://ironvault.quest/about:blank#schema" class="internal-link" target="_self" rel="noopener">certain metadata</a> that, when present, unlocks various features like automatically <a data-tooltip-position="top" aria-label="Make a move" data-href="Make a move" href="https://ironvault.quest/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">adding your stats to rolls</a>, <a data-tooltip-position="top" aria-label="Add asset to character" data-href="Add asset to character" href="https://ironvault.quest/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">managing your assets</a>, and even <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://ironvault.quest/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">rendering a nice graphical character sheet</a>.<br>As long as you have the schema in frontmatter, you can put anything you want in your character file. Even the graphical character sheet is optional. The file is a normal file so you can take any notes you want. The main catch is that you can only have one character per file.<br>You can create a new character by using the <a data-href="Create new character" href="https://ironvault.quest/commands/create-new-character.html" class="internal-link" target="_self" rel="noopener">Create new character</a> command and then filling in the resulting character sheet.<br>Iron Vault supports multiple characters per vault. By default, most actions will use the current "active" character as the actor for, say, moves or oracles. You can switch active characters using the <a data-href="Pick active character" href="https://ironvault.quest/commands/pick-active-character.html" class="internal-link" target="_self" rel="noopener">Pick active character</a>. You can also enable the Always prompt for active character setting in <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://ironvault.quest/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">General Settings</a>, to have Iron Vault ask you every time, though this might get noisy.<br><br><img alt="character-sheet.png" src="https://ironvault.quest/lib/media/character-sheet.png" style="width: 400px; max-width: 100%;"><br><br>The following schema describes the expected structure of character file frontmatter in order for Iron Vault to be able to treat it as a character. It is automatically generated by the <a data-href="Create new character" href="https://ironvault.quest/commands/create-new-character.html" class="internal-link" target="_self" rel="noopener">Create new character</a> command. It can be modified by direct interaction with a <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://ironvault.quest/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">Character Block</a>, or using the <a data-href="Take on a meter" href="https://ironvault.quest/commands/take-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Take on a meter</a>, <a data-href="Suffer on a meter" href="https://ironvault.quest/commands/suffer-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Suffer on a meter</a>, and <a data-href="Add asset to character" href="https://ironvault.quest/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">Add asset to character</a> commands.<br>]]></description><link>https://ironvault.quest/entities/characters.html</link><guid isPermaLink="false">Entities/Characters.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 07 Jul 2024 18:01:47 GMT</pubDate><enclosure url="https://ironvault.quest/lib/media/character-sheet.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/lib/media/character-sheet.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[Clocks]]></title><description><![CDATA[ 
+ <br>Iron Vault supports maintaining character sheets for your player character. This character sheet is expected to have <a data-tooltip-position="top" aria-label="schema" data-href="#schema" href="https://ironvault.quest/about:blank#schema" class="internal-link" target="_self" rel="noopener">certain metadata</a> that, when present, unlocks various features like automatically <a data-tooltip-position="top" aria-label="Make a move" data-href="Make a move" href="https://ironvault.quest/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">adding your stats to rolls</a>, <a data-tooltip-position="top" aria-label="Add asset to character" data-href="Add asset to character" href="https://ironvault.quest/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">managing your assets</a>, and even <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://ironvault.quest/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">rendering a nice graphical character sheet</a>.<br>As long as you have the schema in frontmatter, you can put anything you want in your character file. Even the graphical character sheet is optional. The file is a normal file so you can take any notes you want. The main catch is that you can only have one character per file.<br>You can create a new character by using the <a data-href="Create new character" href="https://ironvault.quest/commands/create-new-character.html" class="internal-link" target="_self" rel="noopener">Create new character</a> command and then filling in the resulting character sheet.<br><br>Iron Vault supports multiple characters per <a data-tooltip-position="top" aria-label="Campaigns" data-href="Campaigns" href="https://ironvault.quest/other-features/campaigns.html" class="internal-link" target="_self" rel="noopener">campaign</a>. By default, most actions will use the current "active" character as the actor for, say, moves or oracles. You can switch active characters using the <a data-href="Pick active character" href="https://ironvault.quest/commands/pick-active-character.html" class="internal-link" target="_self" rel="noopener">Pick active character</a>. You can also enable the Always prompt for active character setting in <a data-tooltip-position="top" aria-label="Settings > General" data-href="Settings#General" href="https://ironvault.quest/other-features/settings.html#General" class="internal-link" target="_self" rel="noopener">General Settings</a>, to have Iron Vault ask you every time, though this might get noisy.<br><br><img alt="character-sheet.png" src="https://ironvault.quest/lib/media/character-sheet.png" style="width: 400px; max-width: 100%;"><br><br>The following schema describes the expected structure of character file frontmatter in order for Iron Vault to be able to treat it as a character. It is automatically generated by the <a data-href="Create new character" href="https://ironvault.quest/commands/create-new-character.html" class="internal-link" target="_self" rel="noopener">Create new character</a> command. It can be modified by direct interaction with a <a data-tooltip-position="top" aria-label="Character Blocks" data-href="Character Blocks" href="https://ironvault.quest/blocks/character-blocks.html" class="internal-link" target="_self" rel="noopener">Character Block</a>, or using the <a data-href="Take on a meter" href="https://ironvault.quest/commands/take-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Take on a meter</a>, <a data-href="Suffer on a meter" href="https://ironvault.quest/commands/suffer-on-a-meter.html" class="internal-link" target="_self" rel="noopener">Suffer on a meter</a>, and <a data-href="Add asset to character" href="https://ironvault.quest/commands/add-asset-to-character.html" class="internal-link" target="_self" rel="noopener">Add asset to character</a> commands.<br>]]></description><link>https://ironvault.quest/entities/characters.html</link><guid isPermaLink="false">Entities/Characters.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 16 Jul 2024 02:22:25 GMT</pubDate><enclosure url="https://ironvault.quest/lib/media/character-sheet.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/lib/media/character-sheet.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[Clocks]]></title><description><![CDATA[ 
  <br>Starforged introduced a mechanic called "clocks", which Iron Vault has direct support for. There are two main types of clock: Tension Clocks, and Campaign Clocks. Both are represented by a single "Clock" entity in Iron Vault, and it does not distinguish between them. Clocks are managed/advanced manually.<br>You can create a clock using the <a data-href="Create a clock" href="https://ironvault.quest/commands/create-a-clock.html" class="internal-link" target="_self" rel="noopener">Create a clock</a> command. To advance the clock and record the step in your journal, use the <a data-href="Advance a clock" href="https://ironvault.quest/commands/advance-a-clock.html" class="internal-link" target="_self" rel="noopener">Advance a clock</a> command. You can also click on the clock itself, but that will not update your journal automatically.<br><br>Doomsday Device<br><br>
       
         
@@ -4881,9 +5893,79 @@ Copy]]></description><link>https://ironvault.quest/commands/take-on-a-meter.html
 <br>Find your desired Move on the <a data-href="Sidebar" href="https://ironvault.quest/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener">Sidebar</a>'s Moves tab and click on it to execute it.
 <br>Roll the Move yourself with your physical dice or preferred dice roller and record the results in a <a data-tooltip-position="top" aria-label="Mechanics Blocks > `move`" data-href="Mechanics Blocks#`move`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`move`" class="internal-link" target="_self" rel="noopener">`move` mechanics block node</a>.
 <br>The first two will automatically create move mechanics nodes in your active journal note.<br><br>You can record your moves as a regular part of the narrative in your journal in any format you want, or you can use the <a data-tooltip-position="top" aria-label="Mechanics Blocks > `move`" data-href="Mechanics Blocks#`move`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`move`" class="internal-link" target="_self" rel="noopener">`move` mechanics block node</a> to have the move rendered nicely, showing the results and such. <a data-href="Make a move" href="https://ironvault.quest/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Make a move</a> will automatically generate move blocks for you.<br>
-<br><br><br>Face DangerAction die6Stat3Adds0Score9Challenge die 18Challenge die 29OutcomeWeak hit
+<br><br><br>
+        
+      Face Danger
+      
+      Action die
+            
+              6
+            Stat
+            
+              3
+            Adds
+            
+              0
+            Score
+            
+              9
+            Challenge die 1
+            
+              8
+            Challenge die 2
+            
+              9
+            Outcome
+            
+              Weak hit
+            
+    
+      
 ouch
-Endure HarmMeterhealthDelta1From3To2Action die3Stat4Adds0Score7Challenge die 13Challenge die 25OutcomeStrong hit<br>```iron-vault-mechanics
+
+    
+    
+      Endure Harm
+      
+      Meter
+            
+              health
+            Delta
+            
+              1
+            From
+            
+              3
+            To
+            
+              2
+            
+    
+      Action die
+            
+              3
+            Stat
+            
+              4
+            Adds
+            
+              0
+            Score
+            
+              7
+            Challenge die 1
+            
+              3
+            Challenge die 2
+            
+              5
+            Outcome
+            
+              Strong hit
+            
+    
+    
+      <br>```iron-vault-mechanics
 move "Face Danger" {
     roll action=6 stat=3 adds=0 vs1=8 vs2=9
     - "ouch"
@@ -4899,7 +5981,54 @@ Copy]]></description><link>https://ironvault.quest/entities/moves.html</link><gu
 <br>Use the <a data-href="Ask the Oracle" href="https://ironvault.quest/commands/ask-the-oracle.html" class="internal-link" target="_self" rel="noopener">Ask the Oracle</a> command.
 <br>Find the Oracle on the <a data-href="Sidebar" href="https://ironvault.quest/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener">Sidebar</a>'s Oracles tab and either click on the Oracle itself, or click on the dice icon in order to view its roll table in a popup window. You can also use these to roll oracle groups/Entities.
 <br>Manually roll the oracle using whatever reference you have and your preferred dice roller, or physical dice, and record the results in your journal using <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle`" data-href="Mechanics Blocks#`oracle`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`oracle`" class="internal-link" target="_self" rel="noopener">`oracle`</a> and <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle-group`" data-href="Mechanics Blocks#`oracle-group`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`oracle-group`" class="internal-link" target="_self" rel="noopener">`oracle-group`</a> <a data-href="Mechanics Blocks" href="https://ironvault.quest/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a> nodes.
-<br>The first two options will automatically record your oracle results in your active journal note.<br><br>You can record the results in your journal using <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle`" data-href="Mechanics Blocks#`oracle`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`oracle`" class="internal-link" target="_self" rel="noopener">`oracle`</a> and <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle-group`" data-href="Mechanics Blocks#`oracle-group`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`oracle-group`" class="internal-link" target="_self" rel="noopener">`oracle-group`</a> <a data-href="Mechanics Blocks" href="https://ironvault.quest/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a> nodes, which will be rendered nicely in your journal pages.<br><br><br><br>Character NameNameGiven NameRoll30ResultErenNameCallsignRoll72ResultRookNameFamily NameRoll42ResultBridger<br>```iron-vault-mechanics
+<br>The first two options will automatically record your oracle results in your active journal note.<br><br>You can record the results in your journal using <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle`" data-href="Mechanics Blocks#`oracle`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`oracle`" class="internal-link" target="_self" rel="noopener">`oracle`</a> and <a data-tooltip-position="top" aria-label="Mechanics Blocks > `oracle-group`" data-href="Mechanics Blocks#`oracle-group`" href="https://ironvault.quest/blocks/mechanics-blocks.html#`oracle-group`" class="internal-link" target="_self" rel="noopener">`oracle-group`</a> <a data-href="Mechanics Blocks" href="https://ironvault.quest/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener">Mechanics Blocks</a> nodes, which will be rendered nicely in your journal pages.<br><br><br><br>
+        
+      Character Name
+      
+      
+      Name
+            
+              Given Name
+            Roll
+            
+              30
+            Result
+            
+              Eren
+            
+    
+      
+    
+      
+      Name
+            
+              Callsign
+            Roll
+            
+              72
+            Result
+            
+              Rook
+            
+    
+      
+    
+      
+      Name
+            
+              Family Name
+            Roll
+            
+              42
+            Result
+            
+              Bridger
+            
+    
+      
+    
+    
+      <br>```iron-vault-mechanics
 oracle-group "Character Name" {
   oracle "Given Name" roll=30 result="Eren"
   oracle "Callsign" roll=72 result="Rook"
@@ -4965,7 +6094,14 @@ Copy<br><br>You can roll an entire entity at a time using the <a data-href="Gene
 &gt; This is the spoiler text.
 Copy<br>becomes:<br>Spoilers below
 This is the spoiler text.
-<br>Note the - after [!spoiler]. This is important: it will make your spoiler blocks collapse by default.]]></description><link>https://ironvault.quest/other-features/callouts.html</link><guid isPermaLink="false">Other Features/Callouts.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 18 Jun 2024 02:06:27 GMT</pubDate></item><item><title><![CDATA[CSS Tweaks]]></title><description><![CDATA[ 
+<br>Note the - after [!spoiler]. This is important: it will make your spoiler blocks collapse by default.]]></description><link>https://ironvault.quest/other-features/callouts.html</link><guid isPermaLink="false">Other Features/Callouts.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 18 Jun 2024 02:06:27 GMT</pubDate></item><item><title><![CDATA[Campaigns]]></title><description><![CDATA[ 
+ <br>Iron Vault is organized around campaigns. A single vault can have many campaigns, and, even if you only plan to run a single campaign in your vault, you'll still create a single root campaign.<br>A campaign is a folder (called the campaign root folder) with a campaign index file in its root. All files (including those within subfolders) within the campaign root folder are considered part of the campaign. In particular, all <a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://ironvault.quest/entities/index.html" class="internal-link" target="_self" rel="noopener">Tracked Entities</a> for a campaign, such as <a data-href="Characters" href="https://ironvault.quest/entities/characters.html" class="internal-link" target="_self" rel="noopener">Characters</a>, <a data-href="Progress Tracks" href="https://ironvault.quest/entities/progress-tracks.html" class="internal-link" target="_self" rel="noopener">Progress Tracks</a>, and <a data-href="Clocks" href="https://ironvault.quest/entities/clocks.html" class="internal-link" target="_self" rel="noopener">Clocks</a>, must exist somewhere within the campaign root folder tree.<br>Campaigns cannot be nested
+Because campaigns include all files underneath them, one campaign cannot be nested within another. If Iron Vault detects this situation, you will see an error message when you attempt to use most Iron Vault features.
+<br>To create a new campaign, use the <a data-href="Create a new campaign" href="https://ironvault.quest/commands/create-a-new-campaign.html" class="internal-link" target="_self" rel="noopener">Create a new campaign</a> command. This will create a campaign index file in a new or existing folder you designate.<br><br>When you are viewing a file that is within a campaign, that campaign becomes the active campaign. The active campaign provides a context for many operations within Iron Vault, such as which progress tracks to list and what moves/oracles are available.<br><a data-tooltip-position="top" aria-label="Characters > Active character" data-href="Characters#Active character" href="https://ironvault.quest/entities/characters.html#Active_character" class="internal-link" target="_self" rel="noopener">Active character</a> is tracked per campaign, so when the active campaign switches, the active character will switch to the most recent active character within that campaign.<br><br> If you only plan to use this vault for a single campaign, you can create a campaign in the root folder. This is the simplest setup, as it means that everything in the vault will be part of that one campaign.<br>If you plan to use this vault for multiple campaigns, you need to give each campaign its own separate folder. There are a variety of ways to organize this:<br>
+<br>Make each campaign a subfolder of the root folder: this is the default setup for the plugin and avoids excessive nesting.
+<br>Make each campaign a subfolder of a "Campaigns" folder: use this if you'd like to keep your top-level folder more organized.
+<br>Group your campaigns in some more complicated way: you're free to organize your campaign folders however you wish, as long as you follow the rule that each campaign gets its own folder.
+]]></description><link>https://ironvault.quest/other-features/campaigns.html</link><guid isPermaLink="false">Other Features/Campaigns.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 16 Jul 2024 02:22:25 GMT</pubDate></item><item><title><![CDATA[CSS Tweaks]]></title><description><![CDATA[ 
  <br><br>You can create spoiler callouts by using built-in callout syntax with ![spoiler]- in the header.<br>For example:<br>&gt; [!spoiler]- Chapter 9
 &gt; Everyone dies, sorry.
 Copy<br>Will render with custom styling and icon, like so:<br>Chapter 9
@@ -5127,16 +6263,17 @@ The Datasworn Sundered Isles data is considered a preview, awaiting finalization
 <br>move:, oracle:, or asset: followed by the name of a move, oracle, or asset. The name must have no spaces, but you can capitalize it however you want. For example, [Face Danger](move:Facedanger).
 <br>The following Datasworn entity types are clickable:<br><br>Clicking on a move link will open a popup window with move details.<br>Example: [Face Danger](move:FaceDanger) or [Face Danger](move:starforged/adventure/face_danger) will open a popup window that looks like this:<br><img alt="face-danger-link.png" src="https://ironvault.quest/lib/media/face-danger-link.png"><br><br>Clicking an Oracle link will open a popup window with the Oracle move table. When referencing by name, you'll need to remove any spaces.<br>Example: [Background Assets](oracle_rollable:starforged/campaign_launch/background_assets) will render as <a data-tooltip-position="top" aria-label="oracle_rollable:starforged/campaign_launch/background_assets" rel="noopener" class="external-link" href="https://ironvault.quest/oracle_rollable:starforged/campaign_launch/background_assets" target="_blank">Background Assets</a><br><img alt="background-assets-link.png" src="https://ironvault.quest/lib/media/background-assets-link.png"><br><br>Clicking an asset will open a popup window with a read-only Asset card.<br>Example: [Gunslinger](asset:Gunslinger) will open a popup window that looks like:<br>
 <img alt="gunslinger-link.png" src="https://ironvault.quest/lib/media/gunslinger-link.png">]]></description><link>https://ironvault.quest/other-features/special-links.html</link><guid isPermaLink="false">Other Features/Special Links.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sun, 30 Jun 2024 18:11:12 GMT</pubDate><enclosure url="https://ironvault.quest/lib/media/face-danger-link.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/lib/media/face-danger-link.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[01 - Initial Setup]]></title><description><![CDATA[ 
- <br><br>The Ironsworn/Starforged family of games all have some significant worldbuilding involved, and that can take up a lot of the time before your character starts your adventure.<br>For this reason, the books remind you that Prep is Play. That is, you're playing the game as soon as you engage with it, when you're starting to create the game world, when you're thinking of ideas and, in our case, when you're setting up Iron Vault and learning how to use it!<br>We hope you'll bring the Prep is Play spirit to seeing what Iron Vault can do and how it can help enrich your experience playing these wonderful games!<br><br>Being a plugin, Iron Vault requires that you first install <a data-tooltip-position="top" aria-label="https://obsidian.md" rel="noopener" class="external-link" href="https://obsidian.md" target="_blank">Obsidian.md</a>, a free note-taking tool that will help you organize your campaign in just about any way you'd like!<br>To begin, you'll want to <a data-tooltip-position="top" aria-label="https://help.obsidian.md/Getting+started/Download+and+install+Obsidian" rel="noopener" class="external-link" href="https://help.obsidian.md/Getting+started/Download+and+install+Obsidian" target="_blank">install Obsidian</a> on your preferred platform/device.<br>Once that's done, you can <a data-tooltip-position="top" aria-label="https://help.obsidian.md/Getting+started/Create+a+vault" rel="noopener" class="external-link" href="https://help.obsidian.md/Getting+started/Create+a+vault" target="_blank">create a vault</a> for your campaign!<br>If you'd like, you can read through the rest of the <a data-tooltip-position="top" aria-label="https://help.obsidian.md/Home#Getting+started" rel="noopener" class="external-link" href="https://help.obsidian.md/Home#Getting+started" target="_blank">Obsidian Getting Started Guide</a>, but you should be able to get started with just those first two steps.<br>Once you've created your vault, you'll be greeted by a screen that looks a bit like this:<br><img alt="getting-started-initial.png" src="https://ironvault.quest/lib/media/getting-started-initial.png"><br>You can go ahead and close the graph tab, then right click (or long tap) on the "Welcome" note and delete it.<br><br>The easiest way to install Iron Vault is to install it directly from the Community Plugins registry in Obsidian itself. Open Settings, then navigate to Community Plugins:<br><img alt="community-plugins.png" src="https://ironvault.quest/lib/media/community-plugins.png"><br>Then click "Browse" and search for "Iron Vault":<br><img alt="iron-vault-plugin-search.png" src="https://ironvault.quest/lib/media/iron-vault-plugin-search.png"><br>Finally, click "Install", and make sure to click "Enable" once the install is complete!<br><br>Now we have an empty vault and the plugin installed, we're ready for adventure! Let's get started with <a data-href="02 - Your First Campaign" href="https://ironvault.quest/player's-guide/getting-started/02-your-first-campaign.html" class="internal-link" target="_self" rel="noopener">02 - Your First Campaign</a>.]]></description><link>https://ironvault.quest/player's-guide/getting-started/01-initial-setup.html</link><guid isPermaLink="false">Player's Guide/Getting Started/01 - Initial Setup.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 13 Jul 2024 15:23:39 GMT</pubDate><enclosure url="https://ironvault.quest/lib/media/getting-started-initial.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/lib/media/getting-started-initial.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[02 - Your First Campaign]]></title><description><![CDATA[ 
- <br>As part of this guide, we'll walk you from initial setup of your campaign through to the end of a short combat scene. This Guide will use Starforged as an example, but you can use any supported <a data-tooltip-position="top" aria-label="Rulesets and Homebrew" data-href="Rulesets and Homebrew" href="https://ironvault.quest/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Ruleset</a> in Iron Vault to play!<br><br>The process for launching your campaign starts on Chapter 2, page 74, of the Ironsworn: Starforged Rulebook.<br>As it points out very quickly: Prep is Play. Which means: Congratulations! You're already playing Starforged using Iron Vault!<br>To quickly address the first section on player safety: Iron Vault supports two safety mechanisms related to the safety strategies the Rulebook describes:<br>
+ <br><br>The Ironsworn/Starforged family of games all have some significant worldbuilding involved, and that can take up a lot of the time before your character starts your adventure.<br>For this reason, the books remind you that Prep is Play. That is, you're playing the game as soon as you engage with it, when you're starting to create the game world, when you're thinking of ideas and, in our case, when you're setting up Iron Vault and learning how to use it!<br>We hope you'll bring the Prep is Play spirit to seeing what Iron Vault can do and how it can help enrich your experience playing these wonderful games!<br><br>Being a plugin, Iron Vault requires that you first install <a data-tooltip-position="top" aria-label="https://obsidian.md" rel="noopener" class="external-link" href="https://obsidian.md" target="_blank">Obsidian.md</a>, a free note-taking tool that will help you organize your campaign in just about any way you'd like!<br>To begin, you'll want to <a data-tooltip-position="top" aria-label="https://help.obsidian.md/Getting+started/Download+and+install+Obsidian" rel="noopener" class="external-link" href="https://help.obsidian.md/Getting+started/Download+and+install+Obsidian" target="_blank">install Obsidian</a> on your preferred platform/device.<br>Once that's done, you can <a data-tooltip-position="top" aria-label="https://help.obsidian.md/Getting+started/Create+a+vault" rel="noopener" class="external-link" href="https://help.obsidian.md/Getting+started/Create+a+vault" target="_blank">create a vault</a> for your campaign!<br>If you'd like, you can read through the rest of the <a data-tooltip-position="top" aria-label="https://help.obsidian.md/Home#Getting+started" rel="noopener" class="external-link" href="https://help.obsidian.md/Home#Getting+started" target="_blank">Obsidian Getting Started Guide</a>, but you should be able to get started with just those first two steps.<br>Once you've created your vault, you'll be greeted by a screen that looks a bit like this:<br><img alt="getting-started-initial.png" src="https://ironvault.quest/lib/media/getting-started-initial.png"><br>You can go ahead and close the graph tab, then right click (or long tap) on the "Welcome" note and delete it.<br><br>The easiest way to install Iron Vault is to install it directly from the Community Plugins registry in Obsidian itself. Open Settings, then navigate to Community Plugins:<br><img alt="community-plugins.png" src="https://ironvault.quest/lib/media/community-plugins.png"><br>Then click "Browse" and search for "Iron Vault":<br><img alt="iron-vault-plugin-search.png" src="https://ironvault.quest/lib/media/iron-vault-plugin-search.png"><br>Finally, click "Install", and make sure to click "Enable" once the install is complete!<br>You should see an onboarding screen similar to this one:<br>
+<img alt="Onboarding screen.png" src="https://ironvault.quest/lib/media/onboarding-screen.png"><br>Don't worry about it too much for now-- we'll address it in the next chapter.<br><br>Now we have an empty vault and the plugin installed, we're ready for adventure! Let's get started with <a data-href="02 - Your First Campaign" href="https://ironvault.quest/player's-guide/getting-started/02-your-first-campaign.html" class="internal-link" target="_self" rel="noopener">02 - Your First Campaign</a>.]]></description><link>https://ironvault.quest/player's-guide/getting-started/01-initial-setup.html</link><guid isPermaLink="false">Player's Guide/Getting Started/01 - Initial Setup.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 16 Jul 2024 02:22:25 GMT</pubDate><enclosure url="https://ironvault.quest/lib/media/getting-started-initial.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/lib/media/getting-started-initial.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[02 - Your First Campaign]]></title><description><![CDATA[ 
+ <br>As part of this guide, we'll walk you from initial setup of your campaign through to the end of a short combat scene. This Guide will use Starforged as an example, but you can use any supported <a data-tooltip-position="top" aria-label="Rulesets and Homebrew" data-href="Rulesets and Homebrew" href="https://ironvault.quest/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Ruleset</a> in Iron Vault to play!<br><br>The process for launching your campaign starts on Chapter 2, page 74, of the Ironsworn: Starforged Rulebook.<br>As it points out very quickly: Prep is Play. Which means: Congratulations! You're already playing Starforged using Iron Vault!<br>At the end of <a data-href="01 - Initial Setup" href="https://ironvault.quest/player's-guide/getting-started/01-initial-setup.html" class="internal-link" target="_self" rel="noopener">01 - Initial Setup</a>, you should have seen this screen:<br><img alt="Onboarding tab.png" src="https://ironvault.quest/lib/media/onboarding-tab.png" style="width: 400px; max-width: 100%;"><br>As the welcome message says, Iron Vault organizes vaults into <a data-href="Campaigns" href="https://ironvault.quest/other-features/campaigns.html" class="internal-link" target="_self" rel="noopener">Campaigns</a>. Click on "create a campaign" (or choose the <a data-href="Create a new campaign" href="https://ironvault.quest/commands/create-a-new-campaign.html" class="internal-link" target="_self" rel="noopener">Create a new campaign</a> command from the Obsidian command selector). This will show a dialog like the following:<br><img alt="Create a new campaign.png" src="https://ironvault.quest/lib/media/create-a-new-campaign.png" style="width: 500px; max-width: 100%;"><br>Give your name a campaign, but don't worry-- you can always change it later!<br>By default, your campaign will be created as a subfolder of your vault's root folder. This is a good option if you want to add multiple campaigns in this vault. If you wish to dedicate this vault to a single campaign, you might want to pick the vault root (type / in the folder input) as the home for your campaign. If you wish to keep multiple campaigns, you can use the default where it creates a folder with the same name as your campaign.<br>Either way, once you've created your new campaign, you are ready to begin!<br><br>Before we start, we have to introduce a core concept to Iron Vault: journals.<br>Iron Vault has a lot of features to populate and manage your story journals. Many of its commands and actions actually record their results in a journal and render them in a nice way, so you can look back and see exactly what was happening with your mechanics, or tweak things as needed.<br>Since we're going to start interacting with these mechanics commands now, you should take a moment to create a "Journals" folder in your campaign folder. Inside it, create a "Session 0" note and open it. We'll use this to record all our upcoming Ask the Oracle rolls:<br><img alt="session-0.png" src="https://ironvault.quest/lib/media/session-0.png"><br>You can write anything you want here! Write about your thoughts so far on what you want out of your campaign, or what ideas you have for your character. Or just leave it blank for now, and we'll just use it as a scratch board for Oracle rolls.<br>To quickly address the first section on player safety: Iron Vault supports two safety mechanisms related to the safety strategies the Rulebook describes:<br>
 <br><a data-tooltip-position="top" aria-label="Make a move" data-href="Make a move" href="https://ironvault.quest/commands/make-a-move.html" class="internal-link" target="_self" rel="noopener">Making a move</a> to Set a Flag, and then adding appropriate <a data-tooltip-position="top" aria-label="Mechanics Blocks > `-` (dash)" data-href="Mechanics Blocks#`-` (dash)" href="https://ironvault.quest/blocks/mechanics-blocks.html#`-`_(dash)" class="internal-link" target="_self" rel="noopener">comments</a> to it.
 <br>Using <a data-tooltip-position="top" aria-label="Callouts > Spoiler Callout" data-href="Callouts#Spoiler Callout" href="https://ironvault.quest/other-features/callouts.html#Spoiler_Callout" class="internal-link" target="_self" rel="noopener">a Spoiler Callout</a> to hide sensitive content behind an expandable box.
-<br><br>Before we start, we have to introduce a core concept to Iron Vault: journals.<br>Iron Vault has a lot of features to populate and manage your story journals. Many of its commands and actions actually record their results in a journal and render them in a nice way, so you can look back and see exactly what was happening with your mechanics, or tweak things as needed.<br>Since we're going to start interacting with these mechanics commands now, you should take a moment to create a "Journals" folder in your vault. Inside it, create a "Session 0" note and open it. We'll use this to record all our upcoming Ask the Oracle rolls:<br><img alt="session-0.png" src="https://ironvault.quest/lib/media/session-0.png"><br>You can write anything you want here! Write about your thoughts so far on what you want out of your campaign, or what ideas you have for your character. Or just leave it blank for now, and we'll just use it as a scratch board for Oracle rolls.<br><br>From here on, we'll walk through the four main steps in the Starforged Getting Started section:<br>
+<br><br>From here on, we'll walk through the four main steps in the Starforged Getting Started section:<br>
 <br><a data-href="03 - Choose Your Truths" href="https://ironvault.quest/player's-guide/getting-started/03-choose-your-truths.html" class="internal-link" target="_self" rel="noopener">03 - Choose Your Truths</a> (page 81)
 <br><a data-href="04 - Create Your Character" href="https://ironvault.quest/player's-guide/getting-started/04-create-your-character.html" class="internal-link" target="_self" rel="noopener">04 - Create Your Character</a> (page 100)
 <br><a data-href="05 - Build a Starting Sector" href="https://ironvault.quest/player's-guide/getting-started/05-build-a-starting-sector.html" class="internal-link" target="_self" rel="noopener">05 - Build a Starting Sector</a> (page 114)
 <br><a data-href="06 - Begin Your Adventure" href="https://ironvault.quest/player's-guide/getting-started/06-begin-your-adventure.html" class="internal-link" target="_self" rel="noopener">06 - Begin Your Adventure</a> (page 128)
-]]></description><link>https://ironvault.quest/player's-guide/getting-started/02-your-first-campaign.html</link><guid isPermaLink="false">Player's Guide/Getting Started/02 - Your First Campaign.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 22 Jun 2024 02:34:03 GMT</pubDate><enclosure url="https://ironvault.quest/lib/media/session-0.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/lib/media/session-0.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[03 - Choose Your Truths]]></title><description><![CDATA[ 
+]]></description><link>https://ironvault.quest/player's-guide/getting-started/02-your-first-campaign.html</link><guid isPermaLink="false">Player's Guide/Getting Started/02 - Your First Campaign.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 16 Jul 2024 02:22:25 GMT</pubDate><enclosure url="https://ironvault.quest/lib/media/onboarding-tab.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/lib/media/onboarding-tab.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[03 - Choose Your Truths]]></title><description><![CDATA[ 
  <br>The first step in any Ironsworn or Starforged campaign is to Choose Your Truths. These are facts about your world that help set the stage for the space you'll be playing in. Each <a data-tooltip-position="top" aria-label="Rulesets and Homebrew" data-href="Rulesets and Homebrew" href="https://ironvault.quest/other-features/rulesets-and-homebrew.html" class="internal-link" target="_self" rel="noopener">Ruleset</a> comes with its own set of Truths, which are themed to that game or expansion's default setting. Of course, you can always skip right by this and start writing about your world however you prefer, but using the Truths tool is very handy!<br><br>Iron Vault directly supports tools through something called <a data-href="Truth Blocks" href="https://ironvault.quest/blocks/truth-blocks.html" class="internal-link" target="_self" rel="noopener">Truth Blocks</a>. These are also the first type of block you'll be introduced to.<br>Iron Vault uses <a data-tooltip-position="top" aria-label="Blocks/index" data-href="Blocks/index" href="https://ironvault.quest/blocks/index.html" class="internal-link" target="_self" rel="noopener">Blocks</a> for many things, in order to draw special tools and interactive widgets on your notes for you that will help you during play.<br>All Blocks are created the same way: three backticks, a block name, a new line, and three more backticks. Sometimes, there can be something between the backticks. For example, this is what a Truth Block for the Cataclysm Truth looks like:<br>```iron-vault-truth
 Cataclysm
 ```
@@ -5228,11 +6365,13 @@ What's this? Well, that's a <a data-tooltip-position="top" aria-label="Mechanics
 <br>And add them to the NPC's results table just like we did with the zoomed-in settlement.<br>Finally, add another row to your NPC's table called "Location", and link the settlement you'd like to put them in, to wrap up your first connection:<br><img alt="completed-connection.png" src="https://ironvault.quest/lib/media/completed-connection.png"><br><br>Going back to our Session 0 journal, we put our cursor under our "Starting Sector" header (or wherever you want oracle results to show up), and we go ahead and roll on the Sector Trouble table: <br><img alt="sector-trouble.png" src="https://ironvault.quest/lib/media/sector-trouble.png"><br><br>To finish up, we either come up with or roll the Sector Name oracle, then we go back to our Sector map and add both the Sector Trouble and the Sector Name to that sector information card we made earlier, which only has the Region in it so far:<br><img alt="finalized-sector.png" src="https://ironvault.quest/lib/media/finalized-sector.png"><br>If you want, you can do what I did and make the card's contents into a <a data-tooltip-position="top" aria-label="https://www.markdownguide.org/extended-syntax/#tables" rel="noopener" class="external-link" href="https://www.markdownguide.org/extended-syntax/#tables" target="_blank">Markdown table</a> to make it look nicer.<br>Finally, go ahead and rename your Sector Canvas file to the name you ended up with, so it's not just "Untitled".<br><br>And with that, we've completed the entire Starting Sector guide! Following along with the Starforged Rulebook, that means you're ready to <a data-href="06 - Begin Your Adventure" href="https://ironvault.quest/player's-guide/getting-started/06-begin-your-adventure.html" class="internal-link" target="_self" rel="noopener">06 - Begin Your Adventure</a> and see what it's like to get into the rest of gameplay using Iron Vault!]]></description><link>https://ironvault.quest/player's-guide/getting-started/05-build-a-starting-sector.html</link><guid isPermaLink="false">Player's Guide/Getting Started/05 - Build a Starting Sector.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Wed, 19 Jun 2024 15:17:18 GMT</pubDate><enclosure url="https://ironvault.quest/lib/media/sector-initial.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/lib/media/sector-initial.png"&gt;&lt;/figure&gt;</content:encoded></item><item><title><![CDATA[06 - Begin Your Adventure]]></title><description><![CDATA[ 
  <br>This section is still under construction! Check back soon.]]></description><link>https://ironvault.quest/player's-guide/getting-started/06-begin-your-adventure.html</link><guid isPermaLink="false">Player's Guide/Getting Started/06 - Begin Your Adventure.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Thu, 27 Jun 2024 04:36:56 GMT</pubDate></item><item><title><![CDATA[About Player's Guide]]></title><description><![CDATA[ 
  <br>Welcome to the Iron Vault Player's Guide! While the rest of this site documents various Iron Vault features that you might want to have references to, this section is meant to guide you, step-by-step, through the experience of playing a game using Iron Vault.<br>You can start by checking out the <a data-tooltip-position="top" aria-label="01 - Initial Setup" data-href="01 - Initial Setup" href="https://ironvault.quest/player's-guide/getting-started/01-initial-setup.html" class="internal-link" target="_self" rel="noopener">Getting Started</a> guide, which will walk you through installing Obsidian and the Iron Vault plugin, then move on to starting your first campaign!]]></description><link>https://ironvault.quest/player's-guide/index.html</link><guid isPermaLink="false">Player's Guide/index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Wed, 19 Jun 2024 15:17:18 GMT</pubDate></item><item><title><![CDATA[About Iron Vault]]></title><description><![CDATA[ 
- <br><img alt="iron-vault-screenshot.png" src="https://ironvault.quest/support/img/iron-vault-screenshot.png"><br>This is the documentation for <a data-tooltip-position="top" aria-label="https://github.com/iron-vault-plugin/iron-vault" rel="noopener" class="external-link" href="https://github.com/iron-vault-plugin/iron-vault" target="_blank">Iron Vault</a>, a plugin for <a data-tooltip-position="top" aria-label="https://obsidian.md" rel="noopener" class="external-link" href="https://obsidian.md" target="_blank">Obsidian</a> that turns the beloved note-taking/journaling tool into a full-fledged Virtual Tabletop (VTT) for the <a data-tooltip-position="top" aria-label="https://ironswornrpg.com" rel="noopener" class="external-link" href="https://ironswornrpg.com" target="_blank">Ironsworn/Starforged family of games</a>.<br>It has features ranging from a full character sheet, to commands for making moves, and even an entire featureset for rendering pretty mechanics blocks in your story journals describing the mechanics involved in your story, as they happen.<br>The plugin is designed to be used piecemeal: you can use as much or as little as you want, and our only hope is that some part of it will be useful enough to make you enjoy your experience a little more.<br>It is not a "play for me"-style VTT, in the sense that while it has a lot of conveniences for rendering and interacting with mechanics, the actual resolution and logic of game mechanics is left up to you, and whatever flexibility you want to handle the game's rules with. The game, after all, is not a single monolithic set of laws, and everyone tends to take their own liberties with the rules in the interest of enjoying the game more.<br><br>Not sure where to start? There's a full <a data-tooltip-position="top" aria-label="Player's Guide/index" data-href="Player's Guide/index" href="https://ironvault.quest/player's-guide/index.html" class="internal-link" target="_self" rel="noopener">Player's Guide</a> or, more specifically, a <a data-tooltip-position="top" aria-label="01 - Initial Setup" data-href="01 - Initial Setup" href="https://ironvault.quest/player's-guide/getting-started/01-initial-setup.html" class="internal-link" target="_self" rel="noopener">Getting Started</a> guide so you can jump right in with a new or existing campaign, using as much or as little of Iron Vault as you want!<br>You can also open this documentation at any time while in Obsidian by running the <a data-href="Open documentation in a tab" href="https://ironvault.quest/commands/open-documentation-in-a-tab.html" class="internal-link" target="_self" rel="noopener">Open documentation in a tab</a> or <a data-href="Open documentation in your browser" href="https://ironvault.quest/commands/open-documentation-in-your-browser.html" class="internal-link" target="_self" rel="noopener">Open documentation in your browser</a> commands.<br><br>You can start reading about the various Iron Vault features here:<br>
+ <br><img alt="iron-vault-screenshot.png" src="https://ironvault.quest/support/img/iron-vault-screenshot.png"><br>This is the documentation for <a data-tooltip-position="top" aria-label="https://github.com/iron-vault-plugin/iron-vault" rel="noopener" class="external-link" href="https://github.com/iron-vault-plugin/iron-vault" target="_blank">Iron Vault</a>, a plugin for <a data-tooltip-position="top" aria-label="https://obsidian.md" rel="noopener" class="external-link" href="https://obsidian.md" target="_blank">Obsidian</a> that turns the beloved note-taking/journaling tool into a full-fledged Virtual Tabletop (VTT) for the <a data-tooltip-position="top" aria-label="https://ironswornrpg.com" rel="noopener" class="external-link" href="https://ironswornrpg.com" target="_blank">Ironsworn/Starforged family of games</a>.<br>It has features ranging from a full character sheet, to commands for making moves, and even an entire featureset for rendering pretty mechanics blocks in your story journals describing the mechanics involved in your story, as they happen. You can even house multiple campaigns in the same vault!<br>The plugin is designed to be used piecemeal: you can use as much or as little as you want, and our only hope is that some part of it will be useful enough to make you enjoy your experience a little more.<br>It is not a "play for me"-style VTT, in the sense that while it has a lot of conveniences for rendering and interacting with mechanics, the actual resolution and logic of game mechanics is left up to you, and whatever flexibility you want to handle the game's rules with. The game, after all, is not a single monolithic set of laws, and everyone tends to take their own liberties with the rules in the interest of enjoying the game more.<br><br>Not sure where to start? There's a full <a data-tooltip-position="top" aria-label="Player's Guide/index" data-href="Player's Guide/index" href="https://ironvault.quest/player's-guide/index.html" class="internal-link" target="_self" rel="noopener">Player's Guide</a> or, more specifically, a <a data-tooltip-position="top" aria-label="01 - Initial Setup" data-href="01 - Initial Setup" href="https://ironvault.quest/player's-guide/getting-started/01-initial-setup.html" class="internal-link" target="_self" rel="noopener">Getting Started</a> guide so you can jump right in with a new or existing campaign, using as much or as little of Iron Vault as you want!<br>You can also open this documentation at any time while in Obsidian by running the <a data-href="Open documentation in a tab" href="https://ironvault.quest/commands/open-documentation-in-a-tab.html" class="internal-link" target="_self" rel="noopener">Open documentation in a tab</a> or <a data-href="Open documentation in your browser" href="https://ironvault.quest/commands/open-documentation-in-your-browser.html" class="internal-link" target="_self" rel="noopener">Open documentation in your browser</a> commands.<br><br>You can start reading about the various Iron Vault features here:<br>
+<br><a data-href="Campaigns" href="https://ironvault.quest/other-features/campaigns.html" class="internal-link" target="_self" rel="noopener">Campaigns</a> - All functionality in Iron Vault is centered on a campaign-- which includes all of the game entities, such as player characters, that are part of the game.
 <br><a data-tooltip-position="top" aria-label="Rulesets and Homebrew > Built-in Rulesets" data-href="Rulesets and Homebrew#Built-in Rulesets" href="https://ironvault.quest/other-features/rulesets-and-homebrew.html#Built-in_Rulesets" class="internal-link" target="_self" rel="noopener">Built-in Official Rulesets</a> - Includes support for Ironsworn Classic, Ironsworn: Delve, Ironsworn: Starforged, and Sundered Isles.
 <br><a data-tooltip-position="top" aria-label="Blocks/index" data-href="Blocks/index" href="https://ironvault.quest/blocks/index.html" class="internal-link" target="_self" rel="noopener">Blocks</a> - Special blocks used throughout the tool to render things nicely and give you handy interactive widgets for editing game data.
 <br><a data-tooltip-position="top" aria-label="Commands/index" data-href="Commands/index" href="https://ironvault.quest/commands/index.html" class="internal-link" target="_self" rel="noopener">Commands</a> - Various Obsidian commands, all of which can be bound to hotkeys or the quick access bar, for performing all sorts of game actions, like making moves, creating progress tracks, etc.
 <br><a data-tooltip-position="top" aria-label="Entities/index" data-href="Entities/index" href="https://ironvault.quest/entities/index.html" class="internal-link" target="_self" rel="noopener">Entities</a> - How Iron Vault represents all sorts of different game concepts, or some ways that you might choose to represent them yourself.
+<br><a data-tooltip-position="top" aria-label="Campaigns" data-href="Campaigns" href="https://ironvault.quest/other-features/campaigns.html" class="internal-link" target="_self" rel="noopener">Multiple Campaigns</a> - You can have one or more campaigns in a single vault!
 <br><a data-href="Multiplayer" href="https://ironvault.quest/other-features/multiplayer.html" class="internal-link" target="_self" rel="noopener">Multiplayer</a> - Play online or locally with other players!
 <br><a data-href="Sidebar" href="https://ironvault.quest/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener">Sidebar</a> - A handy right-panel sidebar for quick access to Moves, Oracles, and your Character Sheet, all in one, easy-access place. Particularly useful on mobile.
 <br><a data-href="Special Links" href="https://ironvault.quest/other-features/special-links.html" class="internal-link" target="_self" rel="noopener">Special Links</a> - There are special external links that, instead of trying to open a web page, will open a modal window with the contents of the thing you're trying to link to. For example, [My Move](move:MyMoveName) will pop up a window with the description and roll buttons for "My Move".
@@ -5241,4 +6380,4 @@ What's this? Well, that's a <a data-tooltip-position="top" aria-label="Mechanics
 <br><a data-tooltip-position="top" aria-label="Rulesets and Homebrew > Homebrew" data-href="Rulesets and Homebrew#Homebrew" href="https://ironvault.quest/other-features/rulesets-and-homebrew.html#Homebrew" class="internal-link" target="_self" rel="noopener">Homebrew</a> - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the <a data-tooltip-position="top" aria-label="https://github.com/rsek/datasworn" rel="noopener" class="external-link" href="https://github.com/rsek/datasworn" target="_blank">Datasworn</a> data model.
 <br><a data-href="Settings" href="https://ironvault.quest/other-features/settings.html" class="internal-link" target="_self" rel="noopener">Settings</a> - Various configurations available to tweak your Iron Vault experience.
 <br><a data-href="API" href="https://ironvault.quest/other-features/api.html" class="internal-link" target="_self" rel="noopener">API</a> - (Coming Soon) Are you a developer? We expose the plugin for easy access, for folks who want to do fancier things with Iron Vault features.
-<br><br>The easiest way to install Iron Vault is directly through the Community Plugins registry in Obsidian itself. Simply search for "Iron Vault", click "install", then "enable", and you're good to go!<br>You can also install it via <a data-tooltip-position="top" aria-label="https://tfthacker.com/brat-plugins" rel="noopener" class="external-link" href="https://tfthacker.com/brat-plugins" target="_blank">BRAT</a>. You should be able to add iron-vault-plugin/iron-vault to BRAT, and it will install the latest beta release of this plugin.<br>You can also install it manually by downloading the latest files from <a data-tooltip-position="top" aria-label="https://github.com/iron-vault-plugin/iron-vault/releases/latest" rel="noopener" class="external-link" href="https://github.com/iron-vault-plugin/iron-vault/releases/latest" target="_blank">Github Release</a>. You'll want to put main.js, manifest.json, and styles.css in your-vault/.obsidian/plugins/iron-vault.<br>To build the code and copy it to your vault yourself, run pnpm build to generate the production files, which will be in the repo root. You can then copy these to the location above.<br>You should then be able to enable the plugin in your vault (after restarting/reloading Obsidian).<br><br>Iron Vault is a community project built by players, for players, and we welcome contributions! Please see <a data-tooltip-position="top" aria-label="https://github.com/iron-vault-plugin/iron-vault/blob/main/README.md" rel="noopener" class="external-link" href="https://github.com/iron-vault-plugin/iron-vault/blob/main/README.md" target="_blank">CONTRIBUTING.md</a> for details.]]></description><link>https://ironvault.quest/index.html</link><guid isPermaLink="false">index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Sat, 13 Jul 2024 15:18:37 GMT</pubDate><enclosure url="https://ironvault.quest/support/img/iron-vault-screenshot.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/support/img/iron-vault-screenshot.png"&gt;&lt;/figure&gt;</content:encoded></item></channel></rss>
+<br><br>The easiest way to install Iron Vault is directly through the Community Plugins registry in Obsidian itself. Simply search for "Iron Vault", click "install", then "enable", and you're good to go!<br>You can also install it via <a data-tooltip-position="top" aria-label="https://tfthacker.com/brat-plugins" rel="noopener" class="external-link" href="https://tfthacker.com/brat-plugins" target="_blank">BRAT</a>. You should be able to add iron-vault-plugin/iron-vault to BRAT, and it will install the latest beta release of this plugin.<br>You can also install it manually by downloading the latest files from <a data-tooltip-position="top" aria-label="https://github.com/iron-vault-plugin/iron-vault/releases/latest" rel="noopener" class="external-link" href="https://github.com/iron-vault-plugin/iron-vault/releases/latest" target="_blank">Github Release</a>. You'll want to put main.js, manifest.json, and styles.css in your-vault/.obsidian/plugins/iron-vault.<br>To build the code and copy it to your vault yourself, run pnpm build to generate the production files, which will be in the repo root. You can then copy these to the location above.<br>You should then be able to enable the plugin in your vault (after restarting/reloading Obsidian).<br><br>Iron Vault is a community project built by players, for players, and we welcome contributions! Please see <a data-tooltip-position="top" aria-label="https://github.com/iron-vault-plugin/iron-vault/blob/main/README.md" rel="noopener" class="external-link" href="https://github.com/iron-vault-plugin/iron-vault/blob/main/README.md" target="_blank">CONTRIBUTING.md</a> for details.]]></description><link>https://ironvault.quest/index.html</link><guid isPermaLink="false">index.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Tue, 16 Jul 2024 02:37:45 GMT</pubDate><enclosure url="https://ironvault.quest/support/img/iron-vault-screenshot.png" length="0" type="image/png"/><content:encoded>&lt;figure&gt;&lt;img src="https://ironvault.quest/support/img/iron-vault-screenshot.png"&gt;&lt;/figure&gt;</content:encoded></item></channel></rss>
