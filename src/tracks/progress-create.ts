@@ -1,15 +1,18 @@
+import { CampaignFile } from "campaigns/entity";
+import IronVaultPlugin from "index";
 import {
-  App,
+  ButtonComponent,
   Modal,
-  SearchComponent,
   Setting,
   TextComponent,
-  normalizePath,
+  debounce,
 } from "obsidian";
 import { generateObsidianFilename } from "utils/filename";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
 import { GenericTextSuggest } from "utils/ui/settings/generic-text-suggest";
 import { ChallengeRanks, ProgressTrack } from "./progress";
+import { CampaignSelectComponent } from "utils/ui/settings/campaign-suggest";
+import { RelativeFolderSearchComponent } from "utils/ui/settings/relative-folder-search";
 
 export type ProgressTrackCreateResultType = {
   rank: ChallengeRanks;
@@ -33,7 +36,7 @@ export class ProgressTrackCreateModal extends Modal {
   public accepted: boolean = false;
 
   constructor(
-    app: App,
+    readonly plugin: IronVaultPlugin,
     defaults: Partial<ProgressTrackCreateResultType> = {},
     protected readonly onAccept: (arg: {
       name: string;
@@ -44,7 +47,7 @@ export class ProgressTrackCreateModal extends Modal {
     }) => void,
     protected readonly onCancel: () => void,
   ) {
-    super(app);
+    super(plugin.app);
     Object.assign(this.result, defaults);
   }
 
@@ -54,47 +57,82 @@ export class ProgressTrackCreateModal extends Modal {
     const { contentEl } = this;
     new Setting(contentEl).setName("New progress track").setHeading();
 
-    let fileNameText: TextComponent;
+    let campaign!: CampaignFile;
+
+    const onChangeCampaign = () => {
+      //TODO(@cwegrzyn): this should update to use the campaign-specific folder
+      folderComponent
+        .setBaseFolder(campaign.file.parent!)
+        .setValue(this.plugin.settings.defaultProgressTrackFolder)
+        .onChanged();
+    };
+
+    const validate = debounce(() => {
+      const valid =
+        this.result.name.trim().length > 0 &&
+        this.result.fileName.trim().length > 0;
+      createButton.setDisabled(!valid);
+    }, 0);
+
+    CampaignSelectComponent.addToSetting(
+      new Setting(contentEl)
+        .setName("Campaign")
+        .setDesc("New track will be created in this campaign."),
+      this.plugin,
+      (dropdown) => {
+        dropdown.onChange((val) => {
+          campaign = val;
+          onChangeCampaign();
+          validate();
+        });
+        campaign = dropdown.getValue();
+      },
+    );
 
     new Setting(contentEl).setName("Name").addText((text) =>
       text.onChange((value) => {
         this.result.name = value;
         // TODO: could add smarter logic to only update if user hasn't made a specific value
         fileNameText.setValue(generateObsidianFilename(value)).onChanged();
+        validate();
       }),
     );
 
+    let fileNameText!: TextComponent;
     new Setting(contentEl).setName("File name").addText(
       (text) =>
         (fileNameText = text.onChange((value) => {
           this.result.fileName = value;
+          validate();
         })),
     );
 
-    let folderComponent!: SearchComponent;
-    const folderSetting = new Setting(contentEl)
-      .setName("Target folder")
-      .addSearch((search) => {
+    let folderComponent!: RelativeFolderSearchComponent;
+    const folderSetting = RelativeFolderSearchComponent.addToSetting(
+      new Setting(contentEl).setName("Target folder"),
+      this.plugin.app,
+      (search) => {
         new FolderTextSuggest(this.app, search.inputEl);
         folderComponent = search
           .setPlaceholder("Choose a folder")
           .setValue(this.result.targetFolder)
-          .onChange((newFolder) => {
-            this.result.targetFolder = newFolder;
-            const normalized = normalizePath(newFolder);
-            if (this.app.vault.getFolderByPath(normalized)) {
+          .onChange((_relpath, newPath, folder) => {
+            this.result.targetFolder = newPath;
+            if (folder) {
               folderSetting.setDesc(
-                `Creating track in existing folder '${normalized}'`,
+                `Creating track in existing folder '${newPath}'`,
               );
             } else {
               folderSetting.setDesc(
-                `Creating track in new folder '${normalized}`,
+                `Creating track in new folder '${newPath}'`,
               );
             }
           });
-      });
+      },
+    );
 
-    folderComponent.onChanged();
+    onChangeCampaign();
+    validate();
 
     // TODO: since the string value equals the display string, i don't actually know if this
     //   is working as intended with the options
@@ -125,14 +163,16 @@ export class ProgressTrackCreateModal extends Modal {
       });
     });
 
+    let createButton!: ButtonComponent;
     new Setting(contentEl)
-      .addButton((btn) =>
-        btn
-          .setButtonText("Create")
-          .setCta()
-          .onClick(() => {
-            this.accept();
-          }),
+      .addButton(
+        (btn) =>
+          (createButton = btn
+            .setButtonText("Create")
+            .setCta()
+            .onClick(() => {
+              this.accept();
+            })),
       )
       .addButton((btn) =>
         btn.setButtonText("Cancel").onClick(() => {

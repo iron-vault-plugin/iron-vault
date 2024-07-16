@@ -70,7 +70,7 @@ export class ClockCreateModal extends Modal {
     CampaignSelectComponent.addToSetting(
       new Setting(contentEl)
         .setName("Campaign")
-        .setDesc("New character will be created in this campaign."),
+        .setDesc("New clock will be created in this campaign."),
       this.plugin,
       (dropdown) => {
         dropdown.onChange((val) => {
@@ -115,7 +115,9 @@ export class ClockCreateModal extends Modal {
                 `Creating clock in existing folder '${newPath}'`,
               );
             } else {
-              folderSetting.setDesc(`Creating clock in new folder '${newPath}`);
+              folderSetting.setDesc(
+                `Creating clock in new folder '${newPath}'`,
+              );
             }
           });
       },

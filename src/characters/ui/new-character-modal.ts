@@ -122,7 +122,7 @@ export class CharacterCreateModal extends Modal {
               );
             } else {
               folderSetting.setDesc(
-                `Creating character in new folder '${newAbsPath}`,
+                `Creating character in new folder '${newAbsPath}'`,
               );
             }
           });
