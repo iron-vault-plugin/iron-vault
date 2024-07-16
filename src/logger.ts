@@ -8,6 +8,11 @@ export const rootLogger = loglevel;
 export function initLogger() {
   loglevel.setDefaultLevel(DEFAULT_LOG_LEVEL);
 }
+
 export function setLogLevel(level: loglevel.LogLevelDesc) {
   loglevel.setLevel(level, true);
+}
+
+export function isDebugEnabled() {
+  return rootLogger.getLevel() <= rootLogger.levels.DEBUG;
 }

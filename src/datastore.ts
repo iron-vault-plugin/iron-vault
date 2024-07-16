@@ -23,7 +23,7 @@ import {
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
 import merge from "lodash.merge";
-import { rootLogger } from "logger";
+import { isDebugEnabled, rootLogger } from "logger";
 import { Oracle } from "model/oracle";
 import { Component, Notice, TFile, TFolder, type App } from "obsidian";
 import { OracleRoller } from "oracles/roller";
@@ -43,6 +43,8 @@ export class Datastore extends Component implements IDataContext {
   #readyNow!: () => void;
 
   emitter: Emittery;
+
+  ajv: Ajv = new Ajv({ strict: false, validateFormats: false });
 
   constructor(public readonly plugin: IronVaultPlugin) {
     super();
@@ -128,7 +130,20 @@ export class Datastore extends Component implements IDataContext {
   }
 
   indexBuiltInData(pkg: Datasworn.RulesPackage, priority: number = 0) {
-    // TODO: properly support this.
+    if (isDebugEnabled()) {
+      logger.debug("Validating datasworn package %s", pkg._id);
+      const validate = this.ajv.compile(dataswornSchema);
+      const result = validate(pkg);
+      if (!result) {
+        logger.error(
+          "Invalid datasworn package: %s",
+          (pkg as Datasworn.RulesPackage)._id,
+          validate.errors,
+        );
+        return;
+      }
+    }
+
     const mainPath = `@datasworn:${pkg._id}`;
     const source = createSource({
       path: mainPath,
@@ -151,9 +166,7 @@ export class Datastore extends Component implements IDataContext {
   }
 
   async indexDataswornFiles(folder: TFolder) {
-    const ajv = new Ajv({ strict: false, validateFormats: false });
-    const validate = ajv.compile(dataswornSchema);
-
+    const validate = this.ajv.compile(dataswornSchema);
     for (const file of folder.children) {
       if (file instanceof TFile && file.name.endsWith(".json")) {
         try {

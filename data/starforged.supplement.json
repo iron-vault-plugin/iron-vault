@@ -3,6 +3,16 @@
   "_id": "starforgedsupp",
   "datasworn_version": "0.1.0",
   "ruleset": "starforged",
+  "title": "Iron Vault support for Ironsworn: Starforged",
+  "description": "Collection of utility oracles for use with Starforged",
+  "authors": [
+    {
+      "name": "Iron Vault Dev Team"
+    }
+  ],
+  "date": "2024-07-16",
+  "license": "MIT",
+  "url": "https://ironvault.quest",
   "oracles": {
     "templates": {
       "_id": "oracle_collection:starforgedsupp/templates",
@@ -210,5 +220,6 @@
       "collections": {},
       "_id": "asset_collection:starforgedsupp/incidental_vehicle"
     }
-  }
+  },
+  "moves": {}
 }

@@ -57,11 +57,11 @@ export function dataforgedInlineParser(content: string): ParserReturn {
 export function inlineOracleParser(baseName: string): MarkdownDataParser {
   const id = `user_inlineoracle_${baseName.replace(/\s+/, "_")}`;
   // TODO: what should source be?
-  const source = {
+  const source: Datasworn.SourceInfo = {
     authors: [{ name: "User" }],
     date: "0000-00-00",
-    license: "???",
-    title: "User",
+    license: null,
+    title: `Oracles from ${baseName}`,
     url: "https://example.com",
   };
   return (content: string) => {
@@ -79,6 +79,9 @@ export function inlineOracleParser(baseName: string): MarkdownDataParser {
           _id: id,
           type: "expansion",
           ruleset: "starforged", // TODO: not sure how to handle this
+          ...source,
+          moves: {},
+          assets: {},
           oracles: {
             user: {
               _id: `oracle_collection:${id}/user`,
