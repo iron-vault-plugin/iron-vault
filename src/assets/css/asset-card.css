@@ -43,6 +43,12 @@
       }
     }
   }
+  & > footer {
+    padding: 0 1em 1em 1em;
+    font-size: 0.8em;
+    color: var(--text-muted);
+    font-weight: var(--font-semibold);
+  }
   & label:has(> input[type="checkbox"]) {
     display: flex;
     flex-flow: row nowrap;

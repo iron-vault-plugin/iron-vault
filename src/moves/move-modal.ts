@@ -41,6 +41,10 @@ export class MoveModal extends Modal {
     contentEl.toggleClass("iron-vault-modal-content", true);
     contentEl.toggleClass("iron-vault-modal", true);
     contentEl.toggleClass("iron-vault-move-modal", true);
+    contentEl.createEl("header", {
+      text: this.plugin.datastore.moveRulesets.get("ruleset_for_" + move._id)
+        ?.title,
+    });
     const view = this.getActiveMarkdownView();
     // NOTE(@cwegrzyn): I've taken the approach here that if there is no active view, let's
     // not prompt the user for a campaign/character just to view a move.
