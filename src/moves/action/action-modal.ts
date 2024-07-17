@@ -155,7 +155,7 @@ export async function rerollDie(
           : dieName === "vs1"
             ? DieKind.Challenge1
             : DieKind.Challenge2,
-      ).roll());
+      ).roll(plugin.settings.graphicalActionDice));
   }
   const props: { action?: string; vs1?: string; vs2?: string } = {};
   props[dieName] = newValue;

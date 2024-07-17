@@ -114,10 +114,13 @@ export class DataswornOracle implements Oracle {
         ],
         this.plugin,
       );
-      const res = await group.roll();
+      const res = await group.roll(this.plugin.settings.graphicalOracleDice);
       return this.evaluate(context, res[0].value, res[1].value, cursed.id);
     }
-    return this.evaluate(context, await this.dice.roll());
+    return this.evaluate(
+      context,
+      await this.dice.roll(this.plugin?.settings.graphicalOracleDice ?? true),
+    );
   }
 
   async evaluate(

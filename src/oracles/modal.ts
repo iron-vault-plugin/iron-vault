@@ -54,7 +54,7 @@ export class OracleRollerModal extends Modal {
               this.plugin.settings.cursedDieSides,
               this.plugin,
               DieKind.Cursed,
-            ).roll();
+            ).roll(this.plugin.settings.graphicalOracleDice);
             await setRoll(this.currentRoll.withCursedRoll(newCursedRoll));
             await onUpdateCursedRoll();
           }),

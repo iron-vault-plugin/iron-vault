@@ -295,7 +295,7 @@ async function pickRandomSubOption(
   plugin: IronVaultPlugin,
 ) {
   const dice = Dice.fromDiceString(table.dice, plugin, DieKind.Oracle);
-  const res = await dice.roll();
+  const res = await dice.roll(plugin.settings.graphicalOracleDice);
   return table.rows.findIndex(
     (row) => row.roll!.min <= res && res <= row.roll!.max,
   );
@@ -306,7 +306,7 @@ async function pickRandomOption(truth: Truth, plugin: IronVaultPlugin) {
   if (options.every((option) => option.roll != null)) {
     // Do a dice roll
     const die = Dice.fromDiceString(truth.dice, plugin, DieKind.Oracle);
-    const res = await die.roll();
+    const res = await die.roll(plugin.settings.graphicalOracleDice);
     return options.find((opt) => opt.roll.min <= res && res <= opt.roll.max);
   } else {
     return options[Math.floor(Math.random() * options.length)];

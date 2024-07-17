@@ -54,10 +54,7 @@ export class DiceOverlay {
     container?.classList.toggle("active", true);
     const roll = await this.diceBox.roll(dice);
     const listener = (ev: KeyboardEvent | MouseEvent) => {
-      if (
-        (ev instanceof KeyboardEvent && ev.key === "Escape") ||
-        ev instanceof MouseEvent
-      ) {
+      if (ev instanceof KeyboardEvent || ev instanceof MouseEvent) {
         container?.classList.toggle("active", false);
         this.diceBox.clear();
         container?.removeEventListener("click", listener);
