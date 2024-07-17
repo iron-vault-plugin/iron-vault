@@ -4,7 +4,7 @@ import dataswornSchema from "@datasworn/core/json/datasworn.schema.json" assert 
 import ironswornDelvePackage from "@datasworn/ironsworn-classic-delve/json/delve.json" assert { type: "json" };
 import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
-import sunderedIslesPackage from "@datasworn/sundered_isles/json/sundered_isles.json" assert { type: "json" };
+import sunderedIslesPackage from "@datasworn/sundered-isles/json/sundered_isles.json" assert { type: "json" };
 import Ajv from "ajv";
 import { IDataContext } from "characters/action-context";
 import {

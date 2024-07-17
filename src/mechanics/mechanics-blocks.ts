@@ -334,8 +334,8 @@ See https://kdl.dev for syntax.</pre
     const id = node.properties.id as string | undefined;
     const name = (node.properties.name ?? node.values[0]) as string | undefined;
     const move = id
-      ? moves.find((x) => x._id === id) ??
-        moves.find((x) => x.name.toLowerCase() === name?.toLowerCase())
+      ? (moves.find((x) => x._id === id) ??
+        moves.find((x) => x.name.toLowerCase() === name?.toLowerCase()))
       : moves.find((x) => x.name.toLowerCase() === name?.toLowerCase());
     const moveName = name ?? move?.name ?? "Unknown move";
     return html`<details
