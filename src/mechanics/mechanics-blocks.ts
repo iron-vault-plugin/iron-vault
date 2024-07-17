@@ -13,12 +13,17 @@ import { ref } from "lit-html/directives/ref.js";
 import { ProgressTrack } from "tracks/progress";
 import IronVaultPlugin from "../index";
 import { md } from "utils/ui/directives";
-import { map } from "lit-html/directives/map.js";
+import { repeat } from "lit-html/directives/repeat.js";
 import { node } from "utils/kdl";
+import Sortable from "sortablejs";
 
 interface KdlNode extends KdlNodeBare {
   parent?: KdlNode;
+  _nodeId?: string;
+  _docIdx?: number;
 }
+
+let DOC_IDX = 0;
 
 function makeHandler(plugin: IronVaultPlugin) {
   return async (
@@ -52,8 +57,6 @@ export class MechanicsRenderer {
   lastRoll: KdlNode | undefined;
   moveEl: HTMLElement | undefined;
   doc?: KdlNode;
-  details: string[] = [];
-  mechNode?: HTMLElement;
   hideMechanics = false;
 
   constructor(
@@ -66,6 +69,7 @@ export class MechanicsRenderer {
     const res = parse(this.source);
     if (res.output) {
       this.doc = node("doc", { children: res.output });
+      this.fillNodeIds();
       this.fillParents(this.doc.children, this.doc);
     }
     plugin.register(
@@ -89,9 +93,27 @@ export class MechanicsRenderer {
     }
   }
 
+  fillNodeIds() {
+    if (!this.doc) {
+      return;
+    }
+    const doc = this.doc;
+    doc._docIdx = DOC_IDX++;
+    let node_idx = 0;
+    rec(this.doc.children);
+    function rec(nodes: KdlNode[]) {
+      for (const node of nodes) {
+        node._nodeId = `doc-${doc._docIdx}/node-${node_idx++}`;
+        rec(node.children);
+      }
+    }
+  }
+
   render() {
+    this.contentEl.empty();
+    this.lastRoll = undefined;
     if (this.plugin.settings.hideMechanics) {
-      render(html``, this.contentEl);
+      render(html``, this.contentEl.createDiv());
       return;
     }
     if (!this.doc) {
@@ -101,45 +123,45 @@ export class MechanicsRenderer {
 Error parsing mechanics block: KDL text was invalid.
 See https://kdl.dev for syntax.</pre
         >`,
-        this.contentEl,
+        this.contentEl.createDiv(),
       );
       return;
     }
-    render(
-      html`<article
-        class="iron-vault-mechanics"
-        style=${styleMap({
-          "--vs1-color": this.plugin.settings.challengeDie1Color,
-          "--vs2-color": this.plugin.settings.challengeDie2Color,
-        })}
-        @contextmenu=${this.makeMenuHandler(this.doc)}
-        ${ref((el?: Element) => {
-          if (
-            !el ||
-            !this.plugin.settings.showMechanicsToggle ||
-            (el as HTMLElement).querySelector(".toggle")
+    const tpl = html`<article
+      class="iron-vault-mechanics"
+      style=${styleMap({
+        "--vs1-color": this.plugin.settings.challengeDie1Color,
+        "--vs2-color": this.plugin.settings.challengeDie2Color,
+      })}
+      @contextmenu=${this.makeMenuHandler(this.doc)}
+      ${ref((el?: Element) => {
+        if (
+          !el ||
+          !this.plugin.settings.showMechanicsToggle ||
+          (el as HTMLElement).querySelector(".toggle")
+        )
+          return;
+        const btn = new ButtonComponent(el as HTMLElement);
+        btn
+          .setButtonText(
+            this.hideMechanics ? "Show mechanics" : "Hide mechanics",
           )
-            return;
-          const btn = new ButtonComponent(el as HTMLElement);
-          btn
-            .setButtonText(
+          .setClass("toggle")
+          .setTooltip("Toggle displaying mechanics")
+          .onClick(() => {
+            this.hideMechanics = !this.hideMechanics;
+            btn.setButtonText(
               this.hideMechanics ? "Show mechanics" : "Hide mechanics",
-            )
-            .setClass("toggle")
-            .setTooltip("Toggle displaying mechanics")
-            .onClick(() => {
-              this.hideMechanics = !this.hideMechanics;
-              btn.setButtonText(
-                this.hideMechanics ? "Show mechanics" : "Hide mechanics",
-              );
-              this.render();
-            });
-        })}
-      >
+            );
+            this.render();
+          });
+      })}
+    >
+      <div ${ref((el) => makeSortable(el, this.doc!))}>
         ${this.hideMechanics ? null : this.renderChildren(this.doc.children)}
-      </article>`,
-      this.contentEl,
-    );
+      </div>
+    </article>`;
+    render(tpl, this.contentEl.createDiv());
   }
 
   makeMenuHandler(node: KdlNode) {
@@ -204,9 +226,7 @@ See https://kdl.dev for syntax.</pre
     };
     const to = {
       line: editorRange.to.line,
-      ch:
-        editor.getLine(editorRange.to.line).length +
-        (this.doc.children.length ? 0 : 1),
+      ch: editor.getLine(editorRange.to.line).length,
     };
     editor.replaceRange(
       this.doc.children.length
@@ -216,21 +236,15 @@ See https://kdl.dev for syntax.</pre
       to,
     );
     editor.focus();
-    const moveTo = editorRange.from.line - (this.doc.children.length ? 1 : 0);
+    const moveTo = editorRange.from.line;
     // NB(@zkat): This prevents the editor jumping around.
     editor.setCursor({ ch: 0, line: moveTo >= 0 ? moveTo : 0 });
   }
 
   renderChildren(nodes: KdlNode[]): TemplateResult {
-    return html`${map(
-      nodes.reduce((acc, node) => {
-        if (node.name === "-" && acc[acc.length - 1]?.name === "-") {
-          acc[acc.length - 1].values.push(...node.values);
-        } else {
-          acc.push(node);
-        }
-        return acc;
-      }, [] as KdlNode[]),
+    return html`${repeat(
+      nodes,
+      (node) => node._nodeId,
       (node) => this.renderNode(node),
     )}`;
   }
@@ -242,13 +256,12 @@ See https://kdl.dev for syntax.</pre
       }
       case "-": {
         return this.renderDetails(node);
-        // this.details.push(...(node.values[0] as string).split("\n"));
       }
       case "add": {
         return this.renderAdd(node);
       }
       case "roll": {
-        this.lastRoll = node;
+        this.lastRoll = structuredClone(node);
         this.lastRoll.properties.action =
           node.properties.action ?? node.values[1];
         this.lastRoll.properties.stat = node.properties.stat ?? node.values[2];
@@ -258,7 +271,7 @@ See https://kdl.dev for syntax.</pre
         return this.renderRoll(node);
       }
       case "progress-roll": {
-        this.lastRoll = node;
+        this.lastRoll = structuredClone(node);
         this.lastRoll.properties.score =
           node.properties.score ?? node.values[1];
         this.lastRoll.properties.vs1 = node.properties.vs1 ?? node.values[2];
@@ -332,7 +345,9 @@ See https://kdl.dev for syntax.</pre
       ${ref((el) => (this.moveEl = el as HTMLElement | undefined))}
     >
       <summary>${md(this.plugin, moveName)}</summary>
-      ${this.renderChildren(node.children)}
+      <div ${ref((el) => makeSortable(el, node))}>
+        ${this.renderChildren(node.children)}
+      </div>
     </details>`;
   }
 
@@ -588,7 +603,9 @@ ${result.error.toString()}</pre
     >
       ${this.renderDlist("oracle", data, node)}
       ${node.children.length
-        ? html`<blockquote>${this.renderChildren(node.children)}</blockquote>`
+        ? html`<blockquote ${ref((el) => makeSortable(el, node))}>
+            ${this.renderChildren(node.children)}
+          </blockquote>`
         : null}
     </div>`;
   }
@@ -601,7 +618,9 @@ ${result.error.toString()}</pre
     >
       ${md(this.plugin, name)}
       ${node.children.length
-        ? html`<blockquote>${this.renderChildren(node.children)}</blockquote>`
+        ? html`<blockquote ${ref((el) => makeSortable(el, node))}>
+            ${this.renderChildren(node.children)}
+          </blockquote>`
         : null}
     </article>`;
   }
@@ -814,7 +833,9 @@ ${result.error.toString()}</pre
       @contextmenu=${this.makeMenuHandler(node)}
     >
       <header>${md(this.plugin, name)}</header>
-      ${this.renderChildren(node.children)}
+      <div ${ref((el) => makeSortable(el, node))}>
+        ${this.renderChildren(node.children)}
+      </div>
     </section>`;
   }
 
@@ -826,7 +847,7 @@ ${result.error.toString()}</pre
 
   renderDlist(cls: string, data: DataList, node: KdlNode): TemplateResult {
     return html`<dl class=${cls} @contextmenu=${this.makeMenuHandler(node)}>
-      ${map(
+      ${repeat(
         Object.entries(data),
         ([key, { cls, value, dataProp, md: renderMd }]) => {
           return html`<dt>${key}</dt>
@@ -906,3 +927,55 @@ function rollOutcome(
     match: challenge1 === challenge2,
   };
 }
+
+interface SortableElement extends HTMLElement {
+  node?: KdlNode;
+}
+
+const MECH_BLOCK_GROUP = "mechanics-block-entries";
+const makeSortable = (el: Element | undefined, node: KdlNode) => {
+  if (el && Sortable.get(el as SortableElement)) {
+    Sortable.get(el as SortableElement)!.destroy();
+  }
+  if (el) {
+    (el as SortableElement).node = node;
+    Sortable.create(el as SortableElement, {
+      group: MECH_BLOCK_GROUP,
+      animation: 150,
+      delay: 200,
+      delayOnTouchOnly: true,
+      fallbackOnBody: true,
+      swapThreshold: 0.65,
+      onEnd: (evt) => {
+        if (evt.oldIndex != null && evt.newIndex != null) {
+          const from = evt.from as SortableElement;
+          const to = evt.to as SortableElement;
+          if (!from.node || !to.node) {
+            return;
+          }
+          const fromContent = from.closest(".iron-vault-mechanics")!;
+          const toContent = to.closest(".iron-vault-mechanics")!;
+          const fromRenderer = (
+            fromContent.parentElement!.parentElement as MechanicsContainerEl
+          ).mechanicsRenderer!;
+          const toRenderer = (
+            toContent.parentElement!.parentElement as MechanicsContainerEl
+          ).mechanicsRenderer!;
+          to.node.children.splice(
+            evt.newIndex,
+            0,
+            ...from.node.children.splice(evt.oldIndex, 1),
+          );
+          toRenderer.fillParents(to.node!.children, to.node!);
+          toRenderer.updateBlock();
+          toRenderer.render();
+          if (toRenderer !== fromRenderer) {
+            fromRenderer.fillParents(from.node!.children, from.node!);
+            fromRenderer.updateBlock();
+            fromRenderer.render();
+          }
+        }
+      },
+    });
+  }
+};
