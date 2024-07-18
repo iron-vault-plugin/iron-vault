@@ -47,8 +47,8 @@ export class Dice {
   ) {}
 
   async roll(displayDice: boolean): Promise<number> {
-    if (displayDice) {
-      const res = await this.plugin!.diceOverlay.roll({
+    if (displayDice && this.plugin) {
+      const res = await this.plugin.diceOverlay.roll({
         qty: this.count,
         sides: this.sides,
         themeColor: this.themeColor,
