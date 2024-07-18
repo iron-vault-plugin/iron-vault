@@ -1,7 +1,8 @@
 import Emittery from "emittery";
 
 export class IronVaultPluginSettings {
-  graphicalDice: boolean = true;
+  graphicalOracleDice: boolean = true;
+  graphicalActionDice: boolean = true;
   actionDieColor: string = "#8f8f8f";
   challengeDie1Color: string = "#8b5cf5";
   challengeDie2Color: string = "#8b5cf5";

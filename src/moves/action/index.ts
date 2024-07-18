@@ -246,7 +246,7 @@ async function processActionMove(
         new Dice(1, 10, plugin, DieKind.Challenge2),
       ],
       plugin,
-    ).roll();
+    ).roll(plugin.settings.graphicalActionDice);
     roll = {
       action: res[0].value,
       challenge1: res[1].value,
@@ -282,7 +282,7 @@ async function processProgressMove(
         new Dice(1, 10, plugin, DieKind.Challenge2),
       ],
       plugin,
-    ).roll();
+    ).roll(plugin.settings.graphicalActionDice);
     roll = {
       challenge1: res[0].value,
       challenge2: res[1].value,

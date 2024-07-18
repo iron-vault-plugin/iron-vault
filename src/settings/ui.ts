@@ -242,12 +242,29 @@ export class IronVaultSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Graphical dice")
-      .setDesc("If enabled, dice rolls will use on-screen 3d graphical dice.")
+      .setName("Graphical oracle dice")
+      .setDesc(
+        "If enabled, dice rolls will use on-screen 3d graphical dice when making oracle rolls.",
+      )
       .addToggle((toggle) => {
         toggle
-          .setValue(settings.graphicalDice)
-          .onChange((value) => this.updateSetting("graphicalDice", value));
+          .setValue(settings.graphicalOracleDice)
+          .onChange((value) =>
+            this.updateSetting("graphicalOracleDice", value),
+          );
+      });
+
+    new Setting(containerEl)
+      .setName("Graphical action dice")
+      .setDesc(
+        "If enabled, dice rolls will use on-screen 3d graphical dice when making action and progress rolls.",
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(settings.graphicalActionDice)
+          .onChange((value) =>
+            this.updateSetting("graphicalActionDice", value),
+          );
       });
 
     new Setting(containerEl)
