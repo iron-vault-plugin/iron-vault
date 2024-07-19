@@ -200,7 +200,10 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
   );
 
   projected<U>(
-    callbackfn: (value: SourcedByArray<Kinds>, key: string) => U | undefined,
+    callbackfn: <K extends keyof Kinds>(
+      value: SourcedKindsArray<Kinds>[K],
+      key: string,
+    ) => U | undefined,
   ): ProjectableMap<string, U> {
     return projectedVersionedMap(this.dataMap, callbackfn);
   }

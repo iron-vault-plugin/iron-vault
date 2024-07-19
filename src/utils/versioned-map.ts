@@ -54,6 +54,10 @@ export class VersionedMapImpl<K, V>
 }
 
 export interface ProjectableMap<K, V> extends ReadonlyVersionedMap<K, V> {
+  /** Create a view over the map that filters and transforms it.
+   *
+   * @param callbackfn Callback that should return the value for this entry in the new map, or `undefined` it it should be excluded.
+   */
   projected<U>(
     callbackfn: (value: V, key: K) => U | undefined,
   ): ProjectableMap<K, U>;

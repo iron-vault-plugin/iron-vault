@@ -1,4 +1,4 @@
-import { CampaignTrackedEntities } from "campaigns/context";
+import { CampaignDataContext } from "campaigns/context";
 import { CampaignFile } from "campaigns/entity";
 import { CharacterActionContext } from "characters/action-context";
 import IronVaultPlugin from "index";
@@ -67,7 +67,7 @@ export type CharacterTracker = IndexOf<CharacterIndexer>;
 
 export function currentActiveCharacterForCampaign(
   plugin: IronVaultPlugin,
-  campaignContext: CampaignTrackedEntities,
+  campaignContext: CampaignDataContext,
 ): CharacterActionContext | undefined {
   const characters = onlyValid(campaignContext.characters);
   if (characters.size === 0) {
@@ -105,7 +105,7 @@ export function currentActiveCharacterForCampaign(
  */
 export async function requireActiveCharacterForCampaign(
   plugin: IronVaultPlugin,
-  campaignContext: CampaignTrackedEntities,
+  campaignContext: CampaignDataContext,
 ): Promise<CharacterActionContext> {
   let activeCharacter = currentActiveCharacterForCampaign(
     plugin,
@@ -126,7 +126,7 @@ export async function requireActiveCharacterForCampaign(
 /** Shows a suggest modal listing the current campaign characters. */
 export async function promptForCampaignCharacter(
   plugin: IronVaultPlugin,
-  campaignContext: CampaignTrackedEntities,
+  campaignContext: CampaignDataContext,
 ): Promise<CharacterActionContext> {
   // TODO(@cwegrzyn): would be nice if this showed the current active character when one is available
   const [path, charCtx] = await CustomSuggestModal.select(

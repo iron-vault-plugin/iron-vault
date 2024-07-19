@@ -1,4 +1,4 @@
-import { CampaignTrackedEntities } from "campaigns/context";
+import { CampaignDataContext } from "campaigns/context";
 import { determineCampaignContext } from "campaigns/manager";
 import { StandardIndex } from "datastore/data-indexer";
 import { DataswornTypes, moveOrigin } from "datastore/datasworn-indexer";
@@ -31,7 +31,7 @@ export interface IDataContext {
 }
 
 export interface IActionContext extends IDataContext {
-  readonly campaignContext: CampaignTrackedEntities;
+  readonly campaignContext: CampaignDataContext;
   readonly kind: "no_character" | "character";
   readonly rollables: (MeterWithLens | MeterWithoutLens)[];
   readonly conditionMeters: (
@@ -50,7 +50,7 @@ export class NoCharacterActionConext implements IActionContext {
 
   constructor(
     public readonly datastore: Datastore,
-    public readonly campaignContext: CampaignTrackedEntities,
+    public readonly campaignContext: CampaignDataContext,
   ) {}
 
   get moves() {
@@ -95,7 +95,7 @@ export class CharacterActionContext implements IActionContext {
 
   constructor(
     public readonly datastore: Datastore,
-    public readonly campaignContext: CampaignTrackedEntities,
+    public readonly campaignContext: CampaignDataContext,
     public readonly characterPath: string,
     public readonly characterContext: CharacterContext,
   ) {}

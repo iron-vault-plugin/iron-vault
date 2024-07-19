@@ -1,4 +1,4 @@
-import { CampaignTrackedEntities } from "campaigns/context";
+import { CampaignDataContext } from "campaigns/context";
 import { CampaignFile } from "campaigns/entity";
 import IronVaultPlugin from "index";
 import { EmittingIndex } from "indexer/index-interface";
@@ -45,7 +45,7 @@ export abstract class TrackedEntityRenderer<
     return this.plugin.campaignManager.campaignForPath(this.sourcePath);
   }
 
-  campaignContext(): CampaignTrackedEntities | undefined {
+  campaignContext(): CampaignDataContext | undefined {
     const campaign = this.campaign();
     return campaign && this.plugin.campaignManager.campaignContextFor(campaign);
   }

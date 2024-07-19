@@ -15,7 +15,7 @@ import {
 } from "obsidian";
 import { EVENT_TYPES as LOCAL_SETTINGS_EVENT_TYPES } from "settings/local";
 import { CustomSuggestModal } from "utils/suggest";
-import { CampaignTrackedEntities } from "./context";
+import { CampaignDataContext } from "./context";
 import { CampaignFile } from "./entity";
 
 const logger = rootLogger.getLogger("campaign-manager");
@@ -119,9 +119,10 @@ export class CampaignManager extends Component {
     return this.campaignForFile(file);
   }
 
-  campaignContextFor(campaign: CampaignFile): CampaignTrackedEntities {
-    return new CampaignTrackedEntities(
+  campaignContextFor(campaign: CampaignFile): CampaignDataContext {
+    return new CampaignDataContext(
       this.plugin,
+      this.plugin.datastore.indexer,
       campaign,
       // TODO(cwegrzyn): need to confirm that file equality comparison is safe
       (path) => this.campaignForPath(path)?.file === campaign.file,
@@ -162,7 +163,7 @@ export type EVENT_TYPES = {
 export async function determineCampaignContext(
   plugin: IronVaultPlugin,
   view?: MarkdownView | MarkdownFileInfo,
-): Promise<CampaignTrackedEntities> {
+): Promise<CampaignDataContext> {
   logger.trace("Determining campaign context for", view);
   const file = view?.file;
   let campaign = file && plugin.campaignManager.campaignForFile(file);

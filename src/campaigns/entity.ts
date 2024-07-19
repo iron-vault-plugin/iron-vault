@@ -2,14 +2,33 @@ import { TFile } from "obsidian";
 import { Either } from "utils/either";
 import { zodResultToEither } from "utils/zodutils";
 import { z } from "zod";
+import {
+  IPlaysetConfig,
+  NullPlaysetConfig,
+  PlaysetConfig,
+  PlaysetLinesSchema,
+} from "./playsets/config";
 
 /** Base campaign type. */
 export type BaseCampaign = {
   name: string;
+  playset: IPlaysetConfig;
 };
+
+export const PlaysetConfigSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("globs"),
+    lines: PlaysetLinesSchema,
+  }),
+]);
+
+export const campaignConfigSchema = z.object({
+  playset: PlaysetConfigSchema.optional(),
+});
 
 export const campaignFileSchema = z.object({
   name: z.string().nullish(),
+  ironvault: campaignConfigSchema.default({}),
 });
 
 export type CampaignInput = z.input<typeof campaignFileSchema>;
@@ -17,10 +36,18 @@ export type CampaignOutput = z.output<typeof campaignFileSchema>;
 
 /** A campaign that exists in an Obsidian markdown file. */
 export class CampaignFile implements BaseCampaign {
+  readonly playset: IPlaysetConfig;
+
   private constructor(
     public readonly file: TFile,
     public readonly props: CampaignOutput,
-  ) {}
+  ) {
+    if (props.ironvault.playset?.type == "globs") {
+      this.playset = PlaysetConfig.parse(props.ironvault.playset.lines);
+    } else {
+      this.playset = NullPlaysetConfig.instance;
+    }
+  }
 
   get name(): string {
     return this.props.name ?? this.file.basename;
