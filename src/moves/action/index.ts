@@ -6,6 +6,7 @@ import {
   formatActionContextDescription,
 } from "characters/action-context";
 import { labelForMeter } from "characters/display";
+import { IDataContext } from "datastore/data-context";
 import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
@@ -58,7 +59,7 @@ enum MoveKind {
   Other = "Other",
 }
 
-function getMoveKind(move: Datasworn.Move | Datasworn.EmbeddedMove): MoveKind {
+function getMoveKind(move: Datasworn.AnyMove): MoveKind {
   switch (move.roll_type) {
     case "action_roll":
       return MoveKind.Action;
@@ -86,39 +87,38 @@ const ROLL_TYPES: Record<Datasworn.Move["roll_type"], string> = {
 async function promptForMove(
   plugin: IronVaultPlugin,
   context: ActionContext,
-): Promise<Datasworn.Move | Datasworn.EmbeddedMove> {
+): Promise<Datasworn.AnyMove> {
   const moves = [...context.moves.values()].sort((a, b) =>
     a.name.localeCompare(b.name),
   );
-  const choice = await CustomSuggestModal.selectWithUserEntry<
-    Datasworn.Move | Datasworn.EmbeddedMove
-  >(
-    plugin.app,
-    moves,
-    (move) => move.name,
-    (input, el) => {
-      el.setText(`Use custom move '${input}'`);
-    },
-    ({ item: move }, el: HTMLElement) => {
-      const moveKind = getMoveKind(move);
-      const ruleset = moveRuleset(plugin, move);
-      el.createEl("small", {
-        text: `(${moveKind}) ${move.trigger.text}`,
-        cls: "iron-vault-suggest-hint",
-      });
-      if (ruleset) {
-        el.createEl("br");
+  const choice =
+    await CustomSuggestModal.selectWithUserEntry<Datasworn.AnyMove>(
+      plugin.app,
+      moves,
+      (move) => move.name,
+      (input, el) => {
+        el.setText(`Use custom move '${input}'`);
+      },
+      ({ item: move }, el: HTMLElement) => {
+        const moveKind = getMoveKind(move);
+        const ruleset = moveRuleset(context, move);
         el.createEl("small", {
+          text: `(${moveKind}) ${move.trigger.text}`,
           cls: "iron-vault-suggest-hint",
-        })
-          .createEl("strong")
-          .createEl("em", {
-            text: ruleset,
-          });
-      }
-    },
-    `Select a move ${formatActionContextDescription(context)}`,
-  );
+        });
+        if (ruleset) {
+          el.createEl("br");
+          el.createEl("small", {
+            cls: "iron-vault-suggest-hint",
+          })
+            .createEl("strong")
+            .createEl("em", {
+              text: ruleset,
+            });
+        }
+      },
+      `Select a move ${formatActionContextDescription(context)}`,
+    );
 
   if (choice.kind == "pick") {
     return choice.value;
@@ -682,12 +682,11 @@ async function promptForRollable(
 }
 
 function moveRuleset(
-  plugin: IronVaultPlugin,
+  dataContext: IDataContext,
   move: Datasworn.Move | Datasworn.EmbeddedMove,
 ) {
-  return (
-    plugin.datastore.moveRulesets.get("ruleset_for_" + move._id)?.title ?? ""
-  );
+  // TODO(@cwegrzyn): we should have a more direct way of doing this using source information
+  return dataContext.moveRulesets.get("ruleset_for_" + move._id)?.title ?? "";
 }
 
 export async function makeActionRollCommand(

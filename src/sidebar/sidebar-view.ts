@@ -69,10 +69,9 @@ export class SidebarView extends ItemView {
     const renderCharacter = debounce(() => this.renderCharacter(), 100, true);
 
     this.registerEvent(
-      this.plugin.campaignManager.on(
-        "active-campaign-changed",
-        renderCharacter,
-      ),
+      this.plugin.campaignManager.on("active-campaign-changed", () => {
+        renderCharacter();
+      }),
     );
 
     this.registerEvent(

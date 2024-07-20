@@ -82,6 +82,7 @@ export class IronVaultCommands {
       name: "Create new character",
       icon: "user-round",
       callback: () => createNewCharacter(this.plugin),
+      editorCallback: (editor, view) => createNewCharacter(this.plugin, view),
     },
     {
       id: "burn-momentum",
@@ -244,6 +245,8 @@ export class IronVaultCommands {
       name: "Generate truths",
       icon: "book",
       callback: () => generateTruthsCommand(this.plugin),
+      editorCallback: (_editor, view) =>
+        generateTruthsCommand(this.plugin, view),
     },
     {
       id: "open-docs-in-tab",

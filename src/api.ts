@@ -1,4 +1,6 @@
 import { syntaxTree } from "@codemirror/language";
+import { CampaignDataContext } from "campaigns/context";
+import { IDataContext } from "datastore/data-context";
 import { rootLogger, setLogLevel } from "logger";
 import loglevel from "loglevel";
 import { App, getLinkpath, parseLinktext } from "obsidian";
@@ -27,8 +29,22 @@ export class IronVaultAPI {
     return this.plugin.progressTracks;
   }
 
+  get globalDataContext(): IDataContext {
+    return this.plugin.datastore.dataContext;
+  }
+
+  /** Active campaign context  */
+  get activeCampaignContext(): CampaignDataContext | undefined {
+    return this.plugin.campaignManager.lastActiveCampaignContext();
+  }
+
+  /** A campaign data context if available, otherwise global. */
+  get activeDataContext(): IDataContext {
+    return this.activeCampaignContext ?? this.globalDataContext;
+  }
+
   public async roll(oracle: string): Promise<RollWrapper> {
-    return this.datastore.roller.roll(oracle);
+    return this.globalDataContext.roller.roll(oracle);
   }
 
   public stripLinks(input: string): string {

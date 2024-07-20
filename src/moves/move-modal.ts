@@ -1,4 +1,5 @@
 import { determineCharacterActionContext } from "characters/action-context";
+import { IDataContext } from "datastore/data-context";
 import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { html, render } from "lit-html";
@@ -19,14 +20,15 @@ import { runMoveCommand, suggestedRollablesForMove } from "./action";
 const TABLE_REGEX = /\{\{table>([^}]+)\}\}/g;
 
 export class MoveModal extends Modal {
-  plugin: IronVaultPlugin;
-  move: AnyDataswornMove;
   moveHistory: AnyDataswornMove[] = [];
 
-  constructor(app: App, plugin: IronVaultPlugin, move: AnyDataswornMove) {
+  constructor(
+    app: App,
+    readonly plugin: IronVaultPlugin,
+    readonly dataContext: IDataContext,
+    readonly move: AnyDataswornMove,
+  ) {
     super(app);
-    this.plugin = plugin;
-    this.move = move;
   }
 
   private getActiveMarkdownView(): MarkdownView | undefined {
@@ -42,8 +44,7 @@ export class MoveModal extends Modal {
     contentEl.toggleClass("iron-vault-modal", true);
     contentEl.toggleClass("iron-vault-move-modal", true);
     contentEl.createEl("header", {
-      text: this.plugin.datastore.moveRulesets.get("ruleset_for_" + move._id)
-        ?.title,
+      text: this.dataContext.moveRulesets.get("ruleset_for_" + move._id)?.title,
     });
     const view = this.getActiveMarkdownView();
     // NOTE(@cwegrzyn): I've taken the approach here that if there is no active view, let's
@@ -137,7 +138,7 @@ export class MoveModal extends Modal {
         if (!id) return;
         ev.preventDefault();
         ev.stopPropagation();
-        const newMove = this.plugin.datastore.moves.get(id);
+        const newMove = this.dataContext.moves.get(id);
         if (newMove) {
           this.moveHistory.push(move);
           this.openMove(newMove);
@@ -159,7 +160,7 @@ export class MoveModal extends Modal {
     let moveText = move.text;
     const oracles = [];
     for (const match of move.text.matchAll(TABLE_REGEX)) {
-      const oracle = this.plugin.datastore.oracles.get(match[1]);
+      const oracle = this.dataContext.oracles.get(match[1]);
       if (oracle) {
         const dom = await generateOracleTable(this.plugin, oracle);
         const oracleText = dom.outerHTML + "\n";

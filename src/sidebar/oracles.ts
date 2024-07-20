@@ -1,3 +1,4 @@
+import { IDataContext } from "datastore/data-context";
 import { generateEntityCommand } from "entity/command";
 import { ENTITIES } from "entity/specs";
 import IronVaultPlugin from "index";
@@ -41,18 +42,18 @@ interface CollectionGrouping {
 }
 
 function getOracleTree(
-  plugin: IronVaultPlugin,
+  dataContext: IDataContext,
   searchIdx: MiniSearch<OracleIndexEntry>,
   filter?: string,
 ) {
   const results = filter
     ? searchIdx.search(filter)
-    : [...plugin.datastore.oracles.values()];
+    : [...dataContext.oracles.values()];
   const rulesets: Map<string, RulesetGrouping> = new Map();
   const groupings: Map<string, CollectionGrouping> = new Map();
   let total = 0;
   for (const res of results) {
-    const oracle = plugin.datastore.oracles.get(res.id)!;
+    const oracle = dataContext.oracles.get(res.id)!;
     let topGroup = oracle.parent;
     let groupName = topGroup.name;
     while (

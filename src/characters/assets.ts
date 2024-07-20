@@ -1,10 +1,9 @@
 import { type Datasworn } from "@datasworn/core";
-import { Datastore } from "datastore";
+import { IDataContext } from "datastore/data-context";
 import { produce } from "immer";
 import { ConditionMeterDefinition } from "rules/ruleset";
 import { Either, Left, Right } from "../utils/either";
 import { Lens, addOrUpdateMatching, reader, writer } from "../utils/lens";
-import { IDataContext } from "./action-context";
 import {
   CharLens,
   CharReader,
@@ -154,10 +153,10 @@ export function addOrUpdateAssetData(
  */
 export function addOrUpdateViaDataswornAsset(
   charLens: CharacterLens,
-  datastore: Datastore,
+  dataContext: IDataContext,
 ): CharWriter<Datasworn.Asset> {
   const assetDataWriter = addOrUpdateAssetData(charLens);
-  const assetLens = integratedAssetLens(datastore);
+  const assetLens = integratedAssetLens(dataContext);
 
   return writer((source, newval) => {
     return assetDataWriter.update(
@@ -177,11 +176,11 @@ function assetKey(key: string, parentKey: string | number | undefined): string {
 }
 
 export function integratedAssetLens(
-  datastore: Datastore,
+  dataContext: IDataContext,
 ): Lens<IronVaultSheetAssetSchema, Datasworn.Asset> {
   return {
     get(assetData) {
-      const dataswornAsset = datastore.assets.get(assetData.id);
+      const dataswornAsset = dataContext.assets.get(assetData.id);
       if (!dataswornAsset) {
         throw new AssetError(`unable to find asset ${assetData.id}`);
       }

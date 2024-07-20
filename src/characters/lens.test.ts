@@ -1,11 +1,10 @@
 import { type Datasworn } from "@datasworn/core";
 import starforgedData from "@datasworn/starforged/json/starforged.json" with { type: "json" };
-import { VersionedMapImpl } from "utils/versioned-map";
+import { IDataContext, MockDataContext } from "datastore/data-context";
 import { Ruleset } from "../rules/ruleset";
 import { ChallengeRanks } from "../tracks/progress";
 import { Right } from "../utils/either";
 import { Lens, updating } from "../utils/lens";
-import { IDataContext } from "./action-context";
 import {
   BaseIronVaultSchema,
   IronVaultSheetAssetInput,
@@ -254,23 +253,19 @@ describe("momentumOps", () => {
 });
 
 function createMockDataContext(...assets: Datasworn.Asset[]): IDataContext {
-  const assetMap = new VersionedMapImpl<string, Datasworn.Asset>();
-  for (const asset of assets) {
-    assetMap.set(asset._id, asset);
-  }
-  return {
-    assets: assetMap,
-    moves: new VersionedMapImpl(),
-  };
+  return new MockDataContext({ assets });
 }
 
 describe("movesReader", () => {
   let mockDataContext: IDataContext;
 
   beforeAll(() => {
-    mockDataContext = createMockDataContext(
-      starforgedData.assets.path.contents.empath as unknown as Datasworn.Asset,
-    );
+    mockDataContext = new MockDataContext({
+      assets: [
+        starforgedData.assets.path.contents
+          .empath as unknown as Datasworn.Asset,
+      ],
+    });
   });
 
   describe("moves", () => {

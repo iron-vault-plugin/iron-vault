@@ -1,3 +1,4 @@
+import { determineCampaignContext } from "campaigns/manager";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { createOrAppendMechanics } from "mechanics/editor";
@@ -83,11 +84,15 @@ export async function runOracleCommand(
     return;
   }
 
+  const campaignContext = await determineCampaignContext(plugin, view);
+
   let oracle: Oracle;
   if (chosenOracle) {
+    // TODO(@cwegrzyn): if this is called with a specific oracle, should it
+    // also have a specific campaign context?
     oracle = chosenOracle;
   } else {
-    const oracles: Oracle[] = [...plugin.datastore.oracles.values()];
+    const oracles: Oracle[] = [...campaignContext.oracles.values()];
     oracle = await CustomSuggestModal.select(
       plugin.app,
       oracles,
@@ -101,7 +106,7 @@ export async function runOracleCommand(
       prompt ? `Select an oracle to answer '${prompt}'` : "Select an oracle",
     );
   }
-  const rollContext = new OracleRoller(plugin.datastore.oracles);
+  const rollContext = new OracleRoller(campaignContext.oracles);
 
   // If user wishes to make their own roll, prompt them now.
   let initialRoll: Roll | undefined = undefined;

@@ -47,7 +47,7 @@ export async function addAssetToCharacter(
   const characterAssets = lens.assets.get(character);
 
   const availableAssets: Datasworn.Asset[] = [];
-  for (const asset of plugin.datastore.assets.values()) {
+  for (const asset of actionContext.assets.values()) {
     if (!characterAssets.find(({ id }) => id === asset._id)) {
       // Character does not have this asset
       availableAssets.push(asset);
@@ -116,15 +116,19 @@ export async function addAssetToCharacter(
   });
 
   await context.updater(vaultProcess(plugin.app, path), (char) =>
-    addOrUpdateViaDataswornAsset(lens, plugin.datastore).update(
+    addOrUpdateViaDataswornAsset(lens, actionContext).update(
       char,
       updatedAsset,
     ),
   );
 }
 
-export async function createNewCharacter(plugin: IronVaultPlugin) {
-  const { lens, validater } = characterLens(plugin.datastore.ruleset);
+export async function createNewCharacter(
+  plugin: IronVaultPlugin,
+  view?: MarkdownView | MarkdownFileInfo,
+) {
+  const campaignContext = await determineCampaignContext(plugin, view);
+  const { lens, validater } = characterLens(campaignContext.ruleset);
 
   const { fileName, name, targetFolder } =
     await CharacterCreateModal.show(plugin);
@@ -190,7 +194,7 @@ export const changeInitiative = async (
 ) => {
   const actionContext = await requireActiveCharacterContext(plugin, view);
 
-  const ruleset = actionContext.datastore.ruleset;
+  const ruleset = actionContext.ruleset;
 
   const { character, lens } = actionContext.characterContext;
 

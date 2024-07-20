@@ -8,6 +8,7 @@ import {
   OracleRulesetGrouping,
 } from "model/oracle";
 import {
+  DataIndex,
   DataIndexer,
   Source,
   SourceTag,
@@ -189,3 +190,4 @@ function* walkOracles(
     yield* expand(set, rootGrouping);
   }
 }
+export type DataswornIndex = DataIndex<DataswornTypes>;

@@ -1,3 +1,5 @@
+import { determineCampaignContext } from "campaigns/manager";
+import { IDataContext } from "datastore/data-context";
 import { extractDataswornLinkParts } from "datastore/parsers/datasworn/id";
 import Handlebars from "handlebars";
 import { createOrAppendMechanics } from "mechanics/editor";
@@ -16,7 +18,6 @@ import { getExistingOrNewFolder } from "utils/obsidian";
 import IronVaultPlugin from "../index";
 import { Oracle, OracleRollableRow, RollContext } from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
-import { OracleRoller } from "../oracles/roller";
 import { CustomSuggestModal } from "../utils/suggest";
 import { EntityModal, EntityModalResults } from "./modal";
 import {
@@ -80,14 +81,11 @@ export async function promptOracleRow(
 }
 
 export async function generateEntity(
-  plugin: IronVaultPlugin,
+  app: App,
+  dataContext: IDataContext,
   entityDesc: EntityDescriptor<EntitySpec>,
 ): Promise<EntityModalResults<EntitySpec>> {
-  const { datastore } = plugin;
-  if (!datastore.ready) {
-    throw new Error("data not ready");
-  }
-  const rollContext = new OracleRoller(datastore.oracles);
+  const rollContext = dataContext.roller;
   const attributes = Object.entries(entityDesc.spec)
     .filter(
       (keyAndSpec): keyAndSpec is [string, EntityAttributeFieldSpec] =>
@@ -105,11 +103,11 @@ export async function generateEntity(
     if (!oracle) {
       throw new NoSuchOracleError(spec.id, `missing entity oracle for ${key}`);
     }
-    const roll = await promptOracleRow(plugin.app, oracle, rollContext, true);
+    const roll = await promptOracleRow(app, oracle, rollContext, true);
     initialEntity[key] = [new RollWrapper(oracle, rollContext, roll)];
   }
   return EntityModal.create({
-    app: plugin.app,
+    app,
     entityDesc,
     rollContext,
     initialEntity,
@@ -119,9 +117,11 @@ export async function generateEntity(
 export async function generateEntityCommand(
   plugin: IronVaultPlugin,
   editor: Editor,
-  ctx: MarkdownView | MarkdownFileInfo,
+  view: MarkdownView | MarkdownFileInfo,
   selectedEntityDescriptor?: EntityDescriptor<EntitySpec>,
 ): Promise<void> {
+  const campaignContext = await determineCampaignContext(plugin, view);
+
   let entityDesc: EntityDescriptor<EntitySpec>;
   if (!selectedEntityDescriptor) {
     const [, desc] = await CustomSuggestModal.select(
@@ -143,7 +143,7 @@ export async function generateEntityCommand(
         if (collId) {
           const path = extractDataswornLinkParts(collId)!.path;
           const [rulesetId] = path.split("/");
-          const ruleset = plugin.datastore.rulesPackages.get(rulesetId);
+          const ruleset = campaignContext.rulesPackages.get(rulesetId);
           if (ruleset) {
             el.createEl("small", { cls: "iron-vault-suggest-hint" })
               .createEl("strong")
@@ -160,7 +160,7 @@ export async function generateEntityCommand(
 
   let results: EntityModalResults<EntitySpec>;
   try {
-    results = await generateEntity(plugin, entityDesc);
+    results = await generateEntity(plugin.app, campaignContext, entityDesc);
   } catch (e) {
     new Notice(String(e));
     throw e;
@@ -210,7 +210,7 @@ export async function generateEntityCommand(
     );
     oracleGroupTitle = plugin.app.fileManager.generateMarkdownLink(
       file,
-      ctx.file?.path ?? "",
+      view.file?.path ?? "",
       undefined,
       entityName,
     );

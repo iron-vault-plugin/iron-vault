@@ -39,6 +39,11 @@ export class CampaignManager extends Component {
       : undefined;
   }
 
+  lastActiveCampaignContext(): CampaignDataContext | undefined {
+    const campaign = this.lastActiveCampaign();
+    return campaign && this.campaignContextFor(campaign);
+  }
+
   onload(): void {
     this.registerEvent(
       this.plugin.app.workspace.on("active-leaf-change", (leaf) => {

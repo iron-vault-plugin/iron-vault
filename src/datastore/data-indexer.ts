@@ -185,18 +185,21 @@ export class SourcedMapImpl<
   }
 }
 
+export type DataIndex<Kinds extends Record<string, unknown>> =
+  ReadonlyVersionedMap<string, SourcedByArray<Kinds>>;
+
 export class DataIndexer<Kinds extends Record<string, unknown>>
   implements ProjectableMap<string, SourcedByArray<Kinds>>
 {
   /** Maps keys to source data */
-  public readonly dataMap: VersionedMapImpl<string, SourcedByArray<Kinds>> =
+  private readonly _dataMap: VersionedMapImpl<string, SourcedByArray<Kinds>> =
     new VersionedMapImpl();
 
   /** Index of sources to source details (including key set) */
   public readonly sourceIndex: Map<string, Source> = new Map();
 
   public readonly prioritized: SourcedMap<Kinds> = new SourcedMapImpl(
-    this.dataMap,
+    this._dataMap,
   );
 
   projected<U>(
@@ -205,7 +208,11 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
       key: string,
     ) => U | undefined,
   ): ProjectableMap<string, U> {
-    return projectedVersionedMap(this.dataMap, callbackfn);
+    return projectedVersionedMap(this._dataMap, callbackfn);
+  }
+
+  get dataMap(): DataIndex<Kinds> {
+    return this._dataMap;
   }
 
   forEach(
@@ -217,41 +224,41 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     thisArg?: any,
   ): void {
-    return this.dataMap.forEach(callbackfn, thisArg);
+    return this._dataMap.forEach(callbackfn, thisArg);
   }
 
   get(key: string): SourcedByArray<Kinds> | undefined {
-    return this.dataMap.get(key);
+    return this._dataMap.get(key);
   }
 
   has(key: string): boolean {
-    return this.dataMap.has(key);
+    return this._dataMap.has(key);
   }
 
   get size(): number {
-    return this.dataMap.size;
+    return this._dataMap.size;
   }
 
   entries(): IterableIterator<[string, SourcedByArray<Kinds>]> {
-    return this.dataMap.entries();
+    return this._dataMap.entries();
   }
 
   keys(): IterableIterator<string> {
-    return this.dataMap.keys();
+    return this._dataMap.keys();
   }
 
   values(): IterableIterator<SourcedByArray<Kinds>> {
-    return this.dataMap.values();
+    return this._dataMap.values();
   }
 
   [Symbol.iterator](): IterableIterator<[string, SourcedByArray<Kinds>]> {
-    return this.dataMap[Symbol.iterator]();
+    return this._dataMap[Symbol.iterator]();
   }
 
   constructor() {}
 
   clear(): void {
-    this.dataMap.clear();
+    this._dataMap.clear();
     this.sourceIndex.clear();
   }
 
@@ -273,9 +280,9 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
     }
 
     // Remove all of the entries for this source
-    this.dataMap.asSingleRevision(() => {
+    this._dataMap.asSingleRevision(() => {
       for (const key of source.keys) {
-        const entries = this.dataMap.get(key);
+        const entries = this._dataMap.get(key);
         const sourceIndex =
           entries?.findIndex(
             ({ source: curSource }) => curSource.path === path,
@@ -289,7 +296,7 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
         }
         entries.splice(sourceIndex, 1);
         if (entries.length == 0) {
-          this.dataMap.delete(key);
+          this._dataMap.delete(key);
         }
       }
     });
@@ -305,7 +312,7 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
 
     logger.debug("[source:%s] Starting index", source.path);
 
-    this.dataMap.asSingleRevision(() => {
+    this._dataMap.asSingleRevision(() => {
       // TODO: maybe there is a more efficient way than removing and re-adding, but this will work
       this.removeSource(path);
 
@@ -321,7 +328,7 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
             throw new Error(`datum ${id} had mismatched source`);
           }
 
-          const entries: SourcedByArray<Kinds> = this.dataMap.get(id) ?? [];
+          const entries: SourcedByArray<Kinds> = this._dataMap.get(id) ?? [];
           if (entries.length > 0 && entries[0].kind !== datum.kind) {
             throw new Error(
               `while indexing '${path}', '${id}' had kind '${String(datum.kind)}' which conflicted with existing kind '${String(entries[0].kind)}' from '${entries[0].source.path}'`,
@@ -329,7 +336,7 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
           }
           keys.add(id);
           entries.push(datum);
-          this.dataMap.set(id, entries);
+          this._dataMap.set(id, entries);
         }
 
         logger.debug(
@@ -349,7 +356,7 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
   }
 
   get revision(): number {
-    return this.dataMap.revision;
+    return this._dataMap.revision;
   }
 }
 

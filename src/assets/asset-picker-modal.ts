@@ -131,6 +131,7 @@ export class AssetPickerModal extends Modal {
                     </button>
                     ${renderAssetCard(
                       this.plugin,
+                      this.actionContext,
                       makeDefaultSheetAsset(asset),
                     )}
                   </div>
@@ -155,10 +156,10 @@ export class AssetPickerModal extends Modal {
     > = {};
     const results = filter
       ? this.searchIdx.search(filter)
-      : [...this.plugin.datastore.assets.values()].map((m) => ({ id: m._id }));
+      : [...this.actionContext.assets.values()].map((m) => ({ id: m._id }));
     let total = 0;
     for (const res of results) {
-      const asset = this.plugin.datastore.assets.get(res.id)!;
+      const asset = this.actionContext.assets.get(res.id)!;
       if (!asset) {
         console.error("couldn't find asset for", res);
         continue;
@@ -192,8 +193,7 @@ export class AssetPickerModal extends Modal {
         boost: { name: 2 },
       },
     });
-    // TODO: use the current context
-    idx.addAll([...this.plugin.datastore.assets.values()]);
+    idx.addAll([...this.actionContext.assets.values()]);
     return idx;
   }
 }

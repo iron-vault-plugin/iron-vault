@@ -23,7 +23,7 @@ export const PlaysetConfigSchema = z.discriminatedUnion("type", [
 ]);
 
 export const campaignConfigSchema = z.object({
-  playset: PlaysetConfigSchema.optional(),
+  playset: PlaysetConfigSchema.nullish(),
 });
 
 export const campaignFileSchema = z.object({

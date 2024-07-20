@@ -1,4 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
+import { IDataContext } from "datastore/data-context";
 import { ensureUnique } from "utils/ensure-unique";
 import { zodResultToEither } from "utils/zodutils";
 import { z } from "zod";
@@ -23,7 +24,6 @@ import {
   reader,
   updating,
 } from "../utils/lens";
-import { IDataContext } from "./action-context";
 import { AssetError, assetMeters, assetWithDefnReader } from "./assets";
 
 const ValidationTag: unique symbol = Symbol("validated ruleset");

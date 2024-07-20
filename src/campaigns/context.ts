@@ -1,13 +1,11 @@
-import { Asset } from "@datasworn/core/dist/Datasworn";
+import { Asset, RulesPackage } from "@datasworn/core/dist/Datasworn";
 import { CharacterContext } from "character-tracker";
-import { IDataContext } from "characters/action-context";
 import { ClockFileAdapter } from "clocks/clock-file";
+import { BaseDataContext, IDataContext } from "datastore/data-context";
 import {
   DataIndexer,
   SourcedByArray,
   SourcedKindsArray,
-  SourcedMap,
-  SourcedMapImpl,
   StandardIndex,
 } from "datastore/data-indexer";
 import {
@@ -16,9 +14,11 @@ import {
   MoveWithSelector,
 } from "datastore/datasworn-indexer";
 import { ReadonlyIndex } from "indexer/index-interface";
+import { OracleRoller } from "oracles/roller";
+import { Ruleset } from "rules/ruleset";
 import { TrackedEntities } from "te/index-interface";
 import { ProgressTrackFileAdapter } from "tracks/progress";
-import { ProjectableMap, projectedVersionedMap } from "utils/versioned-map";
+import { projectedVersionedMap } from "utils/versioned-map";
 import { ZodError } from "zod";
 import { CampaignFile } from "./entity";
 import { Determination, IPlaysetConfig } from "./playsets/config";
@@ -45,6 +45,11 @@ export class CampaignDataContext implements TrackedEntities, IDataContext {
     this.dataContext = new PlaysetAwareDataContext(indexer, campaign.playset);
   }
 
+  campaigns: ReadonlyIndex<CampaignFile, ZodError>;
+  characters: ReadonlyIndex<CharacterContext, ZodError>;
+  clocks: ReadonlyIndex<ClockFileAdapter, ZodError>;
+  progressTracks: ReadonlyIndex<ProgressTrackFileAdapter, ZodError>;
+
   get moves(): StandardIndex<MoveWithSelector> {
     return this.dataContext.moves;
   }
@@ -53,48 +58,53 @@ export class CampaignDataContext implements TrackedEntities, IDataContext {
     return this.dataContext.assets;
   }
 
-  campaigns: ReadonlyIndex<CampaignFile, ZodError>;
-  characters: ReadonlyIndex<CharacterContext, ZodError>;
-  clocks: ReadonlyIndex<ClockFileAdapter, ZodError>;
-  progressTracks: ReadonlyIndex<ProgressTrackFileAdapter, ZodError>;
+  get moveCategories() {
+    return this.dataContext.moveCategories;
+  }
+
+  get moveRulesets() {
+    return this.dataContext.moveRulesets;
+  }
+
+  get oracles() {
+    return this.dataContext.oracles;
+  }
+
+  get truths() {
+    return this.dataContext.truths;
+  }
+
+  get roller(): OracleRoller {
+    return this.dataContext.roller;
+  }
+
+  get rulesPackages(): StandardIndex<RulesPackage> {
+    return this.dataContext.rulesPackages;
+  }
+
+  get ruleset(): Ruleset {
+    return this.dataContext.ruleset;
+  }
 }
 
-export type DataswornIndex = ProjectableMap<
-  string,
-  SourcedByArray<DataswornTypes>
->;
-
-// TODO(@cwegrzyn): make this cacheable
-export class PlaysetAwareDataContext implements IDataContext {
-  readonly internal: DataswornIndex;
-  readonly prioritized: SourcedMap<DataswornTypes>;
-
+export class PlaysetAwareDataContext extends BaseDataContext {
   constructor(base: DataswornIndexer, playsetConfig: IPlaysetConfig) {
-    this.internal = base.projected<SourcedByArray<DataswornTypes>>(
-      <K extends keyof DataswornTypes>(
-        val: SourcedKindsArray<DataswornTypes>[K],
-        _key: string,
-      ) => {
-        // NOTE: we look at the source id here instead of the key, in case things are indexed elsewhere
-        const filtered = val.filter(
-          (sourced) =>
-            playsetConfig.determine(sourced.id) === Determination.Include,
-        );
-        return filtered.length > 0
-          ? (filtered as SourcedByArray<DataswornTypes>)
-          : undefined;
-      },
+    super(
+      base.projected<SourcedByArray<DataswornTypes>>(
+        <K extends keyof DataswornTypes>(
+          val: SourcedKindsArray<DataswornTypes>[K],
+          _key: string,
+        ) => {
+          // NOTE: we look at the source id here instead of the key, in case things are indexed elsewhere
+          const filtered = val.filter(
+            (sourced) =>
+              playsetConfig.determine(sourced.id) === Determination.Include,
+          );
+          return filtered.length > 0
+            ? (filtered as SourcedByArray<DataswornTypes>)
+            : undefined;
+        },
+      ),
     );
-    this.prioritized = new SourcedMapImpl<DataswornTypes, keyof DataswornTypes>(
-      this.internal,
-    );
-  }
-
-  get moves(): StandardIndex<MoveWithSelector> {
-    return this.prioritized.ofKind("move").projected((entry) => entry.value);
-  }
-
-  get assets(): StandardIndex<Asset> {
-    return this.prioritized.ofKind("asset").projected((entry) => entry.value);
   }
 }
