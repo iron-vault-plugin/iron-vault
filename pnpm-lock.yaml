@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@datasworn/core': github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/core
-  '@datasworn/ironsworn-classic': git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic
-  '@datasworn/starforged': git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/starforged
-
 importers:
 
   .:
@@ -26,20 +21,20 @@ importers:
         specifier: ^6.26.3
         version: 6.28.5
       '@datasworn/core':
-        specifier: github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/core
-        version: https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/core
+        specifier: 0.1.0-0
+        version: 0.1.0-0
       '@datasworn/ironsworn-classic':
-        specifier: git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic
-        version: https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/ironsworn-classic
+        specifier: 0.1.0-0
+        version: 0.1.0-0
       '@datasworn/ironsworn-classic-delve':
-        specifier: github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic-delve
-        version: https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/ironsworn-classic-delve
+        specifier: 0.1.0-0
+        version: 0.1.0-0
       '@datasworn/starforged':
-        specifier: git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/starforged
-        version: https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/starforged
+        specifier: 0.1.0-0
+        version: 0.1.0-0
       '@datasworn/sundered-isles':
-        specifier: github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/sundered-isles
-        version: https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/sundered-isles
+        specifier: 0.1.0-0
+        version: 0.1.0-0
       '@jgoz/esbuild-plugin-typecheck':
         specifier: ^4.0.0
         version: 4.0.1(esbuild@0.21.5)(typescript@5.5.3)
@@ -369,25 +364,20 @@ packages:
   '@codemirror/view@6.28.5':
     resolution: {integrity: sha512-NkUtfUa1lV7Jqg5DfHE/uLl7jKyoymDkaueMQXzePYuezL7FwX3ATANy74iAGlHCGe25hBGB0R+I5dC5EZ5JBg==}
 
-  '@datasworn/core@https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/core':
-    resolution: {path: pkg/nodejs/@datasworn/core, tarball: https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e}
-    version: 0.0.10
+  '@datasworn/core@0.1.0-0':
+    resolution: {integrity: sha512-sbiGWMk7AC6rpzPtentz8J5lpmPVVa4KQDO+BZUsQ9HiZYZ7Oji8Y3sMJwVwEb62f5A/5H8JHobZEc+h8W32/A==}
 
-  '@datasworn/ironsworn-classic-delve@https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/ironsworn-classic-delve':
-    resolution: {path: pkg/nodejs/@datasworn/ironsworn-classic-delve, tarball: https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e}
-    version: 0.1.0
+  '@datasworn/ironsworn-classic-delve@0.1.0-0':
+    resolution: {integrity: sha512-e7Hn8lr9ZA1Puv59T7977nL28v1O1FM/CTzn28azxS/wp6zEyQ4xXam84WpWmYy3+0ZojO3BKTJwMeouH0aLdQ==}
 
-  '@datasworn/ironsworn-classic@https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/ironsworn-classic':
-    resolution: {path: pkg/nodejs/@datasworn/ironsworn-classic, tarball: https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e}
-    version: 0.1.0
+  '@datasworn/ironsworn-classic@0.1.0-0':
+    resolution: {integrity: sha512-+VFy5Y1ia88qiObyzB5Omq8P+ZPOfbtrdUjO1aRWTBZ8nM66SkHF+DvpXvNPD4cu8I3Z4vojI0RSOQ0sKvNHcQ==}
 
-  '@datasworn/starforged@https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/starforged':
-    resolution: {path: pkg/nodejs/@datasworn/starforged, tarball: https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e}
-    version: 0.1.0
+  '@datasworn/starforged@0.1.0-0':
+    resolution: {integrity: sha512-VEDgTZlEZzVIBJl36jCmyFQMSIlMqIWV25j4zcekg0rRUmCSXb/ee372bQHk3FoQP2WCn6S8StllPL7jXHZMwA==}
 
-  '@datasworn/sundered-isles@https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/sundered-isles':
-    resolution: {path: pkg/nodejs/@datasworn/sundered-isles, tarball: https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e}
-    version: 0.1.0
+  '@datasworn/sundered-isles@0.1.0-0':
+    resolution: {integrity: sha512-SP7QR4PESyUqHSfUyS5UJRQ10MaJZr8svccT59blmo3Id5FqPJZk+/A4WEMRbCEQXPKCcHqLZtlVWmEBBHoLDA==}
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -2621,25 +2611,23 @@ snapshots:
       style-mod: 4.1.2
       w3c-keyname: 2.2.8
 
-  '@datasworn/core@https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/core': {}
+  '@datasworn/core@0.1.0-0': {}
 
-  '@datasworn/ironsworn-classic-delve@https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/ironsworn-classic-delve':
+  '@datasworn/ironsworn-classic-delve@0.1.0-0':
     dependencies:
-      '@datasworn/core': https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/core
-      '@datasworn/ironsworn-classic': https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/ironsworn-classic
+      '@datasworn/ironsworn-classic': 0.1.0-0
 
-  '@datasworn/ironsworn-classic@https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/ironsworn-classic':
+  '@datasworn/ironsworn-classic@0.1.0-0':
     dependencies:
-      '@datasworn/core': https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/core
+      '@datasworn/core': 0.1.0-0
 
-  '@datasworn/starforged@https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/starforged':
+  '@datasworn/starforged@0.1.0-0':
     dependencies:
-      '@datasworn/core': https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/core
+      '@datasworn/core': 0.1.0-0
 
-  '@datasworn/sundered-isles@https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/sundered-isles':
+  '@datasworn/sundered-isles@0.1.0-0':
     dependencies:
-      '@datasworn/core': https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/core
-      '@datasworn/starforged': https://codeload.github.com/rsek/datasworn/tar.gz/4e4f6010ff12ffaaa0295750010eaab3966c883e#path:pkg/nodejs/@datasworn/starforged
+      '@datasworn/starforged': 0.1.0-0
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true
