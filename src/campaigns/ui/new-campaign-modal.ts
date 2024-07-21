@@ -13,12 +13,14 @@ import { FolderTextSuggest } from "utils/ui/settings/folder";
 export type NewCampaignInfo = {
   campaignName: string;
   folder: string;
+  scaffold: boolean;
 };
 
 export class NewCampaignModal extends Modal {
   campaignInfo: NewCampaignInfo = {
     campaignName: "",
     folder: "/",
+    scaffold: true,
   };
 
   static show(plugin: IronVaultPlugin): Promise<NewCampaignInfo> {
@@ -109,6 +111,17 @@ export class NewCampaignModal extends Modal {
       });
 
     const resultSetting = new Setting(contentEl).setDesc("X will be Y.");
+
+    new Setting(contentEl)
+      .setName("Scaffold campaign")
+      .setDesc(
+        "Should some default files and folders, such as entity folders, truths, etc, be auto-generated on campaign creation? You will be prompted about a new character.",
+      )
+      .addToggle((toggle) => {
+        toggle.setValue(this.campaignInfo.scaffold).onChange((val) => {
+          this.campaignInfo.scaffold = val;
+        });
+      });
 
     let createButton!: ButtonComponent;
     new Setting(contentEl)

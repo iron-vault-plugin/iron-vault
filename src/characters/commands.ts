@@ -123,11 +123,18 @@ export async function addAssetToCharacter(
   );
 }
 
-export async function createNewCharacter(plugin: IronVaultPlugin) {
+export async function createNewCharacter(
+  plugin: IronVaultPlugin,
+  defaultFolder?: string,
+) {
   const { lens, validater } = characterLens(plugin.datastore.ruleset);
 
-  const { fileName, name, targetFolder } =
-    await CharacterCreateModal.show(plugin);
+  const { fileName, name, targetFolder } = await CharacterCreateModal.show(
+    plugin,
+    {
+      targetFolder: defaultFolder,
+    },
+  );
 
   await createNewIronVaultEntityFile(
     plugin.app,

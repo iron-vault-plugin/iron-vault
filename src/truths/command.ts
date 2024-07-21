@@ -5,7 +5,11 @@ import { App, Modal, SearchComponent, Setting, normalizePath } from "obsidian";
 import { getExistingOrNewFolder } from "utils/obsidian";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
 
-export async function generateTruthsCommand(plugin: IronVaultPlugin) {
+export async function generateTruthsCommand(
+  plugin: IronVaultPlugin,
+  defaultTargetFolder?: string,
+  defaultFileName?: string,
+) {
   const truths = [...plugin.datastore.truths.values()].filter((truth) => {
     // HACK(@zkat): This is a quick fix for
     // https://github.com/iron-vault-plugin/iron-vault/issues/337. What we
@@ -24,14 +28,16 @@ export async function generateTruthsCommand(plugin: IronVaultPlugin) {
     `{{#each truths}}\n## {{name}}\n\`\`\`iron-vault-truth\n{{_id}}\n\`\`\`\n\n{{/each}}`,
   )({ truths });
   const { fileName, targetFolder }: { fileName: string; targetFolder: string } =
-    await new Promise((onAccept, onReject) =>
-      new GenerateTruthsModal(
-        plugin.app,
-        { targetFolder: "" },
-        onAccept,
-        onReject,
-      ).open(),
-    );
+    defaultFileName && defaultTargetFolder
+      ? { fileName: defaultFileName, targetFolder: defaultTargetFolder }
+      : await new Promise((onAccept, onReject) =>
+          new GenerateTruthsModal(
+            plugin.app,
+            { targetFolder: "" },
+            onAccept,
+            onReject,
+          ).open(),
+        );
   const file = await plugin.app.fileManager.createNewMarkdownFile(
     await getExistingOrNewFolder(plugin.app, targetFolder),
     fileName,
