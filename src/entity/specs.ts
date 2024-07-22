@@ -504,7 +504,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
       },
       focus: {
         name: "Focus",
-        id: "oracle_rollable:sundered_isles/settlement/identity/focus/{{location}}",
+        id: "oracle_rollable:sundered_isles/settlement/focus/{{location}}",
       },
       details: {
         id: "oracle_rollable:sundered_isles/settlement/details",
