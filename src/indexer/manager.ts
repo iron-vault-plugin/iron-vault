@@ -1,11 +1,11 @@
 import { rootLogger } from "logger";
 import {
+  CachedMetadata,
   Component,
   EventRef,
   Events,
   TFile,
   type App,
-  type CachedMetadata,
   type FileManager,
   type MetadataCache,
   type Vault,
@@ -142,7 +142,26 @@ export class IndexManager extends Component {
     return undefined;
   }
 
-  public indexFile(file: TFile, cache: CachedMetadata): void {
+  /** Mark a path for reindexing.
+   * Currently, this will just cause it to reindex right away.
+   */
+  public markDirty(path: string): void {
+    const file = this.vault.getFileByPath(path);
+    if (file == null) {
+      logger.warn("No such file for %s", path);
+      return;
+    }
+
+    const cache = this.metadataCache.getFileCache(file);
+    if (cache == null) {
+      logger.warn("Empty cache for %s", path);
+      return;
+    }
+
+    this.indexFile(file, cache);
+  }
+
+  private indexFile(file: TFile, cache: CachedMetadata): void {
     const indexKey = file.path;
 
     const priorIndexer = this.currentIndexerForFile(indexKey);
