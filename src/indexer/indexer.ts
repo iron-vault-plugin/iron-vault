@@ -47,7 +47,7 @@ export type CachedMetadataWithFrontMatter = CachedMetadata & {
 export function assertHasFrontmatter(
   cache: CachedMetadata,
 ): asserts cache is CachedMetadataWithFrontMatter {
-  if (!cache.frontmatter != null) {
+  if (cache.frontmatter == null) {
     throw new Error("Cache is missing frontmatter, how can that be?");
   }
 }

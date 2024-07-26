@@ -94,11 +94,14 @@ export class CampaignWatcher extends Component {
     readonly areSame: (left: CampaignFile, right: CampaignFile) => boolean,
   ) {
     super();
+  }
 
+  onload(): void {
+    super.onload();
     this.registerEvent(
-      campaigns.on("changed", (path) => {
+      this.campaigns.on("changed", (path) => {
         const oldValue = this.#lastSeen.get(path);
-        const newValue = campaigns.get(path)?.getOrElse(undefined);
+        const newValue = this.campaigns.get(path)?.getOrElse(undefined);
         logger.debug(
           "path=%s: detected change old=%o new=%o",
           path,
@@ -106,7 +109,7 @@ export class CampaignWatcher extends Component {
           newValue,
         );
         if (newValue != null) {
-          if (oldValue == null || !areSame(oldValue, newValue)) {
+          if (oldValue == null || !this.areSame(oldValue, newValue)) {
             logger.debug("path=%s: determined update", path);
             // We have a new value for this path
             this.#lastSeen.set(path, newValue);
@@ -130,7 +133,7 @@ export class CampaignWatcher extends Component {
       }),
     );
     this.registerEvent(
-      campaigns.on("renamed", (oldPath, newPath) => {
+      this.campaigns.on("renamed", (oldPath, newPath) => {
         const original = this.#lastSeen.get(oldPath);
         if (original == null) {
           logger.warn("Missing value for %s -> %s", oldPath, newPath);
@@ -154,8 +157,19 @@ export class CampaignWatcher extends Component {
     );
   }
 
-  on = this.#events.on;
-  off = this.#events.off;
+  on<K extends keyof CAMPAIGN_WATCHER_EVENT_TYPES>(
+    event: K,
+    listener: (params: CAMPAIGN_WATCHER_EVENT_TYPES[K]) => void,
+  ) {
+    return this.#events.on(event, listener);
+  }
+
+  off<K extends keyof CAMPAIGN_WATCHER_EVENT_TYPES>(
+    event: K,
+    listener: (params: CAMPAIGN_WATCHER_EVENT_TYPES[K]) => void,
+  ) {
+    return this.#events.off(event, listener);
+  }
 }
 
 export function campaignsEqual(

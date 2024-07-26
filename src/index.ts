@@ -110,9 +110,8 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
       "iron-vault",
       `<g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M 79.632,55.687986 H 92.303999" /><path d="m 7.824,89.479986 h 8.448 a 4.224,4.224 0 0 0 4.224,-4.224 V 38.791987 a 29.568,29.568 0 0 1 59.136,0 v 46.463999 a 4.224,4.224 0 0 0 4.224,4.224 h 8.447999" /><path d="M 20.496,55.687986 H 7.824" /><path d="M 37.392,47.239986 50.064,34.567987 62.736,47.239986 v 16.896 l -12.672,12.672 -12.672,-12.672 z" /></g>`,
     );
-    this.datastore = this.addChild(new Datastore(this));
-    this.campaignManager = this.addChild(new CampaignManager(this));
-    this.initializeIndexManager();
+
+    this.initializeDataSystems();
     this.register(
       this.datastore.on("initialized", () => {
         // Because certain file schemas (characters mainly) are dependent on the loaded Datasworn
@@ -163,8 +162,16 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     this.register(() => this.diceOverlay.removeDiceOverlay());
   }
 
-  initializeIndexManager() {
+  initializeDataSystems() {
+    this.datastore = this.addChild(new Datastore(this));
     this.indexManager = this.addChild(new IndexManager(this.app));
+
+    // Initializes campaigns and the campaign manager first
+    this.indexManager.registerHandler(
+      (this.campaignIndexer = new CampaignIndexer()),
+    );
+    this.campaignManager = this.addChild(new CampaignManager(this));
+
     this.indexManager.registerHandler(
       (this.characterIndexer = new CharacterIndexer(this.campaignManager)),
     );
@@ -172,9 +179,6 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
       (this.progressIndexer = new ProgressIndexer()),
     );
     this.indexManager.registerHandler((this.clockIndexer = new ClockIndexer()));
-    this.indexManager.registerHandler(
-      (this.campaignIndexer = new CampaignIndexer()),
-    );
   }
 
   registerBlocks() {
