@@ -25,6 +25,10 @@ export interface IDataContext {
   readonly ruleset: Ruleset;
 }
 
+export interface ICompleteDataContext extends IDataContext {
+  readonly prioritized: SourcedMap<DataswornTypes>;
+}
+
 export class MockDataContext implements IDataContext {
   readonly moves: StandardIndex<DataswornTypes["move"]>;
   readonly assets: StandardIndex<DataswornTypes["asset"]>;
@@ -66,7 +70,7 @@ export class MockDataContext implements IDataContext {
 }
 
 // TODO(@cwegrzyn): make this cacheable
-export class BaseDataContext implements IDataContext {
+export class BaseDataContext implements ICompleteDataContext {
   readonly prioritized: SourcedMap<DataswornTypes>;
 
   constructor(public readonly index: DataswornIndex) {

@@ -12,6 +12,7 @@ import {
   MarkdownPostProcessorContext,
   MarkdownRenderChild,
   setIcon,
+  TFile,
 } from "obsidian";
 
 import IronVaultPlugin from "index";
@@ -45,7 +46,7 @@ interface TruthContainerEl extends HTMLElement {
 }
 
 class TruthRenderer extends MarkdownRenderChild {
-  sourcePath: string;
+  sourceFile: TFile | null;
   plugin: IronVaultPlugin;
   source: string;
   fileWatcher?: EventRef;
@@ -61,7 +62,7 @@ class TruthRenderer extends MarkdownRenderChild {
     ctx: MarkdownPostProcessorContext,
   ) {
     super(containerEl);
-    this.sourcePath = sourcePath;
+    this.sourceFile = plugin.app.vault.getFileByPath(sourcePath);
     this.plugin = plugin;
     this.source = source;
     this.ctx = ctx;
@@ -82,6 +83,22 @@ class TruthRenderer extends MarkdownRenderChild {
   }
 
   render() {
+    const campaign =
+      this.sourceFile &&
+      this.plugin.campaignManager.campaignForFile(this.sourceFile);
+    if (!campaign) {
+      render(
+        html`<article class="error">
+          This file is not part of a campaign, but a campaign is needed for a
+          truths block.
+        </article>`,
+        this.containerEl,
+      );
+      return;
+    }
+    const campaignContext =
+      this.plugin.campaignManager.campaignContextFor(campaign);
+
     const [firstLine, inserted] = this.source.split("\n").filter((x) => x);
     if (inserted && inserted.trim().toLowerCase() === "inserted") {
       render(
@@ -96,8 +113,8 @@ class TruthRenderer extends MarkdownRenderChild {
     }
     const truthName = firstLine.trim().toLowerCase();
     const truth =
-      this.plugin.datastore.truths.get(truthName) ??
-      [...this.plugin.datastore.truths.values()].find((truth) => {
+      campaignContext.truths.get(truthName) ??
+      [...campaignContext.truths.values()].find((truth) => {
         return truth.name.toLowerCase() === truthName;
       });
     if (!truth) {

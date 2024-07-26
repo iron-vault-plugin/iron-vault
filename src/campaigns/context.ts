@@ -1,7 +1,7 @@
 import { Asset, RulesPackage } from "@datasworn/core/dist/Datasworn";
 import { CharacterContext } from "character-tracker";
 import { ClockFileAdapter } from "clocks/clock-file";
-import { BaseDataContext, IDataContext } from "datastore/data-context";
+import { BaseDataContext, ICompleteDataContext } from "datastore/data-context";
 import {
   DataIndexer,
   SourcedByArray,
@@ -23,7 +23,9 @@ import { ZodError } from "zod";
 import { CampaignFile } from "./entity";
 import { Determination, IPlaysetConfig } from "./playsets/config";
 
-export class CampaignDataContext implements TrackedEntities, IDataContext {
+export class CampaignDataContext
+  implements TrackedEntities, ICompleteDataContext
+{
   dataContext: PlaysetAwareDataContext;
 
   constructor(
@@ -84,6 +86,10 @@ export class CampaignDataContext implements TrackedEntities, IDataContext {
 
   get ruleset(): Ruleset {
     return this.dataContext.ruleset;
+  }
+
+  get prioritized() {
+    return this.dataContext.prioritized;
   }
 }
 

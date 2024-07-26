@@ -162,7 +162,7 @@ export class MoveModal extends Modal {
     for (const match of move.text.matchAll(TABLE_REGEX)) {
       const oracle = this.dataContext.oracles.get(match[1]);
       if (oracle) {
-        const dom = await generateOracleTable(this.plugin, oracle);
+        const dom = await generateOracleTable(this.app, oracle);
         const oracleText = dom.outerHTML + "\n";
         oracles.push({ oracleText, oracle });
         moveText = moveText.replaceAll(match[0], "");

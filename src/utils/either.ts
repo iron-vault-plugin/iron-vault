@@ -6,6 +6,7 @@ export function flatMap<E1, A, E2, B>(
 ): Either<E1 | E2, B> {
   return either.isLeft() ? either : f(either.value);
 }
+
 export class Left<T> {
   private constructor(public readonly error: T) {}
 
@@ -39,6 +40,10 @@ export class Left<T> {
 
   unwrapError(): T {
     return this.error;
+  }
+
+  getOrElse<A>(orElse: A): A {
+    return orElse;
   }
 }
 export class Right<U> {
@@ -74,6 +79,11 @@ export class Right<U> {
 
   unwrapError(): never {
     throw new Error("expected an error, but found value");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getOrElse(orElse: unknown): U {
+    return this.value;
   }
 }
 

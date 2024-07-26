@@ -34,7 +34,7 @@ export function registerMoveBlock(plugin: IronVaultPlugin): void {
         plugin.app,
         ctx.sourcePath,
         validatedMove.value,
-        plugin.datastore,
+        plugin.datastore.dataContext,
       );
       ctx.addChild(renderer);
       renderer.render();

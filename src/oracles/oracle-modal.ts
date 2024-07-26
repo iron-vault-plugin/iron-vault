@@ -5,13 +5,12 @@ import { runOracleCommand } from "oracles/command";
 import { generateOracleTable } from "./render";
 
 export class OracleModal extends Modal {
-  plugin: IronVaultPlugin;
-  oracle: Oracle;
-
-  constructor(app: App, plugin: IronVaultPlugin, oracle: Oracle) {
+  constructor(
+    readonly app: App,
+    readonly plugin: IronVaultPlugin,
+    readonly oracle: Oracle,
+  ) {
     super(app);
-    this.plugin = plugin;
-    this.oracle = oracle;
   }
 
   async openOracle(oracle: Oracle) {
@@ -41,7 +40,7 @@ export class OracleModal extends Modal {
           this.close();
         }
       });
-    contentEl.appendChild(await generateOracleTable(this.plugin, oracle));
+    contentEl.appendChild(await generateOracleTable(this.app, oracle));
   }
 
   onOpen() {

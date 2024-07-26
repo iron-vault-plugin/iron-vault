@@ -1,6 +1,7 @@
 import { type Datasworn } from "@datasworn/core";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
+import { DiceGroup } from "utils/dice-group";
 import { NoSuchOracleError } from "../../../model/errors";
 import {
   CurseBehavior,
@@ -18,7 +19,6 @@ import {
   sameRoll,
 } from "../../../model/rolls";
 import { Dice, DieKind } from "../../../utils/dice";
-import { DiceGroup } from "utils/dice-group";
 
 const logger = rootLogger.getLogger("datasworn/oracles");
 
@@ -84,7 +84,9 @@ export class DataswornOracle implements Oracle {
   get cursedBy(): Oracle | undefined {
     for (const val of Object.values(this.table.tags ?? {})) {
       if (typeof val.cursed_by === "string") {
-        return this.plugin?.datastore.oracles.get(val.cursed_by);
+        // TODO(@cwegrzyn): implement this
+        throw new Error("reimplement me");
+        // return this.plugin?.datastore.oracles.get(val.cursed_by);
       }
     }
     return;

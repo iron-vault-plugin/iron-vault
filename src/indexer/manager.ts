@@ -10,7 +10,7 @@ import {
   type MetadataCache,
   type Vault,
 } from "obsidian";
-import { Indexer, IndexerId } from "./indexer";
+import { assertHasFrontmatter, Indexer, IndexerId } from "./indexer";
 
 const logger = rootLogger.getLogger("index-manager");
 
@@ -59,11 +59,9 @@ export class IndexManager extends Component {
         const indexer = this.currentIndexerForFile(oldPath);
         if (indexer != null) {
           this.indexedFiles.delete(oldPath);
-          indexer.onRename(
-            oldPath,
-            file,
-            this.metadataCache.getFileCache(file)!,
-          );
+          const cache = this.metadataCache.getFileCache(file);
+          assertHasFrontmatter(cache!);
+          indexer.onRename(oldPath, file, cache);
           // if onRename fails, we won't re-add the file here.
           this.indexedFiles.set(file.path, indexer.id);
         }
@@ -181,6 +179,7 @@ export class IndexManager extends Component {
 
       let result: ReturnType<Indexer["onChanged"]> | undefined = undefined;
       try {
+        assertHasFrontmatter(cache);
         result = newIndexer.onChanged(file, cache);
       } catch (error) {
         // This was a truly exceptional error -- the indexer would not have recorded it, so we

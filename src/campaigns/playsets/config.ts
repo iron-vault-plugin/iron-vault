@@ -68,10 +68,18 @@ export class PlaysetLine {
   [Symbol.match](str: string): RegExpMatchArray | null {
     return this.regex[Symbol.match](str);
   }
+
+  equals(other: PlaysetLine): boolean {
+    return (
+      other.determination === this.determination &&
+      other.regex.source == this.regex.source
+    );
+  }
 }
 
 export interface IPlaysetConfig {
   determine(id: string): Determination;
+  equals(other: IPlaysetConfig): boolean;
 }
 
 export class PlaysetConfig implements IPlaysetConfig {
@@ -100,6 +108,14 @@ export class PlaysetConfig implements IPlaysetConfig {
 
     return Determination.Exclude;
   }
+
+  equals(other: IPlaysetConfig): boolean {
+    return (
+      other instanceof PlaysetConfig &&
+      this.lines.length === other.lines.length &&
+      this.lines.every((thisLine, idx) => thisLine.equals(other.lines[idx]))
+    );
+  }
 }
 
 export class NullPlaysetConfig implements IPlaysetConfig {
@@ -107,5 +123,9 @@ export class NullPlaysetConfig implements IPlaysetConfig {
 
   determine(_id: string): Determination {
     return Determination.Include;
+  }
+
+  equals(other: IPlaysetConfig): boolean {
+    return other instanceof NullPlaysetConfig;
   }
 }

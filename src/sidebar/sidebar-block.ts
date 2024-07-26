@@ -1,6 +1,12 @@
+import { CampaignFile } from "campaigns/entity";
+import { CampaignManager } from "campaigns/manager";
+import { IDataContext } from "datastore/data-context";
+import { UnsubscribeFunction } from "emittery";
 import IronVaultPlugin from "index";
-import renderIronVaultOracles from "./oracles";
+import { html, render } from "lit-html";
+import { Component, MarkdownRenderChild, Vault } from "obsidian";
 import renderIronVaultMoves from "./moves";
+import renderIronVaultOracles from "./oracles";
 
 // These are intended for folks who want to get the stuff that's usualy in the
 // sidebar, but embedded in a note directly.
@@ -36,25 +42,169 @@ interface SidebarBlockContainerEl extends HTMLElement {
   oracleRenderer?: OracleRenderer;
 }
 
-abstract class SidebarBlockRenderer {
-  contentEl: HTMLElement;
-  plugin: IronVaultPlugin;
+/** A component that monitors either the file campaign or the active campaign.  */
+abstract class BaseCampaignSource extends Component {
+  #onUpdate?: () => void | Promise<void>;
 
-  constructor(contentEl: HTMLElement, plugin: IronVaultPlugin) {
-    this.contentEl = contentEl;
-    this.plugin = plugin;
+  constructor() {
+    super();
   }
-  abstract render(): Promise<void>;
+
+  abstract readonly campaign: CampaignFile | undefined;
+  abstract readonly dataContext: IDataContext | undefined;
+
+  onUpdate(callback: () => void | Promise<void>): this {
+    this.#onUpdate = callback;
+    return this;
+  }
+
+  protected update() {
+    return this.#onUpdate && this.#onUpdate();
+  }
 }
 
-class MovesRenderer extends SidebarBlockRenderer {
-  async render() {
-    await renderIronVaultMoves(this.contentEl, this.plugin);
+export class ActiveCampaignWatch extends BaseCampaignSource {
+  constructor(readonly campaignManager: CampaignManager) {
+    super();
+  }
+
+  onload() {
+    this.registerEvent(
+      this.campaignManager.on("active-campaign-changed", () => this.update()),
+    );
+
+    if (this.campaignManager.lastActiveCampaign()) {
+      this.update();
+    }
+  }
+
+  get campaign(): CampaignFile | undefined {
+    return this.campaignManager.lastActiveCampaign();
+  }
+
+  get dataContext(): IDataContext | undefined {
+    return this.campaignManager.lastActiveCampaignContext();
   }
 }
 
-class OracleRenderer extends SidebarBlockRenderer {
+class FileBasedCampaignWatch extends BaseCampaignSource {
+  #sourcePath: string;
+
+  #campaign?: CampaignFile;
+  #unsub?: UnsubscribeFunction;
+
+  constructor(
+    private readonly vault: Vault,
+    readonly campaignManager: CampaignManager,
+    sourcePath: string,
+  ) {
+    super();
+
+    this.#sourcePath = sourcePath;
+  }
+
+  get campaign(): CampaignFile | undefined {
+    return this.#campaign;
+  }
+
+  get dataContext(): IDataContext | undefined {
+    return (
+      this.campaign && this.campaignManager.campaignContextFor(this.campaign)
+    );
+  }
+
+  onload(): void {
+    this.registerEvent(
+      this.vault.on("rename", (file, oldPath) => {
+        if (this.#sourcePath == oldPath) {
+          this.#sourcePath = file.path;
+          this.updateCampaign();
+        }
+      }),
+    );
+    this.updateCampaign();
+  }
+
+  private updateCampaign() {
+    this.#unsub?.();
+
+    const { campaign, unsubscribe } = this.campaignManager.watcher.watch(
+      this.#sourcePath,
+      () =>
+        // Watch clears the watch, so this isn't weird.
+        this.updateCampaign(),
+    );
+    this.#campaign = campaign ?? undefined;
+    this.#unsub = unsubscribe;
+    this.update();
+  }
+
+  onunload(): void {
+    this.#unsub?.();
+  }
+}
+
+abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild {
+  campaignSource: BaseCampaignSource;
+
+  constructor(
+    containerEl: HTMLElement,
+    readonly plugin: IronVaultPlugin,
+    sourcePath?: string,
+  ) {
+    super(containerEl);
+    this.campaignSource = this.addChild(
+      sourcePath
+        ? new FileBasedCampaignWatch(
+            plugin.app.vault,
+            plugin.campaignManager,
+            sourcePath,
+          )
+        : new ActiveCampaignWatch(plugin.campaignManager),
+    ).onUpdate(() => this.render());
+  }
+
+  get campaign(): CampaignFile | undefined {
+    return this.campaignSource.campaign;
+  }
+
+  get dataContext(): IDataContext | undefined {
+    return this.campaignSource.dataContext;
+  }
+
+  abstract render(): void | Promise<void>;
+}
+
+class MovesRenderer extends CampaignDependentBlockRenderer {
   async render() {
-    await renderIronVaultOracles(this.contentEl, this.plugin);
+    const context = this.dataContext;
+    if (context) {
+      await renderIronVaultMoves(this.containerEl, this.plugin, context);
+    } else {
+      // TODO(@cwegrzyn): I guess this should depend on the source. Maybe part of base class?
+      render(
+        html`<article class="error">No campaign</article>`,
+        this.containerEl,
+      );
+    }
+  }
+}
+
+class OracleRenderer extends CampaignDependentBlockRenderer {
+  async render() {
+    const context = this.dataContext;
+    if (context) {
+      await renderIronVaultOracles(
+        this.containerEl,
+        this.plugin,
+        this.dataContext,
+      );
+    } else {
+      // TODO(@cwegrzyn): I guess this should depend on the source. Maybe part of base class?
+      render(
+        html`<article class="error">No campaign</article>`,
+        this.containerEl,
+      );
+    }
   }
 }
