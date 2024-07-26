@@ -107,6 +107,17 @@ describe("PlaysetLine", () => {
     });
   });
 
+  describe("ruleset handling", () => {
+    it("matches rulesets literally", () => {
+      expect(
+        "starforged".match(new PlaysetLine("ruleset:starforged")),
+      ).not.toBeNull();
+      expect(
+        "starforgeda".match(new PlaysetLine("ruleset:starforged")),
+      ).toBeNull();
+    });
+  });
+
   it("identifies negation", () => {
     expect(new PlaysetLine("!move:*").determination).toBe(
       Determination.Exclude,

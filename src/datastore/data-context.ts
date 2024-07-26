@@ -119,6 +119,7 @@ export class BaseDataContext implements ICompleteDataContext {
 
   // TODO: this should return an error if the datacontext houses
   //       too many rulesets.
+  // handles base vs expansion
   get ruleset(): Ruleset {
     const ids: string[] = [];
     const rules = [...this.prioritized.ofKind("rules_package").values()]

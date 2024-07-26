@@ -23,6 +23,10 @@ function parse(line: string): [RegExp, Determination] {
   const determination =
     result.groups.negate == "!" ? Determination.Exclude : Determination.Include;
 
+  if (result.groups.kind == "ruleset") {
+    return [new RegExp(String.raw`^${result.groups.path}$`), determination];
+  }
+
   const kindRegex =
     result.groups.kind == "*"
       ? String.raw`[-\w.]+`
