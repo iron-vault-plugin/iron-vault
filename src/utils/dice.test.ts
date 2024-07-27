@@ -4,7 +4,7 @@ it("parses and rolls", async () => {
   const dice = Dice.fromDiceString("3d4");
   expect(dice.count).toBe(3);
   expect(dice.sides).toBe(4);
-  expect(await dice.roll(false)).toBeGreaterThanOrEqual(3);
+  expect(await dice.roll()).toBeGreaterThanOrEqual(3);
   expect(dice.maxRoll()).toBe(12);
 });
 

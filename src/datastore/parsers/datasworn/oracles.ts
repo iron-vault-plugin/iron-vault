@@ -1,5 +1,4 @@
 import { type Datasworn } from "@datasworn/core";
-import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { DiceGroup } from "utils/dice-group";
 import { NoSuchOracleError } from "../../../model/errors";
@@ -40,7 +39,6 @@ export class DataswornOracle implements Oracle {
       | Datasworn.OracleRollable
       | Datasworn.EmbeddedOracleRollable,
     public readonly parent: OracleGrouping,
-    private readonly plugin?: IronVaultPlugin,
   ) {}
 
   get raw(): Datasworn.OracleRollable | Datasworn.EmbeddedOracleRollable {
@@ -78,15 +76,13 @@ export class DataswornOracle implements Oracle {
   }
 
   get dice(): Dice {
-    return Dice.fromDiceString(this.table.dice, this.plugin, DieKind.Oracle);
+    return Dice.fromDiceString(this.table.dice, DieKind.Oracle);
   }
 
-  get cursedBy(): Oracle | undefined {
+  cursedBy(rollContext: RollContext): Oracle | undefined {
     for (const val of Object.values(this.table.tags ?? {})) {
       if (typeof val.cursed_by === "string") {
-        // TODO(@cwegrzyn): implement this
-        throw new Error("reimplement me");
-        // return this.plugin?.datastore.oracles.get(val.cursed_by);
+        return rollContext.lookup(val.cursed_by);
       }
     }
     return;
@@ -102,35 +98,28 @@ export class DataswornOracle implements Oracle {
   }
 
   async roll(context: RollContext): Promise<Roll> {
-    const cursed = this.cursedBy;
-    if (cursed && this.plugin && this.plugin.settings.enableCursedDie) {
-      const group = new DiceGroup(
-        [
-          this.dice,
-          new Dice(
-            1,
-            this.plugin.settings.cursedDieSides,
-            this.plugin,
-            DieKind.Cursed,
-          ),
-        ],
-        this.plugin,
-      );
-      const res = await group.roll(this.plugin.settings.graphicalOracleDice);
-      return this.evaluate(context, res[0].value, res[1].value, cursed.id);
+    const diceRoller = context.diceRoller();
+
+    const cursed = this.cursedBy(context);
+    const cursedDice = context.cursedDice(); // non-null if cursed die is enabled
+
+    if (cursed && cursedDice) {
+      const group = DiceGroup.of(this.dice, cursedDice);
+      const roll = await diceRoller.rollAsync(group);
+
+      return {
+        ...(await this.evaluate(context, roll[0].value)),
+        cursedRoll: roll[1].value,
+        cursedTableId: cursed.id,
+      };
     }
     return this.evaluate(
       context,
-      await this.dice.roll(this.plugin?.settings.graphicalOracleDice ?? true),
+      (await diceRoller.rollAsync(new DiceGroup([this.dice])))[0].value,
     );
   }
 
-  async evaluate(
-    context: RollContext,
-    roll: number,
-    cursedRoll?: number,
-    cursedTableId?: string,
-  ): Promise<Roll> {
+  async evaluate(context: RollContext, roll: number): Promise<Roll> {
     const row = this.rowFor(roll);
 
     const subrolls: Record<string, Subroll<Roll>> = {};
@@ -246,8 +235,6 @@ export class DataswornOracle implements Oracle {
       roll,
       tableId: this.id,
       subrolls,
-      cursedRoll,
-      cursedTableId,
     };
   }
 

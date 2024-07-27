@@ -106,7 +106,7 @@ export async function runOracleCommand(
       prompt ? `Select an oracle to answer '${prompt}'` : "Select an oracle",
     );
   }
-  const rollContext = new OracleRoller(campaignContext.oracles);
+  const rollContext = new OracleRoller(plugin, campaignContext.oracles);
 
   // If user wishes to make their own roll, prompt them now.
   let initialRoll: Roll | undefined = undefined;

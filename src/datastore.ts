@@ -141,10 +141,7 @@ export class Datastore extends Component {
       priority,
       sourceTags: { [SourceTag.RulesetId]: pkg._id },
     });
-    this.indexer.index(
-      source,
-      walkDataswornRulesPackage(source, pkg, this.plugin),
-    );
+    this.indexer.index(source, walkDataswornRulesPackage(source, pkg));
 
     this.app.metadataCache.trigger("iron-vault:index-changed");
   }
@@ -193,7 +190,7 @@ export class Datastore extends Component {
           });
           this.indexer.index(
             source,
-            walkDataswornRulesPackage(source, dataswornPackage, this.plugin),
+            walkDataswornRulesPackage(source, dataswornPackage),
           );
         } catch (e) {
           new Notice(`Unable to import homebrew file: ${file.basename}`, 0);

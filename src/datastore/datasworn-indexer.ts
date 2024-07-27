@@ -1,5 +1,4 @@
 import { Datasworn } from "@datasworn/core";
-import IronVaultPlugin from "index";
 import {
   Oracle,
   OracleCollectionGrouping,
@@ -61,7 +60,6 @@ export function createSource(fields: {
 export function* walkDataswornRulesPackage(
   source: Source,
   input: Datasworn.RulesPackage,
-  plugin?: IronVaultPlugin,
 ): Iterable<DataswornSourced> {
   function make<T extends { _id: string; type: string }>(
     obj: T,
@@ -98,7 +96,7 @@ export function* walkDataswornRulesPackage(
         yield {
           id: oracle._id,
           kind: "oracle",
-          value: new DataswornOracle(oracle, moveOracleGroup, plugin),
+          value: new DataswornOracle(oracle, moveOracleGroup),
           source,
         };
       }
@@ -123,7 +121,7 @@ export function* walkDataswornRulesPackage(
     }
   }
 
-  for (const oracle of walkOracles(input, plugin)) {
+  for (const oracle of walkOracles(input)) {
     yield { id: oracle.id, kind: "oracle", value: oracle, source };
   }
 
@@ -134,10 +132,7 @@ export function* walkDataswornRulesPackage(
   yield { id: input._id, kind: "rules_package", value: input, source };
 }
 
-function* walkOracles(
-  data: Datasworn.RulesPackage,
-  plugin?: IronVaultPlugin,
-): Generator<Oracle> {
+function* walkOracles(data: Datasworn.RulesPackage): Generator<Oracle> {
   function* expand(
     collection: Datasworn.OracleCollection,
     parent: OracleGrouping,
@@ -162,7 +157,7 @@ function* walkOracles(
           for (const oracle of Object.values<Datasworn.OracleRollable>(
             collection.contents,
           )) {
-            yield new DataswornOracle(oracle, newParent, plugin);
+            yield new DataswornOracle(oracle, newParent);
           }
         }
 

@@ -1,3 +1,4 @@
+import { CampaignDataContext } from "campaigns/context";
 import { CampaignFile } from "campaigns/entity";
 import { CampaignManager } from "campaigns/manager";
 import { IDataContext } from "datastore/data-context";
@@ -51,7 +52,7 @@ abstract class BaseCampaignSource extends Component {
   }
 
   abstract readonly campaign: CampaignFile | undefined;
-  abstract readonly dataContext: IDataContext | undefined;
+  abstract readonly campaignContext: CampaignDataContext | undefined;
 
   onUpdate(callback: () => void | Promise<void>): this {
     this.#onUpdate = callback;
@@ -82,12 +83,12 @@ export class ActiveCampaignWatch extends BaseCampaignSource {
     return this.campaignManager.lastActiveCampaign();
   }
 
-  get dataContext(): IDataContext | undefined {
+  get campaignContext(): CampaignDataContext | undefined {
     return this.campaignManager.lastActiveCampaignContext();
   }
 }
 
-class FileBasedCampaignWatch extends BaseCampaignSource {
+export class FileBasedCampaignWatch extends BaseCampaignSource {
   #sourcePath: string;
 
   #campaign?: CampaignFile;
@@ -107,7 +108,7 @@ class FileBasedCampaignWatch extends BaseCampaignSource {
     return this.#campaign;
   }
 
-  get dataContext(): IDataContext | undefined {
+  get campaignContext(): CampaignDataContext | undefined {
     return (
       this.campaign && this.campaignManager.campaignContextFor(this.campaign)
     );
@@ -169,7 +170,7 @@ abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild {
   }
 
   get dataContext(): IDataContext | undefined {
-    return this.campaignSource.dataContext;
+    return this.campaignSource.campaignContext;
   }
 
   abstract render(): void | Promise<void>;

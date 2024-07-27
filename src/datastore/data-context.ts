@@ -20,7 +20,6 @@ export interface IDataContext {
   readonly oracles: StandardIndex<DataswornTypes["oracle"]>;
   readonly truths: StandardIndex<DataswornTypes["truth"]>;
 
-  readonly roller: OracleRoller;
   readonly rulesPackages: StandardIndex<DataswornTypes["rules_package"]>;
   readonly ruleset: Ruleset;
 }
@@ -65,7 +64,8 @@ export class MockDataContext implements IDataContext {
   }
 
   get roller() {
-    return new OracleRoller(this.oracles);
+    // TODO(@cwegrzyn): maybe we should have a way of passing a normal roller through here?
+    return new OracleRoller(undefined as never, this.oracles);
   }
 }
 
@@ -105,10 +105,6 @@ export class BaseDataContext implements ICompleteDataContext {
 
   get truths(): StandardIndex<DataswornTypes["truth"]> {
     return this.prioritized.ofKind("truth").projected((entry) => entry.value);
-  }
-
-  get roller(): OracleRoller {
-    return new OracleRoller(this.oracles);
   }
 
   get rulesPackages(): StandardIndex<DataswornTypes["rules_package"]> {

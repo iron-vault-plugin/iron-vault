@@ -1,5 +1,5 @@
+import { CampaignDataContext } from "campaigns/context";
 import { determineCampaignContext } from "campaigns/manager";
-import { IDataContext } from "datastore/data-context";
 import { extractDataswornLinkParts } from "datastore/parsers/datasworn/id";
 import Handlebars from "handlebars";
 import { createOrAppendMechanics } from "mechanics/editor";
@@ -82,10 +82,10 @@ export async function promptOracleRow(
 
 export async function generateEntity(
   app: App,
-  dataContext: IDataContext,
+  dataContext: CampaignDataContext,
   entityDesc: EntityDescriptor<EntitySpec>,
 ): Promise<EntityModalResults<EntitySpec>> {
-  const rollContext = dataContext.roller;
+  const rollContext = dataContext.oracleRoller;
   const attributes = Object.entries(entityDesc.spec)
     .filter(
       (keyAndSpec): keyAndSpec is [string, EntityAttributeFieldSpec] =>

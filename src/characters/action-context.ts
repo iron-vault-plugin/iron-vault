@@ -37,6 +37,8 @@ export interface IActionContext extends IDataContext {
     | MeterWithoutLens<ConditionMeterDefinition>
   )[];
 
+  readonly oracleRoller: OracleRoller;
+
   readonly momentum?: number;
 
   getWithLens<T>(op: (lenses: CharacterLens) => CharReader<T>): T | undefined;
@@ -51,8 +53,8 @@ export class NoCharacterActionConext implements IActionContext {
     public readonly campaignContext: CampaignDataContext,
   ) {}
 
-  get roller(): OracleRoller {
-    return this.campaignContext.roller;
+  get oracleRoller(): OracleRoller {
+    return this.campaignContext.oracleRoller;
   }
 
   get rulesPackages(): StandardIndex<RulesPackage> {
@@ -126,8 +128,8 @@ export class CharacterActionContext implements IActionContext {
     public readonly characterContext: CharacterContext,
   ) {}
 
-  get roller(): OracleRoller {
-    return this.campaignContext.roller;
+  get oracleRoller(): OracleRoller {
+    return this.campaignContext.oracleRoller;
   }
 
   get rulesPackages(): StandardIndex<RulesPackage> {

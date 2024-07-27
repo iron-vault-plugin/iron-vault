@@ -28,6 +28,7 @@ import {
 } from "obsidian";
 import { MeterCommon } from "rules/ruleset";
 import { DiceGroup } from "utils/dice-group";
+import { AsyncDiceRoller } from "utils/dice-roller";
 import { numberRange } from "utils/numbers";
 import {
   MeterWithLens,
@@ -231,7 +232,7 @@ function assertInRange(
 }
 
 async function processActionMove(
-  plugin: IronVaultPlugin,
+  diceRoller: AsyncDiceRoller,
   move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
   stat: string,
   statVal: number,
@@ -239,14 +240,13 @@ async function processActionMove(
   roll?: { action: number; challenge1: number; challenge2: number } | undefined,
 ): Promise<ActionMoveDescription> {
   if (!roll) {
-    const res = await new DiceGroup(
-      [
-        new Dice(1, 6, plugin, DieKind.Action),
-        new Dice(1, 10, plugin, DieKind.Challenge1),
-        new Dice(1, 10, plugin, DieKind.Challenge2),
-      ],
-      plugin,
-    ).roll(plugin.settings.graphicalActionDice);
+    const res = await diceRoller.rollAsync(
+      DiceGroup.of(
+        new Dice(1, 6, DieKind.Action),
+        new Dice(1, 10, DieKind.Challenge1),
+        new Dice(1, 10, DieKind.Challenge2),
+      ),
+    );
     roll = {
       action: res[0].value,
       challenge1: res[1].value,
@@ -272,17 +272,16 @@ async function processActionMove(
 async function processProgressMove(
   move: Datasworn.MoveProgressRoll | Datasworn.EmbeddedProgressRollMove,
   tracker: ProgressTrackWriterContext,
-  plugin: IronVaultPlugin,
+  diceRoller: AsyncDiceRoller,
   roll?: { challenge1: number; challenge2: number },
 ): Promise<ProgressMoveDescription> {
   if (!roll) {
-    const res = await new DiceGroup(
-      [
-        new Dice(1, 10, plugin, DieKind.Challenge1),
-        new Dice(1, 10, plugin, DieKind.Challenge2),
-      ],
-      plugin,
-    ).roll(plugin.settings.graphicalActionDice);
+    const res = await diceRoller.rollAsync(
+      DiceGroup.of(
+        new Dice(1, 10, DieKind.Challenge1),
+        new Dice(1, 10, DieKind.Challenge2),
+      ),
+    );
     roll = {
       challenge1: res[0].value,
       challenge2: res[1].value,
@@ -324,6 +323,8 @@ export async function runMoveCommand(
 
   const context = await determineCharacterActionContext(plugin, view);
 
+  const diceRoller = context.campaignContext.diceRollerFor("move");
+
   // Use the provided move, or prompt the user for a move appropriate to the current action context.
   const move: Datasworn.Move | Datasworn.EmbeddedMove =
     chosenMove ?? (await promptForMove(plugin, context));
@@ -336,6 +337,7 @@ export async function runMoveCommand(
       case "action_roll": {
         moveDescription = await handleActionRoll(
           plugin,
+          diceRoller,
           context,
           move,
           true,
@@ -346,6 +348,7 @@ export async function runMoveCommand(
       case "progress_roll": {
         moveDescription = await handleProgressRoll(
           plugin,
+          diceRoller,
           new ProgressContext(plugin, context),
           move,
         );
@@ -385,6 +388,7 @@ function createEmptyMoveDescription(
 
 async function handleProgressRoll(
   plugin: IronVaultPlugin,
+  diceRoller: AsyncDiceRoller,
   progressContext: ProgressContext,
   move: Datasworn.MoveProgressRoll | Datasworn.EmbeddedProgressRollMove,
 ): Promise<MoveDescription> {
@@ -419,7 +423,7 @@ async function handleProgressRoll(
   }
 
   // TODO: when would we mark complete? should we prompt on a hit?
-  return await processProgressMove(move, progressTrack, plugin, rolls);
+  return await processProgressMove(move, progressTrack, diceRoller, rolls);
 }
 
 const ORDINALS = [
@@ -473,6 +477,7 @@ export function suggestedRollablesForMove(
 
 async function handleActionRoll(
   plugin: IronVaultPlugin,
+  diceRoller: AsyncDiceRoller,
   actionContext: ActionContext,
   move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
   allowSkip: true,
@@ -480,6 +485,7 @@ async function handleActionRoll(
 ): Promise<NoRollMoveDescription | ActionMoveDescription>;
 async function handleActionRoll(
   plugin: IronVaultPlugin,
+  diceRoller: AsyncDiceRoller,
   actionContext: ActionContext,
   move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
   allowSkip: false,
@@ -487,6 +493,7 @@ async function handleActionRoll(
 ): Promise<ActionMoveDescription>;
 async function handleActionRoll(
   plugin: IronVaultPlugin,
+  diceRoller: AsyncDiceRoller,
   actionContext: ActionContext,
   move: Datasworn.MoveActionRoll | Datasworn.EmbeddedActionRollMove,
   allowSkip: boolean,
@@ -568,7 +575,7 @@ async function handleActionRoll(
   }
 
   let description = await processActionMove(
-    plugin,
+    diceRoller,
     move,
     labelForMeter(stat),
     statValue,
@@ -695,6 +702,7 @@ export async function makeActionRollCommand(
   view: MarkdownView | MarkdownFileInfo,
 ): Promise<void> {
   const context = await determineCharacterActionContext(plugin, view);
+  const diceRoller = context.campaignContext.diceRollerFor("move");
 
   const priorBlock = findAdjacentMechanicsBlock(editor);
   let updatePriorMove = false;
@@ -729,6 +737,7 @@ export async function makeActionRollCommand(
 
   const moveDescription: ActionMoveDescription = await handleActionRoll(
     plugin,
+    diceRoller,
     context,
     move,
     false,

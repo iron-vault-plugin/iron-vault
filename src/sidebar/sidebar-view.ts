@@ -82,7 +82,7 @@ export class SidebarView extends ItemView {
   }
 
   refresh() {
-    const dataContext = this.campaignSource.dataContext;
+    const dataContext = this.campaignSource.campaignContext;
     if (dataContext) {
       renderIronVaultOracles(
         this.contentEl.querySelector(".content.oracle-tab")!,

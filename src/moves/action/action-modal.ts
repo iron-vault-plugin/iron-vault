@@ -11,6 +11,7 @@ import {
   Setting,
 } from "obsidian";
 import { Dice, DieKind } from "utils/dice";
+import { DiceGroup } from "utils/dice-group";
 import { node } from "utils/kdl";
 import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
@@ -122,6 +123,7 @@ export async function rerollDie(
   view: MarkdownView | MarkdownFileInfo,
 ) {
   const actionContext = await determineCharacterActionContext(plugin, view);
+  const diceRoller = actionContext.campaignContext.diceRollerFor("move");
 
   const dieName: "action" | "vs1" | "vs2" = await CustomSuggestModal.select(
     plugin.app,
@@ -146,16 +148,21 @@ export async function rerollDie(
   } else {
     newValue =
       "" +
-      (await new Dice(
-        1,
-        dieName === "action" ? 6 : 10,
-        plugin,
-        dieName === "action"
-          ? DieKind.Action
-          : dieName === "vs1"
-            ? DieKind.Challenge1
-            : DieKind.Challenge2,
-      ).roll(plugin.settings.graphicalActionDice));
+      (
+        await diceRoller.rollAsync(
+          DiceGroup.of(
+            new Dice(
+              1,
+              dieName === "action" ? 6 : 10,
+              dieName === "action"
+                ? DieKind.Action
+                : dieName === "vs1"
+                  ? DieKind.Challenge1
+                  : DieKind.Challenge2,
+            ),
+          ),
+        )
+      )[0].value;
   }
   const props: { action?: string; vs1?: string; vs2?: string } = {};
   props[dieName] = newValue;

@@ -13,11 +13,18 @@ import {
   DataswornTypes,
   MoveWithSelector,
 } from "datastore/datasworn-indexer";
+import IronVaultPlugin from "index";
 import { ReadonlyIndex } from "indexer/index-interface";
 import { OracleRoller } from "oracles/roller";
 import { Ruleset } from "rules/ruleset";
 import { TrackedEntities } from "te/index-interface";
 import { ProgressTrackFileAdapter } from "tracks/progress";
+import {
+  AsyncDiceRoller,
+  DiceRoller,
+  GraphicalDiceRoller,
+  PlainDiceRoller,
+} from "utils/dice-roller";
 import { projectedVersionedMap } from "utils/versioned-map";
 import { ZodError } from "zod";
 import { CampaignFile } from "./entity";
@@ -26,9 +33,13 @@ import { Determination, IPlaysetConfig } from "./playsets/config";
 export class CampaignDataContext
   implements TrackedEntities, ICompleteDataContext
 {
-  dataContext: PlaysetAwareDataContext;
+  readonly dataContext: PlaysetAwareDataContext;
+  readonly oracleRoller: OracleRoller;
 
   constructor(
+    // TODO(@cwegrzyn): Once we have a campaign settings object (which must overlay the
+    //   overall plugin settings somehow), we can replace this plugin call.
+    private readonly plugin: IronVaultPlugin,
     base: TrackedEntities,
     indexer: DataIndexer<DataswornTypes>,
     public readonly campaign: CampaignFile,
@@ -45,6 +56,7 @@ export class CampaignDataContext
     );
 
     this.dataContext = new PlaysetAwareDataContext(indexer, campaign.playset);
+    this.oracleRoller = new OracleRoller(plugin, this.oracles);
   }
 
   campaigns: ReadonlyIndex<CampaignFile, ZodError>;
@@ -76,10 +88,6 @@ export class CampaignDataContext
     return this.dataContext.truths;
   }
 
-  get roller(): OracleRoller {
-    return this.dataContext.roller;
-  }
-
   get rulesPackages(): StandardIndex<RulesPackage> {
     return this.dataContext.rulesPackages;
   }
@@ -90,6 +98,16 @@ export class CampaignDataContext
 
   get prioritized() {
     return this.dataContext.prioritized;
+  }
+  diceRollerFor(kind: "move"): AsyncDiceRoller & DiceRoller {
+    switch (kind) {
+      case "move":
+        return this.plugin.settings.graphicalActionDice
+          ? new GraphicalDiceRoller(this.plugin)
+          : PlainDiceRoller.INSTANCE;
+      default:
+        throw new Error(`unexpected kind ${kind}`);
+    }
   }
 }
 

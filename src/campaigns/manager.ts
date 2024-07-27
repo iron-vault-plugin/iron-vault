@@ -296,7 +296,8 @@ export class CampaignManager extends Component {
       this.#campaignDataContexts.set(
         campaign,
         (context = new CampaignDataContext(
-          this.plugin,
+          this.plugin, // this is for the settings/for dice roller
+          this.plugin, // this is the tracked entities
           this.plugin.datastore.indexer,
           campaign,
           // TODO(cwegrzyn): need to confirm that file equality comparison is safe

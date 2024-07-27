@@ -4,6 +4,7 @@ import { IDataContext } from "datastore/data-context";
 import { rootLogger, setLogLevel } from "logger";
 import loglevel from "loglevel";
 import { App, getLinkpath, parseLinktext } from "obsidian";
+import { OracleRoller } from "oracles/roller";
 import { ProgressIndex } from "tracks/indexer";
 import { CharacterTracker } from "./character-tracker";
 import { Datastore } from "./datastore";
@@ -44,7 +45,9 @@ export class IronVaultAPI {
   }
 
   public async roll(oracle: string): Promise<RollWrapper> {
-    return this.globalDataContext.roller.roll(oracle);
+    return new OracleRoller(this.plugin, this.activeDataContext.oracles).roll(
+      oracle,
+    );
   }
 
   public stripLinks(input: string): string {
