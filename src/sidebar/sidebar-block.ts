@@ -14,32 +14,17 @@ import renderIronVaultOracles from "./oracles";
 export default function registerSidebarBlocks(plugin: IronVaultPlugin) {
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-moves",
-    async (_source, el: SidebarBlockContainerEl, _ctx) => {
-      // We can't render blocks until datastore is ready.
-      await plugin.datastore.waitForReady;
-      if (!el.movesRenderer) {
-        el.movesRenderer = new MovesRenderer(el, plugin);
-      }
-      await el.movesRenderer.render();
+    (_source, el: HTMLElement, ctx) => {
+      ctx.addChild(new MovesRenderer(el, plugin, ctx.sourcePath));
     },
   );
 
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-oracles",
-    async (_source, el: SidebarBlockContainerEl, _ctx) => {
-      // We can't render blocks until datastore is ready.
-      await plugin.datastore.waitForReady;
-      if (!el.oracleRenderer) {
-        el.oracleRenderer = new OracleRenderer(el, plugin);
-      }
-      await el.oracleRenderer.render();
+    (_source, el: HTMLElement, ctx) => {
+      ctx.addChild(new OracleRenderer(el, plugin, ctx.sourcePath));
     },
   );
-}
-
-interface SidebarBlockContainerEl extends HTMLElement {
-  movesRenderer?: MovesRenderer;
-  oracleRenderer?: OracleRenderer;
 }
 
 /** A component that monitors either the file campaign or the active campaign.  */
