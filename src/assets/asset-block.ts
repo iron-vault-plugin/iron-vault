@@ -1,55 +1,41 @@
-import { Asset } from "@datasworn/core/dist/Datasworn";
 import { html, render } from "lit-html";
 
-import { IDataContext } from "datastore/data-context";
+import { CampaignDataContext } from "campaigns/context";
 import IronVaultPlugin from "index";
+import { MarkdownRenderChild } from "obsidian";
+import { FileBasedCampaignWatch } from "sidebar/sidebar-block";
 import renderAssetCard from "./asset-card";
 
 export default function registerAssetBlock(plugin: IronVaultPlugin) {
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-asset",
-    async (source, el: AssetBlockContainerEl, _ctx) => {
-      // We can't render blocks until datastore is ready.
-      await plugin.datastore.waitForReady;
-      if (!el.assetRenderer) {
-        // TODO(@cwegrzyn): instead of pulling the asset from
-        // the plugin datacontext here, we should have some
-        // way of "watching" the current file's data context
-        const asset = AssetBlockRenderer.getAsset(
-          plugin.datastore.dataContext,
-          source,
-        );
-        if (!asset) {
-          render(html`<p>No such asset: ${source}</p>`, el);
-          return;
-        }
-        el.assetRenderer = new AssetBlockRenderer(el, plugin, asset);
-      }
-      await el.assetRenderer.render();
+    (source, el: HTMLElement, ctx) => {
+      ctx.addChild(new AssetBlockRenderer(el, plugin, source, ctx.sourcePath));
     },
   );
 }
 
-interface AssetBlockContainerEl extends HTMLElement {
-  assetRenderer?: AssetBlockRenderer;
-}
+class AssetBlockRenderer extends MarkdownRenderChild {
+  campaignSource: FileBasedCampaignWatch;
 
-class AssetBlockRenderer {
-  contentEl: HTMLElement;
-  plugin: IronVaultPlugin;
-  dataContext: IDataContext;
-  asset: Asset;
-
-  constructor(contentEl: HTMLElement, plugin: IronVaultPlugin, asset: Asset) {
-    this.contentEl = contentEl;
-    this.plugin = plugin;
-    this.asset = asset;
-    // TODO(@cwegrzyn): should this use a campaign data context?
-    this.dataContext = plugin.datastore.dataContext;
+  constructor(
+    contentEl: HTMLElement,
+    readonly plugin: IronVaultPlugin,
+    readonly source: string,
+    sourcePath: string,
+  ) {
+    super(contentEl);
+    this.campaignSource = this.addChild(
+      new FileBasedCampaignWatch(
+        plugin.app.vault,
+        plugin.campaignManager,
+        sourcePath,
+      ).onUpdate(() => this.render()),
+    );
   }
 
-  static getAsset(dataContext: IDataContext, source: string) {
-    const trimmed = source.trim().toLowerCase();
+  getAsset(dataContext: CampaignDataContext) {
+    const trimmed = this.source.trim().toLowerCase();
     return (
       dataContext.assets.get(trimmed) ||
       [...dataContext.assets.values()].find(
@@ -59,14 +45,29 @@ class AssetBlockRenderer {
   }
 
   async render() {
+    const dataContext = this.campaignSource.campaignContext;
+    if (!dataContext) {
+      render(
+        html`<article class="error">
+          Asset block may only be used within a campaign folder.
+        </article>`,
+        this.containerEl,
+      );
+      return;
+    }
+    const asset = this.getAsset(dataContext);
+    if (!asset) {
+      render(html`<p>No such asset: ${this.source}</p>`, this.containerEl);
+      return;
+    }
     render(
-      renderAssetCard(this.plugin, this.dataContext, {
-        id: this.asset._id,
+      renderAssetCard(this.plugin, dataContext, {
+        id: asset._id,
         abilities: [true, false, false],
         options: {},
         controls: {},
       }),
-      this.contentEl,
+      this.containerEl,
     );
   }
 }

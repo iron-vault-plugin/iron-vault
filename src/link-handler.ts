@@ -72,7 +72,6 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
     const token = editor && editor.getClickableTokenAt(editor.posAtMouse(ev));
     if (view?.file && token) {
       const campaign = plugin.campaignManager.campaignForFile(view.file);
-      // TODO(@cwegrzyn): does it make sense to use the global context if outside of a campaign?
       const context =
         campaign == null
           ? plugin.datastore.dataContext
