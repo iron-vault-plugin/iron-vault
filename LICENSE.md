@@ -24,31 +24,37 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Ironsworn and Ironsworn: Delve Content
+## Included Game Content
 
-This work is based on Ironsworn and Ironsworn: Delve (found at <www.ironswornrpg.com>), created by
-Shawn Tomkin, and licensed for our use under the Creative Commons Attribution
-4.0 International License (<https://creativecommons.org/licenses/by/4.0/>).
+This work is based on and includes content from Ironsworn, Ironsworn: Delve,
+Ironsworn: Starforged, and Sundered Isles, found at <www.ironswornrpg.com>,
+and created by Shawn Tomkin.
 
-Ironsworn content includes all the bundled rules, assets, moves, and text when
-the Ironsworn ruleset is enabled. Ironsworn: Delve content includes all the
-bundled rules, assets, moves, and text when the Ironsworn: Delve expansion is enabled.
+Content for each ruleset includes all rules (such as character sheet
+information), assets, moves, oracles, and text when each ruleset or its
+contents is enabled through settings or playsets.
 
-## Starforged Content
+For more information about licensing, please visit <www.ironswornrpg.com/licensing>.
 
-This work is based on Ironsworn: Starforged (found at <www.ironswornrpg.com>),
-created by Shawn Tomkin, and licensed for our use under the Creative Commons
-Attribution 4.0 International License
+### Ironsworn and Ironsworn: Delve Content
+
+All Ironsworn and Ironsworn: Delve content in Iron Vault is available under
+the Creative Commons Attribution 4.0 International License
 (<https://creativecommons.org/licenses/by/4.0/>).
 
-Starforged content includes all the bundled rules, assets, moves, and text when
-the Starforged ruleset is enabled.
+### Starforged and Sundered Isles Content
 
-## Sundered Isles Content
+All Ironsworn: Starforged content in Iron Vault is available under the
+Creative Commons Attribution 4.0 International License
+(<https://creativecommons.org/licenses/by/4.0/>).
 
-Sundered Isles content is included only as a preview and is not intended for
-further redistribution. It may not reflect the final rulebook. After the rulebook
-is finalized, Datasworn will be updated with official, licensed data.
+Sundered Isles moves text, as included in Iron Vault, is licensed under the
+Creative Commons Attribution 4.0 International (CC BY) license
+(<https://creativecommons.org/licenses/by/4.0/>). Other Sundered Isles
+content, including assets, oracles, and rules, is licensed for non-commercial
+use under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+International (CC BY-NC-SA) license
+(<http://creativecommons.org/licenses/by-nc-sa/4.0/>).
 
 ## Forged in Obsidian
 

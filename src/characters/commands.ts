@@ -126,12 +126,17 @@ export async function addAssetToCharacter(
 export async function createNewCharacter(
   plugin: IronVaultPlugin,
   view?: MarkdownView | MarkdownFileInfo,
+  defaultFolder?: string,
 ) {
   const campaignContext = await determineCampaignContext(plugin, view);
   const { lens, validater } = characterLens(campaignContext.ruleset);
 
-  const { fileName, name, targetFolder } =
-    await CharacterCreateModal.show(plugin);
+  const { fileName, name, targetFolder } = await CharacterCreateModal.show(
+    plugin,
+    {
+      targetFolder: defaultFolder,
+    },
+  );
 
   await createNewIronVaultEntityFile(
     plugin.app,

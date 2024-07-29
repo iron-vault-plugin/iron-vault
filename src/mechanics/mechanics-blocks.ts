@@ -57,6 +57,7 @@ export class MechanicsRenderer {
   lastRoll: KdlNode | undefined;
   moveEl: HTMLElement | undefined;
   doc?: KdlNode;
+  activeMenu?: Menu;
   hideMechanics = false;
 
   constructor(
@@ -174,9 +175,11 @@ See https://kdl.dev for syntax.</pre
       ev.preventDefault();
       ev.stopPropagation();
 
-      const menu = new Menu();
+      this.activeMenu = new Menu();
 
-      menu.addItem((item) => {
+      this.activeMenu.onunload = () => (this.activeMenu = undefined);
+
+      this.activeMenu.addItem((item) => {
         item
           .setTitle(
             `Delete ${node.name === "-" ? "comment" : node === this.doc ? "mechanics block" : node.name}`,
@@ -197,11 +200,11 @@ See https://kdl.dev for syntax.</pre
           });
       });
 
-      menu.showAtMouseEvent(ev);
+      this.activeMenu.showAtMouseEvent(ev);
     };
   }
 
-  updateBlock() {
+  updateBlock(offset: number = 0) {
     const view = this.plugin.app.workspace.getActiveViewOfType(MarkdownView);
     const editor = this.plugin.app.workspace.activeEditor?.editor;
     const sectionInfo = this.ctx.getSectionInfo(this.contentEl as HTMLElement);
@@ -214,31 +217,30 @@ See https://kdl.dev for syntax.</pre
     ) {
       return;
     }
+    const start = sectionInfo.lineStart + offset;
+    const end = sectionInfo.lineEnd + offset;
     const editorRange = {
       from: {
         ch: 0,
-        line: sectionInfo.lineStart,
+        line: start,
       },
       to: {
-        ch: 0,
-        line: sectionInfo.lineEnd,
+        ch: editor.getLine(end).length,
+        line: end,
       },
     };
-    const to = {
-      line: editorRange.to.line,
-      ch: editor.getLine(editorRange.to.line).length,
-    };
-    editor.replaceRange(
-      this.doc.children.length
-        ? `\`\`\`iron-vault-mechanics\n${format(this.doc.children)}\`\`\``
-        : "",
-      editorRange.from,
-      to,
-    );
+    const replacement = this.doc.children.length
+      ? `\`\`\`iron-vault-mechanics\n${format(this.doc.children)}\`\`\``
+      : "";
+    editor.replaceRange(replacement, editorRange.from, editorRange.to);
+    const oldLineCount = end - start;
+    const newLineCount = replacement.split(/\r\n|\r|\n/g).length - 1;
+    const newOffset = newLineCount - oldLineCount;
     editor.focus();
-    const moveTo = editorRange.from.line;
+    // const moveTo = editorRange.from.line;
     // NB(@zkat): This prevents the editor jumping around.
-    editor.setCursor({ ch: 0, line: moveTo >= 0 ? moveTo : 0 });
+    // editor.setCursor({ ch: 0, line: moveTo >= 0 ? moveTo : 0 });
+    return newOffset;
   }
 
   renderChildren(nodes: KdlNode[]): TemplateResult {
@@ -932,7 +934,13 @@ interface SortableElement extends HTMLElement {
   node?: KdlNode;
 }
 
-const MECH_BLOCK_GROUP = "mechanics-block-entries";
+// TODO(@zkat): Had to disable this because Obsidian doesn't seem to be
+// updating the value of ctx.getSectionInfo properly, so if you move a
+// node between two blocks, and back, the blocks will think they had
+// their original ranges. Forcing a view rerender does not seem to force
+// a block rerender.
+//
+// const MECH_BLOCK_GROUP = "mechanics-block-entries";
 const makeSortable = (el: Element | undefined, node: KdlNode) => {
   if (el && Sortable.get(el as SortableElement)) {
     Sortable.get(el as SortableElement)!.destroy();
@@ -940,12 +948,32 @@ const makeSortable = (el: Element | undefined, node: KdlNode) => {
   if (el) {
     (el as SortableElement).node = node;
     Sortable.create(el as SortableElement, {
-      group: MECH_BLOCK_GROUP,
-      animation: 150,
-      delay: 200,
+      // group: MECH_BLOCK_GROUP,
+      delay: 250,
       delayOnTouchOnly: true,
-      fallbackOnBody: true,
+      animation: 150,
       swapThreshold: 0.65,
+      onStart: (evt) => {
+        const from = evt.from as SortableElement;
+        const to = evt.to as SortableElement;
+        if (!from.node || !to.node) {
+          return;
+        }
+        const fromContent = from.closest(".iron-vault-mechanics")!;
+        const toContent = to.closest(".iron-vault-mechanics")!;
+        const fromRenderer = (
+          fromContent.parentElement!.parentElement as MechanicsContainerEl
+        ).mechanicsRenderer!;
+        const toRenderer = (
+          toContent.parentElement!.parentElement as MechanicsContainerEl
+        ).mechanicsRenderer!;
+        fromRenderer.activeMenu?.close();
+        fromRenderer.activeMenu?.unload();
+        if (fromRenderer !== toRenderer) {
+          toRenderer.activeMenu?.close();
+          toRenderer.activeMenu?.unload();
+        }
+      },
       onEnd: (evt) => {
         if (evt.oldIndex != null && evt.newIndex != null) {
           const from = evt.from as SortableElement;
@@ -966,13 +994,19 @@ const makeSortable = (el: Element | undefined, node: KdlNode) => {
             0,
             ...from.node.children.splice(evt.oldIndex, 1),
           );
-          toRenderer.fillParents(to.node!.children, to.node!);
-          toRenderer.updateBlock();
-          toRenderer.render();
-          if (toRenderer !== fromRenderer) {
-            fromRenderer.fillParents(from.node!.children, from.node!);
-            fromRenderer.updateBlock();
-            fromRenderer.render();
+          fromRenderer.fillParents(to.node!.children, to.node!);
+          const lineOffset = fromRenderer.updateBlock();
+          fromRenderer.render();
+          if (fromRenderer !== toRenderer) {
+            toRenderer.fillParents(from.node!.children, from.node!);
+            const actualOffset =
+              fromRenderer.contentEl.compareDocumentPosition(
+                toRenderer.contentEl,
+              ) & Node.DOCUMENT_POSITION_PRECEDING
+                ? 0
+                : lineOffset;
+            toRenderer.updateBlock(actualOffset);
+            toRenderer.render();
           }
         }
       },

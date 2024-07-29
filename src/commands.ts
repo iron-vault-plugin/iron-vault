@@ -27,6 +27,7 @@ import {
 } from "utils/ui/generic-fuzzy-suggester";
 import { PromptModal } from "utils/ui/prompt";
 import * as meterCommands from "./characters/meter-commands";
+import { createFactionInfluenceGrid } from "factions/commands";
 
 export class IronVaultCommands {
   plugin: IronVaultPlugin;
@@ -213,6 +214,13 @@ export class IronVaultCommands {
       ) => {
         await generateEntityCommand(this.plugin, editor, ctx);
       },
+    },
+
+    {
+      id: "faction-grid-gen",
+      name: "Create faction influence grid",
+      icon: "table",
+      callback: () => createFactionInfluenceGrid(this.plugin),
     },
 
     /*

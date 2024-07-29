@@ -504,10 +504,165 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
       },
       focus: {
         name: "Focus",
-        id: "oracle_rollable:sundered_isles/settlement/identity/focus/{{location}}",
+        id: "oracle_rollable:sundered_isles/settlement/focus/{{location}}",
       },
       details: {
         id: "oracle_rollable:sundered_isles/settlement/details",
+      },
+    },
+  },
+  siSociety: {
+    label: "Faction: Society",
+    collectionId: "oracle_collection:sundered_isles/faction/society",
+    nameGen: (ent) =>
+      `The ${ent.name_culture[0]?.simpleResult ? ent.name_culture[0]?.simpleResult + " " : ""}${ent.name_theme_aspect[0]?.simpleResult ? ent.name_theme_aspect[0]?.simpleResult + " " : ""}${ent.name_theme_persona[0]?.simpleResult ? ent.name_theme_persona[0]?.simpleResult + " " : ""}${ent.name_identity[0]?.simpleResult ?? ""}`,
+    spec: {
+      name_culture: {
+        id: "oracle_rollable:sundered_isles/faction/name/culture",
+      },
+      name_identity: {
+        id: "oracle_rollable:sundered_isles/faction/name/identity_society",
+      },
+      name_theme_type: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/type",
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.ParseId,
+        },
+      },
+      name_theme_aspect: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/{{name_theme_type}}/aspect",
+        name: "Name: Aspect",
+      },
+      name_theme_persona: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/{{name_theme_type}}/persona",
+        name: "Name: Persona",
+      },
+      chronicles: {
+        id: "oracle_rollable:sundered_isles/faction/society/chronicles",
+      },
+      overseers: {
+        id: "oracle_rollable:sundered_isles/faction/society/overseers",
+      },
+      touchstones: {
+        id: "oracle_rollable:sundered_isles/faction/society/touchstones",
+      },
+      cursed_aspects: {
+        id: "oracle_rollable:sundered_isles/faction/cursed/aspects",
+      },
+    },
+  },
+  siOrganization: {
+    label: "Faction: Organization",
+    collectionId: "oracle_collection:sundered_isles/faction/organization",
+    nameGen: (ent) =>
+      `The ${ent.name_culture[0]?.simpleResult ? ent.name_culture[0]?.simpleResult + " " : ""}${ent.name_theme_aspect[0]?.simpleResult ? ent.name_theme_aspect[0]?.simpleResult + " " : ""}${ent.name_theme_persona[0]?.simpleResult ? ent.name_theme_persona[0]?.simpleResult + " " : ""}${ent.name_identity[0]?.simpleResult ?? ""}`,
+    spec: {
+      name_culture: {
+        id: "oracle_rollable:sundered_isles/faction/name/culture",
+      },
+      name_identity: {
+        id: "oracle_rollable:sundered_isles/faction/name/identity_organization",
+      },
+      name_theme_type: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/type",
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.ParseId,
+        },
+      },
+      name_theme_aspect: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/{{name_theme_type}}/aspect",
+        name: "Name: Aspect",
+      },
+      name_theme_persona: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/{{name_theme_type}}/persona",
+        name: "Name: Persona",
+      },
+      type: {
+        id: "oracle_rollable:sundered_isles/faction/organization/type",
+      },
+      methods: {
+        id: "oracle_rollable:sundered_isles/faction/organization/methods",
+      },
+      secrets: {
+        id: "oracle_rollable:sundered_isles/faction/organization/secrets",
+      },
+      cursed_aspects: {
+        id: "oracle_rollable:sundered_isles/faction/cursed/aspects",
+      },
+    },
+  },
+  siEmpire: {
+    label: "Faction: Empire",
+    collectionId: "oracle_collection:sundered_isles/faction/empire",
+    nameGen: (ent) =>
+      `The ${ent.name_culture[0]?.simpleResult ? ent.name_culture[0]?.simpleResult + " " : ""}${ent.name_theme_aspect[0]?.simpleResult ? ent.name_theme_aspect[0]?.simpleResult + " " : ""}${ent.name_theme_persona[0]?.simpleResult ? ent.name_theme_persona[0]?.simpleResult + " " : ""}${ent.name_identity[0]?.simpleResult ?? ""}`,
+    spec: {
+      name_culture: {
+        id: "oracle_rollable:sundered_isles/faction/name/culture",
+      },
+      name_identity: {
+        id: "oracle_rollable:sundered_isles/faction/name/identity_empire",
+      },
+      name_theme_type: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/type",
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.ParseId,
+        },
+      },
+      name_theme_aspect: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/{{name_theme_type}}/aspect",
+        name: "Name: Aspect",
+      },
+      name_theme_persona: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/{{name_theme_type}}/persona",
+        name: "Name: Persona",
+      },
+      leadership: {
+        id: "oracle_rollable:sundered_isles/faction/empire/leadership",
+      },
+      tactics: {
+        id: "oracle_rollable:sundered_isles/faction/empire/tactics",
+      },
+      vulnerabilities: {
+        id: "oracle_rollable:sundered_isles/faction/empire/vulnerabilities",
+      },
+      cursed_aspects: {
+        id: "oracle_rollable:sundered_isles/faction/cursed/aspects",
+      },
+    },
+  },
+  siCursed: {
+    label: "Faction: Cursed Faction",
+    collectionId: "oracle_collection:sundered_isles/faction/cursed",
+    nameGen: (ent) =>
+      `The ${ent.name_culture[0]?.simpleResult ? ent.name_culture[0]?.simpleResult + " " : ""}${ent.name_theme_aspect[0]?.simpleResult ? ent.name_theme_aspect[0]?.simpleResult + " " : ""}${ent.name_theme_persona[0]?.simpleResult ? ent.name_theme_persona[0]?.simpleResult + " " : ""}`,
+    spec: {
+      name_culture: {
+        id: "oracle_rollable:sundered_isles/faction/name/culture",
+      },
+      name_theme_type: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/type",
+        definesAttribute: {
+          order: 1,
+          mechanism: AttributeMechanism.ParseId,
+        },
+      },
+      name_theme_aspect: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/{{name_theme_type}}/aspect",
+        name: "Name: Aspect",
+      },
+      name_theme_persona: {
+        id: "oracle_rollable:sundered_isles/faction/name/themes/{{name_theme_type}}/persona",
+        name: "Name: Persona",
+      },
+      role: {
+        id: "oracle_rollable:sundered_isles/faction/cursed/role",
+      },
+      aspects: {
+        id: "oracle_rollable:sundered_isles/faction/cursed/aspects",
       },
     },
   },

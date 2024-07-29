@@ -1,6 +1,6 @@
 {
   "name": "iron-vault",
-  "version": "1.80.0",
+  "version": "1.83.0",
   "description": "",
   "main": "main.js",
   "type": "module",
@@ -29,11 +29,11 @@
     "@3d-dice/theme-smooth": "^0.1.0",
     "@codemirror/language": "^6.10.1",
     "@codemirror/view": "^6.26.3",
-    "@datasworn/core": "github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/core",
-    "@datasworn/ironsworn-classic": "github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic",
-    "@datasworn/ironsworn-classic-delve": "github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic-delve",
-    "@datasworn/starforged": "github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/starforged",
-    "@datasworn/sundered-isles": "github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/sundered-isles",
+    "@datasworn/core": "0.1.0-0",
+    "@datasworn/ironsworn-classic": "0.1.0-0",
+    "@datasworn/ironsworn-classic-delve": "0.1.0-0",
+    "@datasworn/starforged": "0.1.0-0",
+    "@datasworn/sundered-isles": "0.1.0-0",
     "@jgoz/esbuild-plugin-typecheck": "^4.0.0",
     "@nrsk/sigma": "^3.8.0",
     "@swc/core": "^1.5.7",
@@ -72,12 +72,5 @@
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.10.0",
     "zod": "^3.23.8"
-  },
-  "pnpm": {
-    "overrides": {
-      "@datasworn/core": "github:rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/core",
-      "@datasworn/ironsworn-classic": "git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/ironsworn-classic",
-      "@datasworn/starforged": "git+https://github.com/rsek/datasworn#v0.1.0&path:pkg/nodejs/@datasworn/starforged"
-    }
   }
 }

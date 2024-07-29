@@ -19,6 +19,7 @@ export enum IronVaultKind {
   Clock = "clock",
   ProgressTrack = "progress",
   Campaign = "campaign",
+  FactionInfluenceGrid = "faction-influence-grid",
 }
 
 // TODO(@cwegrzyn): if Datasworn exports this from core at some point, we should use that.
