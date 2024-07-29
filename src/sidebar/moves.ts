@@ -8,14 +8,11 @@ import IronVaultPlugin from "index";
 import { MoveModal } from "moves/move-modal";
 import { md } from "utils/ui/directives";
 
-export default async function renderIronVaultMoves(
+export default function renderIronVaultMoves(
   cont: HTMLElement,
   plugin: IronVaultPlugin,
   dataContext: IDataContext,
 ) {
-  const loading = cont.createEl("p", { text: "Loading data..." });
-  await plugin.datastore.waitForReady;
-  loading.remove();
   litHtmlMoveList(cont, plugin, dataContext, makeIndex(dataContext));
 }
 

@@ -1,7 +1,6 @@
 import { Datasworn } from "@datasworn/core";
 import { Asset, Rules } from "@datasworn/core/dist/Datasworn";
 import merge from "lodash.merge";
-import { OracleRoller } from "oracles/roller";
 import { Ruleset } from "rules/ruleset";
 import { VersionedMapImpl } from "utils/versioned-map";
 import { SourcedMap, SourcedMapImpl, StandardIndex } from "./data-indexer";
@@ -61,11 +60,6 @@ export class MockDataContext implements IDataContext {
 
   get ruleset(): Ruleset {
     throw new Error("not implemented");
-  }
-
-  get roller() {
-    // TODO(@cwegrzyn): maybe we should have a way of passing a normal roller through here?
-    return new OracleRoller(undefined as never, this.oracles);
   }
 }
 

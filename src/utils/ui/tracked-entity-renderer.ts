@@ -152,7 +152,6 @@ export abstract class TrackedEntityRenderer<
    * Override this to provide a different error message.
    */
   protected renderInvalidEntity(error: E): void | Promise<void> {
-    // TODO(@cwegrzyn): can I get a kind for the index?
     render(
       html`<article class="error">
         Invalid ${this.kind} at '${this.sourcePath}':

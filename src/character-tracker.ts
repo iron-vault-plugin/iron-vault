@@ -47,7 +47,7 @@ export class CharacterIndexer extends BaseIndexer<
   ): IndexUpdate<CharacterContext, z.ZodError> {
     const campaign = this.campaignManager.watchForReindex(file.path);
     if (campaign == null) {
-      // TODO: this should yield the real error, but then I have to update the stuff that expects a zod error
+      // TODO(@cwegrzyn): this should yield the real error, but then I have to update the stuff that expects a zod error
       return Left.create(new UnexpectedIndexingError("missing campaign"));
     }
     const context = this.campaignManager.campaignContextFor(campaign);

@@ -1,7 +1,6 @@
 import { CampaignDataContext } from "campaigns/context";
 import { CampaignFile } from "campaigns/entity";
 import { CampaignManager } from "campaigns/manager";
-import { IDataContext } from "datastore/data-context";
 import { UnsubscribeFunction } from "emittery";
 import IronVaultPlugin from "index";
 import { html, render } from "lit-html";
@@ -162,50 +161,42 @@ abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild {
             sourcePath,
           )
         : new ActiveCampaignWatch(plugin.campaignManager),
-    ).onUpdate(() => this.render());
+    ).onUpdate(() => this.update());
   }
 
   get campaign(): CampaignFile | undefined {
     return this.campaignSource.campaign;
   }
 
-  get dataContext(): IDataContext | undefined {
+  get dataContext(): CampaignDataContext | undefined {
     return this.campaignSource.campaignContext;
   }
 
-  abstract render(): void | Promise<void>;
-}
-
-class MovesRenderer extends CampaignDependentBlockRenderer {
-  async render() {
+  update(): void | Promise<void> {
     const context = this.dataContext;
     if (context) {
-      await renderIronVaultMoves(this.containerEl, this.plugin, context);
+      return this.render(context);
     } else {
-      // TODO(@cwegrzyn): I guess this should depend on the source. Maybe part of base class?
       render(
-        html`<article class="error">No campaign</article>`,
+        html`<article class="error">
+          This block may only be used within a campaign.
+        </article>`,
         this.containerEl,
       );
     }
+  }
+
+  abstract render(context: CampaignDataContext): void | Promise<void>;
+}
+
+class MovesRenderer extends CampaignDependentBlockRenderer {
+  render(context: CampaignDataContext) {
+    renderIronVaultMoves(this.containerEl, this.plugin, context);
   }
 }
 
 class OracleRenderer extends CampaignDependentBlockRenderer {
-  async render() {
-    const context = this.dataContext;
-    if (context) {
-      await renderIronVaultOracles(
-        this.containerEl,
-        this.plugin,
-        this.dataContext,
-      );
-    } else {
-      // TODO(@cwegrzyn): I guess this should depend on the source. Maybe part of base class?
-      render(
-        html`<article class="error">No campaign</article>`,
-        this.containerEl,
-      );
-    }
+  render(context: CampaignDataContext) {
+    renderIronVaultOracles(this.containerEl, this.plugin, context);
   }
 }
