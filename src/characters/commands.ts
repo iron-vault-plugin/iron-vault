@@ -1,6 +1,7 @@
 import { type Datasworn } from "@datasworn/core";
 import { Asset } from "@datasworn/core/dist/Datasworn";
 import { AssetPickerModal } from "assets/asset-picker-modal";
+import { CampaignDataContext } from "campaigns/context";
 import { determineCampaignContext } from "campaigns/manager";
 import {
   promptForCampaignCharacter,
@@ -125,10 +126,9 @@ export async function addAssetToCharacter(
 
 export async function createNewCharacter(
   plugin: IronVaultPlugin,
-  view?: MarkdownView | MarkdownFileInfo,
+  campaignContext: CampaignDataContext,
   defaultFolder?: string,
 ) {
-  const campaignContext = await determineCampaignContext(plugin, view);
   const { lens, validater } = characterLens(campaignContext.ruleset);
 
   const { fileName, name, targetFolder } = await CharacterCreateModal.show(

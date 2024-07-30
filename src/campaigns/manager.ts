@@ -58,6 +58,11 @@ export class CampaignWatcher extends Component {
     return Right.create(foundAssignment);
   }
 
+  /** Get the campaign last seen by the watcher at this path. */
+  get(campaignPath: string): CampaignFile | undefined {
+    return this.#lastSeen.get(campaignPath);
+  }
+
   /** Sets a watch for the campaign root of a file to change. */
   watch(
     watchPath: string,
@@ -214,7 +219,6 @@ export class CampaignManager extends Component {
         if (leaf?.view instanceof MarkdownView && leaf.view.file) {
           this.setActiveCampaignFromFile(leaf.view.file);
         }
-        // TODO: what other views should cause us to reset the active view?
       }),
     );
 
@@ -270,6 +274,36 @@ export class CampaignManager extends Component {
     }
   }
 
+  awaitCampaignAvailability(
+    path: string,
+    timeout: number = 1000,
+  ): Promise<CampaignFile> {
+    logger.debug("Waiting for campaign at %s", path);
+    const existing = this.watcher.get(path);
+    if (existing) return Promise.resolve(existing);
+    return new Promise((resolve, reject) => {
+      let timeoutId: number | null = null;
+      const unsub = this.watcher.on("update", ({ campaign, campaignPath }) => {
+        logger.debug("watcher updated %s %o", campaignPath, campaign);
+        if (campaignPath == path && campaign != null) {
+          logger.debug("Campaign has been indexed.");
+          unsub();
+          if (timeoutId != null) clearTimeout(timeoutId);
+          resolve(campaign);
+        }
+      });
+      timeoutId = window.setTimeout(() => {
+        logger.debug(
+          "Wait for campaign at %s timed out after %d",
+          path,
+          timeout,
+        );
+        unsub();
+        reject(new Error("Timed out waiting for campaign"));
+      }, timeout);
+    });
+  }
+
   campaignForFile(file: TAbstractFile): CampaignFile | undefined {
     return this.campaignForPath(file.path);
   }
@@ -300,7 +334,6 @@ export class CampaignManager extends Component {
           this.plugin, // this is the tracked entities
           this.plugin.datastore.indexer,
           campaign,
-          // TODO(cwegrzyn): need to confirm that file equality comparison is safe
           (path) => this.campaignForPath(path)?.file === campaign.file,
         )),
       );

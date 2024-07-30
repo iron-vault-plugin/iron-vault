@@ -28,7 +28,6 @@ export default function registerTruthBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-truth",
     (source: string, el: HTMLElement, ctx) => {
-      logger.debug("Add truth block");
       ctx.addChild(new TruthRenderer(el, ctx.sourcePath, plugin, source, ctx));
     },
   );
@@ -51,7 +50,6 @@ class TruthRenderer extends MarkdownRenderChild {
     ctx: MarkdownPostProcessorContext,
   ) {
     super(containerEl);
-    logger.debug("constructor");
     this.sourceFile = plugin.app.vault.getFileByPath(sourcePath);
     this.plugin = plugin;
     this.source = source;
@@ -80,7 +78,6 @@ class TruthRenderer extends MarkdownRenderChild {
   }
 
   render() {
-    logger.debug("render");
     const campaignContext = this.campaignSource.campaignContext;
     if (!campaignContext) {
       render(

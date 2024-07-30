@@ -18,13 +18,20 @@ import { FolderTextSuggest } from "utils/ui/settings/folder";
 export async function generateTruthsCommand(
   plugin: IronVaultPlugin,
   view?: MarkdownView | MarkdownFileInfo,
-  defaultTargetFolder?: string,
-  defaultFileName?: string,
 ) {
   const campaignContext: CampaignDataContext = await determineCampaignContext(
     plugin,
     view,
   );
+  return await generateTruthsForCampaign(plugin, campaignContext);
+}
+
+export async function generateTruthsForCampaign(
+  plugin: IronVaultPlugin,
+  campaignContext: CampaignDataContext,
+  defaultTargetFolder?: string,
+  defaultFileName?: string,
+) {
   const truths = [...campaignContext.truths.values()];
   const text = Handlebars.compile(
     `{{#each truths}}\n## {{name}}\n\`\`\`iron-vault-truth\n{{_id}}\n\`\`\`\n\n{{/each}}`,
