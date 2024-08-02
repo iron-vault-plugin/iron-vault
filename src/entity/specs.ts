@@ -426,7 +426,7 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
         name: "First look",
       },
       disposition: {
-        id: "oracle_rollable:sundered_isles/character/initial_disposition",
+        id: "oracle_rollable:sundered_isles/character/disposition",
         firstLook: true,
       },
       roles: {
