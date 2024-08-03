@@ -122,7 +122,10 @@ export class PlaysetAwareDataContext extends BaseDataContext {
           // NOTE: we look at the source id here instead of the key, in case things are indexed elsewhere
           const filtered = val.filter(
             (sourced) =>
-              playsetConfig.determine(sourced.id) === Determination.Include,
+              // TODO(@cwegrzyn): maybe I should be more open ended with the type on determine's obj?
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              playsetConfig.determine(sourced.id, sourced.value as any) ===
+              Determination.Include,
           );
           return filtered.length > 0
             ? (filtered as SourcedByArray<DataswornTypes>)

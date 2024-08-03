@@ -17,7 +17,18 @@ export async function createNewCampaignCommand(plugin: IronVaultPlugin) {
     campaignInfo.folder,
     campaignInfo.campaignName,
     IronVaultKind.Campaign,
-    CampaignFile.generate({ name: campaignInfo.campaignName }),
+    CampaignFile.generate({
+      name: campaignInfo.campaignName,
+      ironvault: {
+        playset:
+          campaignInfo.playsetOption == "custom"
+            ? {
+                type: "globs",
+                lines: campaignInfo.customPlaysetDefn.split(/\r\n?|\n/g),
+              }
+            : { type: "registry", key: campaignInfo.playsetOption },
+      },
+    }),
     undefined,
     `Welcome to your new campaign! This is a campaign index file, which marks its folder as a campaign. Any journals or game entities inside this folder will use this campaign for any mechanics or commands. You can replace all this text with any details or notes you have about your campaign. As long as the file properties remain the same, you don't have to worry about the contents of this file.\n`,
   );

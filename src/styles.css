@@ -90,3 +90,24 @@
 .iv-invalid-setting {
   border-color: var(--color-red, red) !important;
 }
+
+.iv-suggestion-item {
+  /* Obsidian uses pre-wrap for suggestion items. This often causes them
+    to wrap somewhat wildly, especially when used with lit. */
+  white-space: normal;
+}
+
+.iv-modal-suggestion-list {
+  min-height: 2lh;
+  max-height: calc(min(0.5 * var(--modal-max-height), 15lh));
+  overflow-y: auto;
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+}
+
+.iv-modal-text-area {
+  width: 100%;
+  height: 5lh;
+}

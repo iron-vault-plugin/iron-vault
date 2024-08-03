@@ -8,6 +8,7 @@ import {
   PlaysetConfig,
   PlaysetLinesSchema,
 } from "./playsets/config";
+import { STANDARD_PLAYSET_DEFNS } from "./playsets/standard";
 
 /** Base campaign type. */
 export type BaseCampaign = {
@@ -19,6 +20,10 @@ export const PlaysetConfigSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("globs"),
     lines: PlaysetLinesSchema,
+  }),
+  z.object({
+    type: z.literal("registry"),
+    key: z.string(),
   }),
 ]);
 
@@ -42,10 +47,24 @@ export class CampaignFile implements BaseCampaign {
     public readonly file: TFile,
     public readonly props: CampaignOutput,
   ) {
-    if (props.ironvault.playset?.type == "globs") {
-      this.playset = PlaysetConfig.parse(props.ironvault.playset.lines);
-    } else {
-      this.playset = NullPlaysetConfig.instance;
+    const playsetConfig = props.ironvault.playset;
+    switch (playsetConfig?.type) {
+      case "globs":
+        this.playset = PlaysetConfig.parse(playsetConfig.lines);
+        break;
+      case "registry": {
+        if (playsetConfig.key in STANDARD_PLAYSET_DEFNS) {
+          this.playset = PlaysetConfig.parse(
+            STANDARD_PLAYSET_DEFNS[playsetConfig.key].lines,
+          );
+        } else {
+          throw new Error(`Invalid playset key ${playsetConfig.key}`);
+        }
+        break;
+      }
+      default:
+        this.playset = NullPlaysetConfig.instance;
+        break;
     }
   }
 
@@ -63,7 +82,19 @@ export class CampaignFile implements BaseCampaign {
   ): Either<z.ZodError, CampaignFile>;
   static parse(file: TFile, data: unknown): Either<z.ZodError, CampaignFile>;
   static parse(file: TFile, data: unknown): Either<z.ZodError, CampaignFile> {
-    const result = zodResultToEither(campaignFileSchema.safeParse(data));
+    const result = zodResultToEither(
+      campaignFileSchema
+        .refine(
+          (campaign) =>
+            campaign.ironvault.playset?.type != "registry" ||
+            campaign.ironvault.playset.key in STANDARD_PLAYSET_DEFNS,
+          {
+            path: ["ironvault", "playset", "key"],
+            message: "Not a valid playset key",
+          },
+        )
+        .safeParse(data),
+    );
     return result.map((raw) => new CampaignFile(file, raw));
   }
 
