@@ -147,7 +147,6 @@ export class Datastore extends Component {
   }
 
   removeBuiltInData(pkg: Datasworn.RulesPackage) {
-    // TODO: properly support this.
     const mainPath = `@datasworn:${pkg._id}`;
     this.indexer.removeSource(mainPath);
     this.app.metadataCache.trigger("iron-vault:index-changed");

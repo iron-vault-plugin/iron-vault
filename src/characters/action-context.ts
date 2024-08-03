@@ -146,7 +146,6 @@ export class CharacterActionContext implements IActionContext {
 
   get moves(): StandardIndex<DataswornTypes["move"]> {
     if (!this.#moves) {
-      // TODO: might want to rethink this given the new set up.
       // TODO(@cwegrzyn): we should let the user know if they have a missing move, I think
       const characterMoves = movesReader(this.characterContext.lens, this)
         .get(this.characterContext.character)
