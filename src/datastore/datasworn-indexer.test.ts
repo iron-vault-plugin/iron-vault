@@ -20,7 +20,6 @@ describe("Datasworn Indexer", () => {
     indexer.index(
       source,
       walkDataswornRulesPackage(
-        source,
         // @ts-expect-error tsc compiler seems to infer starforged JSON types weirdly
         starforgedPackage as Datasworn.RulesPackage,
       ),
