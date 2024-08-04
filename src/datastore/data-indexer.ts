@@ -22,6 +22,10 @@ export type SourcedKindsArray<Kinds> = {
   [K in keyof Kinds]: Array<Sourced<K, Kinds[K]>>;
 };
 
+export type PreSourcedKinds<Kinds> = {
+  [K in keyof Kinds]: PreSourced<K, Kinds[K]>;
+};
+
 export type SourcedBy<Kinds> = SourcedKinds<Kinds>[keyof Kinds];
 
 // export type SourcedBy<
@@ -31,12 +35,16 @@ export type SourcedBy<Kinds> = SourcedKinds<Kinds>[keyof Kinds];
 
 export type SourcedByArray<Kinds> = SourcedKindsArray<Kinds>[keyof Kinds];
 
+export type PreSourcedBy<Kinds> = PreSourcedKinds<Kinds>[keyof Kinds];
+
 export interface Sourced<Kind, V> {
   readonly id: string;
   readonly source: Source;
   readonly kind: Kind;
   readonly value: V;
 }
+
+export type PreSourced<Kind, V> = Omit<Sourced<Kind, V>, "source">;
 
 export function assertIsKind<Kinds, K extends keyof Kinds & string>(
   sourced: SourcedBy<Kinds>,
@@ -299,9 +307,7 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
     return true;
   }
 
-  // TODO: figure out a way to express type Omit<SourcedBy<Kinds>, "source"> that then works when
-  // I try to add the source
-  index(source: Source, data: Iterable<SourcedBy<Kinds>>): void {
+  index(source: Source, data: Iterable<PreSourcedBy<Kinds>>): void {
     const { path } = source;
 
     logger.debug("[source:%s] Starting index", source.path);
@@ -317,11 +323,6 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
         for (const datum of data) {
           const { id } = datum;
 
-          // The data passed here should only ever originate from one source.
-          if (datum.source !== source) {
-            throw new Error(`datum ${id} had mismatched source`);
-          }
-
           const entries: SourcedByArray<Kinds> = this._dataMap.get(id) ?? [];
           if (entries.length > 0 && entries[0].kind !== datum.kind) {
             throw new Error(
@@ -329,7 +330,7 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
             );
           }
           keys.add(id);
-          entries.push(datum);
+          entries.push({ ...datum, source });
           this._dataMap.set(id, entries);
         }
 

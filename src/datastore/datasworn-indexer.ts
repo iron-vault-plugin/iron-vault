@@ -9,8 +9,9 @@ import {
 import {
   DataIndex,
   DataIndexer,
+  PreSourced,
+  PreSourcedBy,
   Source,
-  Sourced,
   SourcedBy,
 } from "./data-indexer";
 import { DataswornOracle } from "./parsers/datasworn/oracles";
@@ -50,13 +51,12 @@ export function createSource(fields: {
 }
 
 export function* walkDataswornRulesPackage(
-  source: Source,
   input: Datasworn.RulesPackage,
-): Iterable<DataswornSourced> {
+): Iterable<PreSourcedBy<DataswornTypes>> {
   function make<T extends { _id: string; type: string }>(
     obj: T,
-  ): Sourced<T["type"], T> {
-    return { source, id: obj._id, kind: obj.type, value: obj };
+  ): PreSourced<T["type"], T> {
+    return { id: obj._id, kind: obj.type, value: obj };
   }
 
   const rootGrouping: OracleRulesetGrouping = {
@@ -74,7 +74,6 @@ export function* walkDataswornRulesPackage(
         id: "ruleset_for_" + move._id,
         kind: "move_ruleset",
         value: input,
-        source,
       };
 
       const moveOracleGroup: OracleCollectionGrouping = {
@@ -89,7 +88,6 @@ export function* walkDataswornRulesPackage(
           id: oracle._id,
           kind: "oracle",
           value: new DataswornOracle(oracle, moveOracleGroup),
-          source,
         };
       }
     }
@@ -106,7 +104,6 @@ export function* walkDataswornRulesPackage(
             id: "ruleset_for_" + move._id,
             kind: "move_ruleset",
             value: input,
-            source,
           };
         }
       }
@@ -114,14 +111,14 @@ export function* walkDataswornRulesPackage(
   }
 
   for (const oracle of walkOracles(input)) {
-    yield { id: oracle.id, kind: "oracle", value: oracle, source };
+    yield { id: oracle.id, kind: "oracle", value: oracle };
   }
 
   for (const truth of Object.values(input.truths ?? {})) {
-    yield { id: truth._id, kind: "truth", value: truth, source };
+    yield { id: truth._id, kind: "truth", value: truth };
   }
 
-  yield { id: input._id, kind: "rules_package", value: input, source };
+  yield { id: input._id, kind: "rules_package", value: input };
 }
 
 function* walkOracles(data: Datasworn.RulesPackage): Generator<Oracle> {
