@@ -6,7 +6,7 @@ import starforgedRuleset from "@datasworn/starforged/json/starforged.json" asser
 import sunderedIslesPackage from "@datasworn/sundered-isles/json/sundered_isles.json" assert { type: "json" };
 import Ajv from "ajv";
 import { BaseDataContext } from "datastore/data-context";
-import { DataIndexer, SourceTag } from "datastore/data-indexer";
+import { DataIndexer } from "datastore/data-indexer";
 import {
   DataswornIndexer,
   createSource,
@@ -139,7 +139,6 @@ export class Datastore extends Component {
     const source = createSource({
       path: mainPath,
       priority,
-      sourceTags: { [SourceTag.RulesetId]: pkg._id },
     });
     this.indexer.index(source, walkDataswornRulesPackage(source, pkg));
 
@@ -178,14 +177,13 @@ export class Datastore extends Component {
             continue;
           }
           const dataswornPackage = data as Datasworn.RulesPackage;
-          const rulesetId =
-            dataswornPackage.type == "ruleset"
-              ? dataswornPackage._id
-              : dataswornPackage.ruleset;
+          // const rulesetId =
+          //   dataswornPackage.type == "ruleset"
+          //     ? dataswornPackage._id
+          //     : dataswornPackage.ruleset;
           const source = createSource({
             path: file.path,
             priority: 10,
-            sourceTags: { [SourceTag.RulesetId]: rulesetId },
           });
           this.indexer.index(
             source,

@@ -15,7 +15,6 @@ describe("Datasworn Indexer", () => {
     const source: Source = createSource({
       path: "@datasworn/starforged",
       priority: 0,
-      sourceTags: { "ruleset-id": Symbol.for(starforgedPackage._id) },
     });
     const indexer: DataswornIndexer = new DataIndexer();
     indexer.index(
