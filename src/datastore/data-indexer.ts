@@ -8,16 +8,10 @@ import {
 
 const logger = rootLogger.getLogger("data-indexer");
 
-export enum SourceTag {
-  RulesetId = "ruleset-id",
-  ExpansionId = "expansion-id",
-}
-
 export type Source = {
   path: string;
   priority: number;
   keys: Set<string>;
-  sourceTags: Partial<Record<SourceTag, symbol>>;
 };
 
 export type SourcedKinds<Kinds> = {

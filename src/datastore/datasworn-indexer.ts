@@ -10,7 +10,6 @@ import {
   DataIndex,
   DataIndexer,
   Source,
-  SourceTag,
   Sourced,
   SourcedBy,
 } from "./data-indexer";
@@ -42,18 +41,11 @@ export type DataswornIndexer = DataIndexer<DataswornTypes>;
 export function createSource(fields: {
   path: string;
   priority?: number;
-  sourceTags: Partial<Record<SourceTag, string | symbol>>;
 }): Source {
   return {
     path: fields.path,
     priority: fields.priority ?? 0,
     keys: new Set(),
-    sourceTags: Object.fromEntries(
-      Object.entries(fields.sourceTags).map(([key, val]) => [
-        key,
-        typeof val == "symbol" ? val : Symbol.for(val),
-      ]),
-    ),
   };
 }
 
