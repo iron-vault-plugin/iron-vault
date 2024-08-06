@@ -177,10 +177,6 @@ export class Datastore extends Component {
             continue;
           }
           const dataswornPackage = data as Datasworn.RulesPackage;
-          // const rulesetId =
-          //   dataswornPackage.type == "ruleset"
-          //     ? dataswornPackage._id
-          //     : dataswornPackage.ruleset;
           const source = createSource({
             path: file.path,
             priority: 10,
