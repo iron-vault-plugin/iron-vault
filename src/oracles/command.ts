@@ -10,30 +10,22 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { numberRange } from "utils/numbers";
-import { CurseBehavior, Oracle, OracleGroupingType } from "../model/oracle";
+import {
+  CurseBehavior,
+  Oracle,
+  OracleGrouping,
+  OracleGroupingType,
+} from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
+import { oracleNameWithParents } from "./render";
 import { OracleRoller } from "./roller";
 
 const logger = rootLogger.getLogger("oracles");
 
-export function formatOraclePath(oracle: Oracle): string {
-  let current = oracle.parent;
-  const path = [];
-  while (
-    current != null &&
-    current.grouping_type != OracleGroupingType.Ruleset
-  ) {
-    path.unshift(current.name);
-    current = current.parent;
-  }
-  path.push(oracle.name);
-  return `${path.join(" / ")}`;
-}
-
 export function oracleRuleset(oracle: Oracle): string {
-  let current = oracle.parent;
+  let current: OracleGrouping = oracle.parent;
   while (
     current != null &&
     current.grouping_type !== OracleGroupingType.Ruleset
@@ -96,7 +88,7 @@ export async function runOracleCommand(
     oracle = await CustomSuggestModal.select(
       plugin.app,
       oracles,
-      formatOraclePath,
+      oracleNameWithParents,
       (match, el) => {
         const ruleset = oracleRuleset(match.item);
         el.createEl("small", { cls: "iron-vault-suggest-hint" })

@@ -1,11 +1,12 @@
 import { type Datasworn } from "@datasworn/core";
+import { scopeSource, scopeTags } from "datastore/datasworn-symbols";
 import { rootLogger } from "logger";
 import { DiceGroup } from "utils/dice-group";
 import { NoSuchOracleError } from "../../../model/errors";
 import {
   CurseBehavior,
   Oracle,
-  OracleGrouping,
+  OracleCollectionGrouping,
   OracleRollableRow,
   OracleRow,
   RollContext,
@@ -38,8 +39,19 @@ export class DataswornOracle implements Oracle {
     protected readonly table:
       | Datasworn.OracleRollable
       | Datasworn.EmbeddedOracleRollable,
-    public readonly parent: OracleGrouping,
+    public readonly parent: OracleCollectionGrouping,
+    private readonly _scopeTags: Datasworn.Tags,
   ) {}
+
+  get [scopeTags](): Datasworn.Tags {
+    return this._scopeTags;
+  }
+
+  get [scopeSource](): Datasworn.SourceInfo {
+    return "_source" in this.table
+      ? this.table._source
+      : this.parent[scopeSource];
+  }
 
   get raw(): Datasworn.OracleRollable | Datasworn.EmbeddedOracleRollable {
     return this.table;

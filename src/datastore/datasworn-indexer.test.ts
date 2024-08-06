@@ -6,9 +6,9 @@ import {
   createSource,
   DataswornIndexer,
   DataswornTypes,
-  moveOrigin,
   walkDataswornRulesPackage,
 } from "./datasworn-indexer";
+import { moveOrigin, scopeSource, scopeTags } from "./datasworn-symbols";
 
 describe("Datasworn Indexer", () => {
   const createIndex = () => {
@@ -57,6 +57,7 @@ describe("Datasworn Indexer", () => {
   });
 
   it("should index asset-linked-moves", () => {
+    const empath = starforgedPackage.assets.path.contents.empath;
     const [readHeart] = indexer.dataMap.get(
       "asset.ability.move:starforged/path/empath.0.read_heart",
     )!;
@@ -64,9 +65,12 @@ describe("Datasworn Indexer", () => {
       id: "asset.ability.move:starforged/path/empath.0.read_heart",
       kind: "move",
       source: { path: "@datasworn/starforged" },
-      value:
-        starforgedPackage.assets.path.contents.empath.abilities[0].moves
-          ?.read_heart,
+      value: {
+        ...empath.abilities[0].moves!.read_heart,
+        // These should pull from the parent asset
+        [scopeSource]: empath._source,
+        [scopeTags]: empath.tags,
+      },
     });
 
     assertIsKind<DataswornTypes, "move">(readHeart, "move");
@@ -104,6 +108,19 @@ describe("Datasworn Indexer", () => {
         id: "starforged",
         name: "Ironsworn: Starforged Rulebook",
       },
+      [scopeSource]: {
+        authors: [
+          {
+            name: "Shawn Tomkin",
+          },
+        ],
+        date: "2022-05-06",
+        license: "https://creativecommons.org/licenses/by/4.0",
+        page: 229,
+        title: "Ironsworn: Starforged Rulebook",
+        url: "https://ironswornrpg.com",
+      },
+      [scopeTags]: {},
     });
   });
 

@@ -6,8 +6,10 @@ import {
   formatActionContextDescription,
 } from "characters/action-context";
 import { labelForMeter } from "characters/display";
-import { IDataContext } from "datastore/data-context";
-import { AnyDataswornMove } from "datastore/datasworn-indexer";
+import {
+  AnyDataswornMove,
+  scopeSourceForMove,
+} from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import {
@@ -92,34 +94,30 @@ async function promptForMove(
   const moves = [...context.moves.values()].sort((a, b) =>
     a.name.localeCompare(b.name),
   );
-  const choice =
-    await CustomSuggestModal.selectWithUserEntry<Datasworn.AnyMove>(
-      plugin.app,
-      moves,
-      (move) => move.name,
-      (input, el) => {
-        el.setText(`Use custom move '${input}'`);
-      },
-      ({ item: move }, el: HTMLElement) => {
-        const moveKind = getMoveKind(move);
-        const ruleset = moveRuleset(context, move);
-        el.createEl("small", {
-          text: `(${moveKind}) ${move.trigger.text}`,
-          cls: "iron-vault-suggest-hint",
+  const choice = await CustomSuggestModal.selectWithUserEntry<AnyDataswornMove>(
+    plugin.app,
+    moves,
+    (move) => move.name,
+    (input, el) => {
+      el.setText(`Use custom move '${input}'`);
+    },
+    ({ item: move }, el: HTMLElement) => {
+      const moveKind = getMoveKind(move);
+      el.createEl("small", {
+        text: `(${moveKind}) ${move.trigger.text}`,
+        cls: "iron-vault-suggest-hint",
+      });
+      el.createEl("br");
+      el.createEl("small", {
+        cls: "iron-vault-suggest-hint",
+      })
+        .createEl("strong")
+        .createEl("em", {
+          text: scopeSourceForMove(move).title,
         });
-        if (ruleset) {
-          el.createEl("br");
-          el.createEl("small", {
-            cls: "iron-vault-suggest-hint",
-          })
-            .createEl("strong")
-            .createEl("em", {
-              text: ruleset,
-            });
-        }
-      },
-      `Select a move ${formatActionContextDescription(context)}`,
-    );
+    },
+    `Select a move ${formatActionContextDescription(context)}`,
+  );
 
   if (choice.kind == "pick") {
     return choice.value;
@@ -326,7 +324,7 @@ export async function runMoveCommand(
   const diceRoller = context.campaignContext.diceRollerFor("move");
 
   // Use the provided move, or prompt the user for a move appropriate to the current action context.
-  const move: Datasworn.Move | Datasworn.EmbeddedMove =
+  const move: Datasworn.AnyMove =
     chosenMove ?? (await promptForMove(plugin, context));
 
   let moveDescription: MoveDescription;
@@ -378,7 +376,7 @@ export async function runMoveCommand(
 }
 
 function createEmptyMoveDescription(
-  move: AnyDataswornMove,
+  move: Datasworn.AnyMove,
 ): NoRollMoveDescription {
   return {
     id: move._id,
@@ -686,14 +684,6 @@ async function promptForRollable(
     }),
   );
   return stat;
-}
-
-function moveRuleset(
-  dataContext: IDataContext,
-  move: Datasworn.Move | Datasworn.EmbeddedMove,
-) {
-  // TODO(@cwegrzyn): we should have a more direct way of doing this using source information
-  return dataContext.moveRulesets.get("ruleset_for_" + move._id)?.title ?? "";
 }
 
 export async function makeActionRollCommand(

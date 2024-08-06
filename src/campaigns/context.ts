@@ -1,4 +1,3 @@
-import { Asset, RulesPackage } from "@datasworn/core/dist/Datasworn";
 import { CharacterContext } from "character-tracker";
 import { ClockFileAdapter } from "clocks/clock-file";
 import { BaseDataContext, ICompleteDataContext } from "datastore/data-context";
@@ -6,13 +5,9 @@ import {
   DataIndexer,
   SourcedByArray,
   SourcedKindsArray,
-  StandardIndex,
 } from "datastore/data-indexer";
-import {
-  DataswornIndexer,
-  DataswornTypes,
-  MoveWithSelector,
-} from "datastore/datasworn-indexer";
+import { DataswornIndexer, DataswornTypes } from "datastore/datasworn-indexer";
+import { scopeTags } from "datastore/datasworn-symbols";
 import IronVaultPlugin from "index";
 import { ReadonlyIndex } from "indexer/index-interface";
 import { OracleRoller } from "oracles/roller";
@@ -64,20 +59,16 @@ export class CampaignDataContext
   clocks: ReadonlyIndex<ClockFileAdapter, ZodError>;
   progressTracks: ReadonlyIndex<ProgressTrackFileAdapter, ZodError>;
 
-  get moves(): StandardIndex<MoveWithSelector> {
+  get moves() {
     return this.dataContext.moves;
   }
 
-  get assets(): StandardIndex<Asset> {
+  get assets() {
     return this.dataContext.assets;
   }
 
   get moveCategories() {
     return this.dataContext.moveCategories;
-  }
-
-  get moveRulesets() {
-    return this.dataContext.moveRulesets;
   }
 
   get oracles() {
@@ -88,7 +79,7 @@ export class CampaignDataContext
     return this.dataContext.truths;
   }
 
-  get rulesPackages(): StandardIndex<RulesPackage> {
+  get rulesPackages() {
     return this.dataContext.rulesPackages;
   }
 
@@ -99,6 +90,7 @@ export class CampaignDataContext
   get prioritized() {
     return this.dataContext.prioritized;
   }
+
   diceRollerFor(kind: "move"): AsyncDiceRoller & DiceRoller {
     switch (kind) {
       case "move":
@@ -124,8 +116,9 @@ export class PlaysetAwareDataContext extends BaseDataContext {
             (sourced) =>
               // TODO(@cwegrzyn): maybe I should be more open ended with the type on determine's obj?
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              playsetConfig.determine(sourced.id, sourced.value as any) ===
-              Determination.Include,
+              playsetConfig.determine(sourced.id, {
+                tags: sourced.value[scopeTags],
+              }) === Determination.Include,
           );
           return filtered.length > 0
             ? (filtered as SourcedByArray<DataswornTypes>)

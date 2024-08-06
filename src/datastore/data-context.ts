@@ -1,21 +1,16 @@
 import { Datasworn } from "@datasworn/core";
-import { Asset, Rules } from "@datasworn/core/dist/Datasworn";
+import { Rules } from "@datasworn/core/dist/Datasworn";
 import merge from "lodash.merge";
 import { Ruleset } from "rules/ruleset";
 import { VersionedMapImpl } from "utils/versioned-map";
 import { SourcedMap, SourcedMapImpl, StandardIndex } from "./data-indexer";
-import {
-  DataswornIndex,
-  DataswornTypes,
-  moveOrigin,
-  MoveWithSelector,
-} from "./datasworn-indexer";
+import { DataswornIndex, DataswornTypes } from "./datasworn-indexer";
+import { moveOrigin, scopeSource, scopeTags } from "./datasworn-symbols";
 
 export interface IDataContext {
   readonly moves: StandardIndex<DataswornTypes["move"]>;
   readonly assets: StandardIndex<DataswornTypes["asset"]>;
   readonly moveCategories: StandardIndex<DataswornTypes["move_category"]>;
-  readonly moveRulesets: StandardIndex<DataswornTypes["move_ruleset"]>;
   readonly oracles: StandardIndex<DataswornTypes["oracle"]>;
   readonly truths: StandardIndex<DataswornTypes["truth"]>;
 
@@ -31,7 +26,6 @@ export class MockDataContext implements IDataContext {
   readonly moves: StandardIndex<DataswornTypes["move"]>;
   readonly assets: StandardIndex<DataswornTypes["asset"]>;
   readonly moveCategories: StandardIndex<DataswornTypes["move_category"]>;
-  readonly moveRulesets: StandardIndex<DataswornTypes["move_ruleset"]>;
   readonly oracles: StandardIndex<DataswornTypes["oracle"]>;
   readonly truths: StandardIndex<DataswornTypes["truth"]>;
 
@@ -39,17 +33,31 @@ export class MockDataContext implements IDataContext {
     moves,
     assets,
   }: {
-    moves?: Datasworn.AnyMove[];
+    moves?: Datasworn.Move[];
     assets?: Datasworn.Asset[];
   }) {
     this.moves = new VersionedMapImpl(
-      (moves ?? []).map((move) => [move._id, { ...move, [moveOrigin]: {} }]),
+      (moves ?? []).map((move) => [
+        move._id,
+        {
+          ...move,
+          [moveOrigin]: {},
+          [scopeSource]: move._source,
+          [scopeTags]: move.tags ?? {},
+        },
+      ]),
     );
     this.assets = new VersionedMapImpl(
-      (assets ?? []).map((asset) => [asset._id, asset]),
+      (assets ?? []).map((asset) => [
+        asset._id,
+        {
+          ...asset,
+          [scopeSource]: asset._source,
+          [scopeTags]: asset.tags ?? {},
+        },
+      ]),
     );
     this.moveCategories = new VersionedMapImpl();
-    this.moveRulesets = new VersionedMapImpl();
     this.oracles = new VersionedMapImpl();
     this.truths = new VersionedMapImpl();
   }
@@ -73,35 +81,29 @@ export class BaseDataContext implements ICompleteDataContext {
     );
   }
 
-  get moves(): StandardIndex<MoveWithSelector> {
+  get moves() {
     return this.prioritized.ofKind("move").projected((entry) => entry.value);
   }
 
-  get assets(): StandardIndex<Asset> {
+  get assets() {
     return this.prioritized.ofKind("asset").projected((entry) => entry.value);
   }
 
-  get moveCategories(): StandardIndex<DataswornTypes["move_category"]> {
+  get moveCategories() {
     return this.prioritized
       .ofKind("move_category")
       .projected((entry) => entry.value);
   }
 
-  get moveRulesets(): StandardIndex<DataswornTypes["move_ruleset"]> {
-    return this.prioritized
-      .ofKind("move_ruleset")
-      .projected((entry) => entry.value);
-  }
-
-  get oracles(): StandardIndex<DataswornTypes["oracle"]> {
+  get oracles() {
     return this.prioritized.ofKind("oracle").projected((entry) => entry.value);
   }
 
-  get truths(): StandardIndex<DataswornTypes["truth"]> {
+  get truths() {
     return this.prioritized.ofKind("truth").projected((entry) => entry.value);
   }
 
-  get rulesPackages(): StandardIndex<DataswornTypes["rules_package"]> {
+  get rulesPackages() {
     return this.prioritized
       .ofKind("rules_package")
       .projected((entry) => entry.value);
@@ -110,7 +112,7 @@ export class BaseDataContext implements ICompleteDataContext {
   // TODO: this should return an error if the datacontext houses
   //       too many rulesets.
   // handles base vs expansion
-  get ruleset(): Ruleset {
+  get ruleset() {
     const ids: string[] = [];
     const rules = [...this.prioritized.ofKind("rules_package").values()]
       .map((pkg) => {

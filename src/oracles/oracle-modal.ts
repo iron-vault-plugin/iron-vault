@@ -1,5 +1,5 @@
 import IronVaultPlugin from "index";
-import { Oracle, OracleGroupingType } from "model/oracle";
+import { Oracle, OracleGrouping, OracleGroupingType } from "model/oracle";
 import { App, ButtonComponent, MarkdownView, Modal } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { generateOracleTable } from "./render";
@@ -19,7 +19,7 @@ export class OracleModal extends Modal {
     contentEl.toggleClass("iron-vault-modal-content", true);
     contentEl.classList.toggle("iron-vault-oracle-modal", true);
     contentEl.toggleClass("iron-vault-modal", true);
-    let ruleset = oracle.parent;
+    let ruleset: OracleGrouping = oracle.parent;
     while (
       oracle.parent &&
       ruleset.grouping_type !== OracleGroupingType.Ruleset
