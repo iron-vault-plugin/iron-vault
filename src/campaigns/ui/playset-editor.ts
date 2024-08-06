@@ -31,7 +31,6 @@ function createSearchIndex(
   });
 
   for (const [_id, item] of baseData.prioritized.entries() ?? []) {
-    if (item.kind == "move_ruleset") continue;
     index.add({
       _id,
       kind: item.kind,

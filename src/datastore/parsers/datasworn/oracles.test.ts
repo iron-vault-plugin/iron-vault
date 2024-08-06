@@ -4,14 +4,16 @@ import { OracleGrouping, OracleGroupingType } from "../../../model/oracle";
 import { DataswornOracle } from "./oracles";
 
 import rawSfData from "@datasworn/starforged/json/starforged.json" with { type: "json" };
+import { scopeSource, scopeTags } from "datastore/datasworn-symbols";
+import merge from "lodash.merge";
 
 // @ts-expect-error Type inference of the raw SF json data seems to end up not matching Datasworn types.
 // Hoping it will be corrected in future tsc.
 const data = rawSfData as Datasworn.Ruleset;
 
-function loadOracle(...[first, ...rest]: string[]): DataswornOracle {
-  let collection: Datasworn.OracleCollection = data.oracles[first];
-  const tableName = rest.pop();
+function loadOracle(...path: string[]): DataswornOracle {
+  assert(path.length >= 2, "must have at least a collection and a table");
+  const tableName = path.pop();
   assert(tableName != null);
 
   let grouping: OracleGrouping = {
@@ -19,31 +21,41 @@ function loadOracle(...[first, ...rest]: string[]): DataswornOracle {
     id: data._id,
     name: data._id,
   };
-
+  let contents: Record<string, Datasworn.OracleCollection> | null =
+    data.oracles;
   let name: string | undefined;
-  while ((name = rest.shift()) != null) {
-    assert(collection != null);
-    assert(collection.oracle_type == "tables", "expected tables oracle");
-    assert(
-      collection.collections && name in collection.collections,
-      `expected ${name} to be in collection`,
-    );
+  let collection!: Datasworn.OracleCollection;
+  while ((name = path.shift()) != null) {
+    assert(contents != null);
+    assert(name in contents, `expected ${name} to be in collection`);
+    collection = contents[name];
     grouping = {
       grouping_type: OracleGroupingType.Collection,
       name: collection.name,
       id: collection._id,
       parent: grouping,
+      [scopeSource]: collection._source,
+      [scopeTags]: collection.tags ?? {},
     };
-    collection = collection.collections[name];
+    contents = "collections" in collection ? collection.collections : null;
   }
 
+  assert(collection?.oracle_type == "tables", "expected tables oracle");
   assert(
     collection.contents != null,
     "expected final step to include contents",
   );
+  assert(
+    grouping.grouping_type == OracleGroupingType.Collection,
+    `unexpected grouping type ${grouping.grouping_type}`,
+  );
   assert(tableName in collection.contents, `expected ${tableName} in contents`);
 
-  return new DataswornOracle(collection.contents[tableName], grouping);
+  return new DataswornOracle(
+    collection.contents[tableName],
+    grouping,
+    merge({}, collection.tags, collection.contents[tableName].tags ?? {}),
+  );
 }
 
 describe("DataswornOracle", () => {

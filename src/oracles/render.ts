@@ -1,10 +1,10 @@
 import { Datasworn } from "@datasworn/core";
 import { App, MarkdownRenderChild, MarkdownRenderer } from "obsidian";
-import { Oracle, OracleGroupingType } from "../model/oracle";
+import { Oracle, OracleGrouping, OracleGroupingType } from "../model/oracle";
 
 export function oracleNameWithParents(oracle: Oracle): string {
   const steps = [oracle.name];
-  let next = oracle.parent;
+  let next: OracleGrouping = oracle.parent;
   while (next && next.grouping_type != OracleGroupingType.Ruleset) {
     steps.unshift(next.name);
     next = next.parent;

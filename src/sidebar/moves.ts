@@ -4,6 +4,7 @@ import { map } from "lit-html/directives/map.js";
 import MiniSearch from "minisearch";
 
 import { IDataContext } from "datastore/data-context";
+import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { MoveModal } from "moves/move-modal";
 import { md } from "utils/ui/directives";
@@ -98,7 +99,12 @@ function renderCategory(
       <ol class="content">
         ${map(
           Object.values(category.contents ?? {}),
-          (move) => html`${renderMove(plugin, dataContext, move)}`,
+          (move) =>
+            html`${renderMove(
+              plugin,
+              dataContext,
+              dataContext.moves.get(move._id)!,
+            )}`,
         )}
       </ol>
     </div>
@@ -108,7 +114,7 @@ function renderCategory(
 function renderMove(
   plugin: IronVaultPlugin,
   dataContext: IDataContext,
-  move: Move,
+  move: AnyDataswornMove,
 ) {
   return html`
     <li

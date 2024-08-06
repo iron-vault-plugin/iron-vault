@@ -1,4 +1,5 @@
 import { Datasworn } from "@datasworn/core";
+import merge from "lodash.merge";
 import {
   Oracle,
   OracleCollectionGrouping,
@@ -14,24 +15,32 @@ import {
   Source,
   SourcedBy,
 } from "./data-indexer";
+import { moveOrigin, scopeSource, scopeTags } from "./datasworn-symbols";
 import { DataswornOracle } from "./parsers/datasworn/oracles";
 
-export const moveOrigin: unique symbol = Symbol("moveOrigin");
-
-export type AnyDataswornMove = Datasworn.Move | Datasworn.EmbeddedMove;
-export type MoveWithSelector = AnyDataswornMove & {
+export type MoveWithSelector = Datasworn.AnyMove & {
   [moveOrigin]: { assetId?: Datasworn.AssetId };
 };
 
-export type DataswornTypes = {
+export type WithMetadata<T> = T & {
+  [scopeTags]: Datasworn.Tags;
+  [scopeSource]: Datasworn.SourceInfo;
+};
+
+export type AllWithMetadata<T> = {
+  [K in keyof T]: WithMetadata<T[K]>;
+};
+
+export type DataswornTypes = AllWithMetadata<{
   move_category: Datasworn.MoveCategory;
-  move_ruleset: Datasworn.RulesPackage;
   move: MoveWithSelector;
   asset: Datasworn.Asset;
   oracle: Oracle;
   rules_package: Datasworn.RulesPackage;
   truth: Datasworn.Truth;
-};
+}>;
+
+export type AnyDataswornMove = DataswornTypes["move"];
 
 export type DataswornSourced = SourcedBy<DataswornTypes>;
 
@@ -55,8 +64,18 @@ export function* walkDataswornRulesPackage(
 ): Iterable<PreSourcedBy<DataswornTypes>> {
   function make<T extends { _id: string; type: string }>(
     obj: T,
-  ): PreSourced<T["type"], T> {
-    return { id: obj._id, kind: obj.type, value: obj };
+    source: Datasworn.SourceInfo,
+    tags: Datasworn.Tags,
+  ): PreSourced<T["type"], WithMetadata<T>> {
+    return {
+      id: obj._id,
+      kind: obj.type,
+      value: {
+        ...obj,
+        [scopeSource]: source,
+        [scopeTags]: tags,
+      },
+    };
   }
 
   const rootGrouping: OracleRulesetGrouping = {
@@ -66,15 +85,12 @@ export function* walkDataswornRulesPackage(
   };
 
   for (const [, category] of Object.entries(input.moves ?? {})) {
-    yield make(category);
+    const categoryTags = category.tags ?? {};
+    yield make(category, category._source, categoryTags);
 
     for (const [, move] of Object.entries(category.contents ?? {})) {
-      yield make({ ...move, [moveOrigin]: {} });
-      yield {
-        id: "ruleset_for_" + move._id,
-        kind: "move_ruleset",
-        value: input,
-      };
+      const moveTags = merge({}, categoryTags, move.tags ?? {});
+      yield make({ ...move, [moveOrigin]: {} }, move._source, moveTags);
 
       const moveOracleGroup: OracleCollectionGrouping = {
         // TODO(@cwegrzyn): should this be its own grouping type? and what should the path be?
@@ -82,29 +98,38 @@ export function* walkDataswornRulesPackage(
         name: move.name,
         parent: rootGrouping,
         id: move._id,
+        [scopeSource]: move._source,
+        [scopeTags]: moveTags,
       };
       for (const [, oracle] of Object.entries(move.oracles ?? {})) {
+        const oracleTags = merge({}, moveTags, oracle.tags ?? {});
         yield {
           id: oracle._id,
           kind: "oracle",
-          value: new DataswornOracle(oracle, moveOracleGroup),
+          value: new DataswornOracle(oracle, moveOracleGroup, oracleTags),
         };
       }
     }
   }
 
   for (const [, assetCollection] of Object.entries(input.assets ?? {})) {
+    const collectionTags = assetCollection.tags ?? {};
+
     for (const [, asset] of Object.entries(assetCollection.contents ?? {})) {
-      yield make(asset);
+      const assetTags = merge({}, collectionTags, asset.tags ?? {});
+      yield make(asset, asset._source, assetTags);
 
       for (const ability of asset.abilities) {
+        const abilityTags = merge({}, assetTags, ability.tags ?? {});
+
         for (const [, move] of Object.entries(ability.moves ?? {})) {
-          yield make({ ...move, [moveOrigin]: { assetId: asset._id } });
-          yield {
-            id: "ruleset_for_" + move._id,
-            kind: "move_ruleset",
-            value: input,
-          };
+          const moveTags = merge({}, abilityTags, move.tags);
+
+          yield make(
+            { ...move, [moveOrigin]: { assetId: asset._id } },
+            asset._source,
+            moveTags,
+          );
         }
       }
     }
@@ -115,10 +140,32 @@ export function* walkDataswornRulesPackage(
   }
 
   for (const truth of Object.values(input.truths ?? {})) {
-    yield { id: truth._id, kind: "truth", value: truth };
+    yield {
+      id: truth._id,
+      kind: "truth",
+      value: {
+        ...truth,
+        [scopeSource]: truth._source,
+        [scopeTags]: truth.tags ?? {},
+      },
+    };
   }
 
-  yield { id: input._id, kind: "rules_package", value: input };
+  yield {
+    id: input._id,
+    kind: "rules_package",
+    value: {
+      ...input,
+      [scopeSource]: {
+        authors: input.authors,
+        date: input.date,
+        license: input.license,
+        title: input.title,
+        url: input.url,
+      },
+      [scopeTags]: {},
+    },
+  };
 }
 
 function* walkOracles(data: Datasworn.RulesPackage): Generator<Oracle> {
@@ -131,6 +178,14 @@ function* walkOracles(data: Datasworn.RulesPackage): Generator<Oracle> {
       name: collection.name,
       parent,
       id: collection._id,
+      [scopeSource]: collection._source,
+      [scopeTags]: merge(
+        {},
+        parent.grouping_type == OracleGroupingType.Collection
+          ? parent[scopeTags]
+          : {},
+        collection.tags ?? {},
+      ),
     };
     // TODO: do we need/want to handle any of these differently? Main thing might be
     // different grouping types, so we can adjust display in some cases?
@@ -146,7 +201,11 @@ function* walkOracles(data: Datasworn.RulesPackage): Generator<Oracle> {
           for (const oracle of Object.values<Datasworn.OracleRollable>(
             collection.contents,
           )) {
-            yield new DataswornOracle(oracle, newParent);
+            yield new DataswornOracle(
+              oracle,
+              newParent,
+              merge({}, newParent[scopeTags], oracle.tags ?? {}),
+            );
           }
         }
 
@@ -175,3 +234,10 @@ function* walkOracles(data: Datasworn.RulesPackage): Generator<Oracle> {
   }
 }
 export type DataswornIndex = DataIndex<DataswornTypes>;
+
+/** Returns the source info of move or its nearest parent */
+export function scopeSourceForMove(
+  move: DataswornTypes["move"],
+): Datasworn.SourceInfo {
+  return move[scopeSource];
+}

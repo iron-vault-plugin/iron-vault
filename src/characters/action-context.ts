@@ -1,9 +1,9 @@
-import { RulesPackage } from "@datasworn/core/dist/Datasworn";
 import { CampaignDataContext } from "campaigns/context";
 import { determineCampaignContext } from "campaigns/manager";
 import { IDataContext } from "datastore/data-context";
 import { StandardIndex } from "datastore/data-indexer";
-import { DataswornTypes, moveOrigin } from "datastore/datasworn-indexer";
+import { DataswornTypes } from "datastore/datasworn-indexer";
+import { moveOrigin } from "datastore/datasworn-symbols";
 import { produce } from "immer";
 import { App, MarkdownFileInfo } from "obsidian";
 import { OracleRoller } from "oracles/roller";
@@ -57,7 +57,7 @@ export class NoCharacterActionConext implements IActionContext {
     return this.campaignContext.oracleRoller;
   }
 
-  get rulesPackages(): StandardIndex<RulesPackage> {
+  get rulesPackages() {
     return this.campaignContext.rulesPackages;
   }
 
@@ -75,10 +75,6 @@ export class NoCharacterActionConext implements IActionContext {
 
   get moveCategories() {
     return this.campaignContext.moveCategories;
-  }
-
-  get moveRulesets() {
-    return this.campaignContext.moveRulesets;
   }
 
   get oracles() {
@@ -132,7 +128,7 @@ export class CharacterActionContext implements IActionContext {
     return this.campaignContext.oracleRoller;
   }
 
-  get rulesPackages(): StandardIndex<RulesPackage> {
+  get rulesPackages() {
     return this.campaignContext.rulesPackages;
   }
 
@@ -169,10 +165,6 @@ export class CharacterActionContext implements IActionContext {
 
   get moveCategories() {
     return this.campaignContext.moveCategories;
-  }
-
-  get moveRulesets() {
-    return this.campaignContext.moveRulesets;
   }
 
   get oracles() {

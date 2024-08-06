@@ -1,6 +1,10 @@
 import { determineCharacterActionContext } from "characters/action-context";
 import { IDataContext } from "datastore/data-context";
-import { AnyDataswornMove } from "datastore/datasworn-indexer";
+import {
+  AnyDataswornMove,
+  DataswornTypes,
+  scopeSourceForMove,
+} from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
@@ -36,7 +40,7 @@ export class MoveModal extends Modal {
     return view && view instanceof MarkdownView ? view : undefined;
   }
 
-  async openMove(move: AnyDataswornMove) {
+  async openMove(move: DataswornTypes["move"]) {
     this.setTitle(move.name);
     const { contentEl } = this;
     contentEl.empty();
@@ -44,7 +48,7 @@ export class MoveModal extends Modal {
     contentEl.toggleClass("iron-vault-modal", true);
     contentEl.toggleClass("iron-vault-move-modal", true);
     contentEl.createEl("header", {
-      text: this.dataContext.moveRulesets.get("ruleset_for_" + move._id)?.title,
+      text: scopeSourceForMove(move).title,
     });
     const view = this.getActiveMarkdownView();
     // NOTE(@cwegrzyn): I've taken the approach here that if there is no active view, let's
