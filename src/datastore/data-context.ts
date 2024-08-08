@@ -1,6 +1,4 @@
 import { Datasworn } from "@datasworn/core";
-import { Rules } from "@datasworn/core/dist/Datasworn";
-import merge from "lodash.merge";
 import { Ruleset } from "rules/ruleset";
 import { VersionedMapImpl } from "utils/versioned-map";
 import { SourcedMap, SourcedMapImpl, StandardIndex } from "./data-indexer";
@@ -109,18 +107,20 @@ export class BaseDataContext implements ICompleteDataContext {
       .projected((entry) => entry.value);
   }
 
-  // TODO: this should return an error if the datacontext houses
-  //       too many rulesets.
-  // handles base vs expansion
   get ruleset() {
-    const ids: string[] = [];
-    const rules = [...this.prioritized.ofKind("rules_package").values()]
-      .map((pkg) => {
-        ids.push(pkg.id);
-        return pkg.value.rules;
-      })
-      .reduce((acc, rules) => merge(acc, rules)) as Rules;
+    const rules = [...this.prioritized.ofKind("rules_package").values()].map(
+      ({ value }) => value,
+    );
+    const base = rules.filter((pkg) => pkg.type == "ruleset");
+    if (base.length == 0) {
+      throw new Error("Playset must include at least one base ruleset.");
+    } else if (base.length > 1) {
+      throw new Error(
+        `Playset may include only one base ruleset; found: ${base.map((pkg) => pkg._id).join(", ")}`,
+      );
+    }
+    const expansions = rules.filter((pkg) => pkg.type == "expansion");
 
-    return new Ruleset(ids, rules);
+    return new Ruleset(base[0], expansions);
   }
 }

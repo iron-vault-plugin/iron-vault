@@ -12,7 +12,6 @@ import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
 import { createInitiativeNode } from "mechanics/node-builders";
 import { Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
-import { Ruleset } from "rules/ruleset";
 import { createNewIronVaultEntityFile, vaultProcess } from "utils/obsidian";
 import { capitalize } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
@@ -27,6 +26,10 @@ import {
   defaultMarkedAbilitiesForAsset,
   walkAsset,
 } from "./assets";
+import {
+  labelForCharacterInitiative,
+  labelForCharacterInitiativeValue,
+} from "./character-block";
 import { characterLens, createValidCharacter } from "./lens";
 import { CharacterCreateModal } from "./ui/new-character-modal";
 
@@ -169,29 +172,6 @@ export async function createNewCharacter(
   );
 }
 
-export function initiativeValueLabel(
-  ruleset: Ruleset,
-  val: boolean | undefined,
-): string {
-  const labels = [];
-  if (val === true && ruleset.ids.contains("classic")) {
-    labels.push("Has initiative");
-  }
-  if (val === false && ruleset.ids.contains("classic")) {
-    labels.push("No initiative");
-  }
-  if (val === true && ruleset.ids.contains("starforged")) {
-    labels.push("In control");
-  }
-  if (val === false && ruleset.ids.contains("starforged")) {
-    labels.push("In a bad spot");
-  }
-  if (val == null) {
-    labels.push("Out of combat");
-  }
-  return labels.join("/");
-}
-
 export const changeInitiative = async (
   plugin: IronVaultPlugin,
   editor: Editor,
@@ -208,7 +188,7 @@ export const changeInitiative = async (
   const newInitiative = await CustomSuggestModal.select(
     plugin.app,
     [true, false, undefined],
-    (n) => initiativeValueLabel(ruleset, n),
+    (n) => labelForCharacterInitiativeValue(ruleset, n),
     undefined,
     `Choose the new value for your initiative/position.`,
   );
@@ -222,11 +202,9 @@ export const changeInitiative = async (
     plugin,
     actionContext,
     createInitiativeNode(
-      // TODO(@cwegrzyn): once we have a setting that controls which version of position/initiative
-      //   to use, we'll use that instead here and in determining the label.
-      ruleset.ids.contains("starforged") ? "position" : "initiative",
-      initiativeValueLabel(ruleset, oldInitiative).toLowerCase(),
-      initiativeValueLabel(ruleset, newInitiative).toLowerCase(),
+      labelForCharacterInitiative(ruleset),
+      labelForCharacterInitiativeValue(ruleset, oldInitiative).toLowerCase(),
+      labelForCharacterInitiativeValue(ruleset, newInitiative).toLowerCase(),
     ),
   );
 };

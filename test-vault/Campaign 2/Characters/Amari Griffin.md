@@ -18,6 +18,8 @@ Discoveries_Progress: 0
 Discoveries_XPEarned: 0
 iron-vault-kind: character
 assets: []
+xp_added: 0
+initiative: true
 ---
 
 

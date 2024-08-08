@@ -140,7 +140,7 @@ export function validatedAgainst(
   ruleset: Ruleset,
   data: ValidatedCharacter,
 ): boolean {
-  return data[ValidationTag] === ruleset.id;
+  return data[ValidationTag] === ruleset.validationTag;
 }
 
 export function validated(
@@ -150,25 +150,25 @@ export function validated(
 ) => Lens<ValidatedCharacter, T> {
   return <T, U>(lens: Lens<U, T>): Lens<ValidatedCharacter, T> => ({
     get(a) {
-      if (a[ValidationTag] !== ruleset.id) {
+      if (a[ValidationTag] !== ruleset.validationTag) {
         throw new Error(
-          `expecting validation tag of ${ruleset.id}; found ${a[ValidationTag]}`,
+          `expecting validation tag of ${ruleset.validationTag}; found ${a[ValidationTag]}`,
         );
       }
       // TODO: better way to deal with this (e.g., some way to verify that the ruleset specifies this?)
       return lens.get(a.raw as U);
     },
     update(a, b) {
-      if (a[ValidationTag] !== ruleset.id) {
+      if (a[ValidationTag] !== ruleset.validationTag) {
         throw new Error(
-          `expecting validation tag of ${ruleset.id}; found ${a[ValidationTag]}`,
+          `expecting validation tag of ${ruleset.validationTag}; found ${a[ValidationTag]}`,
         );
       }
       const updated = lens.update(a.raw as U, b) as ValidatedCharacter;
       // If the lens does not change the raw value, return source as is.
       if (a.raw === updated) return a;
       // TODO: theoretically, could the return value fall out of validation? yes, in broken code.
-      return { [ValidationTag]: ruleset.id, raw: updated };
+      return { [ValidationTag]: ruleset.validationTag, raw: updated };
     },
   });
 }
@@ -572,7 +572,7 @@ export function characterLens(ruleset: Ruleset): {
   function validater(data: unknown): Either<z.ZodError, ValidatedCharacter> {
     return zodResultToEither(schema.safeParse(data)).map((raw) => ({
       raw,
-      [ValidationTag]: ruleset.id,
+      [ValidationTag]: ruleset.validationTag,
     }));
   }
 

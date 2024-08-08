@@ -17,49 +17,56 @@ import {
 } from "./lens";
 
 const STARFORGED_RULESET = new Ruleset(
-  ["starforged"],
-  starforgedData.rules as Datasworn.Rules,
+  starforgedData as unknown as Datasworn.Ruleset,
+  [],
 );
-const TEST_RULESET = new Ruleset(["test"], {
-  condition_meters: {
-    health: {
-      label: "health",
-      description: "aka hp",
-      min: 0,
-      max: 5,
-      rollable: true,
-      shared: false,
-      value: 3,
-    },
-  },
-  stats: {
-    wits: { description: "thinking", label: "wits" },
-  },
-  impacts: {
-    misfortunes: {
-      label: "misfortunes",
-      description: "Oh no",
-      contents: {
-        wounded: {
-          label: "wounded",
-          prevents_recovery: ["health"],
-          permanent: false,
+
+const TEST_RULESET = new Ruleset(
+  {
+    _id: "test",
+    rules: {
+      condition_meters: {
+        health: {
+          label: "health",
+          description: "aka hp",
+          min: 0,
+          max: 5,
+          rollable: true,
           shared: false,
-          description: "You are severely injured.",
-        },
-        disappointed: {
-          label: "disappointed",
-          description: "You are disappointed",
-          permanent: false,
-          shared: false,
-          prevents_recovery: [],
+          value: 3,
         },
       },
+      stats: {
+        wits: { description: "thinking", label: "wits" },
+      },
+      impacts: {
+        misfortunes: {
+          label: "misfortunes",
+          description: "Oh no",
+          contents: {
+            wounded: {
+              label: "wounded",
+              prevents_recovery: ["health"],
+              permanent: false,
+              shared: false,
+              description: "You are severely injured.",
+            },
+            disappointed: {
+              label: "disappointed",
+              description: "You are disappointed",
+              permanent: false,
+              shared: false,
+              prevents_recovery: [],
+            },
+          },
+        },
+      },
+      special_tracks: {},
+      tags: {},
     },
-  },
-  special_tracks: {},
-  tags: {},
-});
+  } as unknown as Datasworn.Ruleset,
+  [],
+);
 
 const VALID_INPUT = {
   name: "Bob",
@@ -394,18 +401,23 @@ describe("meterLenses", () => {
 });
 
 describe("Special Tracks", () => {
-  const { validater, lens } = characterLens({
-    ...TEST_RULESET,
-    id: TEST_RULESET.id,
-    special_tracks: {
-      quests_legacy: {
-        label: "quests",
-        optional: false,
-        shared: false,
-        description: "Swear vows and do what you must to see them fulfilled.",
+  const { validater, lens } = characterLens(
+    TEST_RULESET.merge({
+      _id: "moar",
+      type: "expansion",
+      rules: {
+        special_tracks: {
+          quests_legacy: {
+            label: "quests",
+            optional: false,
+            shared: false,
+            description:
+              "Swear vows and do what you must to see them fulfilled.",
+          },
+        },
       },
-    },
-  });
+    } as unknown as Datasworn.Expansion),
+  );
 
   it("defaults Progress field to 0", () => {
     expect(
