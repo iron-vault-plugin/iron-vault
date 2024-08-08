@@ -43,14 +43,7 @@ export class Datastore extends Component {
     this.emitter = new Emittery();
 
     this.plugin.settings.on("change", ({ key }) => {
-      if (
-        key === "enableIronsworn" ||
-        key === "enableStarforged" ||
-        key === "enableIronswornDelve" ||
-        key === "enableSunderedIsles" ||
-        key === "useHomebrew" ||
-        key === "homebrewPath"
-      ) {
+      if (key === "useHomebrew" || key === "homebrewPath") {
         this.initialize();
       }
     });
@@ -68,25 +61,17 @@ export class Datastore extends Component {
     this._ready = false;
     this.indexer.clear();
 
-    if (this.plugin.settings.enableIronsworn) {
-      this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
-    }
+    this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
 
-    if (this.plugin.settings.enableIronswornDelve) {
-      // @ts-expect-error tsc seems to infer type of data in an incompatible way
-      this.indexBuiltInData(ironswornDelvePackage as Datasworn.Expansion);
-    }
+    // @ts-expect-error tsc seems to infer type of data in an incompatible way
+    this.indexBuiltInData(ironswornDelvePackage as Datasworn.Expansion);
 
-    if (this.plugin.settings.enableStarforged) {
-      // @ts-expect-error tsc seems to infer type of data in an incompatible way
-      this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
-      this.indexBuiltInData(starforgedSupp as Datasworn.Expansion, 5);
-    }
+    // @ts-expect-error tsc seems to infer type of data in an incompatible way
+    this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
+    this.indexBuiltInData(starforgedSupp as Datasworn.Expansion, 5);
 
-    if (this.plugin.settings.enableSunderedIsles) {
-      this.indexBuiltInData(sunderedIslesPackage as Datasworn.Expansion);
-      this.indexBuiltInData(sunderedSupp as Datasworn.Expansion, 5);
-    }
+    this.indexBuiltInData(sunderedIslesPackage as Datasworn.Expansion);
+    this.indexBuiltInData(sunderedSupp as Datasworn.Expansion, 5);
 
     if (this.plugin.settings.useHomebrew) {
       if (this.plugin.settings.homebrewPath) {

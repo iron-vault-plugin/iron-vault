@@ -12,18 +12,6 @@ export class IronVaultPluginSettings {
   cursedDieSides: number = 10;
   alwaysPromptActiveCharacter: boolean = false;
 
-  /** Index and enable Ironsworn base content. */
-  enableIronsworn: boolean = true;
-
-  /** Index and enable Ironsworn: Delve expansion content. */
-  enableIronswornDelve: boolean = true;
-
-  /** Index and enable Starforged base content. */
-  enableStarforged: boolean = true;
-
-  /** Index and enable Sundered Isles expansion content. */
-  enableSunderedIsles: boolean = true;
-
   defaultProgressTrackFolder: string = "Progress";
   defaultClockFolder: string = "Clocks";
   defaultCharactersFolder: string = "Characters";
