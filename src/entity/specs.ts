@@ -7,7 +7,7 @@ export type EntityDescriptor<T extends EntitySpec> = {
   spec: T;
 
   /** Id of oracle collection that this entity applies to. */
-  collectionId?: Datasworn.OracleCollectionId;
+  collectionId: Datasworn.OracleCollectionId;
 };
 
 export enum AttributeMechanism {

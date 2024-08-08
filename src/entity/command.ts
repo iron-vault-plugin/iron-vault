@@ -126,16 +126,19 @@ export async function generateEntityCommand(
   if (!selectedEntityDescriptor) {
     const [, desc] = await CustomSuggestModal.select(
       plugin.app,
-      Object.entries(ENTITIES).filter(
-        ([_k, v]) =>
-          (plugin.settings.enableStarforged &&
-            v.collectionId?.startsWith("oracle_collection:starforged/")) ||
-          (plugin.settings.enableIronsworn &&
-            v.collectionId?.startsWith("oracle_collection:classic/")) ||
-          (plugin.settings.enableIronswornDelve &&
-            v.collectionId?.startsWith("oracle_collection:delve/")) ||
-          (plugin.settings.enableSunderedIsles &&
-            v.collectionId?.startsWith("oracle_collection:sundered_isles/")),
+      Object.entries(ENTITIES).filter(([_k, v]) =>
+        /*
+         * Here we check if every non-templated oracle is included. This is not
+         * necessarily the best approach for performance or usability reasons.
+         * However, it is the most robust strategy that is easily implemented.
+         *
+         *TODO(@cwegrzyn): alternatives to consider include:
+         * 1. Index these entity generators-- this would be nice because it gives a pathway to define custom entities too
+         * 2. Just check if ANY oracle in the faction is present
+         */
+        Object.values(v.spec).every(
+          ({ id }) => id.includes("{{") || campaignContext.oracles.has(id),
+        ),
       ),
       ([_key, { label }]) => label,
       (match, el) => {

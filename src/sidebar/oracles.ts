@@ -232,6 +232,7 @@ function rollOracleBatch(plugin: IronVaultPlugin, group: CollectionGrouping) {
   );
   if (!entityDefn) {
     entityDefn = {
+      collectionId: group.id,
       label: group.name,
       spec: Object.fromEntries(
         group.children.map((oracle) => [
