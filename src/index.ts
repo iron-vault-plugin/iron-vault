@@ -1,6 +1,10 @@
 import registerAssetBlock from "assets/asset-block";
 import { CampaignIndex, CampaignIndexer } from "campaigns/indexer";
 import { CampaignManager } from "campaigns/manager";
+import {
+  CAMPAIGN_EDIT_VIEW_TYPE,
+  CampaignEditView,
+} from "campaigns/ui/edit-view";
 import registerCharacterBlock from "characters/character-block";
 import registerClockBlock from "clocks/clock-block";
 import { IronVaultCommands } from "commands";
@@ -15,7 +19,7 @@ import {
   IronVaultMigrationView,
   MIGRATION_VIEW_TYPE,
 } from "migrate/migration-view";
-import { addIcon, Plugin } from "obsidian";
+import { addIcon, Plugin, TFile } from "obsidian";
 import {
   checkForOnboarding,
   ONBOARDING_VIEW_TYPE,
@@ -147,6 +151,24 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     this.registerView(
       ONBOARDING_VIEW_TYPE,
       (leaf) => new OnboardingView(leaf, this),
+    );
+    this.registerView(
+      CAMPAIGN_EDIT_VIEW_TYPE,
+      (leaf) => new CampaignEditView(leaf, this),
+    );
+    this.registerEvent(
+      this.app.workspace.on("file-menu", (menu, file) => {
+        if (file instanceof TFile && this.campaigns.has(file.path)) {
+          menu.addItem((item) => {
+            item
+              .setTitle("Edit campaign")
+              .setIcon("document")
+              .onClick(async () =>
+                CampaignEditView.openFile(this.app, file.path),
+              );
+          });
+        }
+      }),
     );
 
     this.commands = new IronVaultCommands(this);

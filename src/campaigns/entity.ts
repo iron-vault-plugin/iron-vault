@@ -4,7 +4,6 @@ import { zodResultToEither } from "utils/zodutils";
 import { z } from "zod";
 import {
   IPlaysetConfig,
-  NullPlaysetConfig,
   PlaysetConfig,
   PlaysetLinesSchema,
 } from "./playsets/config";
@@ -31,12 +30,12 @@ export const PlaysetConfigSchema = z.discriminatedUnion("type", [
 ]);
 
 export const campaignConfigSchema = z.object({
-  playset: PlaysetConfigSchema.nullish(),
+  playset: PlaysetConfigSchema,
 });
 
 export const campaignFileSchema = z.object({
   name: z.string().nullish(),
-  ironvault: campaignConfigSchema.default({}),
+  ironvault: campaignConfigSchema,
 });
 
 export type CampaignInput = z.input<typeof campaignFileSchema>;
@@ -51,7 +50,7 @@ export class CampaignFile implements BaseCampaign {
     public readonly props: CampaignOutput,
   ) {
     const playsetConfig = props.ironvault.playset;
-    switch (playsetConfig?.type) {
+    switch (playsetConfig.type) {
       case "globs":
         this.playset = PlaysetConfig.parse(playsetConfig.lines);
         break;
@@ -65,8 +64,9 @@ export class CampaignFile implements BaseCampaign {
         break;
       }
       default:
-        this.playset = NullPlaysetConfig.instance;
-        break;
+        throw new Error(
+          `Invalid playset type '${(playsetConfig as z.output<typeof PlaysetConfigSchema>).type}`,
+        );
     }
   }
 
