@@ -2,24 +2,6 @@ import IronVaultPlugin from "index";
 import { PluginSettingTab, Setting, type App } from "obsidian";
 import { IronVaultPluginSettings } from "settings";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
-import delveLogoBin from "../../media/ironvault_logo_delve.png";
-import ironswornLogoBin from "../../media/ironvault_logo_ironsworn.png";
-import starforgedLogoBin from "../../media/ironvault_logo_starforged.png";
-import sunderedIslesLogoBin from "../../media/ironvault_logo_sunderedisles.png";
-
-function bytesToPngDataURI(bytes: Uint8Array) {
-  const binString = Array.from(bytes, (byte) =>
-    String.fromCodePoint(byte),
-  ).join("");
-  return "data:image/png;base64," + btoa(binString);
-}
-
-const IS_LOGO = bytesToPngDataURI(ironswornLogoBin as unknown as Uint8Array);
-const DELVE_LOGO = bytesToPngDataURI(delveLogoBin as unknown as Uint8Array);
-const SF_LOGO = bytesToPngDataURI(starforgedLogoBin as unknown as Uint8Array);
-const SI_LOGO = bytesToPngDataURI(
-  sunderedIslesLogoBin as unknown as Uint8Array,
-);
 
 export class IronVaultSettingTab extends PluginSettingTab {
   plugin: IronVaultPlugin;
@@ -76,72 +58,6 @@ export class IronVaultSettingTab extends PluginSettingTab {
           this.display();
         });
       });
-
-    new Setting(containerEl).setName("Rulesets").setHeading();
-
-    const isSetting = new Setting(containerEl)
-      .setName("Enable Ironsworn ruleset")
-      .setDesc(
-        "If enabled, Ironsworn Core oracles, assets, truths, and moves will be available for play.",
-      )
-      .addToggle((toggle) => {
-        toggle
-          .setValue(settings.enableIronsworn)
-          .onChange((value) => this.updateSetting("enableIronsworn", value));
-      });
-    const isImg = document.createElement("img");
-    isImg.src = IS_LOGO;
-    isImg.toggleClass("ruleset-img", true);
-    isSetting.settingEl.prepend(isImg);
-
-    const delveSetting = new Setting(containerEl)
-      .setName("Enable Delve expansion for Ironsworn")
-      .setDesc(
-        "(experimental) If enabled, Ironsworn: Delve Core oracles, assets, and moves will be available for play.",
-      )
-      .addToggle((toggle) => {
-        toggle
-          .setValue(settings.enableIronswornDelve)
-          .onChange((value) =>
-            this.updateSetting("enableIronswornDelve", value),
-          );
-      });
-    const delveImg = document.createElement("img");
-    delveImg.src = DELVE_LOGO;
-    delveImg.toggleClass("ruleset-img", true);
-    delveSetting.settingEl.prepend(delveImg);
-
-    const sfSetting = new Setting(containerEl)
-      .setName("Enable Starforged ruleset")
-      .setDesc(
-        "If enabled, Ironsworn: Starforged oracles, assets, truths, and moves will be available for play.",
-      )
-      .addToggle((toggle) => {
-        toggle
-          .setValue(settings.enableStarforged)
-          .onChange((value) => this.updateSetting("enableStarforged", value));
-      });
-    const sfImg = document.createElement("img");
-    sfImg.src = SF_LOGO;
-    sfImg.toggleClass("ruleset-img", true);
-    sfSetting.settingEl.prepend(sfImg);
-
-    const siSetting = new Setting(containerEl)
-      .setName("Enable Sundered Isles expansion for Starforged")
-      .setDesc(
-        "(experimental) If enabled, Sundered Isles oracles, assets, and moves will be available for play. Sundered Isles data is considered in preview, pending finalization of the rulebook.",
-      )
-      .addToggle((toggle) => {
-        toggle
-          .setValue(settings.enableSunderedIsles)
-          .onChange((value) =>
-            this.updateSetting("enableSunderedIsles", value),
-          );
-      });
-    const siImg = document.createElement("img");
-    siImg.src = SI_LOGO;
-    siImg.toggleClass("ruleset-img", true);
-    siSetting.settingEl.prepend(siImg);
 
     new Setting(containerEl).setName("Homebrew").setHeading();
 

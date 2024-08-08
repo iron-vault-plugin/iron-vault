@@ -259,7 +259,10 @@ export class PlaysetIncludeLine implements IPlaysetLine {
     if (name in STANDARD_PLAYSET_DEFNS) {
       return new this(
         name,
-        PlaysetConfig.parse(STANDARD_PLAYSET_DEFNS[name].lines),
+        PlaysetConfig.parse(
+          STANDARD_PLAYSET_DEFNS[name as keyof typeof STANDARD_PLAYSET_DEFNS]
+            .lines,
+        ),
       );
     } else {
       throw new InvalidPlaysetLineError(

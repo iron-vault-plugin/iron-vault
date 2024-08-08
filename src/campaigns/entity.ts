@@ -8,7 +8,10 @@ import {
   PlaysetConfig,
   PlaysetLinesSchema,
 } from "./playsets/config";
-import { STANDARD_PLAYSET_DEFNS } from "./playsets/standard";
+import {
+  getStandardPlaysetDefinition,
+  STANDARD_PLAYSET_DEFNS,
+} from "./playsets/standard";
 
 /** Base campaign type. */
 export type BaseCampaign = {
@@ -53,10 +56,9 @@ export class CampaignFile implements BaseCampaign {
         this.playset = PlaysetConfig.parse(playsetConfig.lines);
         break;
       case "registry": {
-        if (playsetConfig.key in STANDARD_PLAYSET_DEFNS) {
-          this.playset = PlaysetConfig.parse(
-            STANDARD_PLAYSET_DEFNS[playsetConfig.key].lines,
-          );
+        const standardDefn = getStandardPlaysetDefinition(playsetConfig.key);
+        if (standardDefn) {
+          this.playset = PlaysetConfig.parse(standardDefn.lines);
         } else {
           throw new Error(`Invalid playset key ${playsetConfig.key}`);
         }

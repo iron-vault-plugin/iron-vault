@@ -1,8 +1,8 @@
-export const STANDARD_PLAYSET_DEFNS: Record<
-  string,
-  { name: string; lines: string[] }
-> = {
-  classic: { name: "Ironsworn", lines: ["*:classic/**"] },
+export const STANDARD_PLAYSET_DEFNS = {
+  classic: { name: "Ironsworn", lines: ["*:classic/**"] } as {
+    name: string;
+    lines: string[];
+  },
   classic_delve: {
     name: "Ironsworn w/ Delve",
     lines: ["@include(classic)", "*:delve/**"],
@@ -11,47 +11,16 @@ export const STANDARD_PLAYSET_DEFNS: Record<
     name: "Starforged",
     lines: ["*:starforged/**", "*:starforgedsupp/**"],
   },
+  starforged__si_assets: {
+    name: "Starforged w/ SI assets recommended for base game",
+    lines: [
+      "@include(starforged)",
+      "asset:sundered_isles/** [starforged.recommended=true]",
+    ],
+  },
 
-  sundered_isles__sf_assets_all: {
-    name: "Sundered Isles all (recommended SF assets)",
-    lines: [
-      "@include(sundered_isles_base)",
-      "asset:starforged/** [sundered_isles.recommended=true]",
-    ],
-  },
-  sundered_isles__sf_assets_technological: {
-    name: "Sundered Isles (recommended non-supernatural SF assets)",
-    lines: [
-      "@include(sundered_isles_base)",
-      // Include all recommended ...
-      "asset:starforged/** [sundered_isles.recommended=true]",
-      // ... but reject those tagged as supernatural
-      "!asset:starforged/** [sundered_isles.recommended=true&core.supernatural=true]",
-    ],
-  },
-  sundered_isles__sf_assets_supernatural: {
-    name: "Sundered Isles\n(recommended non-technological SF assets)",
-    lines: [
-      "@include(sundered_isles_base)",
-      // Include all recommended ...
-      "asset:starforged/** [sundered_isles.recommended=true]",
-      // ... but reject those tagged as technological
-      "!asset:starforged/** [sundered_isles.recommended=true&core.technological=true]",
-    ],
-  },
-  sundered_isles__sf_assets_historical: {
-    name: 'Sundered Isles (recommended "historical" SF assets)',
-    lines: [
-      "@include(sundered_isles_base)",
-      // Include all recommended ...
-      "asset:starforged/** [sundered_isles.recommended=true]",
-      // ... but reject those tagged as technological or supernatural
-      "!asset:starforged/** [sundered_isles.recommended=true&core.technological=true]",
-      "!asset:starforged/** [sundered_isles.recommended=true&core.supernatural=true]",
-    ],
-  },
-  sundered_isles_base: {
-    name: "Sundered Isles Base (no Starforged Assets)",
+  sundered_isles__assets_all: {
+    name: "Sundered Isles (all SF and SI assets)",
     lines: [
       "rules_package:starforged",
       "move:starforged/**",
@@ -60,6 +29,43 @@ export const STANDARD_PLAYSET_DEFNS: Record<
       "oracle_rollable:starforged/creature/**",
       "*:sundered_isles/**",
       "*:sundered_isles_supp/**",
+      "asset:starforged/** [sundered_isles.recommended=true]",
+    ],
+  },
+  sundered_isles__assets_technological: {
+    name: "Sundered Isles ('technological' assets)",
+    lines: [
+      "@include(sundered_isles__assets_all)",
+      "!asset:starforged/** [core.supernatural=true]",
+      "!asset:sundered_isles/** [core.supernatural=true]",
+    ],
+  },
+  sundered_isles__assets_supernatural: {
+    name: "Sundered Isles ('supernatural' assets)",
+    lines: [
+      "@include(sundered_isles__assets_all)",
+      "!asset:starforged/** [core.technological=true]",
+      "!asset:sundered_isles/** [core.technological=true]",
+    ],
+  },
+  sundered_isles__assets_historical: {
+    name: "Sundered Isles (no 'supernatural' or 'technological' assets)",
+    lines: [
+      "@include(sundered_isles__assets_all)",
+      "!asset:starforged/** [core.technological=true]",
+      "!asset:sundered_isles/** [core.technological=true]",
+      "!asset:starforged/** [core.supernatural=true]",
+      "!asset:sundered_isles/** [core.supernatural=true]",
     ],
   },
 };
+
+export function getStandardPlaysetDefinition(
+  key: string,
+): { name: string; lines: string[] } | undefined {
+  if (key in STANDARD_PLAYSET_DEFNS) {
+    return STANDARD_PLAYSET_DEFNS[key as keyof typeof STANDARD_PLAYSET_DEFNS];
+  } else {
+    return undefined;
+  }
+}

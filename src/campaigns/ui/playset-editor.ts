@@ -1,6 +1,9 @@
 import { PlaysetAwareDataContext } from "campaigns/context";
 import { PlaysetConfig } from "campaigns/playsets/config";
-import { STANDARD_PLAYSET_DEFNS } from "campaigns/playsets/standard";
+import {
+  getStandardPlaysetDefinition,
+  STANDARD_PLAYSET_DEFNS,
+} from "campaigns/playsets/standard";
 import { DataswornIndexer } from "datastore/datasworn-indexer";
 import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
@@ -132,7 +135,7 @@ export class PlaysetEditor extends Modal {
             this.configEditorEl.disabled = false;
           } else {
             this.configEditorEl.value =
-              STANDARD_PLAYSET_DEFNS[playsetChoice].lines.join("\n");
+              getStandardPlaysetDefinition(playsetChoice)!.lines.join("\n");
             this.configEditorEl.disabled = true;
           }
           this.refresh();
