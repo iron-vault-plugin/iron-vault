@@ -16,7 +16,7 @@
     "compile-data": "yq -ojson data/starforged.supplement.yaml > data/starforged.supplement.json && yq -ojson data/sundered-isles.supplement.yaml > data/sundered-isles.supplement.json",
     "dev": "node esbuild.config.js",
     "bump": "node ./scripts/update_manifest.js release ${npm_config_tag:?} && npm version --no-git-tag-version ${npm_config_tag} && git commit -a -m \"bumping manifest version to ${npm_config_tag}\" && git tag -a ${npm_config_tag} -m ${npm_config_tag} && git push --follow-tags",
-    "bump:beta": "node ./scripts/update_manifest.js beta ${npm_config_tag:?} && npm version --no-git-tag-version ${npm_config_tag} && git commit -a -m \"bumping manifest-beta version to ${npm_config_tag}\" && git tag -a ${npm_config_tag} -m ${npm_config_tag} && git push --follow-tags",
+    "bump:beta": "node ./scripts/update_manifest.js beta ${npm_config_tag:?} && npm version --no-git-tag-version ${npm_config_tag} && git add manifest-beta.json && git commit -a -m \"bumping manifest-beta version to ${npm_config_tag}\" && git tag -a ${npm_config_tag} -m ${npm_config_tag} && git push --follow-tags",
     "latestrev": "git tag -l --sort -creatordate '[0-9]*' | head -n 1",
     "lint": "pnpm run '/^lint:.*/'",
     "lint:js": "eslint src",
