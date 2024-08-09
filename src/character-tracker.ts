@@ -1,9 +1,11 @@
-import { CampaignTrackedEntities } from "campaigns/context";
+import { CampaignDataContext } from "campaigns/context";
 import { CampaignFile } from "campaigns/entity";
+import { CampaignManager } from "campaigns/manager";
 import { CharacterActionContext } from "characters/action-context";
 import IronVaultPlugin from "index";
 import { onlyValid } from "indexer/index-impl";
 import { TFile, type CachedMetadata } from "obsidian";
+import { Left } from "utils/either";
 import { CustomSuggestModal } from "utils/suggest";
 import { updaterWithContext } from "utils/update";
 import { z } from "zod";
@@ -14,14 +16,20 @@ import {
   characterLens,
 } from "./characters/lens";
 import { IronVaultKind } from "./constants";
-import { Datastore } from "./datastore";
-import { BaseIndexer, IndexOf, IndexUpdate } from "./indexer/indexer";
+import {
+  BaseIndexer,
+  IndexOf,
+  IndexUpdate,
+  UnexpectedIndexingError,
+} from "./indexer/indexer";
 
 export class CharacterError extends Error {}
 
-export class MissingCharacterError extends Error {}
+export class MissingCharacterError extends CharacterError {}
 
-export class InvalidCharacterError extends Error {}
+export class MissingCampaignError extends CharacterError {}
+
+export class InvalidCharacterError extends CharacterError {}
 
 export class CharacterIndexer extends BaseIndexer<
   CharacterContext,
@@ -29,7 +37,7 @@ export class CharacterIndexer extends BaseIndexer<
 > {
   readonly id = IronVaultKind.Character;
 
-  constructor(protected readonly dataStore: Datastore) {
+  constructor(protected readonly campaignManager: CampaignManager) {
     super();
   }
 
@@ -37,10 +45,13 @@ export class CharacterIndexer extends BaseIndexer<
     file: TFile,
     cache: CachedMetadata,
   ): IndexUpdate<CharacterContext, z.ZodError> {
-    if (cache.frontmatter == null) {
-      throw new Error("missing frontmatter cache");
+    const campaign = this.campaignManager.watchForReindex(file.path);
+    if (campaign == null) {
+      // TODO(@cwegrzyn): this should yield the real error, but then I have to update the stuff that expects a zod error
+      return Left.create(new UnexpectedIndexingError("missing campaign"));
     }
-    const { validater, lens } = characterLens(this.dataStore.ruleset);
+    const context = this.campaignManager.campaignContextFor(campaign);
+    const { validater, lens } = characterLens(context.ruleset);
     return validater(cache.frontmatter).map(
       (character) => new CharacterContext(character, lens, validater),
     );
@@ -67,7 +78,7 @@ export type CharacterTracker = IndexOf<CharacterIndexer>;
 
 export function currentActiveCharacterForCampaign(
   plugin: IronVaultPlugin,
-  campaignContext: CampaignTrackedEntities,
+  campaignContext: CampaignDataContext,
 ): CharacterActionContext | undefined {
   const characters = onlyValid(campaignContext.characters);
   if (characters.size === 0) {
@@ -105,7 +116,7 @@ export function currentActiveCharacterForCampaign(
  */
 export async function requireActiveCharacterForCampaign(
   plugin: IronVaultPlugin,
-  campaignContext: CampaignTrackedEntities,
+  campaignContext: CampaignDataContext,
 ): Promise<CharacterActionContext> {
   let activeCharacter = currentActiveCharacterForCampaign(
     plugin,
@@ -126,7 +137,7 @@ export async function requireActiveCharacterForCampaign(
 /** Shows a suggest modal listing the current campaign characters. */
 export async function promptForCampaignCharacter(
   plugin: IronVaultPlugin,
-  campaignContext: CampaignTrackedEntities,
+  campaignContext: CampaignDataContext,
 ): Promise<CharacterActionContext> {
   // TODO(@cwegrzyn): would be nice if this showed the current active character when one is available
   const [path, charCtx] = await CustomSuggestModal.select(

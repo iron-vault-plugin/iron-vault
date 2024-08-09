@@ -1,4 +1,4 @@
-import { Datastore } from "datastore";
+import { IDataContext } from "datastore/data-context";
 import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import { rootLogger } from "logger";
 import { MarkdownRenderChild, MarkdownRenderer, type App } from "obsidian";
@@ -34,7 +34,7 @@ export function registerMoveBlock(plugin: IronVaultPlugin): void {
         plugin.app,
         ctx.sourcePath,
         validatedMove.value,
-        plugin.datastore,
+        plugin.datastore.dataContext,
       );
       ctx.addChild(renderer);
       renderer.render();
@@ -63,11 +63,11 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
     protected readonly app: App,
     protected readonly sourcePath: string,
     protected readonly doc: MoveDescription,
-    protected readonly datastore: Datastore,
+    protected readonly dataContext: IDataContext,
   ) {
     super(containerEl);
 
-    const moves = [...datastore.moves.values()].filter(
+    const moves = [...dataContext.moves.values()].filter(
       (move) => move.name === doc.name,
     );
     if (moves.length != 1) {

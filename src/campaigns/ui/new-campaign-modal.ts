@@ -9,11 +9,14 @@ import {
   TFolder,
 } from "obsidian";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
+import { PlaysetSetting } from "./playset-setting";
 
 export type NewCampaignInfo = {
   campaignName: string;
   folder: string;
   scaffold: boolean;
+  playsetOption: string;
+  customPlaysetDefn: string;
 };
 
 export class NewCampaignModal extends Modal {
@@ -21,6 +24,8 @@ export class NewCampaignModal extends Modal {
     campaignName: "",
     folder: "/",
     scaffold: true,
+    playsetOption: "starforged",
+    customPlaysetDefn: "",
   };
 
   static show(plugin: IronVaultPlugin): Promise<NewCampaignInfo> {
@@ -49,6 +54,8 @@ export class NewCampaignModal extends Modal {
 
       valid &&= (this.campaignInfo.campaignName ?? "").length > 0;
 
+      valid &&= playsetSetting.isValid();
+
       const existing = this.app.vault.getAbstractFileByPath(
         this.campaignInfo.folder,
       );
@@ -63,6 +70,18 @@ export class NewCampaignModal extends Modal {
       } else if (existing instanceof TFile) {
         resultSetting.setDesc(
           "ERROR: Invalid folder for campaign. File exists at that path.",
+        );
+        valid = false;
+      }
+
+      const campaignFileName = normalizePath(
+        this.campaignInfo.folder + "/" + this.campaignInfo.campaignName,
+      );
+      const existingCampaign =
+        this.plugin.campaignManager.campaignForPath(campaignFileName);
+      if (existingCampaign) {
+        resultSetting.setDesc(
+          `ERROR: The folder '${this.campaignInfo.folder}' is part of the campaign at '${existingCampaign.file.path}'. Campaigns may not be nested.`,
         );
         valid = false;
       }
@@ -112,6 +131,15 @@ export class NewCampaignModal extends Modal {
 
     const resultSetting = new Setting(contentEl).setDesc("X will be Y.");
 
+    const playsetSetting = new PlaysetSetting(
+      this.plugin,
+      this.contentEl,
+    ).onChange((setting) => {
+      this.campaignInfo.playsetOption = setting.playsetKey();
+      this.campaignInfo.customPlaysetDefn = setting.customConfig;
+      validate();
+    });
+
     new Setting(contentEl)
       .setName("Scaffold campaign")
       .setDesc(
@@ -138,7 +166,12 @@ export class NewCampaignModal extends Modal {
         btn.setButtonText("Cancel").onClick(() => this.close()),
       );
 
-    validate();
+    // Set value after everything is set, so that we can successfully respond to the validation
+    // that this triggers.
+    playsetSetting.setFromKeyAndConfig(
+      this.campaignInfo.playsetOption,
+      this.campaignInfo.customPlaysetDefn,
+    );
   }
 
   onClose(): void {

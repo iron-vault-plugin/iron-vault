@@ -1,3 +1,4 @@
+import { IDataContext } from "datastore/data-context";
 import { generateEntityCommand } from "entity/command";
 import { ENTITIES } from "entity/specs";
 import IronVaultPlugin from "index";
@@ -10,15 +11,30 @@ import { MarkdownView, getIcon, setIcon } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { OracleModal } from "oracles/oracle-modal";
 
-export default async function renderIronVaultOracles(
+type OracleViewBehaviors = {
+  onClickOracleName: (oracle: Oracle) => void;
+  onClickOracleDetails: (oracle: Oracle) => void;
+  onClickOracleGroup: (group: CollectionGrouping) => void;
+};
+
+export default function renderIronVaultOracles(
   cont: HTMLElement,
   plugin: IronVaultPlugin,
+  dataContext: IDataContext,
 ) {
-  const loading = cont.createEl("p", { text: "Loading data..." });
-  await plugin.datastore.waitForReady;
-  loading.remove();
-  const idx = makeIndex(plugin);
-  litOracleList(cont, plugin, idx);
+  const idx = makeIndex(dataContext);
+  const behaviors: OracleViewBehaviors = {
+    onClickOracleDetails(oracle) {
+      openOracleModal(plugin, oracle);
+    },
+    onClickOracleName(oracle) {
+      handleOracleRoll(plugin, oracle);
+    },
+    onClickOracleGroup(group) {
+      rollOracleBatch(plugin, group);
+    },
+  };
+  litOracleList(cont, behaviors, dataContext, idx);
 }
 
 interface OracleIndexEntry {
@@ -41,18 +57,18 @@ interface CollectionGrouping {
 }
 
 function getOracleTree(
-  plugin: IronVaultPlugin,
+  dataContext: IDataContext,
   searchIdx: MiniSearch<OracleIndexEntry>,
   filter?: string,
 ) {
   const results = filter
     ? searchIdx.search(filter)
-    : [...plugin.datastore.oracles.values()];
+    : [...dataContext.oracles.values()];
   const rulesets: Map<string, RulesetGrouping> = new Map();
   const groupings: Map<string, CollectionGrouping> = new Map();
   let total = 0;
   for (const res of results) {
-    const oracle = plugin.datastore.oracles.get(res.id)!;
+    const oracle = dataContext.oracles.get(res.id)!;
     let topGroup = oracle.parent;
     let groupName = topGroup.name;
     while (
@@ -101,11 +117,12 @@ function getOracleTree(
 
 function litOracleList(
   cont: HTMLElement,
-  plugin: IronVaultPlugin,
+  behaviors: OracleViewBehaviors,
+  dataContext: IDataContext,
   index: MiniSearch<OracleIndexEntry>,
   filter?: string,
 ) {
-  const { rulesets, total } = getOracleTree(plugin, index, filter);
+  const { rulesets, total } = getOracleTree(dataContext, index, filter);
   return render(
     html`
       <input
@@ -114,11 +131,11 @@ function litOracleList(
         placeholder="Filter oracles..."
         @input=${(e: Event) => {
           const input = e.target as HTMLInputElement;
-          litOracleList(cont, plugin, index, input.value);
+          litOracleList(cont, behaviors, dataContext, index, input.value);
         }}
       />
       <ul class="iron-vault-oracles-list">
-        ${map(rulesets, (r) => renderRuleset(plugin, r, total <= 5))}
+        ${map(rulesets, (r) => renderRuleset(behaviors, r, total <= 5))}
       </ul>
     `,
     cont,
@@ -126,7 +143,7 @@ function litOracleList(
 }
 
 function renderRuleset(
-  plugin: IronVaultPlugin,
+  behaviors: OracleViewBehaviors,
   ruleset: RulesetGrouping,
   open: boolean,
 ) {
@@ -137,7 +154,9 @@ function renderRuleset(
           <summary><span>${ruleset.name}</span></summary>
         </details>
         <ul class="content">
-          ${map(ruleset.children, (group) => renderGroup(plugin, group, open))}
+          ${map(ruleset.children, (group) =>
+            renderGroup(behaviors, group, open),
+          )}
         </ul>
       </div>
     </li>
@@ -145,7 +164,7 @@ function renderRuleset(
 }
 
 function renderGroup(
-  plugin: IronVaultPlugin,
+  behaviors: OracleViewBehaviors,
   group: CollectionGrouping,
   open: boolean,
 ) {
@@ -156,7 +175,13 @@ function renderGroup(
           <summary><span>${group.name}</span></summary>
         </details>
         <ul class="content">
-          <li @click=${() => rollOracleBatch(plugin, group)}>
+          <li
+            @click=${(ev: MouseEvent) => {
+              ev.stopPropagation();
+              ev.preventDefault();
+              behaviors.onClickOracleGroup(group);
+            }}
+          >
             <span>
               <span
                 ${ref(
@@ -166,19 +191,20 @@ function renderGroup(
               Roll All</span
             >
           </li>
-          ${map(group.children, (oracle) => renderOracle(plugin, oracle))}
+          ${map(group.children, (oracle) => renderOracle(behaviors, oracle))}
         </ul>
       </div>
     </li>
   `;
 }
 
-function renderOracle(plugin: IronVaultPlugin, oracle: Oracle) {
+function renderOracle(behaviors: OracleViewBehaviors, oracle: Oracle) {
   return html`
     <li
       @click=${(ev: MouseEvent) => {
         ev.stopPropagation();
-        handleOracleRoll(ev, plugin, oracle);
+        ev.preventDefault();
+        behaviors.onClickOracleName(oracle);
       }}
     >
       <span>
@@ -191,7 +217,7 @@ function renderOracle(plugin: IronVaultPlugin, oracle: Oracle) {
         type="button"
         @click=${(ev: MouseEvent) => {
           ev.stopPropagation();
-          openOracleModal(plugin, oracle);
+          behaviors.onClickOracleDetails(oracle);
         }}
       >
         ${getIcon("list")}
@@ -206,6 +232,7 @@ function rollOracleBatch(plugin: IronVaultPlugin, group: CollectionGrouping) {
   );
   if (!entityDefn) {
     entityDefn = {
+      collectionId: group.id,
       label: group.name,
       spec: Object.fromEntries(
         group.children.map((oracle) => [
@@ -226,13 +253,7 @@ function rollOracleBatch(plugin: IronVaultPlugin, group: CollectionGrouping) {
   }
 }
 
-function handleOracleRoll(
-  ev: MouseEvent,
-  plugin: IronVaultPlugin,
-  oracle: Oracle,
-) {
-  ev.stopPropagation();
-  ev.preventDefault();
+function handleOracleRoll(plugin: IronVaultPlugin, oracle: Oracle) {
   const { workspace } = plugin.app;
   const view = workspace.getActiveFileView();
   if (view && view instanceof MarkdownView) {
@@ -245,7 +266,7 @@ function openOracleModal(plugin: IronVaultPlugin, oracle: Oracle) {
   new OracleModal(plugin.app, plugin, oracle).open();
 }
 
-function makeIndex(plugin: IronVaultPlugin) {
+function makeIndex(dataContext: IDataContext) {
   const idx = new MiniSearch({
     fields: ["name", "group", "ruleset"],
     idField: "id",
@@ -255,7 +276,7 @@ function makeIndex(plugin: IronVaultPlugin) {
       boost: { name: 2 },
     },
   });
-  for (const oracle of plugin.datastore.oracles.values()) {
+  for (const oracle of dataContext.oracles.values()) {
     let topGroup = oracle.parent;
     let groupName = topGroup.name;
     while (

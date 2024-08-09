@@ -1,5 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
-import { Datastore } from "datastore";
+import { IDataContext, MockDataContext } from "datastore/data-context";
 import { produce } from "immer";
 import { integratedAssetLens, walkAsset } from "./assets";
 
@@ -204,13 +204,16 @@ describe("walkAsset", () => {
 });
 
 describe("integratedAssetLens", () => {
-  const mockDatastore = {
-    assets: new Map([[starship()._id, starship()]]),
-  };
+  let dataContext: IDataContext;
+
+  beforeEach(() => {
+    dataContext = new MockDataContext({ assets: [starship()] });
+  });
+
   describe("#get", () => {
     it("updates marked abilities", () => {
       expect(
-        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+        integratedAssetLens(dataContext).get({
           id: starship()._id,
           abilities: [true, false, true],
           options: {},
@@ -223,7 +226,7 @@ describe("integratedAssetLens", () => {
 
     it("integrates option values", () => {
       expect(
-        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+        integratedAssetLens(dataContext).get({
           id: starship()._id,
           abilities: [true, false, false],
           options: {},
@@ -231,7 +234,7 @@ describe("integratedAssetLens", () => {
         }),
       ).toHaveProperty("options.label.value", null);
       expect(
-        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+        integratedAssetLens(dataContext).get({
           id: starship()._id,
           abilities: [true, false, false],
           options: { label: "arclight" },
@@ -241,7 +244,7 @@ describe("integratedAssetLens", () => {
     });
     it("integrates meter values", () => {
       expect(
-        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+        integratedAssetLens(dataContext).get({
           id: starship()._id,
           abilities: [true, false, false],
           options: {},
@@ -249,7 +252,7 @@ describe("integratedAssetLens", () => {
         }),
       ).toHaveProperty("controls.integrity.value", 5);
       expect(
-        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+        integratedAssetLens(dataContext).get({
           id: starship()._id,
           abilities: [true, false, false],
           options: {},
@@ -260,7 +263,7 @@ describe("integratedAssetLens", () => {
 
     it("integrates meter subfield values", () => {
       expect(
-        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+        integratedAssetLens(dataContext).get({
           id: starship()._id,
           abilities: [true, false, false],
           options: {},
@@ -268,7 +271,7 @@ describe("integratedAssetLens", () => {
         }),
       ).toHaveProperty("controls.integrity.controls.battered.value", false);
       expect(
-        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+        integratedAssetLens(dataContext).get({
           id: starship()._id,
           abilities: [true, false, false],
           options: {},
@@ -279,7 +282,7 @@ describe("integratedAssetLens", () => {
 
     it("integrates meter subfield values", () => {
       expect(
-        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+        integratedAssetLens(dataContext).get({
           id: starship()._id,
           abilities: [true, false, false],
           options: {},
@@ -287,7 +290,7 @@ describe("integratedAssetLens", () => {
         }),
       ).toHaveProperty("controls.integrity.controls.battered.value", false);
       expect(
-        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+        integratedAssetLens(dataContext).get({
           id: starship()._id,
           abilities: [true, false, false],
           options: {},
@@ -298,7 +301,7 @@ describe("integratedAssetLens", () => {
 
     it("integrates ability values", () => {
       expect(
-        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+        integratedAssetLens(dataContext).get({
           id: starship()._id,
           abilities: [false, false, false],
           options: {},
@@ -306,7 +309,7 @@ describe("integratedAssetLens", () => {
         }),
       ).toHaveProperty("abilities.0.options.made_up.value", null);
       expect(
-        integratedAssetLens(mockDatastore as unknown as Datastore).get({
+        integratedAssetLens(dataContext).get({
           id: starship()._id,
           abilities: [false, false, false],
           options: { "0/made_up": "foo" },
@@ -318,7 +321,7 @@ describe("integratedAssetLens", () => {
 
   describe("update", () => {
     expect(
-      integratedAssetLens(mockDatastore as unknown as Datastore).update(
+      integratedAssetLens(dataContext).update(
         {
           id: starship()._id,
           abilities: [false, false, false],

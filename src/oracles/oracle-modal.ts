@@ -1,17 +1,16 @@
 import IronVaultPlugin from "index";
-import { Oracle, OracleGroupingType } from "model/oracle";
+import { Oracle, OracleGrouping, OracleGroupingType } from "model/oracle";
 import { App, ButtonComponent, MarkdownView, Modal } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { generateOracleTable } from "./render";
 
 export class OracleModal extends Modal {
-  plugin: IronVaultPlugin;
-  oracle: Oracle;
-
-  constructor(app: App, plugin: IronVaultPlugin, oracle: Oracle) {
+  constructor(
+    readonly app: App,
+    readonly plugin: IronVaultPlugin,
+    readonly oracle: Oracle,
+  ) {
     super(app);
-    this.plugin = plugin;
-    this.oracle = oracle;
   }
 
   async openOracle(oracle: Oracle) {
@@ -20,7 +19,7 @@ export class OracleModal extends Modal {
     contentEl.toggleClass("iron-vault-modal-content", true);
     contentEl.classList.toggle("iron-vault-oracle-modal", true);
     contentEl.toggleClass("iron-vault-modal", true);
-    let ruleset = oracle.parent;
+    let ruleset: OracleGrouping = oracle.parent;
     while (
       oracle.parent &&
       ruleset.grouping_type !== OracleGroupingType.Ruleset
@@ -41,7 +40,7 @@ export class OracleModal extends Modal {
           this.close();
         }
       });
-    contentEl.appendChild(await generateOracleTable(this.plugin, oracle));
+    contentEl.appendChild(await generateOracleTable(this.app, oracle));
   }
 
   onOpen() {

@@ -1,6 +1,12 @@
+import { CampaignDataContext } from "campaigns/context";
+import { CampaignFile } from "campaigns/entity";
+import { CampaignManager } from "campaigns/manager";
+import { UnsubscribeFunction } from "emittery";
 import IronVaultPlugin from "index";
-import renderIronVaultOracles from "./oracles";
+import { html, render } from "lit-html";
+import { Component, MarkdownRenderChild, Vault } from "obsidian";
 import renderIronVaultMoves from "./moves";
+import renderIronVaultOracles from "./oracles";
 
 // These are intended for folks who want to get the stuff that's usualy in the
 // sidebar, but embedded in a note directly.
@@ -8,53 +14,174 @@ import renderIronVaultMoves from "./moves";
 export default function registerSidebarBlocks(plugin: IronVaultPlugin) {
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-moves",
-    async (_source, el: SidebarBlockContainerEl, _ctx) => {
-      // We can't render blocks until datastore is ready.
-      await plugin.datastore.waitForReady;
-      if (!el.movesRenderer) {
-        el.movesRenderer = new MovesRenderer(el, plugin);
-      }
-      await el.movesRenderer.render();
+    (_source, el: HTMLElement, ctx) => {
+      ctx.addChild(new MovesRenderer(el, plugin, ctx.sourcePath));
     },
   );
 
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-oracles",
-    async (_source, el: SidebarBlockContainerEl, _ctx) => {
-      // We can't render blocks until datastore is ready.
-      await plugin.datastore.waitForReady;
-      if (!el.oracleRenderer) {
-        el.oracleRenderer = new OracleRenderer(el, plugin);
-      }
-      await el.oracleRenderer.render();
+    (_source, el: HTMLElement, ctx) => {
+      ctx.addChild(new OracleRenderer(el, plugin, ctx.sourcePath));
     },
   );
 }
 
-interface SidebarBlockContainerEl extends HTMLElement {
-  movesRenderer?: MovesRenderer;
-  oracleRenderer?: OracleRenderer;
-}
+/** A component that monitors either the file campaign or the active campaign.  */
+abstract class BaseCampaignSource extends Component {
+  #onUpdate?: () => void | Promise<void>;
 
-abstract class SidebarBlockRenderer {
-  contentEl: HTMLElement;
-  plugin: IronVaultPlugin;
-
-  constructor(contentEl: HTMLElement, plugin: IronVaultPlugin) {
-    this.contentEl = contentEl;
-    this.plugin = plugin;
+  constructor() {
+    super();
   }
-  abstract render(): Promise<void>;
-}
 
-class MovesRenderer extends SidebarBlockRenderer {
-  async render() {
-    await renderIronVaultMoves(this.contentEl, this.plugin);
+  abstract readonly campaign: CampaignFile | undefined;
+  abstract readonly campaignContext: CampaignDataContext | undefined;
+
+  onUpdate(callback: () => void | Promise<void>): this {
+    this.#onUpdate = callback;
+    return this;
+  }
+
+  protected update() {
+    return this.#onUpdate && this.#onUpdate();
   }
 }
 
-class OracleRenderer extends SidebarBlockRenderer {
-  async render() {
-    await renderIronVaultOracles(this.contentEl, this.plugin);
+export class ActiveCampaignWatch extends BaseCampaignSource {
+  constructor(readonly campaignManager: CampaignManager) {
+    super();
+  }
+
+  onload() {
+    this.registerEvent(
+      this.campaignManager.on("active-campaign-changed", () => this.update()),
+    );
+
+    if (this.campaignManager.lastActiveCampaign()) {
+      this.update();
+    }
+  }
+
+  get campaign(): CampaignFile | undefined {
+    return this.campaignManager.lastActiveCampaign();
+  }
+
+  get campaignContext(): CampaignDataContext | undefined {
+    return this.campaignManager.lastActiveCampaignContext();
+  }
+}
+
+export class FileBasedCampaignWatch extends BaseCampaignSource {
+  #sourcePath: string;
+
+  #campaign?: CampaignFile;
+  #unsub?: UnsubscribeFunction;
+
+  constructor(
+    private readonly vault: Vault,
+    readonly campaignManager: CampaignManager,
+    sourcePath: string,
+  ) {
+    super();
+
+    this.#sourcePath = sourcePath;
+  }
+
+  get campaign(): CampaignFile | undefined {
+    return this.#campaign;
+  }
+
+  get campaignContext(): CampaignDataContext | undefined {
+    return (
+      this.campaign && this.campaignManager.campaignContextFor(this.campaign)
+    );
+  }
+
+  onload(): void {
+    this.registerEvent(
+      this.vault.on("rename", (file, oldPath) => {
+        if (this.#sourcePath == oldPath) {
+          this.#sourcePath = file.path;
+          this.updateCampaign();
+        }
+      }),
+    );
+    this.updateCampaign();
+  }
+
+  private updateCampaign() {
+    this.#unsub?.();
+
+    const { campaign, unsubscribe } = this.campaignManager.watcher.watch(
+      this.#sourcePath,
+      () =>
+        // Watch clears the watch, so this isn't weird.
+        this.updateCampaign(),
+    );
+    this.#campaign = campaign ?? undefined;
+    this.#unsub = unsubscribe;
+    this.update();
+  }
+
+  onunload(): void {
+    this.#unsub?.();
+  }
+}
+
+abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild {
+  campaignSource: BaseCampaignSource;
+
+  constructor(
+    containerEl: HTMLElement,
+    readonly plugin: IronVaultPlugin,
+    sourcePath?: string,
+  ) {
+    super(containerEl);
+    this.campaignSource = this.addChild(
+      sourcePath
+        ? new FileBasedCampaignWatch(
+            plugin.app.vault,
+            plugin.campaignManager,
+            sourcePath,
+          )
+        : new ActiveCampaignWatch(plugin.campaignManager),
+    ).onUpdate(() => this.update());
+  }
+
+  get campaign(): CampaignFile | undefined {
+    return this.campaignSource.campaign;
+  }
+
+  get dataContext(): CampaignDataContext | undefined {
+    return this.campaignSource.campaignContext;
+  }
+
+  update(): void | Promise<void> {
+    const context = this.dataContext;
+    if (context) {
+      return this.render(context);
+    } else {
+      render(
+        html`<article class="error">
+          This block may only be used within a campaign.
+        </article>`,
+        this.containerEl,
+      );
+    }
+  }
+
+  abstract render(context: CampaignDataContext): void | Promise<void>;
+}
+
+class MovesRenderer extends CampaignDependentBlockRenderer {
+  render(context: CampaignDataContext) {
+    renderIronVaultMoves(this.containerEl, this.plugin, context);
+  }
+}
+
+class OracleRenderer extends CampaignDependentBlockRenderer {
+  render(context: CampaignDataContext) {
+    renderIronVaultOracles(this.containerEl, this.plugin, context);
   }
 }

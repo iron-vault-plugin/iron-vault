@@ -2,7 +2,6 @@ import IronVaultPlugin from "index";
 import { CurseBehavior, Oracle } from "model/oracle";
 import { RollWrapper } from "model/rolls";
 import { Modal, Setting } from "obsidian";
-import { Dice, DieKind } from "utils/dice";
 import { stripMarkdown } from "utils/strip-markdown";
 
 export class OracleRollerModal extends Modal {
@@ -49,13 +48,8 @@ export class OracleRollerModal extends Modal {
         .setHeading()
         .addButton((btn) =>
           btn.setIcon("refresh-cw").onClick(async () => {
-            const newCursedRoll = await new Dice(
-              1,
-              this.plugin.settings.cursedDieSides,
-              this.plugin,
-              DieKind.Cursed,
-            ).roll(this.plugin.settings.graphicalOracleDice);
-            await setRoll(this.currentRoll.withCursedRoll(newCursedRoll));
+            const newCursedRoll = await this.currentRoll.rerollCursed();
+            await setRoll(newCursedRoll);
             await onUpdateCursedRoll();
           }),
         );

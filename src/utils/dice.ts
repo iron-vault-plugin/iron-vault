@@ -1,5 +1,3 @@
-import IronVaultPlugin from "index";
-
 export function randomInt(min: number, max: number): number {
   const randomBuffer = new Uint32Array(1);
 
@@ -22,11 +20,7 @@ export enum DieKind {
 }
 
 export class Dice {
-  static fromDiceString(
-    spec: string,
-    plugin?: IronVaultPlugin,
-    kind?: DieKind,
-  ): Dice {
+  static fromDiceString(spec: string, kind?: DieKind): Dice {
     const parsed = spec.match(DICE_REGEX);
     if (parsed == null) {
       throw new Error(`invalid dice spec ${spec}`);
@@ -34,7 +28,6 @@ export class Dice {
     return new Dice(
       Number.parseInt(parsed[1]),
       Number.parseInt(parsed[2]),
-      plugin,
       kind,
     );
   }
@@ -42,47 +35,15 @@ export class Dice {
   constructor(
     public readonly count: number,
     public readonly sides: number,
-    public readonly plugin?: IronVaultPlugin,
     public readonly kind?: DieKind,
   ) {}
 
-  async roll(displayDice: boolean): Promise<number> {
-    if (displayDice && this.plugin) {
-      const res = await this.plugin.diceOverlay.roll({
-        qty: this.count,
-        sides: this.sides,
-        themeColor: this.themeColor,
-      });
-      return res.reduce(
-        (acc, roll) =>
-          // @3d-dice return "0" for percentile dice when when both are "0"/"00", instead of "100"
-          acc + (roll.sides === 100 && roll.value === 0 ? 100 : roll.value),
-        0,
-      );
-    } else {
-      let total = 0;
-      for (let i = 0; i < this.count; i++) {
-        total += randomInt(1, this.sides);
-      }
-      return total;
+  roll(): number {
+    let total = 0;
+    for (let i = 0; i < this.count; i++) {
+      total += randomInt(1, this.sides);
     }
-  }
-
-  get themeColor(): string | undefined {
-    switch (this.kind) {
-      case DieKind.Action:
-        return this.plugin?.settings.actionDieColor;
-      case DieKind.Challenge1:
-        return this.plugin?.settings.challengeDie1Color;
-      case DieKind.Challenge2:
-        return this.plugin?.settings.challengeDie2Color;
-      case DieKind.Oracle:
-        return this.plugin?.settings.oracleDiceColor;
-      case DieKind.Cursed:
-        return this.plugin?.settings.cursedDieColor;
-      default:
-        return;
-    }
+    return total;
   }
 
   minRoll(): number {

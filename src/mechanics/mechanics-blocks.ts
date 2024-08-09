@@ -1,4 +1,7 @@
-import { Node as KdlNodeBare, parse, format } from "kdljs";
+import { format, Node as KdlNodeBare, parse } from "kdljs";
+import { html, render, TemplateResult } from "lit-html";
+import { ref } from "lit-html/directives/ref.js";
+import { styleMap } from "lit-html/directives/style-map.js";
 import {
   ButtonComponent,
   MarkdownPostProcessorContext,
@@ -6,16 +9,13 @@ import {
   MarkdownView,
   Menu,
 } from "obsidian";
-import { render, html, TemplateResult } from "lit-html";
-import { styleMap } from "lit-html/directives/style-map.js";
-import { ref } from "lit-html/directives/ref.js";
 
-import { ProgressTrack } from "tracks/progress";
-import IronVaultPlugin from "../index";
-import { md } from "utils/ui/directives";
 import { repeat } from "lit-html/directives/repeat.js";
-import { node } from "utils/kdl";
 import Sortable from "sortablejs";
+import { ProgressTrack } from "tracks/progress";
+import { node } from "utils/kdl";
+import { md } from "utils/ui/directives";
+import IronVaultPlugin from "../index";
 
 interface KdlNode extends KdlNodeBare {
   parent?: KdlNode;
@@ -316,7 +316,6 @@ See https://kdl.dev for syntax.</pre
       }
       case "impact": {
         return this.renderImpact(node);
-        break;
       }
       case "initiative":
       case "position": {
@@ -332,7 +331,8 @@ See https://kdl.dev for syntax.</pre
   }
 
   renderMove(node: KdlNode): TemplateResult {
-    const moves = [...this.plugin.datastore.moves.values()];
+    // TODO(@cwegrzyn): this should use the file's campaign data context
+    const moves = [...this.plugin.datastore.dataContext.moves.values()];
     const id = node.properties.id as string | undefined;
     const name = (node.properties.name ?? node.values[0]) as string | undefined;
     const move = id

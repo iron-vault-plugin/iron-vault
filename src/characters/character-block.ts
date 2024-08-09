@@ -7,6 +7,7 @@ import Sortable from "sortablejs";
 import { Asset } from "@datasworn/core/dist/Datasworn";
 import IronVaultPlugin from "index";
 import { normalizePath } from "obsidian";
+import { Ruleset } from "rules/ruleset";
 import { IronVaultPluginSettings } from "settings";
 import { ProgressTrack, legacyTrackXpEarned } from "tracks/progress";
 import { renderTrack } from "tracks/track-block";
@@ -23,7 +24,7 @@ import { CharacterContext, setActiveCharacter } from "../character-tracker";
 import { CharacterActionContext } from "./action-context";
 import { addOrUpdateViaDataswornAsset } from "./assets";
 import { addAssetToCharacter } from "./commands";
-import { CharacterLens, ValidatedCharacter, momentumOps } from "./lens";
+import { ValidatedCharacter, momentumOps } from "./lens";
 
 export default function registerCharacterBlocks(plugin: IronVaultPlugin): void {
   registerBlock();
@@ -204,26 +205,20 @@ class CharacterRenderer extends TrackedEntityRenderer<
         @change=${charBoolFieldUpdater(lens.initiative)}
       >
         <option value="true" ?selected=${lens.initiative.get(raw) === true}>
-          ${this.initiativeValueLabel(lens, true)}
+          ${labelForCharacterInitiativeValue(lens.ruleset, true)}
         </option>
         <option value="false" ?selected=${lens.initiative.get(raw) === false}>
-          ${this.initiativeValueLabel(lens, false)}
+          ${labelForCharacterInitiativeValue(lens.ruleset, false)}
         </option>
         <option
           value="out-of-combat"
           ?selected=${lens.initiative.get(raw) === undefined}
         >
-          ${this.initiativeValueLabel(lens, undefined)}
+          ${labelForCharacterInitiativeValue(lens.ruleset, undefined)}
         </option>
       </select>
       <dl>
-        <dt>
-          ${this.plugin.settings.enableIronsworn
-            ? "Alias"
-            : this.plugin.settings.enableSunderedIsles
-              ? "Moniker"
-              : "Callsign"}
-        </dt>
+        <dt>${labelForCharacterCallsign(campaignContext.ruleset)}</dt>
         <dd class="callsign">
           <input
             type="text"
@@ -495,7 +490,7 @@ class CharacterRenderer extends TrackedEntityRenderer<
 
     const updateAsset = (asset: Asset) => {
       charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
-        addOrUpdateViaDataswornAsset(lens, this.plugin.datastore).update(
+        addOrUpdateViaDataswornAsset(lens, this.campaignContext()).update(
           char,
           asset,
         ),
@@ -551,7 +546,12 @@ class CharacterRenderer extends TrackedEntityRenderer<
                 >
                   ✕
                 </button>
-                ${renderAssetCard(this.plugin, asset, updateAsset)}
+                ${renderAssetCard(
+                  this.plugin,
+                  this.campaignContext(),
+                  asset,
+                  updateAsset,
+                )}
               </li>
             `,
           )}
@@ -582,24 +582,54 @@ class CharacterRenderer extends TrackedEntityRenderer<
       </section>
     `;
   }
+}
 
-  initiativeValueLabel(lens: CharacterLens, val: boolean | undefined) {
-    const labels = [];
-    if (val === true && lens.ruleset.ids.contains("classic")) {
-      labels.push("Has initiative");
+/** Returns the ruleset-appropriate label for the initiative statuses. */
+export function labelForCharacterInitiativeValue(
+  ruleset: Ruleset,
+  val: boolean | undefined,
+) {
+  // TODO(@cwegrzyn): Ideally, this is somewhat configurable in some way that
+  // lets third-party rulesets change it.
+  if (ruleset.baseRulesetId == "classic") {
+    if (val === true) {
+      return "Has initiative";
+    } else if (val === false) {
+      return "No initiative";
     }
-    if (val === false && lens.ruleset.ids.contains("classic")) {
-      labels.push("No initiative");
+  } else {
+    // Use Starforged language for any other base ruleset
+    if (val === true) {
+      return "In control";
+    } else if (val === false) {
+      return "In a bad spot";
     }
-    if (val === true && lens.ruleset.ids.contains("starforged")) {
-      labels.push("In control");
+  }
+
+  return "Out of combat";
+}
+
+// TODO(@cwegrzyn): once we have a setting that controls which version of position/initiative
+//   to use, we'll use that instead here and in determining the label.
+export function labelForCharacterInitiative(
+  ruleset: Ruleset,
+): "initiative" | "position" {
+  return ruleset.baseRulesetId == "classic" ? "initiative" : "position";
+}
+
+/** Returns the ruleset-appropriate label for the callsign field. */
+export function labelForCharacterCallsign(ruleset: Ruleset): string {
+  // TODO(@cwegrzyn): Ideally, this is somewhat configurable in some way that
+  // lets third-party rulesets change it.
+  if (ruleset.baseRulesetId == "starforged") {
+    if (ruleset.rulesPackageIds.includes("sundered_isles")) {
+      return "Moniker";
+    } else {
+      return "Callsign";
     }
-    if (val === false && lens.ruleset.ids.contains("starforged")) {
-      labels.push("In a bad spot");
-    }
-    if (val == null) {
-      labels.push("Out of combat");
-    }
-    return labels.join("/");
+  } else {
+    // This is the language used in base Ironsworn (e.g., ruleset == 'classic')
+    // and is most generic, so making it the default.
+    return "Alias";
   }
 }

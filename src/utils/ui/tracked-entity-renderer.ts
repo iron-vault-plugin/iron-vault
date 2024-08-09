@@ -1,4 +1,4 @@
-import { CampaignTrackedEntities } from "campaigns/context";
+import { CampaignDataContext } from "campaigns/context";
 import { CampaignFile } from "campaigns/entity";
 import IronVaultPlugin from "index";
 import { EmittingIndex } from "indexer/index-interface";
@@ -8,6 +8,8 @@ import { debounce, MarkdownRenderChild } from "obsidian";
 import { IronVaultPluginSettings } from "settings";
 
 const logger = rootLogger.getLogger("tracked-entity");
+
+export class EntityWithoutCampaignError extends Error {}
 
 export abstract class TrackedEntityRenderer<
   T,
@@ -40,14 +42,20 @@ export abstract class TrackedEntityRenderer<
     return this.#sourcePath;
   }
 
-  // TODO(@cwegrzyn): should it be possible to have a tracked entity outside of a campaign?
-  campaign(): CampaignFile | undefined {
-    return this.plugin.campaignManager.campaignForPath(this.sourcePath);
+  campaign(): CampaignFile {
+    const campaign = this.plugin.campaignManager.campaignForPath(
+      this.sourcePath,
+    );
+    if (!campaign) {
+      throw new EntityWithoutCampaignError(
+        `no campaign for '${this.sourcePath}'`,
+      );
+    }
+    return campaign;
   }
 
-  campaignContext(): CampaignTrackedEntities | undefined {
-    const campaign = this.campaign();
-    return campaign && this.plugin.campaignManager.campaignContextFor(campaign);
+  campaignContext(): CampaignDataContext {
+    return this.plugin.campaignManager.campaignContextFor(this.campaign());
   }
 
   async onload() {
@@ -107,15 +115,43 @@ export abstract class TrackedEntityRenderer<
     } else if (result.isLeft()) {
       return this.renderInvalidEntity(result.error);
     } else {
-      return this.renderEntity(result.value);
+      try {
+        return this.renderEntity(result.value);
+      } catch (e) {
+        if (e instanceof EntityWithoutCampaignError) {
+          return this.renderMissingCampaign();
+        } else {
+          logger.error("Error while rendering", e);
+          return this.renderError(e);
+        }
+      }
     }
+  }
+
+  protected renderError(e: unknown): void | Promise<void> {
+    render(
+      html`<article class="error">
+        Unexpected error while rendering '${this.sourcePath}':
+        <pre>${String(e)}</pre>
+      </article>`,
+      this.containerEl,
+    );
+  }
+
+  protected renderMissingCampaign(): void | Promise<void> {
+    render(
+      html`<article class="error">
+        All entities must be in a campaign, but '${this.sourcePath}' is not part
+        of a campaign.
+      </article>`,
+      this.containerEl,
+    );
   }
 
   /** Called to render an entity that is invalid.
    * Override this to provide a different error message.
    */
   protected renderInvalidEntity(error: E): void | Promise<void> {
-    // TODO(@cwegrzyn): can I get a kind for the index?
     render(
       html`<article class="error">
         Invalid ${this.kind} at '${this.sourcePath}':

@@ -40,14 +40,30 @@ export function wrapIndexUpdateError(
   );
 }
 
+export type CachedMetadataWithFrontMatter = CachedMetadata & {
+  frontmatter: NonNullable<CachedMetadata["frontmatter"]>;
+};
+
+export function assertHasFrontmatter(
+  cache: CachedMetadata,
+): asserts cache is CachedMetadataWithFrontMatter {
+  if (cache.frontmatter == null) {
+    throw new Error("Cache is missing frontmatter, how can that be?");
+  }
+}
+
 export interface Indexer {
   readonly id: IronVaultKind;
   onChanged(
     file: TFile,
-    cache: CachedMetadata,
+    cache: CachedMetadataWithFrontMatter,
   ): IndexUpdateResult<unknown, Error>["type"];
   onDeleted(path: string): IndexDeleteResult;
-  onRename(oldPath: string, newFile: TFile, cache: CachedMetadata): void;
+  onRename(
+    oldPath: string,
+    newFile: TFile,
+    cache: CachedMetadataWithFrontMatter,
+  ): void;
 }
 
 export type IndexerId = string;
@@ -73,7 +89,7 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
 
   onChanged(
     file: TFile,
-    cache: CachedMetadata,
+    cache: CachedMetadataWithFrontMatter,
   ): IndexUpdateResult<unknown, Error>["type"] {
     let result: IndexUpdate<T, E>;
     try {
@@ -122,7 +138,11 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
     }
   }
 
-  onRename(oldPath: string, newFile: TFile, cache: CachedMetadata): void {
+  onRename(
+    oldPath: string,
+    newFile: TFile,
+    cache: CachedMetadataWithFrontMatter,
+  ): void {
     if (this.index.rename(oldPath, newFile.path)) {
       if (this.reprocessRenamedFiles) {
         // TODO: this is all hacky, and also what do I do if this returns something unexpected?
@@ -137,7 +157,10 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
   }
 
   /** This defines how your indexer processes the files into its indexed type. */
-  abstract processFile(file: TFile, cache: CachedMetadata): IndexUpdate<T, E>;
+  abstract processFile(
+    file: TFile,
+    cache: CachedMetadataWithFrontMatter,
+  ): IndexUpdate<T, E>;
 
   /** Defines whether renamed files should be reindexed (e.g., if they include their path) */
   protected readonly reprocessRenamedFiles: boolean = false;

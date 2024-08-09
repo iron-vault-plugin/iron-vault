@@ -3,31 +3,31 @@ import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import MiniSearch from "minisearch";
 
+import { IDataContext } from "datastore/data-context";
+import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { MoveModal } from "moves/move-modal";
 import { md } from "utils/ui/directives";
 
-export default async function renderIronVaultMoves(
+export default function renderIronVaultMoves(
   cont: HTMLElement,
   plugin: IronVaultPlugin,
+  dataContext: IDataContext,
 ) {
-  const loading = cont.createEl("p", { text: "Loading data..." });
-  await plugin.datastore.waitForReady;
-  loading.remove();
-  litHtmlMoveList(cont, plugin, makeIndex(plugin));
+  litHtmlMoveList(cont, plugin, dataContext, makeIndex(dataContext));
 }
 
 function litHtmlMoveList(
   cont: HTMLElement,
   plugin: IronVaultPlugin,
+  dataContext: IDataContext,
   searchIdx: MiniSearch<Move>,
   filter?: string,
 ) {
   const results = filter
     ? searchIdx.search(filter)
-    : // TODO: use the current context
-      [...plugin.datastore.moves.values()].map((m) => ({ id: m._id }));
-  const categories = plugin.datastore.moveCategories.values();
+    : [...dataContext.moves.values()].map((m) => ({ id: m._id }));
+  const categories = dataContext.moveCategories.values();
   let total = 0;
   const sources: Record<string, MoveCategory[]> = {};
   for (const cat of categories) {
@@ -53,7 +53,7 @@ function litHtmlMoveList(
       placeholder="Filter moves..."
       @input=${(e: Event) => {
         const input = e.target as HTMLInputElement;
-        litHtmlMoveList(cont, plugin, searchIdx, input.value);
+        litHtmlMoveList(cont, plugin, dataContext, searchIdx, input.value);
       }}
     />
     <ul class="iron-vault-moves-list">
@@ -69,7 +69,7 @@ function litHtmlMoveList(
               </details>
               <ul class="content">
                 ${map(sourceCats, (cat) =>
-                  renderCategory(plugin, cat, total <= 5),
+                  renderCategory(plugin, dataContext, cat, total <= 5),
                 )}
               </ul>
             </div>
@@ -82,6 +82,7 @@ function litHtmlMoveList(
 
 function renderCategory(
   plugin: IronVaultPlugin,
+  dataContext: IDataContext,
   category: MoveCategory,
   open: boolean,
 ) {
@@ -98,20 +99,29 @@ function renderCategory(
       <ol class="content">
         ${map(
           Object.values(category.contents ?? {}),
-          (move) => html`${renderMove(plugin, move)}`,
+          (move) =>
+            html`${renderMove(
+              plugin,
+              dataContext,
+              dataContext.moves.get(move._id)!,
+            )}`,
         )}
       </ol>
     </div>
   </li>`;
 }
 
-function renderMove(plugin: IronVaultPlugin, move: Move) {
+function renderMove(
+  plugin: IronVaultPlugin,
+  dataContext: IDataContext,
+  move: AnyDataswornMove,
+) {
   return html`
     <li
       @click=${(ev: Event) => {
         ev.preventDefault();
         ev.stopPropagation();
-        new MoveModal(plugin.app, plugin, move).open();
+        new MoveModal(plugin.app, plugin, dataContext, move).open();
       }}
     >
       <header>${move.name}</header>
@@ -120,7 +130,7 @@ function renderMove(plugin: IronVaultPlugin, move: Move) {
   `;
 }
 
-function makeIndex(plugin: IronVaultPlugin) {
+function makeIndex(dataContext: IDataContext) {
   const idx = new MiniSearch({
     fields: ["name", "trigger.text"],
     idField: "_id",
@@ -130,7 +140,6 @@ function makeIndex(plugin: IronVaultPlugin) {
       boost: { name: 2 },
     },
   });
-  // TODO: use the current context
-  idx.addAll([...plugin.datastore.moves.values()]);
+  idx.addAll([...dataContext.moves.values()]);
   return idx;
 }

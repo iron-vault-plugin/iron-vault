@@ -8,15 +8,18 @@ import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { ref } from "lit-html/directives/ref.js";
 import {
-  EventRef,
   MarkdownPostProcessorContext,
   MarkdownRenderChild,
   setIcon,
+  TFile,
 } from "obsidian";
 
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
+import { FileBasedCampaignWatch } from "sidebar/sidebar-block";
 import { Dice, DieKind } from "utils/dice";
+import { DiceGroup } from "utils/dice-group";
+import { AsyncDiceRoller } from "utils/dice-roller";
 import { md } from "utils/ui/directives";
 
 const logger = rootLogger.getLogger("truths.truth-block");
@@ -24,34 +27,20 @@ const logger = rootLogger.getLogger("truths.truth-block");
 export default function registerTruthBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-truth",
-    async (source: string, el: TruthContainerEl, ctx) => {
-      await plugin.datastore.waitForReady;
-      if (!el.truthRenderer) {
-        el.truthRenderer = new TruthRenderer(
-          el,
-          ctx.sourcePath,
-          plugin,
-          source,
-          ctx,
-        );
-      }
-      el.truthRenderer.render();
+    (source: string, el: HTMLElement, ctx) => {
+      ctx.addChild(new TruthRenderer(el, ctx.sourcePath, plugin, source, ctx));
     },
   );
 }
 
-interface TruthContainerEl extends HTMLElement {
-  truthRenderer?: TruthRenderer;
-}
-
 class TruthRenderer extends MarkdownRenderChild {
-  sourcePath: string;
+  sourceFile: TFile | null;
   plugin: IronVaultPlugin;
   source: string;
-  fileWatcher?: EventRef;
   selectedOption?: TruthOption;
   selectedOptionSubIndex?: number;
   ctx: MarkdownPostProcessorContext;
+  campaignSource: FileBasedCampaignWatch;
 
   constructor(
     containerEl: HTMLElement,
@@ -61,10 +50,17 @@ class TruthRenderer extends MarkdownRenderChild {
     ctx: MarkdownPostProcessorContext,
   ) {
     super(containerEl);
-    this.sourcePath = sourcePath;
+    this.sourceFile = plugin.app.vault.getFileByPath(sourcePath);
     this.plugin = plugin;
     this.source = source;
     this.ctx = ctx;
+    this.campaignSource = this.addChild(
+      new FileBasedCampaignWatch(
+        plugin.app.vault,
+        plugin.campaignManager,
+        sourcePath,
+      ).onUpdate(() => this.render()),
+    );
   }
 
   getSubOracle() {
@@ -82,6 +78,18 @@ class TruthRenderer extends MarkdownRenderChild {
   }
 
   render() {
+    const campaignContext = this.campaignSource.campaignContext;
+    if (!campaignContext) {
+      render(
+        html`<article class="error">
+          This file is not part of a campaign, but a campaign is needed for a
+          truths block.
+        </article>`,
+        this.containerEl,
+      );
+      return;
+    }
+
     const [firstLine, inserted] = this.source.split("\n").filter((x) => x);
     if (inserted && inserted.trim().toLowerCase() === "inserted") {
       render(
@@ -94,10 +102,11 @@ class TruthRenderer extends MarkdownRenderChild {
       );
       return;
     }
+
     const truthName = firstLine.trim().toLowerCase();
     const truth =
-      this.plugin.datastore.truths.get(truthName) ??
-      [...this.plugin.datastore.truths.values()].find((truth) => {
+      campaignContext.truths.get(truthName) ??
+      [...campaignContext.truths.values()].find((truth) => {
         return truth.name.toLowerCase() === truthName;
       });
     if (!truth) {
@@ -140,8 +149,8 @@ class TruthRenderer extends MarkdownRenderChild {
               return;
             }
             this.selectedOptionSubIndex = await pickRandomSubOption(
+              campaignContext.oracleRoller.diceRoller(),
               subOracle!,
-              this.plugin,
             );
             this.render();
           }}
@@ -172,7 +181,10 @@ class TruthRenderer extends MarkdownRenderChild {
         <button
           type="button"
           @click=${async () => {
-            this.selectedOption = await pickRandomOption(truth, this.plugin);
+            this.selectedOption = await pickRandomOption(
+              campaignContext.oracleRoller.diceRoller(),
+              truth,
+            );
             this.selectedOptionSubIndex = undefined;
             this.render();
           }}
@@ -288,26 +300,28 @@ class TruthRenderer extends MarkdownRenderChild {
 }
 
 async function pickRandomSubOption(
+  diceRoller: AsyncDiceRoller,
   table: {
     dice: string;
     rows: OracleRollableRowText[];
   },
-  plugin: IronVaultPlugin,
 ) {
-  const dice = Dice.fromDiceString(table.dice, plugin, DieKind.Oracle);
-  const res = await dice.roll(plugin.settings.graphicalOracleDice);
+  const dice = Dice.fromDiceString(table.dice, DieKind.Oracle);
+  const res = (await diceRoller.rollAsync(DiceGroup.of(dice)))[0];
   return table.rows.findIndex(
-    (row) => row.roll!.min <= res && res <= row.roll!.max,
+    (row) => row.roll!.min <= res.value && res.value <= row.roll!.max,
   );
 }
 
-async function pickRandomOption(truth: Truth, plugin: IronVaultPlugin) {
+async function pickRandomOption(diceRoller: AsyncDiceRoller, truth: Truth) {
   const options = truth.options;
   if (options.every((option) => option.roll != null)) {
     // Do a dice roll
-    const die = Dice.fromDiceString(truth.dice, plugin, DieKind.Oracle);
-    const res = await die.roll(plugin.settings.graphicalOracleDice);
-    return options.find((opt) => opt.roll.min <= res && res <= opt.roll.max);
+    const die = Dice.fromDiceString(truth.dice, DieKind.Oracle);
+    const res = (await diceRoller.rollAsync(DiceGroup.of(die)))[0];
+    return options.find(
+      (opt) => opt.roll.min <= res.value && res.value <= opt.roll.max,
+    );
   } else {
     return options[Math.floor(Math.random() * options.length)];
   }

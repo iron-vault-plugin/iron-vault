@@ -9,11 +9,21 @@ import {
 } from "utils/versioned-map";
 import { EmittingIndex } from "./index-interface";
 
+/** Filter map down to only valid entries. */
 export function onlyValid<K, T, E extends Error>(
   map: ReadonlyVersionedMap<K, Either<E, T>>,
 ): ProjectableMap<K, T> {
   return projectedVersionedMap(map, (result) =>
     result.isRight() ? result.value : undefined,
+  );
+}
+
+/** Filter map down to only invalid entries. */
+export function onlyInvalid<K, T, E extends Error>(
+  map: ReadonlyVersionedMap<K, Either<E, T>>,
+): ProjectableMap<K, E> {
+  return projectedVersionedMap(map, (result) =>
+    result.isLeft() ? result.error : undefined,
   );
 }
 

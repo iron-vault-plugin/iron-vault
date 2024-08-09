@@ -1,29 +1,38 @@
+import { CampaignDataContext } from "campaigns/context";
+import { determineCampaignContext } from "campaigns/manager";
 import Handlebars from "handlebars";
 
 import IronVaultPlugin from "index";
-import { App, Modal, SearchComponent, Setting, normalizePath } from "obsidian";
+import {
+  App,
+  MarkdownFileInfo,
+  MarkdownView,
+  Modal,
+  SearchComponent,
+  Setting,
+  normalizePath,
+} from "obsidian";
 import { getExistingOrNewFolder } from "utils/obsidian";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
 
 export async function generateTruthsCommand(
   plugin: IronVaultPlugin,
+  view?: MarkdownView | MarkdownFileInfo,
+) {
+  const campaignContext: CampaignDataContext = await determineCampaignContext(
+    plugin,
+    view,
+  );
+  return await generateTruthsForCampaign(plugin, campaignContext);
+}
+
+export async function generateTruthsForCampaign(
+  plugin: IronVaultPlugin,
+  campaignContext: CampaignDataContext,
   defaultTargetFolder?: string,
   defaultFileName?: string,
 ) {
-  const truths = [...plugin.datastore.truths.values()].filter((truth) => {
-    // HACK(@zkat): This is a quick fix for
-    // https://github.com/iron-vault-plugin/iron-vault/issues/337. What we
-    // actually want to do here is to use Playsets to filter out truths as
-    // needed.
-    if (
-      plugin.settings.enableStarforged &&
-      plugin.settings.enableSunderedIsles &&
-      truth._id.startsWith("truth:starforged")
-    ) {
-      return false;
-    }
-    return true;
-  });
+  const truths = [...campaignContext.truths.values()];
   const text = Handlebars.compile(
     `{{#each truths}}\n## {{name}}\n\`\`\`iron-vault-truth\n{{_id}}\n\`\`\`\n\n{{/each}}`,
   )({ truths });

@@ -1,3 +1,5 @@
+import { sameElementsInArray } from "utils/arrays";
+import { DiceGroup } from "utils/dice-group";
 import { BaseRollSchema, RollSchema } from "../oracles/schema";
 import { Oracle, OracleRow, RollContext } from "./oracle";
 
@@ -51,15 +53,6 @@ export function recordsEqual<T>(
     }
 
     return true;
-  };
-}
-
-export function sameElementsInArray<T>(
-  eq: (arg1: T, arg2: T) => boolean,
-): (arg1: T[], arg2: T[]) => boolean {
-  return (arg1, arg2) => {
-    if (arg1.length !== arg2.length) return false;
-    return arg1.every((val1) => arg2.find((val2) => eq(val1, val2)));
   };
 }
 
@@ -172,6 +165,17 @@ export class RollWrapper {
     return this.roll.cursedTableId
       ? this.context.lookup(this.roll.cursedTableId)
       : undefined;
+  }
+
+  async rerollCursed(): Promise<RollWrapper> {
+    const cursedDice = this.context.cursedDice();
+    if (cursedDice == null) {
+      throw new Error("Cursed dice not in use. Cannot reroll curse!");
+    }
+    const cursedRoll = (
+      await this.context.diceRoller().rollAsync(DiceGroup.of(cursedDice))
+    )[0];
+    return this.withCursedRoll(cursedRoll.value);
   }
 
   withCursedRoll(cursedRoll: number | undefined, cursedTableId?: string) {

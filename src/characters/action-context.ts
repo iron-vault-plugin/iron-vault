@@ -1,10 +1,13 @@
-import { CampaignTrackedEntities } from "campaigns/context";
+import { CampaignDataContext } from "campaigns/context";
 import { determineCampaignContext } from "campaigns/manager";
+import { IDataContext } from "datastore/data-context";
 import { StandardIndex } from "datastore/data-indexer";
-import { DataswornTypes, moveOrigin } from "datastore/datasworn-indexer";
+import { DataswornTypes } from "datastore/datasworn-indexer";
+import { moveOrigin } from "datastore/datasworn-symbols";
 import { produce } from "immer";
 import { App, MarkdownFileInfo } from "obsidian";
-import { ConditionMeterDefinition } from "rules/ruleset";
+import { OracleRoller } from "oracles/roller";
+import { ConditionMeterDefinition, Ruleset } from "rules/ruleset";
 import { vaultProcess } from "utils/obsidian";
 import {
   CharacterContext,
@@ -25,19 +28,16 @@ import { type Datastore } from "../datastore";
 import IronVaultPlugin from "../index";
 import { InfoModal } from "../utils/ui/info";
 
-export interface IDataContext {
-  readonly moves: StandardIndex<DataswornTypes["move"]>;
-  readonly assets: StandardIndex<DataswornTypes["asset"]>;
-}
-
 export interface IActionContext extends IDataContext {
-  readonly campaignContext: CampaignTrackedEntities;
+  readonly campaignContext: CampaignDataContext;
   readonly kind: "no_character" | "character";
   readonly rollables: (MeterWithLens | MeterWithoutLens)[];
   readonly conditionMeters: (
     | MeterWithLens<ConditionMeterDefinition>
     | MeterWithoutLens<ConditionMeterDefinition>
   )[];
+
+  readonly oracleRoller: OracleRoller;
 
   readonly momentum?: number;
 
@@ -50,19 +50,43 @@ export class NoCharacterActionConext implements IActionContext {
 
   constructor(
     public readonly datastore: Datastore,
-    public readonly campaignContext: CampaignTrackedEntities,
+    public readonly campaignContext: CampaignDataContext,
   ) {}
 
+  get oracleRoller(): OracleRoller {
+    return this.campaignContext.oracleRoller;
+  }
+
+  get rulesPackages() {
+    return this.campaignContext.rulesPackages;
+  }
+
+  get ruleset(): Ruleset {
+    return this.campaignContext.ruleset;
+  }
+
   get moves() {
-    return this.datastore.moves;
+    return this.campaignContext.moves;
   }
 
   get assets() {
-    return this.datastore.assets;
+    return this.campaignContext.assets;
+  }
+
+  get moveCategories() {
+    return this.campaignContext.moveCategories;
+  }
+
+  get oracles() {
+    return this.campaignContext.oracles;
+  }
+
+  get truths() {
+    return this.campaignContext.truths;
   }
 
   get rollables(): MeterWithoutLens[] {
-    return Object.entries(this.datastore.ruleset.stats).map(([key, stat]) => ({
+    return Object.entries(this.ruleset.stats).map(([key, stat]) => ({
       key,
       definition: stat,
       lens: undefined,
@@ -76,7 +100,7 @@ export class NoCharacterActionConext implements IActionContext {
 
   get conditionMeters(): MeterWithoutLens<ConditionMeterDefinition>[] {
     return [
-      ...Object.entries(this.datastore.ruleset.condition_meters).map(
+      ...Object.entries(this.ruleset.condition_meters).map(
         ([key, definition]) => ({
           key,
           definition,
@@ -95,27 +119,35 @@ export class CharacterActionContext implements IActionContext {
 
   constructor(
     public readonly datastore: Datastore,
-    public readonly campaignContext: CampaignTrackedEntities,
+    public readonly campaignContext: CampaignDataContext,
     public readonly characterPath: string,
     public readonly characterContext: CharacterContext,
   ) {}
 
+  get oracleRoller(): OracleRoller {
+    return this.campaignContext.oracleRoller;
+  }
+
+  get rulesPackages() {
+    return this.campaignContext.rulesPackages;
+  }
+
+  get ruleset(): Ruleset {
+    return this.campaignContext.ruleset;
+  }
+
   get assets(): StandardIndex<DataswornTypes["asset"]> {
-    return this.datastore.assets;
+    return this.campaignContext.assets;
   }
 
   get moves(): StandardIndex<DataswornTypes["move"]> {
     if (!this.#moves) {
-      // TODO: might want to rethink this given the new set up.
+      // TODO(@cwegrzyn): we should let the user know if they have a missing move, I think
       const characterMoves = movesReader(this.characterContext.lens, this)
         .get(this.characterContext.character)
         .expect("unexpected failure finding assets for moves");
-      // .map(({ move, asset }) =>
-      //   produce(move, (draft) => {
-      //     draft.name = `${asset.name}: ${move.name}`;
-      //   }),
-      // );
-      this.#moves = this.datastore.moves.projected((move) => {
+
+      this.#moves = this.campaignContext.moves.projected((move) => {
         if (move[moveOrigin].assetId == null) return move;
         const assetMove = characterMoves.find(
           ({ move: characterMove }) => move._id === characterMove._id,
@@ -129,6 +161,18 @@ export class CharacterActionContext implements IActionContext {
       });
     }
     return this.#moves;
+  }
+
+  get moveCategories() {
+    return this.campaignContext.moveCategories;
+  }
+
+  get oracles() {
+    return this.campaignContext.oracles;
+  }
+
+  get truths() {
+    return this.campaignContext.truths;
   }
 
   get rollables(): MeterWithLens[] {

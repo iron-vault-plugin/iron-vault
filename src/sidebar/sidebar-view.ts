@@ -5,15 +5,20 @@ import IronVaultPlugin from "index";
 import renderIronVaultCharacter from "./character";
 import renderIronVaultMoves from "./moves";
 import renderIronVaultOracles from "./oracles";
+import { ActiveCampaignWatch } from "./sidebar-block";
 
 export const VIEW_TYPE = "iron-vault-sidebar-view";
 
 export class SidebarView extends ItemView {
   plugin: IronVaultPlugin;
+  campaignSource: ActiveCampaignWatch;
 
   constructor(leaf: WorkspaceLeaf, plugin: IronVaultPlugin) {
     super(leaf);
     this.plugin = plugin;
+    this.campaignSource = this.addChild(
+      new ActiveCampaignWatch(plugin.campaignManager),
+    ).onUpdate(() => this.refresh());
   }
 
   getViewType() {
@@ -29,8 +34,7 @@ export class SidebarView extends ItemView {
   }
 
   async onOpen() {
-    const container = this.contentEl;
-    container.empty();
+    this.contentEl.empty();
     const tpl = html`
       <nav class="iron-vault-sidebar-view tabs">
         <div class="tab">
@@ -50,29 +54,15 @@ export class SidebarView extends ItemView {
         </div>
       </nav>
     `;
-    render(tpl, container as HTMLElement);
+    render(tpl, this.contentEl);
+
     // We separate these out so they can do their own dynamic state stuff.
-
-    this.register(
-      this.plugin.datastore.on("initialized", () => {
-        renderIronVaultOracles(
-          container.querySelector(".content.oracle-tab")!,
-          this.plugin,
-        );
-        renderIronVaultMoves(
-          container.querySelector(".content.move-tab")!,
-          this.plugin,
-        );
-      }),
-    );
-
     const renderCharacter = debounce(() => this.renderCharacter(), 100, true);
 
     this.registerEvent(
-      this.plugin.campaignManager.on(
-        "active-campaign-changed",
-        renderCharacter,
-      ),
+      this.plugin.campaignManager.on("active-campaign-changed", () => {
+        renderCharacter();
+      }),
     );
 
     this.registerEvent(
@@ -88,14 +78,25 @@ export class SidebarView extends ItemView {
 
     this.registerEvent(this.plugin.characters.on("changed", renderCharacter));
 
-    renderIronVaultOracles(
-      container.querySelector(".content.oracle-tab")!,
-      this.plugin,
-    );
-    renderIronVaultMoves(
-      container.querySelector(".content.move-tab")!,
-      this.plugin,
-    );
+    this.refresh();
+  }
+
+  refresh() {
+    const dataContext = this.campaignSource.campaignContext;
+    if (dataContext) {
+      renderIronVaultOracles(
+        this.contentEl.querySelector(".content.oracle-tab")!,
+        this.plugin,
+        dataContext,
+      );
+      renderIronVaultMoves(
+        this.contentEl.querySelector(".content.move-tab")!,
+        this.plugin,
+        dataContext,
+      );
+    } else {
+      // I guess render something else?
+    }
   }
 
   async onClose() {

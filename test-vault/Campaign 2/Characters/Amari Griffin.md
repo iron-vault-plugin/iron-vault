@@ -17,25 +17,9 @@ Bonds_XPEarned: 0
 Discoveries_Progress: 0
 Discoveries_XPEarned: 0
 iron-vault-kind: character
-assets:
-  - id: asset:starforged/path/gunslinger
-    abilities:
-      - true
-      - false
-      - false
-    controls: {}
-    options: {}
-  - id: asset:starforged/command_vehicle/starship
-    abilities:
-      - true
-      - false
-      - false
-    controls:
-      integrity: 5
-      integrity/battered: false
-      integrity/cursed: false
-    options:
-      name: Shippy
+assets: []
+xp_added: 0
+initiative: true
 ---
 
 

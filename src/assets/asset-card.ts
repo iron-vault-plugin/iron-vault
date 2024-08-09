@@ -10,6 +10,7 @@ import { TemplateResult, html } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { range } from "lit-html/directives/range.js";
 
+import { IDataContext } from "datastore/data-context";
 import { produce } from "immer";
 import IronVaultPlugin from "index";
 import { repeat } from "lit-html/directives/repeat.js";
@@ -36,12 +37,13 @@ export function makeDefaultSheetAsset(asset: Asset) {
 
 export default function renderAssetCard(
   plugin: IronVaultPlugin,
+  dataContext: IDataContext,
   sheetAsset: IronVaultSheetAssetSchema,
   updateAsset?: (asset: Asset) => void,
 ) {
   let asset;
   try {
-    asset = integratedAssetLens(plugin.datastore).get(sheetAsset);
+    asset = integratedAssetLens(dataContext).get(sheetAsset);
   } catch (e) {
     // @ts-expect-error it's just an error. Let it crash if there's no message.
     return html`<article class="iron-vault-asset-card">Error: ${e.message}</a>`;

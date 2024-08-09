@@ -12,6 +12,14 @@ export class VersionedMapImpl<K, V>
 {
   #revision: number = 0;
 
+  constructor(iterable?: readonly (readonly [K, V])[] | null | undefined);
+  constructor(iterable?: Iterable<readonly [K, V]> | null | undefined) {
+    super();
+    for (const [k, v] of iterable ?? []) {
+      super.set(k, v);
+    }
+  }
+
   projected<X>(
     callbackfn: (value: V, key: K) => X | undefined,
   ): ProjectableMap<K, X> {
@@ -54,6 +62,10 @@ export class VersionedMapImpl<K, V>
 }
 
 export interface ProjectableMap<K, V> extends ReadonlyVersionedMap<K, V> {
+  /** Create a view over the map that filters and transforms it.
+   *
+   * @param callbackfn Callback that should return the value for this entry in the new map, or `undefined` it it should be excluded.
+   */
   projected<U>(
     callbackfn: (value: V, key: K) => U | undefined,
   ): ProjectableMap<K, U>;

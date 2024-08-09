@@ -1,16 +1,16 @@
 import { rootLogger } from "logger";
 import {
+  CachedMetadata,
   Component,
   EventRef,
   Events,
   TFile,
   type App,
-  type CachedMetadata,
   type FileManager,
   type MetadataCache,
   type Vault,
 } from "obsidian";
-import { Indexer, IndexerId } from "./indexer";
+import { assertHasFrontmatter, Indexer, IndexerId } from "./indexer";
 
 const logger = rootLogger.getLogger("index-manager");
 
@@ -59,11 +59,9 @@ export class IndexManager extends Component {
         const indexer = this.currentIndexerForFile(oldPath);
         if (indexer != null) {
           this.indexedFiles.delete(oldPath);
-          indexer.onRename(
-            oldPath,
-            file,
-            this.metadataCache.getFileCache(file)!,
-          );
+          const cache = this.metadataCache.getFileCache(file);
+          assertHasFrontmatter(cache!);
+          indexer.onRename(oldPath, file, cache);
           // if onRename fails, we won't re-add the file here.
           this.indexedFiles.set(file.path, indexer.id);
         }
@@ -142,7 +140,26 @@ export class IndexManager extends Component {
     return undefined;
   }
 
-  public indexFile(file: TFile, cache: CachedMetadata): void {
+  /** Mark a path for reindexing.
+   * Currently, this will just cause it to reindex right away.
+   */
+  public markDirty(path: string): void {
+    const file = this.vault.getFileByPath(path);
+    if (file == null) {
+      logger.warn("No such file for %s", path);
+      return;
+    }
+
+    const cache = this.metadataCache.getFileCache(file);
+    if (cache == null) {
+      logger.warn("Empty cache for %s", path);
+      return;
+    }
+
+    this.indexFile(file, cache);
+  }
+
+  private indexFile(file: TFile, cache: CachedMetadata): void {
     const indexKey = file.path;
 
     const priorIndexer = this.currentIndexerForFile(indexKey);
@@ -162,6 +179,7 @@ export class IndexManager extends Component {
 
       let result: ReturnType<Indexer["onChanged"]> | undefined = undefined;
       try {
+        assertHasFrontmatter(cache);
         result = newIndexer.onChanged(file, cache);
       } catch (error) {
         // This was a truly exceptional error -- the indexer would not have recorded it, so we

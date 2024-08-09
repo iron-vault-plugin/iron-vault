@@ -1,4 +1,5 @@
 import { createNewCampaignCommand } from "campaigns/commands";
+import { determineCampaignContext } from "campaigns/manager";
 import {
   addAssetToCharacter,
   changeInitiative,
@@ -8,6 +9,7 @@ import {
 import { advanceClock, createClock } from "clocks/commands";
 import { openDocsInBrowser, openDocsInTab } from "docs/commands";
 import { generateEntityCommand } from "entity/command";
+import { createFactionInfluenceGrid } from "factions/commands";
 import IronVaultPlugin from "index";
 import { insertComment } from "mechanics/commands";
 import { checkIfMigrationNeededCommand } from "migrate/command";
@@ -27,7 +29,6 @@ import {
 } from "utils/ui/generic-fuzzy-suggester";
 import { PromptModal } from "utils/ui/prompt";
 import * as meterCommands from "./characters/meter-commands";
-import { createFactionInfluenceGrid } from "factions/commands";
 
 export class IronVaultCommands {
   plugin: IronVaultPlugin;
@@ -82,7 +83,16 @@ export class IronVaultCommands {
       id: "character-create",
       name: "Create new character",
       icon: "user-round",
-      callback: () => createNewCharacter(this.plugin),
+      callback: async () =>
+        createNewCharacter(
+          this.plugin,
+          await determineCampaignContext(this.plugin),
+        ),
+      editorCallback: async (editor, view) =>
+        createNewCharacter(
+          this.plugin,
+          await determineCampaignContext(this.plugin, view),
+        ),
     },
     {
       id: "burn-momentum",
@@ -252,6 +262,8 @@ export class IronVaultCommands {
       name: "Generate truths",
       icon: "book",
       callback: () => generateTruthsCommand(this.plugin),
+      editorCallback: (_editor, view) =>
+        generateTruthsCommand(this.plugin, view),
     },
     {
       id: "open-docs-in-tab",

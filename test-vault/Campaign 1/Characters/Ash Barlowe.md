@@ -71,6 +71,8 @@ Discoveries_Progress: 0
 FailureTrack_Progress: 0
 FailureTrack_XPEarned: 0
 xp_spent: 0
+xp_added: 0
+initiative: false
 ---
 ```iron-vault-character
 ```

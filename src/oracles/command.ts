@@ -1,3 +1,4 @@
+import { determineCampaignContext } from "campaigns/manager";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { createOrAppendMechanics } from "mechanics/editor";
@@ -9,30 +10,22 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { numberRange } from "utils/numbers";
-import { CurseBehavior, Oracle, OracleGroupingType } from "../model/oracle";
+import {
+  CurseBehavior,
+  Oracle,
+  OracleGrouping,
+  OracleGroupingType,
+} from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
+import { oracleNameWithParents } from "./render";
 import { OracleRoller } from "./roller";
 
 const logger = rootLogger.getLogger("oracles");
 
-export function formatOraclePath(oracle: Oracle): string {
-  let current = oracle.parent;
-  const path = [];
-  while (
-    current != null &&
-    current.grouping_type != OracleGroupingType.Ruleset
-  ) {
-    path.unshift(current.name);
-    current = current.parent;
-  }
-  path.push(oracle.name);
-  return `${path.join(" / ")}`;
-}
-
 export function oracleRuleset(oracle: Oracle): string {
-  let current = oracle.parent;
+  let current: OracleGrouping = oracle.parent;
   while (
     current != null &&
     current.grouping_type !== OracleGroupingType.Ruleset
@@ -83,15 +76,19 @@ export async function runOracleCommand(
     return;
   }
 
+  const campaignContext = await determineCampaignContext(plugin, view);
+
   let oracle: Oracle;
   if (chosenOracle) {
+    // TODO(@cwegrzyn): if this is called with a specific oracle, should it
+    // also have a specific campaign context?
     oracle = chosenOracle;
   } else {
-    const oracles: Oracle[] = [...plugin.datastore.oracles.values()];
+    const oracles: Oracle[] = [...campaignContext.oracles.values()];
     oracle = await CustomSuggestModal.select(
       plugin.app,
       oracles,
-      formatOraclePath,
+      oracleNameWithParents,
       (match, el) => {
         const ruleset = oracleRuleset(match.item);
         el.createEl("small", { cls: "iron-vault-suggest-hint" })
@@ -101,7 +98,7 @@ export async function runOracleCommand(
       prompt ? `Select an oracle to answer '${prompt}'` : "Select an oracle",
     );
   }
-  const rollContext = new OracleRoller(plugin.datastore.oracles);
+  const rollContext = new OracleRoller(plugin, campaignContext.oracles);
 
   // If user wishes to make their own roll, prompt them now.
   let initialRoll: Roll | undefined = undefined;

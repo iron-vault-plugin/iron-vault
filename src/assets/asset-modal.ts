@@ -2,18 +2,19 @@ import { html, render } from "lit-html";
 import { App, Modal } from "obsidian";
 
 import { Asset } from "@datasworn/core/dist/Datasworn";
+import { addAssetToCharacter } from "characters/commands";
+import { IDataContext } from "datastore/data-context";
 import IronVaultPlugin from "index";
 import renderAssetCard, { makeDefaultSheetAsset } from "./asset-card";
-import { addAssetToCharacter } from "characters/commands";
 
 export class AssetModal extends Modal {
-  plugin: IronVaultPlugin;
-  asset: Asset;
-
-  constructor(app: App, plugin: IronVaultPlugin, asset: Asset) {
+  constructor(
+    app: App,
+    readonly plugin: IronVaultPlugin,
+    readonly dataContext: IDataContext,
+    readonly asset: Asset,
+  ) {
     super(app);
-    this.plugin = plugin;
-    this.asset = asset;
   }
 
   openAsset(asset: Asset) {
@@ -24,7 +25,11 @@ export class AssetModal extends Modal {
     contentEl.toggleClass("iron-vault-modal", true);
     render(
       html`
-        ${renderAssetCard(this.plugin, makeDefaultSheetAsset(asset))}
+        ${renderAssetCard(
+          this.plugin,
+          this.dataContext,
+          makeDefaultSheetAsset(asset),
+        )}
         <button
           type="button"
           @click=${() => {

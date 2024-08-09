@@ -1,42 +1,33 @@
 import { type Datasworn } from "@datasworn/core";
-import { Rules } from "@datasworn/core/dist/Datasworn";
 import dataswornSchema from "@datasworn/core/json/datasworn.schema.json" assert { type: "json" };
 import ironswornDelvePackage from "@datasworn/ironsworn-classic-delve/json/delve.json" assert { type: "json" };
 import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
 import sunderedIslesPackage from "@datasworn/sundered-isles/json/sundered_isles.json" assert { type: "json" };
 import Ajv from "ajv";
-import { IDataContext } from "characters/action-context";
-import {
-  DataIndexer,
-  SourceTag,
-  StandardIndex,
-  getHighestPriority,
-  kindFiltered,
-} from "datastore/data-indexer";
+import { BaseDataContext } from "datastore/data-context";
+import { DataIndexer } from "datastore/data-indexer";
 import {
   DataswornIndexer,
-  DataswornTypes,
   createSource,
   walkDataswornRulesPackage,
 } from "datastore/datasworn-indexer";
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
-import merge from "lodash.merge";
 import { isDebugEnabled, rootLogger } from "logger";
-import { Oracle } from "model/oracle";
 import { Component, Notice, TFile, TFolder, type App } from "obsidian";
-import { OracleRoller } from "oracles/roller";
-import { Ruleset } from "rules/ruleset";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
 import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type: "json" };
 import { PLUGIN_DATASWORN_VERSION } from "./constants";
 
 const logger = rootLogger.getLogger("datastore");
 
-export class Datastore extends Component implements IDataContext {
+export class Datastore extends Component {
   _ready: boolean;
   readonly indexer: DataswornIndexer = new DataIndexer();
+  readonly dataContext: BaseDataContext = new BaseDataContext(
+    this.indexer.dataMap,
+  );
 
   readonly waitForReady: Promise<void>;
 
@@ -52,14 +43,7 @@ export class Datastore extends Component implements IDataContext {
     this.emitter = new Emittery();
 
     this.plugin.settings.on("change", ({ key }) => {
-      if (
-        key === "enableIronsworn" ||
-        key === "enableStarforged" ||
-        key === "enableIronswornDelve" ||
-        key === "enableSunderedIsles" ||
-        key === "useHomebrew" ||
-        key === "homebrewPath"
-      ) {
+      if (key === "useHomebrew" || key === "homebrewPath") {
         this.initialize();
       }
     });
@@ -77,25 +61,17 @@ export class Datastore extends Component implements IDataContext {
     this._ready = false;
     this.indexer.clear();
 
-    if (this.plugin.settings.enableIronsworn) {
-      this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
-    }
+    this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
 
-    if (this.plugin.settings.enableIronswornDelve) {
-      // @ts-expect-error tsc seems to infer type of data in an incompatible way
-      this.indexBuiltInData(ironswornDelvePackage as Datasworn.Expansion);
-    }
+    // @ts-expect-error tsc seems to infer type of data in an incompatible way
+    this.indexBuiltInData(ironswornDelvePackage as Datasworn.Expansion);
 
-    if (this.plugin.settings.enableStarforged) {
-      // @ts-expect-error tsc seems to infer type of data in an incompatible way
-      this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
-      this.indexBuiltInData(starforgedSupp as Datasworn.Expansion, 5);
-    }
+    // @ts-expect-error tsc seems to infer type of data in an incompatible way
+    this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
+    this.indexBuiltInData(starforgedSupp as Datasworn.Expansion, 5);
 
-    if (this.plugin.settings.enableSunderedIsles) {
-      this.indexBuiltInData(sunderedIslesPackage as Datasworn.Expansion);
-      this.indexBuiltInData(sunderedSupp as Datasworn.Expansion, 5);
-    }
+    this.indexBuiltInData(sunderedIslesPackage as Datasworn.Expansion);
+    this.indexBuiltInData(sunderedSupp as Datasworn.Expansion, 5);
 
     if (this.plugin.settings.useHomebrew) {
       if (this.plugin.settings.homebrewPath) {
@@ -120,10 +96,10 @@ export class Datastore extends Component implements IDataContext {
     this._ready = true;
     console.info(
       "iron-vault: init complete. loaded: %d oracles, %d moves, %d assets, %d truths",
-      this.oracles.size,
-      this.moves.size,
-      this.assets.size,
-      this.truths.size,
+      this.dataContext.oracles.size,
+      this.dataContext.moves.size,
+      this.dataContext.assets.size,
+      this.dataContext.truths.size,
     );
     this.emitter.emit("initialized");
     this.#readyNow();
@@ -148,18 +124,13 @@ export class Datastore extends Component implements IDataContext {
     const source = createSource({
       path: mainPath,
       priority,
-      sourceTags: { [SourceTag.RulesetId]: pkg._id },
     });
-    this.indexer.index(
-      source,
-      walkDataswornRulesPackage(source, pkg, this.plugin),
-    );
+    this.indexer.index(source, walkDataswornRulesPackage(pkg));
 
     this.app.metadataCache.trigger("iron-vault:index-changed");
   }
 
   removeBuiltInData(pkg: Datasworn.RulesPackage) {
-    // TODO: properly support this.
     const mainPath = `@datasworn:${pkg._id}`;
     this.indexer.removeSource(mainPath);
     this.app.metadataCache.trigger("iron-vault:index-changed");
@@ -191,18 +162,13 @@ export class Datastore extends Component implements IDataContext {
             continue;
           }
           const dataswornPackage = data as Datasworn.RulesPackage;
-          const rulesetId =
-            dataswornPackage.type == "ruleset"
-              ? dataswornPackage._id
-              : dataswornPackage.ruleset;
           const source = createSource({
             path: file.path,
             priority: 10,
-            sourceTags: { [SourceTag.RulesetId]: rulesetId },
           });
           this.indexer.index(
             source,
-            walkDataswornRulesPackage(source, dataswornPackage, this.plugin),
+            walkDataswornRulesPackage(dataswornPackage),
           );
         } catch (e) {
           new Notice(`Unable to import homebrew file: ${file.basename}`, 0);
@@ -289,79 +255,6 @@ export class Datastore extends Component implements IDataContext {
 
   get ready(): boolean {
     return this._ready;
-  }
-
-  get moves(): StandardIndex<DataswornTypes["move"]> {
-    this.assertReady();
-    return kindFiltered("move", this.indexer).projected(
-      (value) => getHighestPriority(value)?.value,
-    );
-  }
-
-  get moveCategories(): StandardIndex<DataswornTypes["move_category"]> {
-    this.assertReady();
-    return this.indexer.prioritized
-      .ofKind("move_category")
-      .projected((entry) => entry.value);
-  }
-
-  get moveRulesets(): StandardIndex<DataswornTypes["move_ruleset"]> {
-    this.assertReady();
-    return this.indexer.prioritized
-      .ofKind("move_ruleset")
-      .projected((entry) => entry.value);
-  }
-
-  get oracles(): StandardIndex<Oracle> {
-    this.assertReady();
-    return this.indexer.prioritized
-      .ofKind("oracle")
-      .projected((entry) => entry.value);
-  }
-
-  get assets(): StandardIndex<Datasworn.Asset> {
-    this.assertReady();
-    return this.indexer.prioritized
-      .ofKind("asset")
-      .projected((entry) => entry.value);
-  }
-
-  get truths(): StandardIndex<Datasworn.Truth> {
-    this.assertReady();
-    return this.indexer.prioritized
-      .ofKind("truth")
-      .projected((entry) => entry.value);
-  }
-
-  get roller(): OracleRoller {
-    return new OracleRoller(this.oracles);
-  }
-
-  get rulesPackages(): StandardIndex<Datasworn.RulesPackage> {
-    this.assertReady();
-    return this.indexer.prioritized
-      .ofKind("rules_package")
-      .projected((entry) => entry.value);
-  }
-
-  get ruleset(): Ruleset {
-    this.assertReady();
-
-    const ids: string[] = [];
-    const rules = [...this.indexer.prioritized.ofKind("rules_package").values()]
-      .map((pkg) => {
-        ids.push(pkg.id);
-        return pkg.value.rules;
-      })
-      .reduce((acc, rules) => merge(acc, rules)) as Rules;
-
-    return new Ruleset(ids, rules);
-  }
-
-  private assertReady(): void {
-    if (!this._ready) {
-      throw new Error("data not loaded yet");
-    }
   }
 
   on<K extends keyof EVENT_TYPES>(
