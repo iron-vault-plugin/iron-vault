@@ -12,7 +12,7 @@
   "license": "MIT",
   "url": "https://ironvault.quest",
   "datasworn_version": "0.1.0",
-  "ruleset": "sundered_isles",
+  "ruleset": "starforged",
   "oracles": {
     "templates": {
       "_id": "oracle_collection:sundered_isles_supp/templates",
