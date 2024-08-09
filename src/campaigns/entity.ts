@@ -41,16 +41,24 @@ export const campaignFileSchema = z.object({
 export type CampaignInput = z.input<typeof campaignFileSchema>;
 export type CampaignOutput = z.output<typeof campaignFileSchema>;
 
+export const recoveringCampaignFileSchema = campaignFileSchema.extend({
+  ironvault: campaignFileSchema.shape.ironvault
+    .extend({
+      playset: PlaysetConfigSchema.catch((def) => def.input),
+    })
+    .default({ playset: { type: "registry", key: "starforged" } }),
+});
+
 /** A campaign that exists in an Obsidian markdown file. */
 export class CampaignFile implements BaseCampaign {
-  readonly playset: IPlaysetConfig;
+  playset: IPlaysetConfig;
 
   private constructor(
     public readonly file: TFile,
     public readonly props: CampaignOutput,
   ) {
-    const playsetConfig = props.ironvault.playset;
-    switch (playsetConfig.type) {
+    const playsetConfig = this.props.ironvault.playset;
+    switch (playsetConfig?.type) {
       case "globs":
         this.playset = PlaysetConfig.parse(playsetConfig.lines);
         break;
@@ -65,7 +73,7 @@ export class CampaignFile implements BaseCampaign {
       }
       default:
         throw new Error(
-          `Invalid playset type '${(playsetConfig as z.output<typeof PlaysetConfigSchema>).type}`,
+          `Invalid playset type '${(playsetConfig as null | undefined | { type?: string })?.type}`,
         );
     }
   }
@@ -103,5 +111,10 @@ export class CampaignFile implements BaseCampaign {
   /** Generates the input front matter for this campaign. */
   static generate(data: CampaignInput): CampaignOutput {
     return campaignFileSchema.parse(data);
+  }
+
+  /** Attempt a permissive parse. */
+  static permissiveParse(data: unknown): CampaignOutput {
+    return recoveringCampaignFileSchema.parse(data);
   }
 }

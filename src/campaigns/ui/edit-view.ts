@@ -1,4 +1,4 @@
-import { CampaignFile, CampaignInput } from "campaigns/entity";
+import { CampaignFile, CampaignOutput } from "campaigns/entity";
 import IronVaultPlugin from "index";
 import { html, render } from "lit-html";
 import {
@@ -54,6 +54,7 @@ export class CampaignEditView extends FileView {
 
     // TODO(@cwegrzyn): watch the campaign
     const result = this.plugin.campaigns.get(file.path);
+    let campaign: CampaignOutput;
     if (!result) {
       render(
         html`<article class="error">
@@ -63,22 +64,28 @@ export class CampaignEditView extends FileView {
       );
       return;
     } else if (result.isLeft()) {
-      render(
-        html`<article class="error">
-          Campaign at '${file.path}' is invalid:
-          <pre>${result.error}</pre>
-        </article>`,
-        this.contentEl,
-      );
-      return;
+      try {
+        campaign = CampaignFile.permissiveParse(
+          this.plugin.app.metadataCache.getCache(file.path),
+        );
+      } catch (e) {
+        render(
+          html`<article class="error">
+            Campaign at '${file.path}' is invalid:
+            <pre>${e}</pre>
+          </article>`,
+          this.contentEl,
+        );
+        return;
+      }
+    } else {
+      campaign = result.value.props;
     }
-
-    const campaign: CampaignInput = result.value.props;
 
     new Setting(this.contentEl).setName("Campaign name").addText((text) =>
       text
         .setValue(campaign.name ?? "")
-        .setPlaceholder(result.value.name)
+        .setPlaceholder(campaign.name ?? file.basename)
         .onChange((val) => {
           campaign.name = val ? val : undefined;
         }),
@@ -88,7 +95,7 @@ export class CampaignEditView extends FileView {
 
     let playsetKey: string;
     let customConfig: string;
-    switch (playset.type) {
+    switch (playset?.type) {
       case "globs":
         playsetKey = "custom";
         customConfig = playset.lines.join("\n");
@@ -99,7 +106,7 @@ export class CampaignEditView extends FileView {
         break;
       default:
         throw new Error(
-          `invalid playset type ${(playset as { type?: string }).type}`,
+          `invalid playset type ${(playset as null | undefined | { type?: string })?.type}`,
         );
     }
 

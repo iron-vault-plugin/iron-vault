@@ -5,6 +5,10 @@ import {
   CAMPAIGN_EDIT_VIEW_TYPE,
   CampaignEditView,
 } from "campaigns/ui/edit-view";
+import {
+  INVALID_CAMPAIGNS_VIEW_TYPE,
+  InvalidCampaignsView,
+} from "campaigns/ui/invalid-campaigns";
 import registerCharacterBlock from "characters/character-block";
 import registerClockBlock from "clocks/clock-block";
 import { IronVaultCommands } from "commands";
@@ -125,7 +129,10 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     );
 
     this.registerEvent(
-      this.indexManager.on("initialized", () => checkForOnboarding(this)),
+      this.indexManager.on("initialized", () => {
+        checkForOnboarding(this);
+        InvalidCampaignsView.showIfNeeded(this);
+      }),
     );
 
     this.registerEvent(
@@ -151,6 +158,10 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     this.registerView(
       ONBOARDING_VIEW_TYPE,
       (leaf) => new OnboardingView(leaf, this),
+    );
+    this.registerView(
+      INVALID_CAMPAIGNS_VIEW_TYPE,
+      (leaf) => new InvalidCampaignsView(leaf, this),
     );
     this.registerView(
       CAMPAIGN_EDIT_VIEW_TYPE,

@@ -4,6 +4,7 @@ import {
   TAbstractFile,
   TFile,
   TFolder,
+  WorkspaceLeaf,
   normalizePath,
   stringifyYaml,
   type Plugin,
@@ -174,4 +175,29 @@ export function joinPaths(folder: TFolder, ...segments: string[]): string {
   return normalizePath(
     (folder.isRoot() ? "" : folder.path + "/") + segments.join("/"),
   );
+}
+
+/** Reveal a singleton view, creating it if it doesn't exist. */
+export async function showSingletonView<T>(
+  app: App,
+  viewType: string,
+  state?: T,
+): Promise<void> {
+  const { workspace } = app;
+
+  let leaf: WorkspaceLeaf | null = null;
+  const leaves = workspace.getLeavesOfType(viewType);
+
+  if (leaves.length > 0) {
+    // A leaf with our view already exists, use that
+    leaf = leaves[0];
+  } else {
+    // Our view could not be found in the workspace, create a new leaf
+    // in the main split
+    leaf = workspace.getLeaf(true);
+    await leaf.setViewState({ type: viewType, active: true, state });
+  }
+
+  // "Reveal" the leaf in case it is in a collapsed sidebar
+  workspace.revealLeaf(leaf);
 }
