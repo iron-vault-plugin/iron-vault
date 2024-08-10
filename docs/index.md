@@ -21,12 +21,12 @@ You can also open this documentation at any time while in Obsidian by running th
 
 You can start reading about the various Iron Vault features here:
 
-* [[Campaigns]] - All functionality in Iron Vault is centered on a *campaign*-- which includes all of the game entities, such as player characters, that are part of the game.
+* [[Campaigns/index]] - All functionality in Iron Vault is centered on a *campaign*-- which includes all of the game entities, such as player characters, that are part of the game.
 * [[Rulesets and Homebrew#Built-in Rulesets|Built-in Official Rulesets]] - Includes support for Ironsworn Classic, Ironsworn: Delve, Ironsworn: Starforged, and Sundered Isles.
 * [[Blocks/index|Blocks]] - Special blocks used throughout the tool to render things nicely and give you handy interactive widgets for editing game data.
 * [[Commands/index|Commands]] - Various Obsidian commands, all of which can be bound to hotkeys or the quick access bar, for performing all sorts of game actions, like making moves, creating progress tracks, etc.
 * [[Entities/index|Entities]] - How Iron Vault represents all sorts of different game concepts, or some ways that you might choose to represent them yourself.
-* [[Campaigns|Multiple Campaigns]] - You can have one or more campaigns in a single vault!
+* [[Campaigns/index|Multiple Campaigns]] - You can have one or more campaigns in a single vault!
 * [[Multiplayer]] - Play online or locally with other players!
 * [[Sidebar]] - A handy right-panel sidebar for quick access to Moves, Oracles, and your Character Sheet, all in one, easy-access place. Particularly useful on mobile.
 * [[Special Links]] - There are special external links that, instead of trying to open a web page, will open a modal window with the contents of the thing you're trying to link to. For example, `[My Move](move:MyMoveName)` will pop up a window with the description and roll buttons for "My Move".

@@ -1,4 +1,6 @@
-Rules packages define a collection of game-specific content and/or rules that fall within the scope of the Ironsworn/Starforged family of games, but with some leeway for variance. For example, rulesets can define Assets, Moves, and Oracles, and even things like Meters and Stats. There are various ways of defining and activating rulesets in Iron Vault.
+Rules packages define a collection of game-specific content and/or rules that fall within the scope of the Ironsworn/Starforged family of games, but with some leeway for variance. For example, rules packages can define Assets, Moves, and Oracles, and even things like Meters and Stats. There are various ways of defining and activating rulesets in Iron Vault.
+
+You select which content is part of your [[Campaigns/index|Campaign]] by configuring your Campaign's [[Campaigns/Playsets/index|index]].
 
 ### Datasworn
 
@@ -11,11 +13,7 @@ In [Datasworn](https://github.com/rsek/datasworn) parlance, a _rules package_ ca
 
 ### Built-in Rulesets
 
-Iron Vault is bundled with official [Datasworn](https://github.com/rsek/datasworn) rulesets for Ironsworn and Starforged. You can control the active rulesets via [[Settings#Rulesets]].
-
-(Experimental)
-
-Official support for expansions like Ironsworn: Delve and Sundered Isles is on the roadmap. Right now, we have experimental support for loading expansion content. You can enable the expansions in [[Settings#Rulesets]]. Please note: new mechanics introduced by the expansion may not be implemented fully or correctly at this time. The expansions do not standalone and you are expected to enable the appropriate base game along with the expansion. Iron Vault does not enforce this at this time, but things may not work correctly if you enable an expansion without enabling the appropriate base game.
+Iron Vault is bundled with official [Datasworn](https://github.com/rsek/datasworn) rulesets for Ironsworn and Starforged, as well as the Delve and Sundered Isles expansions.
 
 > [!IMPORTANT] Sundered Isles is in preview.
 > The Datasworn Sundered Isles data is considered a preview, awaiting finalization of the Sundered Isles rulebook.
