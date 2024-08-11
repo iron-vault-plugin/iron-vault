@@ -4,18 +4,6 @@
 * **Use character system**: when enabled, this will look for an active [[Characters|Character]] file when making moves and doing other game operations. If disabled, Iron Vault will still work, but will prompt you for values of, for example, your stats. This is a good setting to disable if you only wish to use a particular subset of Iron Vault features, like [[Mechanics Blocks]] or the [[Sidebar]] but don't really care to use the various [[Commands/index|Commands]].
 * **Always prompt for active character**: If enabled, the plugin will always prompt when taking an action where an active character is required, if there are multiple characters in the campaign. Otherwise, it will remember the last used active character. You can also change the active character with the [[Pick active character]] command.
 * **Reset to default**: returns all settings to their default values.
-
-### Rulesets
-
-You must load a single complete base ruleset for functionality like characters to function properly. It is currently possible to load multiple rulesets at once, but this may behave in unexpected ways.
-
-For more on rulesets, see [[Rulesets and Homebrew]].
-
-* **Enable Ironsworn ruleset**: when enabled, the *Ironsworn* base ruleset will be loaded.
-* **Enable Delve expansion for Ironsworn**: (experimental) when enabled, the _Ironsworn: Delve_ core ruleset will be loaded. This assumes _Ironsworn_ is also enabled in order to work correctly.
-* **Enable Starforged ruleset**: when enabled, the *Starforged* base ruleset will be loaded.
-* **Enable Sundered Isles expansion for Starforged**: (experimental) If enabled, _Sundered Isles_ content will be enabled. This assumes _Starforged_ to also be enabled in order to work correctly. There is currently no way to "exclude" _Starforged_-themed content when _Sundered Isles_ is enabled. You just get both.
-
 ### Homebrew
 
 For more on homebrew, see [[Rulesets and Homebrew#Homebrew]].
@@ -33,7 +21,7 @@ For more on homebrew, see [[Rulesets and Homebrew#Homebrew]].
 
 ### New game object defaults
 
-* **Default (x) folder**: Controls which folder to put various rollable [[Entities/index|Entities]] in by default. You can still pick the folder on an individual basis, or even move it, regardless of what these values are.
+* **Default (x) folder**: Controls which subfolder of your [[Campaigns/index|campaign root]] to put various rollable [[Entities/index|Entities]] in by default. You can still pick the folder on an individual basis, or even move it, regardless of what these values are.
 * **(x) template file**: If provided, the contents of these files will be added to the end of the new entity files when they're created. (Coming Soon) This will eventually be replaced with a more involved template system that will give you more control of how files are generated and formatted, and what additional frontmatter they include.
 
 ### Mechanics blocks

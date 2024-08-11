@@ -2,6 +2,10 @@
 aliases:
   - campaign
   - active campaign
+  - Campaigns
+  - Campaign
+  - campaign root
+  - campaign index file
 ---
 Iron Vault is organized around *campaigns*. A single vault can have many campaigns, and, even if you only plan to run a single campaign in your vault, you'll still create a single root campaign.
 
@@ -10,7 +14,15 @@ A _campaign_ is a folder (called the *campaign root folder*) with a _campaign in
 > [!IMPORTANT] Campaigns cannot be nested
 > Because campaigns include all files underneath them, one campaign cannot be nested within another. If Iron Vault detects this situation, you will see an error message when you attempt to use most Iron Vault features.
 
-To create a new campaign, use the [[Create a new campaign]] command. This will create a campaign index file in a new or existing folder you designate.
+To create a new campaign, use the [[Creating a campaign]] command. This will create a campaign index file in a new or existing folder you designate. You can also [[Editing a campaign|edit a campaign]] to change its properties later.
+
+> [!WARNING] Campaign file frontmatter
+> Your campaign file contains a frontmatter property called `ironvault`. This contains important data about your campaign configuration that is not intended for manual editing. Use caution when editing the frontmatter of your campaign file.
+
+### Playset
+
+The most important property of a campaign is its [[Campaigns/Playsets/index|Playset]]. The playset defines which [[Rulesets and Homebrew]] content is available in your campaign. Whenever your campaign is [[#Active campaign and active character|active]], your playset determines what moves, oracles, and assets are available within the various commands, sidebars, and views.
+
 ## Active campaign and active character
 
 When you are viewing a file that is within a campaign, that campaign becomes the *active campaign*. The active campaign provides a context for many operations within Iron Vault, such as which progress tracks to list and what moves/oracles are available.

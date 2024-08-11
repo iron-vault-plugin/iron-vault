@@ -5,7 +5,7 @@ As long as you have the schema in frontmatter, you can put anything you want in 
 You can create a new character by using the [[Create new character]] command and then filling in the resulting character sheet.
 ## Active character
 
-Iron Vault supports multiple characters per [[Campaigns|campaign]]. By default, most actions will use the current "active" character as the actor for, say, moves or oracles. You can switch active characters using the [[Pick active character]]. You can also enable the `Always prompt for active character` setting in [[Settings#General|General Settings]], to have Iron Vault ask you every time, though this might get noisy.
+Iron Vault supports multiple characters per [[Campaigns/index|campaign]]. By default, most actions will use the current "active" character as the actor for, say, moves or oracles. You can switch active characters using the [[Pick active character]]. You can also enable the `Always prompt for active character` setting in [[Settings#General|General Settings]], to have Iron Vault ask you every time, though this might get noisy.
 ## Example
 
 ![[character-sheet.png|400]]

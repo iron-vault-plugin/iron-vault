@@ -49,10 +49,23 @@ export class CampaignEditView extends FileView {
     return CAMPAIGN_EDIT_VIEW_TYPE;
   }
 
+  onload(): void {
+    this.registerEvent(
+      this.plugin.campaigns.on("changed", this.render.bind(this)),
+    );
+  }
+
   async onLoadFile(file: TFile): Promise<void> {
     await super.onLoadFile(file);
+    this.render();
+  }
 
-    // TODO(@cwegrzyn): watch the campaign
+  render() {
+    if (!this.file || this.file.deleted) {
+      render(html`<p>No file!</p>`, this.contentEl);
+      return;
+    }
+    const file = this.file;
     const result = this.plugin.campaigns.get(file.path);
     let campaign: CampaignOutput;
     if (!result) {
@@ -82,14 +95,20 @@ export class CampaignEditView extends FileView {
       campaign = result.value.props;
     }
 
-    new Setting(this.contentEl).setName("Campaign name").addText((text) =>
-      text
-        .setValue(campaign.name ?? "")
-        .setPlaceholder(campaign.name ?? file.basename)
-        .onChange((val) => {
-          campaign.name = val ? val : undefined;
-        }),
-    );
+    this.contentEl.empty();
+    new Setting(this.contentEl)
+      .setName("Display name")
+      .setDesc(
+        "Sets the campaign display name. (Note: changing this does not cause the campaign folder or index file to be renamed.)",
+      )
+      .addText((text) =>
+        text
+          .setValue(campaign.name ?? "")
+          .setPlaceholder(campaign.name ?? file.basename)
+          .onChange((val) => {
+            campaign.name = val ? val : undefined;
+          }),
+      );
 
     const playset = campaign.ironvault.playset;
 
@@ -131,14 +150,18 @@ export class CampaignEditView extends FileView {
       (saveButton = button)
         .setCta()
         .setButtonText("Save")
-        .onClick(() =>
-          this.plugin.app.fileManager.processFrontMatter(
+        .onClick(async () => {
+          const newCampaignData = CampaignFile.generate(campaign);
+          await this.plugin.app.fileManager.processFrontMatter(
             this.file!,
             (frontmatter) => {
-              Object.assign(frontmatter, CampaignFile.generate(campaign));
+              Object.assign(frontmatter, newCampaignData);
             },
-          ),
-        ),
+          );
+          // TODO(@cwegrzyn): we should handle errors here, and also do something more elegant
+          // than this. Maybe navigate to the index file normal markdown edit view?
+          this.leaf.detach();
+        }),
     );
 
     playsetSetting.setFromKeyAndConfig(playsetKey, customConfig);

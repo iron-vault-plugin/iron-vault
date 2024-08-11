@@ -11,7 +11,7 @@ Some entities have special handling in Iron Vault. These are called *tracked ent
 
 The tracked entities are:
 
-* [[Campaigns]] (all other tracked entities are part of a campaign)
+* [[Campaigns/index]] (all other tracked entities are part of a campaign)
 * [[Entities/Characters|Characters]]
 * [[Clocks|Clocks]]
 * [[Progress Tracks]]
