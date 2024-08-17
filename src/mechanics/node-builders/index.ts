@@ -1,5 +1,3 @@
-import { Clock } from "clocks/clock";
-import { ClockFileAdapter } from "clocks/clock-file";
 import { createDataswornMarkdownLink } from "datastore/parsers/datasworn/id";
 import * as kdl from "kdljs";
 import { Document, Node } from "kdljs";
@@ -51,34 +49,6 @@ export function createTrackCompletionNode(
     properties: {
       name: `[[${trackPath}|${trackName}]]`,
       status: "removed",
-    },
-  });
-}
-
-export function createClockCreationNode(
-  clockName: string,
-  clockPath: string,
-): kdl.Node {
-  return node("clock", {
-    properties: {
-      name: `[[${clockPath}|${clockName}]]`,
-      status: "added",
-    },
-  });
-}
-
-export function createClockNode(
-  clockName: string,
-  clockPath: string,
-  sourceClock: ClockFileAdapter,
-  endValue: Clock,
-): kdl.Node {
-  return node("clock", {
-    properties: {
-      name: `[[${clockPath}|${clockName}]]`,
-      from: sourceClock.clock.progress,
-      to: endValue.progress,
-      "out-of": endValue.segments,
     },
   });
 }
