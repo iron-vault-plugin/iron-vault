@@ -6,7 +6,7 @@ import {
   createNewCharacter,
   pickActiveCharacter,
 } from "characters/commands";
-import { advanceClock, createClock } from "clocks/commands";
+import { advanceClock, createClock, resolveClock } from "clocks/commands";
 import { openDocsInBrowser, openDocsInTab } from "docs/commands";
 import { generateEntityCommand } from "entity/command";
 import { createFactionInfluenceGrid } from "factions/commands";
@@ -208,6 +208,14 @@ export class IronVaultCommands {
       icon: "alarm-clock-plus",
       editorCallback: (editor: Editor, ctx: MarkdownView | MarkdownFileInfo) =>
         advanceClock(this.plugin, editor, ctx as MarkdownView),
+    },
+
+    {
+      id: "clock-resolve",
+      name: "Clock: Resolve a clock",
+      icon: "alarm-clock-off",
+      editorCallback: (editor: Editor, ctx: MarkdownView | MarkdownFileInfo) =>
+        resolveClock(this.plugin, editor, ctx),
     },
 
     /*

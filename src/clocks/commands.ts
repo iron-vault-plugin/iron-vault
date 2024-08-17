@@ -3,11 +3,13 @@ import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
 import { createDetailsNode } from "mechanics/node-builders";
 import {
+  clockResolvedNode,
   createClockCreationNode,
   createClockNode,
 } from "mechanics/node-builders/clocks";
-import { Editor, MarkdownView } from "obsidian";
+import { Editor, MarkdownFileInfo, MarkdownView, Notice } from "obsidian";
 import { stripMarkdown } from "utils/strip-markdown";
+import { YesNoPrompt } from "utils/ui/yesno";
 import { ClockFileAdapter, clockUpdater } from "../clocks/clock-file";
 import { selectClock } from "../clocks/select-clock";
 import { BLOCK_TYPE__CLOCK, IronVaultKind } from "../constants";
@@ -38,21 +40,66 @@ export async function advanceClock(
     "Select number of segments to fill.",
   );
 
+  let shouldMarkResolved = false;
+  if (clockInfo.clock.tick(ticks).isFilled) {
+    shouldMarkResolved = await YesNoPrompt.asSuggest(
+      plugin.app,
+      "This clock is now filled. Do you want to mark it as resolved/inactive?",
+    );
+  }
+
   const newClock = await clockUpdater(
     vaultProcess(plugin.app, clockPath),
     (clockAdapter) => {
-      return clockAdapter.updatingClock((clock) => clock.tick(ticks));
+      return clockAdapter.updatingClock((clock) => {
+        let updatedClock = clock.tick(ticks);
+        if (shouldMarkResolved) {
+          if (updatedClock.isFilled) {
+            updatedClock = updatedClock.deactivate();
+          } else {
+            const msg = `Clock '${clockPath}' was no longer filled and was not marked inactive.`;
+            console.warn(msg);
+            new Notice(msg, 0);
+            shouldMarkResolved = false;
+          }
+        }
+        return updatedClock;
+      });
+    },
+  );
+
+  const clockName = stripMarkdown(plugin, clockInfo.name);
+  appendNodesToMoveOrMechanicsBlock(
+    editor,
+    ...[
+      createClockNode(clockName, clockPath, clockInfo, newClock.clock),
+      ...(shouldMarkResolved ? [clockResolvedNode(clockName, clockPath)] : []),
+    ],
+  );
+}
+
+export async function resolveClock(
+  plugin: IronVaultPlugin,
+  editor: Editor,
+  view: MarkdownFileInfo,
+) {
+  const campaignContext = await determineCampaignContext(plugin, view);
+  const [clockPath] = await selectClock(
+    campaignContext.clocks,
+    plugin,
+    ([, clockInfo]) => clockInfo.clock.active,
+  );
+
+  const newClock = await clockUpdater(
+    vaultProcess(plugin.app, clockPath),
+    (clockAdapter) => {
+      return clockAdapter.updatingClock((clock) => clock.deactivate());
     },
   );
 
   appendNodesToMoveOrMechanicsBlock(
     editor,
-    createClockNode(
-      stripMarkdown(plugin, clockInfo.name),
-      clockPath,
-      clockInfo,
-      newClock.clock,
-    ),
+    clockResolvedNode(stripMarkdown(plugin, newClock.name), clockPath),
   );
 }
 
