@@ -12,7 +12,7 @@ export class GenericTextSuggest extends AbstractInputSuggest<
   constructor(
     app: App,
     readonly inputEl: HTMLInputElement,
-    public readonly items: string[],
+    public items: string[],
   ) {
     super(app, inputEl);
   }

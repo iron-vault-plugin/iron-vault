@@ -8,11 +8,11 @@ import {
   debounce,
 } from "obsidian";
 import { generateObsidianFilename } from "utils/filename";
+import { CampaignSelectComponent } from "utils/ui/settings/campaign-suggest";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
 import { GenericTextSuggest } from "utils/ui/settings/generic-text-suggest";
-import { ChallengeRanks, ProgressTrack } from "./progress";
-import { CampaignSelectComponent } from "utils/ui/settings/campaign-suggest";
 import { RelativeFolderSearchComponent } from "utils/ui/settings/relative-folder-search";
+import { ChallengeRanks, ProgressTrack } from "./progress";
 
 export type ProgressTrackCreateResultType = {
   rank: ChallengeRanks;
@@ -65,6 +65,9 @@ export class ProgressTrackCreateModal extends Modal {
         .setBaseFolder(campaign.file.parent!)
         .setValue(this.plugin.settings.defaultProgressTrackFolder)
         .onChanged();
+      trackTypeSuggest.items = [
+        ...this.plugin.campaignManager.campaignContextFor(campaign).trackTypes,
+      ];
     };
 
     const validate = debounce(() => {
@@ -131,9 +134,6 @@ export class ProgressTrackCreateModal extends Modal {
       },
     );
 
-    onChangeCampaign();
-    validate();
-
     // TODO: since the string value equals the display string, i don't actually know if this
     //   is working as intended with the options
     new Setting(contentEl).setName("Rank").addDropdown((dropdown) =>
@@ -145,18 +145,13 @@ export class ProgressTrackCreateModal extends Modal {
         .setValue(this.result.rank),
     );
 
+    let trackTypeSuggest!: GenericTextSuggest;
     new Setting(contentEl).setName("Type").addSearch((search) => {
       search.setPlaceholder(
         "What kind of track is this? (e.g., Vow, Connection)",
       );
 
-      new GenericTextSuggest(this.app, search.inputEl, [
-        "Vow",
-        "Connection",
-        "Combat",
-        "Scene Challenge",
-        "Expedition",
-      ]);
+      trackTypeSuggest = new GenericTextSuggest(this.app, search.inputEl, []);
 
       search.onChange((value) => {
         this.result.trackType = value;
@@ -180,6 +175,9 @@ export class ProgressTrackCreateModal extends Modal {
           this.close();
         }),
       );
+
+    onChangeCampaign();
+    validate();
   }
 
   accept(): void {
