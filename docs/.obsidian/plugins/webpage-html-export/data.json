@@ -6,7 +6,7 @@
   "includeSvelteCSS": false,
   "titleProperty": "title",
   "customHeadContentPath": "",
-  "faviconPath": "/home/zkat/src/iron-vault/media/ironvault_logo.png",
+  "faviconPath": "/Users/chriswegrzyn/code/personal/iron-vault/media/ironvault_logo.png",
   "documentWidth": "40em",
   "sidebarWidth": "20em",
   "minOutlineCollapse": 2,
@@ -43,7 +43,7 @@
   "defaultFileIcon": "lucide//file",
   "defaultFolderIcon": "lucide//folder",
   "defaultMediaIcon": "lucide//file-image",
-  "exportPath": "D:/src/iron-vault/docs-built",
+  "exportPath": "/Users/chriswegrzyn/code/personal/iron-vault/docs-built",
   "filesToExport": [
     [
       "Blocks",
