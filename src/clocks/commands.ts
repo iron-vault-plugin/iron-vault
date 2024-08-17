@@ -1,11 +1,11 @@
 import { determineCampaignContext } from "campaigns/manager";
 import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
+import { createDetailsNode } from "mechanics/node-builders";
 import {
   createClockCreationNode,
   createClockNode,
-  createDetailsNode,
-} from "mechanics/node-builders";
+} from "mechanics/node-builders/clocks";
 import { Editor, MarkdownView } from "obsidian";
 import { stripMarkdown } from "utils/strip-markdown";
 import { ClockFileAdapter, clockUpdater } from "../clocks/clock-file";
