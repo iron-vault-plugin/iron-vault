@@ -5,7 +5,7 @@ import { StandardIndex } from "datastore/data-indexer";
 import { DataswornTypes } from "datastore/datasworn-indexer";
 import { moveOrigin } from "datastore/datasworn-symbols";
 import { produce } from "immer";
-import { App, MarkdownFileInfo } from "obsidian";
+import { App, MarkdownFileInfo, Notice } from "obsidian";
 import { OracleRoller } from "oracles/roller";
 import { ConditionMeterDefinition, Ruleset } from "rules/ruleset";
 import { vaultProcess } from "utils/obsidian";
@@ -27,6 +27,7 @@ import {
 import { type Datastore } from "../datastore";
 import IronVaultPlugin from "../index";
 import { InfoModal } from "../utils/ui/info";
+import { InvalidCharacterError } from "./errors";
 
 export interface IActionContext extends IDataContext {
   readonly campaignContext: CampaignDataContext;
@@ -142,23 +143,31 @@ export class CharacterActionContext implements IActionContext {
 
   get moves(): StandardIndex<DataswornTypes["move"]> {
     if (!this.#moves) {
-      // TODO(@cwegrzyn): we should let the user know if they have a missing move, I think
-      const characterMoves = movesReader(this.characterContext.lens, this)
-        .get(this.characterContext.character)
-        .expect("unexpected failure finding assets for moves");
+      try {
+        const characterMoves = movesReader(
+          this.characterContext.lens,
+          this,
+        ).get(this.characterContext.character);
 
-      this.#moves = this.campaignContext.moves.projected((move) => {
-        if (move[moveOrigin].assetId == null) return move;
-        const assetMove = characterMoves.find(
-          ({ move: characterMove }) => move._id === characterMove._id,
-        );
-        if (assetMove) {
-          return produce(move, (draft) => {
-            draft.name = `${assetMove.asset.name}: ${draft.name}`;
-          });
+        this.#moves = this.campaignContext.moves.projected((move) => {
+          if (move[moveOrigin].assetId == null) return move;
+          const assetMove = characterMoves.find(
+            ({ move: characterMove }) => move._id === characterMove._id,
+          );
+          if (assetMove) {
+            return produce(move, (draft) => {
+              draft.name = `${assetMove.asset.name}: ${draft.name}`;
+            });
+          }
+          return undefined;
+        });
+      } catch (err) {
+        if (err instanceof InvalidCharacterError) {
+          console.error(err);
+          new Notice(`Invalid character definition: ${err.message}`, 0);
         }
-        return undefined;
-      });
+        throw err;
+      }
     }
     return this.#moves;
   }

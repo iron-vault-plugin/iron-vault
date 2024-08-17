@@ -3,7 +3,6 @@ import starforgedData from "@datasworn/starforged/json/starforged.json" with { t
 import { IDataContext, MockDataContext } from "datastore/data-context";
 import { Ruleset } from "../rules/ruleset";
 import { ChallengeRanks } from "../tracks/progress";
-import { Right } from "../utils/either";
 import { Lens, updating } from "../utils/lens";
 import {
   BaseIronVaultSchema,
@@ -283,7 +282,7 @@ describe("movesReader", () => {
         movesReader(lens, mockDataContext).get(
           validater({ ...VALID_INPUT }).unwrap(),
         ),
-      ).toEqual(Right.create([]));
+      ).toEqual([]);
     });
 
     it("does not include moves for unmarked asset abilities", () => {
@@ -299,42 +298,38 @@ describe("movesReader", () => {
             ],
           } satisfies BaseIronVaultSchema).unwrap(),
         ),
-      ).toEqual(Right.create([]));
+      ).toEqual([]);
     });
 
     it("includes moves for marked asset abilities", () => {
       // This ability has no additional moves.
       expect(
-        movesReader(lens, mockDataContext)
-          .get(
-            validater({
-              ...VALID_INPUT,
-              assets: [
-                {
-                  id: "asset:starforged/path/empath",
-                  abilities: [false, true, false],
-                },
-              ],
-            } satisfies BaseIronVaultSchema).unwrap(),
-          )
-          .unwrap(),
+        movesReader(lens, mockDataContext).get(
+          validater({
+            ...VALID_INPUT,
+            assets: [
+              {
+                id: "asset:starforged/path/empath",
+                abilities: [false, true, false],
+              },
+            ],
+          } satisfies BaseIronVaultSchema).unwrap(),
+        ),
       ).toHaveLength(0);
 
       // This ability adds one extra move.
       expect(
-        movesReader(lens, mockDataContext)
-          .get(
-            validater({
-              ...VALID_INPUT,
-              assets: [
-                {
-                  id: "asset:starforged/path/empath",
-                  abilities: [true, true, false],
-                },
-              ],
-            } satisfies BaseIronVaultSchema).unwrap(),
-          )
-          .unwrap(),
+        movesReader(lens, mockDataContext).get(
+          validater({
+            ...VALID_INPUT,
+            assets: [
+              {
+                id: "asset:starforged/path/empath",
+                abilities: [true, true, false],
+              },
+            ],
+          } satisfies BaseIronVaultSchema).unwrap(),
+        ),
       ).toMatchObject([
         {
           move: {
@@ -354,6 +349,8 @@ describe("meterLenses", () => {
     mockDataContext = createMockDataContext(
       starforgedData.assets.companion.contents
         .protocol_bot as unknown as Datasworn.Asset,
+      starforgedData.assets.companion.contents
+        .symbiote as unknown as Datasworn.Asset,
     );
   });
 
@@ -398,6 +395,48 @@ describe("meterLenses", () => {
 
     expect(meters.length).toBe(new Set(meters.map(({ key }) => key)).size);
   });
+
+  it("updates meters according to enhance_assets", () => {
+    const character1 = validater({
+      ...VALID_INPUT,
+      assets: [
+        {
+          id: "asset:starforged/companion/symbiote",
+          abilities: [true, false, false],
+        },
+      ],
+    }).expect("valid character");
+    const result1 = meterLenses(lens, character1, mockDataContext);
+    expect(result1).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: "asset:starforged/companion/symbiote@health",
+          parent: { label: "Symbiote" },
+          definition: expect.objectContaining({ max: 2 }),
+        }),
+      ]),
+    );
+
+    const character2 = validater({
+      ...VALID_INPUT,
+      assets: [
+        {
+          id: "asset:starforged/companion/symbiote",
+          abilities: [true, false, true],
+        },
+      ],
+    }).expect("valid character");
+    const result2 = meterLenses(lens, character2, mockDataContext);
+    expect(result2).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: "asset:starforged/companion/symbiote@health",
+          parent: { label: "Symbiote" },
+          definition: expect.objectContaining({ max: 3 }),
+        }),
+      ]),
+    );
+  });
 });
 
 describe("Special Tracks", () => {
@@ -405,6 +444,7 @@ describe("Special Tracks", () => {
     TEST_RULESET.merge({
       _id: "moar",
       type: "expansion",
+      ruleset: "test",
       rules: {
         special_tracks: {
           quests_legacy: {

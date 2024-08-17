@@ -280,25 +280,6 @@ describe("integratedAssetLens", () => {
       ).toHaveProperty("controls.integrity.controls.battered.value", true);
     });
 
-    it("integrates meter subfield values", () => {
-      expect(
-        integratedAssetLens(dataContext).get({
-          id: starship()._id,
-          abilities: [true, false, false],
-          options: {},
-          controls: {},
-        }),
-      ).toHaveProperty("controls.integrity.controls.battered.value", false);
-      expect(
-        integratedAssetLens(dataContext).get({
-          id: starship()._id,
-          abilities: [true, false, false],
-          options: {},
-          controls: { "integrity/battered": true },
-        }),
-      ).toHaveProperty("controls.integrity.controls.battered.value", true);
-    });
-
     it("integrates ability values", () => {
       expect(
         integratedAssetLens(dataContext).get({

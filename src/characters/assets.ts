@@ -1,41 +1,39 @@
 import { type Datasworn } from "@datasworn/core";
 import { IDataContext } from "datastore/data-context";
 import { produce } from "immer";
+import merge from "lodash.merge";
 import { ConditionMeterDefinition } from "rules/ruleset";
-import { Either, Left, Right } from "../utils/either";
-import { Lens, addOrUpdateMatching, reader, writer } from "../utils/lens";
+import { Lens, addOrUpdateMatching, writer } from "../utils/lens";
+import { MissingAssetError } from "./errors";
 import {
   CharLens,
-  CharReader,
   CharWriter,
   CharacterLens,
   IronVaultSheetAssetSchema,
 } from "./lens";
 
-export class AssetError extends Error {}
-
-export function assetWithDefnReader(
-  charLens: CharacterLens,
-  dataContext: IDataContext,
-): CharReader<
-  Array<
-    Either<
-      AssetError,
-      { asset: IronVaultSheetAssetSchema; defn: Datasworn.Asset }
-    >
-  >
-> {
-  return reader((source) => {
-    return charLens.assets.get(source).map((asset) => {
-      const defn = dataContext.assets.get(asset.id);
-      if (defn) {
-        return Right.create({ asset, defn });
-      } else {
-        return Left.create(new AssetError(`missing asset with id ${asset.id}`));
-      }
-    });
-  });
-}
+// export function assetWithDefnReader(
+//   charLens: CharacterLens,
+//   dataContext: IDataContext,
+// ): CharReader<
+//   Array<
+//     Either<
+//       AssetError,
+//       { asset: IronVaultSheetAssetSchema; defn: Datasworn.Asset }
+//     >
+//   >
+// > {
+//   return reader((source) => {
+//     return charLens.assets.get(source).map((asset) => {
+//       const defn = dataContext.assets.get(asset.id);
+//       if (defn) {
+//         return Right.create({ asset, defn });
+//       } else {
+//         return Left.create(new AssetError(`missing asset with id ${asset.id}`));
+//       }
+//     });
+//   });
+// }
 
 export type AssetWalker = {
   onAnyOption?: (
@@ -169,12 +167,11 @@ export function addOrUpdateViaDataswornAsset(
   });
 }
 
-export class MissingAssetError extends Error {}
-
 function assetKey(key: string, parentKey: string | number | undefined): string {
   return parentKey != null ? `${parentKey}/${key}` : key;
 }
 
+/** A lens that takes a character asset choice and produces an asset w/ choices merged in. */
 export function integratedAssetLens(
   dataContext: IDataContext,
 ): Lens<IronVaultSheetAssetSchema, Datasworn.Asset> {
@@ -182,12 +179,18 @@ export function integratedAssetLens(
     get(assetData) {
       const dataswornAsset = dataContext.assets.get(assetData.id);
       if (!dataswornAsset) {
-        throw new AssetError(`unable to find asset ${assetData.id}`);
+        throw new MissingAssetError(`unable to find asset ${assetData.id}`);
       }
       return produce(dataswornAsset, (draft) => {
         assetData.abilities.forEach((enabled, index) => {
-          if (enabled) {
+          if (enabled != null) {
             draft.abilities[index].enabled = enabled;
+          }
+          if (
+            draft.abilities[index].enabled &&
+            draft.abilities[index].enhance_asset
+          ) {
+            draft = merge(draft, draft.abilities[index].enhance_asset);
           }
         });
         walkAsset(draft, {
@@ -230,7 +233,6 @@ export function integratedAssetLens(
 export function assetMeters(
   charLens: CharacterLens,
   asset: Datasworn.Asset,
-  markedAbilities: boolean[],
 ): {
   key: string;
   definition: ConditionMeterDefinition;
@@ -246,7 +248,7 @@ export function assetMeters(
         }
       },
     },
-    markedAbilities,
+    asset.abilities.map(({ enabled }) => enabled),
   );
 
   return meters.map(([key, control]) => {

@@ -29,8 +29,6 @@ export class MissingCharacterError extends CharacterError {}
 
 export class MissingCampaignError extends CharacterError {}
 
-export class InvalidCharacterError extends CharacterError {}
-
 export class CharacterIndexer extends BaseIndexer<
   CharacterContext,
   z.ZodError
