@@ -15,6 +15,18 @@ export function createClockCreationNode(
   });
 }
 
+export function clockResolvedNode(
+  clockName: string,
+  clockPath: string,
+): kdl.Node {
+  return node("clock", {
+    properties: {
+      name: `[[${clockPath}|${clockName}]]`,
+      status: "resolved",
+    },
+  });
+}
+
 export function createClockNode(
   clockName: string,
   clockPath: string,

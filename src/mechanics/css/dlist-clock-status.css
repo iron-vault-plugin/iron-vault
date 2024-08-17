@@ -8,9 +8,9 @@
         content: "Clock added: ";
       }
     }
-    &.clock-name:has(~ .clock-status[data-value="removed"]) {
+    &.clock-name:has(~ .clock-status[data-value="resolved"]) {
       &:before {
-        content: "Clock removed: ";
+        content: "Clock resolved: ";
       }
     }
     &.clock-status {

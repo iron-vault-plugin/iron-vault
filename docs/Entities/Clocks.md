@@ -1,6 +1,11 @@
+---
+aliases:
+  - Clock
+  - clock
+---
 Starforged introduced a mechanic called "clocks", which Iron Vault has direct support for. There are two main types of clock: Tension Clocks, and Campaign Clocks. Both are represented by a single "Clock" entity in Iron Vault, and it does not distinguish between them. Clocks are managed/advanced manually.
 
-You can create a clock using the [[Create a clock]] command. To advance the clock and record the step in your journal, use the [[Advance a clock]] command. You can also click on the clock itself, but that will *not* update your journal automatically.
+You can create a clock using the [[Create a clock]] command. To advance the clock and record the step in your journal, use the [[Advance a clock]] command. You can also click on the clock itself, but that will *not* update your journal automatically. Finally, you can [[Resolve a clock]] which will mark it as "incomplete" and remove it from the active clocks listed in [[Advance a clock]].
 
 #### Example
 ![[Doomsday Device|iv-embed]]
