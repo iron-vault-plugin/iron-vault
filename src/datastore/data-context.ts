@@ -11,6 +11,7 @@ export interface IDataContext {
   readonly moveCategories: StandardIndex<DataswornTypes["move_category"]>;
   readonly oracles: StandardIndex<DataswornTypes["oracle"]>;
   readonly truths: StandardIndex<DataswornTypes["truth"]>;
+  readonly trackTypes: Set<string>;
 
   readonly rulesPackages: StandardIndex<DataswornTypes["rules_package"]>;
   readonly ruleset: Ruleset;
@@ -67,6 +68,22 @@ export class MockDataContext implements IDataContext {
   get ruleset(): Ruleset {
     throw new Error("not implemented");
   }
+
+  get trackTypes(): Set<string> {
+    return trackTypesFromMoves(this.moves);
+  }
+}
+
+export function trackTypesFromMoves(
+  moves: StandardIndex<DataswornTypes["move"]>,
+): Set<string> {
+  const types = new Set<string>();
+  moves.forEach((move) => {
+    if (move.roll_type == "progress_roll") {
+      types.add(move.tracks.category);
+    }
+  });
+  return types;
 }
 
 // TODO(@cwegrzyn): make this cacheable
@@ -122,5 +139,9 @@ export class BaseDataContext implements ICompleteDataContext {
     const expansions = rules.filter((pkg) => pkg.type == "expansion");
 
     return new Ruleset(base[0], expansions);
+  }
+
+  get trackTypes() {
+    return trackTypesFromMoves(this.moves);
   }
 }

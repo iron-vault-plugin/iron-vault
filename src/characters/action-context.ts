@@ -112,6 +112,10 @@ export class NoCharacterActionConext implements IActionContext {
       MOMENTUM_METER_DEFINITION,
     ];
   }
+
+  get trackTypes() {
+    return this.campaignContext.trackTypes;
+  }
 }
 
 export class CharacterActionContext implements IActionContext {
@@ -216,6 +220,10 @@ export class CharacterActionContext implements IActionContext {
       vaultProcess(app, this.characterPath),
       updater,
     );
+  }
+
+  get trackTypes() {
+    return this.campaignContext.trackTypes;
   }
 }
 

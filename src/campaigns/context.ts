@@ -1,6 +1,10 @@
 import { CharacterContext } from "character-tracker";
 import { ClockFileAdapter } from "clocks/clock-file";
-import { BaseDataContext, ICompleteDataContext } from "datastore/data-context";
+import {
+  BaseDataContext,
+  ICompleteDataContext,
+  trackTypesFromMoves,
+} from "datastore/data-context";
 import {
   DataIndexer,
   SourcedByArray,
@@ -89,6 +93,10 @@ export class CampaignDataContext
 
   get prioritized() {
     return this.dataContext.prioritized;
+  }
+
+  get trackTypes() {
+    return trackTypesFromMoves(this.moves);
   }
 
   diceRollerFor(kind: "move"): AsyncDiceRoller & DiceRoller {
