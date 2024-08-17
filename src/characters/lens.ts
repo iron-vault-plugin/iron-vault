@@ -14,17 +14,21 @@ import {
   ProgressTrack,
   legacyTrackXpEarned,
 } from "../tracks/progress";
-import { Either, collectEither } from "../utils/either";
+import { Either } from "../utils/either";
 import {
   Lens,
   Reader,
   Writer,
+  arrayReader,
+  get,
   lensForSchemaProp,
   objectMap,
+  pipe,
   reader,
   updating,
 } from "../utils/lens";
-import { AssetError, assetMeters, assetWithDefnReader } from "./assets";
+import { assetMeters, integratedAssetLens } from "./assets";
+import { InvalidCharacterError } from "./errors";
 
 const ValidationTag: unique symbol = Symbol("validated ruleset");
 
@@ -151,7 +155,7 @@ export function validated(
   return <T, U>(lens: Lens<U, T>): Lens<ValidatedCharacter, T> => ({
     get(a) {
       if (a[ValidationTag] !== ruleset.validationTag) {
-        throw new Error(
+        throw new InvalidCharacterError(
           `expecting validation tag of ${ruleset.validationTag}; found ${a[ValidationTag]}`,
         );
       }
@@ -160,7 +164,7 @@ export function validated(
     },
     update(a, b) {
       if (a[ValidationTag] !== ruleset.validationTag) {
-        throw new Error(
+        throw new InvalidCharacterError(
           `expecting validation tag of ${ruleset.validationTag}; found ${a[ValidationTag]}`,
         );
       }
@@ -197,7 +201,7 @@ function createImpactLens(
       const updates: [string, boolean][] = [];
       for (const key in newval) {
         if (!(key in impactProps)) {
-          throw new Error(`unexpected key in impacts: ${key}`);
+          throw new InvalidCharacterError(`unexpected key in impacts: ${key}`);
         }
       }
       for (const key in impactProps) {
@@ -308,23 +312,17 @@ export function countMarked(impacts: Record<string, boolean>): number {
 export function movesReader(
   charLens: CharacterLens,
   dataContext: IDataContext,
-): CharReader<
-  Either<
-    AssetError[],
-    { move: Datasworn.EmbeddedMove; asset: Datasworn.Asset }[]
-  >
-> {
-  const assetReader = assetWithDefnReader(charLens, dataContext);
+): CharReader<{ move: Datasworn.EmbeddedMove; asset: Datasworn.Asset }[]> {
+  const assetLens = integratedAssetLens(dataContext);
   return reader((source) => {
-    return collectEither(assetReader.get(source)).map((assets) =>
-      assets.flatMap(({ asset: assetConfig, defn }) =>
-        defn.abilities
+    return get(pipe(charLens.assets, arrayReader(assetLens)), source).flatMap(
+      (asset) =>
+        asset.abilities
           // Take only enabled abilities
-          .filter((_ability, index) => assetConfig.abilities[index])
+          .filter((ability) => ability.enabled)
           // Gather moves
           .flatMap((ability) => Object.values(ability.moves ?? {}))
-          .map((move) => ({ move, asset: defn })),
-      ),
+          .map((move) => ({ move, asset })),
     );
   });
 }
@@ -380,18 +378,11 @@ export function meterLenses(
     value: charLens.momentum.get(character),
   });
 
+  const assetLens = integratedAssetLens(dataContext);
   meters.push(
-    ...assetWithDefnReader(charLens, dataContext)
-      .get(character)
-      .flatMap((assetResult) => {
-        if (assetResult.isLeft()) {
-          // TODO: should we handle this error differently? pass it up?
-          console.warn("Missing asset: %o", assetResult.error);
-          return [];
-        } else {
-          const { asset, defn } = assetResult.value;
-          return assetMeters(charLens, defn, asset.abilities);
-        }
+    ...get(pipe(charLens.assets, arrayReader(assetLens)), character)
+      .flatMap((asset) => {
+        return assetMeters(charLens, asset);
       })
       .map((meter) => ({ ...meter, value: meter.lens.get(character) })),
   );

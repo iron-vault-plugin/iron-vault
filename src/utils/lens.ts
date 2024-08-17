@@ -118,3 +118,30 @@ export function composeRightWriter<T, U, V>(
     return leftLens.update(source, rightLens.update(intermediate, newval));
   });
 }
+
+/** Apply a reader to every element of an array. */
+export function arrayReader<T, U>(
+  lens: Reader<T, U>,
+): Reader<Array<T>, Array<U>> {
+  return {
+    get(source) {
+      return source.map((item) => lens.get(item));
+    },
+  };
+}
+
+/** Read from a lens. */
+export function get<T, U>(reader: Reader<T, U>, source: T): U {
+  return reader.get(source);
+}
+
+export function pipe<T, U, V>(
+  left: Reader<T, U>,
+  right: Reader<U, V>,
+): Reader<T, V> {
+  return {
+    get(source) {
+      return right.get(left.get(source));
+    },
+  };
+}
