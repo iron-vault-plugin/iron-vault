@@ -1,22 +1,28 @@
 import {
   Asset,
   AssetAbility,
+  AssetAbilityControlField,
   AssetConditionMeter,
   AssetControlField,
   AssetOptionField,
   DictKey,
 } from "@datasworn/core/dist/Datasworn";
-import { TemplateResult, html } from "lit-html";
+import { TemplateResult, html, nothing } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { range } from "lit-html/directives/range.js";
 
+import { Clock } from "clocks/clock";
+import { clockWidget } from "clocks/ui/clock-widget";
 import { IDataContext } from "datastore/data-context";
 import { produce } from "immer";
 import IronVaultPlugin from "index";
 import { repeat } from "lit-html/directives/repeat.js";
+import { rootLogger } from "logger";
 import { md } from "utils/ui/directives";
 import { integratedAssetLens } from "../characters/assets";
 import { IronVaultSheetAssetSchema } from "../characters/lens";
+
+const logger = rootLogger.getLogger("asset-card");
 
 export function makeDefaultSheetAsset(asset: Asset) {
   return {
@@ -194,6 +200,14 @@ function renderAssetAbility(
       }),
     );
   };
+  const updateControlField = (key: string) =>
+    updateAsset &&
+    ((control: AssetAbilityControlField) =>
+      updateAsset(
+        produce(asset, (draft) => {
+          draft.abilities[i].controls![key] = control;
+        }),
+      ));
   return html`<li>
     <label>
       <input
@@ -204,6 +218,24 @@ function renderAssetAbility(
       />
       <span>${md(plugin, ability.text)}</span>
     </label>
+    ${ability.controls
+      ? html`<ul class="controls">
+          ${repeat(
+            Object.entries(ability.controls),
+            ([key]) => key,
+            ([key, control]) => {
+              return html`<li>
+                <dl>
+                  <dt>${key}</dt>
+                  <dd class="control">
+                    ${renderControl(key, control, updateControlField(key))}
+                  </dd>
+                </dl>
+              </li>`;
+            },
+          )}
+        </ul>`
+      : null}
   </li>`;
 }
 
@@ -242,10 +274,10 @@ function renderControls<T extends Asset | AssetConditionMeter>(
   `;
 }
 
-function renderControl(
+function renderControl<C extends AssetControlField | AssetAbilityControlField>(
   key: string,
-  control: AssetControlField,
-  updateControl?: (asset: AssetControlField) => void,
+  control: C,
+  updateControl?: (control: C) => void,
 ) {
   const updateControlValue = (e: Event) => {
     const value = (e.target as HTMLInputElement).value;
@@ -275,6 +307,14 @@ function renderControl(
       }),
     );
   };
+  const updateClockValue = (newProgress: number) => {
+    if (!updateControl) return;
+    updateControl(
+      produce(control, (draft) => {
+        draft.value = newProgress;
+      }),
+    );
+  };
 
   switch (control.field_type) {
     case "condition_meter": {
@@ -283,7 +323,12 @@ function renderControl(
         @submit=${(ev: Event) => ev.preventDefault()}
       >
         ${control.controls &&
-        renderControls(control, control.controls, updateControl)}
+        renderControls(
+          control,
+          control.controls,
+          // At this point we know this must be an updater for a condition meter
+          updateControl as (control: AssetConditionMeter) => void,
+        )}
         <ul class="meter">
           <li><span>${control.label}</span></li>
           ${repeat(
@@ -359,5 +404,43 @@ function renderControl(
         </select>
       </label>`;
     }
+
+    case "clock": {
+      return clockWidget(
+        Clock.create({
+          active: true,
+          name: control.label,
+          progress: control.value,
+          segments: control.max,
+        }).unwrap(),
+        updateClockValue,
+      );
+    }
+    case "counter": {
+      return html`<input
+        type="number"
+        min="${control.min}"
+        max="${control.max ?? nothing}"
+        .value=${control.value}
+        ?disabled=${!updateControl}
+        @change=${updateControlValueNumeric}
+      />`;
+    }
+
+    case "text": {
+      return html`<input
+        type="text"
+        ?disabled=${!updateControl}
+        placeholder=${control.label}
+        .value=${control.value}
+        @change=${updateControlValue}
+      />`;
+    }
+    default:
+      logger.warn(
+        "Unsupported asset control: %s",
+        (control as { field_type: string }).field_type,
+      );
+      return html``;
   }
 }

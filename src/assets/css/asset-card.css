@@ -228,4 +228,9 @@
       }
     }
   }
+
+  & input[type=number]::-webkit-inner-spin-button {
+    appearance: auto;
+    -webkit-appearance: auto;
+  }
 }
