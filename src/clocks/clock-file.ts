@@ -8,11 +8,40 @@ import { Either, Left } from "../utils/either";
 import { updater } from "../utils/update";
 import { Clock } from "./clock";
 
+export const clockOddsSchema = z.enum([
+  "small chance",
+  "unlikely",
+  "50 50",
+  "likely",
+  "almost certain",
+  "certain",
+  "no roll",
+]);
+
+export const namedOddsSchema = clockOddsSchema.exclude(["no roll"]);
+
+export type OddsTable = Record<z.infer<typeof namedOddsSchema>, number>;
+
+export const STANDARD_ODDS: OddsTable = {
+  "small chance": 10,
+  unlikely: 25,
+  "50 50": 50,
+  likely: 75,
+  "almost certain": 90,
+  certain: 100,
+};
+
+export type ClockOdds = z.infer<typeof clockOddsSchema>;
+
 const clockSchema = z
   .object({
     name: z.string(),
     segments: z.number().positive(),
     progress: z.number().nonnegative(),
+
+    /** Default odds of advancing the clock. Choose 'no roll' if you do not wish to be prompted ever. */
+    "default-odds": clockOddsSchema.optional(),
+
     tags: z
       .union([z.string().transform((arg) => [arg]), z.array(z.string())])
       .refine(
@@ -33,6 +62,7 @@ const clockSchema = z
 
 export const normalizedClockSchema = normalizeKeys(clockSchema);
 
+export type ClockInputSchema = z.input<typeof clockSchema>;
 export type ClockSchema = z.output<typeof clockSchema>;
 
 export class ClockFileAdapter {
@@ -48,14 +78,17 @@ export class ClockFileAdapter {
   static newFromClock({
     name,
     clock,
+    defaultOdds,
   }: {
     name: string;
     clock: Clock;
+    defaultOdds: ClockOdds | undefined;
   }): Either<z.ZodError, ClockFileAdapter> {
     return this.create({
       name,
       segments: clock.segments,
       progress: clock.progress,
+      "default-odds": defaultOdds,
       tags: !clock.active ? ["complete"] : ["incomplete"],
       [PLUGIN_KIND_FIELD]: IronVaultKind.Clock,
     } satisfies z.input<typeof clockSchema>);
@@ -99,6 +132,22 @@ export class ClockFileAdapter {
       }),
       other,
     );
+  }
+
+  /** Returns the normalized numeric default odds for this clock, or  */
+  normalizedOdds(
+    oddsTable: OddsTable = STANDARD_ODDS,
+  ): number | "no roll" | undefined {
+    const defaultOdds = this.raw["default-odds"];
+    if (
+      defaultOdds === undefined ||
+      defaultOdds == "no roll" ||
+      typeof defaultOdds == "number"
+    ) {
+      return defaultOdds;
+    } else {
+      return oddsTable[defaultOdds];
+    }
   }
 }
 

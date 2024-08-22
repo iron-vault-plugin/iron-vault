@@ -40,6 +40,7 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     getItemText: (item: T) => string,
     renderExtras?: (match: FuzzyMatch<T>, el: HTMLElement) => void,
     placeholder?: string,
+    selectedIndex?: number,
   ): Promise<T> {
     return await new Promise((resolve, reject) => {
       new this<T>(
@@ -66,6 +67,8 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
         resolve,
         reject,
         placeholder,
+        undefined,
+        selectedIndex,
       ).open();
     });
   }
@@ -87,6 +90,7 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     renderExtras: (match: FuzzyMatch<T>, el: HTMLElement) => void,
     placeholder: string,
     createUserValue: (input: string) => U,
+    selectedIndex?: number,
   ): Promise<UserChoice<T, U>>;
   static async selectWithUserEntry<T>(
     app: App,
@@ -96,6 +100,7 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     renderExtras: (match: FuzzyMatch<T>, el: HTMLElement) => void,
     placeholder: string,
     createUserValue?: (input: string) => unknown,
+    selectedIndex?: number,
   ): Promise<UserChoice<T, unknown>> {
     return await new Promise((resolve, reject) => {
       new this<UserChoice<T, unknown>>(
@@ -132,6 +137,7 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
           custom,
           value: createUserValue ? createUserValue(custom) : undefined,
         }),
+        selectedIndex,
       ).open();
     });
   }
@@ -168,11 +174,17 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     protected readonly onCancel: () => void,
     placeholder?: string,
     protected readonly customItem?: (input: string) => T,
+    selectedIndex?: number,
   ) {
     super(app);
     if (placeholder) {
       this.setPlaceholder(placeholder);
     }
+    if (selectedIndex != null) {
+      console.log("Setting selected item %d", selectedIndex);
+      setTimeout(() => this.chooser.setSelectedItem(selectedIndex));
+    }
+    console.log(this);
   }
 
   getSuggestions(
