@@ -1,5 +1,6 @@
 import { determineCampaignContext } from "campaigns/manager";
 import IronVaultPlugin from "index";
+import { Node } from "kdljs";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
 import { createDetailsNode } from "mechanics/node-builders";
 import {
@@ -8,14 +9,22 @@ import {
   createClockNode,
 } from "mechanics/node-builders/clocks";
 import { Editor, MarkdownFileInfo, MarkdownView, Notice } from "obsidian";
+import { Dice, DieKind } from "utils/dice";
+import { DiceGroup } from "utils/dice-group";
+import { node } from "utils/kdl";
+import { capitalize } from "utils/strings";
 import { stripMarkdown } from "utils/strip-markdown";
 import { YesNoPrompt } from "utils/ui/yesno";
-import { ClockFileAdapter, clockUpdater } from "../clocks/clock-file";
+import {
+  ClockFileAdapter,
+  clockUpdater,
+  namedOddsSchema,
+  STANDARD_ODDS,
+} from "../clocks/clock-file";
 import { selectClock } from "../clocks/select-clock";
 import { BLOCK_TYPE__CLOCK, IronVaultKind } from "../constants";
 import { createNewIronVaultEntityFile, vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
-import { Clock } from "./clock";
 import { ClockCreateModal } from "./clock-create-modal";
 
 export async function advanceClock(
@@ -39,6 +48,48 @@ export async function advanceClock(
     undefined,
     "Select number of segments to fill.",
   );
+
+  const defaultOdds = clockInfo.raw.defaultOdds;
+  let wrapClockUpdates: (nodes: Node[]) => Node[];
+  if (defaultOdds !== "no roll") {
+    const oddsIndex = namedOddsSchema.options.findIndex(
+      (val) => defaultOdds === val,
+    );
+    const roll = await CustomSuggestModal.select(
+      plugin.app,
+      namedOddsSchema.options,
+      (odds) => `${capitalize(odds)} (${STANDARD_ODDS[odds]}%)`,
+      undefined,
+      "Choose the odds to advance",
+      oddsIndex > -1 ? oddsIndex : undefined,
+    );
+    const rollOdds = STANDARD_ODDS[roll];
+    const result = await campaignContext
+      .diceRollerFor("move")
+      .rollAsync(DiceGroup.of(Dice.fromDiceString("1d100", DieKind.Oracle)));
+    const shouldAdvance = result[0].value <= rollOdds;
+
+    wrapClockUpdates = (nodes) => {
+      const props: { name: string; roll: number; result: string } = {
+        name: `Will [[${clockPath}|${stripMarkdown(plugin, clockInfo.name)}]] advance? (${capitalize(roll)})`,
+        roll: result[0].value,
+        result: shouldAdvance ? "Yes" : "No",
+      };
+      return [
+        node("oracle", {
+          properties: props,
+          children: nodes,
+        }),
+      ];
+    };
+
+    if (!shouldAdvance) {
+      appendNodesToMoveOrMechanicsBlock(editor, ...wrapClockUpdates([]));
+      return;
+    }
+  } else {
+    wrapClockUpdates = (nodes) => nodes;
+  }
 
   let shouldMarkResolved = false;
   if (clockInfo.clock.tick(ticks).isFilled) {
@@ -71,10 +122,10 @@ export async function advanceClock(
   const clockName = stripMarkdown(plugin, clockInfo.name);
   appendNodesToMoveOrMechanicsBlock(
     editor,
-    ...[
+    ...wrapClockUpdates([
       createClockNode(clockName, clockPath, clockInfo, newClock.clock),
       ...(shouldMarkResolved ? [clockResolvedNode(clockName, clockPath)] : []),
-    ],
+    ]),
   );
 }
 
@@ -107,14 +158,7 @@ export async function createClock(
   plugin: IronVaultPlugin,
   editor: Editor,
 ): Promise<void> {
-  const clockInput: {
-    targetFolder: string;
-    fileName: string;
-    name: string;
-    clock: Clock;
-  } = await new Promise((onAccept, onReject) => {
-    new ClockCreateModal(plugin, {}, onAccept, onReject).open();
-  });
+  const clockInput = await ClockCreateModal.show(plugin);
 
   const clock =
     ClockFileAdapter.newFromClock(clockInput).expect("invalid clock");
