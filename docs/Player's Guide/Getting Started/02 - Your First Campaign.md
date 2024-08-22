@@ -12,7 +12,7 @@ At the end of [[01 - Initial Setup]], you should have seen this screen:
 
 As the welcome message says, Iron Vault organizes vaults into [[Campaigns/index]]. Click on "create a campaign" (or choose the [[Creating a campaign]] command from the Obsidian command selector). This will show a dialog like the following:
 
-![[Create a new campaign.png|500]]
+![[Create a new campaign modal.png|500]]
 
 Give your name a campaign, but don't worry-- you can always change it later!
 
