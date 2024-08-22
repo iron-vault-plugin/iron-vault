@@ -1,6 +1,4 @@
-import { html, render, svg } from "lit-html";
-import { map } from "lit-html/directives/map.js";
-import { range } from "lit-html/directives/range.js";
+import { html, render } from "lit-html";
 
 import IronVaultPlugin from "index";
 import { vaultProcess } from "utils/obsidian";
@@ -9,6 +7,7 @@ import { TrackedEntityRenderer } from "utils/ui/tracked-entity-renderer";
 import { ZodError } from "zod";
 import { Clock } from "./clock";
 import { ClockFileAdapter, clockUpdater } from "./clock-file";
+import { clockWidget } from "./ui/clock-widget";
 
 export default function registerClockBlock(plugin: IronVaultPlugin): void {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -74,19 +73,11 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
               >`}
         </header>
 
-        <svg
-          class="clock-widget"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="-55 -55 110 110"
-          aria-valuenow=${clockFile.clock.progress}
-          aria-valuetext="${clockFile.clock.progress}⁄${clockFile.clock
-            .segments}"
-        >
-          ${map(range(clockFile.clock.segments), (i) =>
-            this.renderPath(i, clockFile),
-          )}
-        </svg>
+        ${clockWidget(clockFile.clock, (newProgress) =>
+          this.updateClockProgress({
+            progress: newProgress,
+          }),
+        )}
 
         <div
           class="clock-segments"
@@ -149,15 +140,6 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
     render(tpl, this.containerEl);
   }
 
-  renderPath(i: number, clockFile: ClockFileAdapter) {
-    return svg`<path
-      d="${pathString(i, clockFile.clock.segments)}"
-      class="clock-segment svg"
-      aria-selected="${clockFile.clock.progress === i + 1}"
-      @click=${() => this.updateClockProgress({ progress: i === 0 && clockFile.clock.progress === 1 ? 0 : i + 1 })}
-    ></path>`;
-  }
-
   async updateClockProgress({
     steps,
     progress,
@@ -173,17 +155,4 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
         ),
     );
   }
-}
-
-const R = 50;
-
-function pathString(wedgeIdx: number, numWedges: number) {
-  const wedgeAngle = (2 * Math.PI) / numWedges;
-  const startAngle = wedgeIdx * wedgeAngle - Math.PI / 2;
-  const x1 = R * Math.cos(startAngle);
-  const y1 = R * Math.sin(startAngle);
-  const x2 = R * Math.cos(startAngle + wedgeAngle);
-  const y2 = R * Math.sin(startAngle + wedgeAngle);
-
-  return `M0,0 L${x1},${y1} A${R},${R} 0 0,1 ${x2},${y2} z`;
 }
