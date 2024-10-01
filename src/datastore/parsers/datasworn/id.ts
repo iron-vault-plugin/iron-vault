@@ -46,6 +46,25 @@ export function matchDataswornLink(
   return { label: match.groups!.label, id: match.groups!.id };
 }
 
+export function parseDataswornLinks(
+  text: string,
+): (string | { match: string; label: string; id: string })[] {
+  const results: (string | { match: string; label: string; id: string })[] = [];
+  let lastIndex = 0;
+  for (const match of text.matchAll(new RegExp(DATASWORN_LINK_REGEX, "g"))) {
+    if (match.index > lastIndex) {
+      results.push(text.slice(lastIndex, match.index));
+    }
+    const { label, id } = match.groups!;
+    results.push({ match: match[0], label, id });
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    results.push(text.slice(lastIndex));
+  }
+  return results;
+}
+
 /** Render a markdown link for a given datasworn ID. */
 export function createDataswornMarkdownLink(label: string, id: string): string {
   if (id.startsWith("datasworn:"))

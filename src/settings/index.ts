@@ -53,6 +53,9 @@ export class IronVaultPluginSettings {
   /** Whether to generate an actor block even in a single PC campaign. */
   alwaysRecordActor: boolean = false;
 
+  /** Use the old oracle roller modal. */
+  useOldRoller: boolean = true;
+
   emitter?: Emittery;
 
   constructor() {

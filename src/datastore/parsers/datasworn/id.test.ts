@@ -1,6 +1,7 @@
 import {
   extractDataswornLinkParts,
   matchDataswornLink,
+  parseDataswornLinks,
   ParsedDataswornId,
 } from "./id";
 
@@ -62,4 +63,28 @@ describe("matchDataswornLink", () => {
       expect(matchDataswornLink(text)).toEqual(result);
     },
   );
+});
+
+describe("parseDataswornLinks", () => {
+  it("parses datasworn links", () => {
+    expect(
+      parseDataswornLinks(
+        "before[text](datasworn:oracle_rollable:foo/bar)after[text2](datasworn:oracle_rollable:foo/baz) end",
+      ),
+    ).toEqual([
+      "before",
+      {
+        match: "[text](datasworn:oracle_rollable:foo/bar)",
+        label: "text",
+        id: "oracle_rollable:foo/bar",
+      },
+      "after",
+      {
+        match: "[text2](datasworn:oracle_rollable:foo/baz)",
+        label: "text2",
+        id: "oracle_rollable:foo/baz",
+      },
+      " end",
+    ]);
+  });
 });

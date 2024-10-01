@@ -7,11 +7,23 @@
   }
 }
 
+.iron-vault-oracle-table-container {
+  overflow-y: auto;
+  min-height: 3em;
+  max-height: calc(var(--modal-max-height) * 0.5);
+}
+
 table.iron-vault-oracle-table {
   width: 100%;
   border-collapse: collapse;
+
   box-shadow: var(--shadow);
   margin-top: 1em;
+  & thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
   & thead tr {
     background-color: var(--background-primary);
   }
@@ -27,6 +39,12 @@ table.iron-vault-oracle-table {
     &:last-child {
       border-bottom: none;
     }
+    &:hover {
+      background-color: var(--interactive-accent-hover);
+      & a {
+        color: var(--text-on-accent);
+      }
+    }
     & td {
       & > p {
         margin: 0;
@@ -36,6 +54,18 @@ table.iron-vault-oracle-table {
         font-weight: var(--font-semibold);
         white-space: nowrap;
       }
+    }
+  }
+
+  & tbody tr.selected {
+    background-color: var(--interactive-accent);
+
+    &:hover {
+      background-color: var(--interactive-accent-hover);
+    }
+
+    & a {
+      color: var(--text-on-accent);
     }
   }
 }
