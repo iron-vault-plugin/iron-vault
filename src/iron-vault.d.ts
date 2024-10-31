@@ -42,7 +42,7 @@ declare module "@3d-dice/dice-box" {
     themeColor?: string;
   }
   export default class DiceBox {
-    constructor(container: string, options: DiceBoxOptions);
+    constructor(options: DiceBoxOptions);
     init(): Promise<void>;
     roll(dice: string | string[] | Roll | Roll[]): Promise<RollResult[]>;
     clear(): void;
@@ -50,6 +50,7 @@ declare module "@3d-dice/dice-box" {
 
   export interface DiceBoxOptions {
     assetPath: string;
+    container?: string;
     origin?: string;
     scale?: number;
     gravity?: number;

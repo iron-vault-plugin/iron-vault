@@ -16,7 +16,7 @@ import { IronVaultLinkView, LINK_VIEW } from "docs/docs-view";
 import { AsEmitting } from "indexer/index-interface";
 import { IndexManager } from "indexer/manager";
 import installLinkHandler from "link-handler";
-import { initLogger } from "logger";
+import { initLogger, rootLogger } from "logger";
 import { showMigrationView } from "migrate/command";
 import { MigrationManager } from "migrate/manager";
 import {
@@ -47,6 +47,8 @@ import { registerMoveBlock } from "./moves/block";
 import { IronVaultSettingTab } from "./settings/ui";
 import { pluginAsset } from "./utils/obsidian";
 
+const logger = rootLogger.getLogger("iron-vault-plugin");
+
 export default class IronVaultPlugin extends Plugin implements TrackedEntities {
   settings!: IronVaultPluginSettings;
   localSettings!: IronVaultPluginLocalSettings;
@@ -66,6 +68,8 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
   /** Called once Obsidian signals layout ready (at which point all files in the vault should
    * be in the fileMap. */
   private async initialize(): Promise<void> {
+    logger.debug("Layout ready. Performing post-load initialize...");
+
     if (this.initialized) {
       throw new Error(
         "Plugin re-initialized after initial load. This is likely a bug in Iron Vault.",
@@ -89,6 +93,9 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     );
     // Don't await this-- we don't care when or how it finishes.
     this.migrationManager.scan();
+
+    // Get dice overlay ready
+    this.diceOverlay.init();
   }
 
   public assetFilePath(assetPath: string) {
@@ -191,8 +198,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     // This adds a settings tab so the user can configure various aspects of the plugin
     this.addSettingTab(new IronVaultSettingTab(this.app, this));
     this.registerBlocks();
-    this.diceOverlay = await DiceOverlay.init(this, document.body);
-    this.register(() => this.diceOverlay.removeDiceOverlay());
+    this.diceOverlay = this.addChild(new DiceOverlay(this, document.body));
   }
 
   initializeDataSystems() {

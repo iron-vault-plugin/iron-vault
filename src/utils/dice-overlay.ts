@@ -1,5 +1,5 @@
 import DiceBox, { Roll, RollResult } from "@3d-dice/dice-box";
-import { Platform, normalizePath } from "obsidian";
+import { Component, Platform, normalizePath } from "obsidian";
 
 import ammo from "@3d-dice/dice-box/dist/assets/ammo/ammo.wasm.wasm";
 import defaultModels from "@3d-dice/dice-box/dist/assets/themes/default/default.json";
@@ -14,20 +14,17 @@ import { rootLogger } from "logger";
 
 const logger = rootLogger.getLogger("dice-overlay");
 
-export class DiceOverlay {
+export class DiceOverlay extends Component {
   diceBox: DiceBox;
 
-  static async init(plugin: IronVaultPlugin, target: HTMLElement) {
-    const od = new DiceOverlay(plugin, target);
-    await ensureAssets(plugin);
-    await od.diceBox.init();
-    return od;
-  }
+  assetsReady!: Promise<void>;
 
-  private constructor(
+  constructor(
     public plugin: IronVaultPlugin,
     target: HTMLElement,
   ) {
+    logger.trace("DiceOverlay: constructor");
+    super();
     const originUrl = new URL(
       plugin.app.vault.adapter.getResourcePath(pluginAssetsPath(plugin)),
     );
@@ -36,13 +33,31 @@ export class DiceOverlay {
     const container = document.createElement("div");
     container.id = "iron-vault-dice-box";
     target.appendChild(container);
-    this.diceBox = new DiceBox("#iron-vault-dice-box", {
+    this.diceBox = new DiceBox({
       assetPath: "/",
+      container: "#iron-vault-dice-box",
       origin: originUrl.toString(),
       gravity: 3,
       scale: Platform.isMobile ? 8 : 6,
       theme: "iv-theme",
     });
+  }
+
+  onload(): void {
+    logger.trace("DiceOverlay: onload");
+    this.assetsReady = ensureAssets(this.plugin);
+  }
+
+  onunload(): void {
+    this.removeDiceOverlay();
+  }
+
+  async init() {
+    logger.trace("Waiting for dice box assets to be ready...");
+    await this.assetsReady;
+    logger.debug("Initializing dice box");
+    await this.diceBox.init();
+    logger.debug("Dice box initialized.");
   }
 
   removeDiceOverlay() {
