@@ -2,7 +2,7 @@ import DiceBox, { Roll, RollResult } from "@3d-dice/dice-box";
 import { Platform, normalizePath } from "obsidian";
 
 import ammo from "@3d-dice/dice-box/dist/assets/ammo/ammo.wasm.wasm";
-import defaultModels from "@3d-dice/dice-box/dist/assets/models/default.json";
+import defaultModels from "@3d-dice/dice-box/dist/assets/themes/default/default.json";
 import diffuseDark from "@3d-dice/theme-smooth/diffuse-dark.png";
 import diffuseLight from "@3d-dice/theme-smooth/diffuse-light.png";
 import normal from "@3d-dice/theme-smooth/normal.png";
@@ -90,12 +90,12 @@ async function ensureAssets(plugin: IronVaultPlugin) {
   }
   await mkdir("");
   await mkdir("ammo");
-  await mkdir("models");
   await mkdir("themes");
+  await mkdir("themes/default");
   await mkdir("themes/iv-theme");
   await Promise.all([
     writeFile("ammo/ammo.wasm.wasm", ammo),
-    writeFile("models/default.json", JSON.stringify(defaultModels)),
+    writeFile("themes/default/default.json", JSON.stringify(defaultModels)),
     writeFile("themes/iv-theme/diffuse-dark.png", diffuseDark),
     writeFile("themes/iv-theme/diffuse-light.png", diffuseLight),
     writeFile("themes/iv-theme/normal.png", normal),
