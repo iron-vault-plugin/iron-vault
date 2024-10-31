@@ -32,7 +32,7 @@ import {
 import { IronVaultPluginSettings } from "settings";
 import { IronVaultPluginLocalSettings } from "settings/local";
 import registerSidebarBlocks from "sidebar/sidebar-block";
-import { SidebarView, VIEW_TYPE } from "sidebar/sidebar-view";
+import { SIDEBAR_VIEW_TYPE, SidebarView } from "sidebar/sidebar-view";
 import { TrackedEntities } from "te/index-interface";
 import { ProgressIndex, ProgressIndexer } from "tracks/indexer";
 import registerTrackBlock from "tracks/track-block";
@@ -149,7 +149,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     this.register(() => delete window.IronVaultAPI);
     installLinkHandler(this);
 
-    this.registerView(VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
+    this.registerView(SIDEBAR_VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
     this.registerView(LINK_VIEW, (leaf) => new IronVaultLinkView(leaf));
     this.registerView(
       MIGRATION_VIEW_TYPE,
@@ -232,12 +232,12 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
   }
 
   async initLeaf() {
-    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE)) {
+    for (const leaf of this.app.workspace.getLeavesOfType(SIDEBAR_VIEW_TYPE)) {
       return leaf;
     }
     const leaf = this.app.workspace.getRightLeaf(false);
     await leaf?.setViewState({
-      type: VIEW_TYPE,
+      type: SIDEBAR_VIEW_TYPE,
     });
     return leaf;
   }

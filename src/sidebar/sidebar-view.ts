@@ -7,7 +7,7 @@ import renderIronVaultMoves from "./moves";
 import renderIronVaultOracles from "./oracles";
 import { ActiveCampaignWatch } from "./sidebar-block";
 
-export const VIEW_TYPE = "iron-vault-sidebar-view";
+export const SIDEBAR_VIEW_TYPE = "iron-vault-sidebar-view";
 
 export class SidebarView extends ItemView {
   plugin: IronVaultPlugin;
@@ -22,7 +22,7 @@ export class SidebarView extends ItemView {
   }
 
   getViewType() {
-    return VIEW_TYPE;
+    return SIDEBAR_VIEW_TYPE;
   }
 
   getDisplayText() {

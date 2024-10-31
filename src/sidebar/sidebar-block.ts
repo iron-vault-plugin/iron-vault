@@ -59,7 +59,7 @@ export class ActiveCampaignWatch extends BaseCampaignSource {
     );
 
     if (this.campaignManager.lastActiveCampaign()) {
-      this.update();
+      setTimeout(() => this.update());
     }
   }
 
@@ -121,7 +121,7 @@ export class FileBasedCampaignWatch extends BaseCampaignSource {
     );
     this.#campaign = campaign ?? undefined;
     this.#unsub = unsubscribe;
-    this.update();
+    setTimeout(() => this.update());
   }
 
   onunload(): void {
