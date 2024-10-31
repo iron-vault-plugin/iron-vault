@@ -4,12 +4,12 @@ import { CampaignManager } from "campaigns/manager";
 import { UnsubscribeFunction } from "emittery";
 import IronVaultPlugin from "index";
 import { html, render } from "lit-html";
+import { rootLogger } from "logger";
 import { Component, MarkdownRenderChild, Vault } from "obsidian";
 import renderIronVaultMoves from "./moves";
 import renderIronVaultOracles from "./oracles";
 
-// These are intended for folks who want to get the stuff that's usualy in the
-// sidebar, but embedded in a note directly.
+const logger = rootLogger.getLogger("sidebar-block");
 
 export default function registerSidebarBlocks(plugin: IronVaultPlugin) {
   plugin.registerMarkdownCodeBlockProcessor(
@@ -44,6 +44,7 @@ abstract class BaseCampaignSource extends Component {
   }
 
   protected update() {
+    logger.trace("BaseCampaignSource: triggering update callback");
     return this.#onUpdate && this.#onUpdate();
   }
 }
@@ -54,12 +55,18 @@ export class ActiveCampaignWatch extends BaseCampaignSource {
   }
 
   onload() {
+    logger.trace("ActiveCampaignWatch.onload: regstering watch");
     this.registerEvent(
       this.campaignManager.on("active-campaign-changed", () => this.update()),
     );
 
     if (this.campaignManager.lastActiveCampaign()) {
+      logger.trace(
+        "ActiveCampaignWatch.onload: found last active campaign; triggering update",
+      );
       setTimeout(() => this.update());
+    } else {
+      logger.trace("ActiveCampaignWatch.onload: no active campaign");
     }
   }
 

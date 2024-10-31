@@ -16,7 +16,7 @@ export default async function renderIronVaultCharacter(
   try {
     const campaign = plugin.campaignManager.lastActiveCampaign();
     if (!campaign) {
-      render(html`<p>No active campaign</p>`, containerEl);
+      render(html`<p>No active campaign.</p>`, containerEl);
       return;
     }
     const context = currentActiveCharacterForCampaign(
