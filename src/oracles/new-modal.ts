@@ -15,7 +15,7 @@ import { ref } from "lit-html/directives/ref.js";
 import { NoSuchOracleError } from "model/errors";
 import { CurseBehavior, Oracle, RollContext } from "model/oracle";
 import { Roll, RollWrapper, Subroll } from "model/rolls";
-import { Modal, Platform, setIcon, Setting, ToggleComponent } from "obsidian";
+import { Modal, Platform, setIcon, ToggleComponent } from "obsidian";
 import { randomInt } from "utils/dice";
 
 function generateOracleRows(currentRoll: RollWrapper): RollWrapper[] {
@@ -84,9 +84,9 @@ class RowState {
       const oracle = context.lookup(id);
       if (!oracle) throw new NoSuchOracleError(id);
 
-      if (index != subrolls.rolls.length + 1)
+      if (index != subrolls.rolls.length)
         throw new Error(
-          `subroll requested at index ${index}, but existing subrolls length is ${subrolls.rolls.length}`,
+          `subroll requested at index ${index}, but expected to match existing subrolls length of ${subrolls.rolls.length}`,
         );
       subroll = new ObservableRoll(
         new RollWrapper(oracle, context, oracle.rollDirect(context)),
@@ -385,11 +385,12 @@ export class NewOracleRollerModal extends Modal {
       cursedRollState?: ObservableRoll,
     ) => void,
     protected readonly onCancel: () => void,
+    public titlePrefix: string[] = [],
   ) {
     super(plugin.app);
 
     const { contentEl } = this;
-    new Setting(contentEl).setName(this.rollContainer.oracle.name).setHeading();
+    this.setTitle([...titlePrefix, this.rollContainer.oracle.name].join(" > "));
     this.tableContainerEl = contentEl.createDiv();
 
     this.scope.register([], "ArrowUp", () => {
@@ -521,8 +522,14 @@ export class NewOracleRollerModal extends Modal {
                             >`,
                         );
                       } else {
-                        // TODO(@cwegrzyn): Make it so that you can subroll these? Why was it not rolled? Not auto?
-                        return html`<a>${label}</a>`;
+                        const subOracle = rolled.context.lookup(id);
+                        return html`<a
+                          aria-label=${subOracle?.name}
+                          data-tooltip-position="top"
+                          @click=${(ev: MouseEvent) =>
+                            this._subrollClick(ev, i, id, 0)}
+                          >${label}</a
+                        >`;
                       }
                     });
                   };
@@ -624,6 +631,7 @@ export class NewOracleRollerModal extends Modal {
         }
       },
       () => {},
+      [...this.titlePrefix, state.oracle.name],
     ).open();
   }
 
