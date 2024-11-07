@@ -16,9 +16,10 @@ import {
   OracleGrouping,
   OracleGroupingType,
 } from "../model/oracle";
-import { Roll, RollWrapper } from "../model/rolls";
+import { Roll } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
+import { NewOracleRollerModal } from "./new-modal";
 import { oracleNameWithParents } from "./render";
 import { OracleRoller } from "./roller";
 
@@ -114,31 +115,29 @@ export async function runOracleCommand(
       `Roll your oracle dice (${oracle.dice}) and enter the value`,
     );
     if (typeof diceValue === "number") {
-      initialRoll = await oracle.evaluate(rollContext, diceValue);
+      initialRoll = oracle.evaluate(rollContext, diceValue);
     }
   }
 
-  new OracleRollerModal(
+  const modal = plugin.settings.useOldRoller
+    ? OracleRollerModal
+    : NewOracleRollerModal;
+  const { roll, cursedRoll } = await modal.forRoll(
     plugin,
     oracle,
-    new RollWrapper(
-      oracle,
-      rollContext,
-      initialRoll || (await oracle.roll(rollContext)),
-    ),
-    (roll, cursedRoll?) => {
-      // Delete the prompt and then inject the oracle node to a mechanics block
-      editor.setSelection(replaceSelection.anchor, replaceSelection.head);
-      editor.replaceSelection("");
-      const oracleNode = createOracleNode(roll, prompt);
-      const oracleNodes = [oracleNode];
-      if (cursedRoll) {
-        oracleNode.children.push(createOracleNode(cursedRoll));
-        oracleNode.properties.replaced =
-          cursedRoll.oracle.curseBehavior === CurseBehavior.ReplaceResult;
-      }
-      createOrAppendMechanics(editor, oracleNodes);
-    },
-    () => {},
-  ).open();
+    rollContext,
+    initialRoll || (await oracle.roll(rollContext)),
+  );
+
+  // Delete the prompt and then inject the oracle node to a mechanics block
+  editor.setSelection(replaceSelection.anchor, replaceSelection.head);
+  editor.replaceSelection("");
+  const oracleNode = createOracleNode(roll, prompt);
+  const oracleNodes = [oracleNode];
+  if (cursedRoll) {
+    oracleNode.children.push(createOracleNode(cursedRoll));
+    oracleNode.properties.replaced =
+      cursedRoll.oracle.curseBehavior === CurseBehavior.ReplaceResult;
+  }
+  createOrAppendMechanics(editor, oracleNodes);
 }

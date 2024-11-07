@@ -105,6 +105,15 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("Dice").setHeading();
 
     new Setting(containerEl)
+      .setName("Use old oracle roller dialog")
+      .setDesc("If enabled, reverts to the old Ask the Oracle result dialog.")
+      .addToggle((btn) =>
+        btn
+          .setValue(settings.useOldRoller)
+          .onChange((val) => this.updateSetting("useOldRoller", val)),
+      );
+
+    new Setting(containerEl)
       .setName("Prompt for rolls in Make a Move")
       .setDesc(
         "If enabled, when you Make a Move, the plugin will prompt you to roll your own dice and enter the values.",

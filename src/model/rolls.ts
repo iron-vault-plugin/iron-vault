@@ -91,6 +91,10 @@ export class RollWrapper {
     this.row = oracle.row(roll.roll);
   }
 
+  get diceValue(): number {
+    return this.roll.roll;
+  }
+
   async variants(): Promise<Readonly<Record<string, RollWrapper>>> {
     return Object.fromEntries(
       Object.entries(await this.oracle.variants(this.context, this.roll)).map(
@@ -212,6 +216,39 @@ export class RollWrapper {
     return this._subrolls;
   }
 
+  replacingSubroll(subrollId: string, newValues: RollWrapper[]): RollWrapper {
+    const existingSubroll = this.roll.subrolls?.[subrollId];
+    if (!existingSubroll) {
+      throw new Error(
+        `Attempted to replace non-existent subroll oracle id ${subrollId}`,
+      );
+    }
+    const updatedRoll = {
+      ...this.roll,
+      subrolls: {
+        ...this.roll.subrolls,
+        [subrollId]: {
+          ...existingSubroll,
+          rolls: newValues.map((wrap) => wrap.roll),
+        },
+      },
+    };
+    return new RollWrapper(this.oracle, this.context, updatedRoll);
+  }
+
+  replacingSubrolls(subrolls: [string, Subroll<RollWrapper>][]): RollWrapper {
+    const updatedRoll = {
+      ...this.roll,
+      subrolls: Object.fromEntries(
+        subrolls.map(([k, s]) => [
+          k,
+          { ...s, rolls: s.rolls.map((w) => w.roll) },
+        ]),
+      ),
+    };
+    return new RollWrapper(this.oracle, this.context, updatedRoll);
+  }
+
   get selfRolls(): RollWrapper[] {
     return this.subrolls[this.roll.tableId]?.rolls ?? [];
   }
@@ -276,6 +313,21 @@ export class RollWrapper {
         ];
       }
     }
+  }
+
+  withinRange(range?: NumberRange): boolean {
+    const { roll } = this.roll;
+    return range ? range.min <= roll && roll <= range.max : false;
+  }
+
+  isSameRowAs(rollWrapper: RollWrapper): boolean {
+    return (
+      rollWrapper.row.range != null &&
+      this.row.range != null &&
+      rollWrapper.oracle.id === this.oracle.id &&
+      rollWrapper.row.range.min == this.row.range.min &&
+      rollWrapper.row.range.max == this.row.range.max
+    );
   }
 }
 

@@ -1,12 +1,33 @@
 import IronVaultPlugin from "index";
-import { CurseBehavior, Oracle } from "model/oracle";
-import { RollWrapper } from "model/rolls";
+import { CurseBehavior, Oracle, RollContext } from "model/oracle";
+import { Roll, RollWrapper } from "model/rolls";
 import { Modal, Setting } from "obsidian";
 import { stripMarkdown } from "utils/strip-markdown";
 
 export class OracleRollerModal extends Modal {
   public accepted: boolean = false;
   public cursedRoll?: RollWrapper;
+
+  static async forRoll(
+    plugin: IronVaultPlugin,
+    oracle: Oracle,
+    context: RollContext,
+    initialRoll: Roll,
+  ): Promise<{ roll: RollWrapper; cursedRoll?: RollWrapper }> {
+    return new Promise((resolve, reject) => {
+      try {
+        new this(
+          plugin,
+          oracle,
+          new RollWrapper(oracle, context, initialRoll),
+          (roll, cursedRoll) => resolve({ roll, cursedRoll }),
+          reject,
+        ).open();
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
 
   constructor(
     private plugin: IronVaultPlugin,
