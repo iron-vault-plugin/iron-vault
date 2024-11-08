@@ -540,6 +540,10 @@ export class NewOracleRollerModal extends Modal {
                         this.accept();
                       }
                     }}
+                    @dblclick=${async (_ev: MouseEvent) => {
+                      await this.updateState((s) => s.updateSelection(() => i));
+                      this.accept();
+                    }}
                     ${selected
                       ? ref(
                           (el) =>
