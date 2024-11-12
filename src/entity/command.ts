@@ -19,7 +19,8 @@ import IronVaultPlugin from "../index";
 import { Oracle, OracleRollableRow, RollContext } from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
-import { EntityModal, EntityModalResults } from "./modal";
+import { EntityModal } from "./modal";
+import { EntityModalResults, NewEntityModal } from "./new-modal";
 import {
   ENTITIES,
   EntityAttributeFieldSpec,
@@ -81,7 +82,7 @@ export async function promptOracleRow(
 }
 
 export async function generateEntity(
-  app: App,
+  plugin: IronVaultPlugin,
   dataContext: CampaignDataContext,
   entityDesc: EntityDescriptor<EntitySpec>,
 ): Promise<EntityModalResults<EntitySpec>> {
@@ -103,14 +104,28 @@ export async function generateEntity(
     if (!oracle) {
       throw new NoSuchOracleError(spec.id, `missing entity oracle for ${key}`);
     }
-    const roll = await promptOracleRow(app, oracle, rollContext, true);
+    const roll = await promptOracleRow(plugin.app, oracle, rollContext, true);
     initialEntity[key] = [new RollWrapper(oracle, rollContext, roll)];
   }
   return EntityModal.create({
-    app,
+    app: plugin.app,
     entityDesc,
     rollContext,
     initialEntity,
+  });
+}
+
+export async function generateEntityNewModal(
+  plugin: IronVaultPlugin,
+  dataContext: CampaignDataContext,
+  entityDesc: EntityDescriptor<EntitySpec>,
+): Promise<EntityModalResults<EntitySpec>> {
+  const rollContext = dataContext.oracleRoller;
+  return NewEntityModal.create({
+    plugin,
+    entityDesc,
+    rollContext,
+    initialEntity: {},
   });
 }
 
@@ -163,10 +178,22 @@ export async function generateEntityCommand(
 
   let results: EntityModalResults<EntitySpec>;
   try {
-    results = await generateEntity(plugin.app, campaignContext, entityDesc);
+    if (plugin.settings.useOldRoller) {
+      results = await generateEntity(plugin, campaignContext, entityDesc);
+    } else {
+      results = await generateEntityNewModal(
+        plugin,
+        campaignContext,
+        entityDesc,
+      );
+    }
   } catch (e) {
-    new Notice(String(e));
-    throw e;
+    if (e) {
+      new Notice(String(e));
+      throw e;
+    } else {
+      return;
+    }
   }
 
   const { entity, createFile } = results;

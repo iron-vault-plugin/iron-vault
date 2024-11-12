@@ -181,10 +181,9 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
       this.setPlaceholder(placeholder);
     }
     if (selectedIndex != null) {
-      console.log("Setting selected item %d", selectedIndex);
+      // console.log("Setting selected item %d", selectedIndex);
       setTimeout(() => this.chooser.setSelectedItem(selectedIndex));
     }
-    console.log(this);
   }
 
   getSuggestions(

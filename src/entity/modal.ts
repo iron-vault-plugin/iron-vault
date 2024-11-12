@@ -1,4 +1,3 @@
-import { matchDataswornLink } from "datastore/parsers/datasworn/id";
 import {
   App,
   ButtonComponent,
@@ -14,56 +13,15 @@ import { FolderTextSuggest } from "utils/ui/settings/folder";
 import { Oracle, RollContext } from "../model/oracle";
 import { RollWrapper } from "../model/rolls";
 import {
-  AttributeMechanism,
   EntityAttributeFieldSpec,
   EntityDescriptor,
   EntityFieldSpec,
   EntityResults,
   EntitySpec,
+  evaluateAttribute,
+  hasAllProperties,
   isEntityAttributeSpec,
 } from "./specs";
-
-const SAFE_SNAKECASE_RESULT = /^[a-z0-9\s]+$/i;
-// [Rocky World](id:starforged/collections/oracles/planets/rocky)
-
-function evaluateAttribute(
-  spec: EntityAttributeFieldSpec,
-  roll: RollWrapper[],
-): string {
-  if (roll.length != 1) {
-    throw new Error(`unexpected number of rolls for attribute: ${roll.length}`);
-  }
-  const rawResult = roll[0].simpleResult;
-  switch (spec.definesAttribute.mechanism) {
-    case AttributeMechanism.Snakecase:
-      if (!rawResult.match(SAFE_SNAKECASE_RESULT))
-        throw new Error(
-          `attribute value did not have snakecase-compatible result: ${rawResult}`,
-        );
-      return rawResult.replaceAll(/\s+/g, "_").toLowerCase();
-    case AttributeMechanism.ParseId: {
-      const match = matchDataswornLink(rawResult);
-      if (!match) throw new Error(`no id link found: ${rawResult}`);
-      const parts = match.id.split("/");
-      if (parts.length < 2) throw new Error(`no / separator in ${rawResult}`);
-      return parts.last()!;
-    }
-  }
-}
-
-/** Check that all properties in `reqs` are present in `inst`.
- * @param reqs all properties on this object must be present on `inst`
- * @param inst the object to test against reqs
- * @returns true if `inst` matches `reqs`
- */
-function hasAllProperties<K extends string>(
-  reqs: Partial<Record<K, string>>,
-  inst: Partial<Record<K, string>>,
-): boolean {
-  return (Object.entries(reqs) as [K, string][])
-    .map(([reqKey, reqValue]) => inst[reqKey] === reqValue)
-    .reduce((acc, cond) => acc && cond);
-}
 
 export type EntityModalResults<T extends EntitySpec> = {
   createFile: boolean;

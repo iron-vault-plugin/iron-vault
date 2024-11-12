@@ -1,3 +1,5 @@
+import { rootLogger } from "logger";
+
 export function randomInt(min: number, max: number): number {
   const randomBuffer = new Uint32Array(1);
 
@@ -19,6 +21,8 @@ export enum DieKind {
   Cursed = "cursed",
 }
 
+const logger = rootLogger.getLogger("dice");
+
 export class Dice {
   static fromDiceString(spec: string, kind?: DieKind): Dice {
     const parsed = spec.match(DICE_REGEX);
@@ -36,7 +40,19 @@ export class Dice {
     public readonly count: number,
     public readonly sides: number,
     public readonly kind?: DieKind,
-  ) {}
+  ) {
+    if (sides > 100 && sides % 100 == 0) {
+      this.sides = 100;
+      this.count = sides / 100;
+      logger.debug(
+        "Converted %dd%d to %dd%d",
+        count,
+        sides,
+        this.count,
+        this.sides,
+      );
+    }
+  }
 
   roll(): number {
     let total = 0;
