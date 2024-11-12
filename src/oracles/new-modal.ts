@@ -10,6 +10,7 @@ import {
   PartInfo,
   PartType,
 } from "lit-html/directive.js";
+import { join } from "lit-html/directives/join.js";
 import { map } from "lit-html/directives/map.js";
 import { ref } from "lit-html/directives/ref.js";
 import { NoSuchOracleError } from "model/errors";
@@ -247,20 +248,27 @@ class ObservableRoll {
   }
 }
 
-interface IRollContainer {
+export interface IRollContainer {
   mainResult: ObservableRoll;
   oracle: Oracle;
 
   isCursable(): this is CursableRollContainer;
 
-  activeRoll(): [ObservableRoll, (state: RollerState) => boolean];
+  activeRoll(): ObservableRoll;
+  activeRollForUpdate(): [ObservableRoll, (state: RollerState) => boolean];
+
+  copy(): IRollContainer;
 }
 
-class SimpleRollContainer implements IRollContainer {
+export class SimpleRollContainer implements IRollContainer {
   mainResult: ObservableRoll;
 
-  constructor(initialRoll: RollWrapper | RollerState) {
-    this.mainResult = new ObservableRoll(initialRoll);
+  constructor(initialRoll: RollWrapper | RollerState | SimpleRollContainer) {
+    if (initialRoll instanceof SimpleRollContainer) {
+      this.mainResult = initialRoll.mainResult;
+    } else {
+      this.mainResult = new ObservableRoll(initialRoll);
+    }
   }
 
   get oracle() {
@@ -271,7 +279,11 @@ class SimpleRollContainer implements IRollContainer {
     return false;
   }
 
-  activeRoll(): [ObservableRoll, (state: RollerState) => boolean] {
+  activeRoll() {
+    return this.mainResult;
+  }
+
+  activeRollForUpdate(): [ObservableRoll, (state: RollerState) => boolean] {
     return [
       this.mainResult,
       (state) => {
@@ -281,9 +293,13 @@ class SimpleRollContainer implements IRollContainer {
       },
     ];
   }
+
+  copy() {
+    return new SimpleRollContainer(this);
+  }
 }
 
-class CursableRollContainer implements IRollContainer {
+export class CursableRollContainer implements IRollContainer {
   /** Value of cursed die, if rolled. */
   cursedDie?: number;
 
@@ -291,7 +307,14 @@ class CursableRollContainer implements IRollContainer {
   cursedResult: ObservableRoll;
   useCursedResult: boolean;
 
-  constructor(initialRoll: RollWrapper) {
+  constructor(initialRoll: RollWrapper | CursableRollContainer) {
+    if (initialRoll instanceof CursableRollContainer) {
+      this.cursedDie = initialRoll.cursedDie;
+      this.mainResult = initialRoll.mainResult;
+      this.cursedResult = initialRoll.cursedResult;
+      this.useCursedResult = initialRoll.useCursedResult;
+      return;
+    }
     if (!initialRoll.cursedTable) {
       throw new Error("must have a cursed table");
     }
@@ -319,7 +342,11 @@ class CursableRollContainer implements IRollContainer {
     return true;
   }
 
-  activeRoll(): [ObservableRoll, (state: RollerState) => boolean] {
+  activeRoll() {
+    return this.useCursedResult ? this.cursedResult : this.mainResult;
+  }
+
+  activeRollForUpdate(): [ObservableRoll, (state: RollerState) => boolean] {
     return [
       this.useCursedResult ? this.cursedResult : this.mainResult,
       (state) => {
@@ -335,9 +362,13 @@ class CursableRollContainer implements IRollContainer {
       },
     ];
   }
+
+  copy() {
+    return new CursableRollContainer(this);
+  }
 }
 
-function createRollContainer(roll: RollWrapper): RollContainer {
+export function createRollContainer(roll: RollWrapper): RollContainer {
   if (roll.cursedTable) {
     return new CursableRollContainer(roll);
   } else {
@@ -345,7 +376,7 @@ function createRollContainer(roll: RollWrapper): RollContainer {
   }
 }
 
-type RollContainer = SimpleRollContainer | CursableRollContainer;
+export type RollContainer = SimpleRollContainer | CursableRollContainer;
 
 export class NewOracleRollerModal extends Modal {
   public accepted: boolean = false;
@@ -364,10 +395,13 @@ export class NewOracleRollerModal extends Modal {
         new this(
           plugin,
           createRollContainer(new RollWrapper(oracle, context, initialRoll)),
-          (state, cursedState) =>
+          (container) =>
             resolve({
-              roll: state.currentRoll(),
-              cursedRoll: cursedState && cursedState.currentRoll(),
+              roll: container.mainResult.currentRoll(),
+              cursedRoll:
+                container.isCursable() && container.useCursedResult
+                  ? container.cursedResult.currentRoll()
+                  : undefined,
             }),
           reject,
         ).open();
@@ -380,14 +414,13 @@ export class NewOracleRollerModal extends Modal {
   constructor(
     private plugin: IronVaultPlugin,
     public rollContainer: RollContainer,
-    protected readonly onAccept: (
-      acceptedState: ObservableRoll,
-      cursedRollState?: ObservableRoll,
-    ) => void,
+    protected readonly onAccept: (rollContainer: RollContainer) => void,
     protected readonly onCancel: () => void,
     public titlePrefix: string[] = [],
   ) {
     super(plugin.app);
+
+    this.rollContainer = rollContainer = rollContainer.copy();
 
     const { contentEl } = this;
     this.setTitle([...titlePrefix, this.rollContainer.oracle.name].join(" > "));
@@ -421,15 +454,13 @@ export class NewOracleRollerModal extends Modal {
   async updateState(
     fn: (state: RollerState) => RollerState | Promise<RollerState>,
   ) {
-    const [current, updater] = this.rollContainer.activeRoll();
+    const [current, updater] = this.rollContainer.activeRollForUpdate();
     const state = await Promise.resolve(fn(current.observe()));
     if (updater(state)) this.renderTable();
   }
 
   renderTable() {
     // TODO(@cwegrzyn): need to render markdown
-
-    console.debug(this);
 
     const renderCurseToggle = (rollContainer: CursableRollContainer) => {
       const cursedTable = rollContainer.cursedResult.oracle;
@@ -533,6 +564,30 @@ export class NewOracleRollerModal extends Modal {
                       }
                     });
                   };
+                  const renderSelfRolls = () => {
+                    const selfRolls =
+                      rolled.subrolls[rolled.oracle.id]?.rolls ?? [];
+                    if (selfRolls.length == 0) return undefined;
+                    return html` (${join(
+                      map(
+                        selfRolls,
+                        (roll, subidx) =>
+                          html`<a
+                            aria-label=${rolled.oracle.name}
+                            data-tooltip-position="top"
+                            @click=${(ev: MouseEvent) =>
+                              this._subrollClick(
+                                ev,
+                                i,
+                                rolled.oracle.id,
+                                subidx,
+                              )}
+                            >${roll.ownResult}</a
+                          >`,
+                      ),
+                      html`<span class="separator">, </span>`,
+                    )})`;
+                  };
                   return html`<tr
                     @click=${async (_ev: MouseEvent) => {
                       await this.updateState((s) => s.updateSelection(() => i));
@@ -560,8 +615,12 @@ export class NewOracleRollerModal extends Modal {
                   >
                     ${map(
                       columns,
-                      ({ getter }) =>
-                        html`<td>${renderSubRolls(getter(row))}</td>`,
+                      ({ getter }, index) =>
+                        html`<td>
+                          ${renderSubRolls(getter(row))}${index == 1
+                            ? renderSelfRolls()
+                            : undefined}
+                        </td>`,
                     )}
                     ${initial
                       ? html`<td
@@ -619,16 +678,16 @@ export class NewOracleRollerModal extends Modal {
     ev.preventDefault();
     ev.stopPropagation();
 
-    const [state, updateContainer] = this.rollContainer.activeRoll();
+    const [state, updateContainer] = this.rollContainer.activeRollForUpdate();
     const [row, updateRoller] = state.observe().rowForUpdate(rowIndex);
     const [subrollRoller, updateRow] = row.observeSubroll(id, subidx);
 
     new NewOracleRollerModal(
       this.plugin,
       new SimpleRollContainer(subrollRoller),
-      (newSubrollState) => {
+      (container) => {
         const newRollerState = updateRoller(
-          updateRow(newSubrollState.observe()),
+          updateRow(container.mainResult.observe()),
         ).updateSelection(() => rowIndex);
         if (updateContainer(newRollerState)) {
           this.renderTable();
@@ -648,12 +707,7 @@ export class NewOracleRollerModal extends Modal {
   accept(): void {
     this.accepted = true;
     this.close();
-    this.onAccept(
-      this.rollContainer.mainResult,
-      this.rollContainer.isCursable() && this.rollContainer.useCursedResult
-        ? this.rollContainer.cursedResult
-        : undefined,
-    );
+    this.onAccept(this.rollContainer);
   }
 
   onClose(): void {
