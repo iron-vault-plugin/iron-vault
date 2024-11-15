@@ -250,8 +250,11 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
 
     this.attributesEl = contentEl.createDiv();
 
-    new Setting(contentEl)
-      .addButton((btn) =>
+    const commandSetting = new Setting(contentEl);
+    if (
+      Object.values(this.entityDesc.spec).some(({ firstLook }) => firstLook)
+    ) {
+      commandSetting.addButton((btn) =>
         btn.setButtonText("Roll first look").onClick(async () => {
           this.rolls.clear();
           this.onUpdateRolls();
@@ -273,13 +276,14 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
             }
           }
         }),
-      )
-      .addButton((btn) =>
-        btn.setButtonText("Clear").onClick(() => {
-          this.rolls.clear();
-          this.onUpdateRolls();
-        }),
       );
+    }
+    commandSetting.addButton((btn) =>
+      btn.setButtonText("Clear").onClick(() => {
+        this.rolls.clear();
+        this.onUpdateRolls();
+      }),
+    );
 
     const updateAccept = () => {
       acceptButton.setDisabled(
