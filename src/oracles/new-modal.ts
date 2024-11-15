@@ -15,7 +15,7 @@ import { map } from "lit-html/directives/map.js";
 import { ref } from "lit-html/directives/ref.js";
 import { NoSuchOracleError } from "model/errors";
 import { CurseBehavior, Oracle, RollContext } from "model/oracle";
-import { Roll, RollWrapper, Subroll } from "model/rolls";
+import { Roll, RollWrapper, Subroll, withinRange } from "model/rolls";
 import { Modal, Platform, setIcon, ToggleComponent } from "obsidian";
 import { randomInt } from "utils/dice";
 
@@ -199,16 +199,25 @@ class RollerState {
       | Datasworn.OracleRollableRowText
       | Datasworn.OracleRollableRowText2
       | Datasworn.OracleRollableRowText3;
-    isInitial: boolean;
+    marker: "initial" | "flipped" | null;
     isSelected: boolean;
     index: number;
   }> {
+    const flippedRoll = this.oracle.dice.flip(
+      this.rows[this.initialRowIndex].initialRoll.diceValue,
+    );
     for (let index = 0; index < this.rows.length; index++) {
       const oracleRow = this.oracle.raw.rows[index];
+      const roll = this.rows[index];
       yield {
-        roll: this.rows[index],
+        roll,
         oracleRow,
-        isInitial: this.initialRowIndex == index,
+        marker:
+          this.initialRowIndex == index
+            ? "initial"
+            : withinRange(flippedRoll, oracleRow.roll ?? undefined)
+              ? "flipped"
+              : null,
         isSelected: this.selectedRowIndex == index,
         index,
       };
@@ -526,7 +535,7 @@ export class NewOracleRollerModal extends Modal {
                   roll: rowState,
                   oracleRow: row,
                   index: i,
-                  isInitial: initial,
+                  marker,
                   isSelected: selected,
                 }) => {
                   const renderedSubrolls = new Set();
@@ -622,18 +631,7 @@ export class NewOracleRollerModal extends Modal {
                             : undefined}
                         </td>`,
                     )}
-                    ${initial
-                      ? html`<td
-                          aria-label="Initial roll"
-                          data-tooltip-position="top"
-                          ${ref(
-                            (el) =>
-                              el &&
-                              el instanceof HTMLElement &&
-                              setIcon(el, "bookmark"),
-                          )}
-                        />`
-                      : html`<td />`}
+                    ${renderMarker(marker, rolled.diceValue)}
                   </tr>`;
                 },
               )}
@@ -815,3 +813,27 @@ class ToggleComponentDirective extends Directive {
 }
 
 const toggleDirective = directive(ToggleComponentDirective);
+
+function renderMarker(marker: "initial" | "flipped" | null, diceValue: number) {
+  switch (marker) {
+    case "initial":
+      return html`<td
+        aria-label="Initial roll (${diceValue})"
+        data-tooltip-position="top"
+        ${ref(
+          (el) => el && el instanceof HTMLElement && setIcon(el, "bookmark"),
+        )}
+      />`;
+    case "flipped":
+      return html`<td
+        aria-label="Flipped roll (${diceValue})"
+        data-tooltip-position="top"
+        ${ref(
+          (el) =>
+            el && el instanceof HTMLElement && setIcon(el, "flip-vertical-2"),
+        )}
+      />`;
+    default:
+      return html`<td />`;
+  }
+}
