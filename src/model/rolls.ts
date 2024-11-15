@@ -316,8 +316,7 @@ export class RollWrapper {
   }
 
   withinRange(range?: NumberRange): boolean {
-    const { roll } = this.roll;
-    return range ? range.min <= roll && roll <= range.max : false;
+    return withinRange(this.roll.roll, range);
   }
 
   isSameRowAs(rollWrapper: RollWrapper): boolean {
@@ -329,6 +328,10 @@ export class RollWrapper {
       rollWrapper.row.range.max == this.row.range.max
     );
   }
+}
+
+export function withinRange(value: number, range?: NumberRange) {
+  return range ? range.min <= value && value <= range.max : false;
 }
 
 export interface NumberRange {
