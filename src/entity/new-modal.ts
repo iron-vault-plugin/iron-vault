@@ -17,7 +17,6 @@ import {
 } from "obsidian";
 import {
   createRollContainer,
-  IRollContainer,
   NewOracleRollerModal,
   RollContainer,
 } from "oracles/new-modal";
@@ -34,26 +33,17 @@ import {
   evaluateSlotId,
   hasAllProperties,
   isEntityAttributeSpec,
+  NewEntityModalResults,
 } from "./specs";
 
 const logger = rootLogger.getLogger("entity/new-modal");
 
-export type EntityModalResults<T extends EntitySpec> = {
-  createFile: boolean;
-  fileName: string;
-  targetFolder: string;
-  entity: EntityResults<T>;
-};
-
-export type EntityState<T extends EntitySpec> = {
-  [key in keyof T]: IRollContainer[];
-};
-
 export class NewEntityModal<T extends EntitySpec> extends Modal {
   public accepted: boolean = false;
-  public readonly results: EntityModalResults<T>;
+  public readonly results: NewEntityModalResults<T>;
   attributesEl!: HTMLDivElement;
   activeSlots!: [keyof T, EntityFieldSpec][];
+  rolls: Map<string, RollContainer[]> = new Map();
 
   static create<T extends EntitySpec>({
     plugin,
@@ -65,7 +55,7 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
     entityDesc: EntityDescriptor<T>;
     rollContext: RollContext;
     initialEntity: Partial<EntityResults<T>>;
-  }): Promise<EntityModalResults<T>> {
+  }): Promise<NewEntityModalResults<T>> {
     return new Promise((onAccept, onCancel) => {
       let modal;
       try {
@@ -85,47 +75,22 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
     });
   }
 
-  rolls: Map<string, RollContainer[]> = new Map();
-
   protected constructor(
     public plugin: IronVaultPlugin,
     public readonly entityDesc: EntityDescriptor<T>,
     public readonly initialEntity: Partial<EntityResults<T>>,
     public readonly rollContext: RollContext,
-    public readonly onAccept: (results: EntityModalResults<T>) => void,
+    public readonly onAccept: (results: NewEntityModalResults<T>) => void,
     public readonly onCancel: () => void,
   ) {
     super(plugin.app);
-    this.results = {
-      createFile: false,
-      fileName: "",
-      targetFolder: "",
-      entity: Object.fromEntries(
-        Object.entries(entityDesc.spec).map(([key]) => [
-          key,
-          initialEntity[key] ?? [],
-        ]),
-      ) as Record<keyof T, RollWrapper[]>,
-    };
+    this.results = new NewEntityModalResults(entityDesc);
     // TODO: populate rolls table from initialEntity. tricky thing is just dealing with
     // the id assignment
-    // entity: Object.fromEntries(
-    //   Object.entries(entityDesc.spec).map(([key]) => [
-    //     key,
-    //     (initialEntity[key] ?? []).map((r) => createRollContainer(r)),
-    //   ]),
-    // ) as Record<keyof T, IRollContainer[]>,
-    // this.entityProxy = new Proxy(this.results.entity, {
-    //   get(target, p, receiver): RollWrapper[] {
-    //     return Reflect.get(target, p, receiver).map((c) =>
-    //       c.activeRoll().currentRoll(),
-    //     );
-    //   },
-    // }) as unknown as EntityResults<T>;
   }
 
   renderRoll(roll: RollContainer, onClick?: (ev: MouseEvent) => void) {
-    const activeRoll = roll.activeRoll().currentRoll();
+    const activeRoll = roll.activeRollWrapper();
     const resultText = parseDataswornLinks(activeRoll.row.result).map(
       (segment): [string, string] => {
         if (typeof segment == "string") return [segment, segment];
@@ -227,10 +192,11 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
   onUpdateRolls() {
     this.updateActiveSlots();
 
-    const newEntityName =
-      this.entityDesc.nameGen && this.entityDesc.nameGen(this.results.entity);
-    if (newEntityName !== undefined) {
-      this.fileNameInput.setValue(newEntityName);
+    this.results.name =
+      this.entityDesc.nameGen &&
+      this.entityDesc.nameGen(this.results.entityProxy);
+    if (this.results.name !== undefined) {
+      this.fileNameInput.setValue(this.results.name);
       this.fileNameInput.onChanged();
     }
 
@@ -382,7 +348,7 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
 
           attributeValues[key] = evaluateAttribute(
             spec,
-            rolls.map((c) => c.activeRoll().currentRoll()),
+            rolls.map((c) => c.activeRollWrapper()),
           );
         }
       } else {
@@ -402,7 +368,6 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
     const attributeValues = this.calculateAttributeValues();
 
     const activeSlots: [keyof T, EntityFieldSpec][] = [];
-    const currentEntity: Partial<EntityResults<T>> = {};
 
     for (const [key, slot] of Object.entries(this.entityDesc.spec) as [
       keyof T,
@@ -421,18 +386,15 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
             hasAllProperties(reqs, attributeValues),
           ))
       ) {
-        currentEntity[key] = [];
-        continue;
+        this.results.entity[key] = [];
+      } else {
+        activeSlots.push([key, { ...slot, id: formattedId }]);
+        this.results.entity[key] =
+          this.rolls.get(`${key as string}:${formattedId}`) ?? [];
       }
-
-      activeSlots.push([key, { ...slot, id: formattedId }]);
-      currentEntity[key] = (
-        this.rolls.get(`${key as string}:${formattedId}`) ?? []
-      ).map((r) => r.activeRoll().currentRoll());
     }
 
     this.activeSlots = activeSlots;
-    this.results.entity = currentEntity as EntityResults<T>; // safe: we will have filled in every key at this point
   }
 
   render() {
