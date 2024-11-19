@@ -20,13 +20,14 @@ import { Oracle, OracleRollableRow, RollContext } from "../model/oracle";
 import { Roll, RollWrapper } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { EntityModal } from "./modal";
-import { EntityModalResults, NewEntityModal } from "./new-modal";
+import { NewEntityModal } from "./new-modal";
 import {
   ENTITIES,
   EntityAttributeFieldSpec,
   EntityDescriptor,
   EntityResults,
   EntitySpec,
+  NewEntityModalResults,
 } from "./specs";
 
 type OraclePromptOption =
@@ -85,7 +86,7 @@ export async function generateEntity(
   plugin: IronVaultPlugin,
   dataContext: CampaignDataContext,
   entityDesc: EntityDescriptor<EntitySpec>,
-): Promise<EntityModalResults<EntitySpec>> {
+): Promise<NewEntityModalResults<EntitySpec>> {
   const rollContext = dataContext.oracleRoller;
   const attributes = Object.entries(entityDesc.spec)
     .filter(
@@ -119,7 +120,7 @@ export async function generateEntityNewModal(
   plugin: IronVaultPlugin,
   dataContext: CampaignDataContext,
   entityDesc: EntityDescriptor<EntitySpec>,
-): Promise<EntityModalResults<EntitySpec>> {
+): Promise<NewEntityModalResults<EntitySpec>> {
   const rollContext = dataContext.oracleRoller;
   return NewEntityModal.create({
     plugin,
@@ -176,7 +177,7 @@ export async function generateEntityCommand(
     entityDesc = selectedEntityDescriptor;
   }
 
-  let results: EntityModalResults<EntitySpec>;
+  let results: NewEntityModalResults<EntitySpec>;
   try {
     if (plugin.settings.useOldRoller) {
       results = await generateEntity(plugin, campaignContext, entityDesc);
@@ -197,10 +198,8 @@ export async function generateEntityCommand(
   }
 
   const { entity, createFile } = results;
+  const entityName = results.name ?? `New ${entityDesc.label}`;
 
-  const entityName = entityDesc.nameGen
-    ? entityDesc.nameGen(entity)
-    : `New ${entityDesc.label}`;
   let oracleGroupTitle: string;
   if (createFile) {
     const fileName = results.fileName;
@@ -229,7 +228,9 @@ export async function generateEntityCommand(
               {
                 spec: spec,
                 label: spec.name ?? rolls[0].oracle.name,
-                rolls: rolls.map((roll) => roll.simpleResult).join(", "),
+                rolls: rolls
+                  .map((roll) => roll.activeRollWrapper().simpleResult)
+                  .join(", "),
               },
             ];
           }),

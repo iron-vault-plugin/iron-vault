@@ -1,6 +1,7 @@
 import { createDataswornMarkdownLink } from "datastore/parsers/datasworn/id";
 import * as kdl from "kdljs";
 import { Document, Node } from "kdljs";
+import { CurseBehavior } from "model/oracle";
 import { RollWrapper } from "model/rolls";
 import {
   ActionMoveDescription,
@@ -8,6 +9,7 @@ import {
   moveIsAction,
   moveIsProgress,
 } from "moves/desc";
+import { RollContainer } from "oracles/new-modal";
 import { oracleNameWithParents } from "oracles/render";
 import { ProgressTrackWriterContext } from "tracks/writer";
 import { node } from "utils/kdl";
@@ -57,6 +59,7 @@ export function createOracleNode(
   roll: RollWrapper,
   prompt?: string,
   name?: string,
+  cursedResult?: RollWrapper,
 ): kdl.Node {
   const props: { name: string; roll: number; result: string; cursed?: number } =
     {
@@ -71,7 +74,7 @@ export function createOracleNode(
   if (roll.cursedRoll != null) {
     props.cursed = roll.cursedRoll;
   }
-  return node("oracle", {
+  const baseResult = node("oracle", {
     properties: props,
     children: [
       ...(prompt ? [node("-", { values: [prompt] })] : []),
@@ -80,6 +83,12 @@ export function createOracleNode(
         .map((subroll) => createOracleNode(subroll)),
     ],
   });
+  if (cursedResult) {
+    baseResult.children.push(createOracleNode(cursedResult));
+    baseResult.properties.replaced =
+      cursedResult.oracle.curseBehavior === CurseBehavior.ReplaceResult;
+  }
+  return baseResult;
 }
 
 export function generateActionRoll(move: ActionMoveDescription): Node {
@@ -150,14 +159,26 @@ function generateMoveLink(move: MoveDescription): string {
 
 export function createOracleGroup(
   name: string,
-  oracles: { name?: string; rolls: RollWrapper[] }[],
+  oracles: {
+    name?: string;
+    rolls: RollContainer[];
+  }[],
 ): kdl.Node {
   return node("oracle-group", {
     properties: {
       name,
     },
     children: oracles.flatMap(({ name, rolls }) =>
-      rolls.map((roll) => createOracleNode(roll, undefined, name)),
+      rolls.map((rollContainer) =>
+        createOracleNode(
+          rollContainer.mainResult.currentRoll(),
+          undefined,
+          name,
+          rollContainer.isCursable() && rollContainer.useCursedResult
+            ? rollContainer.cursedResult.currentRoll()
+            : undefined,
+        ),
+      ),
     ),
   });
 }

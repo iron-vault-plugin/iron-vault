@@ -10,12 +10,7 @@ import {
   type MarkdownView,
 } from "obsidian";
 import { numberRange } from "utils/numbers";
-import {
-  CurseBehavior,
-  Oracle,
-  OracleGrouping,
-  OracleGroupingType,
-} from "../model/oracle";
+import { Oracle, OracleGrouping, OracleGroupingType } from "../model/oracle";
 import { Roll } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
@@ -132,12 +127,7 @@ export async function runOracleCommand(
   // Delete the prompt and then inject the oracle node to a mechanics block
   editor.setSelection(replaceSelection.anchor, replaceSelection.head);
   editor.replaceSelection("");
-  const oracleNode = createOracleNode(roll, prompt);
-  const oracleNodes = [oracleNode];
-  if (cursedRoll) {
-    oracleNode.children.push(createOracleNode(cursedRoll));
-    oracleNode.properties.replaced =
-      cursedRoll.oracle.curseBehavior === CurseBehavior.ReplaceResult;
-  }
-  createOrAppendMechanics(editor, oracleNodes);
+  createOrAppendMechanics(editor, [
+    createOracleNode(roll, prompt, undefined, cursedRoll),
+  ]);
 }

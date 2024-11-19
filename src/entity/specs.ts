@@ -1,6 +1,7 @@
 import { Datasworn } from "@datasworn/core";
 import { matchDataswornLink } from "datastore/parsers/datasworn/id";
 import { RollWrapper } from "model/rolls";
+import { createRollContainer, RollContainer } from "oracles/new-modal";
 
 export type EntityDescriptor<T extends EntitySpec> = {
   label: string;
@@ -52,6 +53,49 @@ export function isEntityAttributeSpec(
 export type EntityResults<T extends EntitySpec> = {
   [key in keyof T]: RollWrapper[];
 };
+
+export type EntityState<T extends EntitySpec> = {
+  [key in keyof T]: RollContainer[];
+};
+
+export class NewEntityModalResults<T extends EntitySpec> {
+  createFile: boolean = false;
+  fileName: string = "";
+  targetFolder: string = "";
+  name: string | undefined = undefined;
+  readonly entity: EntityState<T>;
+  entityProxy: EntityResults<T>;
+
+  constructor(
+    entityDesc: EntityDescriptor<T>,
+    initialEntity?: Partial<EntityResults<T>>,
+  ) {
+    this.entity = Object.fromEntries(
+      Object.entries(entityDesc.spec).map(([key]) => [
+        key,
+        (initialEntity?.[key] ?? ([] as RollWrapper[])).map((r) =>
+          createRollContainer(r),
+        ),
+      ]),
+    ) as Record<keyof T, RollContainer[]>;
+
+    this.entityProxy = new Proxy(this.entity, {
+      get(target, p, receiver): RollWrapper[] {
+        return Reflect.get(target, p, receiver).map((c) =>
+          c.activeRollWrapper(),
+        );
+      },
+      set(target, p, newValue: RollWrapper[], receiver) {
+        return Reflect.set(
+          target,
+          p,
+          newValue.map((r) => createRollContainer(r)),
+          receiver,
+        );
+      },
+    }) as unknown as EntityResults<T>;
+  }
+}
 
 const SAFE_SNAKECASE_RESULT = /^[a-z0-9\s]+$/i;
 // [Rocky World](id:starforged/collections/oracles/planets/rocky)

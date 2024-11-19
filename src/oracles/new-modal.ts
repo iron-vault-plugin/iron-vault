@@ -264,6 +264,7 @@ export interface IRollContainer {
   isCursable(): this is CursableRollContainer;
 
   activeRoll(): ObservableRoll;
+  activeRollWrapper(): RollWrapper;
   activeRollForUpdate(): [ObservableRoll, (state: RollerState) => boolean];
 
   copy(): IRollContainer;
@@ -290,6 +291,10 @@ export class SimpleRollContainer implements IRollContainer {
 
   activeRoll() {
     return this.mainResult;
+  }
+
+  activeRollWrapper() {
+    return this.activeRoll().currentRoll();
   }
 
   activeRollForUpdate(): [ObservableRoll, (state: RollerState) => boolean] {
@@ -374,6 +379,10 @@ export class CursableRollContainer implements IRollContainer {
 
   copy() {
     return new CursableRollContainer(this);
+  }
+
+  activeRollWrapper() {
+    return this.activeRoll().currentRoll();
   }
 }
 
