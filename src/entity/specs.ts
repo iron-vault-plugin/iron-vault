@@ -1,7 +1,7 @@
 import { Datasworn } from "@datasworn/core";
 import { matchDataswornLink } from "datastore/parsers/datasworn/id";
 import { RollWrapper } from "model/rolls";
-import { createRollContainer, RollContainer } from "oracles/new-modal";
+import { createRollContainer, RollContainer } from "oracles/state";
 
 export type EntityDescriptor<T extends EntitySpec> = {
   label: string;

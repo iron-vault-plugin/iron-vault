@@ -9,8 +9,8 @@ import {
   moveIsAction,
   moveIsProgress,
 } from "moves/desc";
-import { RollContainer } from "oracles/new-modal";
 import { oracleNameWithParents } from "oracles/render";
+import { RollContainer } from "oracles/state";
 import { ProgressTrackWriterContext } from "tracks/writer";
 import { node } from "utils/kdl";
 

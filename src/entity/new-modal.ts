@@ -15,11 +15,8 @@ import {
   Setting,
   TextComponent,
 } from "obsidian";
-import {
-  createRollContainer,
-  NewOracleRollerModal,
-  RollContainer,
-} from "oracles/new-modal";
+import { NewOracleRollerModal } from "oracles/new-modal";
+import { createRollContainer, RollContainer } from "oracles/state";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
 import { RollContext } from "../model/oracle";
 import { RollWrapper } from "../model/rolls";
