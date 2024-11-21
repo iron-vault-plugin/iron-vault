@@ -95,11 +95,19 @@ export class ConditionMeterDefinition implements Readonly<MeterCommon> {
 
 const logger = rootLogger.getLogger("ruleset");
 
+/** Used as the expansion ruleset for an expansion that can target any base set (or is unspecified). */
+export const WILDCARD_TARGET_RULESET: string = "*";
+
+export const WILDCARD_TARGET_RULESET_PLACEHOLDER: string =
+  "highly_improbable_wildcard_placeholder_string";
+
 function warnSameBaseRuleset(
   base: Datasworn.Ruleset,
   expansions: Datasworn.Expansion[],
 ) {
-  const nonmatching = expansions.filter((exp) => exp.ruleset != base._id);
+  const nonmatching = expansions.filter(
+    (exp) => exp.ruleset != WILDCARD_TARGET_RULESET && exp.ruleset != base._id,
+  );
   if (nonmatching.length > 0) {
     // TODO(@cwegrzyn): should this be an error?
     logger.warn(

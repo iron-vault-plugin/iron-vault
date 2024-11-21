@@ -1,5 +1,6 @@
 import { type Datasworn } from "@datasworn/core";
 import { CachedMetadata, TFile, parseYaml } from "obsidian";
+import { WILDCARD_TARGET_RULESET } from "rules/ruleset";
 import { extractOracleTable } from "./oracle-table";
 
 export type ParserReturn =
@@ -55,7 +56,8 @@ export function dataforgedInlineParser(content: string): ParserReturn {
 }
 
 export function inlineOracleParser(baseName: string): MarkdownDataParser {
-  const id = `user_inlineoracle_${baseName.replace(/\s+/, "_")}`;
+  const id =
+    `homebrewuser_inlineoracle_${baseName.replaceAll(/[^a-z0-9]+/gi, "_")}`.toLowerCase();
   // TODO: what should source be?
   const source: Datasworn.SourceInfo = {
     authors: [{ name: "User" }],
@@ -78,7 +80,7 @@ export function inlineOracleParser(baseName: string): MarkdownDataParser {
           datasworn_version: "0.1.0",
           _id: id,
           type: "expansion",
-          ruleset: "starforged", // TODO: not sure how to handle this
+          ruleset: WILDCARD_TARGET_RULESET,
           ...source,
           moves: {},
           assets: {},
