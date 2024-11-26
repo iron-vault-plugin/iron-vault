@@ -134,23 +134,23 @@ class ProjectedVersionedMap<K, V, U> implements ProjectableMap<K, U> {
     return count;
   }
 
-  entries(): IterableIterator<[K, U]> {
+  entries(): MapIterator<[K, U]> {
     return this[Symbol.iterator]();
   }
 
-  *keys(): IterableIterator<K> {
+  *keys(): MapIterator<K> {
     for (const entry of this) {
       yield entry[0];
     }
   }
 
-  *values(): IterableIterator<U> {
+  *values(): MapIterator<U> {
     for (const entry of this) {
       yield entry[1];
     }
   }
 
-  *[Symbol.iterator](): IterableIterator<[K, U]> {
+  *[Symbol.iterator](): MapIterator<[K, U]> {
     for (const [key, value] of this.#innerMap) {
       const selected = this.select(value, key);
       if (selected) {

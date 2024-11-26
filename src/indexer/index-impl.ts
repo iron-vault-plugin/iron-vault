@@ -82,19 +82,19 @@ export class IndexImpl<T, E extends Error> implements EmittingIndex<T, E> {
     return this.#map.size;
   }
 
-  entries(): IterableIterator<[string, Either<E, T>]> {
+  entries(): MapIterator<[string, Either<E, T>]> {
     return this.#map.entries();
   }
 
-  keys(): IterableIterator<string> {
+  keys(): MapIterator<string> {
     return this.#map.keys();
   }
 
-  values(): IterableIterator<Either<E, T>> {
+  values(): MapIterator<Either<E, T>> {
     return this.#map.values();
   }
 
-  [Symbol.iterator](): IterableIterator<[string, Either<E, T>]> {
+  [Symbol.iterator](): MapIterator<[string, Either<E, T>]> {
     return this.#map[Symbol.iterator]();
   }
 
