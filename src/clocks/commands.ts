@@ -49,7 +49,7 @@ export async function advanceClock(
     "Select number of segments to fill.",
   );
 
-  const defaultOdds = clockInfo.raw.defaultOdds;
+  const defaultOdds = clockInfo.raw["default-odds"];
   let wrapClockUpdates: (nodes: Node[]) => Node[];
   if (defaultOdds !== "no roll") {
     const oddsIndex = namedOddsSchema.options.findIndex(
