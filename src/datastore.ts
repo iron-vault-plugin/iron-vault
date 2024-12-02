@@ -12,6 +12,7 @@ import {
   DataswornIndexer,
   walkDataswornRulesPackage,
 } from "datastore/datasworn-indexer";
+import { indexCollectionRoot } from "datastore/parsers/collection";
 import { parserForFrontmatter } from "datastore/parsers/markdown";
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
@@ -168,7 +169,7 @@ export class Datastore extends Component {
           const parserResult = parser(await this.app.vault.cachedRead(file));
           if (parserResult.success) {
             if (parserResult.priority != null) priority = parserResult.priority;
-            data = parserResult.rules;
+            data = parserResult.result;
           } else {
             throw parserResult.error;
           }
@@ -222,14 +223,10 @@ export class Datastore extends Component {
     }
   }
 
-  async indexHomebrewCollectionRoot(rootFolder: TFolder) {
-    async function indexCollectionFolder(folder: TFolder, pathSeg) {}
-  }
-
-  async indexDataswornFiles(folder: TFolder) {
+  async indexDataswornFiles(homebrewRoot: TFolder) {
     const validate = this.ajv.compile<Datasworn.RulesPackage>(dataswornSchema);
 
-    for (const file of folder.children) {
+    for (const file of homebrewRoot.children) {
       if (file instanceof TFile) {
         if (
           file.extension == "json" ||
@@ -244,6 +241,24 @@ export class Datastore extends Component {
           );
           new Notice(
             `Homebrew Markdown file '${file.path}' must be part of a Homebrew collection folder.`,
+            0,
+          );
+        }
+      } else if (file instanceof TFolder) {
+        try {
+          const dataswornPackage = await indexCollectionRoot(this.app, file);
+          const source = createSource({
+            path: file.path,
+            priority: 10,
+          });
+          this.indexer.index(
+            source,
+            walkDataswornRulesPackage(dataswornPackage),
+          );
+        } catch (e) {
+          logger.error("Error loading homebrew", e);
+          new Notice(
+            `Unable to import homebrew collection: ${file.path}\nReason: ${e}`,
             0,
           );
         }

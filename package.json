@@ -49,6 +49,7 @@
     "@types/semver": "^7.5.8",
     "@types/sortablejs": "^1.15.8",
     "ajv": "^8.16.0",
+    "ajv-formats": "^3.0.1",
     "builtin-modules": "^3.3.0",
     "emittery": "^1.0.3",
     "esbuild": "^0.21.3",
@@ -71,8 +72,8 @@
     "prettier": "^3.2.5",
     "semver": "^7.6.2",
     "sortablejs": "^1.15.2",
-    "tslib": "^2.6.2",
-    "typescript": "^5.4.5",
+    "tslib": "^2.8.1",
+    "typescript": "^5.7.2",
     "typescript-eslint": "^7.10.0",
     "zod": "^3.23.8"
   }
