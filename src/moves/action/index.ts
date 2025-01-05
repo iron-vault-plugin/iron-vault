@@ -291,7 +291,7 @@ async function processProgressMove(
   return {
     id: move._id,
     name: move.name,
-    progressTrack: `[[${tracker.location}]]`,
+    progressTrack: `[[${tracker.location}|${tracker.name}]]`,
     progressTicks: tracker.track.progress,
     challenge1,
     challenge2,

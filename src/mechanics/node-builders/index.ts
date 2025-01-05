@@ -132,8 +132,8 @@ export function generateMechanicsNode(move: MoveDescription): Document {
     children.push(
       node("progress-roll", {
         properties: {
-          // TODO: what about progress track id?
           // TODO: use a ticks prop instead... or at least use a helper to get this
+          name: move.progressTrack,
           score: Math.floor(move.progressTicks / 4),
           vs1: move.challenge1,
           vs2: move.challenge2,
