@@ -11,14 +11,17 @@ in the [Ironsworn Discord](https://discord.gg/xTxmR9UZTC)
 
 ## Development
 
-To get set up with the project, clone the repo first, then `pnpm i` (you have
+To get set up with the project, clone the repo first (use `--recurse-submodules`
+if you want the hot-reload plugin added, see below), then `pnpm i` (you have
 to install `pnpm` specifically, yes). You can then build the production
 version of the plugin with `pnpm build`.
 
 To play around, you can run `pnpm dev`, which watches for code changes,
 compiles, and then deploys into the test vault. You can open up the test-vault
 in obsidian and, with the hot-reload plugin enabled, new updates will be
-loaded automatically.
+loaded automatically. The [hot-reload plugin](https://github.com/pjeby/hot-reload)
+is added as a git submodule, so either use `git clone --recurse-submodules` or
+run `git submodule update --init` if you already cloned the repo.
 
 There is a `test-vault` included in the repo that can be used as a sandbox
 during development.

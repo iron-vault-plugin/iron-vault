@@ -13,9 +13,15 @@ docs/.obsidian/plugins/iron-vault
 docs/.obsidian/workspace.json
 # Tells obsidian what plugins are enabled
 !test-vault/.obsidian/community-plugins.json
-# This plugin should still be tracked by git.
-# It might need updated at some point
-!test-vault/.obsidian/hot-reload-master/*
+# Include hot-reload plugin to be tracked by git.
+# Note that negating an exclusion only works for a direct subdirectory,
+# not deeper nested directories, i.e. plugins/ but not plugins/hot-reload/
+# To include plugins/hot-reload/, we first need to include plugins/ itself,
+# instantly exclude everything from it again, and then explicitly include
+# its hot-reload/ subdirectory.
+!test-vault/.obsidian/plugins
+test-vault/.obsidian/plugins/*
+!test-vault/.obsidian/plugins/hot-reload
 
 # Don't track this folder. For random things to try.
 # If it's important to test, add it somewhere where other
