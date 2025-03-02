@@ -51,6 +51,9 @@ export async function advanceClock(
 
   const defaultOdds = clockInfo.raw["default-odds"];
   let wrapClockUpdates: (nodes: Node[]) => Node[];
+  let rollOdds = 100;
+  let oddsName = "no roll";
+
   if (defaultOdds !== "no roll") {
     const oddsIndex = namedOddsSchema.options.findIndex(
       (val) => defaultOdds === val,
@@ -58,12 +61,17 @@ export async function advanceClock(
     const roll = await CustomSuggestModal.select(
       plugin.app,
       namedOddsSchema.options,
-      (odds) => `${capitalize(odds)} (${STANDARD_ODDS[odds]}%)`,
+      (odds) =>
+        `${capitalize(odds)} (${STANDARD_ODDS[odds]}%)${STANDARD_ODDS[odds] == 100 ? " -> advance without roll" : ""}`,
       undefined,
       "Choose the odds to advance",
       oddsIndex > -1 ? oddsIndex : undefined,
     );
-    const rollOdds = STANDARD_ODDS[roll];
+    rollOdds = STANDARD_ODDS[roll];
+    oddsName = roll;
+  }
+
+  if (rollOdds < 100) {
     const result = await campaignContext
       .diceRollerFor("move")
       .rollAsync(DiceGroup.of(Dice.fromDiceString("1d100", DieKind.Oracle)));
@@ -71,7 +79,7 @@ export async function advanceClock(
 
     wrapClockUpdates = (nodes) => {
       const props: { name: string; roll: number; result: string } = {
-        name: `Will [[${clockPath}|${stripMarkdown(plugin, clockInfo.name)}]] advance? (${capitalize(roll)})`,
+        name: `Will [[${clockPath}|${stripMarkdown(plugin, clockInfo.name)}]] advance? (${capitalize(oddsName)})`,
         roll: result[0].value,
         result: shouldAdvance ? "Yes" : "No",
       };
