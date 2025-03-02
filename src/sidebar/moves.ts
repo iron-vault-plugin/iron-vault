@@ -6,15 +6,22 @@ import MiniSearch from "minisearch";
 import { IDataContext } from "datastore/data-context";
 import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
-import { MoveModal } from "moves/move-modal";
+import { MoveModal, MoveRenderer } from "moves/move-modal";
+import { Component } from "obsidian";
 import { md } from "utils/ui/directives";
+
+export type IronVaultMoveRendererOptions = {
+  embed?: boolean;
+  embedParent?: Component;
+};
 
 export default function renderIronVaultMoves(
   cont: HTMLElement,
   plugin: IronVaultPlugin,
   dataContext: IDataContext,
+  options: IronVaultMoveRendererOptions = {},
 ) {
-  litHtmlMoveList(cont, plugin, dataContext, makeIndex(dataContext));
+  litHtmlMoveList(cont, plugin, dataContext, makeIndex(dataContext), options);
 }
 
 function litHtmlMoveList(
@@ -22,6 +29,7 @@ function litHtmlMoveList(
   plugin: IronVaultPlugin,
   dataContext: IDataContext,
   searchIdx: MiniSearch<Move>,
+  options: IronVaultMoveRendererOptions = {},
   filter?: string,
 ) {
   const results = filter
@@ -53,7 +61,14 @@ function litHtmlMoveList(
       placeholder="Filter moves..."
       @input=${(e: Event) => {
         const input = e.target as HTMLInputElement;
-        litHtmlMoveList(cont, plugin, dataContext, searchIdx, input.value);
+        litHtmlMoveList(
+          cont,
+          plugin,
+          dataContext,
+          searchIdx,
+          options,
+          input.value,
+        );
       }}
     />
     <ul class="iron-vault-moves-list">
@@ -69,7 +84,7 @@ function litHtmlMoveList(
               </details>
               <ul class="content">
                 ${map(sourceCats, (cat) =>
-                  renderCategory(plugin, dataContext, cat, total <= 5),
+                  renderCategory(plugin, dataContext, cat, total <= 5, options),
                 )}
               </ul>
             </div>
@@ -85,6 +100,7 @@ function renderCategory(
   dataContext: IDataContext,
   category: MoveCategory,
   open: boolean,
+  options: IronVaultMoveRendererOptions,
 ) {
   return html` <li
     class="move-category"
@@ -104,6 +120,7 @@ function renderCategory(
               plugin,
               dataContext,
               dataContext.moves.get(move._id)!,
+              options,
             )}`,
         )}
       </ol>
@@ -115,19 +132,38 @@ function renderMove(
   plugin: IronVaultPlugin,
   dataContext: IDataContext,
   move: AnyDataswornMove,
+  options: IronVaultMoveRendererOptions,
 ) {
-  return html`
-    <li
-      @click=${(ev: Event) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        new MoveModal(plugin.app, plugin, dataContext, move).open();
-      }}
-    >
-      <header>${move.name}</header>
-      ${md(plugin, move.trigger.text)}
-    </li>
-  `;
+  if (options.embed) {
+    return html`
+      <li>
+        <header>${move.name}</header>
+        <div
+          ref=${(el: HTMLElement) =>
+            el &&
+            MoveRenderer.render(
+              plugin,
+              dataContext,
+              move,
+              options.embedParent!,
+            )}
+        ></div>
+      </li>
+    `;
+  } else {
+    return html`
+      <li
+        @click=${(ev: Event) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          new MoveModal(plugin.app, plugin, dataContext, move).open();
+        }}
+      >
+        <header>${move.name}</header>
+        ${md(plugin, move.trigger.text)}
+      </li>
+    `;
+  }
 }
 
 function makeIndex(dataContext: IDataContext) {

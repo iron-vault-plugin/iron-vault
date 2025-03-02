@@ -13,6 +13,7 @@ import {
   App,
   ButtonComponent,
   Component,
+  MarkdownRenderChild,
   MarkdownRenderer,
   MarkdownView,
   Modal,
@@ -176,6 +177,57 @@ export class MoveModal extends Modal {
           oracle,
           this.modalComponent,
         );
+        const oracleText = dom.outerHTML + "\n";
+        oracles.push({ oracleText, oracle });
+        moveText = moveText.replaceAll(match[0], "");
+      }
+    }
+    return { moveText, oracles };
+  }
+}
+
+export class MoveRenderer extends MarkdownRenderChild {
+  static async render(
+    plugin: IronVaultPlugin,
+    dataContext: IDataContext,
+    move: AnyDataswornMove,
+    component: Component,
+  ): Promise<MoveRenderer> {
+    const container = document.createElement("div");
+    const renderer = new MoveRenderer(container, plugin, dataContext, move);
+    component.addChild(renderer);
+    await renderer.render();
+    return renderer;
+  }
+
+  constructor(
+    readonly containerEl: HTMLElement,
+    readonly plugin: IronVaultPlugin,
+    readonly dataContext: IDataContext,
+    readonly move: AnyDataswornMove,
+  ) {
+    super(containerEl);
+  }
+
+  async render(): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { moveText, oracles } = await this.getMoveText(this.move);
+    await MarkdownRenderer.render(
+      this.plugin.app,
+      moveText,
+      this.containerEl.createEl("div", { cls: "md-wrapper" }),
+      ".", // TODO: i can make this an optional constructor param
+      this,
+    );
+  }
+
+  async getMoveText(move: AnyDataswornMove) {
+    let moveText = move.text;
+    const oracles = [];
+    for (const match of move.text.matchAll(TABLE_REGEX)) {
+      const oracle = this.dataContext.oracles.get(match[1]);
+      if (oracle) {
+        const dom = await generateOracleTable(this.plugin.app, oracle, this);
         const oracleText = dom.outerHTML + "\n";
         oracles.push({ oracleText, oracle });
         moveText = moveText.replaceAll(match[0], "");

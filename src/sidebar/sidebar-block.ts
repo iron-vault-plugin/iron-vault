@@ -11,7 +11,10 @@ export default function registerSidebarBlocks(plugin: IronVaultPlugin) {
   plugin.registerMarkdownCodeBlockProcessor(
     "iron-vault-moves",
     (_source, el: HTMLElement, ctx) => {
-      ctx.addChild(new MovesRenderer(el, plugin, ctx.sourcePath));
+      ctx.addChild(
+        // TODO:configure embed based on block
+        new MovesRenderer(el, plugin, ctx.sourcePath, { embed: true }),
+      );
     },
   );
 
@@ -24,8 +27,19 @@ export default function registerSidebarBlocks(plugin: IronVaultPlugin) {
 }
 
 class MovesRenderer extends CampaignDependentBlockRenderer {
+  constructor(
+    containerEl: HTMLElement,
+    readonly plugin: IronVaultPlugin,
+    sourcePath?: string,
+    readonly options: {
+      embed?: boolean;
+    } = {},
+  ) {
+    super(containerEl, plugin, sourcePath);
+  }
+
   render(context: CampaignDataContext) {
-    renderIronVaultMoves(this.containerEl, this.plugin, context);
+    renderIronVaultMoves(this.containerEl, this.plugin, context, this.options);
   }
 }
 
