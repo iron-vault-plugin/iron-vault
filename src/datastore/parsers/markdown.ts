@@ -6,7 +6,7 @@ export type ParserReturn =
   | {
       success: true;
       priority?: number;
-      result: DataswornSource.OracleRollableTable;
+      result: DataswornSource.OracleRollableTable | DataswornSource.Move;
     }
   | { success: false; error: Error };
 export type MarkdownDataParser = (

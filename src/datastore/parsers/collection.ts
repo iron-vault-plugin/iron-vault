@@ -5,7 +5,8 @@ import dataswornSchema from "@datasworn/core/json/datasworn.schema.json" assert 
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { rootLogger } from "logger";
-import { App, parseYaml, TFile, TFolder } from "obsidian";
+import { App, TFile, TFolder } from "obsidian";
+import * as yaml from "yaml";
 import { parserForFrontmatter, ParserReturn } from "./markdown";
 
 const logger = rootLogger.getLogger("homebrew-collection");
@@ -121,15 +122,22 @@ function ensureRulesPackageBuilderInitialized() {
   }
 }
 
-type EntryTypes = "oracle_rollable";
-type CollectionTypes = "oracle_collection" | "root";
+type EntryTypes =
+  | DataswornSource.OracleRollable["type"]
+  | DataswornSource.Move["type"];
+type CollectionTypes =
+  | DataswornSource.OracleCollection["type"]
+  | DataswornSource.MoveCategory["type"]
+  | "root";
 
 const parentForEntry: Record<EntryTypes, CollectionTypes> = {
   oracle_rollable: "oracle_collection",
+  move: "move_category",
 };
 
 const parentForCollection: Record<CollectionTypes, CollectionTypes[]> = {
   oracle_collection: ["oracle_collection", "root"],
+  move_category: ["move_category", "root"],
   root: [],
 };
 
@@ -163,10 +171,7 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
   logger.setLevel("debug");
 
   const fileResults = new Map<TFile, ParserReturn>();
-  const folderLabeling = new Map<
-    TFolder,
-    Either<Error, "root" | "oracle_collection">
-  >();
+  const folderLabeling = new Map<TFolder, Either<Error, CollectionTypes>>();
   const folderAttributes = new Map<TFolder, Record<string, unknown>>();
 
   folderLabeling.set(rootFolder, Right.create("root"));
@@ -280,6 +285,8 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
             app.metadataCache.getFileCache(nextFile)?.frontmatter ?? {},
           );
         }
+
+        continue;
       }
 
       if (nextFile.extension == "md") {
@@ -317,8 +324,61 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
           packageId,
           nextFile.path,
         );
-        const data = parseYaml(await app.vault.cachedRead(nextFile));
-        builder.addFiles({ name: nextFile.path, data });
+
+        let data;
+        try {
+          data = yaml.parse(await app.vault.cachedRead(nextFile), {
+            schema: "core",
+            merge: true,
+            maxAliasCount: 1000,
+          });
+        } catch (e) {
+          logger.error(
+            "[homebrew-collection:%s] Failed to parse YAML file %s. Errors: %o",
+            packageId,
+            nextFile.path,
+            e,
+          );
+          fileResults.set(nextFile, {
+            success: false,
+            error: new Error(`Failed to parse YAML file ${nextFile.path}`),
+          });
+          continue;
+        }
+
+        const dataType = (data as DataswornSource.SourceRoot).type;
+        switch (dataType) {
+          case "oracle_rollable":
+          case "move": {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { datasworn_version, ruleset, ...dataWithoutRootFields } =
+              data;
+            fileResults.set(nextFile, {
+              success: true,
+              // TODO: this isn't accounting for oracle column rollables
+              result: dataWithoutRootFields,
+            });
+            updateFileParentLabel(nextFile, dataType);
+            break;
+          }
+          case "ruleset":
+          case "expansion":
+            builder.addFiles({ name: nextFile.path, data });
+            break;
+          default:
+            logger.error(
+              "[homebrew-collection:%s] Unexpected file type %s in file %s",
+              packageId,
+              (data as DataswornSource.SourceRoot).type,
+              nextFile.path,
+            );
+            fileResults.set(nextFile, {
+              success: false,
+              error: new Error(
+                `Unexpected file type ${data.type} in file ${nextFile.path}`,
+              ),
+            });
+        }
       }
     }
   }
@@ -366,10 +426,11 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
       if (child instanceof TFile) {
         const result = fileResults.get(child);
         if (result?.success) {
-          if (result.result.type === "oracle_rollable") {
+          const childData = result.result;
+          if (childData.type === "oracle_rollable") {
             const oracleId = sanitizeNameForId(child.basename);
             oracleCollection.contents ??= {};
-            oracleCollection.contents[oracleId] = result.result;
+            oracleCollection.contents[oracleId] = childData;
           }
         }
       } else if (child instanceof TFolder) {
@@ -386,6 +447,45 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
     }
 
     return oracleCollection;
+  }
+
+  function buildMoveCategory(folder: TFolder): DataswornSource.MoveCategory {
+    logger.debug("Constructing move category for folder %s", folder.path);
+
+    // TODO: validate folder attributes -- probably on parsing up above?
+    const attributes = folderAttributes.get(folder) ?? {};
+    const collectionName = folder.name;
+    const moveCategory: DataswornSource.MoveCategory = {
+      type: "move_category",
+      name: (attributes.name as string) ?? collectionName,
+      _source: source,
+    };
+
+    for (const child of folder.children) {
+      if (child instanceof TFile) {
+        const result = fileResults.get(child);
+        if (result?.success) {
+          const childData = result.result;
+          if (childData.type === "move") {
+            const childId = sanitizeNameForId(child.basename);
+            moveCategory.contents ??= {};
+            moveCategory.contents[childId] = childData;
+          }
+        }
+      } else if (child instanceof TFolder) {
+        // Check that folder is of type oracle_collection
+        const label = folderLabeling.get(child);
+        if (label?.getOrElse(() => "root") === "move_category") {
+          // TODO: probably theoretically need to check earlier on if sanitized name is unique
+          const childId = sanitizeNameForId(child.name);
+          const nestedCollection = buildMoveCategory(child);
+          moveCategory.collections ??= {};
+          moveCategory.collections[childId] = nestedCollection;
+        }
+      }
+    }
+
+    return moveCategory;
   }
 
   // Now, we can walk the tree based on the labeling
@@ -418,6 +518,12 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
             packageRootObject.oracles ||= {};
             packageRootObject.oracles[sanitizeNameForId(child.name)] =
               buildOracleCollection(child);
+            break;
+          }
+          case "move_category": {
+            packageRootObject.moves ||= {};
+            packageRootObject.moves[sanitizeNameForId(child.name)] =
+              buildMoveCategory(child);
             break;
           }
         }
