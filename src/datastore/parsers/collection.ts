@@ -124,20 +124,24 @@ function ensureRulesPackageBuilderInitialized() {
 
 type EntryTypes =
   | DataswornSource.OracleRollable["type"]
-  | DataswornSource.Move["type"];
+  | DataswornSource.Move["type"]
+  | DataswornSource.Asset["type"];
 type CollectionTypes =
   | DataswornSource.OracleCollection["type"]
   | DataswornSource.MoveCategory["type"]
+  | DataswornSource.AssetCollection["type"]
   | "root";
 
 const parentForEntry: Record<EntryTypes, CollectionTypes> = {
   oracle_rollable: "oracle_collection",
   move: "move_category",
+  asset: "asset_collection",
 };
 
 const parentForCollection: Record<CollectionTypes, CollectionTypes[]> = {
   oracle_collection: ["oracle_collection", "root"],
   move_category: ["move_category", "root"],
+  asset_collection: ["asset_collection", "root"],
   root: [],
 };
 
@@ -349,6 +353,7 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
         const dataType = (data as DataswornSource.SourceRoot).type;
         switch (dataType) {
           case "oracle_rollable":
+          case "asset":
           case "move": {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { datasworn_version, ruleset, ...dataWithoutRootFields } =
@@ -488,6 +493,47 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
     return moveCategory;
   }
 
+  function buildAssetCollection(
+    folder: TFolder,
+  ): DataswornSource.AssetCollection {
+    logger.debug("Constructing oracle collection for folder %s", folder.path);
+
+    // TODO: validate folder attributes -- probably on parsing up above?
+    const attributes = folderAttributes.get(folder) ?? {};
+    const collectionName = folder.name;
+    const assetCollection: DataswornSource.AssetCollection = {
+      type: "asset_collection",
+      name: (attributes.name as string) ?? collectionName,
+      _source: source,
+    };
+
+    for (const child of folder.children) {
+      if (child instanceof TFile) {
+        const result = fileResults.get(child);
+        if (result?.success) {
+          const childData = result.result;
+          if (childData.type === "asset") {
+            const oracleId = sanitizeNameForId(child.basename);
+            assetCollection.contents ??= {};
+            assetCollection.contents[oracleId] = childData;
+          }
+        }
+      } else if (child instanceof TFolder) {
+        // Check that folder is of type oracle_collection
+        const label = folderLabeling.get(child);
+        if (label?.getOrElse(() => "root") === "asset_collection") {
+          // TODO: probably theoretically need to check earlier on if sanitized name is unique
+          const childId = sanitizeNameForId(child.name);
+          const nestedCollection = buildAssetCollection(child);
+          assetCollection.collections ??= {};
+          assetCollection.collections[childId] = nestedCollection;
+        }
+      }
+    }
+
+    return assetCollection;
+  }
+
   // Now, we can walk the tree based on the labeling
   for (const child of rootFolder.children) {
     if (child instanceof TFile) {
@@ -524,6 +570,12 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
             packageRootObject.moves ||= {};
             packageRootObject.moves[sanitizeNameForId(child.name)] =
               buildMoveCategory(child);
+            break;
+          }
+          case "asset_collection": {
+            packageRootObject.assets ||= {};
+            packageRootObject.assets[sanitizeNameForId(child.name)] =
+              buildAssetCollection(child);
             break;
           }
         }

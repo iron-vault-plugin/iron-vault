@@ -159,21 +159,8 @@ export class Datastore extends Component {
         data = JSON.parse(await this.app.vault.cachedRead(file));
       } else if (file.extension == "yaml" || file.extension == "yml") {
         data = parseYaml(await this.app.vault.cachedRead(file));
-      } else if (file.name.endsWith(".md")) {
+      } else {
         logger.warn("Unsupported %s file: %s", file.extension, file.path);
-        // const parser = parserForFrontmatter(
-        //   file,
-        //   this.app.metadataCache.getFileCache(file),
-        // );
-        // if (parser) {
-        //   const parserResult = parser(await this.app.vault.cachedRead(file));
-        //   if (parserResult.success) {
-        //     if (parserResult.priority != null) priority = parserResult.priority;
-        //     data = parserResult.result;
-        //   } else {
-        //     throw parserResult.error;
-        //   }
-        // }
       }
 
       if (!data) return;
