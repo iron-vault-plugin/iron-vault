@@ -13,7 +13,6 @@ import {
   walkDataswornRulesPackage,
 } from "datastore/datasworn-indexer";
 import { indexCollectionRoot } from "datastore/parsers/collection";
-import { parserForFrontmatter } from "datastore/parsers/markdown";
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
 import { isDebugEnabled, rootLogger } from "logger";
@@ -155,25 +154,26 @@ export class Datastore extends Component {
   ) {
     try {
       let data;
-      let priority = 10;
+      const priority = 10;
       if (file.extension == "json") {
         data = JSON.parse(await this.app.vault.cachedRead(file));
       } else if (file.extension == "yaml" || file.extension == "yml") {
         data = parseYaml(await this.app.vault.cachedRead(file));
       } else if (file.name.endsWith(".md")) {
-        const parser = parserForFrontmatter(
-          file,
-          this.app.metadataCache.getFileCache(file),
-        );
-        if (parser) {
-          const parserResult = parser(await this.app.vault.cachedRead(file));
-          if (parserResult.success) {
-            if (parserResult.priority != null) priority = parserResult.priority;
-            data = parserResult.result;
-          } else {
-            throw parserResult.error;
-          }
-        }
+        logger.warn("Unsupported %s file: %s", file.extension, file.path);
+        // const parser = parserForFrontmatter(
+        //   file,
+        //   this.app.metadataCache.getFileCache(file),
+        // );
+        // if (parser) {
+        //   const parserResult = parser(await this.app.vault.cachedRead(file));
+        //   if (parserResult.success) {
+        //     if (parserResult.priority != null) priority = parserResult.priority;
+        //     data = parserResult.result;
+        //   } else {
+        //     throw parserResult.error;
+        //   }
+        // }
       }
 
       if (!data) return;

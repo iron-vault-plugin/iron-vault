@@ -5,7 +5,7 @@ import dataswornSchema from "@datasworn/core/json/datasworn.schema.json" assert 
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { rootLogger } from "logger";
-import { App, TAbstractFile, TFile, TFolder, Vault } from "obsidian";
+import { App, parseYaml, TFile, TFolder } from "obsidian";
 import { parserForFrontmatter, ParserReturn } from "./markdown";
 
 const logger = rootLogger.getLogger("homebrew-collection");
@@ -121,22 +121,22 @@ function ensureRulesPackageBuilderInitialized() {
   }
 }
 
-type EntryTypes = 'oracle_rollable';
-type CollectionTypes = 'oracle_collection' | 'root';
+type EntryTypes = "oracle_rollable";
+type CollectionTypes = "oracle_collection" | "root";
 
 const parentForEntry: Record<EntryTypes, CollectionTypes> = {
-  'oracle_rollable': 'oracle_collection',
+  oracle_rollable: "oracle_collection",
 };
 
 const parentForCollection: Record<CollectionTypes, CollectionTypes[]> = {
-  'oracle_collection': ['oracle_collection', 'root'],
-  'root': []
-}
+  oracle_collection: ["oracle_collection", "root"],
+  root: [],
+};
 
 export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
   ensureRulesPackageBuilderInitialized();
 
-  const packageId = rootFolder.name;
+  const packageId = sanitizeNameForId(rootFolder.name);
 
   const builder = new RulesPackageBuilder(
     packageId,
@@ -144,7 +144,7 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
   );
 
   const source: DataswornSource.SourceInfo = {
-    authors: [],
+    authors: [{ name: "TODO" }],
     date: "0000-00-00",
     license: null,
     title: rootFolder.name,
@@ -160,8 +160,14 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
     ...source,
   };
 
+  logger.setLevel("debug");
+
   const fileResults = new Map<TFile, ParserReturn>();
-  const folderLabeling = new Map<TFolder, Either<Error, "root" | "oracle_collection">>();
+  const folderLabeling = new Map<
+    TFolder,
+    Either<Error, "root" | "oracle_collection">
+  >();
+  const folderAttributes = new Map<TFolder, Record<string, unknown>>();
 
   folderLabeling.set(rootFolder, Right.create("root"));
 
@@ -170,7 +176,10 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
   for (const child of rootFolder.children) {
     if (child instanceof TFile) {
       // Root should have no children
-      fileResults.set(child, {success: false, error: new Error(`root should have no files`)})
+      fileResults.set(child, {
+        success: false,
+        error: new Error(`root should have no files`),
+      });
     } else if (child instanceof TFolder) {
       queue.push(child);
     } else {
@@ -183,44 +192,95 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
     const parent = file.parent!;
     const currentParentLabel = folderLabeling.get(parent);
     if (currentParentLabel === undefined) {
+      logger.debug(
+        "Setting parent %s to %s (based on child file %s of type %s)",
+        parent.path,
+        inferredTypeForParent,
+        file.path,
+        fileType,
+      );
       folderLabeling.set(parent, Right.create(inferredTypeForParent));
       updateFolderParentLabels(parent, inferredTypeForParent);
-    } else if (currentParentLabel.isRight() && currentParentLabel.value !== inferredTypeForParent) {
-      folderLabeling.set(parent, Left.create(new Error(`incompatible types detected for folder: ${currentParentLabel.value} and ${inferredTypeForParent} (from ${file.path})`)));
+    } else if (
+      currentParentLabel.isRight() &&
+      currentParentLabel.value !== inferredTypeForParent
+    ) {
+      folderLabeling.set(
+        parent,
+        Left.create(
+          new Error(
+            `incompatible types detected for folder: ${currentParentLabel.value} and ${inferredTypeForParent} (from ${file.path})`,
+          ),
+        ),
+      );
     }
-  }
+  };
 
-  const updateFolderParentLabels = (folder: TFolder, folderType: CollectionTypes) => {
+  const updateFolderParentLabels = (
+    folder: TFolder,
+    folderType: CollectionTypes,
+  ) => {
     const parent = folder.parent!;
     const currentParentLabel = folderLabeling.get(parent);
-    const inferredTypesForParent = parentForCollection[folderType];
+    let inferredTypesForParent = parentForCollection[folderType];
 
     if (currentParentLabel === undefined) {
+      // It can't be the root, so let's filter that out.
+      inferredTypesForParent = inferredTypesForParent.filter(
+        (type) => type !== "root",
+      );
+
       if (inferredTypesForParent.length == 1) {
-      folderLabeling.set(parent, Right.create(inferredTypesForParent[0]));
-      if (parent !== rootFolder)
-        updateFolderParentLabels(parent, inferredTypesForParent[0]);
+        logger.debug(
+          "Setting parent %s to %s (based on child folder %s of type %s)",
+          parent.path,
+          inferredTypesForParent[0],
+          folder.path,
+          folderType,
+        );
+        folderLabeling.set(parent, Right.create(inferredTypesForParent[0]));
+        if (parent !== rootFolder)
+          updateFolderParentLabels(parent, inferredTypesForParent[0]);
       }
-    } else if (currentParentLabel.isRight() && !inferredTypesForParent.includes( currentParentLabel.value)) {
-      folderLabeling.set(parent, Left.create(new Error(`incompatible types detected for folder:  ${currentParentLabel.value} and ${inferredTypesForParent} (from ${folder.path})`)))
+    } else if (
+      currentParentLabel.isRight() &&
+      !inferredTypesForParent.includes(currentParentLabel.value)
+    ) {
+      folderLabeling.set(
+        parent,
+        Left.create(
+          new Error(
+            `incompatible types detected for folder:  ${currentParentLabel.value} and ${inferredTypesForParent} (from ${folder.path})`,
+          ),
+        ),
+      );
     }
-  }
+  };
 
-  const constructQueue: TFolder[] = [];
-
-  let nextFile;
+  let nextFile: TFile | TFolder | undefined;
   while ((nextFile = queue.shift()) != null) {
     if (nextFile instanceof TFolder) {
       // queue up files and then queue up folders
-      queue.push(...nextFile.children.filter((file) => file instanceof TFile), ...nextFile.children.filter((file) => file instanceof TFolder));
-      constructQueue.push(nextFile);
+      queue.push(
+        ...nextFile.children.filter((file) => file instanceof TFile),
+        ...nextFile.children.filter((file) => file instanceof TFolder),
+      );
     } else if (nextFile instanceof TFile) {
       logger.debug(
         "[homebrew:%s] Inspecting file %s",
         packageId,
         nextFile.path,
       );
-      // const id = `${baseName.replaceAll(/[^a-z0-9]+/gi, "_")}`.toLowerCase();
+
+      if (nextFile.basename == "_index") {
+        // This is an index file
+        if (nextFile.extension == "md") {
+          folderAttributes.set(
+            nextFile.parent!,
+            app.metadataCache.getFileCache(nextFile)?.frontmatter ?? {},
+          );
+        }
+      }
 
       if (nextFile.extension == "md") {
         const parser = parserForFrontmatter(
@@ -250,97 +310,124 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
               data.error,
             );
           }
-
         }
+      } else if (nextFile.extension == "yml" || nextFile.extension == "yaml") {
+        logger.debug(
+          "[homebrew:%s] Found YAML file %s",
+          packageId,
+          nextFile.path,
+        );
+        const data = parseYaml(await app.vault.cachedRead(nextFile));
+        builder.addFiles({ name: nextFile.path, data });
       }
     }
   }
 
-  // Now, we can walk the tree based on the label
-  constructQueue.reverse();
-  for (const folder )
+  // Check for any errors in labeling
+  for (const [folder, label] of folderLabeling.entries()) {
+    if (label.isLeft()) {
+      logger.error(
+        "[homebrew-collection:%s] Error in folder %s: %o",
+        packageId,
+        folder.path,
+        label.error,
+      );
+    }
+  }
 
+  // Check for any errors in the file results
+  for (const [file, result] of fileResults.entries()) {
+    if (!result.success) {
+      logger.error(
+        "[homebrew-collection:%s] Error in file %s: %o",
+        packageId,
+        file.path,
+        result.error,
+      );
+    }
+  }
 
-  const recurseFolder = async(
-    folder: TFolder
-  ) => {
-    // TODO: check index file
+  function buildOracleCollection(
+    folder: TFolder,
+  ): DataswornSource.OracleTablesCollection {
+    logger.debug("Constructing oracle collection for folder %s", folder.path);
 
-    const childFolders: TFolder[] = [];
+    // TODO: validate folder attributes -- probably on parsing up above?
+    const attributes = folderAttributes.get(folder) ?? {};
+    const collectionName = folder.name;
+    const oracleCollection: DataswornSource.OracleTablesCollection = {
+      oracle_type: "tables",
+      type: "oracle_collection",
+      name: (attributes.name as string) ?? collectionName,
+      _source: source,
+    };
 
-    for (const childFile of folder.children) {
-      // We'll do folders second
-      if (childFile instanceof TFolder) {
-        childFolders.push()
-        continue;
-      } else if (!(childFile instanceof TFile)) {
-        logger.warn(
-          "Unexpected type for %o", childFile
+    for (const child of folder.children) {
+      if (child instanceof TFile) {
+        const result = fileResults.get(child);
+        if (result?.success) {
+          if (result.result.type === "oracle_rollable") {
+            const oracleId = sanitizeNameForId(child.basename);
+            oracleCollection.contents ??= {};
+            oracleCollection.contents[oracleId] = result.result;
+          }
+        }
+      } else if (child instanceof TFolder) {
+        // Check that folder is of type oracle_collection
+        const label = folderLabeling.get(child);
+        if (label?.getOrElse(() => "root") === "oracle_collection") {
+          // TODO: probably theoretically need to check earlier on if sanitized name is unique
+          const childId = sanitizeNameForId(child.name);
+          const nestedCollection = buildOracleCollection(child);
+          oracleCollection.collections ??= {};
+          oracleCollection.collections[childId] = nestedCollection;
+        }
+      }
+    }
+
+    return oracleCollection;
+  }
+
+  // Now, we can walk the tree based on the labeling
+  for (const child of rootFolder.children) {
+    if (child instanceof TFile) {
+      // Root should have no children
+      continue;
+    } else if (child instanceof TFolder) {
+      const label = folderLabeling.get(child);
+      if (label == null || label.isLeft()) {
+        logger.error(
+          "[homebrew-collection:%s] Error in folder %s: %o",
+          packageId,
+          child.path,
+          label?.error,
         );
         continue;
-      }
-
-
-    }
-
-    // Determine collection type
-    const [firstEntry] = entries.values();
-    const firstEntryType = firstEntry?.type;
-    if (expectedType && firstEntryType != expectedType) {
-      errors.push({
-        path: folder.path,
-        error: new Error(
-          `expected to contain only entries of type ${expectedType}, but found ${firstEntryType}`,
-        ),
-      });
-      return Left.create(errors);
-    }
-    const nonMatchingEntry = entries
-      .values()
-      .find(({ type }) => type !== firstEntryType);
-    if (nonMatchingEntry != null) {
-      errors.push({
-        path: folder.path,
-        error: new Error(
-          `Expected folder to contain only a single type of entry but contains ${firstEntryType} and ${nonMatchingEntry.type}`,
-        ),
-      });
-      return Left.create(errors);
-    }
-
-    // Create appropriate parent collection
-    switch (firstEntryType) {
-      case "oracle_rollable": {
-        // TODO: support more than just table type?
-        const newParent: DataswornSource.OracleCollection = {
-          name: folder.name,
-          type: "oracle_collection",
-          oracle_type: "tables",
-          _source: source,
-          contents: Object.fromEntries(
-            (
-              entries as Map<string, DataswornSource.OracleRollableTable>
-            ).entries(),
-          ),
-        };
-        for (const folder of childFolders) {
+      } else {
+        switch (label.value) {
+          case "root": {
+            // This should be impossible.
+            logger.error(
+              "[homebrew-collection:%s] Error in folder %s: unexpected root folder",
+              packageId,
+              child.path,
+            );
+            break;
+          }
+          case "oracle_collection": {
+            packageRootObject.oracles ||= {};
+            packageRootObject.oracles[sanitizeNameForId(child.name)] =
+              buildOracleCollection(child);
+            break;
+          }
         }
-        break;
       }
     }
-  };
-
-  const processOracleFolder = (folder: TFolder, results: {file: TFile; data: DataswornSource.OracleRollableTable}[]):  => {
-
   }
 
-  const promises: Promise<void>[] = [];
-  Vault.recurseChildren(rootFolder, (file) => {
-    if (file instanceof TFile) {
-    }
-  });
+  logger.debug("Package: %o", packageRootObject);
 
-  await Promise.all(promises);
+  builder.addFiles({ name: packageId, data: packageRootObject });
 
   logger.debug("Starting build");
   builder.build();
@@ -372,5 +459,6 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
 }
 
 function sanitizeNameForId(name: string): string {
-  return name.replaceAll(/[^a-z0-9]+/gi, "_").toLowerCase();
+  // TODO: Numbers aren't allowed in the ID --> either need to give a warning, or sub out for text?
+  return name.replaceAll(/[^a-z]+/gi, "_").toLowerCase();
 }
