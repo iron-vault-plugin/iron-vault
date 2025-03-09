@@ -105,12 +105,14 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("Dice").setHeading();
 
     new Setting(containerEl)
-      .setName("Use old oracle roller dialog")
-      .setDesc("If enabled, reverts to the old Ask the Oracle result dialog.")
+      .setName("Use legacy oracle roller dialog")
+      .setDesc(
+        "If enabled, reverts to the legacy Ask the Oracle result dialog.",
+      )
       .addToggle((btn) =>
         btn
-          .setValue(settings.useOldRoller)
-          .onChange((val) => this.updateSetting("useOldRoller", val)),
+          .setValue(settings.useLegacyRoller)
+          .onChange((val) => this.updateSetting("useLegacyRoller", val)),
       );
 
     new Setting(containerEl)
