@@ -1,5 +1,5 @@
 import { DataswornSource, type Datasworn } from "@datasworn/core";
-import { CachedMetadata, TFile } from "obsidian";
+import { CachedMetadata, FrontMatterCache, TFile } from "obsidian";
 import { extractOracleTable } from "./oracle-table";
 
 export type ParserReturn =
@@ -15,26 +15,26 @@ export type ParserReturn =
 export type MarkdownDataParser = (
   content: string,
   baseName: string,
-  parent: { type: string },
+  metadata: FrontMatterCache | null,
 ) => ParserReturn;
 
 export function parserForFrontmatter(
   file: TFile,
   metadata: CachedMetadata | null,
 ): MarkdownDataParser | undefined {
-  if (metadata?.frontmatter?.["iron-vault"] == null) {
+  if (metadata?.frontmatter?.["type"] == null) {
     return undefined;
   }
-  switch (metadata.frontmatter["iron-vault"]) {
+  switch (metadata.frontmatter["type"]) {
     // case "dataforged-inline":
     //   return dataforgedInlineParser;
-    case "inline-oracle":
+    case "oracle_rollable":
       return inlineOracleParser;
     default:
       console.warn(
-        "[file: %s] unexpected value for `iron-vault` in frontmatter: %s",
+        "[file: %s] unexpected value for `type` in frontmatter: %s",
         file.path,
-        metadata.frontmatter?.["iron-vault"],
+        metadata.frontmatter?.["type"],
       );
       return undefined;
   }
@@ -68,6 +68,7 @@ export function parserForFrontmatter(
 export function inlineOracleParser(
   content: string,
   baseName: string,
+  metadata: FrontMatterCache | null,
 ): ParserReturn {
   // TODO: what should source be?
   const source: Datasworn.SourceInfo = {
@@ -80,8 +81,9 @@ export function inlineOracleParser(
   try {
     const table = extractOracleTable(undefined, content);
     const fullTable: DataswornSource.OracleTableText = {
+      ...metadata,
       ...table,
-      name: baseName,
+      name: metadata?.name ?? baseName,
       _source: source,
     };
     return {

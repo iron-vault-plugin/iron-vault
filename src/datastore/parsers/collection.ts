@@ -281,12 +281,40 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
         nextFile.path,
       );
 
+      // Is this an index file?
       if (nextFile.basename == "_index") {
-        // This is an index file
         if (nextFile.extension == "md") {
           folderAttributes.set(
             nextFile.parent!,
             app.metadataCache.getFileCache(nextFile)?.frontmatter ?? {},
+          );
+        } else if (
+          nextFile.extension == "yml" ||
+          nextFile.extension == "yaml"
+        ) {
+          let data;
+          try {
+            data = yaml.parse(await app.vault.cachedRead(nextFile), {
+              schema: "core",
+              merge: true,
+              maxAliasCount: 1000,
+            });
+          } catch (e) {
+            logger.error(
+              "[homebrew-collection:%s] Failed to parse YAML file %s. Errors: %o",
+              packageId,
+              nextFile.path,
+              e,
+            );
+            fileResults.set(nextFile, {
+              success: false,
+              error: new Error(`Failed to parse YAML file ${nextFile.path}`),
+            });
+            continue;
+          }
+          folderAttributes.set(
+            nextFile.parent!,
+            data as Record<string, unknown>,
           );
         }
 
@@ -302,7 +330,7 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
           const data = parser(
             await app.vault.cachedRead(nextFile),
             nextFile.basename,
-            { type: "tbd" },
+            app.metadataCache.getFileCache(nextFile)?.frontmatter ?? null,
           );
           fileResults.set(nextFile, data);
           if (data.success) {
@@ -421,6 +449,7 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
     const attributes = folderAttributes.get(folder) ?? {};
     const collectionName = folder.name;
     const oracleCollection: DataswornSource.OracleTablesCollection = {
+      ...attributes,
       oracle_type: "tables",
       type: "oracle_collection",
       name: (attributes.name as string) ?? collectionName,
@@ -461,6 +490,7 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
     const attributes = folderAttributes.get(folder) ?? {};
     const collectionName = folder.name;
     const moveCategory: DataswornSource.MoveCategory = {
+      ...attributes,
       type: "move_category",
       name: (attributes.name as string) ?? collectionName,
       _source: source,
@@ -502,6 +532,7 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
     const attributes = folderAttributes.get(folder) ?? {};
     const collectionName = folder.name;
     const assetCollection: DataswornSource.AssetCollection = {
+      ...attributes,
       type: "asset_collection",
       name: (attributes.name as string) ?? collectionName,
       _source: source,

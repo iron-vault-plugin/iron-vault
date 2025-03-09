@@ -1,5 +1,7 @@
 ---
-iron-vault: inline-oracle
+type: oracle_rollable
+name: My Test Oracle
+description: An example Oracle
 ---
 
 | dice: 1d6 | Result                                               |
