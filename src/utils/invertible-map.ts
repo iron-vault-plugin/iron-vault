@@ -66,16 +66,16 @@ export class IndexingMap<K, V> implements Map<K, V> {
     return this.#forward.size;
   }
 
-  entries(): IterableIterator<[K, V]> {
+  entries(): MapIterator<[K, V]> {
     return this.#forward.entries();
   }
-  keys(): IterableIterator<K> {
+  keys(): MapIterator<K> {
     return this.#forward.keys();
   }
-  values(): IterableIterator<V> {
+  values(): MapIterator<V> {
     return this.#forward.values();
   }
-  [Symbol.iterator](): IterableIterator<[K, V]> {
+  [Symbol.iterator](): MapIterator<[K, V]> {
     return this.#forward[Symbol.iterator]();
   }
   get [Symbol.toStringTag](): string {

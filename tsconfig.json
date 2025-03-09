@@ -4,7 +4,7 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "module": "ESNext",
-    "target": "ES2022",
+    "target": "ES2023",
     "allowJs": false,
     "noImplicitAny": true,
     "strict": true,
@@ -20,8 +20,15 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "lib": ["dom", "es5", "scripthost", "ES2022", "DOM.Iterable"],
+    "lib": [
+      "dom",
+      "es5",
+      "scripthost",
+      "ES2023",
+      "DOM.Iterable",
+      "ESNext.Iterator"
+    ],
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

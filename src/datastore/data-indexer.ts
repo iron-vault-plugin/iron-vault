@@ -147,20 +147,20 @@ export class SourcedMapImpl<
   get size(): number {
     return this.all.size;
   }
-  *entries(): IterableIterator<[string, SourcedKinds<Kinds>[Kind]]> {
+  *entries(): MapIterator<[string, SourcedKinds<Kinds>[Kind]]> {
     for (const [key, values] of this.all.entries()) {
       yield [key, getHighestPriorityChecked(values)];
     }
   }
-  keys(): IterableIterator<string> {
+  keys(): MapIterator<string> {
     return this.all.keys();
   }
-  *values(): IterableIterator<SourcedKinds<Kinds>[Kind]> {
+  *values(): MapIterator<SourcedKinds<Kinds>[Kind]> {
     for (const values of this.all.values()) {
       yield getHighestPriorityChecked(values);
     }
   }
-  [Symbol.iterator](): IterableIterator<[string, SourcedKinds<Kinds>[Kind]]> {
+  [Symbol.iterator](): MapIterator<[string, SourcedKinds<Kinds>[Kind]]> {
     return this.entries();
   }
 
@@ -241,19 +241,19 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
     return this._dataMap.size;
   }
 
-  entries(): IterableIterator<[string, SourcedByArray<Kinds>]> {
+  entries(): MapIterator<[string, SourcedByArray<Kinds>]> {
     return this._dataMap.entries();
   }
 
-  keys(): IterableIterator<string> {
+  keys(): MapIterator<string> {
     return this._dataMap.keys();
   }
 
-  values(): IterableIterator<SourcedByArray<Kinds>> {
+  values(): MapIterator<SourcedByArray<Kinds>> {
     return this._dataMap.values();
   }
 
-  [Symbol.iterator](): IterableIterator<[string, SourcedByArray<Kinds>]> {
+  [Symbol.iterator](): MapIterator<[string, SourcedByArray<Kinds>]> {
     return this._dataMap[Symbol.iterator]();
   }
 

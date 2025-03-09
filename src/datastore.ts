@@ -4,18 +4,30 @@ import ironswornDelvePackage from "@datasworn/ironsworn-classic-delve/json/delve
 import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
 import sunderedIslesPackage from "@datasworn/sundered-isles/json/sundered_isles.json" assert { type: "json" };
-import Ajv from "ajv";
+import Ajv, { ValidateFunction } from "ajv";
 import { BaseDataContext } from "datastore/data-context";
 import { DataIndexer } from "datastore/data-indexer";
 import {
-  DataswornIndexer,
   createSource,
+  DataswornIndexer,
   walkDataswornRulesPackage,
 } from "datastore/datasworn-indexer";
+import { indexCollectionRoot } from "datastore/parsers/collection";
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
 import { isDebugEnabled, rootLogger } from "logger";
-import { Component, Notice, TFile, TFolder, type App } from "obsidian";
+import {
+  Component,
+  Notice,
+  parseYaml,
+  TFile,
+  TFolder,
+  type App,
+} from "obsidian";
+import {
+  WILDCARD_TARGET_RULESET,
+  WILDCARD_TARGET_RULESET_PLACEHOLDER,
+} from "rules/ruleset";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
 import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type: "json" };
 import { PLUGIN_DATASWORN_VERSION } from "./constants";
@@ -136,32 +148,92 @@ export class Datastore extends Component {
     this.app.metadataCache.trigger("iron-vault:index-changed");
   }
 
-  async indexDataswornFiles(folder: TFolder) {
-    const validate = this.ajv.compile(dataswornSchema);
-    for (const file of folder.children) {
-      if (file instanceof TFile && file.name.endsWith(".json")) {
-        try {
-          const data = JSON.parse(await this.app.vault.cachedRead(file));
-          const result = validate(data);
-          if (!result) {
-            let msg: string;
-            if (
-              validate.errors?.find(
-                (err) =>
-                  err.instancePath == "/datasworn_version" &&
-                  err.keyword == "const",
-              )
-            ) {
-              msg = `Datasworn homebrew content file '${file.path}' uses Datasworn ${data["datasworn_version"]}, but Iron Vault expects Datasworn ${PLUGIN_DATASWORN_VERSION}.`;
-            } else {
-              msg = `Datasworn homebrew content file '${file.path}' is not a valid Datasworn ${PLUGIN_DATASWORN_VERSION}. Check the error message in the Developer tools console for more details.`;
-            }
+  async indexHomebrewDataswornFile(
+    validate: ValidateFunction<Datasworn.RulesPackage>,
+    file: TFile,
+  ) {
+    try {
+      let data;
+      const priority = 10;
+      if (file.extension == "json") {
+        data = JSON.parse(await this.app.vault.cachedRead(file));
+      } else if (file.extension == "yaml" || file.extension == "yml") {
+        data = parseYaml(await this.app.vault.cachedRead(file));
+      } else {
+        logger.warn("Unsupported %s file: %s", file.extension, file.path);
+      }
 
-            new Notice(msg, 0);
-            logger.error(msg, validate.errors);
-            continue;
-          }
-          const dataswornPackage = data as Datasworn.RulesPackage;
+      if (!data) return;
+
+      if (
+        typeof data == "object" &&
+        data?.ruleset === WILDCARD_TARGET_RULESET
+      ) {
+        data.ruleset = WILDCARD_TARGET_RULESET_PLACEHOLDER;
+      }
+
+      const result = validate(data);
+      if (!result) {
+        let msg: string;
+        if (
+          validate.errors?.find(
+            (err) =>
+              err.instancePath == "/datasworn_version" &&
+              err.keyword == "const",
+          )
+        ) {
+          msg = `Datasworn homebrew content file '${file.path}' uses Datasworn ${data["datasworn_version"]}, but Iron Vault expects Datasworn ${PLUGIN_DATASWORN_VERSION}.`;
+        } else {
+          msg = `Datasworn homebrew content file '${file.path}' is not a valid Datasworn ${PLUGIN_DATASWORN_VERSION}. Check the error message in the Developer tools console for more details.`;
+        }
+
+        new Notice(msg, 0);
+        logger.error(msg, validate.errors, data);
+        return;
+      }
+      if (data?.ruleset === WILDCARD_TARGET_RULESET_PLACEHOLDER) {
+        data.ruleset = WILDCARD_TARGET_RULESET;
+      }
+
+      const dataswornPackage = data as Datasworn.RulesPackage;
+      const source = createSource({
+        path: file.path,
+        priority,
+      });
+      this.indexer.index(source, walkDataswornRulesPackage(dataswornPackage));
+    } catch (e) {
+      new Notice(
+        `Unable to import homebrew file: ${file.basename}\nReason: ${e}`,
+        0,
+      );
+      logger.error(e);
+    }
+  }
+
+  async indexDataswornFiles(homebrewRoot: TFolder) {
+    const validate = this.ajv.compile<Datasworn.RulesPackage>(dataswornSchema);
+
+    for (const file of homebrewRoot.children) {
+      if (file instanceof TFile) {
+        if (
+          file.extension == "json" ||
+          file.extension == "yaml" ||
+          file.extension == "yml"
+        ) {
+          await this.indexHomebrewDataswornFile(validate, file);
+        } else if (file.extension == "md") {
+          logger.info(
+            "[datastore] Ignoring markdown file outside of Homebrew collection %s",
+            file.path,
+          );
+          new Notice(
+            `Homebrew Markdown file '${file.path}' must be part of a Homebrew collection folder.`,
+            0,
+          );
+        }
+      } else if (file instanceof TFolder) {
+        try {
+          const dataswornPackage = await indexCollectionRoot(this.app, file);
           const source = createSource({
             path: file.path,
             priority: 10,
@@ -171,9 +243,11 @@ export class Datastore extends Component {
             walkDataswornRulesPackage(dataswornPackage),
           );
         } catch (e) {
-          new Notice(`Unable to import homebrew file: ${file.basename}`, 0);
-          logger.error(e);
-          continue;
+          logger.error("Error loading homebrew", e);
+          new Notice(
+            `Unable to import homebrew collection: ${file.path}\nReason: ${e}`,
+            0,
+          );
         }
       }
     }

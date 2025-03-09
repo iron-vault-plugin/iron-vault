@@ -41,7 +41,7 @@ const context = await esbuild.context({
     ...builtins,
   ],
   format: "cjs",
-  target: "es2022",
+  target: "es2023",
   logLevel: "info",
   sourcemap: prod ? false : "inline",
   treeShaking: true,
@@ -88,7 +88,7 @@ const cssCtx = await esbuild.context({
   loader: {
     ".svg": "dataurl",
   },
-  target: "chrome88",
+  target: "chrome120",
   plugins: [
     copy({
       // this is equal to process.cwd(), which means we use cwd path as base path to resolve `to` path

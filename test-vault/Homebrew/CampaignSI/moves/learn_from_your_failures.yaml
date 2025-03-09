@@ -1,0 +1,46 @@
+type: move
+ruleset: starforged
+datasworn_version: "0.1.0"
+name: Learn From Your Failures
+_source:
+  <<: &source
+    title: "Ironsworn: Delve"
+    authors:
+      - name: Shawn Tomkin
+    license: https://creativecommons.org/licenses/by/4.0
+    url: https://ironswornrpg.com
+    date: 2020-02-13
+  page: 19
+roll_type: special_track
+trigger:
+  text: When you spend time reflecting on your hardships and missteps...
+  conditions:
+    - method: player_choice
+      roll_options:
+        - using: failure_track
+text: |-
+  When __you spend time reflecting on your hardships and missteps__, and your failure track is +6 or greater, roll your challenge dice and compare to your progress. Momentum is ignored on this roll.
+
+  On a __strong hit__, you commit to making a dramatic change. Take 3 experience and clear all progress. Then, choose one.
+
+    * Adjust your approach: Discard a single asset, and take 2 experience for each marked ability.
+    * Make an oath: [Swear an Iron Vow](datasworn:move:starforged/quest/swear_an_iron_vow), and reroll any dice.
+    * Ready your next steps: Take +3 momentum.
+
+  On a __weak hit__, you learn from your mistakes. Take 2 experience and clear all progress.
+
+  On a __miss__, you’ve learned the wrong lessons. Take 1 experience and clear all progress. Then, envision how you set off on an ill-fated path.
+outcomes:
+  strong_hit:
+    text: |-
+      On a __strong hit__, you commit to making a dramatic change. Take 3 experience and clear all progress. Then, choose one.
+
+        * Adjust your approach: Discard a single asset, and take 2 experience for each marked ability.
+        * Make an oath: [Swear an Iron Vow](datasworn:move:starforged/quest/swear_an_iron_vow), and reroll any dice.
+        * Ready your next steps: Take +3 momentum.
+  weak_hit:
+    text: |-
+      On a __weak hit__, you learn from your mistakes. Take 2 experience and clear all progress.
+  miss:
+    text: |-
+      On a __miss__, you’ve learned the wrong lessons. Take 1 experience and clear all progress. Then, envision how you set off on an ill-fated path.

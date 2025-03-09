@@ -15,7 +15,13 @@ import { insertComment } from "mechanics/commands";
 import { checkIfMigrationNeededCommand } from "migrate/command";
 import { makeActionRollCommand, runMoveCommand } from "moves/action";
 import { rerollDie } from "moves/action/action-modal";
-import { Command, Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
+import {
+  Command,
+  Editor,
+  MarkdownFileInfo,
+  MarkdownView,
+  Notice,
+} from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import {
   advanceProgressTrack,
@@ -294,6 +300,20 @@ export class IronVaultCommands {
       id: "create-campaign",
       name: "Create a new campaign",
       callback: () => createNewCampaignCommand(this.plugin),
+    },
+    {
+      id: "reload-homebrew",
+      name: "Reload homebrew and datasworn data",
+      callback: async () => {
+        try {
+          await this.plugin.datastore.initialize();
+          // TODO: maybe list the counts of files or something?
+          new Notice("Data reloaded successfully.", 5000);
+        } catch (e) {
+          new Notice(`Failed to reload datasworn data:\n${e}`, 0);
+          console.error(e);
+        }
+      },
     },
   ];
 

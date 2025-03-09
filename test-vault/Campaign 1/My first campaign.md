@@ -2,6 +2,8 @@
 iron-vault-kind: campaign
 ironvault:
   playset:
-    type: registry
-    key: starforged
+    type: globs
+    lines:
+      - "@include(starforged)"
+      - "*:starsmith/**"
 ---

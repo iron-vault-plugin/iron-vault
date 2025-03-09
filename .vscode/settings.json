@@ -3,13 +3,20 @@
   "git.branchProtection": [],
   "jest.jestCommandLine": "pnpm test --",
   "yaml.schemas": {
-    "./node_modules/@datasworn/core/json/datasworn.schema.json": ["/data/*"]
+    "./node_modules/@datasworn/core/json/datasworn.schema.json": ["/data/*"],
+    "./node_modules/@datasworn/core/json/datasworn-source.schema.json": [
+      "/test-vault/Homebrew/**/*.yaml"
+    ]
   },
   "json.schemas": [
     {
       "fileMatch": ["/data/*"],
       "url": "./node_modules/@datasworn/core/json/datasworn.schema.json"
+    },
+    {
+      "fileMatch": ["/test-vault/Homebrew/**/*"],
+      "url": "./node_modules/@datasworn/core/json/datasworn-source.schema.json"
     }
   ],
-  "eslint.experimental.useFlatConfig": true
+  "eslint.useFlatConfig": true
 }
