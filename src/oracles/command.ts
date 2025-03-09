@@ -114,7 +114,7 @@ export async function runOracleCommand(
     }
   }
 
-  const modal = plugin.settings.useOldRoller
+  const modal = plugin.settings.useLegacyRoller
     ? OracleRollerModal
     : NewOracleRollerModal;
   const { roll, cursedRoll } = await modal.forRoll(

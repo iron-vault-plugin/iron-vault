@@ -179,7 +179,7 @@ export async function generateEntityCommand(
 
   let results: NewEntityModalResults<EntitySpec>;
   try {
-    if (plugin.settings.useOldRoller) {
+    if (plugin.settings.useLegacyRoller) {
       results = await generateEntity(plugin, campaignContext, entityDesc);
     } else {
       results = await generateEntityNewModal(
