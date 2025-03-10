@@ -1,4 +1,4 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://ironvault.quest/</link><image><url>https://ironvault.quest/lib/media/favicon.png</url><title>Iron Vault</title><link>https://ironvault.quest/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Sun, 09 Mar 2025 19:06:29 GMT</lastBuildDate><atom:link href="https://ironvault.quest/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Sun, 09 Mar 2025 19:06:24 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://ironvault.quest/</link><image><url>https://ironvault.quest/lib/media/favicon.png</url><title>Iron Vault</title><link>https://ironvault.quest/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Mon, 10 Mar 2025 00:46:29 GMT</lastBuildDate><atom:link href="https://ironvault.quest/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Mon, 10 Mar 2025 00:46:23 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
  <br>"Blocks" are used throughout Iron Vault to provide custom rendering of various game features. Most blocks also provide interactivity, so instead of having to manually edit frontmatter data, you can do the edits through the blocks' rendered views themselves.<br>
 You can use them as much or as little as you want, just like any other Iron Vault feature.<br>All blocks are used by using triple backticks (`), the name of the block, a new line, then a closing set of triple backticks.<br>Most blocks don't contain anything in order to work, but some, like <a data-href="Mechanics Blocks" href="https://ironvault.quest/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener nofollow">Mechanics Blocks</a>, have special contents that determine how they're rendered.<br>The following blocks are supported:<br>
 <br><a data-href="Asset Blocks" href="https://ironvault.quest/blocks/asset-blocks.html" class="internal-link" target="_self" rel="noopener nofollow">Asset Blocks</a> (iron-vault-assets) - inline asset cards (with read-only, no settings).
@@ -63,24 +63,7 @@ iron-vault-kind: clock
 ---
 ```iron-vault-clock
 ```
-<br>Will render a clock that looks like this:<br>Doomsday Device<br><br>
-      
-        
-          The Doomsday Device Explodes
-        
-
-        
-    
-  
-
-        
-          6
-          segments;
-          Complete:
-            
-        
-      
-    <br><br>To edit the number of filled-in slices, simply click on the slice you want to fill up to. Clocks fill clockwise.<br>In order to zero-out your clock, first click on the first wedge until only that first wedge is filled, then click on it again to toggle it off, leaving the clock blank.]]></description><link>https://ironvault.quest/blocks/clock-blocks.html</link><guid isPermaLink="false">Blocks/Clock Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 12 Jul 2024 19:41:57 GMT</pubDate></item><item><title><![CDATA[Mechanics Blocks]]></title><description><![CDATA[ 
+<br>Will render a clock that looks like this:<br>Doomsday Device<br><br><br>To edit the number of filled-in slices, simply click on the slice you want to fill up to. Clocks fill clockwise.<br>In order to zero-out your clock, first click on the first wedge until only that first wedge is filled, then click on it again to toggle it off, leaving the clock blank.]]></description><link>https://ironvault.quest/blocks/clock-blocks.html</link><guid isPermaLink="false">Blocks/Clock Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 12 Jul 2024 19:41:57 GMT</pubDate></item><item><title><![CDATA[Mechanics Blocks]]></title><description><![CDATA[ 
  <br><br>This plugin renders a <a data-tooltip-position="top" aria-label="https://kdl.dev/" rel="noopener nofollow" class="external-link" href="https://kdl.dev/" target="_blank">KDL</a> block into a formatted Ironsworn/Starforged mechanics block, with nice styling and some interactivity.<br>It takes an Obsidian note that looks like this:<br>```iron-vault-mechanics
 move id="move:starforged/adventure/face_danger" {
 	add 1 "because I'm cool [[Ash Barlowe]]"
@@ -1021,50 +1004,7 @@ rank: dangerous
 ---
 ```iron-vault-track
 ```
-<br>Will render a track that looks like this:<br>Write the Docs<br><br>
-    
-      
-        
-              I vow to write this documentation
-      
-      
-            
-              
-                
-                      
-                            Troublesome
-                          
-                            Dangerous
-                          
-                            Formidable
-                          
-                            Extreme
-                          
-                            Epic
-                          
-                    
-              
-              
-                 
-              
-            
-          
-      
-      
-        
-          -
-        
-        
-          <br>box 4<br>box 4<br>box 4<br>box 4<br>box 4<br>box 2<br>box 0<br>box 0<br>box 0<br>box 0
-        
-        
-          +
-        
-        
-        ticks
-      
-    
-  <br><br>To mark progress on the vow, click on the + button. To remove progress, use the - button. If you want more fine-grained control over the number of ticks, such as removing only 2 ticks in a Dangerous track, you can click on the text field with the number of ticks and edit it. The number of ticks will be updated when you click away or press enter.]]></description><link>https://ironvault.quest/blocks/track-blocks.html</link><guid isPermaLink="false">Blocks/Track Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 12 Jul 2024 19:41:57 GMT</pubDate></item><item><title><![CDATA[Truth Blocks]]></title><description><![CDATA[ 
+<br>Will render a track that looks like this:<br>Write the Docs<br><br><br>To mark progress on the vow, click on the + button. To remove progress, use the - button. If you want more fine-grained control over the number of ticks, such as removing only 2 ticks in a Dangerous track, you can click on the text field with the number of ticks and edit it. The number of ticks will be updated when you click away or press enter.]]></description><link>https://ironvault.quest/blocks/track-blocks.html</link><guid isPermaLink="false">Blocks/Track Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 12 Jul 2024 19:41:57 GMT</pubDate></item><item><title><![CDATA[Truth Blocks]]></title><description><![CDATA[ 
  <br>Truth blocks are used to render pickers for individual truths. When filled out and saved, they will insert the final truth text underneath themselves into the current file.<br><a data-href="Truths" href="https://ironvault.quest/entities/truths.html" class="internal-link" target="_self" rel="noopener nofollow">Truths</a> are a core Ironsworn/Starforged concept, and one of the first things you'll do when you start a campaign. You can easily generate a Truths file with all your current rulesets' truths by using the <a data-href="Generate Truths" href="https://ironvault.quest/commands/generate-truths.html" class="internal-link" target="_self" rel="noopener nofollow">Generate Truths</a> command.<br>Truth blocks expect the name of the Truth they'll be dealing with as the first line in their bodies. A second optional line with the text inserted will set the Truth block to its "click to reset" state, and is usually automatically written when you click save on the block.<br>Resetting the Truth block will reset it to its initial state and insert an Old Truth: header underneath, to separate your previously-generated truth text from the new one, so it won't delete any text you had there before that you might want to keep or reference.<br>Truth blocks let you either pick your truth options from a dropdown, or click on a die icon to randomize them according to the rules' oracle table.<br>Once the Truth is generated, you are free to edit the Truth text any way you see fit: it's just regular text in the file!<br>You can also choose to split your truths between multiple files, by just putting the iron-vault-truth blocks into separate files.<br><br>The following file:<br>## Cataclysm
 ```iron-vault-truth
 Cataclysm

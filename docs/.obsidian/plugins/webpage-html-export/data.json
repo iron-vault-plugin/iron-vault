@@ -30,7 +30,7 @@
   "authorName": "Iron Vault Dev Team",
   "vaultTitle": "Iron Vault",
   "exportPreset": "website",
-  "openAfterExport": false,
+  "openAfterExport": true,
   "graphAttractionForce": 1,
   "graphLinkLength": 10,
   "graphRepulsionForce": 150,
