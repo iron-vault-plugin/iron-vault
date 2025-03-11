@@ -20,6 +20,7 @@ import {
   Component,
   Notice,
   parseYaml,
+  TAbstractFile,
   TFile,
   TFolder,
   type App,
@@ -44,6 +45,9 @@ export class Datastore extends Component {
   readonly waitForReady: Promise<void>;
 
   #readyNow!: () => void;
+
+  #homebrewFolder: TFolder | null = null;
+  #reindexTimers = new Map<TAbstractFile, NodeJS.Timeout>();
 
   emitter: Emittery;
 
@@ -87,11 +91,11 @@ export class Datastore extends Component {
 
     if (this.plugin.settings.useHomebrew) {
       if (this.plugin.settings.homebrewPath) {
-        const homebrewFolder = this.plugin.app.vault.getFolderByPath(
+        this.#homebrewFolder = this.plugin.app.vault.getFolderByPath(
           this.plugin.settings.homebrewPath,
         );
-        if (homebrewFolder) {
-          await this.indexDataswornFiles(homebrewFolder);
+        if (this.#homebrewFolder) {
+          await this.indexHomebrewTopLevels(this.#homebrewFolder.children);
         } else {
           new Notice(
             `Homebrew enabled, but path '${this.plugin.settings.homebrewPath}' is missing.`,
@@ -115,6 +119,85 @@ export class Datastore extends Component {
     );
     this.emitter.emit("initialized");
     this.#readyNow();
+  }
+
+  #queueReindex(file: TAbstractFile) {
+    if (this.#reindexTimers.has(file)) {
+      clearTimeout(this.#reindexTimers.get(file)!);
+    }
+    this.#reindexTimers.set(
+      file,
+      setTimeout(
+        () => !file.deleted && this.indexHomebrewTopLevels([file]),
+        1000,
+      ),
+    );
+  }
+
+  onload(): void {
+    // Monitor the vault for changes within the homebrew folder and reindex top level entities
+    // as needed
+    this.registerEvent(
+      this.app.vault.on("modify", async (file) => {
+        if (!this._ready || !this.#homebrewFolder) return;
+
+        const topLevel = this._determineTopLevelHomebrewParent(
+          this.#homebrewFolder,
+          file,
+        );
+        if (topLevel) {
+          logger.debug(
+            "file modified: %s -> rebuild top level: %s",
+            file.path,
+            topLevel.path,
+          );
+          this.#queueReindex(topLevel);
+        }
+      }),
+    );
+    this.registerEvent(
+      this.app.vault.on("delete", async (file) => {
+        if (!this._ready || !this.#homebrewFolder) return;
+
+        const topLevel = this._determineTopLevelHomebrewParent(
+          this.#homebrewFolder,
+          file,
+        );
+        if (topLevel) {
+          logger.debug(
+            "file deleted: %s -> remove top level: %s",
+            file.path,
+            topLevel.path,
+          );
+          this.indexer.removeSource(topLevel.path);
+          this.#reindexTimers.delete(topLevel);
+        }
+      }),
+    );
+    this.registerEvent(
+      this.app.vault.on("rename", async (file, oldPath) => {
+        if (!this._ready || !this.#homebrewFolder) return;
+
+        // TODO: when the root is renamed, all of the children are also renamed afterwards, starting
+        // a cascade. To resolve this, we need to postpone the reindexing until all of the renames
+        // have completed.
+        const topLevel = this._determineTopLevelHomebrewParent(
+          this.#homebrewFolder,
+          file,
+        );
+        if (topLevel) {
+          // Old path might be a top-level file, so let's just delete it to be sure.
+          this.indexer.removeSource(oldPath);
+
+          logger.debug(
+            "file renamed: %s -> rebuild top level: %s",
+            oldPath,
+            topLevel.path,
+          );
+          this.#queueReindex(topLevel);
+        }
+      }),
+    );
   }
 
   indexBuiltInData(pkg: Datasworn.RulesPackage, priority: number = 0) {
@@ -210,10 +293,14 @@ export class Datastore extends Component {
     }
   }
 
-  async indexDataswornFiles(homebrewRoot: TFolder) {
+  /**
+   * Index the listed files as top-level homebrew content (either a single compiled Datasworn
+   * package, or a folder containing source files)
+   */
+  async indexHomebrewTopLevels(filesOrFolders: TAbstractFile[]): Promise<void> {
     const validate = this.ajv.compile<Datasworn.RulesPackage>(dataswornSchema);
 
-    for (const file of homebrewRoot.children) {
+    for (const file of filesOrFolders) {
       if (file instanceof TFile) {
         if (
           file.extension == "json" ||
@@ -251,6 +338,30 @@ export class Datastore extends Component {
         }
       }
     }
+  }
+
+  /**
+   * Determines the top-level homebrew file or folder corresponding to the given file.
+   *
+   * First, checks if the path is in the homebrew root folder at all. If not, it returns null.
+   * Next, if it is a direct child of the homebrew root, returns the file itself.
+   * Finally, if it is a child of a subfolder of the root, return that folder.
+   * @param file File to determine the top-level homebrew parent for
+   */
+  _determineTopLevelHomebrewParent(
+    homebrewRoot: TFolder,
+    file: TAbstractFile,
+  ): TAbstractFile | null {
+    if (!file.path.startsWith(homebrewRoot.path + "/")) {
+      return null;
+    }
+    if (file.parent == homebrewRoot) {
+      return file;
+    }
+    while (file.parent != homebrewRoot && file.parent != null) {
+      file = file.parent;
+    }
+    return file;
   }
 
   // async indexOraclesFolder(folder: TFolder): Promise<void> {
