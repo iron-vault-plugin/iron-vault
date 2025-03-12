@@ -154,6 +154,33 @@ export class NewOracleRollerModal extends Modal {
 
     render(
       html`
+        <div class="setting-item">
+          <div class="setting-item-info">
+            <div class="setting-item-name"></div>
+            <div class="setting-item-description">
+              You rolled
+              ${activeState.rows[activeState.initialRowIndex].currentRoll()
+                .diceValue}.
+            </div>
+          </div>
+          <div class="setting-item-control">
+            <div class="setting-item-control">
+              <div
+                class="clickable-icon extra-setting-button"
+                aria-label="Reroll"
+                data-tooltip-position="top"
+                @click=${(_ev: MouseEvent) =>
+                  this.updateState((s) => s.reroll())}
+                ${ref(
+                  (el) =>
+                    el &&
+                    el instanceof HTMLElement &&
+                    setIcon(el, "refresh-cw"),
+                )}
+              ></div>
+            </div>
+          </div>
+        </div>
         ${this.rollContainer.isCursable()
           ? renderCurseToggle(this.rollContainer)
           : undefined}
