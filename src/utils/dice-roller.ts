@@ -1,6 +1,9 @@
 import IronVaultPlugin from "index";
-import { Dice, DieKind, randomInt } from "./dice";
+import { rootLogger } from "logger";
+import { Dice, DieKind } from "./dice";
 import { DiceGroup } from "./dice-group";
+
+const logger = rootLogger.getLogger("dice-roller");
 
 export type DiceResult = { dice: Dice; value: number };
 
@@ -18,7 +21,7 @@ export class PlainDiceRoller implements DiceRoller, AsyncDiceRoller {
   roll(group: DiceGroup): DiceResult[] {
     return group.dice.map((dice) => {
       return {
-        value: randomInt(dice.minRoll(), dice.maxRoll()),
+        value: dice.roll(),
         dice,
       };
     });
@@ -37,17 +40,23 @@ export class GraphicalDiceRoller implements DiceRoller, AsyncDiceRoller {
   }
 
   async rollAsync(group: DiceGroup): Promise<DiceResult[]> {
-    const rawResults = await this.plugin.diceOverlay.roll(
-      group.dice.map((d) => ({
-        qty: d.count,
-        sides: d.sides,
-        themeColor: this.themeColor(d.kind),
-      })),
-    );
-    return rawResults.map((roll, idx) => ({
-      dice: group.dice[idx],
+    const rolls = group.dice.map((d) => ({
+      qty: d.count,
+      sides: d.sides,
+      themeColor: this.themeColor(d.kind),
+    }));
+    logger.trace("Rolling dice", rolls);
+    const rawResults = await this.plugin.diceOverlay.roll(rolls);
+    logger.trace("Raw results", rawResults);
+    return group.dice.map((d, idx) => ({
+      dice: d,
       // @3d-dice return "0" for percentile dice when when both are "0"/"00", instead of "100"
-      value: roll.sides === 100 && roll.value === 0 ? 100 : roll.value,
+      value: rawResults
+        .filter((r) => r.groupId == idx)
+        .reduce(
+          (acc, r) => acc + (r.sides === 100 && r.value === 0 ? 100 : r.value),
+          0,
+        ),
     }));
   }
 
