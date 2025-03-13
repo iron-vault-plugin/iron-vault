@@ -49,14 +49,15 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
                   setTimeout(() => this.render(), 0);
                 }}
                 @change=${async (ev: Event) => {
-                  ev.target &&
-                    (await clockUpdater(
+                  if (ev.target) {
+                    await clockUpdater(
                       vaultProcess(this.plugin.app, this.sourcePath),
                       (clockFile) =>
                         clockFile.updatingClock((clock) =>
                           clock.withName((ev.target as HTMLInputElement).value),
                         ),
-                    ));
+                    );
+                  }
                   this.editingName = false;
                 }}
               />`
@@ -99,8 +100,8 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
                   setTimeout(() => this.render(), 0);
                 }}
                 @change=${async (ev: Event) => {
-                  ev.target &&
-                    (await clockUpdater(
+                  if (ev.target) {
+                    await clockUpdater(
                       vaultProcess(this.plugin.app, this.sourcePath),
                       (clockFile) =>
                         clockFile.updatingClock((clock) =>
@@ -108,7 +109,8 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
                             +(ev.target as HTMLInputElement).value,
                           ),
                         ),
-                    ));
+                    );
+                  }
                   this.editingName = false;
                 }}
               />`

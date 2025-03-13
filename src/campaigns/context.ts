@@ -123,7 +123,6 @@ export class PlaysetAwareDataContext extends BaseDataContext {
           const filtered = val.filter(
             (sourced) =>
               // TODO(@cwegrzyn): maybe I should be more open ended with the type on determine's obj?
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               playsetConfig.determine(sourced.id, {
                 tags: sourced.value[scopeTags],
               }) === Determination.Include,

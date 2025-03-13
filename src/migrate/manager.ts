@@ -87,7 +87,11 @@ export class MigrationManager {
     callback: (...data: never[]) => unknown,
     ctx?: unknown,
   ): EventRef {
-    return this.events.on(name, callback, ctx);
+    return this.events.on(
+      name,
+      callback as (...data: unknown[]) => unknown,
+      ctx,
+    );
   }
 
   off(name: string, callback: (...data: unknown[]) => unknown): void {
@@ -100,7 +104,7 @@ export class MigrationManager {
 
   protected trigger(name: "changed", manager: this): void;
   protected trigger(name: "needs-migration", manager: this): void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   protected trigger(name: string, ...data: unknown[]): void {
     this.events.trigger(name, ...data);
   }

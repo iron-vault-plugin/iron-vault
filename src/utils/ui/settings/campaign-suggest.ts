@@ -70,6 +70,6 @@ export class CampaignSelectComponent extends ValueComponent<CampaignFile> {
   }
 
   onChanged(): void {
-    this.#changeCallback && this.#changeCallback(this.getValue());
+    if (this.#changeCallback) this.#changeCallback(this.getValue());
   }
 }

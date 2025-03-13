@@ -273,7 +273,6 @@ export class RollWrapper {
         return templateString.replace(
           /\{\{text>([^{}]+)\}\}/g,
           (_: unknown, id: string) => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const templateRolls = this.subrolls[id];
             if (templateRolls == null) {
               throw new Error(`expected subroll of ${id}`);
@@ -302,7 +301,6 @@ export class RollWrapper {
           templateString.replace(
             /\{\{text>([^{}]+)\}\}/g,
             (_: unknown, id: string) => {
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const templateRolls = this.subrolls[id];
               if (templateRolls == null) {
                 throw new Error(`expected subroll of ${id}`);
