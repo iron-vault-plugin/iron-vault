@@ -2,8 +2,10 @@ import { EventRef } from "obsidian";
 import { Either } from "utils/either";
 import { ReadonlyVersionedMap, VersionedMap } from "utils/versioned-map";
 
-export interface ReadonlyIndex<T, E extends Error>
-  extends ReadonlyVersionedMap<string, Either<E, T>> {}
+export type ReadonlyIndex<T, E extends Error> = ReadonlyVersionedMap<
+  string,
+  Either<E, T>
+>;
 
 export type AsEmitting<I> =
   I extends Index<infer T, infer E>

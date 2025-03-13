@@ -234,7 +234,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
   async activateView() {
     const { workspace } = this.app;
     const leaf = await this.initLeaf();
-    leaf && workspace.revealLeaf(leaf);
+    if (leaf) workspace.revealLeaf(leaf);
   }
 
   async initLeaf() {

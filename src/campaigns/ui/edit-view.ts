@@ -20,7 +20,7 @@ export class CampaignEditView extends FileView {
 
     const leaves = workspace.getLeavesOfType(CAMPAIGN_EDIT_VIEW_TYPE);
     let leaf: WorkspaceLeaf | undefined = leaves.find(
-      (leaf) => leaf.getViewState().state.file == file,
+      (leaf) => leaf.getViewState().state?.file == file,
     );
 
     if (!leaf) {

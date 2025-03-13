@@ -321,7 +321,7 @@ export class PlaysetSetting {
     if (this.playsetState.base == "custom") {
       try {
         PlaysetConfig.parseFile(this.playsetState.customConfig);
-      } catch (e) {
+      } catch (_e) {
         return false;
       }
     }

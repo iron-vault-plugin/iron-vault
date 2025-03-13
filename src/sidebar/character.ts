@@ -31,12 +31,7 @@ export default async function renderIronVaultCharacter(
       return;
     }
     render(
-      html`${md(
-        plugin,
-        `![[${context.characterPath}|iv-embed]]`,
-        ".",
-        parent,
-      )}`,
+      html`${md(plugin, `![[${context.characterPath}|iv-embed]]`, ".", parent)}`,
       containerEl,
     );
   } catch (e) {

@@ -346,10 +346,14 @@ export class CampaignManager extends Component {
     callback: (params: EVENT_TYPES[K]) => unknown,
     ctx?: unknown,
   ): EventRef {
-    return this.#events.on(name, callback, ctx);
+    return this.#events.on(
+      name,
+      callback as (...data: unknown[]) => unknown,
+      ctx,
+    );
   }
 
-  off(name: string, callback: (...data: never[]) => unknown): void {
+  off(name: string, callback: (...data: unknown[]) => unknown): void {
     this.#events.off(name, callback);
   }
 

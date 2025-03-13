@@ -129,7 +129,11 @@ export class IndexImpl<T, E extends Error> implements EmittingIndex<T, E> {
     callback: (...data: never[]) => unknown,
     ctx?: unknown,
   ): EventRef {
-    return this.events.on(name, callback, ctx);
+    return this.events.on(
+      name,
+      callback as (...data: unknown[]) => unknown,
+      ctx,
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

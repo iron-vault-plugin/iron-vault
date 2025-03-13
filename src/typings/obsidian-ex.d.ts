@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/method-signature-style */
 import { IronVaultAPI } from "api";
 import "obsidian";
 

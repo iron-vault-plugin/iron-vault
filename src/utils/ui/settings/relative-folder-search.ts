@@ -57,7 +57,7 @@ export class RelativeFolderSearchComponent extends SearchComponent {
   onChanged(): void {
     const relPath = this.getValue();
     const absPath = joinPaths(this.suggest.baseFolder, relPath);
-    this.#changeCallback &&
+    if (this.#changeCallback)
       this.#changeCallback(
         relPath,
         absPath,

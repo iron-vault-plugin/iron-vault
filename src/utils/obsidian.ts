@@ -178,7 +178,7 @@ export function joinPaths(folder: TFolder, ...segments: string[]): string {
 }
 
 /** Reveal a singleton view, creating it if it doesn't exist. */
-export async function showSingletonView<T>(
+export async function showSingletonView<T extends Record<string, unknown>>(
   app: App,
   viewType: string,
   state?: T,
