@@ -4,7 +4,15 @@ import { type App } from "obsidian";
 
 /** Modal to render an informative prompt to the user. */
 export class InfoModal extends Modal {
-  static async show(app: App, content: string | HTMLElement): Promise<void> {
+  static async show(
+    app: App,
+    content: string | DocumentFragment | HTMLElement,
+  ): Promise<void> {
+    if (content instanceof HTMLElement) {
+      const fragment = document.createDocumentFragment();
+      fragment.appendChild(content);
+      content = fragment;
+    }
     return await new Promise((resolve, _reject) => {
       new this(app, content, resolve).open();
     });
@@ -12,7 +20,7 @@ export class InfoModal extends Modal {
 
   private constructor(
     app: App,
-    public readonly content: string | HTMLElement,
+    public readonly content: string | DocumentFragment,
     public readonly accept: () => void,
   ) {
     super(app);
