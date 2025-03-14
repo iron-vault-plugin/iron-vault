@@ -614,7 +614,7 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
     }
   }
 
-  logger.debug("Package: %o", packageRootObject);
+  logger.debug("Package: %o", JSON.parse(JSON.stringify(packageRootObject)));
 
   builder.addFiles({ name: packageId, data: packageRootObject });
 
@@ -647,7 +647,24 @@ export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
   return builder.toJSON();
 }
 
+const numbers = [
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+].map((s) => "_" + s + "_");
+
 function sanitizeNameForId(name: string): string {
-  // TODO: Numbers aren't allowed in the ID --> either need to give a warning, or sub out for text?
-  return name.replaceAll(/[^a-z]+/gi, "_").toLowerCase();
+  return name
+    .replaceAll(/[0-9]/g, (digit) => numbers[Number.parseInt(digit)])
+    .replaceAll(/[^a-z]+/gi, "_")
+    .replaceAll(/^_|_$/g, "")
+    .toLowerCase();
 }
