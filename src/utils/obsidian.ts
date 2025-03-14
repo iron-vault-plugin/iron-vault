@@ -10,6 +10,7 @@ import {
   type Plugin,
 } from "obsidian";
 import { IronVaultKind, PLUGIN_KIND_FIELD } from "../constants";
+import { findTopLevelParent } from "./paths";
 
 const logger = rootLogger.getLogger("utils");
 
@@ -200,4 +201,15 @@ export async function showSingletonView<T extends Record<string, unknown>>(
 
   // "Reveal" the leaf in case it is in a collapsed sidebar
   workspace.revealLeaf(leaf);
+}
+
+export function findTopLevelParentFolder(
+  rootFolder: TFolder,
+  childPath: TAbstractFile,
+): TAbstractFile | undefined {
+  const topLevelChild = findTopLevelParent(rootFolder.path, childPath.path);
+  if (!topLevelChild) {
+    return undefined;
+  }
+  return rootFolder.children.find((child) => child.name === topLevelChild);
 }

@@ -29,6 +29,8 @@ import {
   WILDCARD_TARGET_RULESET,
   WILDCARD_TARGET_RULESET_PLACEHOLDER,
 } from "rules/ruleset";
+import { findTopLevelParentFolder } from "utils/obsidian";
+import { findTopLevelParent } from "utils/paths";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
 import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type: "json" };
 import { PLUGIN_DATASWORN_VERSION } from "./constants";
@@ -141,10 +143,7 @@ export class Datastore extends Component {
       this.app.vault.on("modify", async (file) => {
         if (!this._ready || !this.#homebrewFolder) return;
 
-        const topLevel = this._determineTopLevelHomebrewParent(
-          this.#homebrewFolder,
-          file,
-        );
+        const topLevel = findTopLevelParentFolder(this.#homebrewFolder, file);
         if (topLevel) {
           logger.debug(
             "file modified: %s -> rebuild top level: %s",
@@ -159,18 +158,32 @@ export class Datastore extends Component {
       this.app.vault.on("delete", async (file) => {
         if (!this._ready || !this.#homebrewFolder) return;
 
-        const topLevel = this._determineTopLevelHomebrewParent(
-          this.#homebrewFolder,
-          file,
+        // Since deleted files are not actually in the hierarchy, we won't be
+        // able to find the parent if it was a top-level file.
+        const topLevel = findTopLevelParent(
+          this.#homebrewFolder.path,
+          file.path,
         );
         if (topLevel) {
           logger.debug(
-            "file deleted: %s -> remove top level: %s",
+            "file deleted: %s from top level: %s",
             file.path,
-            topLevel.path,
+            topLevel,
           );
-          this.indexer.removeSource(topLevel.path);
-          this.#reindexTimers.delete(topLevel);
+          const topLevelPath = this.#homebrewFolder.path + "/" + topLevel;
+          if (file.path === topLevelPath) {
+            logger.debug("homebrew top level deleted: %s", topLevel);
+
+            this.indexer.removeSource(topLevelPath);
+            this.#reindexTimers.delete(file);
+          } else {
+            logger.debug("homebrew child deleted. reindexing top level");
+            this.#queueReindex(
+              this.#homebrewFolder.children.find(
+                (child) => child.name === topLevel,
+              )!,
+            );
+          }
         }
       }),
     );
@@ -178,13 +191,7 @@ export class Datastore extends Component {
       this.app.vault.on("rename", async (file, oldPath) => {
         if (!this._ready || !this.#homebrewFolder) return;
 
-        // TODO: when the root is renamed, all of the children are also renamed afterwards, starting
-        // a cascade. To resolve this, we need to postpone the reindexing until all of the renames
-        // have completed.
-        const topLevel = this._determineTopLevelHomebrewParent(
-          this.#homebrewFolder,
-          file,
-        );
+        const topLevel = findTopLevelParentFolder(this.#homebrewFolder, file);
         if (topLevel) {
           // Old path might be a top-level file, so let's just delete it to be sure.
           this.indexer.removeSource(oldPath);
@@ -338,30 +345,6 @@ export class Datastore extends Component {
         }
       }
     }
-  }
-
-  /**
-   * Determines the top-level homebrew file or folder corresponding to the given file.
-   *
-   * First, checks if the path is in the homebrew root folder at all. If not, it returns null.
-   * Next, if it is a direct child of the homebrew root, returns the file itself.
-   * Finally, if it is a child of a subfolder of the root, return that folder.
-   * @param file File to determine the top-level homebrew parent for
-   */
-  _determineTopLevelHomebrewParent(
-    homebrewRoot: TFolder,
-    file: TAbstractFile,
-  ): TAbstractFile | null {
-    if (!file.path.startsWith(homebrewRoot.path + "/")) {
-      return null;
-    }
-    if (file.parent == homebrewRoot) {
-      return file;
-    }
-    while (file.parent != homebrewRoot && file.parent != null) {
-      file = file.parent;
-    }
-    return file;
   }
 
   // async indexOraclesFolder(folder: TFolder): Promise<void> {

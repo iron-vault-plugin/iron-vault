@@ -1,4 +1,4 @@
-import { childOfPath, parentFolderOf } from "./paths";
+import { childOfPath, findTopLevelParent, parentFolderOf } from "./paths";
 
 describe("childOfPath", () => {
   it.each`
@@ -22,4 +22,21 @@ describe("childOfPath", () => {
   `("returns $result for $root of $child", ({ path, parent }) => {
     expect(parentFolderOf(path)).toBe(parent);
   });
+});
+
+describe("findTopLevelParent", () => {
+  it.each`
+    root          | path                                 | expected
+    ${"world"}    | ${"world/continent/country/city.md"} | ${"continent"}
+    ${"world"}    | ${"world/region.md"}                 | ${"region.md"}
+    ${"world"}    | ${"other/path/file.md"}              | ${undefined}
+    ${"world/"}   | ${"world/continent/file.md"}         | ${"continent"}
+    ${"docs"}     | ${"docs/folder/subfolder/file.md"}   | ${"folder"}
+    ${"project/"} | ${"project/src/file.ts"}             | ${"src"}
+  `(
+    "finds top level parent for root=$root path=$path",
+    ({ root, path, expected }) => {
+      expect(findTopLevelParent(root, path)).toEqual(expected);
+    },
+  );
 });
