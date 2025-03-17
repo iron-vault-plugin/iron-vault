@@ -227,13 +227,21 @@ export class NewOracleRollerModal extends Modal {
                         );
                       } else {
                         const subOracle = rolled.context.lookup(id);
-                        return html`<a
-                          aria-label=${subOracle?.name}
-                          data-tooltip-position="top"
-                          @click=${(ev: MouseEvent) =>
-                            this._subrollClick(ev, i, id, 0)}
-                          >${label}</a
-                        >`;
+                        if (subOracle) {
+                          return html`<a
+                            aria-label=${subOracle?.name}
+                            data-tooltip-position="top"
+                            @click=${(ev: MouseEvent) =>
+                              this._subrollClick(ev, i, id, 0)}
+                            >${label}</a
+                          >`;
+                        } else {
+                          return html`<span
+                            aria-label=${id}
+                            data-tooltip-position="top"
+                            >${label}</span
+                          >`;
+                        }
                       }
                     });
                   };
