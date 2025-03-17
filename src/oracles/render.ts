@@ -1,5 +1,5 @@
 import { Datasworn } from "@datasworn/core";
-import { App, MarkdownRenderChild, MarkdownRenderer } from "obsidian";
+import { App, Component, MarkdownRenderer } from "obsidian";
 import { Oracle, OracleGrouping, OracleGroupingType } from "../model/oracle";
 
 export function oracleNameWithParents(oracle: Oracle): string {
@@ -15,6 +15,7 @@ export function oracleNameWithParents(oracle: Oracle): string {
 export async function generateOracleTable(
   app: App,
   oracle: Oracle,
+  component: Component,
 ): Promise<HTMLTableElement> {
   const table = document.createElement("table");
   table.toggleClass("iron-vault-oracle-table", true);
@@ -61,33 +62,27 @@ export async function generateOracleTable(
     }
     tr.createEl("td", { text: rangeText });
     const td = tr.createEl("td");
-    await renderMarkdown(app, td, row.text);
+    await MarkdownRenderer.render(app, row.text, td, "", component);
     if (numColumns >= 2) {
       const td = tr.createEl("td");
-      await renderMarkdown(
+      await MarkdownRenderer.render(
         app,
-        td,
         (row as Datasworn.OracleRollableRowText2).text2 ?? "",
+        td,
+        "",
+        component,
       );
     }
     if (numColumns >= 3) {
       const td = tr.createEl("td");
-      await renderMarkdown(
+      await MarkdownRenderer.render(
         app,
-        td,
         (row as Datasworn.OracleRollableRowText3).text3 ?? "",
+        td,
+        "",
+        component,
       );
     }
   }
   return table;
-}
-
-async function renderMarkdown(app: App, target: HTMLElement, md: string) {
-  await MarkdownRenderer.render(
-    app,
-    md,
-    target,
-    "",
-    new MarkdownRenderChild(target),
-  );
 }

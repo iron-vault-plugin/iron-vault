@@ -1,7 +1,7 @@
 import {
   App,
   ButtonComponent,
-  MarkdownRenderChild,
+  Component,
   MarkdownRenderer,
   Modal,
   normalizePath,
@@ -27,6 +27,7 @@ import {
 export class EntityModal<T extends EntitySpec> extends Modal {
   public accepted: boolean = false;
   public readonly results: NewEntityModalResults<T>;
+  modalComponent: Component;
 
   static create<T extends EntitySpec>({
     app,
@@ -68,9 +69,12 @@ export class EntityModal<T extends EntitySpec> extends Modal {
   ) {
     super(app);
     this.results = new NewEntityModalResults(entityDesc, initialEntity);
+    this.modalComponent = new Component();
   }
 
   async onOpen(): Promise<void> {
+    this.modalComponent.load();
+
     const { contentEl } = this;
 
     contentEl.toggleClass("iron-vault-modal", true);
@@ -86,13 +90,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
           // to render it proper, so we do a bit of a maneuver to extract
           // the text itself.
           const div = document.createElement("div");
-          MarkdownRenderer.render(
-            this.app,
-            val,
-            div,
-            "",
-            new MarkdownRenderChild(div),
-          );
+          MarkdownRenderer.render(this.app, val, div, "", this.modalComponent);
           return div.innerText;
         })
         .join(", ")}`;
@@ -341,6 +339,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     if (!this.accepted) {
       this.onCancel();
     }
+    this.modalComponent.unload();
   }
 
   accept(): void {

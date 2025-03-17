@@ -12,6 +12,7 @@ import { ref } from "lit-html/directives/ref.js";
 import {
   App,
   ButtonComponent,
+  Component,
   MarkdownRenderer,
   MarkdownView,
   Modal,
@@ -25,6 +26,7 @@ const TABLE_REGEX = /\{\{table>([^}]+)\}\}/g;
 
 export class MoveModal extends Modal {
   moveHistory: AnyDataswornMove[] = [];
+  modalComponent: Component;
 
   constructor(
     app: App,
@@ -33,6 +35,7 @@ export class MoveModal extends Modal {
     readonly move: AnyDataswornMove,
   ) {
     super(app);
+    this.modalComponent = new Component();
   }
 
   private getActiveMarkdownView(): MarkdownView | undefined {
@@ -107,7 +110,7 @@ export class MoveModal extends Modal {
       moveText,
       contentEl.createEl("div", { cls: "md-wrapper" }),
       ".",
-      this.plugin,
+      this.modalComponent,
     );
     for (const { oracleText, oracle } of oracles) {
       new ButtonComponent(contentEl)
@@ -125,7 +128,7 @@ export class MoveModal extends Modal {
         oracleText,
         contentEl.createEl("div", { cls: "md-wrapper" }),
         ".",
-        this.plugin,
+        this.modalComponent,
       );
     }
     if (this.moveHistory.length) {
@@ -152,12 +155,14 @@ export class MoveModal extends Modal {
   }
 
   onOpen() {
+    this.modalComponent.load();
     this.openMove(this.move);
   }
 
   onClose() {
     const { contentEl } = this;
     contentEl.empty();
+    this.modalComponent.unload();
   }
 
   async getMoveText(move: AnyDataswornMove) {
@@ -166,7 +171,11 @@ export class MoveModal extends Modal {
     for (const match of move.text.matchAll(TABLE_REGEX)) {
       const oracle = this.dataContext.oracles.get(match[1]);
       if (oracle) {
-        const dom = await generateOracleTable(this.app, oracle);
+        const dom = await generateOracleTable(
+          this.app,
+          oracle,
+          this.modalComponent,
+        );
         const oracleText = dom.outerHTML + "\n";
         oracles.push({ oracleText, oracle });
         moveText = moveText.replaceAll(match[0], "");
