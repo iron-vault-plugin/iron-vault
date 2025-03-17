@@ -115,7 +115,11 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
     el.querySelectorAll("a").forEach((a) => {
       // If the link is a potential datasworn link, let's register a handler just in case.
       const href = a.attributes.getNamedItem("href")?.textContent ?? "";
-      if (extractDataswornLinkParts(href)) {
+      const parsedLink = extractDataswornLinkParts(href);
+      if (parsedLink) {
+        a.dataset.dataswornId = parsedLink.id;
+        a.dataset.dataswornKind = parsedLink.kind;
+
         const component = new MarkdownRenderChild(a);
         ctx.addChild(component);
         component.registerDomEvent(a, "click", (ev) => {
@@ -134,6 +138,9 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
             present(dataContext, entry);
           }
         });
+      } else {
+        delete a.dataset.dataswornId;
+        delete a.dataset.dataswornKind;
       }
     });
   });

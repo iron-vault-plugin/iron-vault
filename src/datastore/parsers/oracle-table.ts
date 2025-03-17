@@ -73,12 +73,13 @@ export function extractOracleTable(
         throw new Error(`invalid range ${range} in row ${index}`);
       }
       const { min, max } = parsedRange;
+      const text = result.replaceAll("<br>", "\n\n");
       const row: DataswornSource.OracleRollableRowText = {
         _id: id != null ? `oracle_rollable.row:${id}.${index}` : undefined,
         roll: { min, max },
-        text: result,
+        text,
       };
-      const template = parseResultTemplate(result);
+      const template = parseResultTemplate(text);
       if (template) {
         row.template = template;
       }

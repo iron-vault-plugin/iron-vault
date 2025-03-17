@@ -8,5 +8,5 @@ description: An example Oracle
 | --------- | ---------------------------------------------------- |
 | 2-2       | [Action](oracle_rollable:sundered_isles/core/action) |
 | 3-4       | [Theme](oracle_rollable:sundered_isles/core/theme)   |
-| 5-6       | Just foo                                             |
+| 5-6       | Just foo<br>And <&\<br> **another** line             |
 | 7-12      | Another                                              |

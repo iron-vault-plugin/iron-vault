@@ -8,7 +8,7 @@ describe("extractOracleTable", () => {
     | --------- | ------ |
     | 1-2       | [Action](oracle_rollable:starforged/core/action) |
     | 3-5       | [Theme](oracle_rollable:starforged/core/theme) |
-    | 6       | Just foo |
+    | 6       | Just foo<br>New line |
     `;
     const expectedOracle: Partial<Datasworn.OracleTableText> = {
       _id: "oracle_rollable:custom/foo",
@@ -50,7 +50,7 @@ describe("extractOracleTable", () => {
         {
           _id: "oracle_rollable.row:custom/foo.2",
           roll: { min: 6, max: 6 },
-          text: "Just foo",
+          text: "Just foo\n\nNew line",
         },
       ],
     };
