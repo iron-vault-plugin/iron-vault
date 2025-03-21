@@ -40,23 +40,41 @@ export class GraphicalDiceRoller implements DiceRoller, AsyncDiceRoller {
   }
 
   async rollAsync(group: DiceGroup): Promise<DiceResult[]> {
-    const rolls = group.dice.map((d) => ({
+    const standardized = group.asExprGroup().standardize();
+    const rolls = standardized.flattenDice().map((d) => ({
       qty: d.count,
       sides: d.sides,
       themeColor: this.themeColor(d.kind),
-    }));
-    logger.trace("Rolling dice", rolls);
-    const rawResults = await this.plugin.diceOverlay.roll(rolls);
-    logger.trace("Raw results", rawResults);
-    return group.dice.map((d, idx) => ({
       dice: d,
-      // @3d-dice return "0" for percentile dice when when both are "0"/"00", instead of "100"
-      value: rawResults
-        .filter((r) => r.groupId == idx)
-        .reduce(
-          (acc, r) => acc + (r.sides === 100 && r.value === 0 ? 100 : r.value),
-          0,
-        ),
+    }));
+
+    logger.debug(
+      "Rolling dice %s standardized to %s using %o",
+      group.dice.map((x) => x.toString()),
+      standardized.exprs.map((x) => x.toString()),
+      rolls,
+    );
+    const rawResults = await this.plugin.diceOverlay.roll(rolls);
+    logger.debug("Raw results", rawResults);
+
+    const parsed = standardized.fromValues(
+      rolls.map(({ dice }, idx) => ({
+        dice,
+        // @3d-dice return "0" for percentile dice when when both are "0"/"00", instead of "100"
+        value: rawResults
+          .filter((r) => r.groupId == idx)
+          .reduce(
+            (acc, r) =>
+              acc + (r.sides === 100 && r.value === 0 ? 100 : r.value),
+            0,
+          ),
+      })),
+    );
+
+    logger.debug("Parsed results", parsed);
+    return group.dice.map((dice, idx) => ({
+      value: parsed[idx].value,
+      dice,
     }));
   }
 
