@@ -79,7 +79,7 @@ export function inlineOracleParser(
     url: "https://example.com",
   };
   try {
-    const table = extractOracleTable(undefined, content);
+    const table = extractOracleTable(content);
     const fullTable: DataswornSource.OracleTableText = {
       ...metadata,
       ...table,

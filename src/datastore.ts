@@ -131,7 +131,7 @@ export class Datastore extends Component {
       file,
       setTimeout(
         () => !file.deleted && this.indexHomebrewTopLevels([file]),
-        1000,
+        2000,
       ),
     );
   }
