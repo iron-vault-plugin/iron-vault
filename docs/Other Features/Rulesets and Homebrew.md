@@ -112,3 +112,18 @@ Frontmatter:
 The oracle itself is provided in table format. The first column indicates the dice to roll (in this case, `1d6`), and the second column is the result. Dice rolls can be provided either as a range (`3-5`) or a single value (`6`). Iron Vault does not currently validate that the values cover the entire range or are non-overlapping, and behavior in either case is unspecified.
 
 As shown in the example, your results may embed references to other oracles. These will be embedded as subrolls when the Oracle is used. Among other things, this can be used to create templates (such as for faction names), where a result is composed of several other rolls.
+
+You can also combine multiple dice as though they were "digits" by separating the digits in the dice and range expressions with a semi colon. For example, to roll what is sometimes called a "d66" table, you can use a table like this:
+
+```
+| dice: 1d6;1d6 | Result |
+| ------------- | ------ |
+| 1;1-2         | A      |
+| 1;3-6         | B      |
+| 2;1-3         | C      |
+| 2;4-6         | D      |
+| 3-6;1         | E      |
+| 3-6;4-6       | F      |
+```
+
+Iron Vault will convert this to a d36 table with the appropriate rows. Note that `3-6;1` will "flatten" to non-contiguous values (`13`, `19`, `25`, `31`), and those rows will be repeated in the flattened oracle table.
