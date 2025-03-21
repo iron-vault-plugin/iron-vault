@@ -32,6 +32,10 @@ export class DiceOverlay extends Component {
     this.removeDiceOverlay();
     const container = document.createElement("div");
     container.id = "iron-vault-dice-box";
+    container.createDiv({
+      attr: { id: "iron-vault-dice-notice" },
+      cls: "notice-container",
+    });
     target.appendChild(container);
     this.diceBox = new DiceBox({
       assetPath: "/",
@@ -74,6 +78,7 @@ export class DiceOverlay extends Component {
         this.diceBox.clear();
         container?.removeEventListener("click", listener);
         document.removeEventListener("keydown", listener);
+        document.getElementById("iron-vault-dice-notice")?.empty();
         ev.stopPropagation();
         ev.preventDefault();
       }
@@ -81,6 +86,15 @@ export class DiceOverlay extends Component {
     document.addEventListener("keydown", listener);
     container?.addEventListener("click", listener);
     return roll;
+  }
+
+  setMessage(msg: string) {
+    const container = document.getElementById("iron-vault-dice-notice");
+    container?.empty();
+    container?.createDiv({
+      text: msg,
+      cls: "notice",
+    });
   }
 }
 

@@ -56,6 +56,9 @@ export class IronVaultPluginSettings {
   /** Use the legacy oracle roller modal. */
   useLegacyRoller: boolean = false;
 
+  /** Show the dice roller debug view. */
+  diceRollerDebug: boolean = false;
+
   emitter?: Emittery;
 
   constructor() {

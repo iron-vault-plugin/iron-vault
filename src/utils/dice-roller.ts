@@ -57,19 +57,26 @@ export class GraphicalDiceRoller implements DiceRoller, AsyncDiceRoller {
     const rawResults = await this.plugin.diceOverlay.roll(rolls);
     logger.debug("Raw results", rawResults);
 
-    const parsed = standardized.fromValues(
-      rolls.map(({ dice }, idx) => ({
-        dice,
-        // @3d-dice return "0" for percentile dice when when both are "0"/"00", instead of "100"
-        value: rawResults
-          .filter((r) => r.groupId == idx)
-          .reduce(
-            (acc, r) =>
-              acc + (r.sides === 100 && r.value === 0 ? 100 : r.value),
-            0,
-          ),
-      })),
-    );
+    const groupedResults = rolls.map(({ dice }, idx) => ({
+      dice,
+      // @3d-dice return "0" for percentile dice when when both are "0"/"00", instead of "100"
+      value: rawResults
+        .filter((r) => r.groupId == idx)
+        .reduce(
+          (acc, r) => acc + (r.sides === 100 && r.value === 0 ? 100 : r.value),
+          0,
+        ),
+    }));
+    const parsed = standardized.fromValues(groupedResults);
+
+    if (this.plugin.settings.diceRollerDebug) {
+      this.plugin.diceOverlay.setMessage(
+        `Rolled ${standardized
+          .toStringWithValues(groupedResults)
+          .map((res, i) => `${group.dice[i]} -> ${res} = ${parsed[i].value}`)
+          .join("\n\n")}`,
+      );
+    }
 
     logger.debug("Parsed results", parsed);
     return group.dice.map((dice, idx) => ({
