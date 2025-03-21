@@ -195,6 +195,17 @@ export class IronVaultSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
+      .setName("Show dice debugger")
+      .setDesc(
+        "If enabled, graphical dice will show a debug view explaining how the rolls were calculated.",
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(settings.diceRollerDebug)
+          .onChange((value) => this.updateSetting("diceRollerDebug", value));
+      });
+
+    new Setting(containerEl)
       .setName("Action die color")
       .setDesc("Color used for the action die when using graphical dice.")
       .addColorPicker((color) => {

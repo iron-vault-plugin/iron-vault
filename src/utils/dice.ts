@@ -235,7 +235,11 @@ export class BinaryOpNode implements ExprNode {
 }
 
 function wrapIfNeeded(node: ExprNode, precedence: number): string {
-  return node.precedence < precedence ? `(${node})` : node.toString();
+  return parenStringIf(node.precedence < precedence, node.toString());
+}
+
+export function parenStringIf(expr: boolean, str: string): string {
+  return expr ? `(${str})` : str;
 }
 
 export class UnaryOpNode implements ExprNode {
