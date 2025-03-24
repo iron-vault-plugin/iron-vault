@@ -206,6 +206,34 @@ export class IronVaultSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
+      .setName("Hide dice delay")
+      .setDesc(
+        "How long to wait before hiding the dice overlay. Set to 0 to disable.",
+      )
+      .addSlider((slider) => {
+        slider
+          .setLimits(0, 30, 1)
+          .setDynamicTooltip()
+          .setValue(settings.diceHideAfterSecs)
+          .onChange((value) => {
+            this.updateSetting("diceHideAfterSecs", value);
+          });
+      });
+
+    new Setting(containerEl)
+      .setName("Allow dice clickthrough")
+      .setDesc(
+        "If enabled, the dice overlay will not block clicks after the roll is complete. This allows you to interact with, e.g., the dice roller modal without an extra click.",
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(settings.diceAllowClickthrough)
+          .onChange((value) =>
+            this.updateSetting("diceAllowClickthrough", value),
+          );
+      });
+
+    new Setting(containerEl)
       .setName("Action die color")
       .setDesc("Color used for the action die when using graphical dice.")
       .addColorPicker((color) => {
