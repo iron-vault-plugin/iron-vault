@@ -59,3 +59,121 @@ describe("VersionedMapImpl", () => {
     });
   });
 });
+describe("ProjectedVersionedMap", () => {
+  describe("#entries", () => {
+    it("returns projected entries", () => {
+      const baseMap = new VersionedMapImpl<string, number>();
+      baseMap.set("a", 1);
+      baseMap.set("b", 2);
+      baseMap.set("c", 3);
+
+      const projected = baseMap.projected((value) =>
+        value > 1 ? value * 10 : undefined,
+      );
+
+      const entries = [...projected.entries()];
+      expect(entries).toEqual([
+        ["b", 20],
+        ["c", 30],
+      ]);
+    });
+
+    it("handles changes in underlying map", () => {
+      const baseMap = new VersionedMapImpl<string, number>();
+      baseMap.set("a", 1);
+      baseMap.set("b", 2);
+      baseMap.set("c", 3);
+
+      const projected = baseMap.projected((value) =>
+        value > 1 ? value * 10 : undefined,
+      );
+
+      const entries = [...projected.entries()];
+      expect(entries).toEqual([
+        ["b", 20],
+        ["c", 30],
+      ]);
+
+      baseMap.set("d", 4); // This should add "d" to the projected map
+      expect([...projected.entries()]).toEqual([
+        ["b", 20],
+        ["c", 30],
+        ["d", 40],
+      ]);
+
+      baseMap.set("b", 1); // This should remove "b" from the projected map
+      expect([...projected.entries()]).toEqual([
+        ["c", 30],
+        ["d", 40],
+      ]);
+
+      baseMap.delete("c"); // This should remove "c" from the projected map
+      expect([...projected.entries()]).toEqual([["d", 40]]);
+
+      baseMap.clear(); // This should clear the projected map
+      expect([...projected.entries()]).toEqual([]);
+    });
+  });
+
+  describe("#forEach", () => {
+    it("iterates over filtered values", () => {
+      const baseMap = new VersionedMapImpl<string, number>();
+      baseMap.set("a", 1);
+      baseMap.set("b", 2);
+      baseMap.set("c", 3);
+
+      const projected = baseMap.projected((value) =>
+        value > 1 ? value * 10 : undefined,
+      );
+
+      const result: Record<string, number> = {};
+      projected.forEach((value, key) => {
+        result[key] = value;
+      });
+
+      expect(result).toEqual({ b: 20, c: 30 });
+    });
+
+    it("applies thisArg correctly", () => {
+      const baseMap = new VersionedMapImpl<string, number>();
+      baseMap.set("a", 1);
+      baseMap.set("b", 2);
+
+      const context = { multiplier: 10 };
+      const result: Record<string, number> = {};
+
+      const projected = baseMap.projected((value) => value);
+      projected.forEach(function (this: typeof context, value, key) {
+        result[key] = value * this.multiplier;
+      }, context);
+
+      expect(result).toEqual({ a: 10, b: 20 });
+    });
+
+    it("handles empty maps", () => {
+      const baseMap = new VersionedMapImpl<string, number>();
+      const projected = baseMap.projected((value) => value * 2);
+
+      const result: Record<string, number> = {};
+      projected.forEach((value, key) => {
+        result[key] = value;
+      });
+
+      expect(result).toEqual({});
+    });
+
+    it("passes the projected map as the third parameter", () => {
+      const baseMap = new VersionedMapImpl<string, number>();
+      baseMap.set("a", 1);
+
+      const projected = baseMap.projected((value) => value * 2);
+
+      let passedMap: ReadonlyMap<string, number> | undefined;
+      projected.forEach((_, __, map) => {
+        passedMap = map;
+      });
+
+      expect(passedMap).toBe(projected);
+    });
+  });
+});
