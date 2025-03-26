@@ -145,10 +145,15 @@ const parentForCollection: Record<CollectionTypes, CollectionTypes[]> = {
   root: [],
 };
 
-export async function indexCollectionRoot(app: App, rootFolder: TFolder) {
+export async function indexCollectionRoot(
+  app: App,
+  rootFolder: TFolder,
+  packageId?: string,
+) {
   ensureRulesPackageBuilderInitialized();
 
-  const packageId = sanitizeNameForId(rootFolder.name);
+  // If no package id is given, generate it from the folder name
+  packageId ||= sanitizeNameForId(rootFolder.name);
 
   const builder = new RulesPackageBuilder(
     packageId,

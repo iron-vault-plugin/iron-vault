@@ -20,6 +20,7 @@ export class SidebarView extends ItemView {
     super(leaf);
     this.plugin = plugin;
     this.renderCharacter = debounce(this.renderCharacter.bind(this), 100, true);
+    this.refresh = debounce(this.refresh.bind(this), 100, true);
     this.campaignSource = this.addChild(
       new ActiveCampaignWatch(plugin.campaignManager),
     ).onUpdate(() => this.refresh());
@@ -75,6 +76,13 @@ export class SidebarView extends ItemView {
       // TODO: probably this should be limited to just the current character, although
       // how often would we change the non-active character?
       this.plugin.characters.on("changed", this.renderCharacter),
+    );
+
+    this.registerEvent(
+      this.plugin.app.metadataCache.on("iron-vault:index-changed", () => {
+        logger.trace("SidebarView: index changed");
+        this.refresh();
+      }),
     );
 
     this.refresh(true);

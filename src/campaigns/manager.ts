@@ -145,6 +145,11 @@ export class CampaignWatcher extends Component {
         } else {
           this.#lastSeen.delete(oldPath);
           this.#lastSeen.set(newPath, original);
+
+          // If the campaign file was just renamed in the same folder, we don't need to do
+          // anything else-- no state will change in the app.
+          // However, if the campaign file was moved to a different folder, we need to emit
+          // an update event to allow the app to reindex.
           if (parentFolderOf(oldPath) != parentFolderOf(newPath)) {
             this.#events.emit("update", {
               campaignPath: newPath,
@@ -154,7 +159,7 @@ export class CampaignWatcher extends Component {
             this.#events.emit("update", {
               campaignPath: oldPath,
               campaignRoot: parentFolderOf(oldPath),
-              campaign: original,
+              campaign: null,
             });
           }
         }
@@ -192,6 +197,10 @@ export class CampaignManager extends Component {
     | { viewFile: TFile; campaign: CampaignFile | undefined }
     | undefined = undefined;
 
+  /** Cached campaign contexts.
+   * This is a weak map so that when campaign objects are recreated, the context can be
+   * garbage collected.
+   */
   #campaignDataContexts: WeakMap<CampaignFile, CampaignDataContext> =
     new WeakMap();
 
@@ -231,8 +240,23 @@ export class CampaignManager extends Component {
     );
 
     this.register(
-      this.watcher.on("update", () => {
+      this.watcher.on("update", ({ campaign, campaignRoot }) => {
         this.updateActiveCampaign();
+        if (campaign == null) {
+          // The campaign is no longer at this path, so remove from index.
+          this.plugin.datastore.unregisterCampaignContentPathByRoot(
+            campaignRoot,
+          );
+        } else {
+          // We have a campaign at this path. Get it's campaign content folder and add it to the
+          // list of monitored paths.
+          const campaignContentFolderName =
+            campaign.customContentFolder ??
+            this.plugin.settings.defaultCampaignContentFolder;
+          this.plugin.datastore.registerCampaignContentPath(
+            `${campaignRoot}/${campaignContentFolderName}`,
+          );
+        }
       }),
     );
   }
@@ -324,6 +348,13 @@ export class CampaignManager extends Component {
     ).campaign;
   }
 
+  /** Gets the campaign context for a given campaign object.
+   *
+   * Note that the campaign object is recreated whenever the campaign is reindexed (b/c
+   * it changes or is moved). This means that the context is not stable across reindexing,
+   * but it DOES mean that CampaignDataContext does not need to worry about changes to the
+   * properties of the object (such as the campaign content path).
+   */
   campaignContextFor(campaign: CampaignFile): CampaignDataContext {
     let context = this.#campaignDataContexts.get(campaign);
     if (!context) {

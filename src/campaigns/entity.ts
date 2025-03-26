@@ -16,6 +16,9 @@ import {
 export type BaseCampaign = {
   name: string;
   playset: IPlaysetConfig;
+
+  /** The custom content folder for the campaign. If missing, global setting will be used. */
+  customContentFolder?: string;
 };
 
 export const PlaysetConfigSchema = z.discriminatedUnion("type", [
@@ -31,6 +34,7 @@ export const PlaysetConfigSchema = z.discriminatedUnion("type", [
 
 export const campaignConfigSchema = z.object({
   playset: PlaysetConfigSchema,
+  customContentFolder: z.string().optional(),
 });
 
 export const campaignFileSchema = z.object({
@@ -76,6 +80,14 @@ export class CampaignFile implements BaseCampaign {
           `Invalid playset type '${(playsetConfig as null | undefined | { type?: string })?.type}`,
         );
     }
+  }
+
+  get customContentFolder(): string | undefined {
+    return this.props.ironvault.customContentFolder;
+  }
+
+  set customContentFolder(val: string | undefined) {
+    this.props.ironvault.customContentFolder = val;
   }
 
   get name(): string {

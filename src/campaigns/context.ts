@@ -54,7 +54,14 @@ export class CampaignDataContext
       projection,
     );
 
-    this.dataContext = new PlaysetAwareDataContext(indexer, campaign.playset);
+    this.dataContext = new PlaysetAwareDataContext(
+      indexer,
+      campaign.playset,
+      campaign.file.parent!.path +
+        "/" +
+        (campaign.customContentFolder ??
+          this.plugin.settings.defaultCampaignContentFolder),
+    );
     this.oracleRoller = new OracleRoller(plugin, this.oracles);
   }
 
@@ -112,17 +119,23 @@ export class CampaignDataContext
 }
 
 export class PlaysetAwareDataContext extends BaseDataContext {
-  constructor(base: DataswornIndexer, playsetConfig: IPlaysetConfig) {
+  constructor(
+    base: DataswornIndexer,
+    playsetConfig: IPlaysetConfig,
+    campaignContentRoot?: string,
+  ) {
     super(
       base.projected<SourcedByArray<DataswornTypes>>(
         <K extends keyof DataswornTypes>(
           val: SourcedKindsArray<DataswornTypes>[K],
           _key: string,
         ) => {
-          // NOTE: we look at the source id here instead of the key, in case things are indexed elsewhere
+          // Check if source path is within the campaign content root OR if the item is included by the playset config
           const filtered = val.filter(
             (sourced) =>
-              // TODO(@cwegrzyn): maybe I should be more open ended with the type on determine's obj?
+              (campaignContentRoot &&
+                sourced.source.path === campaignContentRoot) ||
+              // NOTE: we look at the source id here instead of the key, in case things are indexed elsewhere
               playsetConfig.determine(sourced.id, {
                 tags: sourced.value[scopeTags],
               }) === Determination.Include,
