@@ -1,4 +1,5 @@
 import { CampaignFile, CampaignOutput } from "campaigns/entity";
+import { produce } from "immer";
 import IronVaultPlugin from "index";
 import { html, render } from "lit-html";
 import {
@@ -9,6 +10,7 @@ import {
   TFile,
   WorkspaceLeaf,
 } from "obsidian";
+import { RelativeFolderSearchComponent } from "utils/ui/settings/relative-folder-search";
 import { PlaysetSetting } from "./playset-setting";
 
 export const CAMPAIGN_EDIT_VIEW_TYPE = "iron-vault-campaign-edit";
@@ -106,7 +108,9 @@ export class CampaignEditView extends FileView {
           .setValue(campaign.name ?? "")
           .setPlaceholder(campaign.name ?? file.basename)
           .onChange((val) => {
-            campaign.name = val ? val : undefined;
+            campaign = produce(campaign, (draft) => {
+              draft.name = val ? val : undefined;
+            });
           }),
       );
 
@@ -134,16 +138,45 @@ export class CampaignEditView extends FileView {
       this.contentEl,
     ).onChange((setting) => {
       saveButton.setDisabled(!setting.isValid());
+
       const key = setting.playsetKey();
-      if (key == "custom") {
-        campaign.ironvault.playset = {
-          type: "globs",
-          lines: setting.customConfig.split(/\r?\n|\r/g),
-        };
-      } else {
-        campaign.ironvault.playset = { type: "registry", key };
-      }
+      campaign = produce(campaign, (draft) => {
+        if (key == "custom") {
+          draft.ironvault.playset = {
+            type: "globs",
+            lines: setting.customConfig.split(/\r?\n|\r/g),
+          };
+        } else {
+          draft.ironvault.playset = { type: "registry", key };
+        }
+      });
     });
+
+    new Setting(this.contentEl).setName("Folders").setHeading();
+
+    // let contentFolderComponent!: RelativeFolderSearchComponent;
+    RelativeFolderSearchComponent.addToSetting(
+      new Setting(this.contentEl)
+        .setName("Campaign Content")
+        .setDesc(
+          "Custom homebrew content placed in this folder will be included in the campaign automatically (e.g., without inclusion in the playset).",
+        ),
+      this.plugin.app,
+      (search) => {
+        search
+          .setPlaceholder("Choose a folder")
+          .setBaseFolder(file.parent!)
+          .setValue(
+            campaign.ironvault.customContentFolder ??
+              this.plugin.settings.defaultCampaignContentFolder,
+          )
+          .onChange((relPath, _newPath, _folder) => {
+            campaign = produce(campaign, (draft) => {
+              draft.ironvault.customContentFolder = relPath;
+            });
+          });
+      },
+    );
 
     let saveButton!: ButtonComponent;
     new Setting(this.contentEl).addButton((button) =>

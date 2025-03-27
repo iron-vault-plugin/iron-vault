@@ -1,5 +1,6 @@
 import {
   App,
+  normalizePath,
   SearchComponent,
   Setting,
   TAbstractFile,
@@ -59,8 +60,8 @@ export class RelativeFolderSearchComponent extends SearchComponent {
     const absPath = joinPaths(this.suggest.baseFolder, relPath);
     if (this.#changeCallback)
       this.#changeCallback(
-        relPath,
-        absPath,
+        normalizePath(relPath),
+        normalizePath(absPath),
         this.app.vault.getAbstractFileByPath(absPath),
       );
   }

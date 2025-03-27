@@ -20,6 +20,7 @@ export async function createNewCampaignCommand(plugin: IronVaultPlugin) {
     CampaignFile.generate({
       name: campaignInfo.campaignName,
       ironvault: {
+        customContentFolder: campaignInfo.campaignContentFolder,
         playset:
           campaignInfo.playsetOption == "custom"
             ? {

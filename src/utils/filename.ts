@@ -11,3 +11,21 @@ export function generateObsidianFilename(name: string): string {
       .trim(),
   );
 }
+
+export function isValidObsidianFilename(
+  name: string,
+  allowEmpty: boolean = false,
+): boolean {
+  return (
+    name.length > (allowEmpty ? 0 : 1) &&
+    !OBSIDIAN_ILLEGAL_FILENAME_CHARS.test(name)
+  );
+}
+
+export function isValidObsidianPath(name: string): boolean {
+  return name
+    .split("/")
+    .every(
+      (part) => part.length > 0 && !OBSIDIAN_ILLEGAL_FILENAME_CHARS.test(name),
+    );
+}
