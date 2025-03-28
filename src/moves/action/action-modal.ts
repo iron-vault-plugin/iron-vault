@@ -146,6 +146,22 @@ export async function rerollDie(
       "Enter the new die roll value",
     );
   } else {
+    let dieSides: number = 10;
+
+    if (dieName === "action") {
+      // Action die is always 6 sides.
+      dieSides = 6;
+    }
+    // For challenge dice, we need to check the campaign settings to determine the number of sides.
+    else if (dieName === "vs1" || dieName === "vs2") {
+      // Get the number of sides for the challenge dice from the campaign settings.
+      // This assumes that the campaign settings have been properly initialized and contain the sides for the dice.
+      // If the campaign settings are not available, default to 10 sides for challenge dice.
+      const [challenge1Sides, challenge2Sides] = actionContext.campaignContext
+        .localSettings.actionRollChallengeDiceSides ?? [10, 10];
+      dieSides = dieName === "vs1" ? challenge1Sides : challenge2Sides;
+    }
+
     newValue =
       "" +
       (
@@ -153,7 +169,7 @@ export async function rerollDie(
           DiceGroup.of(
             new Dice(
               1,
-              dieName === "action" ? 6 : 10,
+              dieSides,
               dieName === "action"
                 ? DieKind.Action
                 : dieName === "vs1"

@@ -235,14 +235,19 @@ async function processActionMove(
   stat: string,
   statVal: number,
   adds: ActionMoveAdd[],
+  challengeDiceSides: [number, number] = [10, 10],
   roll?: { action: number; challenge1: number; challenge2: number } | undefined,
 ): Promise<ActionMoveDescription> {
+  // Check local settings for the action roll challenge dice sides.
+  // Default to 10 for both challenge dice if not specified in settings.
+  // This can be overridden by the campaign settings if needed.
+
   if (!roll) {
     const res = await diceRoller.rollAsync(
       DiceGroup.of(
         new Dice(1, 6, DieKind.Action),
-        new Dice(1, 10, DieKind.Challenge1),
-        new Dice(1, 10, DieKind.Challenge2),
+        new Dice(1, challengeDiceSides[0], DieKind.Challenge1),
+        new Dice(1, challengeDiceSides[1], DieKind.Challenge2),
       ),
     );
     roll = {
@@ -253,8 +258,8 @@ async function processActionMove(
   }
   const { action, challenge1, challenge2 } = roll;
   assertInRange(action, 1, 6, "action");
-  assertInRange(challenge1, 1, 10, "first challenge dice");
-  assertInRange(challenge2, 1, 10, "second challenge dice");
+  assertInRange(challenge1, 1, challengeDiceSides[0], "first challenge dice");
+  assertInRange(challenge2, 1, challengeDiceSides[1], "second challenge dice");
   return {
     id: move._id,
     name: move.name,
@@ -542,6 +547,12 @@ async function handleActionRoll(
     adds.push(add);
   }
 
+  // Check local settings for the action roll challenge dice sides.
+  // Default to 10 for both challenge dice if not specified in settings.
+  // This can be overridden by the campaign settings if needed.
+  const challengeDiceSides = actionContext.campaignContext.localSettings
+    .actionRollChallengeDiceSides ?? [10, 10]; // Default to [10, 10] if not set
+
   let rolls:
     | { action: number; challenge1: number; challenge2: number }
     | undefined;
@@ -556,17 +567,17 @@ async function handleActionRoll(
     if (typeof action !== "string") {
       const challenge1 = await CustomSuggestModal.select(
         plugin.app,
-        numberRange(1, 10),
+        numberRange(1, challengeDiceSides[0]),
         (x) => x.toString(),
         undefined,
-        "Enter your first challenge die (1d10)",
+        `Enter your first challenge die (1d${challengeDiceSides[0]})`,
       );
       const challenge2 = await CustomSuggestModal.select(
         plugin.app,
-        numberRange(1, 10),
+        numberRange(1, challengeDiceSides[1]),
         (x) => x.toString(),
         undefined,
-        "Enter your second challenge die (1d10)",
+        `Enter your second challenge die (1d${challengeDiceSides[1]})`,
       );
       rolls = { action, challenge1, challenge2 };
     }
@@ -578,6 +589,7 @@ async function handleActionRoll(
     labelForMeter(stat),
     statValue,
     adds,
+    challengeDiceSides,
     rolls,
   );
   const wrapper = new ActionMoveWrapper(description);
