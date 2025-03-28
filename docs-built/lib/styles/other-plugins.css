@@ -49,13 +49,13 @@
     color: var(--text-muted);
     font-weight: var(--font-semibold);
   }
-  & label:has(> input[type="checkbox"]) {
+  & label:has(> input[type=checkbox]) {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
     font-weight: var(--font-semibold);
   }
-  & label > input[type="checkbox"] {
+  & label > input[type=checkbox] {
     -webkit-appearance: none;
     appearance: none;
     border: none !important;
@@ -182,7 +182,7 @@
             font-weight: var(--font-semibold);
             padding: 0 0.4em;
           }
-          &:has(> label > input[type="radio"]) {
+          &:has(> label > input[type=radio]) {
             flex-grow: 1;
             background-color: var(--interactive-normal);
             &:hover {
@@ -192,7 +192,7 @@
               border-right: 2px solid var(--background-primary);
             }
           }
-          &:has(> label > input[type="radio"]:checked) {
+          &:has(> label > input[type=radio]:checked) {
             background-color: var(--interactive-accent);
           }
           & > label {
@@ -220,7 +220,7 @@
           padding: 0;
         }
       }
-      & input[type="radio"] {
+      & input[type=radio] {
         appearance: none;
         -webkit-appearance: none;
         margin: 0;
@@ -228,7 +228,7 @@
       }
     }
   }
-  & input[type="number"]::-webkit-inner-spin-button {
+  & input[type=number]::-webkit-inner-spin-button {
     appearance: auto;
     -webkit-appearance: auto;
   }
@@ -576,17 +576,17 @@
   &:before {
     content: "\1f48e";
   }
-  &:has(.asset-status[data-value="added"]) {
+  &:has(.asset-status[data-value=added]) {
     & dd.asset-status {
       color: var(--text-success);
     }
   }
-  &:has(.asset-status[data-value="removed"]) {
+  &:has(.asset-status[data-value=removed]) {
     & dd.asset-status {
       color: var(--text-error);
     }
   }
-  &:has(.asset-status[data-value="upgraded"]) {
+  &:has(.asset-status[data-value=upgraded]) {
     & dd.asset-status {
       color: var(--text-warning);
     }
@@ -839,12 +839,12 @@
     content: "\274e";
   }
   & dd {
-    &.track-name:has(~ .track-status[data-value="added"]) {
+    &.track-name:has(~ .track-status[data-value=added]) {
       &:before {
         content: "Track added: ";
       }
     }
-    &.track-name:has(~ .track-status[data-value="removed"]) {
+    &.track-name:has(~ .track-status[data-value=removed]) {
       &:before {
         content: "Track removed: ";
       }
@@ -934,12 +934,12 @@
     content: "\1f552";
   }
   & dd {
-    &.clock-name:has(~ .clock-status[data-value="added"]) {
+    &.clock-name:has(~ .clock-status[data-value=added]) {
       &:before {
         content: "Clock added: ";
       }
     }
-    &.clock-name:has(~ .clock-status[data-value="resolved"]) {
+    &.clock-name:has(~ .clock-status[data-value=resolved]) {
       &:before {
         content: "Clock resolved: ";
       }
@@ -952,7 +952,7 @@
 
 /* src/mechanics/css/dlist-oracle.css */
 .iron-vault-mechanics dl.oracle {
-  &:has(dd.replaced[data-value="true"]) {
+  &:has(dd.replaced[data-value=true]) {
     & dd.result {
       text-decoration: line-through;
       color: var(--text-faint);
@@ -1012,13 +1012,13 @@
   & dd.impact-marked {
     display: none;
   }
-  &:has(.impact-marked[data-value="false"]) {
+  &:has(.impact-marked[data-value=false]) {
     & dd.impact-name::after {
       color: var(--text-success);
       content: " unmarked \2b21";
     }
   }
-  &:has(.impact-marked[data-value="true"]) {
+  &:has(.impact-marked[data-value=true]) {
     & dd.impact-name::after {
       color: var(--text-error);
       content: " marked \2b22";
@@ -1185,13 +1185,7 @@
   right: 0;
   bottom: 0;
 }
-.search-box:has(
-    + :is(
-        .iron-vault-moves-list,
-        .iron-vault-oracles-list,
-        .iron-vault-asset-list
-      )
-  ) {
+.search-box:has(+ :is(.iron-vault-moves-list, .iron-vault-oracles-list, .iron-vault-asset-list)) {
   width: 100%;
   height: 2em;
   font-size: 1.2em;
@@ -1259,9 +1253,7 @@
   & details[open] {
     & + .content {
       max-height: 100%;
-      transition:
-        max-height 250ms ease-out,
-        border 0ms linear;
+      transition: max-height 250ms ease-out, border 0ms linear;
       padding: 0.5em;
     }
     & span::before {
@@ -1272,7 +1264,7 @@
 }
 
 /* src/sidebar/css/sidebar.css */
-[data-type="iron-vault-sidebar-view"] {
+[data-type=iron-vault-sidebar-view] {
   & .view-content {
     padding: 0;
     display: flex;
@@ -1311,7 +1303,7 @@
         background-color: var(--background-modifier-active-hover);
       }
     }
-    & > [type="radio"] {
+    & > [type=radio] {
       display: none;
       & ~ .content {
         overflow-y: auto;
@@ -1604,7 +1596,7 @@ table.iron-vault-oracle-table {
   }
   &:not(:hover) {
     & .clock-segment {
-      &[aria-selected="true"] {
+      &[aria-selected=true] {
         & ~ .clock-segment {
           fill: var(--interactive-normal);
         }
@@ -1639,14 +1631,14 @@ table.iron-vault-oracle-table {
     }
   }
   & > .clock-segments {
-    & input[type="number"] {
+    & input[type=number] {
       width: 3em;
       background-color: transparent;
       font-size: 1em;
       display: inline;
       margin-left: 0.2em;
     }
-    & label:has(input[type="checkbox"]) {
+    & label:has(input[type=checkbox]) {
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
@@ -1719,13 +1711,13 @@ table.iron-vault-oracle-table {
       }
     }
   }
-  & label:has(> input[type="checkbox"]) {
+  & label:has(> input[type=checkbox]) {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
     font-weight: var(--font-semibold);
   }
-  & label > input[type="checkbox"] {
+  & label > input[type=checkbox] {
     -webkit-appearance: none;
     appearance: none;
     border: none !important;
@@ -1846,7 +1838,7 @@ table.iron-vault-oracle-table {
             font-weight: var(--font-semibold);
             padding: 0 0.4em;
           }
-          &:has(> label > input[type="radio"]) {
+          &:has(> label > input[type=radio]) {
             flex-grow: 1;
             background-color: var(--interactive-normal);
             &:hover {
@@ -1856,7 +1848,7 @@ table.iron-vault-oracle-table {
               border-right: 2px solid var(--background-primary);
             }
           }
-          &:has(> label > input[type="radio"]:checked) {
+          &:has(> label > input[type=radio]:checked) {
             background-color: var(--interactive-accent);
           }
           & > label {
@@ -1884,7 +1876,7 @@ table.iron-vault-oracle-table {
           padding: 0;
         }
       }
-      & input[type="radio"] {
+      & input[type=radio] {
         appearance: none;
         -webkit-appearance: none;
         margin: 0;
@@ -2251,10 +2243,7 @@ table.iron-vault-oracle-table {
   margin-left: 0;
   margin-right: 0;
 }
-.markdown-rendered.show-indentation-guide
-  .iron-vault-character
-  li
-  > ul::before {
+.markdown-rendered.show-indentation-guide .iron-vault-character li > ul::before {
   display: none;
 }
 .iron-vault-character {
@@ -2281,13 +2270,13 @@ table.iron-vault-oracle-table {
     cursor: pointer;
     text-transform: uppercase;
   }
-  & label:has(> input[type="checkbox"]) {
+  & label:has(> input[type=checkbox]) {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
     font-weight: var(--font-semibold);
   }
-  & label > input[type="checkbox"] {
+  & label > input[type=checkbox] {
     -webkit-appearance: none;
     appearance: none;
     border: none !important;
@@ -2482,21 +2471,26 @@ table.iron-vault-oracle-table {
 
 /* src/styles.css */
 .theme-light {
-  --color-code: 0, 0, 0;
+  --color-code:
+    0,
+    0,
+    0;
 }
 .theme-dark {
-  --color-code: 255, 255, 255;
+  --color-code:
+    255,
+    255,
+    255;
 }
 .iron-vault-suggest-hint {
   color: var(--color-base-50);
 }
 .is-phone .modal:has(.iron-vault-modal-content) {
-  padding: env(safe-area-inset-top) env(safe-area-inset-right)
-    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   top: calc(env(safe-area-inset-top) + 10px);
   right: 12px;
 }
-.callout[data-callout="spoiler"] {
+.callout[data-callout=spoiler] {
   --callout-icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M0 0h512v512H0z" fill="#000" fill-opacity="1"></path><g class="" style="" transform="translate(0,0)"><path d="M101.1 24.88L135.5 157l88.1 4.8-3-17.2-1.9-11.2 123.3 7.4 4.9 27.8 75.9 4.2-32.5-124.62-289.2-23.3zm-18.82 1.6c-30.5 11.9-55.7 53.1-49.8 75.32l3.3 11.8c.6-1.8 1.3-3.5 2.1-5.3 9.9-23.72 26.5-46.82 50.3-58.92l-5.9-22.9zm10.8 41.6c-16.7 10-29.9 28.1-38 47.42-5.2 12.5-8 25.6-8.7 36.5l17.46 63.5c12.8-21.2 30.19-42.3 53.96-52.4L93.08 68.08zM240.3 152.8l20.2 117.4 87 4.3L326.8 158l-86.5-5.2zm46.8 21.2a25.29 20.33 24.87 0 1 2.4 0 25.29 20.33 24.87 0 1 27.2 22.4 25.29 20.33 24.87 0 1-13.2 19.2l20.8 37.5-48.7-2.2 10.9-36.1a25.29 20.33 24.87 0 1-18.5-20.6 25.29 20.33 24.87 0 1 19.1-20.2zm-146.8 1.3l15 57.6 81.2 3.4-9.8-56.2-86.4-4.8zm-17.9 5.6c-21.8 10.6-39.52 36.3-51.73 59.4l12.46 45.3c10.27-15.7 23.97-32.8 53.57-49.9l-14.3-54.8zm227.8 5.9l9.7 54.7 81.7 3.5-14.1-53.9-77.3-4.3zM160 251.1l31.2 119.6 289.2 23.2-34-130.6-83.3-3.5 6 33.9-123.8-6.3-5.7-32.9-79.6-3.4zm-18.6 2.7c-32 19.4-39.7 35.9-51.79 55.4l21.49 78.1c.3-.5.6-1.1.9-1.6 10.6-19.3 27.8-37.7 51.1-48.5l-21.7-83.4zM168 355.7c-17.7 9.1-31.2 23.7-39.6 39-4.5 8.1-7.3 16.3-8.7 23.7l11.7 42.4 1.6.2c-3.8-27.6 11.4-60.5 41.3-81.1l-6.3-24.2zm26.3 34c-32.6 17.3-46.5 52.4-41.8 72.9l289.8 24.5c-5.3-7.8-8.7-17.9-8.6-28.5l-22.4-9 46.3-7.3-13.5-12.8c5.6-7 13.7-13.1 24.9-17.7l-274.7-22.1z" fill="#fff" fill-opacity="1"></path></g></svg>';
   --callout-color: var(--color-purple-rgb);
   & .callout-title-inner:before {
@@ -2504,7 +2498,7 @@ table.iron-vault-oracle-table {
     font-weight: var(--font-semibold);
   }
 }
-.internal-embed[alt~="iv-embed"] {
+.internal-embed[alt~=iv-embed] {
   & .markdown-embed-title,
   & .markdown-embed-link {
     display: none;
