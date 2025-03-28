@@ -6,4 +6,5 @@ ironvault:
     lines:
       - "@include(starforged)"
       - "*:starsmith/**"
+  customContentFolder: Custom Content
 ---

@@ -127,3 +127,12 @@ You can also combine multiple dice as though they were "digits" by separating th
 ```
 
 Iron Vault will convert this to a d36 table with the appropriate rows. Note that `3-6;1` will "flatten" to non-contiguous values (`13`, `19`, `25`, `31`), and those rows will be repeated in the flattened oracle table.
+
+#### Campaign-specific custom content
+
+Instead of creating a package in the vault-wide Homebrew folder, you can include campaign-specific custom content automatically in your campaign by putting it in the [[Creating a campaign|Custom Content folder configured in your campaign]] (defaults to "Custom Content").
+
+> [!Info]
+> You do not need to use a custom playset to include custom content placed in this folder. However, note that you cannot place full Datasworn package files in this folder; for that you need to place them in the vault-wide Homebrew folder and include the package in a custom playset.
+
+For example, imagine you have a campaign in the `My Campaign` folder. You could create an oracle collection with an oracle array, such as the one described above, by putting it at a path like: `My Campaign/Custom Content/Arrays/My Oracle Array.md`.

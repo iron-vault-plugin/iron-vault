@@ -264,6 +264,11 @@ export class DataIndexer<Kinds extends Record<string, unknown>>
     this.sourceIndex.clear();
   }
 
+  /** Checks if a source is registered. */
+  hasSource(path: string): boolean {
+    return this.sourceIndex.has(path);
+  }
+
   renameSource(oldPath: string, newPath: string): void {
     const source = this.sourceIndex.get(oldPath);
     if (source == null) {

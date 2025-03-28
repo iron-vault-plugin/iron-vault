@@ -17,16 +17,11 @@ export type NewCampaignInfo = {
   scaffold: boolean;
   playsetOption: string;
   customPlaysetDefn: string;
+  campaignContentFolder: string;
 };
 
 export class NewCampaignModal extends Modal {
-  campaignInfo: NewCampaignInfo = {
-    campaignName: "",
-    folder: "/",
-    scaffold: true,
-    playsetOption: "starforged",
-    customPlaysetDefn: "",
-  };
+  campaignInfo: NewCampaignInfo;
 
   static show(plugin: IronVaultPlugin): Promise<NewCampaignInfo> {
     return new Promise((resolve, reject) => {
@@ -44,6 +39,14 @@ export class NewCampaignModal extends Modal {
     private readonly reject: (e: Error) => unknown,
   ) {
     super(plugin.app);
+    this.campaignInfo = {
+      campaignName: "",
+      folder: "/",
+      scaffold: true,
+      playsetOption: "starforged",
+      customPlaysetDefn: "",
+      campaignContentFolder: this.plugin.settings.defaultCampaignContentFolder,
+    };
   }
 
   onOpen(): void {
@@ -149,6 +152,27 @@ export class NewCampaignModal extends Modal {
         toggle.setValue(this.campaignInfo.scaffold).onChange((val) => {
           this.campaignInfo.scaffold = val;
         });
+      });
+
+    new Setting(this.contentEl).setName("Folders").setHeading();
+
+    new Setting(this.contentEl)
+      .setName("Campaign content")
+      .setDesc(
+        "Custom homebrew content placed in this folder will be included in the campaign automatically (e.g., without inclusion in the playset).",
+      )
+      .addText((text) => {
+        // TODO: add invalid folder name check
+        text
+          .setPlaceholder(
+            normalizePath(this.plugin.settings.defaultCampaignContentFolder),
+          )
+          .setValue(this.campaignInfo.campaignContentFolder)
+          .onChange((value) => {
+            this.campaignInfo.campaignContentFolder = normalizePath(
+              value || this.plugin.settings.defaultCampaignContentFolder,
+            );
+          });
       });
 
     let createButton!: ButtonComponent;

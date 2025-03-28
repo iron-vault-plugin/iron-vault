@@ -15,6 +15,7 @@ export class IronVaultPluginSettings {
   defaultProgressTrackFolder: string = "Progress";
   defaultClockFolder: string = "Clocks";
   defaultCharactersFolder: string = "Characters";
+  defaultCampaignContentFolder: string = "Custom Content";
 
   progressTrackTemplateFile: string = "";
   characterTemplateFile: string = "";

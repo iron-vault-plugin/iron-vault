@@ -18,6 +18,7 @@ import IronVaultPlugin from "index";
 import { isDebugEnabled, rootLogger } from "logger";
 import {
   Component,
+  debounce,
   Notice,
   parseYaml,
   TAbstractFile,
@@ -30,7 +31,7 @@ import {
   WILDCARD_TARGET_RULESET_PLACEHOLDER,
 } from "rules/ruleset";
 import { findTopLevelParentFolder } from "utils/obsidian";
-import { findTopLevelParent } from "utils/paths";
+import { childOfPath, findTopLevelParent } from "utils/paths";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
 import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type: "json" };
 import { PLUGIN_DATASWORN_VERSION } from "./constants";
@@ -49,6 +50,7 @@ export class Datastore extends Component {
   #readyNow!: () => void;
 
   #homebrewFolder: TFolder | null = null;
+  #monitoredCampaignContentPaths: Set<string> = new Set();
   #reindexTimers = new Map<TAbstractFile, NodeJS.Timeout>();
 
   emitter: Emittery;
@@ -59,6 +61,11 @@ export class Datastore extends Component {
     super();
     this._ready = false;
     this.emitter = new Emittery();
+    this.triggerIndexChanged = debounce(
+      this.triggerIndexChanged.bind(this),
+      100,
+      true,
+    );
 
     this.plugin.settings.on("change", ({ key }) => {
       if (key === "useHomebrew" || key === "homebrewPath") {
@@ -78,6 +85,7 @@ export class Datastore extends Component {
   async initialize(): Promise<void> {
     this._ready = false;
     this.indexer.clear();
+    this.#monitoredCampaignContentPaths.clear();
 
     this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
 
@@ -123,6 +131,172 @@ export class Datastore extends Component {
     this.#readyNow();
   }
 
+  onload(): void {
+    // Monitor the vault for changes within the homebrew folder and reindex top level entities
+    // as needed
+    this.registerEvent(
+      this.app.vault.on("modify", async (file) => {
+        if (!this._ready) return;
+
+        const topLevel =
+          this.#homebrewFolder &&
+          findTopLevelParentFolder(this.#homebrewFolder, file);
+        if (topLevel) {
+          logger.debug(
+            "file modified: %s -> rebuild top level: %s",
+            file.path,
+            topLevel.path,
+          );
+          this.#queueReindex(topLevel);
+        } else {
+          // Check if the file is in a monitored campaign content path
+          for (const monitoredPath of this.#monitoredCampaignContentPaths) {
+            if (childOfPath(monitoredPath, file.path)) {
+              logger.debug(
+                "file modified: %s -> reindex campaign content: %s",
+                file.path,
+                monitoredPath,
+              );
+              this.#queueCampaignContentReindex(monitoredPath);
+              break;
+            }
+          }
+        }
+      }),
+    );
+    this.registerEvent(
+      this.app.vault.on("delete", async (file) => {
+        if (!this._ready) return;
+
+        // Since deleted files are not actually in the hierarchy, we won't be
+        // able to find the parent if it was a top-level file.
+        const topLevel =
+          this.#homebrewFolder &&
+          findTopLevelParent(this.#homebrewFolder.path, file.path);
+
+        if (topLevel) {
+          logger.debug(
+            "file deleted: %s from top level: %s",
+            file.path,
+            topLevel,
+          );
+          const topLevelPath = this.#homebrewFolder!.path + "/" + topLevel;
+          if (file.path === topLevelPath) {
+            logger.debug("homebrew top level deleted: %s", topLevel);
+
+            this.#reindexTimers.delete(file);
+            this.indexer.removeSource(topLevelPath);
+            this.triggerIndexChanged();
+          } else {
+            logger.debug("homebrew child deleted. reindexing top level");
+            this.#queueReindex(
+              this.#homebrewFolder!.children.find(
+                (child) => child.name === topLevel,
+              )!,
+            );
+          }
+        } else {
+          // Check if the file is in a monitored campaign content path
+          for (const monitoredPath of this.#monitoredCampaignContentPaths) {
+            if (
+              monitoredPath === file.path ||
+              childOfPath(monitoredPath, file.path)
+            ) {
+              logger.debug(
+                "file deleted: %s -> reindex campaign content: %s",
+                file.path,
+                monitoredPath,
+              );
+              this.#queueCampaignContentReindex(monitoredPath);
+              break;
+            }
+          }
+        }
+      }),
+    );
+    this.registerEvent(
+      this.app.vault.on("rename", async (file, oldPath) => {
+        if (!this._ready) return;
+
+        const topLevel =
+          this.#homebrewFolder &&
+          findTopLevelParentFolder(this.#homebrewFolder, file);
+        if (topLevel) {
+          // Old path might be a top-level file, so let's just delete it to be sure.
+          this.indexer.removeSource(oldPath);
+
+          logger.debug(
+            "file renamed: %s -> rebuild top level: %s",
+            oldPath,
+            topLevel.path,
+          );
+          this.#queueReindex(topLevel);
+        } else {
+          // First, let's see if the old path is in a monitored campaign content path
+          for (const monitoredPath of this.#monitoredCampaignContentPaths) {
+            if (
+              monitoredPath === oldPath ||
+              childOfPath(monitoredPath, oldPath)
+            ) {
+              logger.debug(
+                "file renamed: %s to %s -> reindex content: monitoredPath",
+                oldPath,
+                file.path,
+                monitoredPath,
+              );
+              this.#queueCampaignContentReindex(monitoredPath);
+              break;
+            }
+          }
+
+          // Now, let's check if the new path is in a monitored campaign content path
+          // Note that the debounce on the reindexing will prevent duplication if the
+          // old path and new path are in the same monitored path.
+          for (const monitoredPath of this.#monitoredCampaignContentPaths) {
+            if (
+              monitoredPath === file.path ||
+              childOfPath(monitoredPath, file.path)
+            ) {
+              logger.debug(
+                "file renamed: %s to %s -> reindex campaign content: %s",
+                oldPath,
+                file.path,
+                monitoredPath,
+              );
+              this.#queueCampaignContentReindex(monitoredPath);
+              break;
+            }
+          }
+        }
+      }),
+    );
+  }
+
+  triggerIndexChanged() {
+    this.app.metadataCache.trigger("iron-vault:index-changed");
+  }
+
+  /** Registers a monitored campaign content path. */
+  registerCampaignContentPath(path: string) {
+    logger.debug("Registering campaign content path %s", path);
+    this.#monitoredCampaignContentPaths.add(path);
+    this.#queueCampaignContentReindex(path);
+  }
+
+  /** Unregisters a monitored campaign content path. */
+  unregisterCampaignContentPathByRoot(campaignRoot: string) {
+    for (const monitoredPath of this.#monitoredCampaignContentPaths) {
+      if (childOfPath(campaignRoot, monitoredPath)) {
+        logger.debug("Unregistering campaign content path %s", monitoredPath);
+        this.#monitoredCampaignContentPaths.delete(monitoredPath);
+        this.indexer.removeSource(monitoredPath);
+        this.triggerIndexChanged();
+        // TODO: is there a race condition here where a folder could be in the midst
+        // of being indexed when we remove it?
+      }
+    }
+  }
+
   #queueReindex(file: TAbstractFile) {
     if (this.#reindexTimers.has(file)) {
       clearTimeout(this.#reindexTimers.get(file)!);
@@ -136,74 +310,41 @@ export class Datastore extends Component {
     );
   }
 
-  onload(): void {
-    // Monitor the vault for changes within the homebrew folder and reindex top level entities
-    // as needed
-    this.registerEvent(
-      this.app.vault.on("modify", async (file) => {
-        if (!this._ready || !this.#homebrewFolder) return;
-
-        const topLevel = findTopLevelParentFolder(this.#homebrewFolder, file);
-        if (topLevel) {
-          logger.debug(
-            "file modified: %s -> rebuild top level: %s",
-            file.path,
-            topLevel.path,
-          );
-          this.#queueReindex(topLevel);
-        }
-      }),
-    );
-    this.registerEvent(
-      this.app.vault.on("delete", async (file) => {
-        if (!this._ready || !this.#homebrewFolder) return;
-
-        // Since deleted files are not actually in the hierarchy, we won't be
-        // able to find the parent if it was a top-level file.
-        const topLevel = findTopLevelParent(
-          this.#homebrewFolder.path,
-          file.path,
+  #queueCampaignContentReindex(contentFolderPath: string) {
+    const folder = this.app.vault.getAbstractFileByPath(contentFolderPath);
+    if (folder == null || !(folder instanceof TFolder)) {
+      if (this.indexer.hasSource(contentFolderPath)) {
+        logger.debug(
+          "Removing stale campaign content folder %s from index",
+          contentFolderPath,
         );
-        if (topLevel) {
+        this.indexer.removeSource(contentFolderPath);
+        this.triggerIndexChanged();
+      }
+      return;
+    }
+
+    if (this.#reindexTimers.has(folder)) {
+      clearTimeout(this.#reindexTimers.get(folder)!);
+    }
+    this.#reindexTimers.set(
+      folder,
+      setTimeout(async () => {
+        if (
+          folder.deleted ||
+          !this.#monitoredCampaignContentPaths.has(folder.path)
+        ) {
           logger.debug(
-            "file deleted: %s from top level: %s",
-            file.path,
-            topLevel,
+            "Removing stale campaign content folder %s from index",
+            folder.path,
           );
-          const topLevelPath = this.#homebrewFolder.path + "/" + topLevel;
-          if (file.path === topLevelPath) {
-            logger.debug("homebrew top level deleted: %s", topLevel);
-
-            this.indexer.removeSource(topLevelPath);
-            this.#reindexTimers.delete(file);
-          } else {
-            logger.debug("homebrew child deleted. reindexing top level");
-            this.#queueReindex(
-              this.#homebrewFolder.children.find(
-                (child) => child.name === topLevel,
-              )!,
-            );
-          }
+          this.indexer.removeSource(folder.path);
+          this.triggerIndexChanged();
+        } else {
+          logger.debug("Reindexing campaign content folder %s", folder.path);
+          await this.indexHomebrewFolder(folder, true);
         }
-      }),
-    );
-    this.registerEvent(
-      this.app.vault.on("rename", async (file, oldPath) => {
-        if (!this._ready || !this.#homebrewFolder) return;
-
-        const topLevel = findTopLevelParentFolder(this.#homebrewFolder, file);
-        if (topLevel) {
-          // Old path might be a top-level file, so let's just delete it to be sure.
-          this.indexer.removeSource(oldPath);
-
-          logger.debug(
-            "file renamed: %s -> rebuild top level: %s",
-            oldPath,
-            topLevel.path,
-          );
-          this.#queueReindex(topLevel);
-        }
-      }),
+      }, 2000),
     );
   }
 
@@ -229,7 +370,7 @@ export class Datastore extends Component {
     });
     this.indexer.index(source, walkDataswornRulesPackage(pkg));
 
-    this.app.metadataCache.trigger("iron-vault:index-changed");
+    this.triggerIndexChanged();
   }
 
   removeBuiltInData(pkg: Datasworn.RulesPackage) {
@@ -291,6 +432,7 @@ export class Datastore extends Component {
         priority,
       });
       this.indexer.index(source, walkDataswornRulesPackage(dataswornPackage));
+      this.triggerIndexChanged();
     } catch (e) {
       new Notice(
         `Unable to import homebrew file: ${file.basename}\nReason: ${e}`,
@@ -326,100 +468,36 @@ export class Datastore extends Component {
           );
         }
       } else if (file instanceof TFolder) {
-        try {
-          const dataswornPackage = await indexCollectionRoot(this.app, file);
-          const source = createSource({
-            path: file.path,
-            priority: 10,
-          });
-          this.indexer.index(
-            source,
-            walkDataswornRulesPackage(dataswornPackage),
-          );
-        } catch (e) {
-          logger.error("Error loading homebrew", e);
-          new Notice(
-            `Unable to import homebrew collection: ${file.path}\nReason: ${e}`,
-            0,
-          );
-        }
+        await this.indexHomebrewFolder(file, false);
       }
     }
   }
 
-  // async indexOraclesFolder(folder: TFolder): Promise<void> {
-  //   logger.info("indexing folder %s", folder.path);
-  //   const filesToIndex = new Map(
-  //     breadthFirstTraversal<TFile, TAbstractFile>(
-  //       folder,
-  //       (node) => (node instanceof TFile ? node : undefined),
-  //       (node) => (node instanceof TFolder ? node.children : []),
-  //     ).map((p) => [p.path, p]),
-  //   );
-
-  //   const indexedPaths = new Set<string>();
-
-  //   for (const fileToIndex of filesToIndex.values()) {
-  //     if (await this.indexOracleFile(fileToIndex)) {
-  //       indexedPaths.add(fileToIndex.path);
-  //     }
-  //   }
-
-  //   const pathsToRemove = this.index.updateIndexGroup(
-  //     folder.path,
-  //     indexedPaths,
-  //   );
-
-  //   for (const pathToRemove of pathsToRemove) {
-  //     logger.debug(
-  //       "index: previously indexed data file %s (part of %s) no longer indexable, removing...",
-  //       pathToRemove,
-  //       folder.path,
-  //     );
-  //   }
-  // }
-
-  // async indexOracleFile(file: TFile): Promise<boolean> {
-  //   logger.info("indexing %s", file.path);
-  //   const cache = this.app.metadataCache.getFileCache(file);
-  //   const parser = parserForFrontmatter(file, cache);
-  //   if (parser == null) {
-  //     return false;
-  //   }
-
-  //   const content = await this.app.vault.cachedRead(file);
-  //   let result: ParserReturn;
-  //   try {
-  //     result = parser(content);
-  //   } catch (error) {
-  //     result = {
-  //       success: false,
-  //       error:
-  //         error instanceof Error
-  //           ? error
-  //           : new Error("unexpected parsing error", { cause: error }),
-  //     };
-  //   }
-
-  //   if (!result.success) {
-  //     logger.error(`[file: ${file.path}] error parsing file`, result.error);
-  //     return false;
-  //   }
-
-  //   try {
-  //     // TODO: validation?
-  //     indexDataForgedData(
-  //       this.index,
-  //       file.path,
-  //       result.priority ?? 1,
-  //       result.rules,
-  //     );
-  //     return true;
-  //   } catch (e) {
-  //     logger.error(`[file: ${file.path}] error indexing file`, e);
-  //     return false;
-  //   }
-  // }
+  async indexHomebrewFolder(
+    folder: TFolder,
+    isCampaignContent: boolean,
+  ): Promise<void> {
+    try {
+      const dataswornPackage = await indexCollectionRoot(
+        this.app,
+        folder,
+        isCampaignContent ? "campaign" : undefined,
+      );
+      const source = createSource({
+        path: folder.path,
+        // Campaign content has highest priority
+        priority: isCampaignContent ? 20 : 10,
+      });
+      this.indexer.index(source, walkDataswornRulesPackage(dataswornPackage));
+      this.triggerIndexChanged();
+    } catch (e) {
+      logger.error("Error loading homebrew", e);
+      new Notice(
+        `Unable to import homebrew collection: ${folder.path}\nReason: ${e}`,
+        0,
+      );
+    }
+  }
 
   get ready(): boolean {
     return this._ready;

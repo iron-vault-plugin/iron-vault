@@ -14,9 +14,9 @@ import {
   TFile,
 } from "obsidian";
 
+import { FileBasedCampaignWatch } from "campaigns/campaign-source";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
-import { FileBasedCampaignWatch } from "sidebar/sidebar-block";
 import { Dice, DieKind } from "utils/dice";
 import { DiceGroup } from "utils/dice-group";
 import { AsyncDiceRoller } from "utils/dice-roller";

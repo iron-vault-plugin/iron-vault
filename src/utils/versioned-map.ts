@@ -106,12 +106,9 @@ class ProjectedVersionedMap<K, V, U> implements ProjectableMap<K, U> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     thisArg?: any,
   ): void {
-    this.#innerMap.forEach((value, key) => {
-      const selected = this.select(value, key);
-      if (selected) {
-        callbackfn.bind(thisArg)(selected, key, this);
-      }
-    }, thisArg);
+    for (const [key, value] of this) {
+      callbackfn.bind(thisArg)(value, key, this);
+    }
   }
 
   get(key: K): U | undefined {

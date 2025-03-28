@@ -10,6 +10,10 @@ import {
   Menu,
 } from "obsidian";
 
+import { CampaignDependentBlockRenderer } from "campaigns/campaign-source";
+import { CampaignDataContext } from "campaigns/context";
+import { IDataContext } from "datastore/data-context";
+import { DataswornTypes } from "datastore/datasworn-indexer";
 import { repeat } from "lit-html/directives/repeat.js";
 import Sortable from "sortablejs";
 import { ProgressTrack } from "tracks/progress";
@@ -28,15 +32,10 @@ let DOC_IDX = 0;
 function makeHandler(plugin: IronVaultPlugin) {
   return async (
     source: string,
-    el: MechanicsContainerEl,
+    el: HTMLElement,
     ctx: MarkdownPostProcessorContext,
   ) => {
-    // We can't render blocks until datastore is ready.
-    await plugin.datastore.waitForReady;
-    if (!el.mechanicsRenderer) {
-      el.mechanicsRenderer = new MechanicsRenderer(el, source, plugin, ctx);
-    }
-    el.mechanicsRenderer.render();
+    ctx.addChild(new MechanicsRenderer(el, source, plugin, ctx));
   };
 }
 
@@ -52,28 +51,32 @@ interface MechanicsContainerEl extends HTMLElement {
   mechanicsRenderer?: MechanicsRenderer;
 }
 
-export class MechanicsRenderer {
-  sourcePath: string;
+export class MechanicsRenderer extends CampaignDependentBlockRenderer {
   lastRoll: KdlNode | undefined;
   moveEl: HTMLElement | undefined;
   doc?: KdlNode;
   activeMenu?: Menu;
   hideMechanics = false;
+  #moves?: DataswornTypes["move"][];
 
   constructor(
-    public contentEl: HTMLElement,
+    contentEl: HTMLElement,
     public source: string,
     public plugin: IronVaultPlugin,
     public ctx: MarkdownPostProcessorContext,
   ) {
-    this.sourcePath = ctx.sourcePath;
+    super(contentEl, plugin, ctx.sourcePath, true, 0);
+    if ((contentEl as MechanicsContainerEl).mechanicsRenderer) {
+      console.warn("Mechanics block already registered");
+    }
+    (contentEl as MechanicsContainerEl).mechanicsRenderer = this;
     const res = parse(this.source);
     if (res.output) {
       this.doc = node("doc", { children: res.output });
       this.fillNodeIds();
       this.fillParents(this.doc.children, this.doc);
     }
-    plugin.register(
+    this.register(
       plugin.settings.on("change", ({ key, oldValue, newValue }) => {
         if (
           oldValue !== newValue &&
@@ -81,7 +84,7 @@ export class MechanicsRenderer {
             key === "collapseMoves" ||
             key === "hideMechanics")
         ) {
-          this.render();
+          this.update();
         }
       }),
     );
@@ -110,11 +113,21 @@ export class MechanicsRenderer {
     }
   }
 
-  render() {
-    this.contentEl.empty();
+  renderWithoutContext(): void | Promise<void> {
+    // If we don't have a campaign context, that's cool-- let's just use the global context
+    // for rendering moves, etc.
+    return this.#render(this.plugin.datastore.dataContext);
+  }
+
+  render(context: CampaignDataContext) {
+    return this.#render(context);
+  }
+
+  #render(context: IDataContext) {
+    this.containerEl.empty();
     this.lastRoll = undefined;
     if (this.plugin.settings.hideMechanics) {
-      render(html``, this.contentEl.createDiv());
+      render(html``, this.containerEl.createDiv());
       return;
     }
     if (!this.doc) {
@@ -124,10 +137,11 @@ export class MechanicsRenderer {
 Error parsing mechanics block: KDL text was invalid.
 See https://kdl.dev for syntax.</pre
         >`,
-        this.contentEl.createDiv(),
+        this.containerEl.createDiv(),
       );
       return;
     }
+    this.#moves = [...context.moves.values()];
     const tpl = html`<article
       class="iron-vault-mechanics"
       style=${styleMap({
@@ -154,7 +168,7 @@ See https://kdl.dev for syntax.</pre
             btn.setButtonText(
               this.hideMechanics ? "Show mechanics" : "Hide mechanics",
             );
-            this.render();
+            this.update();
           });
       })}
     >
@@ -162,7 +176,7 @@ See https://kdl.dev for syntax.</pre
         ${this.hideMechanics ? null : this.renderChildren(this.doc.children)}
       </div>
     </article>`;
-    render(tpl, this.contentEl.createDiv());
+    render(tpl, this.containerEl.createDiv());
   }
 
   makeMenuHandler(node: KdlNode) {
@@ -207,7 +221,7 @@ See https://kdl.dev for syntax.</pre
   updateBlock(offset: number = 0) {
     const view = this.plugin.app.workspace.getActiveViewOfType(MarkdownView);
     const editor = this.plugin.app.workspace.activeEditor?.editor;
-    const sectionInfo = this.ctx.getSectionInfo(this.contentEl as HTMLElement);
+    const sectionInfo = this.ctx.getSectionInfo(this.containerEl);
     if (
       !editor ||
       !sectionInfo ||
@@ -331,14 +345,12 @@ See https://kdl.dev for syntax.</pre
   }
 
   renderMove(node: KdlNode): TemplateResult {
-    // TODO(@cwegrzyn): this should use the file's campaign data context
-    const moves = [...this.plugin.datastore.dataContext.moves.values()];
     const id = node.properties.id as string | undefined;
     const name = (node.properties.name ?? node.values[0]) as string | undefined;
     const move = id
-      ? (moves.find((x) => x._id === id) ??
-        moves.find((x) => x.name.toLowerCase() === name?.toLowerCase()))
-      : moves.find((x) => x.name.toLowerCase() === name?.toLowerCase());
+      ? (this.#moves!.find((x) => x._id === id) ??
+        this.#moves!.find((x) => x.name.toLowerCase() === name?.toLowerCase()))
+      : this.#moves!.find((x) => x.name.toLowerCase() === name?.toLowerCase());
     const moveName = name ?? move?.name ?? "Unknown move";
     return html`<details
       class="move"
@@ -996,17 +1008,17 @@ const makeSortable = (el: Element | undefined, node: KdlNode) => {
           );
           fromRenderer.fillParents(to.node!.children, to.node!);
           const lineOffset = fromRenderer.updateBlock();
-          fromRenderer.render();
+          fromRenderer.update();
           if (fromRenderer !== toRenderer) {
             toRenderer.fillParents(from.node!.children, from.node!);
             const actualOffset =
-              fromRenderer.contentEl.compareDocumentPosition(
-                toRenderer.contentEl,
+              fromRenderer.containerEl.compareDocumentPosition(
+                toRenderer.containerEl,
               ) & Node.DOCUMENT_POSITION_PRECEDING
                 ? 0
                 : lineOffset;
             toRenderer.updateBlock(actualOffset);
-            toRenderer.render();
+            toRenderer.update();
           }
         }
       },
