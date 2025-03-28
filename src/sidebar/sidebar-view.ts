@@ -1,12 +1,12 @@
 import { html, render } from "lit-html";
 import { debounce, ItemView, WorkspaceLeaf } from "obsidian";
 
+import { ActiveCampaignWatch } from "campaigns/campaign-source";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import renderIronVaultCharacter from "./character";
 import renderIronVaultMoves from "./moves";
 import renderIronVaultOracles from "./oracles";
-import { ActiveCampaignWatch } from "./sidebar-block";
 
 export const SIDEBAR_VIEW_TYPE = "iron-vault-sidebar-view";
 

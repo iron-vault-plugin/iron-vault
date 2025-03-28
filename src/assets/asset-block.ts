@@ -1,9 +1,9 @@
 import { html, render } from "lit-html";
 
+import { FileBasedCampaignWatch } from "campaigns/campaign-source";
 import { CampaignDataContext } from "campaigns/context";
 import IronVaultPlugin from "index";
 import { MarkdownRenderChild } from "obsidian";
-import { FileBasedCampaignWatch } from "sidebar/sidebar-block";
 import renderAssetCard from "./asset-card";
 
 export default function registerAssetBlock(plugin: IronVaultPlugin) {
