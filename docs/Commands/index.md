@@ -19,6 +19,7 @@ The following commands are supported:
 * [[Open documentation in a tab]]
 * [[Open documentation in your browser]]
 * [[Pick active character]]
+* [[Set action roll challenge dice sides]]
 * [[Show all commands]]
 * [[Show sidebar]]
 * [[Suffer on a meter]]

@@ -106,6 +106,12 @@ export class CampaignDataContext
     return trackTypesFromMoves(this.moves);
   }
 
+  get localSettings() {
+    // This will eventually be replaced with a more sophisticated settings object
+    // that can handle per-campaign settings.
+    return this.plugin.localSettings.forCampaign(this.campaign.file);
+  }
+
   diceRollerFor(kind: "move"): AsyncDiceRoller & DiceRoller {
     switch (kind) {
       case "move":

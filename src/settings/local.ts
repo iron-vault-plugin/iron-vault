@@ -119,8 +119,13 @@ export type EVENT_TYPES = {
   change: CHANGE_TYPES[keyof CampaignLocalSettings];
 };
 
+/** Defines campaign-specific local settings. */
 export class CampaignLocalSettings {
+  /** Active character within a multi-character vault. */
   activeCharacter: string | undefined = undefined;
+
+  /** Number of sides for the two challenge dice for action rolls. */
+  actionRollChallengeDiceSides: [number, number] | undefined = undefined;
 
   constructor(parent: IronVaultPluginLocalSettings) {
     return new Proxy(this, {

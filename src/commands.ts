@@ -29,6 +29,7 @@ import {
   markTrackCompleted,
 } from "tracks/commands";
 import { generateTruthsCommand } from "truths/command";
+import { CustomSuggestModal } from "utils/suggest";
 import {
   GenericFuzzySuggester,
   SuggesterItem,
@@ -313,6 +314,59 @@ export class IronVaultCommands {
           new Notice(`Failed to reload datasworn data:\n${e}`, 0);
           console.error(e);
         }
+      },
+    },
+    {
+      id: "set-action-roll-challenge-dice",
+      name: "Set action roll challenge dice sides",
+      icon: "dice",
+      editorCallback: async (
+        editor: Editor,
+        view: MarkdownView | MarkdownFileInfo,
+      ) => {
+        // This command allows the user to set the number of sides for the challenge dice used in action rolls.
+        const campaignContext = await determineCampaignContext(
+          this.plugin,
+          view,
+        );
+        if (!campaignContext) {
+          new Notice("No active campaign found.", 3000);
+          return;
+        }
+
+        const [currentSides1, currentSides2] = campaignContext.localSettings
+          .actionRollChallengeDiceSides ?? [10, 10];
+
+        const getSortValue = (
+          x: number,
+          priority1: number,
+          priority2: number,
+        ) => (x === priority1 ? -2 : x === priority2 ? -1 : x);
+
+        const promptSides = async (currentSides: number, position: string) =>
+          await CustomSuggestModal.select(
+            this.plugin.app,
+            // Sort options so that current sides is first, and d10 is second.
+            [8, 10, 12].sort(
+              (a, b) =>
+                getSortValue(a, currentSides, 10) -
+                getSortValue(b, currentSides, 10),
+            ),
+            (item) =>
+              `1d${item}${item === currentSides ? " (current)" : item === 10 ? " (standard)" : ""}`,
+            undefined,
+            `Select the die to roll for the ${position} challenge dice`,
+          );
+
+        const sides1 = await promptSides(currentSides1, "first");
+        const sides2 = await promptSides(currentSides2, "second");
+
+        campaignContext.localSettings.actionRollChallengeDiceSides = [
+          sides1,
+          sides2,
+        ];
+        await this.plugin.saveSettings();
+        new Notice(`Set challenge dice to 1d${sides1} and 1d${sides2}.`, 3000);
       },
     },
   ];
