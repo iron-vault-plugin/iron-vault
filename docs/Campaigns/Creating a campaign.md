@@ -14,5 +14,7 @@ First, choose the options you'd like for your new campaign:
 	* *Default entity folders*: folders will be created for [[Entities/index|Tracked Entities]] based on the defaults you chose in [[Settings#New game object defaults|the "New game object defaults" settings]].
 	* *Truths*: a [[Truths]] file ready for you to select game truths
 	* *Initial character*: finally, the [[Create new character]] modal will be shown, allowing you to create an initial character for your campaign.
+* **Folders**
+	* **Campaign content**: [[Rulesets and Homebrew#Custom Source Folders (experimental)|Custom content]] placed in this folder will be automatically included in your campaign playset. Use this to quickly include campaign-specific oracle arrays!
 
 Once you're ready, click **Create** to create your campaign and optionally the scaffold. The campaign index file will be opened, which makes your new campaign as the [[Campaigns/index|active campaign]], allowing you to immediately use any [[Commands/index|commands]] that require an active campaign.
