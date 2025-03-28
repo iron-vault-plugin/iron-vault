@@ -16,6 +16,7 @@ const logger = rootLogger.getLogger("dice-overlay");
 
 export class DiceOverlay extends Component {
   diceBox: DiceBox;
+  containerEl: HTMLElement;
 
   assetsReady!: Promise<void>;
 
@@ -29,14 +30,14 @@ export class DiceOverlay extends Component {
       plugin.app.vault.adapter.getResourcePath(pluginAssetsPath(plugin)),
     );
     originUrl.search = "";
-    this.removeDiceOverlay();
-    const container = document.createElement("div");
-    container.id = "iron-vault-dice-box";
-    container.createDiv({
+    this.#removeDiceOverlay();
+    this.containerEl = document.createElement("div");
+    this.containerEl.id = "iron-vault-dice-box";
+    this.containerEl.createDiv({
       attr: { id: "iron-vault-dice-notice" },
       cls: "notice-container",
     });
-    target.appendChild(container);
+    target.appendChild(this.containerEl);
     this.diceBox = new DiceBox({
       assetPath: "/",
       container: "#iron-vault-dice-box",
@@ -44,6 +45,14 @@ export class DiceOverlay extends Component {
       gravity: 3,
       scale: Platform.isMobile ? 8 : 6,
       theme: "iv-theme",
+      onRollComplete: (_rolls: RollResult[]) => {
+        if (this.plugin.settings.diceHideAfterSecs > 0) {
+          setTimeout(
+            this.clear.bind(this),
+            this.plugin.settings.diceHideAfterSecs * 1000,
+          );
+        }
+      },
     });
   }
 
@@ -53,7 +62,7 @@ export class DiceOverlay extends Component {
   }
 
   onunload(): void {
-    this.removeDiceOverlay();
+    this.#removeDiceOverlay();
   }
 
   async init() {
@@ -64,28 +73,46 @@ export class DiceOverlay extends Component {
     logger.debug("Dice box initialized.");
   }
 
-  removeDiceOverlay() {
+  #removeDiceOverlay() {
+    this.clear();
     document.getElementById("iron-vault-dice-box")?.remove();
   }
 
   async roll(dice: string | string[] | Roll | Roll[]): Promise<RollResult[]> {
-    const container = document.getElementById("iron-vault-dice-box");
-    container?.classList.toggle("active", true);
+    this.containerEl.classList.toggle("active", true);
+    // Enable capture while the dice are rolling
+    this.containerEl.classList.toggle("capturing", true);
     const roll = await this.diceBox.roll(dice);
-    const listener = (ev: KeyboardEvent | MouseEvent) => {
-      if (ev instanceof KeyboardEvent || ev instanceof MouseEvent) {
-        container?.classList.toggle("active", false);
-        this.diceBox.clear();
-        container?.removeEventListener("click", listener);
-        document.removeEventListener("keydown", listener);
-        document.getElementById("iron-vault-dice-notice")?.empty();
-        ev.stopPropagation();
-        ev.preventDefault();
-      }
-    };
-    document.addEventListener("keydown", listener);
-    container?.addEventListener("click", listener);
+    this.containerEl.classList.toggle(
+      "capturing",
+      !this.plugin.settings.diceAllowClickthrough,
+    );
+    // We listen on the document capture phase so that we can catch all
+    // clicks and keypresses and reliably remove the overlay.
+    document.addEventListener("keydown", this.#listener, { capture: true });
+    document.addEventListener("click", this.#listener, { capture: true });
+
     return roll;
+  }
+
+  #listener = (ev: KeyboardEvent | MouseEvent) => {
+    if (ev instanceof KeyboardEvent || ev instanceof MouseEvent) {
+      // if (!this.plugin.settings.diceAllowClickthrough) {
+      //   ev.stopPropagation();
+      //   ev.preventDefault();
+      // }
+      this.clear();
+    }
+  };
+
+  clear() {
+    this.containerEl?.classList.toggle("active", false);
+    this.diceBox?.clear();
+    document.removeEventListener("click", this.#listener, {
+      capture: true,
+    });
+    document.removeEventListener("keydown", this.#listener, { capture: true });
+    document.getElementById("iron-vault-dice-notice")?.empty();
   }
 
   setMessage(msg: string) {

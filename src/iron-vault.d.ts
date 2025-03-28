@@ -64,5 +64,7 @@ declare module "@3d-dice/dice-box" {
     throwForce?: number;
     startingHeight?: number;
     theme?: string;
+    // onCollision?, onBeforeRoll, onDieComplete, onRollComplete, onRemoveComplete, onThemeConfigLoaded, onThemeLoaded
+    onRollComplete?: (rolls: RollResult[]) => void;
   }
 }

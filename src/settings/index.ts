@@ -59,6 +59,12 @@ export class IronVaultPluginSettings {
   /** Show the dice roller debug view. */
   diceRollerDebug: boolean = false;
 
+  /** Automatically hide dice after X seconds. Leave 0 to disable. */
+  diceHideAfterSecs: number = 0;
+
+  /** Allow clicking through the dice. */
+  diceAllowClickthrough: boolean = false;
+
   emitter?: Emittery;
 
   constructor() {

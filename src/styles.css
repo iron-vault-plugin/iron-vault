@@ -69,6 +69,12 @@
   height: 100vh;
   z-index: 999;
   visibility: hidden;
+  pointer-events: none;
+
+  &.capturing {
+    pointer-events: auto;
+  }
+
   &.active {
     visibility: visible;
   }
@@ -82,7 +88,8 @@
   }
 }
 
-.iron-vault-modal, .iron-vault-onboarding-view {
+.iron-vault-modal,
+.iron-vault-onboarding-view {
   /* Obsidian has a very aggressive `body { user-select: none; }` which makes
   it so you can't select text in modals. */
   user-select: text;

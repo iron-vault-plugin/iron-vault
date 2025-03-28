@@ -16,7 +16,10 @@ For more on homebrew, see [[Rulesets and Homebrew#Homebrew]].
 * **Prompt for rolls in Ask the Oracle**: if enabled, when you [[Ask the Oracle]], the plugin will prompt you to roll your own dice and enter the values.
 * **Cursed die kind**: The type of die to roll when making cursed die rolls.
 * **Enable cursed die**: If enabled, the cursed die will be rolled along with the oracle die when rolling an oracle with an associated cursed oracle table.
-* **Graphical dice**: When enabled, 3d graphical dice will be rolled on-screen whenever a die roll is made.
+* **Graphical (oracle/action) dice**: When enabled, 3d graphical dice will be rolled on-screen whenever a die roll of the specified kind is made.
+* **Show dice debugger**: When enabled, a small overlay will appear in the top-right corner during a graphical dice roll. It will show the formula used to calculate the roll result. This can help explain "non-standard" dice rolls like d36 which is rolled with two d6s.
+* **Hide dice delay**: Number of seconds to keep graphical dice on the screen after a roll ends. If 0, dice will remain until a click or key press.
+* **Allow dice clickthrough**: By default, the graphical dice "capture" the mouse, and you must click once to clear away the dice before you can interact with the rest of the app. When this setting is enabled, the dice still remain visible until you click, but the app will react to your click as if the dice were not visible.
 * **(x) die color**: Sets the color of the various supported dice. Challenge dice may be colored separately in order to support _Sundered Isles_' Twin Fates feature (Cinder/Wraith).
 
 ### New game object defaults
