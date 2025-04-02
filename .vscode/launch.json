@@ -12,6 +12,9 @@
         "--runTestsByPath",
         "${jest.testFile}"
       ],
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      },
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

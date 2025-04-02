@@ -1,4 +1,26 @@
-import { TypeId } from "@datasworn/core/dist/IdElements";
+// I can't actually import this from the original package once enabling ESM for jest
+// so I have this weird hack which ensures the type is correct.
+import { default as OrigTypeId } from "@datasworn/core/dist/IdElements/TypeId.js";
+
+const TypeId: { Primary: typeof OrigTypeId.Primary } = {
+  Primary: [
+    "atlas_entry",
+    "npc",
+    "oracle_rollable",
+    "asset",
+    "move",
+    "atlas_collection",
+    "npc_collection",
+    "oracle_collection",
+    "asset_collection",
+    "move_category",
+    "delve_site",
+    "delve_site_domain",
+    "delve_site_theme",
+    "rarity",
+    "truth",
+  ] satisfies typeof OrigTypeId.Primary,
+};
 
 // TODO(@cwegrzyn): is there an official low complexity regex for datasworn ids?
 const DATASWORN_ID_REGEX_NO_ANCHOR = new RegExp(

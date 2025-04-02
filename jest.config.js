@@ -6,6 +6,7 @@ const config = {
   testEnvironment: "jsdom",
   rootDir: "src",
   modulePaths: ["<rootDir>"],
+  extensionsToTreatAsEsm: [".ts", ".tsx"],
 };
 
 export default config;

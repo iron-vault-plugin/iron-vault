@@ -35,6 +35,7 @@
     "@datasworn/ironsworn-classic-delve": "0.1.0-0",
     "@datasworn/starforged": "0.1.0-0",
     "@datasworn/sundered-isles": "0.1.0-0",
+    "@jest/globals": "^29.7.0",
     "@jgoz/esbuild-plugin-typecheck": "^4.0.3",
     "@nrsk/sigma": "^3.8.0",
     "@swc/core": "^1.11.8",
@@ -54,6 +55,7 @@
     "emittery": "^1.1.0",
     "esbuild": "^0.25.1",
     "esbuild-plugin-copy": "^2.1.1",
+    "esbuild-plugin-inline-worker": "^0.1.1",
     "eslint": "^9.22.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.3",
@@ -77,5 +79,13 @@
     "typescript-eslint": "^8.26.1",
     "yaml": "^2.7.0",
     "zod": "^3.24.2"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "esbuild"
+    ],
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }
