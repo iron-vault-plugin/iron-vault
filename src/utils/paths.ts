@@ -1,6 +1,8 @@
 /** Given normalized paths, checks if root is a parent of child. */
 export function childOfPath(root: string, child: string): boolean {
-  return root == "/" || child.startsWith(root + "/");
+  return (
+    root == "/" || child.startsWith(root.endsWith("/") ? root : root + "/")
+  );
 }
 
 /** Returns base folder of normalized path */

@@ -61,7 +61,7 @@ export class Right<U> {
     return new Right(value);
   }
 
-  mapError<V>(_fn: (err: unknown) => V): Right<U> {
+  mapError<V>(_fn: (err: never) => V): Right<U> {
     return this;
   }
 
