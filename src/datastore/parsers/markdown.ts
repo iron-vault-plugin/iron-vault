@@ -1,5 +1,4 @@
 import { DataswornSource, type Datasworn } from "@datasworn/core";
-import { CachedMetadata, FrontMatterCache, TFile } from "obsidian";
 import { extractOracleTable } from "./oracle-table";
 
 export type ParserReturn =
@@ -15,17 +14,17 @@ export type ParserReturn =
 export type MarkdownDataParser = (
   content: string,
   baseName: string,
-  metadata: FrontMatterCache | null,
+  metadata: Record<string, unknown> | undefined,
 ) => ParserReturn;
 
 export function parserForFrontmatter(
-  file: TFile,
-  metadata: CachedMetadata | null,
+  path: string,
+  frontmatter: Record<string, unknown> | undefined,
 ): MarkdownDataParser | undefined {
-  if (metadata?.frontmatter?.["type"] == null) {
+  if (frontmatter?.["type"] == null) {
     return undefined;
   }
-  switch (metadata.frontmatter["type"]) {
+  switch (frontmatter["type"]) {
     // case "dataforged-inline":
     //   return dataforgedInlineParser;
     case "oracle_rollable":
@@ -33,8 +32,8 @@ export function parserForFrontmatter(
     default:
       console.warn(
         "[file: %s] unexpected value for `type` in frontmatter: %s",
-        file.path,
-        metadata.frontmatter?.["type"],
+        path,
+        frontmatter?.["type"],
       );
       return undefined;
   }
@@ -68,7 +67,7 @@ export function parserForFrontmatter(
 export function inlineOracleParser(
   content: string,
   baseName: string,
-  metadata: FrontMatterCache | null,
+  metadata: Record<string, unknown> | undefined,
 ): ParserReturn {
   // TODO: what should source be?
   const source: Datasworn.SourceInfo = {
@@ -83,7 +82,7 @@ export function inlineOracleParser(
     const fullTable: DataswornSource.OracleTableText = {
       ...metadata,
       ...table,
-      name: metadata?.name ?? baseName,
+      name: (metadata?.name as string | undefined) ?? baseName,
       _source: source,
     };
     return {
