@@ -1,4 +1,5 @@
 import { type Datasworn } from "@datasworn/core";
+import { jest } from "@jest/globals";
 import { IDataContext, MockDataContext } from "datastore/data-context";
 import { produce } from "immer";
 import { integratedAssetLens, walkAsset } from "./assets";
