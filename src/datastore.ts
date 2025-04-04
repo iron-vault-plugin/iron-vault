@@ -12,6 +12,7 @@ import {
   DataswornIndexer,
   walkDataswornRulesPackage,
 } from "datastore/datasworn-indexer";
+import { DataManager } from "datastore/loader/manager";
 import { indexCollectionRoot } from "datastore/parsers/collection";
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
@@ -30,8 +31,6 @@ import {
   WILDCARD_TARGET_RULESET,
   WILDCARD_TARGET_RULESET_PLACEHOLDER,
 } from "rules/ruleset";
-import { findTopLevelParentFolder } from "utils/obsidian";
-import { childOfPath, findTopLevelParent } from "utils/paths";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
 import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type: "json" };
 import { PLUGIN_DATASWORN_VERSION } from "./constants";
@@ -49,9 +48,9 @@ export class Datastore extends Component {
 
   #readyNow!: () => void;
 
-  #homebrewFolder: TFolder | null = null;
   #monitoredCampaignContentPaths: Set<string> = new Set();
-  #reindexTimers = new Map<TAbstractFile, NodeJS.Timeout>();
+  // #reindexTimers = new Map<TAbstractFile, NodeJS.Timeout>();
+  #dataManager: DataManager;
 
   emitter: Emittery;
 
@@ -66,6 +65,8 @@ export class Datastore extends Component {
       100,
       true,
     );
+
+    this.#dataManager = this.addChild(new DataManager(this.plugin));
 
     this.plugin.settings.on("change", ({ key }) => {
       if (key === "useHomebrew" || key === "homebrewPath") {
@@ -101,19 +102,10 @@ export class Datastore extends Component {
 
     if (this.plugin.settings.useHomebrew) {
       if (this.plugin.settings.homebrewPath) {
-        this.#homebrewFolder = this.plugin.app.vault.getFolderByPath(
+        this.#dataManager.setHomebrewRoot(
           this.plugin.settings.homebrewPath,
+          true,
         );
-        if (this.#homebrewFolder) {
-          await this.indexHomebrewTopLevels(this.#homebrewFolder.children);
-        } else {
-          new Notice(
-            `Homebrew enabled, but path '${this.plugin.settings.homebrewPath}' is missing.`,
-          );
-          logger.warn(
-            `Homebrew enabled, but path '${this.plugin.settings.homebrewPath}' is missing.`,
-          );
-        }
       } else {
         new Notice("Homebrew enabled, but path is empty.");
       }
@@ -132,144 +124,10 @@ export class Datastore extends Component {
   }
 
   onload(): void {
+    logger.info("Datastore loading...");
+    super.onload();
     // Monitor the vault for changes within the homebrew folder and reindex top level entities
     // as needed
-    this.registerEvent(
-      this.app.vault.on("modify", async (file) => {
-        if (!this._ready) return;
-
-        const topLevel =
-          this.#homebrewFolder &&
-          findTopLevelParentFolder(this.#homebrewFolder, file);
-        if (topLevel) {
-          logger.debug(
-            "file modified: %s -> rebuild top level: %s",
-            file.path,
-            topLevel.path,
-          );
-          this.#queueReindex(topLevel);
-        } else {
-          // Check if the file is in a monitored campaign content path
-          for (const monitoredPath of this.#monitoredCampaignContentPaths) {
-            if (childOfPath(monitoredPath, file.path)) {
-              logger.debug(
-                "file modified: %s -> reindex campaign content: %s",
-                file.path,
-                monitoredPath,
-              );
-              this.#queueCampaignContentReindex(monitoredPath);
-              break;
-            }
-          }
-        }
-      }),
-    );
-    this.registerEvent(
-      this.app.vault.on("delete", async (file) => {
-        if (!this._ready) return;
-
-        // Since deleted files are not actually in the hierarchy, we won't be
-        // able to find the parent if it was a top-level file.
-        const topLevel =
-          this.#homebrewFolder &&
-          findTopLevelParent(this.#homebrewFolder.path, file.path);
-
-        if (topLevel) {
-          logger.debug(
-            "file deleted: %s from top level: %s",
-            file.path,
-            topLevel,
-          );
-          const topLevelPath = this.#homebrewFolder!.path + "/" + topLevel;
-          if (file.path === topLevelPath) {
-            logger.debug("homebrew top level deleted: %s", topLevel);
-
-            this.#reindexTimers.delete(file);
-            this.indexer.removeSource(topLevelPath);
-            this.triggerIndexChanged();
-          } else {
-            logger.debug("homebrew child deleted. reindexing top level");
-            this.#queueReindex(
-              this.#homebrewFolder!.children.find(
-                (child) => child.name === topLevel,
-              )!,
-            );
-          }
-        } else {
-          // Check if the file is in a monitored campaign content path
-          for (const monitoredPath of this.#monitoredCampaignContentPaths) {
-            if (
-              monitoredPath === file.path ||
-              childOfPath(monitoredPath, file.path)
-            ) {
-              logger.debug(
-                "file deleted: %s -> reindex campaign content: %s",
-                file.path,
-                monitoredPath,
-              );
-              this.#queueCampaignContentReindex(monitoredPath);
-              break;
-            }
-          }
-        }
-      }),
-    );
-    this.registerEvent(
-      this.app.vault.on("rename", async (file, oldPath) => {
-        if (!this._ready) return;
-
-        const topLevel =
-          this.#homebrewFolder &&
-          findTopLevelParentFolder(this.#homebrewFolder, file);
-        if (topLevel) {
-          // Old path might be a top-level file, so let's just delete it to be sure.
-          this.indexer.removeSource(oldPath);
-
-          logger.debug(
-            "file renamed: %s -> rebuild top level: %s",
-            oldPath,
-            topLevel.path,
-          );
-          this.#queueReindex(topLevel);
-        } else {
-          // First, let's see if the old path is in a monitored campaign content path
-          for (const monitoredPath of this.#monitoredCampaignContentPaths) {
-            if (
-              monitoredPath === oldPath ||
-              childOfPath(monitoredPath, oldPath)
-            ) {
-              logger.debug(
-                "file renamed: %s to %s -> reindex content: monitoredPath",
-                oldPath,
-                file.path,
-                monitoredPath,
-              );
-              this.#queueCampaignContentReindex(monitoredPath);
-              break;
-            }
-          }
-
-          // Now, let's check if the new path is in a monitored campaign content path
-          // Note that the debounce on the reindexing will prevent duplication if the
-          // old path and new path are in the same monitored path.
-          for (const monitoredPath of this.#monitoredCampaignContentPaths) {
-            if (
-              monitoredPath === file.path ||
-              childOfPath(monitoredPath, file.path)
-            ) {
-              logger.debug(
-                "file renamed: %s to %s -> reindex campaign content: %s",
-                oldPath,
-                file.path,
-                monitoredPath,
-              );
-              this.#queueCampaignContentReindex(monitoredPath);
-              break;
-            }
-          }
-        }
-      }),
-    );
   }
 
   triggerIndexChanged() {
@@ -279,73 +137,25 @@ export class Datastore extends Component {
   /** Registers a monitored campaign content path. */
   registerCampaignContentPath(path: string) {
     logger.debug("Registering campaign content path %s", path);
-    this.#monitoredCampaignContentPaths.add(path);
-    this.#queueCampaignContentReindex(path);
+    this.#dataManager.addCampaignContentRoot(path);
+    // this.#monitoredCampaignContentPaths.add(path);
+    // this.#queueCampaignContentReindex(path);
   }
 
   /** Unregisters a monitored campaign content path. */
   unregisterCampaignContentPathByRoot(campaignRoot: string) {
-    for (const monitoredPath of this.#monitoredCampaignContentPaths) {
-      if (childOfPath(campaignRoot, monitoredPath)) {
-        logger.debug("Unregistering campaign content path %s", monitoredPath);
-        this.#monitoredCampaignContentPaths.delete(monitoredPath);
-        this.indexer.removeSource(monitoredPath);
-        this.triggerIndexChanged();
-        // TODO: is there a race condition here where a folder could be in the midst
-        // of being indexed when we remove it?
-      }
-    }
-  }
-
-  #queueReindex(file: TAbstractFile) {
-    if (this.#reindexTimers.has(file)) {
-      clearTimeout(this.#reindexTimers.get(file)!);
-    }
-    this.#reindexTimers.set(
-      file,
-      setTimeout(
-        () => !file.deleted && this.indexHomebrewTopLevels([file]),
-        2000,
-      ),
-    );
-  }
-
-  #queueCampaignContentReindex(contentFolderPath: string) {
-    const folder = this.app.vault.getAbstractFileByPath(contentFolderPath);
-    if (folder == null || !(folder instanceof TFolder)) {
-      if (this.indexer.hasSource(contentFolderPath)) {
-        logger.debug(
-          "Removing stale campaign content folder %s from index",
-          contentFolderPath,
-        );
-        this.indexer.removeSource(contentFolderPath);
-        this.triggerIndexChanged();
-      }
-      return;
-    }
-
-    if (this.#reindexTimers.has(folder)) {
-      clearTimeout(this.#reindexTimers.get(folder)!);
-    }
-    this.#reindexTimers.set(
-      folder,
-      setTimeout(async () => {
-        if (
-          folder.deleted ||
-          !this.#monitoredCampaignContentPaths.has(folder.path)
-        ) {
-          logger.debug(
-            "Removing stale campaign content folder %s from index",
-            folder.path,
-          );
-          this.indexer.removeSource(folder.path);
-          this.triggerIndexChanged();
-        } else {
-          logger.debug("Reindexing campaign content folder %s", folder.path);
-          await this.indexHomebrewFolder(folder, true);
-        }
-      }, 2000),
-    );
+    this.#dataManager.removeCampaignContentRoot(campaignRoot);
+    // TODO: need to deal with removing from index
+    // for (const monitoredPath of this.#monitoredCampaignContentPaths) {
+    //   if (childOfPath(campaignRoot, monitoredPath)) {
+    //     logger.debug("Unregistering campaign content path %s", monitoredPath);
+    //     this.#monitoredCampaignContentPaths.delete(monitoredPath);
+    //     this.indexer.removeSource(monitoredPath);
+    //     this.triggerIndexChanged();
+    //     // TODO: is there a race condition here where a folder could be in the midst
+    //     // of being indexed when we remove it?
+    //   }
+    // }
   }
 
   indexBuiltInData(pkg: Datasworn.RulesPackage, priority: number = 0) {

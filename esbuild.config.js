@@ -2,6 +2,7 @@ import { typecheckPlugin } from "@jgoz/esbuild-plugin-typecheck";
 import builtins from "builtin-modules";
 import esbuild from "esbuild";
 import { copy } from "esbuild-plugin-copy";
+import inlineWorkerPlugin from "esbuild-plugin-inline-worker";
 import process from "process";
 
 const banner = `/*
@@ -47,6 +48,7 @@ const context = await esbuild.context({
   treeShaking: true,
   outfile: "main.js",
   plugins: [
+    inlineWorkerPlugin(),
     typecheckPlugin({ watch }),
     copy({
       // this is equal to process.cwd(), which means we use cwd path as base path to resolve `to` path

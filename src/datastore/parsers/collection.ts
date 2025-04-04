@@ -15,6 +15,7 @@ import type { KeywordDefinition } from "ajv";
 import {
   ContentIndexer,
   ContentManager,
+  MetarootContentManager,
   PackageBuilder,
   sanitizeNameForId,
 } from "datastore/loader/builder";
@@ -125,6 +126,8 @@ function ensureRulesPackageBuilderInitialized() {
   }
 }
 
+export function buildCollection();
+
 export async function indexCollectionRoot(
   app: App,
   rootFolder: TFolder,
@@ -142,17 +145,19 @@ export async function indexCollectionRoot(
     packageId,
     rootFolder.path,
   );
-  const contentManager = new ContentManager();
+  const contentManager = new MetarootContentManager(new ContentManager());
   const contentIndexer = new ContentIndexer(contentManager);
 
   contentManager.addRoot(rootFolder.path);
 
   const promises: Promise<void>[] = [];
   async function index(file: TFile) {
-    await contentIndexer.indexFile(
+    const content = await app.vault.cachedRead(file);
+    contentIndexer.indexFile(
       file.path,
       file.stat.mtime,
-      await app.vault.cachedRead(file),
+      await ContentIndexer.computeHash(content),
+      content,
       app.metadataCache.getFileCache(file)?.frontmatter,
     );
   }

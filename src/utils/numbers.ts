@@ -39,3 +39,16 @@ export function parseRanges(input: string): NumberRange[] | undefined {
   }
   return ranges as NumberRange[];
 }
+export const numbers = [
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+].map((s) => "_" + s + "_");
