@@ -1,4 +1,9 @@
-import { childOfPath, findTopLevelParent, parentFolderOf } from "./paths";
+import {
+  childOfPath,
+  directChildOfPath,
+  findTopLevelParent,
+  parentFolderOf,
+} from "./paths";
 
 describe("childOfPath", () => {
   it.each`
@@ -37,6 +42,27 @@ describe("findTopLevelParent", () => {
     "finds top level parent for root=$root path=$path",
     ({ root, path, expected }) => {
       expect(findTopLevelParent(root, path)).toEqual(expected);
+    },
+  );
+});
+
+describe("directChildOfPath", () => {
+  it.each`
+    root          | child                         | result
+    ${"/"}        | ${"file.md"}                  | ${true}
+    ${"/"}        | ${"/file.md"}                 | ${true}
+    ${"/"}        | ${"folder/file.md"}           | ${false}
+    ${"folder"}   | ${"folder/file.md"}           | ${true}
+    ${"folder"}   | ${"folder/subfolder/file.md"} | ${false}
+    ${"folder"}   | ${"otherFolder/file.md"}      | ${false}
+    ${"folder/"}  | ${"folder/file.md"}           | ${true}
+    ${"project/"} | ${"project/file.ts"}          | ${true}
+    ${"project/"} | ${"project/src/file.ts"}      | ${false}
+    ${"project"}  | ${"project"}                  | ${false}
+  `(
+    "returns $result for root=$root and child=$child",
+    ({ root, child, result }) => {
+      expect(directChildOfPath(root, child)).toBe(result);
     },
   );
 });
