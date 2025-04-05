@@ -1,8 +1,13 @@
-/** Given normalized paths, checks if root is a parent of child. */
+/** Given normalized paths, checks if root is an ancestor of child. */
 export function childOfPath(root: string, child: string): boolean {
   return (
     root == "/" || child.startsWith(root.endsWith("/") ? root : root + "/")
   );
+}
+
+/** Checks if the root is the same as the child or an ancestor of the child */
+export function atOrChildOfPath(root: string, child: string): boolean {
+  return root === child || childOfPath(root, child);
 }
 
 /** Checks if root is a direct parent of child.  */

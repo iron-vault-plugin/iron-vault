@@ -48,7 +48,11 @@ const context = await esbuild.context({
   treeShaking: true,
   outfile: "main.js",
   plugins: [
-    inlineWorkerPlugin(),
+    inlineWorkerPlugin({
+      sourcemap: prod ? false : "inline", // inline workers with sourcemaps in dev mode}),
+      treeShaking: true,
+      target: "es2023",
+    }),
     typecheckPlugin({ watch }),
     copy({
       // this is equal to process.cwd(), which means we use cwd path as base path to resolve `to` path

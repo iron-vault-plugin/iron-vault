@@ -1,5 +1,4 @@
-import { DataswornSource } from "@datasworn/core";
-import { Either } from "utils/either";
+import { Datasworn } from "@datasworn/core";
 
 export type IndexCommand =
   | {
@@ -25,7 +24,8 @@ export type IndexCommand =
       type: "delete";
       path: string;
     }
-  | { type: "rename"; oldPath: string; newPath: string };
+  | { type: "rename"; oldPath: string; newPath: string }
+  | { type: "debug" };
 
 export type IndexResult =
   | {
@@ -35,5 +35,6 @@ export type IndexResult =
   | {
       type: "updated:package";
       root: string; // The root path of the package that was updated
-      content: [string, Either<Error, DataswornSource.RulesPackage>][]; // The content of the package, or null if it was deleted
+      package: Datasworn.RulesPackage | null; // The updated content of the package
+      files: Map<string, Error>; // Any errors encountered during indexing, mapped by path
     };

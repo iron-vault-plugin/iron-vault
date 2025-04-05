@@ -1,13 +1,22 @@
 import { parserForFrontmatter, ParserReturn } from "datastore/parsers/markdown";
 import * as yaml from "yaml";
 
-import { DataswornSource } from "@datasworn/core";
+import { Datasworn, DataswornSource } from "@datasworn/core";
+import { RulesPackageBuilder } from "@datasworn/core/dist/Builders";
+import {
+  InvalidHomebrewError,
+  SchemaValidationFailedError,
+} from "datastore/parsers/collection";
 import { produce } from "immer";
 import { rootLogger } from "logger";
-import { WILDCARD_TARGET_RULESET_PLACEHOLDER } from "rules/ruleset";
+import {
+  WILDCARD_TARGET_RULESET,
+  WILDCARD_TARGET_RULESET_PLACEHOLDER,
+} from "rules/ruleset";
 import { Either, Left, Right } from "utils/either";
 import { numbers } from "utils/numbers";
 import { childOfPath, findTopLevelParentPath } from "utils/paths";
+import { PLUGIN_DATASWORN_VERSION } from "../../constants";
 import {
   collectNodes,
   DataGroup,
@@ -134,32 +143,61 @@ export class ContentIndexer {
           data: parser(data, filePath.basename, frontmatter),
         };
       }
-    } else if (filePath.extension == "yml" || filePath.extension == "yaml") {
-      logger.debug("[homebrew:%s] Found YAML file %s", "todo", filePath.path);
-
+    } else if (
+      filePath.extension == "yml" ||
+      filePath.extension == "yaml" ||
+      filePath.extension == "json"
+    ) {
       let result;
-      try {
-        result = yaml.parse(data, {
-          schema: "core",
-          merge: true,
-          maxAliasCount: 1000,
-        });
-      } catch (e) {
-        logger.error(
-          "[homebrew-collection:%s] Failed to parse YAML file %s. Errors: %o",
-          "todo",
-          filePath.path,
-          e,
-        );
-        return {
-          kind: "content",
-          data: {
-            success: false,
-            error: new Error(
-              `Failed to parse YAML file ${filePath.path}: ${e}`,
-            ),
-          },
-        };
+
+      if (filePath.extension == "yml" || filePath.extension == "yaml") {
+        logger.debug("[homebrew:%s] Found YAML file %s", "todo", filePath.path);
+
+        try {
+          result = yaml.parse(data, {
+            schema: "core",
+            merge: true,
+            maxAliasCount: 1000,
+          });
+        } catch (e) {
+          logger.error(
+            "[homebrew-collection:%s] Failed to parse YAML file %s. Errors: %o",
+            "todo",
+            filePath.path,
+            e,
+          );
+          return {
+            kind: "content",
+            data: {
+              success: false,
+              error: new Error(
+                `Failed to parse YAML file ${filePath.path}: ${e}`,
+              ),
+            },
+          };
+        }
+      } else if (filePath.extension == "json") {
+        logger.debug("[homebrew:%s] Found JSON file %s", "todo", filePath.path);
+
+        try {
+          result = JSON.parse(data);
+        } catch (e) {
+          logger.error(
+            "[homebrew-collection:%s] Failed to parse JSON file %s. Errors: %o",
+            "todo",
+            filePath.path,
+            e,
+          );
+          return {
+            kind: "content",
+            data: {
+              success: false,
+              error: new Error(
+                `Failed to parse JSON file ${filePath.path}: ${e}`,
+              ),
+            },
+          };
+        }
       }
 
       const dataType = (result as DataswornSource.SourceRoot).type;
@@ -179,6 +217,8 @@ export class ContentIndexer {
             },
           };
         }
+        // TODO: handle the possibility of non-source data?
+
         case "ruleset":
         case "expansion":
           // TODO: should maybe validate it here
@@ -281,6 +321,11 @@ export class MetarootContentManager implements IContentManager {
     this.delegate.onUpdateRoot(callback);
   }
 
+  /** Tests if a given path is in the meta root. */
+  isInMetaRoot(path: string): boolean {
+    return this.metaRoot ? childOfPath(this.metaRoot, path) : false;
+  }
+
   setMetaRoot(path: string | null): void {
     if (this.metaRoot && this.metaRoot != path) {
       // The old metaroot is no longer valid. Remove all roots that came from it.
@@ -325,6 +370,7 @@ export class MetarootContentManager implements IContentManager {
     }
     this.delegate.addRoot(path);
   }
+
   removeRoot(path: string): void {
     if (this.metaRoot && childOfPath(this.metaRoot, path)) {
       logger.debug(
@@ -336,9 +382,11 @@ export class MetarootContentManager implements IContentManager {
     }
     this.delegate.removeRoot(path);
   }
+
   getContent(path: string): Content | undefined {
     return this.delegate.getContent(path);
   }
+
   addContent(content: Content): void {
     // We need to check if this represents a new root under the metaroot
     const topLevel = this.metaRoot
@@ -349,9 +397,11 @@ export class MetarootContentManager implements IContentManager {
     }
     return this.delegate.addContent(content);
   }
+
   deleteContent(path: string): boolean {
     return this.delegate.deleteContent(path);
   }
+
   renameContent(oldPath: string, newPath: string): boolean {
     const topLevelOld = this.metaRoot
       ? findTopLevelParentPath(this.metaRoot, oldPath)
@@ -359,16 +409,25 @@ export class MetarootContentManager implements IContentManager {
     const topLevelNew = this.metaRoot
       ? findTopLevelParentPath(this.metaRoot, newPath)
       : undefined;
-    if (topLevelOld !== topLevelNew) {
-      // If the rename crosses meta root boundaries, we need to update roots
-      if (topLevelOld) {
-        this.delegate.removeRoot(topLevelOld);
-      }
-      if (topLevelNew) {
-        this.delegate.addRoot(topLevelNew);
-      }
+
+    let changed = false;
+    if (topLevelOld === oldPath) {
+      // If the old path is a top-level root, we need to remove it
+      this.delegate.removeRoot(topLevelOld);
+      changed = true;
     }
-    return this.delegate.renameContent(oldPath, newPath);
+
+    if (topLevelNew === newPath) {
+      // If the new path is a top-level root, we need to add it
+      this.delegate.addRoot(topLevelNew);
+      changed = true;
+    }
+
+    if (this.delegate.renameContent(oldPath, newPath)) {
+      changed = true;
+    }
+
+    return changed;
   }
   getRoots(): ReadonlySet<string> {
     return this.delegate.getRoots();
@@ -473,6 +532,11 @@ export class ContentManager implements IContentManager {
   renameContent(oldPath: string, newPath: string): boolean {
     const content = this.contentIndex.get(oldPath);
     if (content) {
+      logger.debug(
+        "[content-manager] Renaming content from %s to %s",
+        oldPath,
+        newPath,
+      );
       content.path = newPath;
       this.contentIndex.delete(oldPath);
       this.contentIndex.set(newPath, content);
@@ -559,10 +623,24 @@ export type CollectionAnnotations = {
   collectionType: CollectionTypes | null;
 };
 
+export type PackageResults = {
+  errors: Map<string, Error>;
+  result: Datasworn.RulesPackage | null;
+};
+
 export class PackageBuilder {
   labels: NodeMap<Content["value"], CollectionAnnotations, NodeLabel>;
 
-  static fromContent(root: string, content: Iterable<Content>): PackageBuilder {
+  #packages: [string, Either<Error, DataswornSource.RulesPackage>][] = [];
+  #errors: Map<string, Error> = new Map();
+  #result: Datasworn.RulesPackage | null = null;
+
+  /** Builds a package from the given content, by loading it into a NodeBuilder. */
+  static fromContent(
+    root: string,
+    content: Iterable<Content>,
+    packageId?: string,
+  ): PackageResults {
     const builder = new NodeBuilder<Content["value"], CollectionAnnotations>(
       () => ({ collectionType: null }),
       { collectionType: "root" },
@@ -578,17 +656,64 @@ export class PackageBuilder {
     }
 
     const rootNode = builder.getNode(root);
-    if (rootNode?.type !== "group") {
-      throw new Error(`Root path "${root}" is not a valid group node.`);
+    if (rootNode == null) {
+      return {
+        result: null,
+        errors: new Map<string, Error>([
+          [root, new Error(`Root path "${root}" not found in content.`)],
+        ]),
+      };
     }
 
-    return new PackageBuilder(rootNode);
+    switch (rootNode.type) {
+      case "group":
+        return new PackageBuilder(
+          rootNode,
+          packageId ?? sanitizeNameForId(rootNode.name),
+        ).compile();
+      case "leaf":
+        if (rootNode.data.kind === "package") {
+          try {
+            return {
+              // TODO: we need to validate the package here.
+              result: RulesPackageBuilder.schemaValidator(rootNode.data.package)
+                ? rootNode.data.package
+                : null,
+              errors: new Map<string, Error>(),
+            };
+          } catch (e) {
+            let packageError =
+              e instanceof Error
+                ? e
+                : new Error(`Error while validating package: ${e}`);
+            if (
+              e instanceof SchemaValidationFailedError &&
+              e.errors.find(
+                (err) =>
+                  err.instancePath == "/datasworn_version" &&
+                  err.keyword == "const",
+              )
+            ) {
+              packageError = new InvalidHomebrewError(
+                `Datasworn schema version ${rootNode.data.package.datasworn_version} does not match expected version ${PLUGIN_DATASWORN_VERSION}`,
+              );
+            }
+            return {
+              result: null,
+              errors: new Map<string, Error>([[root, packageError]]),
+            };
+          }
+        }
+        throw new Error(`Root path "${root}" is a leaf node, not a group.`);
+    }
   }
 
   constructor(
     private root: DataGroup<Content["value"], CollectionAnnotations>,
+    public readonly packageId: string,
   ) {
     this.labels = labelCollections(root);
+    this.build();
   }
 
   build(): [string, Either<Error, DataswornSource.RulesPackage>][] {
@@ -606,12 +731,83 @@ export class PackageBuilder {
       datasworn_version: "0.1.0",
       type: "expansion",
       ruleset: WILDCARD_TARGET_RULESET_PLACEHOLDER,
-      _id: sanitizeNameForId(this.root.name),
+      _id: this.packageId,
     };
 
-    return this.root.children.flatMap((child) =>
+    return (this.#packages = this.root.children.flatMap((child) =>
       this.buildTopCollection(child, packageData, source),
+    ));
+  }
+
+  compile(): PackageResults {
+    if (this.#packages.length === 0) {
+      logger.debug("[package-builder:] No packages to compile.");
+      return { result: null, errors: new Map<string, Error>() };
+    }
+
+    const dataswornCompiler = new RulesPackageBuilder(
+      this.packageId,
+      rootLogger.getLogger("builder"),
     );
+
+    for (const [filePath, source] of this.#packages) {
+      if (source.isLeft()) {
+        this.#errors.set(filePath, source.error);
+        logger.error(
+          "[package-builder:%s] Error building file %s: %o",
+          this.packageId,
+          filePath,
+          source.error,
+        );
+      } else {
+        logger.debug(
+          "File path: %s -> Source: %o",
+          filePath,
+          structuredClone(source.value),
+        );
+
+        // Note that the datasworn compiler makes destructive changes to the data
+        // passed in. As a result, we need to clone the source value to preserve
+        // the original data.
+        dataswornCompiler.addFiles({
+          name: filePath,
+          data: structuredClone(source.value),
+        });
+
+        const validationError = dataswornCompiler.errors.get(filePath);
+        if (validationError) {
+          this.#errors.set(filePath, validationError as Error);
+          logger.error(
+            "[package-builder:%s] Error validating file %s: %o",
+            this.packageId,
+            filePath,
+            validationError,
+          );
+        }
+      }
+    }
+
+    logger.debug("Starting build");
+    try {
+      dataswornCompiler.build();
+      const resultData = structuredClone(dataswornCompiler.toJSON());
+
+      if (
+        (resultData as Datasworn.Expansion).ruleset ===
+        WILDCARD_TARGET_RULESET_PLACEHOLDER
+      ) {
+        (resultData as Datasworn.Expansion).ruleset = WILDCARD_TARGET_RULESET;
+      }
+      this.#result = resultData;
+    } catch (e) {
+      this.#result = null;
+      this.#errors.set(
+        this.root.path,
+        e instanceof Error ? e : new Error(`Error while compiling: ${e}`),
+      );
+    }
+
+    return { result: this.#result, errors: this.#errors };
   }
 
   buildTopCollection(

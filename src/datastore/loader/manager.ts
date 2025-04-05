@@ -6,21 +6,40 @@
  *
  * */
 
+import { Datasworn } from "@datasworn/core";
 import newDataLoaderWorker, {
   DataLoaderWorker,
 } from "datastore/loader/data-loader.worker";
+import Emittery, { UnsubscribeFunction } from "emittery";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { CachedMetadata, Component, TFile, TFolder, Vault } from "obsidian";
-import { childOfPath } from "utils/paths";
+import { atOrChildOfPath } from "utils/paths";
 import { IndexResult } from "./messages";
 
 const logger = rootLogger.getLogger("datastore.loader.manager");
+
+export type DATA_MANAGER_EVENT_TYPES = {
+  "updated:package": {
+    root: string;
+    rulesPackage: Datasworn.RulesPackage | null;
+    files: ReadonlyMap<string, Error>;
+  };
+};
 
 export class DataManager extends Component {
   private worker!: DataLoaderWorker;
   private homebrewRoot: string | null = null;
   private monitoredPaths: Set<string> = new Set();
+  private packages: Map<
+    string,
+    {
+      package: Datasworn.RulesPackage | null;
+      files: Map<string, Error>;
+    }
+  > = new Map();
+
+  #emitter = new Emittery<DATA_MANAGER_EVENT_TYPES>();
 
   constructor(private plugin: IronVaultPlugin) {
     super();
@@ -34,18 +53,32 @@ export class DataManager extends Component {
     this.worker.onmessage = (event: MessageEvent<IndexResult>) => {
       const result = event.data;
       // Handle the result from the worker
-      console.log("Data loaded:", result);
+      // console.log("Data loaded:", result);
       // You can add further processing of the result here
+      if (result.type === "updated:package") {
+        this.packages.set(result.root, {
+          package: result.package,
+          files: result.files,
+        });
+        this.#emitter.emit("updated:package", {
+          root: result.root,
+          rulesPackage: result.package,
+          files: result.files,
+        });
+      }
     };
 
     this.registerEvent(
       this.plugin.app.metadataCache.on("changed", async (file, data, cache) => {
-        if (this.homebrewRoot && childOfPath(this.homebrewRoot, file.path)) {
+        if (
+          this.homebrewRoot &&
+          atOrChildOfPath(this.homebrewRoot, file.path)
+        ) {
           // If the file is in the homebrew root, we should index it directly
           this.indexDirect(file, data, cache);
         } else {
           for (const monitoredPath of this.monitoredPaths) {
-            if (childOfPath(monitoredPath, file.path)) {
+            if (atOrChildOfPath(monitoredPath, file.path)) {
               this.indexDirect(file, data, cache);
             }
           }
@@ -54,23 +87,42 @@ export class DataManager extends Component {
     );
     this.registerEvent(
       this.plugin.app.metadataCache.on("deleted", async (file) => {
-        for (const monitoredPath of this.monitoredPaths) {
-          if (childOfPath(monitoredPath, file.path)) {
-            this.delete(file.path);
+        if (
+          this.homebrewRoot &&
+          atOrChildOfPath(this.homebrewRoot, file.path)
+        ) {
+          this.delete(file.path);
+        } else {
+          for (const monitoredPath of this.monitoredPaths) {
+            if (atOrChildOfPath(monitoredPath, file.path)) {
+              this.delete(file.path);
+            }
           }
         }
       }),
     );
     this.registerEvent(
       this.plugin.app.vault.on("rename", async (file, oldPath) => {
-        for (const monitoredPath of this.monitoredPaths) {
-          if (monitoredPath === oldPath) {
-            this.removeCampaignContentRoot(oldPath);
-            // We don't reindex when adding the root, because all of the content
-            // will eventually be renamed.
-            this.addCampaignContentRoot(file.path, false);
-          } else if (childOfPath(monitoredPath, oldPath)) {
-            this.rename(oldPath, file.path);
+        if (
+          this.homebrewRoot &&
+          (atOrChildOfPath(this.homebrewRoot, oldPath) ||
+            atOrChildOfPath(this.homebrewRoot, file.path))
+        ) {
+          this.rename(oldPath, file.path);
+        } else {
+          for (const monitoredPath of this.monitoredPaths) {
+            if (monitoredPath === oldPath) {
+              this.removeCampaignContentRoot(oldPath);
+              // We don't reindex when adding the root, because all of the content
+              // will eventually be renamed.
+              this.addCampaignContentRoot(file.path, false);
+              this.rename(oldPath, file.path);
+            } else if (
+              atOrChildOfPath(monitoredPath, oldPath) ||
+              atOrChildOfPath(monitoredPath, file.path)
+            ) {
+              this.rename(oldPath, file.path);
+            }
           }
         }
       }),
@@ -167,6 +219,12 @@ export class DataManager extends Component {
     });
   }
 
+  debug(): void {
+    this.worker.postMessage({
+      type: "debug",
+    });
+  }
+
   delete(path: string): void {
     this.worker.postMessage({
       type: "delete",
@@ -186,5 +244,12 @@ export class DataManager extends Component {
     if (this.worker) {
       this.worker.terminate();
     }
+  }
+
+  on<K extends keyof DATA_MANAGER_EVENT_TYPES>(
+    event: K,
+    listener: (params: DATA_MANAGER_EVENT_TYPES[K]) => void,
+  ): UnsubscribeFunction {
+    return this.#emitter.on(event, listener);
   }
 }

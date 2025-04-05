@@ -1,3 +1,4 @@
+import { ensureRulesPackageBuilderInitialized } from "datastore/parsers/collection";
 import { rootLogger } from "logger";
 import {
   Content,
@@ -6,6 +7,7 @@ import {
   MetarootContentManager,
   PackageBuilder,
 } from "./builder";
+import { debouncerByKey } from "./debouncerByKey";
 import { IndexCommand, IndexResult } from "./messages";
 
 const logger = rootLogger.getLogger("datastore.loader.worker");
@@ -16,8 +18,11 @@ declare function postMessage(
   options?: WindowPostMessageOptions,
 ): void;
 
+ensureRulesPackageBuilderInitialized();
+
 const contentManager = new MetarootContentManager(new ContentManager());
 const contentIndexer = new ContentIndexer(contentManager);
+const debouncePackageBuild = debouncerByKey(100, { logger: logger.debug });
 contentManager.onUpdateRoot((root: string, content: Content[] | null) => {
   // Notify the main thread about the updated root
   if (content === null) {
@@ -27,11 +32,26 @@ contentManager.onUpdateRoot((root: string, content: Content[] | null) => {
     return;
   }
   if (content.length === 0) return;
-  postMessage({
-    type: "updated:package",
-    root,
-    content: PackageBuilder.fromContent(root, content).build(),
-  } as IndexResult);
+  debouncePackageBuild(root)(() => {
+    logger.debug(
+      "[data-loader.worker] Building package for root: %s, content count: %d",
+      root,
+      content.length,
+    );
+    const { errors, result } = PackageBuilder.fromContent(
+      root,
+      content,
+      // We use packageId "campaign" for campaign roots. For packages in meta root,
+      // they use the folder name.
+      contentManager.isInMetaRoot(root) ? undefined : "campaign",
+    );
+    postMessage({
+      type: "updated:package",
+      root,
+      files: errors,
+      package: result,
+    } as IndexResult);
+  });
 });
 
 // This is a queue to handle commands in order, ensuring that
@@ -77,6 +97,22 @@ self.onmessage = (event: MessageEvent<IndexCommand>) => {
       action = Promise.resolve(() =>
         contentManager.renameContent(command.oldPath, command.newPath),
       );
+      break;
+    case "debug":
+      {
+        console.log("[data-loader.worker] Current state of content manager:");
+        for (const c of contentManager.valuesUnderPath("/")) {
+          console.log(
+            "[data-loader.worker] - %s (mtime: %d, hash: %s): %o",
+            c.path,
+            c.mtime,
+            c.hash
+              ? [...c.hash.values()].map((n) => n.toString(16)).join("")
+              : "no hash",
+            c.value,
+          );
+        }
+      }
       break;
     default: {
       const _: never = command;
