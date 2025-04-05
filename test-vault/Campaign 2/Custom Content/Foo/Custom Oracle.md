@@ -1,7 +1,8 @@
 ---
 type: oracle_rollable
-name: Foo Oracled
+name: Foo Oracles
 ---
+s
 
 | dice: 1d36 | Result                                                    |
 | ---------- | --------------------------------------------------------- |

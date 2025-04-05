@@ -4,7 +4,7 @@ import ironswornDelvePackage from "@datasworn/ironsworn-classic-delve/json/delve
 import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
 import sunderedIslesPackage from "@datasworn/sundered-isles/json/sundered_isles.json" assert { type: "json" };
-import Ajv, { ValidateFunction } from "ajv";
+import Ajv from "ajv";
 import { BaseDataContext } from "datastore/data-context";
 import { DataIndexer } from "datastore/data-indexer";
 import {
@@ -13,27 +13,12 @@ import {
   walkDataswornRulesPackage,
 } from "datastore/datasworn-indexer";
 import { DataManager } from "datastore/loader/manager";
-import { indexCollectionRoot } from "datastore/parsers/collection";
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
 import { isDebugEnabled, rootLogger } from "logger";
-import {
-  Component,
-  debounce,
-  Notice,
-  parseYaml,
-  TAbstractFile,
-  TFile,
-  TFolder,
-  type App,
-} from "obsidian";
-import {
-  WILDCARD_TARGET_RULESET,
-  WILDCARD_TARGET_RULESET_PLACEHOLDER,
-} from "rules/ruleset";
+import { Component, debounce, Notice, type App } from "obsidian";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
 import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type: "json" };
-import { PLUGIN_DATASWORN_VERSION } from "./constants";
 
 const logger = rootLogger.getLogger("datastore");
 
@@ -48,8 +33,6 @@ export class Datastore extends Component {
 
   #readyNow!: () => void;
 
-  #monitoredCampaignContentPaths: Set<string> = new Set();
-  // #reindexTimers = new Map<TAbstractFile, NodeJS.Timeout>();
   #dataManager: DataManager;
 
   emitter: Emittery;
@@ -86,7 +69,7 @@ export class Datastore extends Component {
   async initialize(): Promise<void> {
     this._ready = false;
     this.indexer.clear();
-    this.#monitoredCampaignContentPaths.clear();
+    // TODO: clear the roots in the data manager
 
     this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
 
@@ -128,6 +111,41 @@ export class Datastore extends Component {
     super.onload();
     // Monitor the vault for changes within the homebrew folder and reindex top level entities
     // as needed
+    this.register(
+      this.#dataManager.on(
+        "updated:package",
+        ({ root, files, rulesPackage }) => {
+          logger.debug(
+            "Datastore updated package: %s %o",
+            root,
+            structuredClone(rulesPackage),
+          );
+
+          for (const [path, result] of files.entries()) {
+            logger.debug(
+              "Datastore updated file: %s, result: %s",
+              path,
+              `Error: ${result}`,
+            );
+          }
+
+          if (rulesPackage) {
+            const source = createSource({
+              path: root,
+              // Campaign content has highest priority
+              // TODO: something smarter than just checking the package id...
+              priority: rulesPackage._id === "campaign" ? 20 : 10,
+            });
+            logger.debug("[datastore] Adding package to index: %s", root);
+            this.indexer.index(source, walkDataswornRulesPackage(rulesPackage));
+          } else {
+            logger.debug("[datastore] Removing package from index: %s", root);
+            this.indexer.removeSource(root);
+          }
+          this.triggerIndexChanged();
+        },
+      ),
+    );
   }
 
   triggerIndexChanged() {
@@ -138,8 +156,6 @@ export class Datastore extends Component {
   registerCampaignContentPath(path: string) {
     logger.debug("Registering campaign content path %s", path);
     this.#dataManager.addCampaignContentRoot(path);
-    // this.#monitoredCampaignContentPaths.add(path);
-    // this.#queueCampaignContentReindex(path);
   }
 
   /** Unregisters a monitored campaign content path. */
@@ -187,126 +203,6 @@ export class Datastore extends Component {
     const mainPath = `@datasworn:${pkg._id}`;
     this.indexer.removeSource(mainPath);
     this.app.metadataCache.trigger("iron-vault:index-changed");
-  }
-
-  async indexHomebrewDataswornFile(
-    validate: ValidateFunction<Datasworn.RulesPackage>,
-    file: TFile,
-  ) {
-    try {
-      let data;
-      const priority = 10;
-      if (file.extension == "json") {
-        data = JSON.parse(await this.app.vault.cachedRead(file));
-      } else if (file.extension == "yaml" || file.extension == "yml") {
-        data = parseYaml(await this.app.vault.cachedRead(file));
-      } else {
-        logger.warn("Unsupported %s file: %s", file.extension, file.path);
-      }
-
-      if (!data) return;
-
-      if (
-        typeof data == "object" &&
-        data?.ruleset === WILDCARD_TARGET_RULESET
-      ) {
-        data.ruleset = WILDCARD_TARGET_RULESET_PLACEHOLDER;
-      }
-
-      const result = validate(data);
-      if (!result) {
-        let msg: string;
-        if (
-          validate.errors?.find(
-            (err) =>
-              err.instancePath == "/datasworn_version" &&
-              err.keyword == "const",
-          )
-        ) {
-          msg = `Datasworn homebrew content file '${file.path}' uses Datasworn ${data["datasworn_version"]}, but Iron Vault expects Datasworn ${PLUGIN_DATASWORN_VERSION}.`;
-        } else {
-          msg = `Datasworn homebrew content file '${file.path}' is not a valid Datasworn ${PLUGIN_DATASWORN_VERSION}. Check the error message in the Developer tools console for more details.`;
-        }
-
-        new Notice(msg, 0);
-        logger.error(msg, validate.errors, data);
-        return;
-      }
-      if (data?.ruleset === WILDCARD_TARGET_RULESET_PLACEHOLDER) {
-        data.ruleset = WILDCARD_TARGET_RULESET;
-      }
-
-      const dataswornPackage = data as Datasworn.RulesPackage;
-      const source = createSource({
-        path: file.path,
-        priority,
-      });
-      this.indexer.index(source, walkDataswornRulesPackage(dataswornPackage));
-      this.triggerIndexChanged();
-    } catch (e) {
-      new Notice(
-        `Unable to import homebrew file: ${file.basename}\nReason: ${e}`,
-        0,
-      );
-      logger.error(e);
-    }
-  }
-
-  /**
-   * Index the listed files as top-level homebrew content (either a single compiled Datasworn
-   * package, or a folder containing source files)
-   */
-  async indexHomebrewTopLevels(filesOrFolders: TAbstractFile[]): Promise<void> {
-    const validate = this.ajv.compile<Datasworn.RulesPackage>(dataswornSchema);
-
-    for (const file of filesOrFolders) {
-      if (file instanceof TFile) {
-        if (
-          file.extension == "json" ||
-          file.extension == "yaml" ||
-          file.extension == "yml"
-        ) {
-          await this.indexHomebrewDataswornFile(validate, file);
-        } else if (file.extension == "md") {
-          logger.info(
-            "[datastore] Ignoring markdown file outside of Homebrew collection %s",
-            file.path,
-          );
-          new Notice(
-            `Homebrew Markdown file '${file.path}' must be part of a Homebrew collection folder.`,
-            0,
-          );
-        }
-      } else if (file instanceof TFolder) {
-        await this.indexHomebrewFolder(file, false);
-      }
-    }
-  }
-
-  async indexHomebrewFolder(
-    folder: TFolder,
-    isCampaignContent: boolean,
-  ): Promise<void> {
-    try {
-      const dataswornPackage = await indexCollectionRoot(
-        this.app,
-        folder,
-        isCampaignContent ? "campaign" : undefined,
-      );
-      const source = createSource({
-        path: folder.path,
-        // Campaign content has highest priority
-        priority: isCampaignContent ? 20 : 10,
-      });
-      this.indexer.index(source, walkDataswornRulesPackage(dataswornPackage));
-      this.triggerIndexChanged();
-    } catch (e) {
-      logger.error("Error loading homebrew", e);
-      new Notice(
-        `Unable to import homebrew collection: ${folder.path}\nReason: ${e}`,
-        0,
-      );
-    }
   }
 
   get ready(): boolean {
