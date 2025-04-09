@@ -307,7 +307,7 @@ export class IronVaultCommands {
       name: "Reload homebrew and datasworn data",
       callback: async () => {
         try {
-          await this.plugin.datastore.initialize();
+          await this.plugin.datastore.initialize(true);
           // TODO: maybe list the counts of files or something?
           new Notice("Data reloaded successfully.", 5000);
         } catch (e) {
