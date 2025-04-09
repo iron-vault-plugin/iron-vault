@@ -38,7 +38,7 @@ contentManager.onUpdateRoot((root: string, content: Content[] | null) => {
       root,
       content.length,
     );
-    const { errors, result } = PackageBuilder.fromContent(
+    const { files, result } = PackageBuilder.fromContent(
       root,
       content,
       // We use packageId "campaign" for campaign roots. For packages in meta root,
@@ -48,9 +48,9 @@ contentManager.onUpdateRoot((root: string, content: Content[] | null) => {
     postMessage({
       type: "updated:package",
       root,
-      files: errors,
+      files,
       package: result,
-    } as IndexResult);
+    });
   });
 });
 

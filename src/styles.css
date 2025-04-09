@@ -9,6 +9,7 @@
 @import url("moves/css/move-modal.css");
 @import url("migrate/css/migrate.css");
 @import url("campaigns/css/new-campaign.css");
+@import url("datastore/view/css/content-view.css");
 
 .theme-light {
   --color-code: 0, 0, 0;

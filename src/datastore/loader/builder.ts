@@ -3,10 +3,8 @@ import * as yaml from "yaml";
 
 import { Datasworn, DataswornSource } from "@datasworn/core";
 import { RulesPackageBuilder } from "@datasworn/core/dist/Builders";
-import {
-  InvalidHomebrewError,
-  SchemaValidationFailedError,
-} from "datastore/parsers/collection";
+import { ErrorObject } from "ajv";
+import { SchemaValidationFailedError } from "datastore/parsers/collection";
 import { produce } from "immer";
 import { rootLogger } from "logger";
 import {
@@ -141,6 +139,16 @@ export class ContentIndexer {
         return {
           kind: "content",
           data: parser(data, filePath.basename, frontmatter),
+        };
+      } else {
+        return {
+          kind: "content",
+          data: {
+            success: false,
+            error: new Error(
+              `Could not determine parsed for file ${filePath.path} (type: ${frontmatter?.["type"]}).`,
+            ),
+          },
         };
       }
     } else if (
@@ -623,8 +631,43 @@ export type CollectionAnnotations = {
   collectionType: CollectionTypes | null;
 };
 
+export abstract class BaseFileProblem {
+  abstract readonly _tag: string;
+  constructor(public readonly message: string) {}
+}
+
+export class WrongDataswornVersionProblem extends BaseFileProblem {
+  _tag = "WrongDataswornVersionProblem";
+}
+
+export class SchemaValidationFailedProblem extends BaseFileProblem {
+  _tag = "SchemaValidationFailedProblem";
+  errors: ErrorObject[];
+
+  static is(problem: FileProblem): problem is SchemaValidationFailedProblem {
+    return problem._tag === "SchemaValidationFailedProblem";
+  }
+
+  constructor(message: string, error: SchemaValidationFailedError) {
+    super(message);
+    this.errors = error.errors;
+  }
+}
+
+export class ErrorProblem extends BaseFileProblem {
+  _tag = "ErrorProblem";
+  constructor(public readonly error: Error) {
+    super(error.message);
+  }
+}
+
+export type FileProblem =
+  | SchemaValidationFailedProblem
+  | ErrorProblem
+  | WrongDataswornVersionProblem;
+
 export type PackageResults = {
-  errors: Map<string, Error>;
+  files: Map<string, Either<FileProblem, DataswornSource.RulesPackage>>;
   result: Datasworn.RulesPackage | null;
 };
 
@@ -632,7 +675,8 @@ export class PackageBuilder {
   labels: NodeMap<Content["value"], CollectionAnnotations, NodeLabel>;
 
   #packages: [string, Either<Error, DataswornSource.RulesPackage>][] = [];
-  #errors: Map<string, Error> = new Map();
+  #files: Map<string, Either<FileProblem, DataswornSource.RulesPackage>> =
+    new Map();
   #result: Datasworn.RulesPackage | null = null;
 
   /** Builds a package from the given content, by loading it into a NodeBuilder. */
@@ -659,9 +703,7 @@ export class PackageBuilder {
     if (rootNode == null) {
       return {
         result: null,
-        errors: new Map<string, Error>([
-          [root, new Error(`Root path "${root}" not found in content.`)],
-        ]),
+        files: new Map([]),
       };
     }
 
@@ -679,28 +721,36 @@ export class PackageBuilder {
               result: RulesPackageBuilder.schemaValidator(rootNode.data.package)
                 ? rootNode.data.package
                 : null,
-              errors: new Map<string, Error>(),
+              // TODO: maybe it should go in the files?
+              files: new Map(),
             };
           } catch (e) {
-            let packageError =
-              e instanceof Error
-                ? e
-                : new Error(`Error while validating package: ${e}`);
-            if (
-              e instanceof SchemaValidationFailedError &&
-              e.errors.find(
-                (err) =>
-                  err.instancePath == "/datasworn_version" &&
-                  err.keyword == "const",
-              )
-            ) {
-              packageError = new InvalidHomebrewError(
-                `Datasworn schema version ${rootNode.data.package.datasworn_version} does not match expected version ${PLUGIN_DATASWORN_VERSION}`,
+            let packageProblem: FileProblem;
+            if (e instanceof SchemaValidationFailedError) {
+              if (
+                e.errors.find(
+                  (err) =>
+                    err.instancePath == "/datasworn_version" &&
+                    err.keyword == "const",
+                )
+              ) {
+                packageProblem = new WrongDataswornVersionProblem(
+                  `Datasworn schema version ${rootNode.data.package.datasworn_version} does not match expected version ${PLUGIN_DATASWORN_VERSION}`,
+                );
+              } else {
+                packageProblem = new SchemaValidationFailedProblem(
+                  `Datasworn schema validation failed`,
+                  e,
+                );
+              }
+            } else {
+              packageProblem = new ErrorProblem(
+                e instanceof Error ? e : new Error(`Unknown error ${e}`),
               );
             }
             return {
               result: null,
-              errors: new Map<string, Error>([[root, packageError]]),
+              files: new Map([[root, Left.create(packageProblem)]]),
             };
           }
         }
@@ -742,7 +792,7 @@ export class PackageBuilder {
   compile(): PackageResults {
     if (this.#packages.length === 0) {
       logger.debug("[package-builder:] No packages to compile.");
-      return { result: null, errors: new Map<string, Error>() };
+      return { result: null, files: new Map() };
     }
 
     const dataswornCompiler = new RulesPackageBuilder(
@@ -752,7 +802,7 @@ export class PackageBuilder {
 
     for (const [filePath, source] of this.#packages) {
       if (source.isLeft()) {
-        this.#errors.set(filePath, source.error);
+        this.#files.set(filePath, Left.create(new ErrorProblem(source.error)));
         logger.error(
           "[package-builder:%s] Error building file %s: %o",
           this.packageId,
@@ -776,13 +826,32 @@ export class PackageBuilder {
 
         const validationError = dataswornCompiler.errors.get(filePath);
         if (validationError) {
-          this.#errors.set(filePath, validationError as Error);
+          this.#files.set(
+            filePath,
+            Left.create(
+              validationError instanceof SchemaValidationFailedError
+                ? new SchemaValidationFailedProblem(
+                    "Failed Datasworn Source schema validation",
+                    validationError,
+                  )
+                : new ErrorProblem(
+                    validationError instanceof Error
+                      ? validationError
+                      : new Error(`unexpected error: ${validationError}`),
+                  ),
+            ),
+          );
           logger.error(
             "[package-builder:%s] Error validating file %s: %o",
             this.packageId,
             filePath,
             validationError,
           );
+          // Remove the file from the compiler, since it is invalid.
+          dataswornCompiler.files.delete(filePath);
+          dataswornCompiler.errors.delete(filePath);
+        } else {
+          this.#files.set(filePath, Right.create(source.value));
         }
       }
     }
@@ -801,13 +870,17 @@ export class PackageBuilder {
       this.#result = resultData;
     } catch (e) {
       this.#result = null;
-      this.#errors.set(
+      this.#files.set(
         this.root.path,
-        e instanceof Error ? e : new Error(`Error while compiling: ${e}`),
+        Left.create(
+          new ErrorProblem(
+            e instanceof Error ? e : new Error(`Error while compiling: ${e}`),
+          ),
+        ),
       );
     }
 
-    return { result: this.#result, errors: this.#errors };
+    return { result: this.#result, files: this.#files };
   }
 
   buildTopCollection(

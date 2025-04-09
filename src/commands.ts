@@ -73,7 +73,7 @@ export class IronVaultCommands {
       name: "Show sidebar",
       icon: "list",
       callback: () => {
-        this.plugin.activateView();
+        this.plugin.activateMainSidebarView();
       },
     },
     {

@@ -6,7 +6,7 @@
  *
  * */
 
-import { Datasworn } from "@datasworn/core";
+import { Datasworn, DataswornSource } from "@datasworn/core";
 import newDataLoaderWorker, {
   DataLoaderWorker,
 } from "datastore/loader/data-loader.worker";
@@ -14,7 +14,9 @@ import Emittery, { UnsubscribeFunction } from "emittery";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { CachedMetadata, Component, TFile, TFolder, Vault } from "obsidian";
+import { Either } from "utils/either";
 import { atOrChildOfPath } from "utils/paths";
+import { FileProblem } from "./builder";
 import { IndexResult } from "./messages";
 
 const logger = rootLogger.getLogger("datastore.loader.manager");
@@ -23,7 +25,10 @@ export type DATA_MANAGER_EVENT_TYPES = {
   "updated:package": {
     root: string;
     rulesPackage: Datasworn.RulesPackage | null;
-    files: ReadonlyMap<string, Error>;
+    files: ReadonlyMap<
+      string,
+      Either<FileProblem, DataswornSource.RulesPackage>
+    >;
   };
 };
 
@@ -35,7 +40,7 @@ export class DataManager extends Component {
     string,
     {
       package: Datasworn.RulesPackage | null;
-      files: Map<string, Error>;
+      files: Map<string, Either<FileProblem, DataswornSource.RulesPackage>>;
     }
   > = new Map();
 
@@ -45,6 +50,35 @@ export class DataManager extends Component {
     super();
   }
 
+  getPackageForPath(path: string):
+    | {
+        root: string;
+        package: Datasworn.RulesPackage | null;
+        files: Map<string, Either<FileProblem, DataswornSource.RulesPackage>>;
+      }
+    | undefined {
+    for (const [
+      packageRoot,
+      { package: packageData, files },
+    ] of this.packages.entries()) {
+      if (atOrChildOfPath(packageRoot, path)) {
+        return { root: packageRoot, package: packageData, files };
+      }
+    }
+    return undefined;
+  }
+
+  getStatusForPath(
+    path: string,
+  ): Either<FileProblem, DataswornSource.RulesPackage> | undefined {
+    for (const [packageRoot, { files }] of this.packages.entries()) {
+      if (atOrChildOfPath(packageRoot, path)) {
+        return files.get(path);
+      }
+    }
+    return undefined;
+  }
+
   onload(): void {
     if (this.worker) {
       this.worker.terminate();
@@ -52,9 +86,7 @@ export class DataManager extends Component {
     this.worker = newDataLoaderWorker();
     this.worker.onmessage = (event: MessageEvent<IndexResult>) => {
       const result = event.data;
-      // Handle the result from the worker
       // console.log("Data loaded:", result);
-      // You can add further processing of the result here
       if (result.type === "updated:package") {
         this.packages.set(result.root, {
           package: result.package,
@@ -68,6 +100,35 @@ export class DataManager extends Component {
       }
     };
 
+    this.registerEvent(
+      this.plugin.app.vault.on("modify", async (file) => {
+        if (file instanceof TFile && file.extension !== "md") {
+          // We catch markdown files after the metadata cache is updated. For everything
+          // else, we have to do it separately, here.
+          if (
+            this.homebrewRoot &&
+            atOrChildOfPath(this.homebrewRoot, file.path)
+          ) {
+            // If the file is in the homebrew root, we should index it directly
+            this.indexDirect(
+              file,
+              await this.plugin.app.vault.read(file),
+              null,
+            );
+          } else {
+            for (const monitoredPath of this.monitoredPaths) {
+              if (atOrChildOfPath(monitoredPath, file.path)) {
+                this.indexDirect(
+                  file,
+                  await this.plugin.app.vault.read(file),
+                  null,
+                );
+              }
+            }
+          }
+        }
+      }),
+    );
     this.registerEvent(
       this.plugin.app.metadataCache.on("changed", async (file, data, cache) => {
         if (

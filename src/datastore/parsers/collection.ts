@@ -11,11 +11,12 @@ const logger = rootLogger.getLogger("homebrew-collection");
 export class InvalidHomebrewError extends Error {}
 
 export class SchemaValidationFailedError extends InvalidHomebrewError {
+  readonly _tag = "SchemaValidationFailedError";
   errors: ErrorObject[];
   constructor(message: string, errors: ErrorObject[], options?: ErrorOptions) {
     const formattedErrors = `\nErrors: ${JSON.stringify(errors, undefined, "\t")}`;
     super(message + formattedErrors, options);
-    this.name = "InvalidDataswornError";
+    this.name = "SchemaValidationFailedError";
     this.errors = errors;
   }
 }

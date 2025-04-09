@@ -2,7 +2,7 @@
 type: oracle_rollable
 name: Foo Oracles
 ---
-s
+
 
 | dice: 1d36 | Result                                                    |
 | ---------- | --------------------------------------------------------- |
