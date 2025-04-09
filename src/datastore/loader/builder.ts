@@ -351,8 +351,16 @@ export class MetarootContentManager implements IContentManager {
           this.delegate.removeRoot(root);
         }
       }
+    } else if (this.metaRoot === path) {
+      logger.debug(
+        "[content-manager] Meta root is already %s. Ignoring.",
+        path,
+      );
+      return;
     }
+
     this.metaRoot = path;
+
     if (this.metaRoot) {
       logger.debug(
         "[content-manager] Meta root set to %s. Updating roots.",

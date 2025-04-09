@@ -16,7 +16,7 @@ import { DataManager } from "datastore/loader/manager";
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
 import { isDebugEnabled, rootLogger } from "logger";
-import { Component, debounce, Notice, type App } from "obsidian";
+import { Component, debounce, type App } from "obsidian";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
 import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type: "json" };
 
@@ -51,12 +51,6 @@ export class Datastore extends Component {
 
     this.dataManager = this.addChild(new DataManager(this.plugin));
 
-    this.plugin.settings.on("change", ({ key }) => {
-      if (key === "useHomebrew" || key === "homebrewPath") {
-        this.initialize();
-      }
-    });
-
     this.waitForReady = new Promise((resolve) => {
       this.#readyNow = resolve;
     });
@@ -66,10 +60,9 @@ export class Datastore extends Component {
     return this.plugin.app;
   }
 
-  async initialize(): Promise<void> {
+  async initialize(reload: boolean = false): Promise<void> {
     this._ready = false;
     this.indexer.clear();
-    // TODO: clear the roots in the data manager
 
     this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
 
@@ -89,9 +82,11 @@ export class Datastore extends Component {
           this.plugin.settings.homebrewPath,
           true,
         );
-      } else {
-        new Notice("Homebrew enabled, but path is empty.");
       }
+    }
+
+    if (reload) {
+      await this.dataManager.reindexAll();
     }
 
     this._ready = true;
@@ -111,6 +106,20 @@ export class Datastore extends Component {
     super.onload();
     // Monitor the vault for changes within the homebrew folder and reindex top level entities
     // as needed
+
+    this.register(
+      this.plugin.settings.on("change", ({ key }) => {
+        if (key === "useHomebrew" || key === "homebrewPath") {
+          this.dataManager.setHomebrewRoot(
+            this.plugin.settings.useHomebrew
+              ? this.plugin.settings.homebrewPath || null
+              : null,
+            true,
+          );
+        }
+      }),
+    );
+
     this.register(
       this.dataManager.on(
         "updated:package",

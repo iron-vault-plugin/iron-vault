@@ -79,7 +79,18 @@ export class DataManager extends Component {
     return undefined;
   }
 
-  onload(): void {
+  async reindexAll(): Promise<void> {
+    logger.info("Reindexing all content...");
+    this.#restartWorker();
+    if (this.homebrewRoot) {
+      await this.setHomebrewRoot(this.homebrewRoot);
+    }
+    for (const root of this.monitoredPaths) {
+      await this.addCampaignContentRoot(root);
+    }
+  }
+
+  #restartWorker(): void {
     if (this.worker) {
       this.worker.terminate();
     }
@@ -99,6 +110,10 @@ export class DataManager extends Component {
         });
       }
     };
+  }
+
+  onload(): void {
+    this.#restartWorker();
 
     this.registerEvent(
       this.plugin.app.vault.on("modify", async (file) => {
@@ -190,33 +205,35 @@ export class DataManager extends Component {
     );
   }
 
-  setHomebrewRoot(root: string, reindex: boolean = true): void {
-    if (this.homebrewRoot === root) {
-      return;
-    }
+  async setHomebrewRoot(
+    root: string | null,
+    reindex: boolean = true,
+  ): Promise<void> {
     this.homebrewRoot = root;
+    // No harm in resending to the worker, and we use this for restarts
     this.worker.postMessage({
       type: "setMetaRoot",
       root,
     });
-    if (reindex) {
-      this.#indexFolder(root);
+    if (reindex && root) {
+      await this.#indexFolder(root);
     }
   }
 
-  addCampaignContentRoot(root: string, reindex: boolean = true): void {
-    // TODO: maybe I should just send all the roots and let the worker diff the list?
-    if (this.monitoredPaths.has(root)) {
-      return;
-    }
+  async addCampaignContentRoot(
+    root: string,
+    reindex: boolean = true,
+  ): Promise<void> {
     this.monitoredPaths.add(root);
+    // No harm in resending to the worker, and we use this for restarts
     this.worker.postMessage({
       type: "addRoot",
       root,
     });
-    if (reindex) this.#indexFolder(root);
+    if (reindex) await this.#indexFolder(root);
   }
-  #indexFolder(root: string): void {
+
+  async #indexFolder(root: string): Promise<void> {
     // Walk the root folder and index all files in it
     const folder = this.plugin.app.vault.getAbstractFileByPath(root);
     if (folder && folder instanceof TFolder) {
@@ -240,9 +257,9 @@ export class DataManager extends Component {
       });
 
       // Wait for all indexing to complete
-      Promise.all(promises).then(() => {
-        logger.info(`Indexed all files in ${root}`);
-      });
+      await Promise.all(promises);
+
+      logger.info(`Indexed all files in ${root}`);
     }
   }
 
