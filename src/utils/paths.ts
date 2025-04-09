@@ -70,3 +70,13 @@ export function findTopLevelParentPath(
   const parts = relativePath.split("/");
   return rootFolderPath + parts[0];
 }
+
+export function relativeTo(root: string, path: string): string | null {
+  if (!root.endsWith("/")) {
+    root += "/";
+  }
+  if (!path.startsWith(root)) {
+    return null;
+  }
+  return path.substring(root.length);
+}

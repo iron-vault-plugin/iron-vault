@@ -12,6 +12,7 @@ import {
 import registerCharacterBlock from "characters/character-block";
 import registerClockBlock from "clocks/clock-block";
 import { IronVaultCommands } from "commands";
+import { CONTENT_VIEW_TYPE, ContentView } from "datastore/view/content-view";
 import { IronVaultLinkView, LINK_VIEW } from "docs/docs-view";
 import { AsEmitting } from "indexer/index-interface";
 import { IndexManager } from "indexer/manager";
@@ -83,8 +84,8 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     // Load the data store data
     await this.datastore.initialize();
 
-    // Configure the sidebar
-    await this.initLeaf();
+    this.initMainSidebarView();
+    this.initContentSidebarView();
 
     this.registerEvent(
       this.migrationManager.on("needs-migration", () =>
@@ -157,6 +158,10 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     installLinkHandler(this);
 
     this.registerView(SIDEBAR_VIEW_TYPE, (leaf) => new SidebarView(leaf, this));
+    this.registerView(
+      CONTENT_VIEW_TYPE,
+      (leaf) => new ContentView(leaf, this.datastore.dataManager),
+    );
     this.registerView(LINK_VIEW, (leaf) => new IronVaultLinkView(leaf));
     this.registerView(
       MIGRATION_VIEW_TYPE,
@@ -231,19 +236,38 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     registerTruthBlock(this);
   }
 
-  async activateView() {
+  onUserEnable(): void {}
+
+  onUserDisable(): void {
+    // Detach the sidebar views when the plugin is disabled
+    this.app.workspace.detachLeavesOfType(SIDEBAR_VIEW_TYPE);
+    this.app.workspace.detachLeavesOfType(CONTENT_VIEW_TYPE);
+  }
+
+  async activateMainSidebarView() {
     const { workspace } = this.app;
-    const leaf = await this.initLeaf();
+    const leaf = await this.initMainSidebarView();
     if (leaf) workspace.revealLeaf(leaf);
   }
 
-  async initLeaf() {
+  async initMainSidebarView() {
     for (const leaf of this.app.workspace.getLeavesOfType(SIDEBAR_VIEW_TYPE)) {
       return leaf;
     }
     const leaf = this.app.workspace.getRightLeaf(false);
     await leaf?.setViewState({
       type: SIDEBAR_VIEW_TYPE,
+    });
+    return leaf;
+  }
+
+  async initContentSidebarView() {
+    for (const leaf of this.app.workspace.getLeavesOfType(CONTENT_VIEW_TYPE)) {
+      return leaf;
+    }
+    const leaf = this.app.workspace.getRightLeaf(false);
+    await leaf?.setViewState({
+      type: CONTENT_VIEW_TYPE,
     });
     return leaf;
   }

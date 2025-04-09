@@ -33,7 +33,7 @@ export class Datastore extends Component {
 
   #readyNow!: () => void;
 
-  #dataManager: DataManager;
+  dataManager: DataManager;
 
   emitter: Emittery;
 
@@ -49,7 +49,7 @@ export class Datastore extends Component {
       true,
     );
 
-    this.#dataManager = this.addChild(new DataManager(this.plugin));
+    this.dataManager = this.addChild(new DataManager(this.plugin));
 
     this.plugin.settings.on("change", ({ key }) => {
       if (key === "useHomebrew" || key === "homebrewPath") {
@@ -85,7 +85,7 @@ export class Datastore extends Component {
 
     if (this.plugin.settings.useHomebrew) {
       if (this.plugin.settings.homebrewPath) {
-        this.#dataManager.setHomebrewRoot(
+        this.dataManager.setHomebrewRoot(
           this.plugin.settings.homebrewPath,
           true,
         );
@@ -112,7 +112,7 @@ export class Datastore extends Component {
     // Monitor the vault for changes within the homebrew folder and reindex top level entities
     // as needed
     this.register(
-      this.#dataManager.on(
+      this.dataManager.on(
         "updated:package",
         ({ root, files, rulesPackage }) => {
           logger.debug(
@@ -123,9 +123,9 @@ export class Datastore extends Component {
 
           for (const [path, result] of files.entries()) {
             logger.debug(
-              "Datastore updated file: %s, result: %s",
+              "Datastore updated file: %s, result: %o",
               path,
-              `Error: ${result}`,
+              result,
             );
           }
 
@@ -155,12 +155,12 @@ export class Datastore extends Component {
   /** Registers a monitored campaign content path. */
   registerCampaignContentPath(path: string) {
     logger.debug("Registering campaign content path %s", path);
-    this.#dataManager.addCampaignContentRoot(path);
+    this.dataManager.addCampaignContentRoot(path);
   }
 
   /** Unregisters a monitored campaign content path. */
   unregisterCampaignContentPathByRoot(campaignRoot: string) {
-    this.#dataManager.removeCampaignContentRoot(campaignRoot);
+    this.dataManager.removeCampaignContentRoot(campaignRoot);
     // TODO: need to deal with removing from index
     // for (const monitoredPath of this.#monitoredCampaignContentPaths) {
     //   if (childOfPath(campaignRoot, monitoredPath)) {

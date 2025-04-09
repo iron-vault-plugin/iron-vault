@@ -1,4 +1,6 @@
-import { Datasworn } from "@datasworn/core";
+import { Datasworn, DataswornSource } from "@datasworn/core";
+import { Either } from "utils/either";
+import { FileProblem } from "./builder";
 
 export type IndexCommand =
   | {
@@ -36,5 +38,5 @@ export type IndexResult =
       type: "updated:package";
       root: string; // The root path of the package that was updated
       package: Datasworn.RulesPackage | null; // The updated content of the package
-      files: Map<string, Error>; // Any errors encountered during indexing, mapped by path
+      files: Map<string, Either<FileProblem, DataswornSource.RulesPackage>>; // Any errors encountered during indexing, mapped by path
     };

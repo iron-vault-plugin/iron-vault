@@ -1,0 +1,31 @@
+.iv-content-pane {
+  .iv-content-view {
+    color: var(--nav-item-color);
+    font-size: var(--nav-item-size);
+    line-height: var(--line-height-tight);
+    font-weight: var(--nav-item-weight);
+    margin-top: var(--size-2-1);
+    margin-bottom: var(--size-2-1);
+    padding: var(--nav-item-padding);
+
+    dl {
+      dt {
+        font-weight: var(--nav-heading-weight);
+      }
+      dd {
+        font-size: smaller;
+        font-family: var(--font-monospace);
+        white-space: pre-wrap;
+        overflow-y: auto;
+        text-overflow: ellipsis;
+        max-height: 10lh;
+      }
+      dd[data-key="parentSchema"] {
+        display: none;
+      }
+      dt[data-key="parentSchema"] {
+        display: none;
+      }
+    }
+  }
+}

@@ -2,6 +2,7 @@
 type: oracle_rollable
 description: An example Oracle
 ---
+#foo
 
 | dice: 1d36 | Result                                               |
 | ---------- | ---------------------------------------------------- |
