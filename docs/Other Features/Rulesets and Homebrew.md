@@ -23,7 +23,7 @@ Iron Vault is bundled with official [Datasworn](https://github.com/rsek/dataswor
 Iron Vault supports custom homebrew rules packages. You can provide these packages in two formats:
 
 1. [[Rulesets and Homebrew#Compiled Datasworn JSON|Compiled Datasworn JSON]]: pre-compiled Datasworn json files can be dropped directly in the Homebrew folder as a complete package
-2. [[Rulesets and Homebrew#Custom Source Folders|Custom Source Folders]]: you can also build Datasworn packages from a mixture of Datasworn "source" YAML and Markdown files in a custom Iron Vault format
+2. [[Rulesets and Homebrew#Custom Source Folders|Custom Source Folders]]: you can also build Datasworn packages from a mixture of Datasworn "source" YAML and Markdown files in a custom Iron Vault format.
 
 #### Compiled Datasworn JSON
 
@@ -33,16 +33,22 @@ To enable this, put your homebrew content in a folder in your vault. In settings
 
 Note that, in addition, you might need to enable `Settings > Files and links > Detect all file extensions` in order for .json files to show up in your vault. The file will be there, you just won't see it.
 
-#### Custom Source Folders (experimental)
+#### Custom Source Folders
 
 Iron Vault bundles the Datasworn compiler-- with some enhancements-- allowing you to compose homebrew content from files in a variety of formats.
 
 Iron Vault will attempt to compile each subfolder of your Homebrew directory as a custom Datasworn package, using the folder name as the package id.
-##### Using custom content
 
-To use such a package, you'll need to make sure it is included in your campaign's playset. For example, if you have a folder `Homebrew/mycontent`, you'll want to make sure your playset has a line like `*:mycontent/**` to ensure that all of your custom content is available.
+> [!INFO] Custom Source Folders are a new feature and under active development.
+> While functionality that is in place should generally work as described, some functionality is still rough around the edges. We welcome constructive feedback, bug reports, and contributions!
+##### Including custom content in your campaign
 
-In this experimental release, you will not see changes to your content immediately reflected in Iron Vault. To recompile and reload your content, use the `Reload homebrew and datasworn data` command (or reload your vault).
+To use such a package, you'll need to make sure it is included in your campaign's playset. For example, if you have a folder `Homebrew/mycontent`, you'll want to make sure your [[Campaigns/Playsets/index|playset]] has a line like `*:mycontent/**` to ensure that all of your custom content is available.
+
+Alternatively, use the [[#Campaign-specific custom content]] feature to add content that is included automatically.
+
+> [!HINT] Content refreshes automatically
+> When you change files in a custom source folder, Iron Vault recompiles that package automatically. This also means that if a change causes a file to fail compilation, that file's content (such as an oracle) will become unavailable immediately. We recommend keeping the Homebrew Inspector sidebar tab open while editing so you can see errors as they occur.
 ##### Creating custom content
 
 We support three kinds of files, currently:
@@ -127,7 +133,15 @@ You can also combine multiple dice as though they were "digits" by separating th
 ```
 
 Iron Vault will convert this to a d36 table with the appropriate rows. Note that `3-6;1` will "flatten" to non-contiguous values (`13`, `19`, `25`, `31`), and those rows will be repeated in the flattened oracle table.
+#### Debugging content with the Homebrew Inspector
 
+The *Iron Vault Homebrew Inspector* sidebar tab shows you a list of all of the files detected in the currently selected custom source folder. Files with errors are displayed with an "error" label. If you click on the file, you can see the errors 
+
+> [!HINT] Homebrew inspector is an early release.
+> The error messages are not currently very friendly-- they are the raw output of the Datasworn compiler and its JSON Schema validation. We will try to improve the user-friendliness of these messages over time.
+
+
+![[Homebrew inspector sidebar.png|300]]
 #### Campaign-specific custom content
 
 Instead of creating a package in the vault-wide Homebrew folder, you can include campaign-specific custom content automatically in your campaign by putting it in the [[Creating a campaign|Custom Content folder configured in your campaign]] (defaults to "Custom Content").
