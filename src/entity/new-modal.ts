@@ -42,6 +42,8 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
   activeSlots!: [keyof T, EntityFieldSpec][];
   rolls: Map<string, RollContainer[]> = new Map();
 
+  private firstLookButton!: ButtonComponent;
+
   static create<T extends EntitySpec>({
     plugin,
     entityDesc,
@@ -103,6 +105,11 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
     this.onUpdateRolls();
   }
 
+  /** Gets the rolls for a given key. */
+  getRollsForKey(key: keyof T, id: string): RollContainer[] {
+    return this.rolls.get(`${key as string}:${id}`) ?? [];
+  }
+
   /** Updates a slot with a new roll. */
   async addNewRollForKey(
     key: keyof T,
@@ -138,8 +145,22 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
     return newRoll;
   }
 
+  /** Checks if any first look slots are unfilled. */
+  hasUnfilledFirstLookSlots() {
+    return this.activeSlots.some(
+      ([key, spec]) =>
+        spec.firstLook && this.getRollsForKey(key, spec.id).length == 0,
+    );
+  }
+
   onUpdateRolls() {
     this.updateActiveSlots();
+
+    if (this.hasUnfilledFirstLookSlots()) {
+      this.firstLookButton.setButtonText("Roll first look");
+    } else {
+      this.firstLookButton.setButtonText("Reroll first look");
+    }
 
     this.results.name =
       this.entityDesc.nameGen &&
@@ -170,27 +191,36 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
       Object.values(this.entityDesc.spec).some(({ firstLook }) => firstLook)
     ) {
       commandSetting.addButton((btn) =>
-        btn.setButtonText("Roll first look").onClick(async () => {
-          this.rolls.clear();
-          this.onUpdateRolls();
-          for (const [key, spec] of Object.entries(this.entityDesc.spec)) {
-            if (spec.firstLook) {
-              // We check if the key is in activeSlots after each roll, rather than just iterating
-              // through active slots, because each call to updateRoll could change an active
-              // slot
-              const [, activeSpec] = this.activeSlots.find(
-                ([activeKey, _spec]) => activeKey === key,
-              ) ?? [undefined, undefined];
-              if (activeSpec) {
-                await this.addNewRollForKey(
-                  key as string,
-                  activeSpec.id,
-                  "replace",
-                );
+        (this.firstLookButton = btn)
+          .setButtonText("Roll first look")
+          .onClick(async () => {
+            // If all first look slots are filled, we are in "re-roll" mode, so clear first.
+            if (!this.hasUnfilledFirstLookSlots()) {
+              this.rolls.clear();
+              this.onUpdateRolls();
+            }
+
+            for (const [key, spec] of Object.entries(this.entityDesc.spec)) {
+              if (spec.firstLook) {
+                // We check if the key is in activeSlots after each roll, rather than just iterating
+                // through active slots, because each call to updateRoll could change an active
+                // slot
+                const [, activeSpec] = this.activeSlots.find(
+                  ([activeKey, _spec]) => activeKey === key,
+                ) ?? [undefined, undefined];
+                if (
+                  activeSpec &&
+                  this.getRollsForKey(key, activeSpec.id).length == 0
+                ) {
+                  await this.addNewRollForKey(
+                    key as string,
+                    activeSpec.id,
+                    "replace",
+                  );
+                }
               }
             }
-          }
-        }),
+          }),
       );
     }
     commandSetting.addButton((btn) =>
