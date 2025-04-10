@@ -10,7 +10,11 @@ It has features ranging from a full character sheet, to commands for making move
 The plugin is designed to be used piecemeal: you can use as much or as little as you want, and our only hope is that some part of it will be useful enough to make you enjoy your experience a little more.
 
 It is not a "play for me"-style VTT, in the sense that while it has a lot of conveniences for rendering and interacting with mechanics, the actual resolution and logic of game mechanics is left up to you, and whatever flexibility you want to handle the game's rules with. The game, after all, is not a single monolithic set of laws, and everyone tends to take their own liberties with the rules in the interest of enjoying the game more.
+### What's new?
 
+To keep up with the latest releases of Iron Vault, we recommend checking the [Github Releases](https://github.com/iron-vault-plugin/iron-vault/releases) page. Each release has a brief description of what's new.
+
+You can also join the `#iron-vault-obsidian` channel in [the Ironsworn discord](https://tomkinpress.com/pages/community-resources).
 ### Getting Started
 
 Not sure where to start? There's a full [[Player's Guide/index|Player's Guide]] or, more specifically, a [[01 - Initial Setup|Getting Started]] guide so you can jump right in with a new or existing campaign, using as much or as little of Iron Vault as you want!
@@ -32,11 +36,11 @@ You can start reading about the various Iron Vault features here:
 * [[Special Links]] - There are special external links that, instead of trying to open a web page, will open a modal window with the contents of the thing you're trying to link to. For example, `[My Move](move:MyMoveName)` will pop up a window with the description and roll buttons for "My Move".
 * [[CSS Tweaks]] - Styling tweaks to make some things look nicer or more customized, such as the `iron-vault-embed` option for inlining embeds.
 * [[Callouts]] - Special formatting and generation for game-related callouts.
-* [[Rulesets and Homebrew#Homebrew|Homebrew]] - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the [Datasworn](https://github.com/rsek/datasworn) data model.
+* [[Rulesets and Homebrew#Homebrew|Homebrew]] - BYO Rulesets! Import custom assets, oracles, or even entire rulesets/games that conform to the [Datasworn](https://github.com/rsek/datasworn) data model or a simple Markdown file format.
+	* Want to add a quick oracle for a campaign? Put a [[Rulesets and Homebrew#Markdown oracle files|Markdown oracle file]] in a [[Rulesets and Homebrew#Campaign-specific custom content|Campaign "Custom Content" folder]]
 * [[Settings]] - Various configurations available to tweak your Iron Vault experience.
 * [[API]] - (Coming Soon) Are you a developer? We expose the plugin for easy access, for folks who want to do fancier things with Iron Vault features.
-
-#### Installing the Plugin
+### Installing the Plugin
 
 The easiest way to install Iron Vault is directly through the Community Plugins registry in Obsidian itself. Simply search for "Iron Vault", click "install", then "enable", and you're good to go!
 
@@ -48,6 +52,6 @@ To build the code and copy it to your vault yourself, run `pnpm build` to genera
 
 You should then be able to enable the plugin in your vault (after restarting/reloading Obsidian).
 
-#### Contributing
+### Contributing
 
 Iron Vault is a community project built by players, for players, and we welcome contributions! Please see [CONTRIBUTING.md](https://github.com/iron-vault-plugin/iron-vault/blob/main/README.md) for details.
