@@ -422,9 +422,12 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
                       .setIcon("list")
                       .setTooltip("Pick from table")
                       .onClick(async () => {
-                        const roll = await this.openRollInModal(
-                          await this.createNewRoll(id, key, false),
-                        );
+                        const currentRolls = this.getRollsForKey(key, id);
+                        const initialRoll =
+                          currentRolls.length > 0
+                            ? currentRolls[currentRolls.length - 1]
+                            : await this.createNewRoll(id, key, false);
+                        const roll = await this.openRollInModal(initialRoll);
                         if (roll) {
                           this.setRollsForKey(key, id, [roll], "replace");
                         }
