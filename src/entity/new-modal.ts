@@ -86,82 +86,39 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
     // the id assignment
   }
 
-  renderRoll(roll: RollContainer, onClick?: (ev: MouseEvent) => void) {
-    const activeRoll = roll.activeRollWrapper();
-    const resultText = parseDataswornLinks(activeRoll.row.result).map(
-      (segment): [string, string] => {
-        if (typeof segment == "string") return [segment, segment];
-        const { id, label } = segment;
-        if (activeRoll.subrolls[id]) {
-          return [
-            label,
-            activeRoll.subrolls[id].rolls
-              .map((sr) => sr.simpleResult)
-              .join(", "),
-          ];
-        } else {
-          return [label, label];
-        }
-      },
-    );
-    const toolTipText = resultText.map(([label, _val]) => label);
-    const rowText = resultText.map(([_label, val]) => val);
-    return html`<a
-      aria-label=${toolTipText}
-      data-tooltip-position="top"
-      @click=${onClick}
-      >${rowText}</a
-    >`;
-  }
-
-  renderRolls(key: keyof T, id: string, allowEdit: boolean) {
+  /** Updates the rolls in a given slot. */
+  setRollsForKey(
+    key: keyof T,
+    id: string,
+    values: RollContainer[],
+    mode: "replace" | "append" = "replace",
+  ) {
     const keyAndId = `${key as string}:${id}`;
-    const rolls = this.rolls.get(keyAndId) ?? [];
-    const { label: entityLabel } = this.entityDesc;
-    if (rolls.length == 0) return "";
-
-    return html`${join(
-      map(rolls, (roll, index) =>
-        this.renderRoll(
-          roll,
-          allowEdit
-            ? (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-
-                new NewOracleRollerModal(
-                  this.plugin,
-                  roll,
-                  (newRoll) => {
-                    const newRolls = [...(this.rolls.get(keyAndId) ?? [])];
-                    newRolls[index] = newRoll;
-                    this.updateSetting(key, id, newRolls);
-                  },
-                  () => {},
-                  [entityLabel],
-                ).open();
-              }
-            : undefined,
-        ),
-      ),
-      html`<span class="separator">; </span>`,
-    )}`;
-  }
-
-  updateSetting(key: keyof T, id: string, values: RollContainer[]) {
-    this.rolls.set(`${key as string}:${id}`, values);
+    this.rolls.set(
+      keyAndId,
+      mode == "append"
+        ? [...(this.rolls.get(keyAndId) ?? []), ...values]
+        : values,
+    );
     this.onUpdateRolls();
   }
 
-  async updateRollForKey(
+  /** Updates a slot with a new roll. */
+  async addNewRollForKey(
     key: keyof T,
     id: string,
     mode: "append" | "replace",
     allowGraphical: boolean = true,
   ): Promise<void> {
-    const keyAndId = `${key as string}:${id}`;
-    const currentRolls = this.rolls.get(keyAndId) ?? [];
+    const newRoll = await this.createNewRoll(id, key, allowGraphical);
+    this.setRollsForKey(key, id, [newRoll], mode);
+  }
 
+  private async createNewRoll(
+    id: string,
+    key: keyof T,
+    allowGraphical: boolean,
+  ) {
     const table = this.rollContext.lookup(id);
     if (!table) {
       throw new Error(
@@ -178,12 +135,7 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
           : table.rollDirect(this.rollContext),
       ),
     );
-
-    this.updateSetting(
-      key,
-      id,
-      mode == "append" ? [...currentRolls, newRoll] : [newRoll],
-    );
+    return newRoll;
   }
 
   onUpdateRolls() {
@@ -230,7 +182,7 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
                 ([activeKey, _spec]) => activeKey === key,
               ) ?? [undefined, undefined];
               if (activeSpec) {
-                await this.updateRollForKey(
+                await this.addNewRollForKey(
                   key as string,
                   activeSpec.id,
                   "replace",
@@ -436,10 +388,22 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
                     if (el === undefined) return;
                     if (!(el instanceof HTMLElement))
                       throw new Error(`expected el to be HTMLElement, ${el}`);
+                    new ExtraButtonComponent(el)
+                      .setIcon("list")
+                      .setTooltip("Pick from table")
+                      .onClick(async () => {
+                        const roll = await this.openRollInModal(
+                          await this.createNewRoll(id, key, false),
+                        );
+                        if (roll) {
+                          this.setRollsForKey(key, id, [roll], "replace");
+                        }
+                      });
                     const rollBtn = new ExtraButtonComponent(el)
                       .setIcon("dices")
+                      .setTooltip("Roll")
                       .onClick(() => {
-                        this.updateRollForKey(
+                        this.addNewRollForKey(
                           key,
                           id,
                           isReRollerOracle ? "append" : "replace",
@@ -450,8 +414,9 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
                       });
                     new ExtraButtonComponent(el)
                       .setIcon("delete")
+                      .setTooltip("Clear")
                       .onClick(() => {
-                        this.updateSetting(key, id, []);
+                        this.setRollsForKey(key, id, []);
                       });
                   })}
                 ></div>`,
@@ -461,6 +426,85 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
       ),
       this.attributesEl,
     );
+  }
+
+  renderRoll(roll: RollContainer, onClick?: (ev: MouseEvent) => void) {
+    const activeRoll = roll.activeRollWrapper();
+    const resultText = parseDataswornLinks(activeRoll.row.result).map(
+      (segment): [string, string] => {
+        if (typeof segment == "string") return [segment, segment];
+        const { id, label } = segment;
+        if (activeRoll.subrolls[id]) {
+          return [
+            label,
+            activeRoll.subrolls[id].rolls
+              .map((sr) => sr.simpleResult)
+              .join(", "),
+          ];
+        } else {
+          return [label, label];
+        }
+      },
+    );
+    const toolTipText = resultText.map(([label, _val]) => label);
+    const rowText = resultText.map(([_label, val]) => val);
+    return html`<a
+      aria-label=${toolTipText}
+      data-tooltip-position="top"
+      @click=${onClick}
+      >${rowText}</a
+    >`;
+  }
+
+  private _onClickRoll(
+    key: keyof T,
+    id: string,
+    index: number,
+    ev: MouseEvent,
+  ): void {
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    this.editRollInModal(key, id, index);
+  }
+
+  private async editRollInModal(key: keyof T, id: string, index: number) {
+    const keyAndId = `${key as string}:${id}`;
+    const rolls = this.rolls.get(keyAndId) ?? [];
+    const roll = rolls[index];
+
+    const newRoll = await this.openRollInModal(roll);
+    if (newRoll == null) return;
+
+    const newRolls = [...(this.rolls.get(keyAndId) ?? [])];
+    newRolls[index] = newRoll;
+    this.setRollsForKey(key, id, newRolls);
+  }
+
+  private async openRollInModal(
+    roll: RollContainer,
+  ): Promise<RollContainer | null> {
+    return new Promise((resolve) => {
+      new NewOracleRollerModal(this.plugin, roll, resolve, () => null, [
+        this.entityDesc.label,
+      ]).open();
+    });
+  }
+
+  renderRolls(key: keyof T, id: string, allowEdit: boolean) {
+    const keyAndId = `${key as string}:${id}`;
+    const rolls = this.rolls.get(keyAndId) ?? [];
+    if (rolls.length == 0) return "";
+
+    return html`${join(
+      map(rolls, (roll, index) =>
+        this.renderRoll(
+          roll,
+          allowEdit ? this._onClickRoll.bind(this, key, id, index) : undefined,
+        ),
+      ),
+      html`<span class="separator">; </span>`,
+    )}`;
   }
 
   onClose(): void {
