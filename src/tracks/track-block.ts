@@ -114,6 +114,9 @@ export function renderTrack(
           ? html`<textarea
               type="text"
               .value=${info.name}
+              @click=${(ev: Event) => {
+                ev.stopPropagation(); // Prevents the click event from bubbling
+              }}
               @blur=${() => {
                 trackRenderer.editingName = false;
                 setTimeout(() => trackRenderer?.render(), 0);
@@ -125,10 +128,11 @@ export function renderTrack(
               }}
             />`
           : html`<span
-              @click=${() => {
+              @click=${(ev: Event) => {
                 if (!trackRenderer) {
                   return;
                 }
+                ev.stopPropagation();
                 trackRenderer.editingName = true;
                 trackRenderer.render();
                 const el = trackRenderer.containerEl.querySelector(
@@ -147,6 +151,12 @@ export function renderTrack(
                 ${trackRenderer
                   ? html`<select
                       .value=${info.track.rank}
+                      @click=${(ev: Event) => {
+                        // When track is embedded, bubbling the click event causes
+                        // Obsidian to change the selection, which ends up removing
+                        // focus from the select element. This prevents that.
+                        ev.stopPropagation();
+                      }}
                       @change=${(ev: Event) =>
                         updateTrack({
                           rank: (ev.target! as HTMLSelectElement)
@@ -170,6 +180,9 @@ export function renderTrack(
                   ? html`<input
                       type="text"
                       .value=${info.trackType}
+                      @click=${(ev: Event) => {
+                        ev.stopPropagation(); // See above
+                      }}
                       @change=${(ev: Event) =>
                         updateTrack({
                           trackType: (ev.target! as HTMLSelectElement).value,
@@ -184,17 +197,32 @@ export function renderTrack(
         ? html`<span class="track-xp">${xpEarned}</span>`
         : null}
       <div class="track-widget">
-        <button type="button" @click=${() => updateTrack({ steps: -1 })}>
+        <button
+          type="button"
+          @click=${(ev: Event) => {
+            ev.stopPropagation();
+            updateTrack({ steps: -1 });
+          }}
+        >
           -
         </button>
         <ol>
           ${items}
         </ol>
-        <button type="button" @click=${() => updateTrack({ steps: 1 })}>
+        <button
+          type="button"
+          @click=${(ev: Event) => {
+            ev.stopPropagation();
+            updateTrack({ steps: 1 });
+          }}
+        >
           +
         </button>
         <input
           .value="${info.track.progress}"
+          @click=${(ev: Event) => {
+            ev.stopPropagation(); // See above
+          }}
           @change=${(ev: Event) =>
             updateTrack({ ticks: +(ev.target! as HTMLInputElement).value })}
         />
