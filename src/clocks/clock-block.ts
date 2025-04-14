@@ -44,6 +44,9 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
             ? html`<input
                 type="text"
                 .value=${clockFile.name}
+                @click=${(ev: Event) => {
+                  ev.stopPropagation(); // See notes in track-block.ts
+                }}
                 @blur=${async () => {
                   this.editingName = false;
                   setTimeout(() => this.render(), 0);
@@ -62,7 +65,8 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
                 }}
               />`
             : html`<span
-                @click=${() => {
+                @click=${(ev: Event) => {
+                  ev.stopPropagation(); // See notes in track-block.ts
                   this.editingName = true;
                   this.render();
                   const el = this.containerEl.querySelector(
@@ -83,7 +87,8 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
         <div
           class="clock-segments"
           @click=${(ev: Event) => {
-            const target = ev.target as HTMLElement | undefined;
+            const target = ev.currentTarget as HTMLElement | null;
+            ev.stopPropagation();
             if (target?.querySelector("span")) {
               this.editingSegments = true;
               this.render();
@@ -95,6 +100,9 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
             ? html`<input
                 type="number"
                 .value=${clockFile.clock.segments}
+                @click=${(ev: Event) => {
+                  ev.stopPropagation(); // See notes in track-block.ts
+                }}
                 @blur=${() => {
                   this.editingSegments = false;
                   setTimeout(() => this.render(), 0);
@@ -121,6 +129,9 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
             <input
               type="checkbox"
               ?checked=${!clockFile.clock.active}
+              @click=${(ev: Event) => {
+                ev.stopPropagation(); // See notes in track-block.ts
+              }}
               @change=${async (ev: Event) =>
                 ev.target &&
                 (await clockUpdater(
