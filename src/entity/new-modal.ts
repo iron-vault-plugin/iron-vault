@@ -42,7 +42,7 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
   activeSlots!: [keyof T, EntityFieldSpec][];
   rolls: Map<string, RollContainer[]> = new Map();
 
-  private firstLookButton: ButtonComponent;
+  private firstLookButton?: ButtonComponent;
 
   static create<T extends EntitySpec>({
     plugin,
