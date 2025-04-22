@@ -42,7 +42,7 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
   activeSlots!: [keyof T, EntityFieldSpec][];
   rolls: Map<string, RollContainer[]> = new Map();
 
-  private firstLookButton!: ButtonComponent;
+  private firstLookButton: ButtonComponent;
 
   static create<T extends EntitySpec>({
     plugin,
@@ -157,9 +157,9 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
     this.updateActiveSlots();
 
     if (this.hasUnfilledFirstLookSlots()) {
-      this.firstLookButton.setButtonText("Roll first look");
+      this.firstLookButton?.setButtonText("Roll first look");
     } else {
-      this.firstLookButton.setButtonText("Reroll first look");
+      this.firstLookButton?.setButtonText("Reroll first look");
     }
 
     this.results.name =
