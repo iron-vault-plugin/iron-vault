@@ -60,6 +60,13 @@ assets:
       health/out_of_action: false
     options:
       name: Jeeves
+  - id: asset:campaign/assets/custom_asset_md
+    abilities:
+      - false
+      - false
+      - false
+    controls: {}
+    options: {}
 spirit: 5
 supply: 4
 Quests_Progress: 4

@@ -52,6 +52,7 @@ const context = await esbuild.context({
       sourcemap: prod ? false : "inline", // inline workers with sourcemaps in dev mode}),
       treeShaking: true,
       target: "es2023",
+      conditions: ["worker"],
     }),
     typecheckPlugin({ watch }),
     copy({
