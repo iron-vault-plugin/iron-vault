@@ -8,6 +8,8 @@ export abstract class BaseDataNode<L, G> {
   constructor(builder: NodeBuilder<L, G>) {
     this.builder = builder;
   }
+
+  abstract walkDepthFirst(visitor: NodeVisitor<L, G>): void;
 }
 
 export class DataLeaf<L, G> extends BaseDataNode<L, G> {
@@ -32,6 +34,10 @@ export class DataLeaf<L, G> extends BaseDataNode<L, G> {
     }
     this.path = path;
     this.name = path.split("/").pop()!;
+  }
+
+  walkDepthFirst(visitor: NodeVisitor<L, G>): void {
+    visitor.visitLeaf(this);
   }
 }
 
