@@ -1,6 +1,6 @@
 import { NumberRange } from "model/rolls";
 
-/** Generate array with integers between `from` and `to`. */
+/** Generate array with integers between `from` and `to` (inclusive). */
 export function numberRange(from: number, to: number): number[] {
   if (from > to) {
     [to, from] = [from, to];
@@ -9,6 +9,19 @@ export function numberRange(from: number, to: number): number[] {
     .fill(0)
     .map((_, i) => from + i);
 }
+
+/** Generate array with integers between `from` and `to` (exclusive of to). */
+export function numberRangeExclusive(from: number, to: number): number[] {
+  if (from > to) {
+    throw new Error(
+      `Invalid range: from (${from}) cannot be greater than to (${to})`,
+    );
+  }
+  return Array(to - from)
+    .fill(0)
+    .map((_, i) => from + i);
+}
+
 export function parseRange(input: string): NumberRange | undefined {
   const results = input.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
   if (!results) {

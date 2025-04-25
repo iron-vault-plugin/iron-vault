@@ -55,7 +55,9 @@ We support three kinds of files, currently:
 
 * Datasworn Source rules packages YAML files (type: `ruleset` or `expansion`)
 * Datasworn Source standalone entry YAML files (type: `move` or `asset` or `oracle_rollable`)
-* IronVault Markdown `inline-oracle` files
+* Markdown files in a custom Iron Vault format for:
+	* [[#Markdown oracle files|Oracles]]
+	* [[#Markdown asset files|Assets]]
 
 Datasworn Source rules package YAML files can be placed anywhere in the tree, and they are merged, unmodified, into the final source passed into the Datasworn compiler. This matches the behavior of the official Datasworn source data structure in the <https://github.com/rsek/datasworn>, and so you can always use those files as models for structuring your content.
 
@@ -112,7 +114,7 @@ description: Here is a description of my oracle.
 Frontmatter:
 
 * The `type` frontmatter property *must* say `oracle_rollable`. That's how Iron Vault knows you want this to be parsed as an Oracle file.
-* All other frontmatter properties will be add to the Datasworn Source `OracleRollable` object as-is.
+* All other frontmatter properties will be added to the Datasworn Source `OracleRollable` object as-is.
 * By default, the `name` will be the name of the file; you may override this by providing a `name` property in the frontmatter.
 
 The oracle itself is provided in table format. The first column indicates the dice to roll (in this case, `1d6`), and the second column is the result. Dice rolls can be provided either as a range (`3-5`) or a single value (`6`). Iron Vault does not currently validate that the values cover the entire range or are non-overlapping, and behavior in either case is unspecified.
@@ -133,6 +135,41 @@ You can also combine multiple dice as though they were "digits" by separating th
 ```
 
 Iron Vault will convert this to a d36 table with the appropriate rows. Note that `3-6;1` will "flatten" to non-contiguous values (`13`, `19`, `25`, `31`), and those rows will be repeated in the flattened oracle table.
+##### Markdown asset files
+To make it easier to create Assets, Iron Vault supports a straightforward Markdown format for creating Assets. Here's an example Asset Markdown file:
+
+```
+---
+type: asset
+---
+
+# Asset name (Asset path)
+
+Once you write an asset... (this optional paragraph becomes the "requirement")
+
+## Abilities
+
+* [x] This is a default checked ability.
+* [ ] This is a default unchecked ability.
+* [ ] Right now abilities aren't parsed for anything (so, e.g., you can't currently embed custom asset moves)
+
+## Controls
+
+* health (condition meter, max: 3)
+
+## Options
+
+* pen name (text)
+```
+
+Frontmatter:
+
+* The `type` frontmatter property *must* say `asset`. That's how Iron Vault knows you want this to be parsed as an Asset file.
+* All other frontmatter properties will be added to the Datasworn Source `Asset` object as-is.
+
+The Abilities section is mandatory; however you may omit the `## Abililties` header if you'd like.
+
+The `Controls` and `Options` sections are optional and can appear in any order, as long as they are after the mandatory Abilities section.
 #### Debugging content with the Homebrew Inspector
 
 The *Iron Vault Homebrew Inspector* sidebar tab shows you a list of all of the files detected in the currently selected custom source folder. Files with errors are displayed with an "error" label. If you click on the file, you can see the errors 

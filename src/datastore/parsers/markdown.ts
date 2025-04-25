@@ -1,4 +1,5 @@
 import { DataswornSource, type Datasworn } from "@datasworn/core";
+import { markdownAssetToDatasworn } from "./markdown-asset";
 import { extractOracleTable } from "./oracle-table";
 
 export type ParserReturn =
@@ -29,6 +30,8 @@ export function parserForFrontmatter(
     //   return dataforgedInlineParser;
     case "oracle_rollable":
       return inlineOracleParser;
+    case "asset":
+      return markdownAssetParser;
     default:
       console.warn(
         "[file: %s] unexpected value for `type` in frontmatter: %s",
@@ -63,6 +66,38 @@ export function parserForFrontmatter(
 //     };
 //   }
 // }
+
+export function markdownAssetParser(
+  content: string,
+  baseName: string,
+  metadata: Record<string, unknown> | undefined,
+): ParserReturn {
+  // TODO: what should source be?
+  const source: Datasworn.SourceInfo = {
+    authors: [{ name: "User" }],
+    date: "0000-00-00",
+    license: null,
+    title: `Oracles from ${baseName}`,
+    url: "https://example.com",
+  };
+  const table = markdownAssetToDatasworn(content);
+
+  if (table.isLeft()) {
+    return {
+      success: false,
+      error: table.error,
+    };
+  }
+  const fullTable: DataswornSource.Asset = {
+    ...table.value,
+    ...metadata,
+    _source: source,
+  };
+  return {
+    success: true,
+    result: fullTable,
+  };
+}
 
 export function inlineOracleParser(
   content: string,

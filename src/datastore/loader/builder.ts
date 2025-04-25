@@ -146,7 +146,7 @@ export class ContentIndexer {
           data: {
             success: false,
             error: new Error(
-              `Could not determine parsed for file ${filePath.path} (type: ${frontmatter?.["type"]}).`,
+              `Could not determine parser for file ${filePath.path} (type: ${frontmatter?.["type"]}).`,
             ),
           },
         };
