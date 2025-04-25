@@ -11,61 +11,21 @@ export type ParserReturn =
         | DataswornSource.Move
         | DataswornSource.Asset;
     }
-  | { success: false; error: Error };
+  | {
+      success: false;
+      error: Error;
+      result?: { type?: string };
+    };
 export type MarkdownDataParser = (
   content: string,
   baseName: string,
   metadata: Record<string, unknown> | undefined,
 ) => ParserReturn;
 
-export function parserForFrontmatter(
-  path: string,
-  frontmatter: Record<string, unknown> | undefined,
-): MarkdownDataParser | undefined {
-  if (frontmatter?.["type"] == null) {
-    return undefined;
-  }
-  switch (frontmatter["type"]) {
-    // case "dataforged-inline":
-    //   return dataforgedInlineParser;
-    case "oracle_rollable":
-      return inlineOracleParser;
-    case "asset":
-      return markdownAssetParser;
-    default:
-      console.warn(
-        "[file: %s] unexpected value for `type` in frontmatter: %s",
-        path,
-        frontmatter?.["type"],
-      );
-      return undefined;
-  }
-}
-
-// export function dataforgedInlineParser(content: string): ParserReturn {
-//   const matches = content.match(
-//     /^```[^\S\r\n]*data(forged|sworn)\s?\n([\s\S]+?)^```/m,
-//   );
-//   if (matches == null) {
-//     return {
-//       success: false,
-//       error: new Error("no dataforged or datasworn block found"),
-//     };
-//   }
-
-//   try {
-//     const data = parseYaml(matches[1]);
-//     // TODO: priority
-//     // TODO: validation?
-//     return { success: true, result: data as Datasworn.RulesPackage };
-//   } catch (e) {
-//     return {
-//       success: false,
-//       error:
-//         e instanceof Error ? e : new Error("unexpected error", { cause: e }),
-//     };
-//   }
-// }
+export const PARSERS_BY_TYPE: Record<string, MarkdownDataParser> = {
+  oracle_rollable: inlineOracleParser,
+  asset: markdownAssetParser,
+};
 
 export function markdownAssetParser(
   content: string,
@@ -86,6 +46,7 @@ export function markdownAssetParser(
     return {
       success: false,
       error: table.error,
+      result: { type: "asset" },
     };
   }
   const fullTable: DataswornSource.Asset = {
@@ -127,6 +88,7 @@ export function inlineOracleParser(
   } catch (error) {
     return {
       success: false,
+      result: { type: "oracle_rollable" },
       error:
         error instanceof Error
           ? error

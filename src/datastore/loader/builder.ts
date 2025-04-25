@@ -1,4 +1,8 @@
-import { parserForFrontmatter, ParserReturn } from "datastore/parsers/markdown";
+import {
+  MarkdownDataParser,
+  ParserReturn,
+  PARSERS_BY_TYPE,
+} from "datastore/parsers/markdown";
 import * as yaml from "yaml";
 
 import { Datasworn, DataswornSource } from "@datasworn/core";
@@ -22,6 +26,7 @@ import {
   DataNode,
   NodeBuilder,
   NodeMap,
+  reduceNodes,
 } from "./nodes";
 
 const logger = rootLogger.getLogger("content-indexer");
@@ -134,7 +139,12 @@ export class ContentIndexer {
       // TODO: maybe I should break this into two stages: a "can index" stage
       // and a "parse content" stage. That way I can avoid sending the content
       // if we aren't going to need it.
-      const parser = parserForFrontmatter(filePath.path, frontmatter);
+      const contentType =
+        typeof frontmatter?.["type"] == "string"
+          ? frontmatter["type"]
+          : undefined;
+      const parser: MarkdownDataParser | undefined =
+        PARSERS_BY_TYPE[contentType ?? ""];
       if (parser) {
         return {
           kind: "content",
@@ -146,8 +156,9 @@ export class ContentIndexer {
           data: {
             success: false,
             error: new Error(
-              `Could not determine parser for file ${filePath.path} (type: ${frontmatter?.["type"]}).`,
+              `Could not determine parser for file ${filePath.path} (type: ${contentType}).`,
             ),
+            result: { type: contentType },
           },
         };
       }
@@ -168,7 +179,7 @@ export class ContentIndexer {
             maxAliasCount: 1000,
           });
         } catch (e) {
-          logger.error(
+          logger.warn(
             "[homebrew-collection:%s] Failed to parse YAML file %s. Errors: %o",
             "todo",
             filePath.path,
@@ -190,7 +201,7 @@ export class ContentIndexer {
         try {
           result = JSON.parse(data);
         } catch (e) {
-          logger.error(
+          logger.warn(
             "[homebrew-collection:%s] Failed to parse JSON file %s. Errors: %o",
             "todo",
             filePath.path,
@@ -628,6 +639,10 @@ const parentForEntry: Record<EntryTypes, CollectionTypes> = {
   asset: "asset_collection",
 };
 
+function isEntryType(type: string | undefined | null): type is EntryTypes {
+  return ENTRY_TYPES.includes(type as EntryTypes);
+}
+
 const parentForCollection: Record<CollectionTypes, CollectionTypes[]> = {
   oracle_collection: ["oracle_collection", "root"],
   move_category: ["move_category", "root"],
@@ -896,12 +911,45 @@ export class PackageBuilder {
     parent: DataswornSource.Expansion,
     parentSource: DataswornSource.SourceInfo,
   ): [string, Either<Error, DataswornSource.RulesPackage>][] {
+    if (node.type !== "group") throw new Error("this can't happen");
+
     const groupTypeResult = this._getGroupType(node);
     if (groupTypeResult.isLeft()) {
-      return [[node.path, groupTypeResult]];
+      return [
+        [node.path, groupTypeResult],
+        ...reduceNodes<
+          Content["value"],
+          CollectionAnnotations,
+          [string, Either<Error, DataswornSource.RulesPackage>][],
+          [string, Either<Error, DataswornSource.RulesPackage>][]
+        >(node, {
+          reduceLeaf({ data, path }) {
+            switch (data.kind) {
+              case "content":
+                return [
+                  [
+                    path,
+                    Left.create(
+                      data.data.success
+                        ? new Error(
+                            `Content parsed successfully, but collection type could not be determined.`,
+                          )
+                        : data.data.error,
+                    ),
+                  ],
+                ];
+              case "package":
+                return [[path, Right.create(data.package)]];
+              case "index":
+                return [];
+            }
+          },
+          reduceGroup(_group, { children }) {
+            return children.flatMap(([, results]) => results);
+          },
+        }),
+      ];
     }
-
-    if (node.type !== "group") throw new Error("this can't happen");
 
     const collectionType = groupTypeResult.value;
     switch (collectionType) {
@@ -1222,17 +1270,17 @@ export function labelCollections(
         // This works because collections of a specific type can only be contained
         // by collections of those types (or the root).
         switch (leaf.data.kind) {
-          case "content":
-            if (leaf.data.data.success) {
-              const entry = leaf.data.data.result;
-              const entryType = entry.type;
+          case "content": {
+            const entryType = leaf.data.data.result?.type;
+            if (isEntryType(entryType)) {
               return {
                 kind: "leaf",
                 leafType: entryType,
                 allowableParents: [parentForEntry[entryType]],
-              }; // Leaf node with a specific type
+              };
             }
-            return { kind: "leaf", leafType: null, allowableParents: null }; // Error in content parsing, no collection type
+            return { kind: "leaf", leafType: null, allowableParents: null };
+          }
           case "package":
             // TODO: what should this be
             return { kind: "package", allowableParents: null }; // Root package
