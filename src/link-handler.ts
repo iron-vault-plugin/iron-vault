@@ -112,6 +112,28 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
     // TODO(@cwegrzyn): if we could get the view from the click event, that might be better. Is
     //   that just the active view? That feels gross, but it does seem to make sense...
     const file = plugin.app.vault.getFileByPath(ctx.sourcePath);
+    const component = new MarkdownRenderChild(el);
+    ctx.addChild(component);
+    component.registerDomEvent(el, "click", (ev) => {
+      if (!(ev.target instanceof HTMLAnchorElement)) return;
+      // If the link is not a datasworn link, we don't handle it.
+      if (!ev.target.dataset.dataswornId) return;
+      const campaign = file && plugin.campaignManager.campaignForFile(file);
+      const dataContext =
+        campaign == null
+          ? plugin.datastore.dataContext
+          : plugin.campaignManager.campaignContextFor(campaign);
+      const href =
+        (ev.target as HTMLAnchorElement).attributes.getNamedItem("href")
+          ?.textContent ?? undefined;
+      const entry = findEntry(dataContext, href);
+      if (entry) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        present(dataContext, entry);
+      }
+    });
+
     el.querySelectorAll("a").forEach((a) => {
       // If the link is a potential datasworn link, let's register a handler just in case.
       const href = a.attributes.getNamedItem("href")?.textContent ?? "";
@@ -119,25 +141,6 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
       if (parsedLink) {
         a.dataset.dataswornId = parsedLink.id;
         a.dataset.dataswornKind = parsedLink.kind;
-
-        const component = new MarkdownRenderChild(a);
-        ctx.addChild(component);
-        component.registerDomEvent(a, "click", (ev) => {
-          const campaign = file && plugin.campaignManager.campaignForFile(file);
-          const dataContext =
-            campaign == null
-              ? plugin.datastore.dataContext
-              : plugin.campaignManager.campaignContextFor(campaign);
-          const href =
-            (ev.target as HTMLAnchorElement).attributes.getNamedItem("href")
-              ?.textContent ?? undefined;
-          const entry = findEntry(dataContext, href);
-          if (entry) {
-            ev.stopPropagation();
-            ev.preventDefault();
-            present(dataContext, entry);
-          }
-        });
       } else {
         delete a.dataset.dataswornId;
         delete a.dataset.dataswornKind;
