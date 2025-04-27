@@ -1,11 +1,11 @@
 import { html, render } from "lit-html";
-import { debounce, ItemView, WorkspaceLeaf } from "obsidian";
+import { App, debounce, ItemView, MarkdownView, WorkspaceLeaf } from "obsidian";
 
 import { ActiveCampaignWatch } from "campaigns/campaign-source";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import renderIronVaultCharacter from "./character";
-import renderIronVaultMoves from "./moves";
+import { MoveList } from "./moves";
 import renderIronVaultOracles from "./oracles";
 
 export const SIDEBAR_VIEW_TYPE = "iron-vault-sidebar-view";
@@ -15,6 +15,29 @@ const logger = rootLogger.getLogger("sidebar-view");
 export class SidebarView extends ItemView {
   plugin: IronVaultPlugin;
   campaignSource: ActiveCampaignWatch;
+  moveList!: MoveList;
+
+  static async activate(app: App, moveId: string) {
+    const { workspace } = app;
+    for (const leaf of app.workspace.getLeavesOfType(SIDEBAR_VIEW_TYPE)) {
+      if (leaf.view instanceof SidebarView) {
+        workspace.revealLeaf(leaf);
+        leaf.view.moveList.scrollToMove(moveId);
+        return;
+      }
+    }
+  }
+
+  async initMainSidebarView() {
+    for (const leaf of this.app.workspace.getLeavesOfType(SIDEBAR_VIEW_TYPE)) {
+      return leaf;
+    }
+    const leaf = this.app.workspace.getRightLeaf(false);
+    await leaf?.setViewState({
+      type: SIDEBAR_VIEW_TYPE,
+    });
+    return leaf;
+  }
 
   constructor(leaf: WorkspaceLeaf, plugin: IronVaultPlugin) {
     super(leaf);
@@ -61,6 +84,19 @@ export class SidebarView extends ItemView {
     `;
     render(tpl, this.contentEl);
 
+    this.moveList = this.addChild(
+      new MoveList(
+        this.contentEl.querySelector(".content.move-tab")!,
+        this.plugin,
+      ),
+    );
+
+    this.register(
+      this.plugin.settings.on("change", () => {
+        this.refresh();
+      }),
+    );
+
     this.registerEvent(
       this.plugin.campaignManager.on(
         "active-campaign-settings-changed",
@@ -97,11 +133,7 @@ export class SidebarView extends ItemView {
         this.plugin,
         dataContext,
       );
-      renderIronVaultMoves(
-        this.contentEl.querySelector(".content.move-tab")!,
-        this.plugin,
-        dataContext,
-      );
+      this.moveList.updateContext(dataContext, this.getActiveMarkdownView());
       this.renderCharacter();
     } else {
       logger.trace("SidebarView.refresh: no active campaign");
@@ -109,17 +141,17 @@ export class SidebarView extends ItemView {
         html`No active campaign.`,
         this.contentEl.querySelector<HTMLElement>(".content.oracle-tab")!,
       );
-      render(
-        html`No active campaign.`,
-        this.contentEl.querySelector<HTMLElement>(".content.move-tab")!,
-      );
+      this.moveList.updateContext(undefined, this.getActiveMarkdownView());
       render(
         html`No active campaign.`,
         this.contentEl.querySelector<HTMLElement>(".content.character-tab")!,
       );
     }
   }
-
+  private getActiveMarkdownView(): MarkdownView | undefined {
+    const view = this.plugin.app.workspace.getActiveFileView();
+    return view && view instanceof MarkdownView ? view : undefined;
+  }
   async onClose() {
     // Nothing to clean up.
   }

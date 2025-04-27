@@ -66,6 +66,9 @@ export class IronVaultPluginSettings {
   /** Allow clicking through the dice. */
   diceAllowClickthrough: boolean = false;
 
+  /** Whether to use new style move sidebar or revert to legacy move modal. */
+  useLegacyMoveModal: boolean = false;
+
   emitter?: Emittery;
 
   constructor() {

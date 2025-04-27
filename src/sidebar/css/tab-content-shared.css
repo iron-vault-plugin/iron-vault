@@ -17,30 +17,26 @@
   height: 2em;
   font-size: 1.2em;
 }
-.iron-vault-moves-list,
-.iron-vault-oracles-list,
-.iron-vault-asset-list {
+ul.iron-vault-moves-list,
+ul.iron-vault-oracles-list,
+ul.iron-vault-asset-list {
   margin: 0;
   padding: 0;
   padding-left: 0 !important;
   list-style-type: none;
-  & ul,
-  ol {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-  }
   background-color: var(--background-primary-alt);
-  & summary > span {
-    transition: background-color 200ms ease;
-    &:hover {
-      background-color: var(--background-modifier-hover);
-    }
-    &:active {
-      background-color: var(--background-modifier-active-hover);
-    }
-  }
+
   & details:has(+ .content) {
+    & > summary > span {
+      transition: background-color 200ms ease;
+      &:hover {
+        background-color: var(--background-modifier-hover);
+      }
+      &:active {
+        background-color: var(--background-modifier-active-hover);
+      }
+    }
+
     max-width: 100%;
     overflow: hidden;
     & > summary {
@@ -50,22 +46,23 @@
       &::marker {
         display: none;
       }
-    }
-    & span {
-      position: relative;
-      padding: 0.5em;
-      display: flex;
-      align-items: center;
-      &:hover {
-        cursor: pointer;
-      }
-      &::before {
-        content: "►";
-        font-size: 1rem;
+
+      & span {
+        position: relative;
+        padding: 0.5em;
         display: flex;
         align-items: center;
-        margin-right: 0.5rem;
-        transition: rotate 100ms 100ms ease-out;
+        &:hover {
+          cursor: pointer;
+        }
+        &::before {
+          content: "►";
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          margin-right: 0.5rem;
+          transition: rotate 100ms 100ms ease-out;
+        }
       }
     }
   }
@@ -87,7 +84,7 @@
         border 0ms linear;
       padding: 0.5em;
     }
-    & span::before {
+    & > summary > span::before {
       rotate: 90deg;
       transition: rotate 100ms ease-out;
     }

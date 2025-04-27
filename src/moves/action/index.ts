@@ -466,7 +466,11 @@ export function suggestedRollablesForMove(
           rollableToAdd = rollable.condition_meter;
           break;
         default:
-          logger.warn("unhandled rollable scenario %o %o", condition, rollable);
+          logger.debug(
+            "unhandled rollable scenario %o %o",
+            condition,
+            rollable,
+          );
       }
       if (!rollableToAdd) continue;
       if (!(rollableToAdd in suggestedRollables)) {
