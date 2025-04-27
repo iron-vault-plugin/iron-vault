@@ -24,7 +24,6 @@ import {
   movesReader,
   rollablesReader,
 } from "../characters/lens";
-import { type Datastore } from "../datastore";
 import IronVaultPlugin from "../index";
 import { InfoModal } from "../utils/ui/info";
 import { InvalidCharacterError } from "./errors";
@@ -49,10 +48,7 @@ export class NoCharacterActionConext implements IActionContext {
   readonly kind = "no_character";
   readonly momentum: undefined = undefined;
 
-  constructor(
-    public readonly datastore: Datastore,
-    public readonly campaignContext: CampaignDataContext,
-  ) {}
+  constructor(public readonly campaignContext: CampaignDataContext) {}
 
   get oracleRoller(): OracleRoller {
     return this.campaignContext.oracleRoller;
@@ -123,7 +119,6 @@ export class CharacterActionContext implements IActionContext {
   #moves?: StandardIndex<DataswornTypes["move"]>;
 
   constructor(
-    public readonly datastore: Datastore,
     public readonly campaignContext: CampaignDataContext,
     public readonly characterPath: string,
     public readonly characterContext: CharacterContext,
@@ -282,7 +277,7 @@ export async function determineCharacterActionContext(
       throw new NoValidContextError("No valid character found", { cause: e });
     }
   } else {
-    return new NoCharacterActionConext(plugin.datastore, campaignContext);
+    return new NoCharacterActionConext(campaignContext);
   }
 }
 

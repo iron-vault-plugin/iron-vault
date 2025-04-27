@@ -240,8 +240,8 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
 
   onUserDisable(): void {
     // Detach the sidebar views when the plugin is disabled
-    this.app.workspace.detachLeavesOfType(SIDEBAR_VIEW_TYPE);
-    this.app.workspace.detachLeavesOfType(CONTENT_VIEW_TYPE);
+    // this.app.workspace.detachLeavesOfType(SIDEBAR_VIEW_TYPE);
+    // this.app.workspace.detachLeavesOfType(CONTENT_VIEW_TYPE);
   }
 
   async activateMainSidebarView() {

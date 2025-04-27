@@ -2,7 +2,7 @@ import { CampaignDependentBlockRenderer } from "campaigns/campaign-source";
 import { CampaignDataContext } from "campaigns/context";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
-import renderIronVaultMoves from "./moves";
+import { MoveList } from "./moves";
 import renderIronVaultOracles from "./oracles";
 
 export const logger = rootLogger.getLogger("sidebar-block");
@@ -27,6 +27,7 @@ export default function registerSidebarBlocks(plugin: IronVaultPlugin) {
 }
 
 class MovesRenderer extends CampaignDependentBlockRenderer {
+  moveList: MoveList;
   constructor(
     containerEl: HTMLElement,
     readonly plugin: IronVaultPlugin,
@@ -36,10 +37,12 @@ class MovesRenderer extends CampaignDependentBlockRenderer {
     } = {},
   ) {
     super(containerEl, plugin, sourcePath);
+    this.moveList = this.addChild(new MoveList(containerEl, plugin, options));
   }
 
   render(context: CampaignDataContext) {
-    renderIronVaultMoves(this.containerEl, this.plugin, context, this.options);
+    // TODO: this needs to figure out the current view
+    this.moveList.updateContext(context, undefined);
   }
 }
 

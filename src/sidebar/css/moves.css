@@ -1,20 +1,18 @@
 .iron-vault-moves-list {
-  & .ruleset {
-    & > .wrapper > details span {
+  & li.ruleset {
+    & > details > summary {
       font-size: 1.4em;
       border-bottom: 1px solid var(--background-secondary);
     }
     background-color: var(--background-secondary);
-    & > .wrapper {
-      & > .content {
-        padding: 0;
-      }
+    & > .content {
+      padding: 0;
     }
-    & li:has(+ li) {
+    &:has(+ li) {
       border-bottom: 1px solid var(--background-secondary);
     }
   }
-  & .move-category li {
+  & .move-category li.move-item {
     display: flex;
     flex-direction: column;
     padding: 0.5em;
@@ -25,9 +23,13 @@
       margin-top: 0.2em;
       color: var(--text-muted);
     }
-    & > :first-child {
+    & > details > summary,
+    & > header {
       font-size: 1.2em;
       font-weight: var(--font-semibold);
+      &:hover {
+        cursor: pointer;
+      }
     }
     &:has(+ li) {
       border-bottom: 1px solid var(--background-secondary-alt);
@@ -39,7 +41,7 @@
       background-color: var(--background-modifier-active-hover);
     }
   }
-  & .ruleset > .wrapper > .content {
+  & .ruleset > .content {
     padding: 0 !important;
   }
 }

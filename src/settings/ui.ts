@@ -424,5 +424,18 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .setValue(settings.alwaysRecordActor)
           .onChange((value) => this.updateSetting("alwaysRecordActor", value)),
       );
+
+    new Setting(containerEl).setName("Legacy").setHeading();
+
+    new Setting(containerEl)
+      .setName("Disable embedding moves in sidebar")
+      .setDesc(
+        "If enabled, revert to old Iron Vault behavior of including only the name and trigger text in the sidebar. Clicking on move links will open in a move modal instead of sidebar.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useLegacyMoveModal)
+          .onChange((value) => this.updateSetting("useLegacyMoveModal", value)),
+      );
   }
 }

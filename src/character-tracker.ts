@@ -100,12 +100,7 @@ export function currentActiveCharacterForCampaign(
 
   return (
     charContext &&
-    new CharacterActionContext(
-      plugin.datastore,
-      campaignContext,
-      charContext[0],
-      charContext[1],
-    )
+    new CharacterActionContext(campaignContext, charContext[0], charContext[1])
   );
 }
 
@@ -145,12 +140,7 @@ export async function promptForCampaignCharacter(
     undefined,
     "Pick active character",
   );
-  return new CharacterActionContext(
-    plugin.datastore,
-    campaignContext,
-    path,
-    charCtx,
-  );
+  return new CharacterActionContext(campaignContext, path, charCtx);
 }
 
 /** Updates the active character for a campaign. */

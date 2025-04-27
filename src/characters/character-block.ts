@@ -568,7 +568,6 @@ class CharacterRenderer extends TrackedEntityRenderer<
               // TODO(@cwegrzyn): should we be getting the character action context some other way here?
               //   getting the campaign context here is also hacky
               new CharacterActionContext(
-                this.plugin.datastore,
                 this.plugin.campaignManager.campaignContextFor(
                   this.plugin.campaignManager.campaignForPath(this.sourcePath)!,
                 ),

@@ -14,6 +14,7 @@
 }
 
 .iron-vault-sidebar-view {
+  font-size: var(--font-ui-small);
   & .character-tab > .markdown-wrapper > p > .markdown-embed {
     --embed-padding: 1em;
   }

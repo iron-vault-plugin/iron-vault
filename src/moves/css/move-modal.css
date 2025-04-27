@@ -10,6 +10,11 @@
     color: var(--text-muted);
     font-weight: var(--font-semibold);
   }
+}
+
+.iron-vault-move-buttons {
+  padding-top: 0.5em;
+
   & .rollable-stats {
     display: flex;
     flex-flow: row wrap;

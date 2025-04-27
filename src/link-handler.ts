@@ -6,6 +6,7 @@ import { extractDataswornLinkParts } from "datastore/parsers/datasworn/id";
 import { rootLogger } from "logger";
 import { MoveModal } from "moves/move-modal";
 import { MarkdownRenderChild, Notice } from "obsidian";
+import { SidebarView } from "sidebar/sidebar-view";
 import IronVaultPlugin from "./index";
 import { OracleModal } from "./oracles/oracle-modal";
 
@@ -45,7 +46,11 @@ export default function installLinkHandler(plugin: IronVaultPlugin) {
   const present = (dataContext: IDataContext, entry: DataswornSourced) => {
     switch (entry.kind) {
       case "move":
-        new MoveModal(plugin.app, plugin, dataContext, entry.value).open();
+        if (plugin.settings.useLegacyMoveModal) {
+          new MoveModal(plugin.app, plugin, dataContext, entry.value).open();
+        } else {
+          SidebarView.activate(plugin.app, entry.id);
+        }
         break;
       case "asset":
         new AssetModal(plugin.app, plugin, dataContext, entry.value).open();
