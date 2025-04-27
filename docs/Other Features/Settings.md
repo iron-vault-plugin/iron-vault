@@ -36,5 +36,7 @@ These options control various parts of how [[Mechanics Blocks]] are rendered.
 * **Hide mechanics completely**: If enabled, mechanics blocks will not be displayed at all. Good for when you just want to read a story. You can also toggle this setting by using the [[Toggle displaying mechanics]] command.
 * **Inline tracks on clock creation**: If enabled, new tracks and clocks will be automatically inlined in the journal when created.
 
+### Legacy
 
+* **Disable embedding moves in sidebar**: This reverts to the pre-1.95.0 move sidebar, which includes only the name and trigger text for the move, and move links-- which open the move modal. Enable this setting if you wish to revert to that old behavior.
 
