@@ -156,6 +156,7 @@ Once you write an asset... (this optional paragraph becomes the "requirement")
 ## Controls
 
 * health (condition meter, max: 3)
+  * weakened (checkbox, is_impact: true)
 
 ## Options
 

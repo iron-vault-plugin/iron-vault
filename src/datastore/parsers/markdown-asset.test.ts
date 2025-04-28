@@ -120,7 +120,7 @@ foo: bar
 * [ ] Ability 3
 `;
 
-    it("parses a control", () => {
+    it("parses a condition meter control", () => {
       const md = `${base}
 
 ## Controls
@@ -138,6 +138,70 @@ foo: bar
         },
       } satisfies Record<string, DataswornSource.AssetControlField>);
     });
+
+    it("parses a checkbox control", () => {
+      const md = `${base}
+
+## Controls
+
+* Test field (checkbox, is_impact: true, disables_asset: false)
+`;
+      const result = markdownAssetToDatasworn(md);
+      expect(result.unwrap().controls).toEqual({
+        test_field: {
+          field_type: "checkbox",
+          is_impact: true,
+          disables_asset: false,
+          label: "test field",
+        },
+      } satisfies Record<string, DataswornSource.AssetControlField>);
+    });
+
+    it("parses a card_flip control", () => {
+      const md = `${base}
+
+## Controls
+
+* Test field (card_flip, is_impact: true, disables_asset: false)
+`;
+      const result = markdownAssetToDatasworn(md);
+      expect(result.unwrap().controls).toEqual({
+        test_field: {
+          field_type: "card_flip",
+          is_impact: true,
+          disables_asset: false,
+          label: "test field",
+        },
+      } satisfies Record<string, DataswornSource.AssetControlField>);
+    });
+
+    it("parses a condition meter with a checkbox subcontrol", () => {
+      const md = `${base}
+
+## Controls
+
+* Test field (condition_meter, max: 5, value: 5)
+  * Ouchy  (checkbox, is_impact: true)
+`;
+      const result = markdownAssetToDatasworn(md);
+      expect(result.unwrap().controls).toEqual({
+        test_field: {
+          field_type: "condition_meter",
+          min: 0,
+          max: 5,
+          value: 5,
+          label: "test field",
+          controls: {
+            ouchy: {
+              field_type: "checkbox",
+              label: "ouchy",
+              is_impact: true,
+            },
+          },
+        },
+      } satisfies Record<string, DataswornSource.AssetControlField>);
+    });
+
     it("parses an option", () => {
       const md = `${base}
 
