@@ -293,69 +293,182 @@ const parseOptionsString: Parser<Map<string, string>, string> = (node) => {
   });
 };
 
-const parseControlDescriptor: Parser<
-  DataswornSource.AssetControlField,
-  string
-> = pipe(
-  regex(
-    /^(?<name>[^()]+)\s*\((?<type>[\w\s]+)(?<options>(?:\s*,\s*[\w]+\s*:\s*[^,()]+)*)\)$/,
-  ),
-  apply(
-    liftAsList(
-      preceded(
-        str(),
-        seq(str(), str("checkbox", "condition_meter"), parseOptionsString),
-      ),
+function parseControlDescriptor(
+  ...allowedControls: DataswornSource.AssetControlField["field_type"][]
+): Parser<DataswornSource.AssetControlField, string> {
+  return pipe(
+    regex(
+      /^(?<name>[^()]+)\s*\((?<type>[\w\s]+)(?<options>(?:\s*,\s*[\w]+\s*:\s*[^,()]+)*)\)$/,
     ),
-    ([name, type, options]): DataswornSource.AssetControlField => {
-      const label = name.trim().toLowerCase();
-      switch (type) {
-        case "condition_meter": {
-          const min = Number.parseInt(options.get("min") ?? "0");
-          if (isNaN(min) || min < 0) {
-            throw new Error("Invalid min value in options");
+    apply(
+      liftAsList(
+        preceded(
+          str(),
+          seq(str(), str(...allowedControls), parseOptionsString),
+        ),
+      ),
+      ([name, type, options]): DataswornSource.AssetControlField => {
+        const label = name.trim().toLowerCase();
+        switch (type) {
+          case "condition_meter": {
+            const min = Number.parseInt(options.get("min") ?? "0");
+            if (isNaN(min) || min < 0) {
+              throw new Error("Invalid min value in options");
+            }
+            const max = Number.parseFloat(options.get("max") ?? "");
+            if (isNaN(max) || max < 0) {
+              throw new Error("Max is missing or invalid");
+            }
+            const value = Number.parseInt(options.get("value") ?? "0");
+            if (isNaN(value)) {
+              throw new Error("Invalid value in options");
+            }
+            if (max < min) {
+              throw new Error("Max value cannot be less than min value");
+            }
+            if (value < min || value > max) {
+              throw new Error(
+                `Value must be between ${min} and ${max}, found ${value}`,
+              );
+            }
+            return {
+              label,
+              field_type: type,
+              min,
+              max,
+              value,
+            };
           }
-          const max = Number.parseFloat(options.get("max") ?? "");
-          if (isNaN(max) || max < 0) {
-            throw new Error("Max is missing or invalid");
+          case "checkbox": {
+            const control: DataswornSource.AssetCheckboxField = {
+              label,
+              field_type: type,
+            };
+            const isImpact = options.get("is_impact");
+            if (isImpact?.toLowerCase() === "true") {
+              control.is_impact = true;
+            } else if (isImpact?.toLowerCase() === "false") {
+              control.is_impact = false;
+            } else if (isImpact !== undefined) {
+              throw new Error(
+                `Invalid is_impact value: ${isImpact}, expected true or false`,
+              );
+            }
+
+            const disablesAsset = options.get("disables_asset");
+            if (disablesAsset?.toLowerCase() === "true") {
+              control.disables_asset = true;
+            } else if (disablesAsset?.toLowerCase() === "false") {
+              control.disables_asset = false;
+            } else if (disablesAsset !== undefined) {
+              throw new Error(
+                `Invalid disables_asset value: ${disablesAsset}, expected true or false`,
+              );
+            }
+
+            return control;
           }
-          const value = Number.parseInt(options.get("value") ?? "0");
-          if (isNaN(value)) {
-            throw new Error("Invalid value in options");
+          case "card_flip": {
+            const control: DataswornSource.AssetCardFlipField = {
+              label,
+              field_type: type,
+            };
+            const isImpact = options.get("is_impact");
+            if (isImpact?.toLowerCase() === "true") {
+              control.is_impact = true;
+            } else if (isImpact?.toLowerCase() === "false") {
+              control.is_impact = false;
+            } else if (isImpact !== undefined) {
+              throw new Error(
+                `Invalid is_impact value: ${isImpact}, expected true or false`,
+              );
+            }
+
+            const disablesAsset = options.get("disables_asset");
+            if (disablesAsset?.toLowerCase() === "true") {
+              control.disables_asset = true;
+            } else if (disablesAsset?.toLowerCase() === "false") {
+              control.disables_asset = false;
+            } else if (disablesAsset !== undefined) {
+              throw new Error(
+                `Invalid disables_asset value: ${disablesAsset}, expected true or false`,
+              );
+            }
+
+            return control;
           }
-          if (max < min) {
-            throw new Error("Max value cannot be less than min value");
+          case "select_enhancement": {
+            const control: DataswornSource.SelectEnhancementField = {
+              label,
+              field_type: type,
+            };
+            return control;
           }
-          if (value < min || value > max) {
-            throw new Error(
-              `Value must be between ${min} and ${max}, found ${value}`,
-            );
-          }
-          return {
-            label,
-            field_type: type,
-            min,
-            max,
-            value,
-          };
         }
-        case "checkbox":
-          return {
-            label,
-            field_type: type,
-          };
-      }
-    },
-  ),
-);
+      },
+    ),
+  );
+}
+
+export function lazy<V, N, E extends ParserErrors = ParserErrors>(
+  parser: () => Parser<V, N, E>,
+): Parser<V, N, E> {
+  return (node) => {
+    return parser()(node);
+  };
+}
 
 const parseControl: Parser<
   DataswornSource.AssetControlField,
   mdast.RootContent
 > = pipe(
   mdastType("listItem"),
-  children(pipe(mdastType("paragraph"), onlyText)),
-  parseControlDescriptor,
+  apply(
+    children(
+      seq(
+        pipe(
+          mdastType("paragraph"),
+          onlyText,
+          parseControlDescriptor(
+            "card_flip",
+            "condition_meter",
+            "checkbox",
+            "select_enhancement",
+          ),
+        ),
+        optional(
+          pipe(
+            mdastType("list"),
+            cut(children(repeat(1, 5, cut(lazy(() => parseControl))))),
+          ),
+        ),
+      ),
+    ),
+    ([control, subcontrols]) => {
+      if (subcontrols) {
+        if (control.field_type !== "condition_meter") {
+          throw new Error("Subcontrols are only allowed for condition meters");
+        }
+        if (
+          !subcontrols.every(
+            (sc): sc is DataswornSource.AssetConditionMeterControlField =>
+              sc.field_type === "checkbox" || sc.field_type === "card_flip",
+          )
+        ) {
+          throw new Error(
+            "Subcontrols must all be of type checkbox for condition meters",
+          );
+        }
+        control.controls = Object.fromEntries(
+          subcontrols.map((subcontrol) => [
+            sanitizeNameForId(subcontrol.label),
+            subcontrol,
+          ]),
+        );
+      }
+      return control;
+    },
+  ),
 );
 
 const parseControls = pipe(

@@ -34,6 +34,11 @@ export function regex<E extends ParserErrors = ParserErrors>(
   };
 } /** Matches a literal string (or if no string specified -- any string). */
 
+export function str<E extends ParserErrors = ParserErrors>(): Parser<
+  string,
+  string,
+  E | RecoverableParserError
+>;
 export function str<
   S1 extends string = string,
   E extends ParserErrors = ParserErrors,
@@ -65,9 +70,9 @@ export function str<
   s3: S3,
   s4: S4,
 ): Parser<S1 | S2 | S3 | S4, string, E | RecoverableParserError>;
-export function str<E extends ParserErrors = ParserErrors>(
-  ...strs: string[]
-): Parser<string, string, E | RecoverableParserError>;
+export function str<S extends string, E extends ParserErrors = ParserErrors>(
+  ...strs: S[]
+): Parser<S, string, E | RecoverableParserError>;
 export function str<E extends ParserErrors = ParserErrors>(
   ...strs: string[]
 ): Parser<string, string, E | RecoverableParserError> {
