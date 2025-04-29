@@ -1,13 +1,15 @@
+import { CampaignDependentBlockRenderer } from "campaigns/campaign-source";
+import { CampaignDataContext } from "campaigns/context";
 import { IDataContext } from "datastore/data-context";
 import { generateEntityCommand } from "entity/command";
 import { ENTITIES } from "entity/specs";
 import IronVaultPlugin from "index";
-import { html, render } from "lit-html";
+import { html, render, TemplateResult } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { ref } from "lit-html/directives/ref.js";
 import MiniSearch from "minisearch";
 import { Oracle, OracleRulesetGrouping } from "model/oracle";
-import { MarkdownView, getIcon, setIcon } from "obsidian";
+import { getIcon, MarkdownView, SearchComponent, setIcon } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { OracleModal } from "oracles/oracle-modal";
 
@@ -17,24 +19,88 @@ type OracleViewBehaviors = {
   onClickOracleGroup: (group: CollectionGrouping) => void;
 };
 
-export default function renderIronVaultOracles(
-  cont: HTMLElement,
-  plugin: IronVaultPlugin,
-  dataContext: IDataContext,
-) {
-  const idx = makeIndex(dataContext);
-  const behaviors: OracleViewBehaviors = {
-    onClickOracleDetails(oracle) {
-      openOracleModal(plugin, oracle);
-    },
-    onClickOracleName(oracle) {
-      handleOracleRoll(plugin, oracle);
-    },
-    onClickOracleGroup(group) {
-      rollOracleBatch(plugin, group);
-    },
-  };
-  litOracleList(cont, behaviors, dataContext, idx);
+export class OracleList extends CampaignDependentBlockRenderer {
+  contentEl: HTMLElement;
+  index?: MiniSearch<OracleIndexEntry>;
+  targetView?: MarkdownView;
+  filter: string = "";
+  search: SearchComponent;
+
+  constructor(
+    containerEl: HTMLElement,
+    readonly plugin: IronVaultPlugin,
+    sourcePath?: string,
+  ) {
+    super(containerEl, plugin, sourcePath, true);
+    this.contentEl = containerEl.createDiv({
+      cls: "iron-vault-oracle-list-container",
+    });
+    this.search = new SearchComponent(this.contentEl)
+      .setPlaceholder("Filter moves...")
+      .onChange((query) => {
+        this.filter = query.trim();
+        this.render();
+      });
+  }
+
+  onunload() {
+    this.contentEl.remove();
+  }
+
+  protected onNewContext(context: CampaignDataContext | undefined): void {
+    this.index = context && makeIndex(context);
+  }
+
+  updateView(view: MarkdownView | undefined) {
+    if (view !== this.targetView) {
+      this.targetView = view;
+      this.triggerUpdate();
+    }
+  }
+
+  render() {
+    const behaviors: OracleViewBehaviors = {
+      onClickOracleDetails: (oracle) => {
+        openOracleModal(this.plugin, oracle);
+      },
+      onClickOracleName: (oracle) => {
+        handleOracleRoll(this.plugin, oracle);
+      },
+      onClickOracleGroup: (group) => {
+        rollOracleBatch(this.plugin, group);
+      },
+    };
+    const { rulesets, total } = getOracleTree(
+      this.dataContext,
+      this.index!,
+      this.filter,
+    );
+    render(
+      html`
+        <ul class="iron-vault-oracles-list">
+          ${map(rulesets, (r) =>
+            renderRuleset({
+              open: true,
+              name: r.name,
+              children: html`${map(r.children, (group) =>
+                renderGroup(behaviors, group, total <= 5),
+              )}`,
+            }),
+          )}
+        </ul>
+      `,
+      this.contentEl,
+    );
+  }
+
+  renderWithoutContext(): void | Promise<void> {
+    render(
+      html`<article class="error">
+        This block may only be used within a campaign.
+      </article>`,
+      this.contentEl,
+    );
+  }
 }
 
 interface OracleIndexEntry {
@@ -115,50 +181,23 @@ function getOracleTree(
   return { rulesets: rulesets.values(), total };
 }
 
-function litOracleList(
-  cont: HTMLElement,
-  behaviors: OracleViewBehaviors,
-  dataContext: IDataContext,
-  index: MiniSearch<OracleIndexEntry>,
-  filter?: string,
-) {
-  const { rulesets, total } = getOracleTree(dataContext, index, filter);
-  return render(
-    html`
-      <input
-        class="search-box"
-        type="search"
-        placeholder="Filter oracles..."
-        @input=${(e: Event) => {
-          const input = e.target as HTMLInputElement;
-          litOracleList(cont, behaviors, dataContext, index, input.value);
-        }}
-      />
-      <ul class="iron-vault-oracles-list">
-        ${map(rulesets, (r) => renderRuleset(behaviors, r, total <= 5))}
-      </ul>
-    `,
-    cont,
-  );
-}
-
-function renderRuleset(
-  behaviors: OracleViewBehaviors,
-  ruleset: RulesetGrouping,
-  open: boolean,
-) {
+export function renderRuleset({
+  open,
+  name,
+  children,
+}: {
+  open?: boolean;
+  name: string;
+  children: TemplateResult;
+}): TemplateResult {
   return html`
     <li class="ruleset">
-      <div class="wrapper">
-        <details open>
-          <summary><span>${ruleset.name}</span></summary>
-        </details>
-        <ul class="content">
-          ${map(ruleset.children, (group) =>
-            renderGroup(behaviors, group, open),
-          )}
-        </ul>
-      </div>
+      <details ?open=${open}>
+        <summary><span>${name}</span></summary>
+      </details>
+      <ul class="content">
+        ${children}
+      </ul>
     </li>
   `;
 }
@@ -170,30 +209,27 @@ function renderGroup(
 ) {
   return html`
     <li class="oracle-group">
-      <div class="wrapper">
-        <details ?open=${open}>
-          <summary><span>${group.name}</span></summary>
-        </details>
-        <ul class="content">
-          <li
-            @click=${(ev: MouseEvent) => {
-              ev.stopPropagation();
-              ev.preventDefault();
-              behaviors.onClickOracleGroup(group);
-            }}
+      <details ?open=${open}>
+        <summary><span>${group.name}</span></summary>
+      </details>
+      <ul class="content">
+        <li
+          class="oracle-item"
+          @click=${(ev: MouseEvent) => {
+            ev.stopPropagation();
+            ev.preventDefault();
+            behaviors.onClickOracleGroup(group);
+          }}
+        >
+          <span>
+            <span
+              ${ref((el?: Element) => el && setIcon(el as HTMLElement, "dice"))}
+            ></span>
+            Roll All</span
           >
-            <span>
-              <span
-                ${ref(
-                  (el?: Element) => el && setIcon(el as HTMLElement, "dice"),
-                )}
-              ></span>
-              Roll All</span
-            >
-          </li>
-          ${map(group.children, (oracle) => renderOracle(behaviors, oracle))}
-        </ul>
-      </div>
+        </li>
+        ${map(group.children, (oracle) => renderOracle(behaviors, oracle))}
+      </ul>
     </li>
   `;
 }
@@ -201,6 +237,7 @@ function renderGroup(
 function renderOracle(behaviors: OracleViewBehaviors, oracle: Oracle) {
   return html`
     <li
+      class="oracle-item"
       @click=${(ev: MouseEvent) => {
         ev.stopPropagation();
         ev.preventDefault();
@@ -266,8 +303,8 @@ function openOracleModal(plugin: IronVaultPlugin, oracle: Oracle) {
   new OracleModal(plugin.app, plugin, oracle).open();
 }
 
-function makeIndex(dataContext: IDataContext) {
-  const idx = new MiniSearch({
+function makeIndex(dataContext: IDataContext): MiniSearch<OracleIndexEntry> {
+  const idx = new MiniSearch<OracleIndexEntry>({
     fields: ["name", "group", "ruleset"],
     idField: "id",
     searchOptions: {

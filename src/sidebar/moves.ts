@@ -1,55 +1,54 @@
 import { MoveCategory } from "@datasworn/core/dist/Datasworn";
-import { html, render } from "lit-html";
+import { html, render, TemplateResult } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import MiniSearch from "minisearch";
 
+import { CampaignDependentBlockRenderer } from "campaigns/campaign-source";
 import { CampaignDataContext } from "campaigns/context";
-import { currentActiveCharacterForCampaign } from "character-tracker";
-import {
-  IActionContext,
-  NoCharacterActionConext,
-} from "characters/action-context";
 import { IDataContext } from "datastore/data-context";
 import { AnyDataswornMove } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
 import { ref } from "lit-html/directives/ref.js";
 import { runMoveCommand } from "moves/action";
-import { MoveModal, MoveRenderer } from "moves/move-modal";
-import { Component, MarkdownView } from "obsidian";
+import { MoveModal, MoveRenderer, MoveRendererOptions } from "moves/move-modal";
+import { MarkdownView, SearchComponent } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { md } from "utils/ui/directives";
+import { renderRuleset } from "./oracles";
 
 export type IronVaultMoveRendererOptions = {
   embed?: boolean;
 };
 
-export class MoveList extends Component {
+export class MoveList extends CampaignDependentBlockRenderer {
   contentEl: HTMLElement;
   index?: MiniSearch;
-  dataContext?: IDataContext;
   targetView?: MarkdownView;
-  actionContext: IActionContext | undefined;
   filter: string = "";
+  search: SearchComponent;
 
   constructor(
     containerEl: HTMLElement,
     readonly plugin: IronVaultPlugin,
     readonly options: IronVaultMoveRendererOptions = {},
+    sourcePath?: string,
   ) {
-    super();
+    super(containerEl, plugin, sourcePath, true);
     this.contentEl = containerEl.createDiv({
       cls: "iron-vault-move-list-container",
     });
+    this.search = new SearchComponent(this.contentEl)
+      .setPlaceholder("Filter moves...")
+      .onChange((query) => {
+        this.filter = query.trim();
+        this.render();
+      });
   }
 
   shouldEmbed() {
     return this.options.embed !== undefined
       ? this.options.embed
       : !this.plugin.settings.useLegacyMoveModal;
-  }
-
-  onload() {
-    this.render();
   }
 
   onunload() {
@@ -93,29 +92,20 @@ export class MoveList extends Component {
     );
   }
 
-  async updateContext(
-    dataContext: IDataContext | undefined,
-    targetView: MarkdownView | undefined,
-  ) {
-    this.dataContext = dataContext;
-    this.targetView = targetView;
-    this.actionContext =
-      dataContext instanceof CampaignDataContext
-        ? (currentActiveCharacterForCampaign(this.plugin, dataContext) ??
-          new NoCharacterActionConext(dataContext))
-        : undefined;
+  updateView(view: MarkdownView | undefined) {
+    if (view !== this.targetView) {
+      this.targetView = view;
+      this.triggerUpdate();
+    }
+  }
+
+  onNewContext(dataContext: CampaignDataContext | undefined) {
     this.index = dataContext && makeIndex(dataContext);
-    this.render();
   }
 
   render() {
-    if (!this.dataContext || !this.index) {
-      render(html`<p>No moves available.</p>`, this.contentEl);
-      return;
-    }
-
     const results = this.filter
-      ? this.index.search(this.filter)
+      ? this.index!.search(this.filter)
       : [...this.dataContext.moves.values()].map((m) => ({ id: m._id }));
     const categories = this.dataContext.moveCategories.values();
     let total = 0;
@@ -136,60 +126,68 @@ export class MoveList extends Component {
         total += filtered.length;
       }
     }
+    const onMakeMove: MoveRendererOptions["onMakeMove"] =
+      this.targetView &&
+      ((move, rollable) => {
+        runMoveCommand(
+          this.plugin,
+          this.targetView!.editor,
+          this.targetView!,
+          move,
+          rollable,
+        );
+      });
+    const onRollOracle: MoveRendererOptions["onRollOracle"] =
+      this.targetView &&
+      ((oracle) => {
+        runOracleCommand(
+          this.plugin,
+          this.targetView!.editor,
+          this.targetView!,
+          oracle,
+        );
+      });
     const tpl = html`
-      <input
-        class="search-box"
-        type="search"
-        placeholder="Filter moves..."
-        @input=${(e: Event) => {
-          const input = e.target as HTMLInputElement;
-          this.filter = input.value.trim();
-          this.render();
-        }}
-      />
       <ul class="iron-vault-moves-list">
-        ${map(
-          Object.entries(sources),
-          ([source, sourceCats]) =>
-            html`<li class="ruleset">
-              <details open>
-                <summary>
-                  <span>${source}</span>
-                </summary>
-              </details>
-              <ul class="content">
-                ${map(sourceCats, (cat) =>
-                  this.renderCategory(cat, total <= 5),
-                )}
-              </ul>
-            </li>`,
+        ${map(Object.entries(sources), ([source, sourceCats]) =>
+          renderRuleset({
+            name: source,
+            open: true,
+            children: html`${map(sourceCats, (cat) =>
+              renderCategory({
+                name: cat.canonical_name ?? cat.name,
+                color: cat.color,
+                open: total <= 5,
+                children: html`${map(
+                  Object.values(cat.contents ?? {}),
+                  (move) =>
+                    html`${this.renderMove(
+                      this.dataContext!.moves.get(move._id)!,
+                      {
+                        onMakeMove,
+                        onRollOracle,
+                      },
+                    )}`,
+                )}`,
+              }),
+            )}`,
+          }),
         )}
       </ul>
     `;
     render(tpl, this.contentEl);
   }
 
-  renderCategory(category: MoveCategory, open: boolean) {
-    return html` <li
-      class="move-category"
-      style=${category.color ? `border-left: 6px solid ${category.color}` : ""}
-    >
-      <details ?open=${open}>
-        <summary>
-          <span>${category.canonical_name ?? category.name}</span>
-        </summary>
-      </details>
-      <ol class="content">
-        ${map(
-          Object.values(category.contents ?? {}),
-          (move) =>
-            html`${this.renderMove(this.dataContext!.moves.get(move._id)!)}`,
-        )}
-      </ol>
-    </li>`;
-  }
-
-  renderMove(move: AnyDataswornMove) {
+  renderMove(
+    move: AnyDataswornMove,
+    {
+      onMakeMove,
+      onRollOracle,
+    }: {
+      onMakeMove?: MoveRendererOptions["onMakeMove"];
+      onRollOracle?: MoveRendererOptions["onRollOracle"];
+    },
+  ) {
     if (this.shouldEmbed()) {
       let renderer: MoveRenderer | undefined;
       const callback = async (el?: Element) => {
@@ -204,27 +202,8 @@ export class MoveList extends Component {
               {
                 showOracles: true,
                 actionContext: this.actionContext,
-                onMakeMove:
-                  this.targetView &&
-                  ((move, rollable) => {
-                    runMoveCommand(
-                      this.plugin,
-                      this.targetView!.editor,
-                      this.targetView!,
-                      move,
-                      rollable,
-                    );
-                  }),
-                onRollOracle:
-                  this.targetView &&
-                  ((oracle) => {
-                    runOracleCommand(
-                      this.plugin,
-                      this.targetView!.editor,
-                      this.targetView!,
-                      oracle,
-                    );
-                  }),
+                onMakeMove: onMakeMove,
+                onRollOracle: onRollOracle,
               },
             );
           }
@@ -263,6 +242,15 @@ export class MoveList extends Component {
       `;
     }
   }
+
+  renderWithoutContext(): void | Promise<void> {
+    render(
+      html`<article class="error">
+        This block may only be used within a campaign.
+      </article>`,
+      this.contentEl,
+    );
+  }
 }
 
 function makeIndex(dataContext: IDataContext) {
@@ -277,4 +265,30 @@ function makeIndex(dataContext: IDataContext) {
   });
   idx.addAll([...dataContext.moves.values()]);
   return idx;
+}
+
+export function renderCategory({
+  open,
+  children,
+  color,
+  name,
+}: {
+  open: boolean;
+  children: TemplateResult;
+  color?: string;
+  name: string;
+}) {
+  return html` <li
+    class="move-category"
+    style=${color ? `border-left: 6px solid ${color}` : ""}
+  >
+    <details ?open=${open}>
+      <summary>
+        <span>${name}</span>
+      </summary>
+    </details>
+    <ol class="content">
+      ${children}
+    </ol>
+  </li>`;
 }

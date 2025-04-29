@@ -1,20 +1,18 @@
 .iron-vault-oracles-list {
-  & .ruleset {
-    & > .wrapper > details span {
+  & li.ruleset {
+    & > details > summary {
       font-size: 1.4em;
       border-bottom: 1px solid var(--background-secondary);
     }
     background-color: var(--background-secondary);
-    & > .wrapper {
-      & > .content {
-        padding: 0;
-      }
+    & > .content {
+      padding: 0;
     }
     & li:has(+ li) {
       border-bottom: 1px solid var(--background-secondary);
     }
   }
-  & .oracle-group li {
+  & .oracle-group li.oracle-item {
     display: flex;
     flex-direction: row;
     padding: 0.5em;
@@ -35,7 +33,7 @@
       gap: 0.4em;
     }
   }
-  & .ruleset > .wrapper > .content {
+  & .ruleset > .content {
     padding: 0 !important;
   }
 }

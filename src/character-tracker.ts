@@ -77,6 +77,7 @@ export type CharacterTracker = IndexOf<CharacterIndexer>;
 export function currentActiveCharacterForCampaign(
   plugin: IronVaultPlugin,
   campaignContext: CampaignDataContext,
+  ignoreAlwaysPromptActiveCharacter = false,
 ): CharacterActionContext | undefined {
   const characters = onlyValid(campaignContext.characters);
   if (characters.size === 0) {
@@ -94,7 +95,9 @@ export function currentActiveCharacterForCampaign(
   const charContext: [string, CharacterContext] | undefined =
     characters.size === 1
       ? [...characters.entries()][0]
-      : activeCharacter && !plugin.settings.alwaysPromptActiveCharacter
+      : activeCharacter &&
+          (ignoreAlwaysPromptActiveCharacter ||
+            !plugin.settings.alwaysPromptActiveCharacter)
         ? [localSettings.activeCharacter!, activeCharacter]
         : undefined;
 

@@ -6,8 +6,7 @@ import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import renderIronVaultCharacter from "./character";
 import { MoveList } from "./moves";
-import renderIronVaultOracles from "./oracles";
-
+import { OracleList } from "./oracles";
 export const SIDEBAR_VIEW_TYPE = "iron-vault-sidebar-view";
 
 const logger = rootLogger.getLogger("sidebar-view");
@@ -16,6 +15,7 @@ export class SidebarView extends ItemView {
   plugin: IronVaultPlugin;
   campaignSource: ActiveCampaignWatch;
   moveList!: MoveList;
+  oracleList!: OracleList;
 
   static async activate(app: App, moveId: string) {
     const { workspace } = app;
@@ -91,6 +91,13 @@ export class SidebarView extends ItemView {
       ),
     );
 
+    this.oracleList = this.addChild(
+      new OracleList(
+        this.contentEl.querySelector(".content.oracle-tab")!,
+        this.plugin,
+      ),
+    );
+
     this.register(
       this.plugin.settings.on("change", () => {
         this.refresh();
@@ -121,6 +128,13 @@ export class SidebarView extends ItemView {
       }),
     );
 
+    this.registerEvent(
+      this.app.workspace.on("active-leaf-change", () => {
+        this.moveList.updateView(this.getActiveMarkdownView());
+        this.oracleList.updateView(this.getActiveMarkdownView());
+      }),
+    );
+
     this.refresh(true);
   }
 
@@ -128,20 +142,11 @@ export class SidebarView extends ItemView {
     const dataContext = this.campaignSource.campaignContext;
     if (!initial && dataContext) {
       logger.trace("SidebarView.refresh: refreshing from context");
-      renderIronVaultOracles(
-        this.contentEl.querySelector(".content.oracle-tab")!,
-        this.plugin,
-        dataContext,
-      );
-      this.moveList.updateContext(dataContext, this.getActiveMarkdownView());
+
       this.renderCharacter();
     } else {
       logger.trace("SidebarView.refresh: no active campaign");
-      render(
-        html`No active campaign.`,
-        this.contentEl.querySelector<HTMLElement>(".content.oracle-tab")!,
-      );
-      this.moveList.updateContext(undefined, this.getActiveMarkdownView());
+
       render(
         html`No active campaign.`,
         this.contentEl.querySelector<HTMLElement>(".content.character-tab")!,

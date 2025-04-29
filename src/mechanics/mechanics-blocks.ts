@@ -11,7 +11,6 @@ import {
 } from "obsidian";
 
 import { CampaignDependentBlockRenderer } from "campaigns/campaign-source";
-import { CampaignDataContext } from "campaigns/context";
 import { IDataContext } from "datastore/data-context";
 import { DataswornTypes } from "datastore/datasworn-indexer";
 import { repeat } from "lit-html/directives/repeat.js";
@@ -116,11 +115,13 @@ export class MechanicsRenderer extends CampaignDependentBlockRenderer {
   renderWithoutContext(): void | Promise<void> {
     // If we don't have a campaign context, that's cool-- let's just use the global context
     // for rendering moves, etc.
+    // This kinda violates the assumptions that CampaignDependentBlockRenderer makes, but
+    // we should be fine b/c we don't directly request the campaign context fields anywhere.
     return this.#render(this.plugin.datastore.dataContext);
   }
 
-  render(context: CampaignDataContext) {
-    return this.#render(context);
+  render() {
+    return this.#render(this.dataContext);
   }
 
   #render(context: IDataContext) {
