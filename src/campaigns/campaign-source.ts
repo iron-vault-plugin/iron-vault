@@ -1,11 +1,22 @@
 import { UnsubscribeFunction } from "emittery";
 import IronVaultPlugin from "index";
 import { html, render } from "lit-html";
-import { Component, debounce, MarkdownRenderChild, Vault } from "obsidian";
+import {
+  Component,
+  debounce,
+  Debouncer,
+  MarkdownRenderChild,
+  Vault,
+} from "obsidian";
 import { CampaignDataContext } from "./context";
 import { CampaignFile } from "./entity";
 import { CampaignManager } from "./manager";
 
+import { currentActiveCharacterForCampaign } from "character-tracker";
+import {
+  ActionContext,
+  NoCharacterActionConext,
+} from "characters/action-context";
 import { rootLogger } from "logger";
 
 const logger = rootLogger.getLogger("campaign-source");
@@ -24,6 +35,11 @@ abstract class BaseCampaignWatch extends Component {
   onUpdate(callback: () => void | Promise<void>): this {
     this.#onUpdate = callback;
     return this;
+  }
+
+  onunload(): void {
+    this.#onUpdate = undefined;
+    super.onunload();
   }
 
   protected update() {
@@ -122,7 +138,15 @@ export class FileBasedCampaignWatch extends BaseCampaignWatch {
 
   onunload(): void {
     this.#unsub?.();
+    super.onunload();
   }
+}
+
+export interface CampaignRenderContext {
+  get campaign(): CampaignFile;
+  get dataContext(): CampaignDataContext;
+  get actionContext(): ActionContext;
+  get sourcePath(): string | undefined;
 }
 
 /** Base class for markdown render children that depend on the campaign content.
@@ -133,6 +157,7 @@ export class FileBasedCampaignWatch extends BaseCampaignWatch {
  * */
 export abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild {
   campaignSource: BaseCampaignWatch;
+  triggerUpdate: Debouncer<[], void | Promise<void>>;
 
   constructor(
     containerEl: HTMLElement,
@@ -143,7 +168,7 @@ export abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild
   ) {
     super(containerEl);
 
-    const updater = debounce(() => this.update(), debouncePeriod, true);
+    this.triggerUpdate = debounce(() => this.update(), debouncePeriod, true);
     this.campaignSource = this.addChild(
       sourcePath
         ? new FileBasedCampaignWatch(
@@ -152,23 +177,50 @@ export abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild
             sourcePath,
           )
         : new ActiveCampaignWatch(plugin.campaignManager),
-    ).onUpdate(() => void updater());
+    ).onUpdate(() => void this.triggerUpdate());
+
     if (watchDataIndex) {
       this.registerEvent(
         plugin.app.metadataCache.on(
           "iron-vault:index-changed",
-          () => void updater(),
+          () => void this.triggerUpdate(),
         ),
       );
     }
   }
 
-  get campaign(): CampaignFile | undefined {
+  get campaign(): CampaignFile {
+    if (!this.campaignSource.campaign) {
+      throw new Error(
+        "Unexpected call to get campaign without a campaign context.",
+      );
+    }
     return this.campaignSource.campaign;
   }
 
-  get dataContext(): CampaignDataContext | undefined {
+  get dataContext(): CampaignDataContext {
+    if (!this.campaignSource.campaignContext) {
+      throw new Error(
+        "Unexpected call to get campaignContext without a campaign context.",
+      );
+    }
     return this.campaignSource.campaignContext;
+  }
+
+  get actionContext(): ActionContext {
+    if (this.dataContext instanceof CampaignDataContext) {
+      return (
+        currentActiveCharacterForCampaign(
+          this.plugin,
+          this.dataContext,
+          true,
+        ) ?? new NoCharacterActionConext(this.dataContext)
+      );
+    }
+
+    throw new Error(
+      "Unexpected call to get actionContext without a campaign context.",
+    );
   }
 
   get sourcePath(): string | undefined {
@@ -177,16 +229,23 @@ export abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild
       : undefined;
   }
 
+  /** Override this to provide special handling of new contexts */
+  protected onNewContext(_context: CampaignDataContext | undefined): void {}
+
   update(): void | Promise<void> {
-    const context = this.dataContext;
+    const context = this.campaignSource.campaignContext;
     if (context) {
-      return this.render(context);
+      this.onNewContext(context);
+      return this.render();
     } else {
       return this.renderWithoutContext();
     }
   }
 
-  abstract render(context: CampaignDataContext): void | Promise<void>;
+  /** Your implementation of rendering. Within here, you should be guaranteed that the
+   * campaign, dataContext, and actionContext are available.
+   */
+  abstract render(): void | Promise<void>;
 
   /** Override this to define what happens when no campaign data context is available. */
   renderWithoutContext(): void | Promise<void> {

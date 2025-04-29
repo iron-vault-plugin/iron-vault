@@ -47,6 +47,10 @@
       display: none;
       & ~ .content {
         overflow-y: auto;
+
+        /* Buffer from the status bar (matches what the official Obsidian tabs use) */
+        padding-bottom: var(--size-4-8);
+
         display: none;
       }
       &:checked ~ label {
