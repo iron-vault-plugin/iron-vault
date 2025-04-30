@@ -1,52 +1,68 @@
 import { html, render } from "lit-html";
 
-import {
-  currentActiveCharacterForCampaign,
-  MissingCharacterError,
-} from "character-tracker";
+import { CampaignDependentBlockRenderer } from "campaigns/campaign-source";
+import { CharacterActionContext } from "characters/action-context";
 import IronVaultPlugin from "index";
-import { Component } from "obsidian";
 import { md } from "utils/ui/directives";
 
-export default async function renderIronVaultCharacter(
-  containerEl: HTMLElement,
-  plugin: IronVaultPlugin,
-  parent: Component,
-) {
-  try {
-    const campaign = plugin.campaignManager.lastActiveCampaign();
-    if (!campaign) {
-      render(html`<p>No active campaign.</p>`, containerEl);
-      return;
-    }
-    const context = currentActiveCharacterForCampaign(
-      plugin,
-      plugin.campaignManager.campaignContextFor(campaign),
+export class CharacterRenderer extends CampaignDependentBlockRenderer {
+  constructor(
+    containerEl: HTMLElement,
+    plugin: IronVaultPlugin,
+    sourcePath?: string,
+  ) {
+    super(containerEl, plugin, sourcePath, {
+      watchDataIndex: true,
+      debouncePeriod: 100,
+    });
+  }
+
+  onload(): void {
+    super.onload();
+
+    console.log("CharacterRenderer: onload");
+    this.registerEvent(
+      this.plugin.campaignManager.on(
+        "active-campaign-settings-changed",
+        ({ key }) => {
+          if (key === "activeCharacter") {
+            console.debug(
+              "active character changed, updating character renderer",
+            );
+            this.triggerUpdate();
+          }
+        },
+      ),
     );
-    if (!context) {
+
+    this.registerEvent(
+      // TODO: probably this should be limited to just the current character, although
+      // how often would we change the non-active character?
+      this.plugin.characters.on("changed", this.triggerUpdate.bind(this)),
+    );
+  }
+
+  renderWithoutContext(): void | Promise<void> {
+    render(html`<p>No active campaign.</p>`, this.containerEl);
+  }
+
+  render() {
+    const context = this.actionContext;
+    if (!(context instanceof CharacterActionContext)) {
       render(
-        html`<p>No active character for campaign '${campaign.name}'</p>`,
-        containerEl,
+        html`<p>No active character for campaign '${this.campaign.name}'</p>`,
+        this.containerEl,
       );
       return;
     }
     render(
-      html`${md(plugin, `![[${context.characterPath}|iv-embed]]`, ".", parent)}`,
-      containerEl,
+      html`${md(
+        this.plugin,
+        `![[${context.characterPath}|iv-embed]]`,
+        this.sourcePath,
+        this,
+      )}`,
+      this.containerEl,
     );
-  } catch (e) {
-    if (e instanceof MissingCharacterError) {
-      render(
-        html`<p>${e.message}</p>
-          <p></p>`,
-        containerEl,
-      );
-    } else {
-      render(
-        html`<p>Unexpected error when loading character:</p>
-          <pre>${e}</pre>`,
-        containerEl,
-      );
-    }
   }
 }

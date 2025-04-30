@@ -64,7 +64,9 @@ export class MechanicsRenderer extends CampaignDependentBlockRenderer {
     public plugin: IronVaultPlugin,
     public ctx: MarkdownPostProcessorContext,
   ) {
-    super(contentEl, plugin, ctx.sourcePath, true, 0);
+    super(contentEl, plugin, ctx.sourcePath, {
+      watchDataIndex: true,
+    });
     if ((contentEl as MechanicsContainerEl).mechanicsRenderer) {
       console.warn("Mechanics block already registered");
     }
