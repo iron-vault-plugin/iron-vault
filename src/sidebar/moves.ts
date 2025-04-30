@@ -1,20 +1,30 @@
 import { MoveCategory } from "@datasworn/core/dist/Datasworn";
-import { html, render, TemplateResult } from "lit-html";
+import { html, nothing, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import MiniSearch from "minisearch";
 
 import { CampaignDependentBlockRenderer } from "campaigns/campaign-source";
 import { CampaignDataContext } from "campaigns/context";
 import { IDataContext } from "datastore/data-context";
-import { AnyDataswornMove } from "datastore/datasworn-indexer";
+import {
+  AnyDataswornMove,
+  MoveWithSelector,
+  WithMetadata,
+} from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
+import { guard } from "lit-html/directives/guard.js";
 import { ref } from "lit-html/directives/ref.js";
+import { styleMap } from "lit-html/directives/style-map.js";
 import { runMoveCommand } from "moves/action";
 import { MoveModal, MoveRenderer, MoveRendererOptions } from "moves/move-modal";
 import { MarkdownView, SearchComponent } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { md } from "utils/ui/directives";
-import { renderRuleset } from "./oracles";
+import {
+  CollapseExpandDecorator,
+  renderGrouping,
+  renderRuleset,
+} from "./content-tree";
 
 export type IronVaultMoveRendererOptions = {
   embed?: boolean;
@@ -26,6 +36,7 @@ export class MoveList extends CampaignDependentBlockRenderer {
   targetView?: MarkdownView;
   filter: string = "";
   search: SearchComponent;
+  collapseExpandDec: CollapseExpandDecorator;
 
   constructor(
     containerEl: HTMLElement,
@@ -37,12 +48,40 @@ export class MoveList extends CampaignDependentBlockRenderer {
     this.contentEl = containerEl.createDiv({
       cls: "iron-vault-move-list-container",
     });
+
     this.search = new SearchComponent(this.contentEl)
       .setPlaceholder("Filter moves...")
       .onChange((query) => {
         this.filter = query.trim();
         this.render();
       });
+
+    this.collapseExpandDec = new CollapseExpandDecorator(
+      this.search,
+      "expand-all",
+    ).onClick((method) => {
+      this.contentEl
+        .querySelectorAll<HTMLDetailsElement>(
+          "li:not([style *= 'display: none']) > details",
+        )
+        .forEach((detailsEl) => {
+          // We want to expand all rulesets, and close all other details.
+          const shouldExpand =
+            method === "expand-all" ||
+            (detailsEl.parentElement?.hasClass("ruleset") ?? false);
+          detailsEl.open = shouldExpand;
+        });
+    });
+  }
+
+  updateCollapseExpand(method?: "collapse-all" | "expand-all") {
+    if (!method) {
+      const openElements = this.contentEl.querySelectorAll(
+        "li:not(.ruleset):not([style *= 'display: none']) > details[open]",
+      );
+      method = openElements.length > 0 ? "collapse-all" : "expand-all";
+    }
+    this.collapseExpandDec.setMethod(method);
   }
 
   shouldEmbed() {
@@ -56,8 +95,8 @@ export class MoveList extends CampaignDependentBlockRenderer {
   }
 
   scrollToMove(id: string) {
-    this.filter = "";
-    this.render();
+    this.search.setValue("").onChanged(); // Clear the search filter
+
     const targetEl = this.contentEl.querySelector(
       `li.move-item[data-datasworn-id="${id}"]`,
     );
@@ -104,27 +143,19 @@ export class MoveList extends CampaignDependentBlockRenderer {
   }
 
   render() {
-    const results = this.filter
-      ? this.index!.search(this.filter)
-      : [...this.dataContext.moves.values()].map((m) => ({ id: m._id }));
+    const matches = new Set(
+      this.filter
+        ? this.index!.search(this.filter).map((r): string => r.id)
+        : [...this.dataContext.moves.values()].map((m) => m._id),
+    );
+
     const categories = this.dataContext.moveCategories.values();
-    let total = 0;
     const sources: Record<string, MoveCategory[]> = {};
     for (const cat of categories) {
-      const contents = Object.values(cat.contents ?? {});
-      const filtered = contents.filter((m) =>
-        results.find((res) => m._id === res.id),
-      );
-      if (filtered.length) {
-        if (!sources[cat._source.title]) {
-          sources[cat._source.title] = [];
-        }
-        sources[cat._source.title].push({
-          ...cat,
-          contents: Object.fromEntries(filtered.map((m) => [m._id, m])),
-        });
-        total += filtered.length;
+      if (!sources[cat._source.title]) {
+        sources[cat._source.title] = [];
       }
+      sources[cat._source.title].push(cat);
     }
     const onMakeMove: MoveRendererOptions["onMakeMove"] =
       this.targetView &&
@@ -147,30 +178,38 @@ export class MoveList extends CampaignDependentBlockRenderer {
           oracle,
         );
       });
+    const onToggle = () => this.updateCollapseExpand();
     const tpl = html`
       <ul class="iron-vault-moves-list">
         ${map(Object.entries(sources), ([source, sourceCats]) =>
           renderRuleset({
             name: source,
             open: true,
-            children: html`${map(sourceCats, (cat) =>
-              renderCategory({
+            children: map(sourceCats, (cat) =>
+              renderGrouping({
                 name: cat.canonical_name ?? cat.name,
+                listItemClass: "move-category",
                 color: cat.color,
-                open: total <= 5,
-                children: html`${map(
-                  Object.values(cat.contents ?? {}),
+                hidden: !Object.values(cat.contents ?? {}).some((move) =>
+                  matches.has(move._id),
+                ),
+                open: this.filter ? true : undefined,
+                onToggle,
+                children: Object.values(cat.contents ?? {}).map(
                   (move) =>
                     html`${this.renderMove(
                       this.dataContext!.moves.get(move._id)!,
                       {
+                        hidden: !matches.has(move._id),
+                        open: matches.size <= 5 ? true : undefined,
                         onMakeMove,
                         onRollOracle,
+                        onToggle,
                       },
                     )}`,
-                )}`,
+                ),
               }),
-            )}`,
+            ),
           }),
         )}
       </ul>
@@ -181,11 +220,17 @@ export class MoveList extends CampaignDependentBlockRenderer {
   renderMove(
     move: AnyDataswornMove,
     {
+      hidden,
+      open,
       onMakeMove,
       onRollOracle,
+      onToggle,
     }: {
+      hidden?: boolean;
+      open?: boolean;
       onMakeMove?: MoveRendererOptions["onMakeMove"];
       onRollOracle?: MoveRendererOptions["onRollOracle"];
+      onToggle?: (ev: ToggleEvent) => void;
     },
   ) {
     if (this.shouldEmbed()) {
@@ -213,10 +258,22 @@ export class MoveList extends CampaignDependentBlockRenderer {
         }
       };
       return html`
-        <li class="move-item" data-datasworn-id="${move._id}">
-          <details>
+        <li
+          class="move-item"
+          data-datasworn-id="${move._id}"
+          style=${styleMap({
+            display: hidden ? "none" : undefined,
+          })}
+        >
+          <details
+            @toggle=${onToggle || nothing}
+            .open=${hidden || open === undefined ? nothing : open}
+          >
             <summary>${move.name}</summary>
-            <div ${ref(callback)}></div>
+            ${guard(
+              [move._id, this.dataContext],
+              () => html`<div ${ref(callback)}></div>`,
+            )}
           </details>
         </li>
       `;
@@ -225,6 +282,9 @@ export class MoveList extends CampaignDependentBlockRenderer {
         <li
           class="move-item"
           data-datasworn-id="${move._id}"
+          style=${styleMap({
+            display: hidden ? "none" : undefined,
+          })}
           @click=${(ev: Event) => {
             ev.preventDefault();
             ev.stopPropagation();
@@ -254,7 +314,7 @@ export class MoveList extends CampaignDependentBlockRenderer {
 }
 
 function makeIndex(dataContext: IDataContext) {
-  const idx = new MiniSearch({
+  const idx = new MiniSearch<WithMetadata<MoveWithSelector>>({
     fields: ["name", "trigger.text"],
     idField: "_id",
     searchOptions: {
@@ -265,30 +325,4 @@ function makeIndex(dataContext: IDataContext) {
   });
   idx.addAll([...dataContext.moves.values()]);
   return idx;
-}
-
-export function renderCategory({
-  open,
-  children,
-  color,
-  name,
-}: {
-  open: boolean;
-  children: TemplateResult;
-  color?: string;
-  name: string;
-}) {
-  return html` <li
-    class="move-category"
-    style=${color ? `border-left: 6px solid ${color}` : ""}
-  >
-    <details ?open=${open}>
-      <summary>
-        <span>${name}</span>
-      </summary>
-    </details>
-    <ol class="content">
-      ${children}
-    </ol>
-  </li>`;
 }

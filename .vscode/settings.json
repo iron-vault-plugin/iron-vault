@@ -21,5 +21,9 @@
       "url": "./node_modules/@datasworn/core/json/datasworn-source.schema.json"
     }
   ],
-  "eslint.useFlatConfig": true
+  "eslint.useFlatConfig": true,
+  "search.exclude": {
+    // "**/node_modules": true,
+    "**/docs-built": true
+  }
 }
