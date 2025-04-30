@@ -4,7 +4,7 @@ import { IDataContext } from "datastore/data-context";
 import { generateEntityCommand } from "entity/command";
 import { ENTITIES } from "entity/specs";
 import IronVaultPlugin from "index";
-import { html, render, TemplateResult } from "lit-html";
+import { html, render } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { ref } from "lit-html/directives/ref.js";
 import MiniSearch from "minisearch";
@@ -12,6 +12,11 @@ import { Oracle, OracleRulesetGrouping } from "model/oracle";
 import { getIcon, MarkdownView, SearchComponent, setIcon } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { OracleModal } from "oracles/oracle-modal";
+import {
+  CollapseExpandDecorator,
+  renderGrouping,
+  renderRuleset,
+} from "./content-tree";
 
 type OracleViewBehaviors = {
   onClickOracleName: (oracle: Oracle) => void;
@@ -25,6 +30,7 @@ export class OracleList extends CampaignDependentBlockRenderer {
   targetView?: MarkdownView;
   filter: string = "";
   search: SearchComponent;
+  collapseExpandDec: CollapseExpandDecorator;
 
   constructor(
     containerEl: HTMLElement,
@@ -35,12 +41,36 @@ export class OracleList extends CampaignDependentBlockRenderer {
     this.contentEl = containerEl.createDiv({
       cls: "iron-vault-oracle-list-container",
     });
+
     this.search = new SearchComponent(this.contentEl)
-      .setPlaceholder("Filter moves...")
+      .setPlaceholder("Filter oracles...")
       .onChange((query) => {
         this.filter = query.trim();
         this.render();
       });
+
+    this.collapseExpandDec = new CollapseExpandDecorator(
+      this.search,
+      "expand-all",
+    ).onClick((method) => {
+      this.contentEl.querySelectorAll("details").forEach((detailsEl) => {
+        // We want to expand all rulesets, and close all other details.
+        const shouldExpand =
+          method === "expand-all" ||
+          (detailsEl.parentElement?.hasClass("ruleset") ?? false);
+        detailsEl.open = shouldExpand;
+      });
+    });
+  }
+
+  updateCollapseExpand(method?: "collapse-all" | "expand-all") {
+    if (!method) {
+      const openElements = this.contentEl.querySelectorAll(
+        "li:not(.ruleset) > details[open]",
+      );
+      method = openElements.length > 0 ? "collapse-all" : "expand-all";
+    }
+    this.collapseExpandDec.setMethod(method);
   }
 
   onunload() {
@@ -82,9 +112,11 @@ export class OracleList extends CampaignDependentBlockRenderer {
             renderRuleset({
               open: true,
               name: r.name,
-              children: html`${map(r.children, (group) =>
-                renderGroup(behaviors, group, total <= 5),
-              )}`,
+              children: map(r.children, (group) =>
+                renderGroup(behaviors, group, total <= 5, () =>
+                  this.updateCollapseExpand(),
+                ),
+              ),
             }),
           )}
         </ul>
@@ -181,57 +213,36 @@ function getOracleTree(
   return { rulesets: rulesets.values(), total };
 }
 
-export function renderRuleset({
-  open,
-  name,
-  children,
-}: {
-  open?: boolean;
-  name: string;
-  children: TemplateResult;
-}): TemplateResult {
-  return html`
-    <li class="ruleset">
-      <details ?open=${open}>
-        <summary><span>${name}</span></summary>
-      </details>
-      <ul class="content">
-        ${children}
-      </ul>
-    </li>
-  `;
-}
-
 function renderGroup(
   behaviors: OracleViewBehaviors,
   group: CollectionGrouping,
   open: boolean,
+  onToggle?: (ev: ToggleEvent) => void | Promise<void>,
 ) {
-  return html`
-    <li class="oracle-group">
-      <details ?open=${open}>
-        <summary><span>${group.name}</span></summary>
-      </details>
-      <ul class="content">
-        <li
-          class="oracle-item"
-          @click=${(ev: MouseEvent) => {
-            ev.stopPropagation();
-            ev.preventDefault();
-            behaviors.onClickOracleGroup(group);
-          }}
+  return renderGrouping({
+    open,
+    onToggle,
+    name: group.name,
+    listItemClass: "oracle-group",
+    children: [
+      html`<li
+        class="oracle-item"
+        @click=${(ev: MouseEvent) => {
+          ev.stopPropagation();
+          ev.preventDefault();
+          behaviors.onClickOracleGroup(group);
+        }}
+      >
+        <span>
+          <span
+            ${ref((el?: Element) => el && setIcon(el as HTMLElement, "dice"))}
+          ></span>
+          Roll All</span
         >
-          <span>
-            <span
-              ${ref((el?: Element) => el && setIcon(el as HTMLElement, "dice"))}
-            ></span>
-            Roll All</span
-          >
-        </li>
-        ${map(group.children, (oracle) => renderOracle(behaviors, oracle))}
-      </ul>
-    </li>
-  `;
+      </li>`,
+      ...group.children.map((oracle) => renderOracle(behaviors, oracle)),
+    ],
+  });
 }
 
 function renderOracle(behaviors: OracleViewBehaviors, oracle: Oracle) {
