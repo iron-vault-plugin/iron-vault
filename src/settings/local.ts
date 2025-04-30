@@ -7,7 +7,7 @@ const logger = rootLogger.getLogger("local-settings");
 
 export class IronVaultPluginLocalSettings {
   #campaigns: Map<TFile, CampaignLocalSettings> = new Map();
-  emitter?: Emittery;
+  emitter?: Emittery<EVENT_TYPES>;
 
   constructor() {
     this.emitter = new Emittery();
@@ -16,7 +16,10 @@ export class IronVaultPluginLocalSettings {
   forCampaign(file: TFile): CampaignLocalSettings {
     let existing = this.#campaigns.get(file);
     if (existing == null) {
-      this.#campaigns.set(file, (existing = new CampaignLocalSettings(this)));
+      this.#campaigns.set(
+        file,
+        (existing = new CampaignLocalSettings(this, file)),
+      );
     }
     return existing;
   }
@@ -127,16 +130,21 @@ export class CampaignLocalSettings {
   /** Number of sides for the two challenge dice for action rolls. */
   actionRollChallengeDiceSides: [number, number] | undefined = undefined;
 
-  constructor(parent: IronVaultPluginLocalSettings) {
+  constructor(parent: IronVaultPluginLocalSettings, campaignFile: TFile) {
     return new Proxy(this, {
       set<K extends keyof CampaignLocalSettings>(
         target: CampaignLocalSettings,
         key: K,
         newValue: CampaignLocalSettings[K],
       ) {
-        const oldValue = target[key];
+        const oldValue = target[key] as CampaignLocalSettings[K];
         target[key] = newValue;
-        parent.emitter!.emit("change", { key, oldValue, newValue });
+        parent.emitter!.emit("change", {
+          campaignFile,
+          key: key,
+          oldValue,
+          newValue,
+        } as CHANGE_TYPES[K]);
         return true;
       },
     });
