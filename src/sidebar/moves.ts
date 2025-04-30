@@ -44,7 +44,11 @@ export class MoveList extends CampaignDependentBlockRenderer {
     readonly options: IronVaultMoveRendererOptions = {},
     sourcePath?: string,
   ) {
-    super(containerEl, plugin, sourcePath, true);
+    super(containerEl, plugin, sourcePath, {
+      watchDataIndex: true,
+      watchSettings: ["useLegacyMoveModal"],
+      debouncePeriod: 100,
+    });
     this.contentEl = containerEl.createDiv({
       cls: "iron-vault-move-list-container",
     });

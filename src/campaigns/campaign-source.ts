@@ -18,6 +18,7 @@ import {
   NoCharacterActionConext,
 } from "characters/action-context";
 import { rootLogger } from "logger";
+import { IronVaultPluginSettings } from "settings";
 
 const logger = rootLogger.getLogger("campaign-source");
 
@@ -149,6 +150,17 @@ export interface CampaignRenderContext {
   get sourcePath(): string | undefined;
 }
 
+export type CampaignDependentBlockRendererOptions = {
+  /** Watches the data index for changes, as well as campaign. */
+  watchDataIndex?: boolean;
+
+  /** If true, watches all settings. If a list of settings */
+  watchSettings?: boolean | (keyof IronVaultPluginSettings)[];
+
+  /** Debounce period for updates, in milliseconds. Defaults to 0. */
+  debouncePeriod?: number;
+};
+
 /** Base class for markdown render children that depend on the campaign content.
  *
  * Calls subclass's render function when a campaign update is detected.
@@ -163,12 +175,15 @@ export abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild
     containerEl: HTMLElement,
     readonly plugin: IronVaultPlugin,
     sourcePath?: string,
-    watchDataIndex: boolean = false,
-    debouncePeriod: number = 0,
+    options: CampaignDependentBlockRendererOptions = {},
   ) {
     super(containerEl);
 
-    this.triggerUpdate = debounce(() => this.update(), debouncePeriod, true);
+    this.triggerUpdate = debounce(
+      () => this.update(),
+      options.debouncePeriod ?? 0,
+      true,
+    );
     this.campaignSource = this.addChild(
       sourcePath
         ? new FileBasedCampaignWatch(
@@ -179,13 +194,30 @@ export abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild
         : new ActiveCampaignWatch(plugin.campaignManager),
     ).onUpdate(() => void this.triggerUpdate());
 
-    if (watchDataIndex) {
+    if (options.watchDataIndex) {
       this.registerEvent(
         plugin.app.metadataCache.on(
           "iron-vault:index-changed",
           () => void this.triggerUpdate(),
         ),
       );
+    }
+
+    if (options.watchSettings) {
+      const settingsKeys =
+        options.watchSettings === true
+          ? Object.keys(plugin.settings) // Watch all settings
+          : options.watchSettings; // Watch specific settings
+
+      if (settingsKeys.length > 0) {
+        this.register(
+          plugin.settings.on("change", ({ key }) => {
+            if (settingsKeys.includes(key)) {
+              this.triggerUpdate();
+            }
+          }),
+        );
+      }
     }
   }
 

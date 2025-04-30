@@ -37,7 +37,10 @@ export class OracleList extends CampaignDependentBlockRenderer {
     readonly plugin: IronVaultPlugin,
     sourcePath?: string,
   ) {
-    super(containerEl, plugin, sourcePath, true);
+    super(containerEl, plugin, sourcePath, {
+      watchDataIndex: true,
+      debouncePeriod: 100,
+    });
     this.contentEl = containerEl.createDiv({
       cls: "iron-vault-oracle-list-container",
     });
