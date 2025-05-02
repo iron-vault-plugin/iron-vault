@@ -10,7 +10,7 @@
   },
   "private": true,
   "scripts": {
-    "test": "env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test": "env NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest",
     "build": "tsc --noEmit && node esbuild.config.js production",
     "dev:build": "tsc --noEmit && node esbuild.config.js nowatch",
     "compile-data": "yq -ojson data/starforged.supplement.yaml > data/starforged.supplement.json && yq -ojson data/sundered-isles.supplement.yaml > data/sundered-isles.supplement.json",

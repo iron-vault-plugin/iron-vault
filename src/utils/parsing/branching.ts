@@ -46,6 +46,25 @@ export function optional<V, N, E extends ParserErrors = ParserErrors>(
   };
 }
 
+// let _debug = false;
+export function debug<V, N, E extends ParserErrors = ParserErrors>(
+  parser: Parser<V, N, E>,
+): Parser<V, N, E> {
+  return (node) => {
+    console.log("Debugging parser at node:", JSON.stringify(node?.value));
+    const result = parser(node);
+    if (result.isLeft()) {
+      console.log("Parser failed with error:", result.error);
+    } else {
+      console.log(
+        "Parser succeeded with value:",
+        JSON.stringify(result.value.value),
+      );
+    }
+    return result;
+  };
+}
+
 /** Apply a set of parsers, taking the first that succeeds. */
 export function alt<A1, N, E extends ParserErrors = ParserErrors>(
   p1: Parser<A1, N, E>,

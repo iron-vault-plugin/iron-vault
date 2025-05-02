@@ -1,15 +1,7 @@
 import { DataswornSource } from "@datasworn/core";
 import { sanitizeNameForId } from "datastore/loader/builder";
 import * as mdast from "mdast";
-import {
-  FrontmatterContent,
-  Heading,
-  ListContent,
-  ListItem,
-  RootContent,
-  RootContentMap,
-  Yaml,
-} from "mdast";
+import { Heading, ListContent, ListItem, RootContent } from "mdast";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { frontmatterFromMarkdown } from "mdast-util-frontmatter";
 import { gfmFromMarkdown, gfmToMarkdown } from "mdast-util-gfm";
@@ -20,13 +12,13 @@ import { Either, flatMap, Left, Right } from "utils/either";
 import {
   apply,
   check,
+  lazy,
   liftAsList,
   makeError,
   match,
   matchOpt,
   Parser,
   ParserError,
-  ParserErrors,
   pipe,
   preceded,
   RecoverableParserError,
@@ -34,12 +26,19 @@ import {
   repeat,
   runParser,
   seq,
-  some,
   str,
 } from "utils/parsing";
 import { cut, optional, permutationOptional } from "utils/parsing/branching";
+import {
+  children,
+  mdastType,
+  onlyText,
+  skipFrontmatter,
+} from "utils/parsing/markdown";
 
-/*
+/**
+ * Parses a markdown asset into a Datasworn asset object.
+ *
  * Format is:
  * ---
  * optional-front-matter: ...
@@ -65,42 +64,6 @@ import { cut, optional, permutationOptional } from "utils/parsing/branching";
  * * _name_ (type: text)
  *
  */
-
-export function mdastType<
-  C extends N,
-  N extends keyof RootContentMap = keyof RootContentMap,
-  E extends ParserErrors = ParserErrors,
->(
-  type: C,
-  check?: (node: RootContentMap[C]) => boolean,
-): Parser<RootContentMap[C], RootContentMap[N], E | RecoverableParserError> {
-  return (node) => {
-    if (node === undefined) {
-      return makeError(
-        node,
-        `expected node of type ${type}, found end-of-sequence`,
-      );
-    }
-    const value = node.value;
-    if (value.type === type) {
-      if (check && !check(value as RootContentMap[C])) {
-        return makeError(node, `node of type ${type} did not pass check`);
-      }
-
-      return Right.create({
-        value: value as RootContentMap[C],
-        start: node,
-        next: node.next,
-      });
-    } else {
-      return makeError(
-        node,
-        `expected node of type ${type}, found ${node.value.type}`,
-      );
-    }
-  };
-}
-
 export function markdownAssetToDatasworn(
   content: string,
 ): Either<ParserError, Omit<DataswornSource.Asset, "_source">> {
@@ -170,53 +133,7 @@ export function markdownAssetToDatasworn(
   );
 }
 
-export function children<
-  V,
-  C,
-  N extends { children: C[] },
-  E extends ParserError = ParserError,
->(parser: Parser<V, C, E>): Parser<V, N, E | ParserError> {
-  return pipe(
-    apply(some(), (node) => node.children),
-    liftAsList(parser),
-  );
-}
-
-const skipFrontmatter = matchOpt(
-  (node: RootContent): node is FrontmatterContent => node.type === "yaml",
-  (node: Yaml) => Right.create(node.value),
-);
-
 const NAME_RE = /^([^)(]+)(?:\s*\(([^)]+)\))?$/;
-
-/** Parse a node that has only a single text child. */
-const onlyText: Parser<string, mdast.Parents> = (node) => {
-  if (node === undefined) {
-    return makeError(node, "Expected a node, found end-of-sequence");
-  }
-
-  const children = node.value.children;
-
-  if (children.length !== 1) {
-    return makeError(
-      node,
-      `Expected a single child, found ${node.value.children.length}`,
-    );
-  }
-
-  if (children[0].type !== "text") {
-    return makeError(
-      node,
-      `Expected a text node as child,  found ${children[0].type}`,
-    );
-  }
-
-  return Right.create({
-    value: children[0].value,
-    start: node,
-    next: node.next,
-  });
-};
 
 const parseNameHeading = matchOpt(
   (node: RootContent): node is Heading =>
@@ -408,14 +325,6 @@ function parseControlDescriptor(
       },
     ),
   );
-}
-
-export function lazy<V, N, E extends ParserErrors = ParserErrors>(
-  parser: () => Parser<V, N, E>,
-): Parser<V, N, E> {
-  return (node) => {
-    return parser()(node);
-  };
 }
 
 const parseControl: Parser<

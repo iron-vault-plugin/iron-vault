@@ -4,6 +4,7 @@ import {
   Parser,
   RecoverableParserError,
   runParser,
+  runParserPartial,
   UnrecoverableParserError,
 } from "./parser";
 
@@ -12,12 +13,12 @@ describe("alt", () => {
     const parser = alt(fail("fail1"), succ("success"), () => {
       throw new Error("should not be called");
     });
-    expect(runParser(parser, "").unwrap()).toEqual("success");
+    expect(runParserPartial(parser, "").unwrap()).toEqual(["success", [""]]);
   });
 
   it("returns the result of the first parser that succeeds, even if later parsers would also succeed", () => {
     const parser = alt(fail("fail1"), succ("success1"), succ("success2"));
-    expect(runParser(parser, "").unwrap()).toEqual("success1");
+    expect(runParserPartial(parser, "").unwrap()).toEqual(["success1", [""]]);
   });
 
   it("returns the unrecoverable error immediately if encountered", () => {
@@ -66,13 +67,19 @@ describe("permutationOptional", () => {
 
   it("works with a single parser", () => {
     const parser = permutationOptional(str("foo"));
-    expect(runParser(parser, "foo").unwrap()).toEqual(["foo"]);
-    expect(runParser(parser, "bar").unwrap()).toEqual([undefined]);
+    expect(runParserPartial(parser, "foo").unwrap()).toEqual([["foo"], []]);
+    expect(runParserPartial(parser, "bar").unwrap()).toEqual([
+      [undefined],
+      ["bar"],
+    ]);
   });
 
   it("returns an empty array if no parsers are given", () => {
     const parser = permutationOptional();
-    expect(runParser(parser, "anything").unwrap()).toEqual([]);
+    expect(runParserPartial(parser, "anything").unwrap()).toEqual([
+      [],
+      ["anything"],
+    ]);
   });
 });
 
@@ -109,6 +116,9 @@ describe("permutation", () => {
 
   it("returns an empty array if no parsers are given", () => {
     const parser = permutation();
-    expect(runParser(parser, "anything").unwrap()).toEqual([]);
+    expect(runParserPartial(parser, "anything").unwrap()).toEqual([
+      [],
+      ["anything"],
+    ]);
   });
 });
