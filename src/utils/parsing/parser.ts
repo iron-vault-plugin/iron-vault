@@ -1,4 +1,5 @@
-import { Either, Left } from "utils/either";
+import { Either, flatMap, Left, Right } from "utils/either";
+import { consumeAll } from "./sequences";
 
 export class ParserError extends Error {}
 
@@ -8,27 +9,54 @@ export class UnrecoverableParserError extends ParserError {}
 
 export type ParserErrors = RecoverableParserError | UnrecoverableParserError;
 
-export type PNode<N, NV extends N = N> = {
-  value: NV;
-  next: PNode<N> | undefined;
-};
+export interface PNode<N, NV extends N = N> {
+  readonly value: NV;
+  readonly next: PNode<N> | undefined;
+}
 
-export type ParseResult<V, N> = {
-  value: V;
-  start: PNode<N> | undefined;
-  next: PNode<N> | undefined;
-};
+export interface ParseResult<V, N> {
+  readonly value: V;
+  readonly start: PNode<N> | undefined;
+  readonly next: PNode<N> | undefined;
+}
 
-export type Parser<V, N, E extends ParserErrors = ParserErrors> = (
-  node: PNode<N> | undefined,
-) => Either<E, ParseResult<V, N>>;
+export type Parser<
+  V,
+  N,
+  E extends ParserErrors = ParserErrors,
+  PN extends PNode<N> | undefined = PNode<N> | undefined,
+> = (node: PN) => Either<E, ParseResult<V, N>>;
+
+export type AnyParser<V, N, E extends ParserErrors = ParserErrors> = <
+  A extends N,
+>(
+  node: PNode<A> | undefined,
+) => Either<E, ParseResult<V, A>>;
+
+export type Definite<T> =
+  T extends Parser<infer V, infer N, infer E, infer PN>
+    ? Parser<V, N, E, NonNullable<PN>>
+    : never;
 
 /** Run a parser against a sequence of input nodes. */
 export function runParser<V, N, E extends ParserErrors = ParserErrors>(
   parser: Parser<V, N, E>,
   ...nodes: N[]
-): Either<E, V> {
-  return parser(LazyPNode.forSeq(...nodes)).map(({ value }) => value);
+): Either<E | RecoverableParserError, V> {
+  return flatMap(parser(LazyPNode.forSeq(...nodes)), ({ value, next }) =>
+    next ? makeError(next, "expected end of sequence") : Right.create(value),
+  );
+}
+
+/** Run a parser against a sequence of input nodes, returning the result and the remaining nodes. */
+export function runParserPartial<V, N, E extends ParserErrors = ParserErrors>(
+  parser: Parser<V, N, E>,
+  ...nodes: N[]
+): Either<E | RecoverableParserError, [V, N[]]> {
+  return parser(LazyPNode.forSeq(...nodes)).map(({ value, next }) => [
+    value,
+    consumeAll(next).value.value,
+  ]);
 }
 
 /** Creates an error with some extra context info. */

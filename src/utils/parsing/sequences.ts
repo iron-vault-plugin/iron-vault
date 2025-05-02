@@ -10,6 +10,9 @@ import {
   UnrecoverableParserError,
 } from "./parser";
 
+export function seq<V1, N, E extends ParserError>(
+  p1: Parser<V1, N, E>,
+): Parser<[V1], N, E>;
 export function seq<V1, V2, N, E extends ParserError>(
   p1: Parser<V1, N, E>,
   p2: Parser<V2, N, E>,
@@ -40,6 +43,9 @@ export function seq<V1, V2, V3, V4, V5, V6, N, E extends ParserError>(
   p5: Parser<V5, N, E>,
   p6: Parser<V6, N, E>,
 ): Parser<[V1, V2, V3, V4, V5, V6], N, E>;
+export function seq<V, N, E extends ParserError>(
+  ...parsers: Parser<V, N, E>[]
+): Parser<V[], N, E>;
 export function seq<N, E extends ParserError>(
   ...parsers: Parser<unknown, N, E>[]
 ): Parser<unknown[], N, E> {
@@ -113,4 +119,21 @@ export function repeat<V, N, E extends ParserErrors = ParserErrors>(
       next: currentNode,
     });
   };
+}
+
+/** Slurps all remaining nodes into a list. */
+export function consumeAll<N>(
+  node: PNode<N> | undefined,
+): Right<ParseResult<N[], N>> {
+  const result: N[] = [];
+  let currentNode = node;
+  while (currentNode !== undefined) {
+    result.push(currentNode.value);
+    currentNode = currentNode.next;
+  }
+  return Right.create({
+    value: result,
+    next: undefined,
+    start: node,
+  });
 }
