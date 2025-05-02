@@ -1,5 +1,4 @@
 import { type Datasworn } from "@datasworn/core";
-import dataswornSchema from "@datasworn/core/json/datasworn.schema.json" assert { type: "json" };
 import ironswornDelvePackage from "@datasworn/ironsworn-classic-delve/json/delve.json" assert { type: "json" };
 import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
@@ -15,7 +14,7 @@ import {
 import { DataManager } from "datastore/loader/manager";
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
-import { isDebugEnabled, rootLogger } from "logger";
+import { rootLogger } from "logger";
 import { Component, debounce, type App } from "obsidian";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
 import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type: "json" };
@@ -143,7 +142,11 @@ export class Datastore extends Component {
               path: root,
               // Campaign content has highest priority
               // TODO: something smarter than just checking the package id...
-              priority: rulesPackage._id === "campaign" ? 20 : 10,
+              priority: root.startsWith("@")
+                ? 0
+                : rulesPackage._id === "campaign"
+                  ? 20
+                  : 10,
             });
             logger.debug("[datastore] Adding package to index: %s", root);
             this.indexer.index(source, walkDataswornRulesPackage(rulesPackage));
@@ -183,35 +186,34 @@ export class Datastore extends Component {
     // }
   }
 
-  indexBuiltInData(pkg: Datasworn.RulesPackage, priority: number = 0) {
-    if (isDebugEnabled()) {
-      logger.debug("Validating datasworn package %s", pkg._id);
-      const validate = this.ajv.compile(dataswornSchema);
-      const result = validate(pkg);
-      if (!result) {
-        logger.error(
-          "Invalid datasworn package: %s",
-          (pkg as Datasworn.RulesPackage)._id,
-          validate.errors,
-        );
-        return;
-      }
-    }
+  indexBuiltInData(pkg: Datasworn.RulesPackage, _priority: number = 0) {
+    // if (isDebugEnabled()) {
+    //   logger.debug("Validating datasworn package %s", pkg._id);
+    //   const validate = this.ajv.compile(dataswornSchema);
+    //   const result = validate(pkg);
+    //   if (!result) {
+    //     logger.error(
+    //       "Invalid datasworn package: %s",
+    //       (pkg as Datasworn.RulesPackage)._id,
+    //       validate.errors,
+    //     );
+    //     return;
+    //   }
+    // }
 
-    const mainPath = `@datasworn:${pkg._id}`;
-    const source = createSource({
-      path: mainPath,
-      priority,
+    const path = `@datasworn/${pkg._id}.json`;
+    this.dataManager.addCampaignContentRoot(path);
+    this.dataManager.indexDirect({
+      path,
+      mtime: Date.now(),
+      content: JSON.stringify(pkg),
+      frontmatter: undefined,
     });
-    this.indexer.index(source, walkDataswornRulesPackage(pkg));
-
-    this.triggerIndexChanged();
-  }
-
-  removeBuiltInData(pkg: Datasworn.RulesPackage) {
-    const mainPath = `@datasworn:${pkg._id}`;
-    this.indexer.removeSource(mainPath);
-    this.app.metadataCache.trigger("iron-vault:index-changed");
+    // const source = createSource({
+    //   path: mainPath,
+    //   priority,
+    // });
+    // this.indexer.index(source, walkDataswornRulesPackage(pkg));
   }
 
   get ready(): boolean {

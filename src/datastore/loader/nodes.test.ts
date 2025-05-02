@@ -1,15 +1,15 @@
-import { collectNodes, DataGroup, NodeBuilder, reduceNodes } from "./nodes";
+import { collectNodes, DataGroup, NodeTree, reduceNodes } from "./nodes";
 
 describe("reduceNodes", () => {
   // Create a simple data structure for testing
   type TestLeafData = { value: string };
   type TestGroupData = { name: string };
 
-  let manager: NodeBuilder<TestLeafData, TestGroupData>;
+  let manager: NodeTree<TestLeafData, TestGroupData>;
   let root: DataGroup<TestLeafData, TestGroupData>;
 
   beforeEach(() => {
-    manager = new NodeBuilder<TestLeafData, TestGroupData>(
+    manager = new NodeTree<TestLeafData, TestGroupData>(
       () => ({ name: "unknown" }),
       { name: "Root" },
     );
@@ -103,7 +103,7 @@ describe("reduceNodes", () => {
   });
 
   it("should not throw on an empty tree", () => {
-    manager = new NodeBuilder<TestLeafData, TestGroupData>(
+    manager = new NodeTree<TestLeafData, TestGroupData>(
       () => ({ name: "unknown" }),
       { name: "Empty Root" },
     );
@@ -121,11 +121,11 @@ describe("collectNodes", () => {
   type TestLeafData = { value: string };
   type TestGroupData = { name: string };
 
-  let manager: NodeBuilder<TestLeafData, TestGroupData>;
+  let manager: NodeTree<TestLeafData, TestGroupData>;
   let root: DataGroup<TestLeafData, TestGroupData>;
 
   beforeEach(() => {
-    manager = new NodeBuilder<TestLeafData, TestGroupData>(
+    manager = new NodeTree<TestLeafData, TestGroupData>(
       () => ({ name: "unknown" }),
       { name: "Root" },
     );

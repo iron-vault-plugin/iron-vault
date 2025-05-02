@@ -1,12 +1,7 @@
 import { ensureRulesPackageBuilderInitialized } from "datastore/parsers/collection";
 import { rootLogger } from "logger";
-import {
-  Content,
-  ContentIndexer,
-  ContentManager,
-  MetarootContentManager,
-  PackageBuilder,
-} from "./builder";
+import { Content, ContentIndexer, PackageBuilder } from "./builder";
+import { ContentManagerImpl, MetarootContentManager } from "./content-store";
 import { debouncerByKey } from "./debouncerByKey";
 import { IndexCommand, IndexResult } from "./messages";
 
@@ -20,7 +15,9 @@ declare function postMessage(
 
 ensureRulesPackageBuilderInitialized();
 
-const contentManager = new MetarootContentManager(new ContentManager());
+const contentManager = new MetarootContentManager(
+  new ContentManagerImpl<Content>(),
+);
 const contentIndexer = new ContentIndexer(contentManager);
 const debouncePackageBuild = debouncerByKey(100, { logger: logger.debug });
 contentManager.onUpdateRoot((root: string, content: Content[] | null) => {
