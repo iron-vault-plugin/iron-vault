@@ -10,7 +10,7 @@ import {
   labelCollections,
   NodeLabel,
 } from "./builder";
-import { DataGroup, DataNode, NodeBuilder } from "./nodes";
+import { DataGroup, DataNode, NodeTree } from "./nodes";
 
 function datasworn(
   type: DataswornSource.OracleRollable["type"],
@@ -32,11 +32,11 @@ function contentNode(type: EntryTypes): Content["value"] {
 }
 
 describe("labelCollections", () => {
-  let manager: NodeBuilder<Content["value"], CollectionAnnotations>;
+  let manager: NodeTree<Content["value"], CollectionAnnotations>;
   let root: DataGroup<Content["value"], CollectionAnnotations>;
 
   beforeEach(() => {
-    manager = new NodeBuilder<Content["value"], CollectionAnnotations>(
+    manager = new NodeTree<Content["value"], CollectionAnnotations>(
       () => ({ collectionType: null }),
       { collectionType: "root" },
     );
