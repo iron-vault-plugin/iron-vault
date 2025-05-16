@@ -5,20 +5,42 @@ import {
   signal,
   untracked,
 } from "@preact/signals-core";
-import { campaignFileSchemaWithPlayset, CampaignInput } from "campaigns/entity";
+import {
+  campaignFileSchemaWithPlayset,
+  CampaignInput,
+  PlaysetConfigSchema,
+  playsetSpecToPlaysetConfig,
+} from "campaigns/entity";
+import { Determination, IPlaysetConfig } from "campaigns/playsets/config";
+import { characterLens, ValidatedCharacter } from "characters/lens";
+import { ReadonlyDataIndexDb } from "datastore/db";
 import { enableMapSet, produce } from "immer";
 import isEqual from "lodash.isequal";
-import { Either, flatMap, Left } from "utils/either";
+import { rootLogger } from "logger";
+import { Ruleset } from "rules/ruleset";
+import {
+  Either,
+  flatMap,
+  flattenLeft,
+  fromUndefined,
+  Left,
+  makeEitherPartialEquality,
+  Right,
+} from "utils/either";
 import { extractFrontmatter } from "utils/markdown";
 import { baseNameOf, childOfPath, parentFolderOf } from "utils/paths";
 import { zodResultToEither } from "utils/zodutils";
 import { PLUGIN_KIND_FIELD } from "../../constants";
+import { DataswornEntries, DataswornTypes } from "./datasworn-indexer";
+
+const logger = rootLogger.getLogger("datastore.loader.graph");
+logger.setDefaultLevel("debug");
 
 enableMapSet();
 
 export type FileKind = {
   campaign: Either<Error, CampaignInput>;
-  character: Either<Error, Record<string, unknown>>;
+  character: Either<Error, ValidatedCharacter>;
 };
 
 function isValidFileKind(
@@ -33,8 +55,14 @@ export type File = {
   content: string;
 };
 
+export type PlaysetValue = {
+  entries: Map<string, DataswornEntries>;
+  revision: number;
+};
+
 export type AllowableTypes = FileKind & {
   "@file": File;
+  playset: Either<Error, PlaysetValue>;
   // "campaign":
 };
 
@@ -56,6 +84,142 @@ const ironVaultKind = memoizeWeak((file: Signal<File>) =>
   ),
 );
 
+const eitherIsEqual = makeEitherPartialEquality(isEqual);
+
+export const playsetConfigFor = memoizeWeak(
+  (
+    campaign: Signal<AllowableTypes["campaign"]>,
+  ): Signal<Either<Error, PlaysetConfigSchema>> =>
+    onlyChanges(
+      computed(() => campaign.value.map((_) => _.ironvault.playset)),
+      eitherIsEqual,
+    ),
+);
+
+export const playsetNodeForCampaign = memoizeGraph((graph) =>
+  memoizeWeak((campaign: Signal<AllowableTypes["campaign"]>) =>
+    onlyChanges(
+      computed((): AllowableTypes["playset"] =>
+        flattenLeft(
+          flatMap(campaign.value, (campaign) =>
+            fromUndefined(
+              graph.getNode(
+                "playset",
+                `playset/${JSON.stringify(campaign.ironvault.playset)}`,
+              )?.value,
+              () => new Error("Playset not found"),
+            ),
+          ),
+        ),
+      ),
+      isEqual,
+    ),
+  ),
+);
+
+const allPlaysetSpecs = memoizeGraph((graph: GraphContext<AllowableTypes>) =>
+  onlyChanges(
+    computed(() => {
+      const allCampaigns = graph.getAllNodes("campaign").value;
+      const playsetSpecs = new Map<string, PlaysetConfigSchema>();
+      for (const campaignPath of allCampaigns) {
+        const campaign = graph.getNode("campaign", campaignPath);
+        if (!campaign) {
+          logger.warn(
+            "Campaign `%s` not found. This shouldn't happen.",
+            campaignPath,
+          );
+          continue;
+        }
+        const playsetSpec = playsetConfigFor(campaign).value;
+        if (playsetSpec.isLeft()) {
+          logger.error("Error getting playset spec", playsetSpec.error);
+          continue;
+        }
+
+        playsetSpecs.set(
+          `playset/${JSON.stringify(playsetSpec.value)}`,
+          playsetSpec.value,
+        );
+
+        // TODO: might want something on the playset type that ties it back to the
+        // data rev it was built against, so we can see if we are waiting on updates...
+        graph.getOrCreateAtom<AllowableTypes["playset"]>(
+          `playset/${JSON.stringify(playsetSpec.value)}`,
+          Right.create({ entries: new Map(), revision: 0 }),
+          eitherIsEqual,
+        );
+      }
+      return playsetSpecs;
+    }),
+    isEqual,
+  ),
+);
+
+export function registerPlaysetHasher(graph: Graph) {
+  const data = graph.getAtom<Data>("data");
+  if (!data) {
+    throw new Error("Data does not exist yet.");
+  }
+  return effect(() => {
+    const { db, revision } = data.value;
+
+    // TODO: need to also get unused playset atoms and remove them
+
+    const playsets: [string, IPlaysetConfig, PlaysetValue][] = [
+      ...allPlaysetSpecs(graph).value.entries(),
+    ].flatMap(([key, spec]) => {
+      const playsetConfig = playsetSpecToPlaysetConfig(spec);
+      if (playsetConfig.isLeft()) {
+        logger.error("Error getting playset spec", spec, playsetConfig.error);
+        return [];
+      }
+      return [[key, playsetConfig.value, { entries: new Map(), revision }]];
+    });
+
+    if (playsets.length === 0) {
+      return;
+    }
+
+    let canceled = false;
+    (async () => {
+      for await (const entry of db.iteratePriorityEntries()) {
+        if (canceled) {
+          return;
+        }
+        for (const [, playsetConfig, playset] of playsets) {
+          const determination = playsetConfig.determine(
+            entry.id,
+            entry.value.metadata,
+          );
+          if (determination === Determination.Include) {
+            playset.entries.set(entry.id, entry);
+          }
+        }
+      }
+
+      if (!canceled) {
+        for (const [playsetKey, , playset] of playsets) {
+          graph.setAtom<AllowableTypes["playset"]>(
+            playsetKey,
+            Right.create(playset),
+            eitherIsEqual,
+          );
+        }
+      }
+    })();
+
+    return () => {
+      canceled = true;
+    };
+  });
+}
+
+export interface Data {
+  readonly revision: number;
+  readonly db: ReadonlyDataIndexDb<DataswornTypes>;
+}
+
 export const campaignAssignment = memoizeWeak(
   (graph: GraphContext<AllowableTypes>) =>
     memoizeWeak((file: Signal<File>) => {
@@ -67,7 +231,7 @@ export const campaignAssignment = memoizeWeak(
           for (const campaignIndexPath of allCampaigns.values()) {
             const campaignRoot = parentFolderOf(campaignIndexPath);
             if (childOfPath(campaignRoot, path)) {
-              matches.push(campaignRoot);
+              matches.push(campaignIndexPath);
             }
           }
           if (matches.length != 1) {
@@ -102,12 +266,36 @@ const nodeTypes: NodeParsers<AllowableTypes, keyof FileKind> = {
     );
   },
   character: (graph: GraphContext<AllowableTypes>, file: Signal<File>) => {
-    const campaign = campaignAssignment(graph)(file);
-    if (campaign.value === undefined) {
+    const campaignPath = campaignAssignment(graph)(file);
+    if (campaignPath.value === undefined) {
       return Left.create(new Error("No campaign found"));
     }
+    // SAFE: if this campaign is in the campaign assignment, it must be a node.
+    const campaign = graph.getNode("campaign", campaignPath.value)!;
+
+    const playset = playsetNodeForCampaign(graph)(campaign).value;
+    if (playset.isLeft()) {
+      return playset;
+    }
+
     const fm = frontmatter(file).value;
-    return fm.map((fm) => fm ?? {});
+    if (fm.isLeft()) {
+      return fm;
+    }
+
+    return flatMap(
+      Ruleset.fromActiveRulesPackages(
+        playset.value.entries
+          .values()
+          .filter((e) => e.kind === "rules_package")
+          .map((e) => e.value.data)
+          .toArray(),
+      ),
+      (ruleset) => {
+        const { validater } = characterLens(ruleset);
+        return validater(fm.value);
+      },
+    );
   },
 };
 
@@ -120,6 +308,11 @@ export interface GraphContext<AllowableTypes extends Record<string, unknown>> {
   getAllNodes<const T extends keyof AllowableTypes>(
     type: T,
   ): Signal<Set<string>>;
+  getOrCreateAtom<T>(
+    key: string,
+    value: T,
+    equalityFn?: (a: T, b: T) => boolean,
+  ): Signal<T>;
 }
 
 export class EqualitySignal<T> extends Signal<T> {
@@ -174,6 +367,12 @@ export function onlyChanges<T>(
   });
 }
 
+export function memoizeGraph<U>(
+  fn: (graph: GraphContext<AllowableTypes>) => U,
+) {
+  return memoizeWeak(fn);
+}
+
 export function memoizeWeak<T extends WeakKey, U>(
   fn: (arg: T) => U,
 ): (arg: T) => U {
@@ -223,7 +422,7 @@ export function withPrevious<T>(
 
 export class Graph implements GraphContext<AllowableTypes> {
   #nodes: Signal<Map<string, Signal<unknown>>> = signal(new Map());
-  #subscriptions: Map<string, () => void> = new Map();
+  #subscriptions: Map<string, (() => void)[]> = new Map();
 
   constructor() {}
 
@@ -249,13 +448,13 @@ export class Graph implements GraphContext<AllowableTypes> {
       existing.value = { ...file };
       return existing;
     } else {
-      const signal = this.addAtom(key, { ...file }, (a, b) => {
+      const signal = this.getOrCreateAtom(key, { ...file }, (a, b) => {
         return a.path === b.path && a.content === b.content;
       });
       // const previous = withPrevious(([last, _]) => ([signal.value, last]), [undefined, signal.value]);
       // TODO: if file path changes, we need to remove the old node
       const lastRegistered: string | undefined = undefined;
-      this.#subscriptions.set(
+      this._registerSubscription(
         key,
         effect(() => {
           const kind = ironVaultKind(signal).value;
@@ -274,21 +473,75 @@ export class Graph implements GraphContext<AllowableTypes> {
     }
   }
 
-  addAtom<T>(
+  _registerSubscription(
+    key: string,
+    subscription: () => void,
+  ): (() => void) | undefined {
+    const existing = this.#subscriptions.get(key);
+    if (existing) {
+      existing.push(subscription);
+    } else {
+      this.#subscriptions.set(key, [subscription]);
+    }
+    return () => {
+      const existing = this.#subscriptions.get(key);
+      if (existing) {
+        const index = existing.indexOf(subscription);
+        if (index !== -1) {
+          existing.splice(index, 1);
+        }
+        if (existing.length === 0) {
+          this.#subscriptions.delete(key);
+        }
+      }
+    };
+  }
+
+  getOrCreateAtom<T>(
     key: string,
     value: T,
     equalityFn?: (a: T, b: T) => boolean,
   ): Signal<T> {
-    const newsig = equalityFn
-      ? equalitySignal(value, equalityFn)
-      : signal(value);
-    this.#nodes.value = produce(this.#nodes.value, (draft) => {
-      draft.set(key, newsig);
+    return untracked(() => {
+      if (this.#nodes.value.has(key)) {
+        return this.#nodes.value.get(key) as Signal<T>;
+      }
+      const newsig = equalityFn
+        ? equalitySignal(value, equalityFn)
+        : signal(value);
+      this.#nodes.value = produce(this.#nodes.value, (draft) => {
+        draft.set(key, newsig);
+      });
+      return newsig;
     });
-    return newsig;
+  }
+
+  setAtom<T>(
+    key: string,
+    value: T,
+    equalityFn?: (a: T, b: T) => boolean,
+  ): Signal<T> {
+    return untracked(() => {
+      const existing = this.#nodes.value.get(key) as Signal<T> | undefined;
+      if (existing) {
+        existing.value = value;
+        return existing;
+      }
+      const newsig = equalityFn
+        ? equalitySignal(value, equalityFn)
+        : signal(value);
+      this.#nodes.value = produce(this.#nodes.value, (draft) => {
+        draft.set(key, newsig);
+      });
+      return newsig;
+    });
   }
 
   getAtom<T>(key: string): Signal<T> | undefined {
+    return untracked(() => this.getAtomTracked<T>(key));
+  }
+
+  getAtomTracked<T>(key: string): Signal<T> | undefined {
     return this.#nodes.value.get(key) as Signal<T> | undefined;
   }
 
@@ -301,7 +554,7 @@ export class Graph implements GraphContext<AllowableTypes> {
     return untracked(() => {
       const key = `${type}/${id}`;
       if (this.#nodes.value.has(key)) {
-        console.debug("Ignoring duplicate node registration", key);
+        logger.warn("Ignoring duplicate node registration", key);
         // Just return the existing signal
         return this.#nodes.value.get(key) as Signal<AllowableTypes[T]>;
       }
@@ -312,7 +565,7 @@ export class Graph implements GraphContext<AllowableTypes> {
       this.#nodes.value = produce(this.#nodes.value, (draft) => {
         draft.set(key, newsig);
       });
-      this.#subscriptions.set(
+      this._registerSubscription(
         key,
         newsig.subscribe((value) => this.onUpdate(type, id, value)),
       );
@@ -324,9 +577,16 @@ export class Graph implements GraphContext<AllowableTypes> {
     // TODO: how am i notifying the subscribers in this case? manually?
     return untracked(() => {
       const key = `${type}/${id}`;
-      const subscription = this.#subscriptions.get(key);
-      if (subscription) {
-        subscription();
+      const subscriptions = this.#subscriptions.get(key);
+      if (subscriptions) {
+        for (const subscription of subscriptions) {
+          try {
+            subscription();
+          } catch (e) {
+            logger.error("Error unsubscribing from node", key, e);
+          }
+        }
+
         this.#subscriptions.delete(key);
       }
       this.#nodes.value.delete(key);
@@ -338,11 +598,21 @@ export class Graph implements GraphContext<AllowableTypes> {
     console.debug(`Node ${key} updated:`, value);
   }
 
+  /** Gets an atom by type and id. */
   getNode<T extends keyof AllowableTypes>(
     type: T,
     id: string,
   ): Signal<AllowableTypes[T]> | undefined {
     const key = `${type}/${id}`;
-    return this.#nodes.value.get(key) as Signal<AllowableTypes[T]> | undefined;
+    return this.getAtom<AllowableTypes[T]>(key);
+  }
+
+  /** Gets an atom by type and id. */
+  getNodeTracked<T extends keyof AllowableTypes>(
+    type: T,
+    id: string,
+  ): Signal<AllowableTypes[T]> | undefined {
+    const key = `${type}/${id}`;
+    return this.getAtomTracked<AllowableTypes[T]>(key);
   }
 }

@@ -1,18 +1,24 @@
 import { jest } from "@jest/globals";
 import { computed, effect, signal, Signal } from "@preact/signals-core";
 import { CampaignInput } from "campaigns/entity";
+import { ReadonlyDataIndexDb } from "datastore/db";
 import { produce } from "immer";
 import { Right } from "utils/either";
 import * as yaml from "yaml";
 import { PLUGIN_KIND_FIELD } from "../../constants";
+import { DataswornEntries, DataswornTypes } from "./datasworn-indexer";
 import {
+  AllowableTypes,
   campaignAssignment,
+  Data,
   equalitySignal,
   File,
   FileKind,
   Graph,
   memoizeWeak,
   onlyChanges,
+  playsetConfigFor,
+  registerPlaysetHasher,
   withPrevious,
 } from "./graph";
 
@@ -122,7 +128,7 @@ describe("campaignAssignment", () => {
     );
 
     const sig = campaignAssignment(graph)(character);
-    expect(sig.value).toBe("c1");
+    expect(sig.value).toBe("c1/index.md");
   });
 
   it("should trigger if the root changes", () => {
@@ -146,12 +152,12 @@ describe("campaignAssignment", () => {
 
     graph.addOrUpdateFile(createInvalidCampaign({ path: "c1/index.md" }));
     expect(fn).toHaveBeenCalledTimes(1);
-    expect(fn).toHaveBeenCalledWith("c1");
+    expect(fn).toHaveBeenCalledWith("c1/index.md");
 
     fn.mockClear();
     graph.addOrUpdateFile(createCampaign({ path: "c4/index.md" }));
     expect(fn).toHaveBeenCalledTimes(0);
-    expect(sig.value).toBe("c1");
+    expect(sig.value).toBe("c1/index.md");
 
     // If we have a conflict, we should return undefined
     // TODO: maybe this should return an error instead?
@@ -285,5 +291,182 @@ describe("memoize", () => {
     const s2 = makeSignal();
     const signal3 = memoized(s2);
     expect(signal3).not.toBe(signal1);
+  });
+});
+
+class MockDb implements ReadonlyDataIndexDb<DataswornTypes> {
+  constructor(public entries: DataswornEntries[]) {}
+  async *iteratePriorityEntries() {
+    for (const entry of this.entries) {
+      yield entry;
+    }
+  }
+
+  addEntry(entry: DataswornEntries): this {
+    this.entries.push(entry);
+    return this;
+  }
+}
+
+const EMPTY_SOURCE = {
+  authors: [],
+  license: null,
+  date: "",
+  title: "",
+  url: "",
+};
+
+describe("registerPlaysetHasher", () => {
+  let graph: Graph;
+  let data: Signal<Data>;
+  let db: MockDb;
+  beforeEach(() => {
+    graph = new Graph();
+    db = new MockDb([
+      {
+        id: "asset:test/test",
+        kind: "asset",
+        filerev: "12345",
+        path: "test.txt",
+        value: {
+          metadata: {
+            ancestors: [],
+            source: EMPTY_SOURCE,
+            tags: {},
+          },
+          data: {
+            type: "asset",
+            _id: "asset:test/test",
+            _source: EMPTY_SOURCE,
+            name: "test",
+            category: "test",
+            options: {},
+            abilities: [],
+            count_as_impact: false,
+            shared: false,
+          },
+        },
+      },
+    ]);
+    data = graph.getOrCreateAtom(
+      "data",
+      {
+        db,
+        revision: 1,
+      },
+      (a, b) => a.revision === b.revision,
+    );
+    registerPlaysetHasher(graph);
+  });
+
+  function addEntriesToDb(...entries: DataswornEntries[]) {
+    for (const entry of entries) {
+      db.addEntry(entry);
+    }
+    data.value = {
+      db: db,
+      revision: data.value.revision + 1,
+    };
+  }
+
+  function waitForPlayset(
+    graph: Graph,
+    file: File,
+    revision: number = 1,
+  ): Promise<AllowableTypes["playset"]> {
+    return new Promise((resolve, reject) => {
+      effect(() => {
+        try {
+          // Tracked so we re-evaluate whenever the graph changes
+          const campaign = graph.getNodeTracked("campaign", file.path);
+          if (!campaign) return;
+          const config = playsetConfigFor(campaign);
+          if (config.value.isLeft()) return;
+          const playsetNode = graph.getNode(
+            "playset",
+            JSON.stringify(config.value.value),
+          );
+          if (
+            !playsetNode ||
+            playsetNode.value.isLeft() ||
+            playsetNode.value.value.revision !== revision
+          )
+            return;
+
+          resolve(playsetNode.value);
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+  }
+
+  it("should create a playset node for a campaign", async () => {
+    const file = createCampaign({
+      path: "campaign/index.md",
+      content: {
+        ironvault: {
+          playset: {
+            type: "globs",
+            lines: ["*:test/**"],
+          },
+        },
+      },
+    });
+    graph.addOrUpdateFile(file);
+    const result = waitForPlayset(graph, file);
+    const val = (await result).unwrap();
+    expect(val.revision).toEqual(1);
+    expect(val.entries.values()).toContainEqual(
+      expect.objectContaining({ id: "asset:test/test" }),
+    );
+  });
+
+  it("should update that playset node", async () => {
+    const file = createCampaign({
+      path: "campaign/index.md",
+      content: {
+        ironvault: {
+          playset: {
+            type: "globs",
+            lines: ["*:test/**"],
+          },
+        },
+      },
+    });
+    graph.addOrUpdateFile(file);
+    addEntriesToDb({
+      id: "asset:test/test2",
+      kind: "asset",
+      filerev: "12345",
+      path: "test.txt",
+      value: {
+        metadata: {
+          ancestors: [],
+          source: EMPTY_SOURCE,
+          tags: {},
+        },
+        data: {
+          type: "asset",
+          _id: "asset:test/test2",
+          _source: EMPTY_SOURCE,
+          name: "test2",
+          category: "test",
+          options: {},
+          abilities: [],
+          count_as_impact: false,
+          shared: false,
+        },
+      },
+    });
+    const result = waitForPlayset(graph, file, 2);
+    const val = (await result).unwrap();
+    expect(val.revision).toEqual(2);
+    expect(val.entries).toEqual(
+      new Map([
+        ["asset:test/test", expect.anything()],
+        ["asset:test/test2", expect.anything()],
+      ]),
+    );
   });
 });

@@ -1,5 +1,5 @@
 import { TFile } from "obsidian";
-import { Either } from "utils/either";
+import { Either, Left } from "utils/either";
 import { zodResultToEither } from "utils/zodutils";
 import { z } from "zod";
 import {
@@ -62,6 +62,25 @@ export const recoveringCampaignFileSchema = campaignFileSchema.extend({
     })
     .default({ playset: { type: "registry", key: "starforged" } }),
 });
+
+export type PlaysetConfigSchema = z.output<typeof PlaysetConfigSchema>;
+
+export function playsetSpecToPlaysetConfig(
+  spec: z.output<typeof PlaysetConfigSchema>,
+): Either<Error, IPlaysetConfig> {
+  switch (spec.type) {
+    case "globs":
+      return PlaysetConfig.tryParse(spec.lines);
+    case "registry": {
+      const standardDefn = getStandardPlaysetDefinition(spec.key);
+      if (standardDefn) {
+        return PlaysetConfig.tryParse(standardDefn.lines);
+      } else {
+        return Left.create(new Error(`Invalid playset key ${spec.key}`));
+      }
+    }
+  }
+}
 
 /** A campaign that exists in an Obsidian markdown file. */
 export class CampaignFile implements BaseCampaign {

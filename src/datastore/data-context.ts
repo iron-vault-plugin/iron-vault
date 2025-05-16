@@ -128,17 +128,7 @@ export class BaseDataContext implements ICompleteDataContext {
     const rules = [...this.prioritized.ofKind("rules_package").values()].map(
       ({ value }) => value,
     );
-    const base = rules.filter((pkg) => pkg.type == "ruleset");
-    if (base.length == 0) {
-      throw new Error("Playset must include at least one base ruleset.");
-    } else if (base.length > 1) {
-      throw new Error(
-        `Playset may include only one base ruleset; found: ${base.map((pkg) => pkg._id).join(", ")}`,
-      );
-    }
-    const expansions = rules.filter((pkg) => pkg.type == "expansion");
-
-    return new Ruleset(base[0], expansions);
+    return Ruleset.fromActiveRulesPackages(rules).unwrap();
   }
 
   get trackTypes() {
