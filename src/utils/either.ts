@@ -7,6 +7,34 @@ export function flatMap<E1, A, E2, B>(
   return either.isLeft() ? either : f(either.value);
 }
 
+export function flattenLeft<E1, E2, A>(
+  either: Either<E1, Either<E2, A>>,
+): Either<E1 | E2, A> {
+  return either.isLeft() ? either : either.value;
+}
+
+/** Given a value that may be undefined, return an Either that wraps the value
+ * or, if the value is undefined, returns the error.
+ */
+export function fromUndefined<E, V>(
+  value: V | undefined,
+  error: () => E,
+): Either<E, V> {
+  return value === undefined ? Left.create(error()) : Right.create(value);
+}
+
+export function trying<T>(fn: () => T): Either<Error, T> {
+  try {
+    return Right.create(fn());
+  } catch (e) {
+    if (e instanceof Error) {
+      return Left.create(e);
+    } else {
+      return Left.create(new Error(String(e)));
+    }
+  }
+}
+
 export class Left<T> {
   private constructor(public readonly error: T) {}
 
@@ -106,4 +134,23 @@ export function collectEither<L, R>(
   } else {
     return Right.create(results);
   }
+}
+
+/** Given an equality function on a type T, create an equality function for
+ * Either<unknown, T> that is true if both Either values are Left, or if both
+ * Either values are Right and the Right values are equal according to the
+ * equality function.
+ */
+export function makeEitherPartialEquality<T>(
+  eq: (a: T, b: T) => boolean,
+): (a: Either<unknown, T>, b: Either<unknown, T>) => boolean {
+  return (a, b) => {
+    if (a.isLeft() && b.isLeft()) {
+      return true;
+    }
+    if (a.isRight() && b.isRight()) {
+      return eq(a.value, b.value);
+    }
+    return false;
+  };
 }

@@ -70,11 +70,32 @@ type DataswornBroadcastMessage = {
   path: string;
 };
 
-export class DataIndexDb<Kinds extends Record<string, unknown>> {
+export interface ReadonlyDataIndexDb<Kinds extends Record<string, unknown>> {
+  iteratePriorityEntries(): AsyncGenerator<EntryTypes<Kinds>[keyof Kinds]>;
+}
+
+export class DataIndexDb<Kinds extends Record<string, unknown>>
+  implements ReadonlyDataIndexDb<Kinds>
+{
   channel: BroadcastChannel;
 
   constructor(readonly db: IDBPDatabase<IronVaultDb<Kinds>>) {
     this.channel = new BroadcastChannel("datasworn-db");
+  }
+
+  async *iteratePriorityEntries(): AsyncGenerator<
+    EntryTypes<Kinds>[keyof Kinds]
+  > {
+    const tx = this.db.transaction("datasworn-entry", "readonly");
+    const store = tx.objectStore("datasworn-entry");
+
+    // We traverse backwards since the lower priority paths should sort before the higher
+    // priority paths (@datasworn is lexicographically before and lower priority than any file path)
+    for await (const cursor of store.iterate(undefined, "prev")) {
+      yield cursor.value;
+      // Skip to the next entry
+      cursor.continue([cursor.key[0], ""]);
+    }
   }
 
   async index(
