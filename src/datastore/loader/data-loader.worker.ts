@@ -18,18 +18,21 @@ declare function postMessage(
 ensureRulesPackageBuilderInitialized();
 
 (async () => {
-  logger.debug("[data-loader.worker] Initializing database");
-  main(await createDataIndexDb<DataswornTypes>());
-  logger.debug("[data-loader.worker] Database initialized");
+  logger.debug("[data-loader.worker] Initializing worker");
+  const db = ENABLE_INDEXEDDB
+    ? await createDataIndexDb<DataswornTypes>()
+    : undefined;
+  main(db);
+  logger.debug("[data-loader.worker] Worker initialized");
 })().catch((error) => {
   logger.error(
-    "[data-loader.worker] Error initializing database: %s",
+    "[data-loader.worker] Error initializing worker: %s",
     error,
     error.stack,
   );
 });
 
-function main(db: DataIndexDb<DataswornTypes>) {
+function main(db: DataIndexDb<DataswornTypes> | undefined) {
   const contentManager = new MetarootContentManager(
     new ContentManagerImpl<Content>(),
   );
@@ -64,12 +67,14 @@ function main(db: DataIndexDb<DataswornTypes>) {
         package: result,
       });
 
-      if (result) {
-        // New content. Let's index it.
-        db.index(root, "", walkDataswornRulesPackage(result));
-      } else {
-        // No content, so unindex everything.
-        db.index(root, "", []);
+      if (db) {
+        if (result) {
+          // New content. Let's index it.
+          db.index(root, "", walkDataswornRulesPackage(result));
+        } else {
+          // No content, so unindex everything.
+          db.index(root, "", []);
+        }
       }
     });
   });
