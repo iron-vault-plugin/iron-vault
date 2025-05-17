@@ -42,7 +42,9 @@ export class IndexManager extends Component {
   }
 
   public onload(): void {
-    this.worker = newIndexerWorker();
+    if (ENABLE_INDEXEDDB) {
+      this.worker = newIndexerWorker();
+    }
 
     logger.debug("[index-manager] Starting event listeners...");
     this.registerEvent(
@@ -62,6 +64,13 @@ export class IndexManager extends Component {
         if (!(file instanceof TFile)) return;
         const indexer = this.currentIndexerForFile(oldPath);
         if (indexer != null) {
+          if (ENABLE_INDEXEDDB) {
+            this.worker.postMessage({
+              type: "rename",
+              oldPath,
+              newPath: file.path,
+            });
+          }
           this.indexedFiles.delete(oldPath);
           const cache = this.metadataCache.getFileCache(file);
           assertHasFrontmatter(cache!);
@@ -74,8 +83,10 @@ export class IndexManager extends Component {
   }
 
   public onunload(): void {
-    this.worker.terminate();
-    this.worker = undefined!;
+    if (this.worker) {
+      this.worker.terminate();
+      this.worker = undefined!;
+    }
     super.onunload();
   }
 
@@ -121,6 +132,12 @@ export class IndexManager extends Component {
         indexer.id,
         fileKey,
       );
+      if (ENABLE_INDEXEDDB) {
+        this.worker.postMessage({
+          type: "delete",
+          path: fileKey,
+        });
+      }
       const result = indexer.onDeleted(fileKey);
       if (result.type == "not_found") {
         logger.warn(
@@ -187,16 +204,18 @@ export class IndexManager extends Component {
         indexKey,
       );
 
-      (async () => {
-        const content = await this.vault.cachedRead(file);
-        this.worker.postMessage({
-          type: "index",
-          content,
-          path: file.path,
-          mtime: file.stat.mtime,
-          frontmatter: cache.frontmatter,
-        });
-      })();
+      if (ENABLE_INDEXEDDB) {
+        (async () => {
+          const content = await this.vault.cachedRead(file);
+          this.worker.postMessage({
+            type: "index",
+            content,
+            path: file.path,
+            mtime: file.stat.mtime,
+            frontmatter: cache.frontmatter,
+          });
+        })();
+      }
 
       let result: ReturnType<Indexer["onChanged"]> | undefined = undefined;
       try {
