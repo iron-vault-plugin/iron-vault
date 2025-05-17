@@ -5,8 +5,11 @@ import { ReadonlyDataIndexDb } from "datastore/db";
 import { produce } from "immer";
 import { Right } from "utils/either";
 import * as yaml from "yaml";
-import { PLUGIN_KIND_FIELD } from "../../constants";
-import { DataswornEntries, DataswornTypes } from "./datasworn-indexer";
+import { PLUGIN_KIND_FIELD } from "../constants";
+import {
+  DataswornEntries,
+  DataswornTypes,
+} from "../datastore/loader/datasworn-indexer";
 import {
   AllowableTypes,
   campaignAssignment,
@@ -356,7 +359,7 @@ describe("registerPlaysetHasher", () => {
       },
       (a, b) => a.revision === b.revision,
     );
-    registerPlaysetHasher(graph);
+    registerPlaysetHasher(graph, data);
   });
 
   function addEntriesToDb(...entries: DataswornEntries[]) {

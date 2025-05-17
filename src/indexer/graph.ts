@@ -1,4 +1,5 @@
 import {
+  batch,
   computed,
   effect,
   Signal,
@@ -13,7 +14,7 @@ import {
 } from "campaigns/entity";
 import { Determination, IPlaysetConfig } from "campaigns/playsets/config";
 import { characterLens, ValidatedCharacter } from "characters/lens";
-import { ReadonlyDataIndexDb } from "datastore/db";
+import { DataIndexDb, ReadonlyDataIndexDb } from "datastore/db";
 import { enableMapSet, produce } from "immer";
 import isEqual from "lodash.isequal";
 import { rootLogger } from "logger";
@@ -21,8 +22,6 @@ import { Ruleset } from "rules/ruleset";
 import {
   Either,
   flatMap,
-  flattenLeft,
-  fromUndefined,
   Left,
   makeEitherPartialEquality,
   Right,
@@ -30,8 +29,11 @@ import {
 import { extractFrontmatter } from "utils/markdown";
 import { baseNameOf, childOfPath, parentFolderOf } from "utils/paths";
 import { zodResultToEither } from "utils/zodutils";
-import { PLUGIN_KIND_FIELD } from "../../constants";
-import { DataswornEntries, DataswornTypes } from "./datasworn-indexer";
+import { PLUGIN_KIND_FIELD } from "../constants";
+import {
+  DataswornEntries,
+  DataswornTypes,
+} from "../datastore/loader/datasworn-indexer";
 
 const logger = rootLogger.getLogger("datastore.loader.graph");
 logger.setDefaultLevel("debug");
@@ -53,6 +55,7 @@ export type File = {
   path: string;
   filerev: string;
   content: string;
+  deleted?: boolean;
 };
 
 export type PlaysetValue = {
@@ -100,16 +103,16 @@ export const playsetNodeForCampaign = memoizeGraph((graph) =>
   memoizeWeak((campaign: Signal<AllowableTypes["campaign"]>) =>
     onlyChanges(
       computed((): AllowableTypes["playset"] =>
-        flattenLeft(
-          flatMap(campaign.value, (campaign) =>
-            fromUndefined(
-              graph.getNode(
-                "playset",
-                `playset/${JSON.stringify(campaign.ironvault.playset)}`,
-              )?.value,
-              () => new Error("Playset not found"),
-            ),
-          ),
+        flatMap(
+          playsetConfigFor(campaign).value,
+          (playset) =>
+            graph.getOrCreateAtom<AllowableTypes["playset"]>(
+              `playset/${JSON.stringify(playset)}`,
+              Left.create(
+                new Error(`playset not yet loaded: ${JSON.stringify(playset)}`),
+              ),
+              eitherIsEqual,
+            ).value,
         ),
       ),
       isEqual,
@@ -126,7 +129,7 @@ const allPlaysetSpecs = memoizeGraph((graph: GraphContext<AllowableTypes>) =>
         const campaign = graph.getNode("campaign", campaignPath);
         if (!campaign) {
           logger.warn(
-            "Campaign `%s` not found. This shouldn't happen.",
+            "[graph] Campaign `%s` not found. This shouldn't happen.",
             campaignPath,
           );
           continue;
@@ -156,11 +159,26 @@ const allPlaysetSpecs = memoizeGraph((graph: GraphContext<AllowableTypes>) =>
   ),
 );
 
-export function registerPlaysetHasher(graph: Graph) {
-  const data = graph.getAtom<Data>("data");
-  if (!data) {
-    throw new Error("Data does not exist yet.");
-  }
+export function registerData(
+  graph: Graph,
+  db: DataIndexDb<DataswornTypes>,
+): Signal<Data> {
+  const data = graph.getOrCreateAtom<Data>(
+    "data",
+    {
+      db,
+      revision: 0,
+    },
+    (a, b) => a.revision !== b.revision,
+  );
+  db.onupdate = () => {
+    const newRevision = data.value.revision + 1;
+    data.value = { ...data.value, revision: newRevision };
+  };
+  return data;
+}
+
+export function registerPlaysetHasher(graph: Graph, data: Signal<Data>) {
   return effect(() => {
     const { db, revision } = data.value;
 
@@ -177,6 +195,8 @@ export function registerPlaysetHasher(graph: Graph) {
       return [[key, playsetConfig.value, { entries: new Map(), revision }]];
     });
 
+    logger.debug("[playset-hasher] playsets: %o", playsets);
+
     if (playsets.length === 0) {
       return;
     }
@@ -185,6 +205,7 @@ export function registerPlaysetHasher(graph: Graph) {
     (async () => {
       for await (const entry of db.iteratePriorityEntries()) {
         if (canceled) {
+          logger.debug("[playset-hasher] canceled");
           return;
         }
         for (const [, playsetConfig, playset] of playsets) {
@@ -302,6 +323,10 @@ const nodeTypes: NodeParsers<AllowableTypes, keyof FileKind> = {
 export interface GraphContext<AllowableTypes extends Record<string, unknown>> {
   getAtom<T>(key: string): Signal<T> | undefined;
   getNode<T extends keyof AllowableTypes>(
+    type: T,
+    id: string,
+  ): Signal<AllowableTypes[T]> | undefined;
+  getNodeTracked<T extends keyof AllowableTypes>(
     type: T,
     id: string,
   ): Signal<AllowableTypes[T]> | undefined;
@@ -426,7 +451,7 @@ export class Graph implements GraphContext<AllowableTypes> {
 
   constructor() {}
 
-  allNodes = memoizeStrong((type: keyof AllowableTypes) =>
+  allNodesOfType = memoizeStrong((type: keyof AllowableTypes) =>
     withPrevious((prev) => {
       const next = new Set(
         [...this.#nodes.value.keys()]
@@ -438,7 +463,13 @@ export class Graph implements GraphContext<AllowableTypes> {
   );
 
   getAllNodes<T extends string & keyof AllowableTypes>(type: T) {
-    return this.allNodes(type);
+    return this.allNodesOfType(type);
+  }
+
+  allNodes() {
+    return this.#nodes.value
+      .entries()
+      .map(([key, value]): [string, unknown] => [key, value.value]);
   }
 
   addOrUpdateFile(file: File): Signal<File> {
@@ -471,6 +502,41 @@ export class Graph implements GraphContext<AllowableTypes> {
       );
       return signal;
     }
+  }
+
+  removeFile(path: string) {
+    return untracked(() => {
+      const key = `@file/${path}`;
+      const existing = this.#nodes.value.get(key) as Signal<File> | undefined;
+      if (existing) {
+        // Mark it as deleted to start updates that will remove it.
+        existing.value = { ...existing.value, deleted: true };
+        this.removeNode("@file", path);
+      }
+    });
+  }
+
+  renameFile(oldPath: string, newPath: string) {
+    return untracked(() => {
+      const key = `@file/${oldPath}`;
+      const existing = this.#nodes.value.get(key) as Signal<File> | undefined;
+      if (existing) {
+        // We update the node's path and adjust the graph in a single transaction
+        batch(() => {
+          existing.value = { ...existing.value, path: newPath };
+          this.#nodes.value = produce(this.#nodes.value, (draft) => {
+            draft.delete(key);
+            draft.set(`@file/${newPath}`, existing);
+          });
+        });
+      } else {
+        logger.warn(
+          "Attempted to rename non-existent file %s to %s",
+          oldPath,
+          newPath,
+        );
+      }
+    });
   }
 
   _registerSubscription(
@@ -509,6 +575,7 @@ export class Graph implements GraphContext<AllowableTypes> {
       const newsig = equalityFn
         ? equalitySignal(value, equalityFn)
         : signal(value);
+      logger.debug("[graph] creating atom %s: %o", key, value);
       this.#nodes.value = produce(this.#nodes.value, (draft) => {
         draft.set(key, newsig);
       });
@@ -524,12 +591,14 @@ export class Graph implements GraphContext<AllowableTypes> {
     return untracked(() => {
       const existing = this.#nodes.value.get(key) as Signal<T> | undefined;
       if (existing) {
+        logger.debug("[graph] updating atom %s: %o", key, value);
         existing.value = value;
         return existing;
       }
       const newsig = equalityFn
         ? equalitySignal(value, equalityFn)
         : signal(value);
+      logger.debug("[graph] creating atom %s: %o", key, value);
       this.#nodes.value = produce(this.#nodes.value, (draft) => {
         draft.set(key, newsig);
       });
@@ -567,14 +636,13 @@ export class Graph implements GraphContext<AllowableTypes> {
       });
       this._registerSubscription(
         key,
-        newsig.subscribe((value) => this.onUpdate(type, id, value)),
+        newsig.subscribe((value) => this.onUpdate(type, id, "changed", value)),
       );
       return newsig;
     });
   }
 
   removeNode(type: string, id: string) {
-    // TODO: how am i notifying the subscribers in this case? manually?
     return untracked(() => {
       const key = `${type}/${id}`;
       const subscriptions = this.#subscriptions.get(key);
@@ -590,12 +658,18 @@ export class Graph implements GraphContext<AllowableTypes> {
         this.#subscriptions.delete(key);
       }
       this.#nodes.value.delete(key);
+      this.onUpdate(type, id, "deleted", undefined);
     });
   }
 
-  onUpdate(type: string, id: string, value: unknown) {
+  onUpdate(
+    type: string,
+    id: string,
+    action: "changed" | "deleted",
+    value: unknown,
+  ) {
     const key = `${type}/${id}`;
-    console.debug(`Node ${key} updated:`, value);
+    console.debug(`Node %s %s: %o`, key, action, value);
   }
 
   /** Gets an atom by type and id. */
