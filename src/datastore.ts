@@ -21,6 +21,19 @@ import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type:
 
 const logger = rootLogger.getLogger("datastore");
 
+const BUILTIN_SOURCES: [Datasworn.RulesPackage, number][] = [
+  [ironswornRuleset as Datasworn.Ruleset, 0],
+  // @ts-expect-error tsc seems to infer type of data in an incompatible way
+  [ironswornDelvePackage as Datasworn.Expansion, 0],
+
+  // @ts-expect-error tsc seems to infer type of data in an incompatible way
+  [starforgedRuleset as Datasworn.Ruleset, 0],
+  [starforgedSupp as Datasworn.Expansion, 5],
+
+  [sunderedIslesPackage as Datasworn.Expansion, 0],
+  [sunderedSupp as Datasworn.Expansion, 5],
+];
+
 export class Datastore extends Component {
   _ready: boolean;
   readonly indexer: DataswornIndexer = new DataIndexer();
@@ -63,17 +76,9 @@ export class Datastore extends Component {
     this._ready = false;
     this.indexer.clear();
 
-    this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
-
-    // @ts-expect-error tsc seems to infer type of data in an incompatible way
-    this.indexBuiltInData(ironswornDelvePackage as Datasworn.Expansion);
-
-    // @ts-expect-error tsc seems to infer type of data in an incompatible way
-    this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
-    this.indexBuiltInData(starforgedSupp as Datasworn.Expansion, 5);
-
-    this.indexBuiltInData(sunderedIslesPackage as Datasworn.Expansion);
-    this.indexBuiltInData(sunderedSupp as Datasworn.Expansion, 5);
+    for (const [pkg, priority] of BUILTIN_SOURCES) {
+      this.indexBuiltInData(pkg, priority);
+    }
 
     if (this.plugin.settings.useHomebrew) {
       if (this.plugin.settings.homebrewPath) {
@@ -87,17 +92,6 @@ export class Datastore extends Component {
     if (reload) {
       await this.dataManager.reindexAll();
     }
-
-    this._ready = true;
-    console.info(
-      "iron-vault: init complete. loaded: %d oracles, %d moves, %d assets, %d truths",
-      this.dataContext.oracles.size,
-      this.dataContext.moves.size,
-      this.dataContext.assets.size,
-      this.dataContext.truths.size,
-    );
-    this.emitter.emit("initialized");
-    this.#readyNow();
   }
 
   onload(): void {
@@ -161,6 +155,28 @@ export class Datastore extends Component {
   }
 
   triggerIndexChanged() {
+    if (!this._ready) {
+      if (
+        BUILTIN_SOURCES.every(([pkg]) =>
+          this.indexer.hasSource(`@datasworn/${pkg._id}.json`),
+        )
+      ) {
+        this._ready = true;
+        console.info(
+          "iron-vault: init complete. loaded: %d oracles, %d moves, %d assets, %d truths",
+          this.dataContext.oracles.size,
+          this.dataContext.moves.size,
+          this.dataContext.assets.size,
+          this.dataContext.truths.size,
+        );
+        this.emitter.emit("initialized");
+        this.#readyNow();
+      } else {
+        logger.info(
+          "iron-vault: still waiting for built-in data to be indexed...",
+        );
+      }
+    }
     this.app.metadataCache.trigger("iron-vault:index-changed");
   }
 
