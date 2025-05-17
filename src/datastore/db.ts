@@ -83,6 +83,20 @@ export class DataIndexDb<Kinds extends Record<string, unknown>>
     this.channel = new BroadcastChannel("datasworn-db");
   }
 
+  set onupdate(callback: (message: DataswornBroadcastMessage) => void) {
+    this.channel.onmessage = (event) => {
+      const message: DataswornBroadcastMessage = event.data;
+      if (message.type !== "file-indexed") {
+        console.warn(
+          "Received unexpected message type from datasworn-db channel",
+          message,
+        );
+        return;
+      }
+      callback(message);
+    };
+  }
+
   async *iteratePriorityEntries(): AsyncGenerator<
     EntryTypes<Kinds>[keyof Kinds]
   > {
