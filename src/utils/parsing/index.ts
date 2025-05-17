@@ -1,15 +1,42 @@
 export * from "./branching";
 export * from "./parser";
 export * from "./sequences";
+export function lazy<V, N, E extends ParserErrors = ParserErrors>(
+  parser: () => Parser<V, N, E>,
+): Parser<V, N, E> {
+  return (node) => {
+    return parser()(node);
+  };
+}
+
+export function one<N, E extends ParserErrors = ParserErrors>(): Parser<
+  N,
+  N,
+  E | RecoverableParserError
+> {
+  return (node) => {
+    if (node === undefined) {
+      return Left.create(
+        new RecoverableParserError("expected a node, found end of sequence"),
+      );
+    }
+    return Right.create({
+      value: node.value,
+      start: node,
+      next: node.next,
+    });
+  };
+}
+
 export * from "./strings";
 
 import { Either, flatMap, Left, Right } from "utils/either";
 import {
+  Definite,
   LazyPNode,
   makeError,
   Parser,
   ParserErrors,
-  ParseResult,
   PNode,
   RecoverableParserError,
   UnrecoverableParserError,
@@ -121,11 +148,33 @@ export function apply<V, U, N, E extends ParserErrors = ParserErrors>(
         next,
       });
     } catch (error) {
-      return Left.create(
-        new RecoverableParserError(`Error applying function: ${error}`, {
-          cause: error,
-        }),
-      );
+      return makeError(node, `Error applying function: ${error}`, {
+        cause: error,
+      });
+    }
+  };
+}
+
+export function applyFlat<V, U, N, E extends ParserErrors = ParserErrors>(
+  parser: Parser<V, N, E>,
+  fn: (value: V) => Either<E, U>,
+): Parser<U, N, E | RecoverableParserError> {
+  return (node) => {
+    const result = parser(node);
+    if (result.isLeft()) {
+      return result;
+    }
+    const { value, start, next } = result.value;
+    try {
+      return fn(value).map((newValue) => ({
+        value: newValue,
+        start,
+        next,
+      }));
+    } catch (error) {
+      return makeError(node, `Error applying function: ${error}`, {
+        cause: error,
+      });
     }
   };
 }
@@ -133,7 +182,7 @@ export function apply<V, U, N, E extends ParserErrors = ParserErrors>(
 export function succ<V, N, E extends ParserErrors = ParserErrors>(
   value: V,
 ): Parser<V, N, E> {
-  return (node: PNode<N> | undefined): Either<E, ParseResult<V, N>> => {
+  return (node) => {
     return Right.create({
       value,
       start: node,
@@ -174,17 +223,30 @@ export function check<V, N, E extends ParserErrors = ParserErrors>(
 
 export function pipe<V1, V2, N, E extends ParserErrors>(
   p1: Parser<V1, N, E>,
-  p2: Parser<V2, V1, E>,
+  p2: Definite<Parser<V2, V1, E>>,
 ): Parser<V2, N, E>;
 export function pipe<V1, V2, V3, N, E extends ParserErrors>(
   p1: Parser<V1, N, E>,
-  p2: Parser<V2, V1, E>,
-  p3: Parser<V3, V2, E>,
+  p2: Definite<Parser<V2, V1, E>>,
+  p3: Definite<Parser<V3, V2, E>>,
 ): Parser<V3, N, E>;
-export function pipe<E extends ParserErrors = ParserErrors>(
-  ...ps: Parser<unknown, unknown, E>[]
-): Parser<unknown, unknown, E> {
-  return (node) => {
+export function pipe<V, N, E extends ParserErrors = ParserErrors>(
+  p1: Parser<V, N, E>,
+  ...ps: Definite<Parser<V, V, E>>[]
+): Parser<V, N, E>;
+export function pipe<V, N, E extends ParserErrors = ParserErrors>(
+  p1: Parser<V, N, E>,
+  ...ps: Definite<Parser<V, V, E>>[]
+): Parser<V, N, E> {
+  return (start) => {
+    const initial = p1(start);
+    if (initial.isLeft()) {
+      return initial;
+    }
+    let node: PNode<V> = {
+      value: initial.value.value,
+      next: undefined,
+    };
     for (const p of ps) {
       const result = p(node);
       if (result.isLeft()) {
@@ -194,12 +256,15 @@ export function pipe<E extends ParserErrors = ParserErrors>(
     }
     return Right.create({
       value: node!.value,
-      start: node,
-      next: node!.next,
+      start: start,
+      next: initial.value.next,
     });
   };
 }
 
+/**  */
+
+/** Consume any single node. */
 export function some<N, E extends ParserErrors = ParserErrors>(): Parser<
   N,
   N,
@@ -238,6 +303,38 @@ export function liftAsList<V, N, E extends ParserErrors = ParserErrors>(
         start: node,
         next: node.next,
       });
+    });
+  };
+}
+
+export function consumed<V, N, E extends ParserErrors = ParserErrors>(
+  parser: Parser<V, N, E>,
+): Parser<[N[], V], N, E> {
+  return (node) => {
+    return parser(node).map((result) => {
+      return {
+        // TODO: this should actually return all the nodes that were consumed from the input
+        // from the start node to the next node.
+        value: [[node!.value], result.value],
+        start: result.start,
+        next: result.next,
+      };
+    });
+  };
+}
+
+export function recognize<V, N, E extends ParserErrors = ParserErrors>(
+  parser: Parser<V, N, E>,
+): Parser<N[], N, E> {
+  return (node) => {
+    return parser(node).map((result) => {
+      return {
+        // TODO: this should actually return all the nodes that were consumed from the input
+        // from the start node to the next node.
+        value: [node!.value],
+        start: result.start,
+        next: result.next,
+      };
     });
   };
 }

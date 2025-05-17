@@ -3,7 +3,7 @@ const config = {
   transform: {
     "^.+\\.(t|j)sx?$": ["@swc/jest"],
   },
-  testEnvironment: "jsdom",
+  testEnvironment: "node",
   rootDir: "src",
   modulePaths: ["<rootDir>"],
   extensionsToTreatAsEsm: [".ts", ".tsx"],

@@ -1,3 +1,4 @@
+import newIndexerWorker, { IndexerWorker } from "indexer/indexer.worker";
 import { rootLogger } from "logger";
 import {
   CachedMetadata,
@@ -22,6 +23,7 @@ export class IndexManager extends Component {
   protected readonly fileManager: FileManager;
   protected readonly handlers: Map<IndexerId, Indexer> = new Map();
   protected readonly indexedFiles: Map<string, IndexerId> = new Map();
+  protected worker!: IndexerWorker;
 
   constructor(app: App) {
     super();
@@ -40,6 +42,10 @@ export class IndexManager extends Component {
   }
 
   public onload(): void {
+    if (ENABLE_INDEXEDDB) {
+      this.worker = newIndexerWorker();
+    }
+
     logger.debug("[index-manager] Starting event listeners...");
     this.registerEvent(
       this.metadataCache.on("changed", (file, data, cache) => {
@@ -58,6 +64,13 @@ export class IndexManager extends Component {
         if (!(file instanceof TFile)) return;
         const indexer = this.currentIndexerForFile(oldPath);
         if (indexer != null) {
+          if (ENABLE_INDEXEDDB) {
+            this.worker.postMessage({
+              type: "rename",
+              oldPath,
+              newPath: file.path,
+            });
+          }
           this.indexedFiles.delete(oldPath);
           const cache = this.metadataCache.getFileCache(file);
           assertHasFrontmatter(cache!);
@@ -69,7 +82,15 @@ export class IndexManager extends Component {
     );
   }
 
-  public indexAll(): void {
+  public onunload(): void {
+    if (this.worker) {
+      this.worker.terminate();
+      this.worker = undefined!;
+    }
+    super.onunload();
+  }
+
+  public async indexAll(): Promise<void> {
     logger.debug("[index-manager] Starting full index...");
     for (const file of this.vault.getMarkdownFiles()) {
       const cache = this.metadataCache.getFileCache(file);
@@ -111,6 +132,12 @@ export class IndexManager extends Component {
         indexer.id,
         fileKey,
       );
+      if (ENABLE_INDEXEDDB) {
+        this.worker.postMessage({
+          type: "delete",
+          path: fileKey,
+        });
+      }
       const result = indexer.onDeleted(fileKey);
       if (result.type == "not_found") {
         logger.warn(
@@ -176,6 +203,19 @@ export class IndexManager extends Component {
         newIndexer.id,
         indexKey,
       );
+
+      if (ENABLE_INDEXEDDB) {
+        (async () => {
+          const content = await this.vault.cachedRead(file);
+          this.worker.postMessage({
+            type: "index",
+            content,
+            path: file.path,
+            mtime: file.stat.mtime,
+            frontmatter: cache.frontmatter,
+          });
+        })();
+      }
 
       let result: ReturnType<Indexer["onChanged"]> | undefined = undefined;
       try {

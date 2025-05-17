@@ -125,15 +125,11 @@ export class DataManager extends Component {
             atOrChildOfPath(this.homebrewRoot, file.path)
           ) {
             // If the file is in the homebrew root, we should index it directly
-            this.indexDirect(
-              file,
-              await this.plugin.app.vault.read(file),
-              null,
-            );
+            this.indexFile(file, await this.plugin.app.vault.read(file), null);
           } else {
             for (const monitoredPath of this.monitoredPaths) {
               if (atOrChildOfPath(monitoredPath, file.path)) {
-                this.indexDirect(
+                this.indexFile(
                   file,
                   await this.plugin.app.vault.read(file),
                   null,
@@ -151,11 +147,11 @@ export class DataManager extends Component {
           atOrChildOfPath(this.homebrewRoot, file.path)
         ) {
           // If the file is in the homebrew root, we should index it directly
-          this.indexDirect(file, data, cache);
+          this.indexFile(file, data, cache);
         } else {
           for (const monitoredPath of this.monitoredPaths) {
             if (atOrChildOfPath(monitoredPath, file.path)) {
-              this.indexDirect(file, data, cache);
+              this.indexFile(file, data, cache);
             }
           }
         }
@@ -234,6 +230,8 @@ export class DataManager extends Component {
   }
 
   async #indexFolder(root: string): Promise<void> {
+    if (root.startsWith("@")) return; // Skip special roots like "@datasworn"
+
     // Walk the root folder and index all files in it
     const folder = this.plugin.app.vault.getAbstractFileByPath(root);
     if (folder && folder instanceof TFolder) {
@@ -241,7 +239,7 @@ export class DataManager extends Component {
       const indexFile = async (file: TFile) => {
         promises.push(
           this.plugin.app.vault.cachedRead(file).then((content) => {
-            this.indexDirect(
+            this.indexFile(
               file,
               content,
               this.plugin.app.metadataCache.getFileCache(file),
@@ -275,25 +273,44 @@ export class DataManager extends Component {
 
   async index(file: TFile): Promise<void> {
     // Send a message to the worker with the file to be indexed
-    this.indexDirect(
+    this.indexFile(
       file,
       await this.plugin.app.vault.cachedRead(file),
       this.plugin.app.metadataCache.getFileCache(file),
     );
   }
 
-  indexDirect(
+  protected indexFile(
     file: TFile,
     content: string,
     cache: CachedMetadata | null,
   ): void {
-    // Send a message to the worker with the file to be indexed
-    this.worker.postMessage({
-      type: "index",
+    this.indexDirect({
       path: file.path,
       mtime: file.stat.mtime,
       content,
       frontmatter: cache?.frontmatter,
+    });
+  }
+
+  /** Add content to index directly. */
+  indexDirect({
+    path,
+    mtime,
+    content,
+    frontmatter,
+  }: {
+    path: string;
+    mtime: number;
+    content: string;
+    frontmatter: Record<string, unknown> | undefined;
+  }) {
+    this.worker.postMessage({
+      type: "index",
+      path,
+      mtime,
+      content,
+      frontmatter,
     });
   }
 

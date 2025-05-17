@@ -1,5 +1,6 @@
 import { typecheckPlugin } from "@jgoz/esbuild-plugin-typecheck";
 import builtins from "builtin-modules";
+import console from "console";
 import esbuild from "esbuild";
 import { copy } from "esbuild-plugin-copy";
 import inlineWorkerPlugin from "esbuild-plugin-inline-worker";
@@ -13,6 +14,16 @@ if you want to view the source, please visit the github repository of this plugi
 
 const prod = process.argv[2] === "production";
 const watch = !prod && process.argv[2] !== "nowatch";
+
+const features = {
+  indexedDb: prod ? false : true,
+};
+
+features.indexedDb = false;
+
+console.log(
+  `Building Iron Vault plugin for Obsidian with features: ${JSON.stringify(features)}`,
+);
 
 const context = await esbuild.context({
   banner: {
@@ -48,12 +59,18 @@ const context = await esbuild.context({
   treeShaking: true,
   outfile: "main.js",
   conditions: prod ? [] : ["development"],
+  define: {
+    ENABLE_INDEXEDDB: features.indexedDb.toString(),
+  },
   plugins: [
     inlineWorkerPlugin({
       // sourcemap: prod ? false : "inline", // inline workers with sourcemaps in dev mode}),
       treeShaking: true,
       target: "es2023",
       conditions: ["worker", ...(prod ? [] : ["development"])],
+      define: {
+        ENABLE_INDEXEDDB: features.indexedDb.toString(),
+      },
     }),
     typecheckPlugin({ watch }),
     copy({

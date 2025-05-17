@@ -1,5 +1,6 @@
 import { type Datasworn } from "@datasworn/core";
 import { rootLogger } from "logger";
+import { Either, Left, Right } from "utils/either";
 import { z } from "zod";
 
 export type ImpactCategory = Omit<Datasworn.ImpactCategory, "contents">;
@@ -129,6 +130,25 @@ export class Ruleset {
 
   /** All rules packages included. Base is always first. */
   readonly rulesPackageIds: string[];
+
+  static fromActiveRulesPackages(
+    rules: Datasworn.RulesPackage[],
+  ): Either<Error, Ruleset> {
+    const base = rules.filter((pkg) => pkg.type == "ruleset");
+    if (base.length == 0) {
+      return Left.create(
+        new Error("Playset must include at least one base ruleset."),
+      );
+    } else if (base.length > 1) {
+      return Left.create(
+        new Error(
+          `Playset may include only one base ruleset; found: ${base.map((pkg) => pkg._id).join(", ")}`,
+        ),
+      );
+    }
+    const expansions = rules.filter((pkg) => pkg.type == "expansion");
+    return Right.create(new Ruleset(base[0], expansions));
+  }
 
   constructor(
     private readonly base: Datasworn.Ruleset,

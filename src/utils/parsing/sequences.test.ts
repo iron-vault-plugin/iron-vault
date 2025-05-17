@@ -1,9 +1,10 @@
 import { preceded, runParser, str, succ } from ".";
+import { consumeAll } from "./sequences";
 
 describe("preceded", () => {
   it("returns the result of the second parser and discards the first", () => {
-    const parser = preceded(succ("first"), succ("second"));
-    expect(runParser(parser, "root").unwrap()).toBe("second");
+    const parser = preceded(succ<"first", string>("first"), str("root"));
+    expect(runParser(parser, "root").unwrap()).toBe("root");
   });
 
   it("returns error if the first parser fails", () => {
@@ -28,5 +29,17 @@ describe("preceded", () => {
     expect(runParser(precededParser, "first", "second").unwrap()).toBe(
       "second",
     );
+  });
+});
+
+describe("consumeAll", () => {
+  it("returns all node values in order", () => {
+    const result = runParser(consumeAll, "a", "b", "c");
+    expect(result.unwrap()).toEqual(["a", "b", "c"]);
+  });
+
+  it("returns empty array if node is undefined", () => {
+    const result = runParser(consumeAll);
+    expect(result.unwrap()).toEqual([]);
   });
 });

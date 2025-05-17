@@ -25,6 +25,11 @@ export function parentFolderOf(root: string): string {
   return parts.length == 0 ? "/" : parts.join("/");
 }
 
+export function baseNameOf(path: string): string {
+  const parts = path.split("/");
+  return parts[parts.length - 1];
+}
+
 /**
  * Gets the name of top-level parent of a file, relative to a root folder.
  * For example, if the root folder is "world" and the file path is "world/continent/country/city.md",

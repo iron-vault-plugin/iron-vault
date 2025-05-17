@@ -1,5 +1,4 @@
 import { type Datasworn } from "@datasworn/core";
-import dataswornSchema from "@datasworn/core/json/datasworn.schema.json" assert { type: "json" };
 import ironswornDelvePackage from "@datasworn/ironsworn-classic-delve/json/delve.json" assert { type: "json" };
 import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
@@ -15,12 +14,25 @@ import {
 import { DataManager } from "datastore/loader/manager";
 import Emittery from "emittery";
 import IronVaultPlugin from "index";
-import { isDebugEnabled, rootLogger } from "logger";
+import { rootLogger } from "logger";
 import { Component, debounce, type App } from "obsidian";
 import starforgedSupp from "../data/starforged.supplement.json" assert { type: "json" };
 import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type: "json" };
 
 const logger = rootLogger.getLogger("datastore");
+
+const BUILTIN_SOURCES: [Datasworn.RulesPackage, number][] = [
+  [ironswornRuleset as Datasworn.Ruleset, 0],
+  // @ts-expect-error tsc seems to infer type of data in an incompatible way
+  [ironswornDelvePackage as Datasworn.Expansion, 0],
+
+  // @ts-expect-error tsc seems to infer type of data in an incompatible way
+  [starforgedRuleset as Datasworn.Ruleset, 0],
+  [starforgedSupp as Datasworn.Expansion, 5],
+
+  [sunderedIslesPackage as Datasworn.Expansion, 0],
+  [sunderedSupp as Datasworn.Expansion, 5],
+];
 
 export class Datastore extends Component {
   _ready: boolean;
@@ -64,17 +76,9 @@ export class Datastore extends Component {
     this._ready = false;
     this.indexer.clear();
 
-    this.indexBuiltInData(ironswornRuleset as Datasworn.Ruleset);
-
-    // @ts-expect-error tsc seems to infer type of data in an incompatible way
-    this.indexBuiltInData(ironswornDelvePackage as Datasworn.Expansion);
-
-    // @ts-expect-error tsc seems to infer type of data in an incompatible way
-    this.indexBuiltInData(starforgedRuleset as Datasworn.Ruleset);
-    this.indexBuiltInData(starforgedSupp as Datasworn.Expansion, 5);
-
-    this.indexBuiltInData(sunderedIslesPackage as Datasworn.Expansion);
-    this.indexBuiltInData(sunderedSupp as Datasworn.Expansion, 5);
+    for (const [pkg, priority] of BUILTIN_SOURCES) {
+      this.indexBuiltInData(pkg, priority);
+    }
 
     if (this.plugin.settings.useHomebrew) {
       if (this.plugin.settings.homebrewPath) {
@@ -88,17 +92,6 @@ export class Datastore extends Component {
     if (reload) {
       await this.dataManager.reindexAll();
     }
-
-    this._ready = true;
-    console.info(
-      "iron-vault: init complete. loaded: %d oracles, %d moves, %d assets, %d truths",
-      this.dataContext.oracles.size,
-      this.dataContext.moves.size,
-      this.dataContext.assets.size,
-      this.dataContext.truths.size,
-    );
-    this.emitter.emit("initialized");
-    this.#readyNow();
   }
 
   onload(): void {
@@ -143,7 +136,11 @@ export class Datastore extends Component {
               path: root,
               // Campaign content has highest priority
               // TODO: something smarter than just checking the package id...
-              priority: rulesPackage._id === "campaign" ? 20 : 10,
+              priority: root.startsWith("@")
+                ? 0
+                : rulesPackage._id === "campaign"
+                  ? 20
+                  : 10,
             });
             logger.debug("[datastore] Adding package to index: %s", root);
             this.indexer.index(source, walkDataswornRulesPackage(rulesPackage));
@@ -158,6 +155,28 @@ export class Datastore extends Component {
   }
 
   triggerIndexChanged() {
+    if (!this._ready) {
+      if (
+        BUILTIN_SOURCES.every(([pkg]) =>
+          this.indexer.hasSource(`@datasworn/${pkg._id}.json`),
+        )
+      ) {
+        this._ready = true;
+        console.info(
+          "iron-vault: init complete. loaded: %d oracles, %d moves, %d assets, %d truths",
+          this.dataContext.oracles.size,
+          this.dataContext.moves.size,
+          this.dataContext.assets.size,
+          this.dataContext.truths.size,
+        );
+        this.emitter.emit("initialized");
+        this.#readyNow();
+      } else {
+        logger.info(
+          "iron-vault: still waiting for built-in data to be indexed...",
+        );
+      }
+    }
     this.app.metadataCache.trigger("iron-vault:index-changed");
   }
 
@@ -183,35 +202,34 @@ export class Datastore extends Component {
     // }
   }
 
-  indexBuiltInData(pkg: Datasworn.RulesPackage, priority: number = 0) {
-    if (isDebugEnabled()) {
-      logger.debug("Validating datasworn package %s", pkg._id);
-      const validate = this.ajv.compile(dataswornSchema);
-      const result = validate(pkg);
-      if (!result) {
-        logger.error(
-          "Invalid datasworn package: %s",
-          (pkg as Datasworn.RulesPackage)._id,
-          validate.errors,
-        );
-        return;
-      }
-    }
+  indexBuiltInData(pkg: Datasworn.RulesPackage, _priority: number = 0) {
+    // if (isDebugEnabled()) {
+    //   logger.debug("Validating datasworn package %s", pkg._id);
+    //   const validate = this.ajv.compile(dataswornSchema);
+    //   const result = validate(pkg);
+    //   if (!result) {
+    //     logger.error(
+    //       "Invalid datasworn package: %s",
+    //       (pkg as Datasworn.RulesPackage)._id,
+    //       validate.errors,
+    //     );
+    //     return;
+    //   }
+    // }
 
-    const mainPath = `@datasworn:${pkg._id}`;
-    const source = createSource({
-      path: mainPath,
-      priority,
+    const path = `@datasworn/${pkg._id}.json`;
+    this.dataManager.addCampaignContentRoot(path);
+    this.dataManager.indexDirect({
+      path,
+      mtime: Date.now(),
+      content: JSON.stringify(pkg),
+      frontmatter: undefined,
     });
-    this.indexer.index(source, walkDataswornRulesPackage(pkg));
-
-    this.triggerIndexChanged();
-  }
-
-  removeBuiltInData(pkg: Datasworn.RulesPackage) {
-    const mainPath = `@datasworn:${pkg._id}`;
-    this.indexer.removeSource(mainPath);
-    this.app.metadataCache.trigger("iron-vault:index-changed");
+    // const source = createSource({
+    //   path: mainPath,
+    //   priority,
+    // });
+    // this.indexer.index(source, walkDataswornRulesPackage(pkg));
   }
 
   get ready(): boolean {

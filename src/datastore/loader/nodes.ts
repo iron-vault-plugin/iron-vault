@@ -1,11 +1,11 @@
 export abstract class BaseDataNode<L, G> {
-  builder: NodeBuilder<L, G>;
-  abstract type: "leaf" | "group";
+  builder: NodeTree<L, G>;
+  abstract readonly type: "leaf" | "group";
   abstract path: string;
   abstract name: string;
   abstract parent: DataGroup<L, G> | null;
 
-  constructor(builder: NodeBuilder<L, G>) {
+  constructor(builder: NodeTree<L, G>) {
     this.builder = builder;
   }
 
@@ -13,20 +13,18 @@ export abstract class BaseDataNode<L, G> {
 }
 
 export class DataLeaf<L, G> extends BaseDataNode<L, G> {
+  readonly type = "leaf" as const;
   name!: string;
   path!: string;
 
   constructor(
-    builder: NodeBuilder<L, G>,
+    builder: NodeTree<L, G>,
     path: string,
     public parent: DataGroup<L, G>,
     public data: L,
   ) {
     super(builder);
     this.setPath(path);
-  }
-  get type(): "leaf" {
-    return "leaf";
   }
   setPath(path: string): void {
     if (path == "") {
@@ -42,11 +40,12 @@ export class DataLeaf<L, G> extends BaseDataNode<L, G> {
 }
 
 export class DataGroup<L, G> extends BaseDataNode<L, G> {
+  readonly type = "group" as const;
   name!: string;
   path!: string;
   children: DataNode<L, G>[] = [];
   constructor(
-    builder: NodeBuilder<L, G>,
+    builder: NodeTree<L, G>,
     path: string,
     public parent: DataGroup<L, G> | null,
     public data: G,
@@ -62,9 +61,6 @@ export class DataGroup<L, G> extends BaseDataNode<L, G> {
     }
   }
 
-  get type(): "group" {
-    return "group";
-  }
   setPath(path: string): void {
     if (path == "") {
       throw new Error("Path cannot be empty.");
@@ -185,7 +181,7 @@ export function collectNodes<L, G, R, RL extends R = R, RG extends R = R>(
   return results;
 }
 
-export class NodeBuilder<L, G> {
+export class NodeTree<L, G> {
   private nodes: Map<string, DataNode<L, G>> = new Map();
 
   constructor(
@@ -328,7 +324,7 @@ export class NodeMap<L, G, V>
   implements NodeRwMap<L, G, V>
 {
   constructor(
-    private builder: NodeBuilder<L, G>,
+    private builder: NodeTree<L, G>,
     ...args: ConstructorParameters<typeof Map<DataNode<L, G>, V>>
   ) {
     super(...args);

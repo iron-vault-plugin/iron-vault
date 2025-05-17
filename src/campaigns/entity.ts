@@ -1,5 +1,5 @@
 import { TFile } from "obsidian";
-import { Either } from "utils/either";
+import { Either, Left } from "utils/either";
 import { zodResultToEither } from "utils/zodutils";
 import { z } from "zod";
 import {
@@ -42,6 +42,16 @@ export const campaignFileSchema = z.object({
   ironvault: campaignConfigSchema,
 });
 
+export const campaignFileSchemaWithPlayset = campaignFileSchema.refine(
+  (campaign) =>
+    campaign.ironvault.playset?.type != "registry" ||
+    campaign.ironvault.playset.key in STANDARD_PLAYSET_DEFNS,
+  {
+    path: ["ironvault", "playset", "key"],
+    message: "Not a valid playset key",
+  },
+);
+
 export type CampaignInput = z.input<typeof campaignFileSchema>;
 export type CampaignOutput = z.output<typeof campaignFileSchema>;
 
@@ -52,6 +62,25 @@ export const recoveringCampaignFileSchema = campaignFileSchema.extend({
     })
     .default({ playset: { type: "registry", key: "starforged" } }),
 });
+
+export type PlaysetConfigSchema = z.output<typeof PlaysetConfigSchema>;
+
+export function playsetSpecToPlaysetConfig(
+  spec: z.output<typeof PlaysetConfigSchema>,
+): Either<Error, IPlaysetConfig> {
+  switch (spec.type) {
+    case "globs":
+      return PlaysetConfig.tryParse(spec.lines);
+    case "registry": {
+      const standardDefn = getStandardPlaysetDefinition(spec.key);
+      if (standardDefn) {
+        return PlaysetConfig.tryParse(standardDefn.lines);
+      } else {
+        return Left.create(new Error(`Invalid playset key ${spec.key}`));
+      }
+    }
+  }
+}
 
 /** A campaign that exists in an Obsidian markdown file. */
 export class CampaignFile implements BaseCampaign {
@@ -105,17 +134,7 @@ export class CampaignFile implements BaseCampaign {
   static parse(file: TFile, data: unknown): Either<z.ZodError, CampaignFile>;
   static parse(file: TFile, data: unknown): Either<z.ZodError, CampaignFile> {
     const result = zodResultToEither(
-      campaignFileSchema
-        .refine(
-          (campaign) =>
-            campaign.ironvault.playset?.type != "registry" ||
-            campaign.ironvault.playset.key in STANDARD_PLAYSET_DEFNS,
-          {
-            path: ["ironvault", "playset", "key"],
-            message: "Not a valid playset key",
-          },
-        )
-        .safeParse(data),
+      campaignFileSchemaWithPlayset.safeParse(data),
     );
     return result.map((raw) => new CampaignFile(file, raw));
   }

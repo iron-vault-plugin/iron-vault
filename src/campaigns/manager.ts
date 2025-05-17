@@ -259,6 +259,18 @@ export class CampaignManager extends Component {
         }
       }),
     );
+
+    this.registerEvent(
+      this.plugin.app.metadataCache.on("iron-vault:index-changed", () => {
+        // TODO: this doesn't really belong here, but it's just temporary
+        // until we have a better way to handle reloading characters.
+        logger.info("Index changed, marking reloading characters.");
+        const knownCharacters = [...this.plugin.characters.keys()];
+        for (const characterPath of knownCharacters) {
+          this.plugin.indexManager.markDirty(characterPath);
+        }
+      }),
+    );
   }
 
   private updateActiveCampaign() {

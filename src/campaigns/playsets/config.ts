@@ -1,5 +1,6 @@
 import { Datasworn } from "@datasworn/core";
 import { sameValueElementsInArray } from "utils/arrays";
+import { Either, trying } from "utils/either";
 import { z } from "zod";
 import { STANDARD_PLAYSET_DEFNS } from "./standard";
 
@@ -311,6 +312,10 @@ export class PlaysetConfig implements IPlaysetConfig {
         return [compiled];
       }),
     );
+  }
+
+  static tryParse(lines: string[]): Either<Error, PlaysetConfig> {
+    return trying(() => this.parse(lines));
   }
 
   static parseFile(data: string): PlaysetConfig {
