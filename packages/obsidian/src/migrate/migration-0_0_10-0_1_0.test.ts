@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { hasOldId, replaceIds, replaceLinks } from "./migration-0_0_10-0_1_0";
 
 const TEST_CASES: { str: string; result: string; skipLink?: boolean }[] = [

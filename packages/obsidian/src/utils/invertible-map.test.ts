@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { IndexingMap, IndexingMultiMap } from "./invertible-map";
 
 describe("IndexingMap", () => {

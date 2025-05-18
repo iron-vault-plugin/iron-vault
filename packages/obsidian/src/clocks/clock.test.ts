@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { Clock, ClockInput } from "./clock";
 
 const DEFAULT_CLOCK_INPUT = {

@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { Dice, DiceExprNode, NumberNode, parseDiceExpression } from "./dice";
 import { DiceExprGroup, DiceGroup } from "./dice-group";
 

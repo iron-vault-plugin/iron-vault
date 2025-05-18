@@ -1,4 +1,5 @@
 import { DataswornSource, type Datasworn } from "@datasworn/core";
+import { describe, expect, it } from "vitest";
 import { extractOracleTable, parseResultTemplate } from "./oracle-table";
 
 describe("extractOracleTable", () => {

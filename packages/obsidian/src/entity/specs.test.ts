@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { evaluateSlotId, parseIdForAttributes } from "./specs";
 
 describe("parseIdForAttributes", () => {

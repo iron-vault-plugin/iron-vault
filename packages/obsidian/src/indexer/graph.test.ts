@@ -1,9 +1,9 @@
-import { jest } from "@jest/globals";
 import { computed, effect, signal, Signal } from "@preact/signals-core";
 import { CampaignInput } from "campaigns/entity";
 import { ReadonlyDataIndexDb } from "datastore/db";
 import { produce } from "immer";
 import { Right } from "utils/either";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as yaml from "yaml";
 import { PLUGIN_KIND_FIELD } from "../constants";
 import {
@@ -141,7 +141,7 @@ describe("campaignAssignment", () => {
       createFile({ kind: "character", path: "c1/Characters/Alice.md" }),
     );
 
-    const fn = jest.fn();
+    const fn = vi.fn();
 
     const sig = campaignAssignment(graph)(character);
     expect(sig.value).toBe(undefined);
@@ -204,7 +204,7 @@ describe("campaign", () => {
     const node = graph.getNode("campaign", file.path)!;
     expect(node).toBeDefined();
 
-    const fn = jest.fn();
+    const fn = vi.fn();
     node.subscribe(fn);
 
     expect(fn).toHaveBeenCalledWith(

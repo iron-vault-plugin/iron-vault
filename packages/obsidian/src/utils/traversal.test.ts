@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { breadthFirstTraversal } from "./traversal";
 
 type File = { path: string };

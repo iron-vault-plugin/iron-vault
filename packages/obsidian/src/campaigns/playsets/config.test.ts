@@ -1,5 +1,5 @@
 import { Datasworn } from "@datasworn/core";
-import { jest } from "@jest/globals";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import {
   Determination,
   IPlaysetConfig,
@@ -293,11 +293,11 @@ describe("PlaysetIncludeLine", () => {
 
   it("simply passes to included config", () => {
     const mockSubConfig: IPlaysetConfig = {
-      determine: jest
+      determine: vi
         .fn<IPlaysetConfig["determine"]>()
         .mockReturnValueOnce(Determination.Include)
         .mockReturnValueOnce(Determination.Exclude),
-      equals: jest.fn<IPlaysetConfig["equals"]>(),
+      equals: vi.fn<IPlaysetConfig["equals"]>(),
     };
     const config = new PlaysetIncludeLine("mock", mockSubConfig);
 
