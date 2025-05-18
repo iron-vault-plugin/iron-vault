@@ -1,9 +1,12 @@
 import { DataswornSource } from "@datasworn/core";
 import {
+  alt,
   apply,
   consumed,
+  cut,
   liftAsList,
   makeError,
+  optional,
   Parser,
   ParserError,
   pipe,
@@ -14,7 +17,6 @@ import {
   seq,
   some,
 } from "@ironvault/parsing";
-import { alt, cut, optional } from "@ironvault/parsing/branching";
 import {
   children,
   mdastType,
@@ -23,7 +25,7 @@ import {
   Sentence,
   sentenceToString,
   skipFrontmatter,
-} from "@ironvault/parsing/markdown";
+} from "@ironvault/parsing-markdown";
 import * as mdast from "mdast";
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { frontmatterFromMarkdown } from "mdast-util-frontmatter";

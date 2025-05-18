@@ -1,10 +1,8 @@
+import { cut, repeat, runParser } from "@ironvault/parsing";
 import * as mdast from "mdast";
 import { unwrap } from "true-myth/test-support";
 import { describe, expect, it, test } from "vitest";
-import { cut } from "./branching";
-import { Sentence, sentence, sentenceToString } from "./markdown";
-import { runParser } from "./parser";
-import { repeat } from "./sequences";
+import { Sentence, sentence, sentenceToString } from "./index";
 
 function t(value: string): mdast.Text {
   return { type: "text", value };

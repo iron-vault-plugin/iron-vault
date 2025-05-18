@@ -2,13 +2,16 @@ import { DataswornSource } from "@datasworn/core";
 import {
   apply,
   check,
+  cut,
   lazy,
   liftAsList,
   makeError,
   match,
   matchOpt,
+  optional,
   Parser,
   ParserError,
+  permutationOptional,
   pipe,
   preceded,
   RecoverableParserError,
@@ -19,16 +22,11 @@ import {
   str,
 } from "@ironvault/parsing";
 import {
-  cut,
-  optional,
-  permutationOptional,
-} from "@ironvault/parsing/branching";
-import {
   children,
   mdastType,
   onlyText,
   skipFrontmatter,
-} from "@ironvault/parsing/markdown";
+} from "@ironvault/parsing-markdown";
 import { sanitizeNameForId } from "datastore/loader/builder";
 import * as mdast from "mdast";
 import { Heading, ListContent, ListItem, RootContent } from "mdast";
