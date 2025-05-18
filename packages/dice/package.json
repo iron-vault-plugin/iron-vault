@@ -1,0 +1,24 @@
+{
+  "name": "@ironvault/dice",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "types": "./src/index.ts",
+  "scripts": {
+    "test": "vitest"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.6.2",
+  "dependencies": {
+    "@ironvault/utils": "workspace:^",
+    "true-myth": "catalog:"
+  },
+  "devDependencies": {
+    "vitest": "catalog:"
+  }
+}

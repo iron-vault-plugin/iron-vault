@@ -84,6 +84,9 @@
     "unist-util-is": "catalog:",
     "vite-tsconfig-paths": "catalog:",
     "yaml": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@ironvault/datasworn-compiler": "workspace:^",
+    "@ironvault/dice": "workspace:^",
+    "@ironvault/utils": "workspace:^"
   }
 }

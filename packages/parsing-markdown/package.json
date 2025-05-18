@@ -16,7 +16,8 @@
   "packageManager": "pnpm@10.6.2",
   "dependencies": {
     "@ironvault/parsing": "workspace:^",
-    "true-myth": "catalog:"
+    "true-myth": "catalog:",
+    "yaml": "catalog:"
   },
   "devDependencies": {
     "@types/mdast": "catalog:",

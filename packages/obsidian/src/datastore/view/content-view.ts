@@ -1,11 +1,11 @@
-import { SchemaValidationFailedProblem } from "datastore/loader/builder";
+import { SchemaValidationFailedProblem } from "@ironvault/datasworn-compiler";
+import { atOrChildOfPath, relativeTo } from "@ironvault/utils/paths";
 import { DataManager } from "datastore/loader/manager";
 import { html, nothing, render, TemplateResult } from "lit-html";
 import { join } from "lit-html/directives/join.js";
 import { map } from "lit-html/directives/map.js";
 import { when } from "lit-html/directives/when.js";
 import { debounce, FileView, TFile, WorkspaceLeaf } from "obsidian";
-import { atOrChildOfPath, relativeTo } from "utils/paths";
 
 export const CONTENT_VIEW_TYPE = "iron-vault-datasworn-content-view";
 

@@ -7,6 +7,7 @@
  * */
 
 import { Datasworn, DataswornSource } from "@datasworn/core";
+import { atOrChildOfPath } from "@ironvault/utils/paths";
 import newDataLoaderWorker, {
   DataLoaderWorker,
 } from "datastore/loader/data-loader.worker";
@@ -15,8 +16,7 @@ import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { CachedMetadata, Component, TFile, TFolder, Vault } from "obsidian";
 import { Either } from "utils/either";
-import { atOrChildOfPath } from "utils/paths";
-import { FileProblem } from "./builder";
+import { FileProblem } from "../../../../datasworn-compiler/src/builder";
 import { IndexResult } from "./messages";
 
 const logger = rootLogger.getLogger("datastore.loader.manager");

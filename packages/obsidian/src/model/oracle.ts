@@ -1,7 +1,7 @@
 import { type Datasworn } from "@datasworn/core";
+
+import { AsyncDiceRoller, Dice, DiceRoller } from "@ironvault/dice";
 import { scopeSource, scopeTags } from "datastore/datasworn-symbols";
-import { Dice } from "utils/dice";
-import { AsyncDiceRoller, DiceRoller } from "utils/dice-roller";
 import { NumberRange, Roll } from "./rolls";
 
 export interface RollContext {

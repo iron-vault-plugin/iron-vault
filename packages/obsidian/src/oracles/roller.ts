@@ -1,11 +1,12 @@
+import { Dice } from "@ironvault/dice";
 import { StandardIndex } from "datastore/data-indexer";
 import IronVaultPlugin from "index";
 import { Oracle, RollContext } from "model/oracle";
 import { RollWrapper } from "model/rolls";
-import { Dice, DieKind } from "utils/dice";
 import {
   AsyncDiceRoller,
   DiceRoller,
+  DieKind,
   GraphicalDiceRoller,
   PlainDiceRoller,
 } from "utils/dice-roller";

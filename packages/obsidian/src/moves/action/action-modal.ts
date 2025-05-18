@@ -1,7 +1,4 @@
 import { type Datasworn } from "@datasworn/core";
-import { determineCharacterActionContext } from "characters/action-context";
-import IronVaultPlugin from "index";
-import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
 import {
   App,
   Editor,
@@ -10,8 +7,13 @@ import {
   Modal,
   Setting,
 } from "obsidian";
-import { Dice, DieKind } from "utils/dice";
-import { DiceGroup } from "utils/dice-group";
+
+import { Dice, DiceGroup } from "@ironvault/dice";
+
+import { determineCharacterActionContext } from "characters/action-context";
+import IronVaultPlugin from "index";
+import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
+import { DieKind } from "utils/dice-roller";
 import { node } from "utils/kdl";
 import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";

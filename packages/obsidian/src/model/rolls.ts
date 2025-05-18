@@ -1,5 +1,5 @@
+import { DiceGroup } from "@ironvault/dice";
 import { sameElementsInArray } from "utils/arrays";
-import { DiceGroup } from "utils/dice-group";
 import { BaseRollSchema, RollSchema } from "../oracles/schema";
 import { Oracle, OracleRow, RollContext } from "./oracle";
 

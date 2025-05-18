@@ -17,6 +17,8 @@ import * as mdast from "mdast";
 import { FrontmatterContent, RootContent, RootContentMap, Yaml } from "mdast";
 import { err, ok } from "true-myth/result";
 
+export * from "./frontmatter";
+
 /** Parse a node of a specific mdast type, yielding that node. */
 export function mdastType<
   const C extends N,

@@ -1,9 +1,11 @@
-import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
 import { App, Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
+
+import { numberRange } from "@ironvault/utils/numbers";
+
+import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
 import { ConditionMeterDefinition } from "rules/ruleset";
 import { node } from "utils/kdl";
 import { updating } from "utils/lens";
-import { numberRange } from "utils/numbers";
 import { vaultProcess } from "utils/obsidian";
 import { CustomSuggestModal } from "utils/suggest";
 import IronVaultPlugin from "../index";

@@ -14,12 +14,11 @@ import {
   TFile,
 } from "obsidian";
 
+import { Dice, DiceGroup } from "@ironvault/dice";
 import { FileBasedCampaignWatch } from "campaigns/campaign-source";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
-import { Dice, DieKind } from "utils/dice";
-import { DiceGroup } from "utils/dice-group";
-import { AsyncDiceRoller } from "utils/dice-roller";
+import { AsyncDiceRoller, DieKind } from "utils/dice-roller";
 import { md } from "utils/ui/directives";
 
 const logger = rootLogger.getLogger("truths.truth-block");
