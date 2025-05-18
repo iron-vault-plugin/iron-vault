@@ -1,5 +1,6 @@
 import { DataswornSource } from "@datasworn/core";
 import { unwrap, unwrapErr } from "true-myth/test-support";
+import { describe, expect, it } from "vitest";
 import { markdownAssetToDatasworn } from "./markdown-asset";
 
 describe("markdownAssetToDatasworn", () => {

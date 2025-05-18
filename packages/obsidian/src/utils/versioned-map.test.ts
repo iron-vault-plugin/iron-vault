@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { VersionedMapImpl } from "./versioned-map";
 
 describe("VersionedMapImpl", () => {

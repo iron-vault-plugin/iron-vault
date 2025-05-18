@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { Either, Left, Right } from "./either";
 
 describe("Left", () => {

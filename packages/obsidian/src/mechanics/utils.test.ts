@@ -1,4 +1,5 @@
 import { node } from "utils/kdl";
+import { describe, expect, it } from "vitest";
 import { getMoveIdFromNode, getTerminalMoveNode } from "./utils";
 
 describe("getMoveIdFromNode", () => {

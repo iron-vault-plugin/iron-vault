@@ -1,5 +1,6 @@
 import * as kdl from "kdljs";
 import { node } from "utils/kdl";
+import { describe, expect, it } from "vitest";
 import { createActorNode as actorNode } from "./actor";
 import {
   appendNodes,

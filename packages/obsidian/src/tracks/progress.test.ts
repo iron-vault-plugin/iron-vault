@@ -1,5 +1,6 @@
+import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
-import { Either, Left } from "../utils/either";
+import { Either } from "../utils/either";
 import {
   CHALLENGE_STEPS,
   ChallengeRanks,
@@ -162,33 +163,27 @@ describe("ProgressTrackFileAdapter", () => {
   });
 
   it("requires a completion tag", () => {
-    expect(make({ tags: ["missing_completion"] })).toEqual(
-      Left.create(
-        new ZodError([
-          {
-            code: "custom",
-            message:
-              "Tags must contain exactly one of 'incomplete' or 'complete'",
-            path: ["tags"],
-          },
-        ]),
-      ),
-    );
+    expect(
+      make({ tags: ["missing_completion"] }).unwrapError().issues,
+    ).toMatchObject([
+      {
+        code: "custom",
+        message: "Tags must contain exactly one of 'incomplete' or 'complete'",
+        path: ["tags"],
+      },
+    ]);
   });
 
   it("rejects record with both 'complete' and 'incomplete'", () => {
-    expect(make({ tags: ["complete", "incomplete"] })).toEqual(
-      Left.create(
-        new ZodError([
-          {
-            code: "custom",
-            message:
-              "Tags must contain exactly one of 'incomplete' or 'complete'",
-            path: ["tags"],
-          },
-        ]),
-      ),
-    );
+    expect(
+      make({ tags: ["complete", "incomplete"] }).unwrapError().issues,
+    ).toEqual([
+      {
+        code: "custom",
+        message: "Tags must contain exactly one of 'incomplete' or 'complete'",
+        path: ["tags"],
+      },
+    ]);
   });
 
   it.each([

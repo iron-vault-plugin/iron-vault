@@ -1,7 +1,7 @@
 import { type Datasworn } from "@datasworn/core";
-import { jest } from "@jest/globals";
 import { IDataContext, MockDataContext } from "datastore/data-context";
 import { produce } from "immer";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { integratedAssetLens, walkAsset } from "./assets";
 
 const starship = () =>
@@ -130,7 +130,7 @@ const starship = () =>
 
 describe("walkAsset", () => {
   it("triggers on asset options", () => {
-    const mock = jest.fn(() => void undefined);
+    const mock = vi.fn(() => void undefined);
     walkAsset(starship(), {
       onBaseOption: mock,
     });
@@ -138,7 +138,7 @@ describe("walkAsset", () => {
   });
 
   it("triggers on asset controls", () => {
-    const mock = jest.fn(() => void undefined);
+    const mock = vi.fn(() => void undefined);
     walkAsset(starship(), {
       onBaseControl: mock,
     });
@@ -149,7 +149,7 @@ describe("walkAsset", () => {
   });
 
   it("triggers on asset meter subcontrols", () => {
-    const mock = jest.fn(() => void undefined);
+    const mock = vi.fn(() => void undefined);
     walkAsset(starship(), {
       onConditionMeterSubcontrol: mock,
     });
@@ -172,7 +172,7 @@ describe("walkAsset", () => {
   });
 
   it("triggers on marked ability", () => {
-    const mock = jest.fn(() => void undefined);
+    const mock = vi.fn(() => void undefined);
     walkAsset(
       starship(),
       {
@@ -191,7 +191,7 @@ describe("walkAsset", () => {
   });
 
   it("does not trigger on marked ability", () => {
-    const mock = jest.fn(() => void undefined);
+    const mock = vi.fn(() => void undefined);
     walkAsset(
       starship(),
       {
@@ -301,7 +301,7 @@ describe("integratedAssetLens", () => {
     });
   });
 
-  describe("update", () => {
+  it("update", () => {
     expect(
       integratedAssetLens(dataContext).update(
         {

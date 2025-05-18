@@ -1,4 +1,5 @@
 import { projectedVersionedMap } from "utils/versioned-map";
+import { describe, expect, it } from "vitest";
 
 describe("projectedVersionedMap", () => {
   it("omits entries that return undefined", () => {

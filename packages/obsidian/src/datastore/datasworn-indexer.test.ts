@@ -1,6 +1,7 @@
 import { Datasworn } from "@datasworn/core";
 import starforgedPackage from "@datasworn/starforged/json/starforged.json" with { type: "json" };
 import { OracleGrouping, OracleGroupingType } from "model/oracle";
+import { describe, expect, it } from "vitest";
 import { assertIsKind, DataIndexer, Source } from "./data-indexer";
 import {
   createSource,

@@ -1,5 +1,6 @@
 import { type Datasworn } from "@datasworn/core";
 import assert from "assert";
+import { describe, expect, it } from "vitest";
 import { OracleGrouping, OracleGroupingType } from "../../../model/oracle";
 import { DataswornOracle } from "./oracles";
 

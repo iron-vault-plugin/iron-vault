@@ -1,5 +1,6 @@
 import { DataswornSource } from "@datasworn/core";
 import { unwrap } from "true-myth/test-support";
+import { describe, expect, it } from "vitest";
 import { markdownMoveToDatasworn } from "./markdown-move";
 
 describe("markdownMoveToDatasworn", () => {

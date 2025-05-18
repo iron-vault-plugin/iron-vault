@@ -1,4 +1,5 @@
 import { Dice } from "utils/dice";
+import { describe, expect, it } from "vitest";
 import { flattenDiceCombination, flattenRangeExpr } from "./combos";
 
 describe("flattenDiceCombination", () => {

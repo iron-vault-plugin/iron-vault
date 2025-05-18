@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { numberRange, parseRange, parseRanges } from "./numbers";
 
 describe("numberRange", () => {
