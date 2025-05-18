@@ -9,6 +9,7 @@ import {
   DataIndexer,
   SourcedByArray,
   SourcedKindsArray,
+  StandardIndex,
 } from "datastore/data-indexer";
 import { DataswornIndexer, DataswornTypes } from "datastore/datasworn-indexer";
 import { scopeTags } from "datastore/datasworn-symbols";
@@ -70,27 +71,27 @@ export class CampaignDataContext
   clocks: ReadonlyIndex<ClockFileAdapter, ZodError>;
   progressTracks: ReadonlyIndex<ProgressTrackFileAdapter, ZodError>;
 
-  get moves() {
+  get moves(): StandardIndex<DataswornTypes["move"]> {
     return this.dataContext.moves;
   }
 
-  get assets() {
+  get assets(): StandardIndex<DataswornTypes["asset"]> {
     return this.dataContext.assets;
   }
 
-  get moveCategories() {
+  get moveCategories(): StandardIndex<DataswornTypes["move_category"]> {
     return this.dataContext.moveCategories;
   }
 
-  get oracles() {
+  get oracles(): StandardIndex<DataswornTypes["oracle"]> {
     return this.dataContext.oracles;
   }
 
-  get truths() {
+  get truths(): StandardIndex<DataswornTypes["truth"]> {
     return this.dataContext.truths;
   }
 
-  get rulesPackages() {
+  get rulesPackages(): StandardIndex<DataswornTypes["rules_package"]> {
     return this.dataContext.rulesPackages;
   }
 

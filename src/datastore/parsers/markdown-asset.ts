@@ -27,14 +27,18 @@ import {
   runParser,
   seq,
   str,
-} from "utils/parsing";
-import { cut, optional, permutationOptional } from "utils/parsing/branching";
+} from "../../../packages/parsing/src";
+import {
+  cut,
+  optional,
+  permutationOptional,
+} from "../../../packages/parsing/src/branching";
 import {
   children,
   mdastType,
   onlyText,
   skipFrontmatter,
-} from "utils/parsing/markdown";
+} from "../../../packages/parsing/src/markdown";
 
 /**
  * Parses a markdown asset into a Datasworn asset object.

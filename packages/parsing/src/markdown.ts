@@ -59,10 +59,17 @@ export function children<
     liftAsList(parser),
   );
 }
-export const skipFrontmatter = matchOpt(
+
+export const skipFrontmatter: Parser<
+  string | undefined,
+  mdast.RootContent,
+  ParserErrors
+> = matchOpt(
   (node: RootContent): node is FrontmatterContent => node.type === "yaml",
   (node: Yaml) => Right.create(node.value),
-); /** Parse a node that has only a single text child. */
+);
+
+/** Parse a node that has only a single text child. */
 export const onlyText: Parser<string, mdast.Parents> = (node) => {
   if (node === undefined) {
     return makeError(node, "Expected a node, found end-of-sequence");
