@@ -1,4 +1,4 @@
-import { Either, flatMap, Left, Right } from "utils/either";
+import Result, * as result from "true-myth/result";
 import { consumeAll } from "./sequences";
 
 export class ParserError extends Error {}
@@ -25,13 +25,13 @@ export type Parser<
   N,
   E extends ParserErrors = ParserErrors,
   PN extends PNode<N> | undefined = PNode<N> | undefined,
-> = (node: PN) => Either<E, ParseResult<V, N>>;
+> = (node: PN) => Result<ParseResult<V, N>, E>;
 
 export type AnyParser<V, N, E extends ParserErrors = ParserErrors> = <
   A extends N,
 >(
   node: PNode<A> | undefined,
-) => Either<E, ParseResult<V, A>>;
+) => Result<ParseResult<V, A>, E>;
 
 export type Definite<T> =
   T extends Parser<infer V, infer N, infer E, infer PN>
@@ -42,9 +42,9 @@ export type Definite<T> =
 export function runParser<V, N, E extends ParserErrors = ParserErrors>(
   parser: Parser<V, N, E>,
   ...nodes: N[]
-): Either<E | RecoverableParserError, V> {
-  return flatMap(parser(LazyPNode.forSeq(...nodes)), ({ value, next }) =>
-    next ? makeError(next, "expected end of sequence") : Right.create(value),
+): Result<V, E | RecoverableParserError> {
+  return parser(LazyPNode.forSeq(...nodes)).andThen(({ value, next }) =>
+    next ? makeError(next, "expected end of sequence") : result.ok(value),
   );
 }
 
@@ -52,7 +52,7 @@ export function runParser<V, N, E extends ParserErrors = ParserErrors>(
 export function runParserPartial<V, N, E extends ParserErrors = ParserErrors>(
   parser: Parser<V, N, E>,
   ...nodes: N[]
-): Either<E | RecoverableParserError, [V, N[]]> {
+): Result<[V, N[]], E | RecoverableParserError> {
   return parser(LazyPNode.forSeq(...nodes)).map(({ value, next }) => [
     value,
     consumeAll(next).value.value,
@@ -64,8 +64,8 @@ export function makeError(
   node: PNode<unknown, unknown> | undefined,
   message: string,
   options?: ErrorOptions,
-): Left<RecoverableParserError> {
-  return Left.create(
+): Result<never, RecoverableParserError> {
+  return result.err(
     new RecoverableParserError(
       `${message}\n\nContext: ${JSON.stringify(node?.value)}`,
       options,

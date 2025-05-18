@@ -1,3 +1,5 @@
+import { unwrap, unwrapErr } from "true-myth/test-support";
+import { describe, expect, it } from "vitest";
 import { alt, cut, permutation, permutationOptional } from "./branching";
 import { fail, str, succ } from "./index";
 import {
@@ -13,12 +15,12 @@ describe("alt", () => {
     const parser = alt(fail("fail1"), succ("success"), () => {
       throw new Error("should not be called");
     });
-    expect(runParserPartial(parser, "").unwrap()).toEqual(["success", [""]]);
+    expect(unwrap(runParserPartial(parser, ""))).toEqual(["success", [""]]);
   });
 
   it("returns the result of the first parser that succeeds, even if later parsers would also succeed", () => {
     const parser = alt(fail("fail1"), succ("success1"), succ("success2"));
-    expect(runParserPartial(parser, "").unwrap()).toEqual(["success1", [""]]);
+    expect(unwrap(runParserPartial(parser, ""))).toEqual(["success1", [""]]);
   });
 
   it("returns the unrecoverable error immediately if encountered", () => {
@@ -27,14 +29,14 @@ describe("alt", () => {
       cut(fail("fatal error")),
       succ("should not be called"),
     );
-    expect(runParser(parser, "").unwrapError()).toBeInstanceOf(
+    expect(unwrapErr(runParser(parser, ""))).toBeInstanceOf(
       UnrecoverableParserError,
     );
   });
 
   it("returns a recoverable error if all parsers fail recoverably", () => {
     const parser = alt(fail("fail1"), fail("fail2"), fail("fail3"));
-    const error = runParser(parser, "").unwrapError();
+    const error = unwrapErr(runParser(parser, ""));
     expect(error).toBeInstanceOf(RecoverableParserError);
     expect(error.message).toMatch(/No parsers succeeded/);
     expect(error.message).toMatch(/fail3/);
@@ -45,30 +47,29 @@ describe("alt", () => {
 describe("permutationOptional", () => {
   it("parses all elements in any order", () => {
     const parser = permutationOptional(str("a"), str("b"), str("c"));
-    expect(runParser(parser, "a", "b", "c").unwrap()).toEqual(["a", "b", "c"]);
-    expect(runParser(parser, "a", "c", "b").unwrap()).toEqual(["a", "b", "c"]);
-    expect(runParser(parser, "b", "a", "c").unwrap()).toEqual(["a", "b", "c"]);
-    expect(runParser(parser, "c", "a", "b").unwrap()).toEqual(["a", "b", "c"]);
-    expect(runParser(parser, "c", "b", "a").unwrap()).toEqual(["a", "b", "c"]);
+    expect(unwrap(runParser(parser, "a", "b", "c"))).toEqual(["a", "b", "c"]);
+    expect(unwrap(runParser(parser, "a", "c", "b"))).toEqual(["a", "b", "c"]);
+    expect(unwrap(runParser(parser, "b", "a", "c"))).toEqual(["a", "b", "c"]);
+    expect(unwrap(runParser(parser, "c", "a", "b"))).toEqual(["a", "b", "c"]);
+    expect(unwrap(runParser(parser, "c", "b", "a"))).toEqual(["a", "b", "c"]);
   });
 
   it("returns undefined if a parser fails to match", () => {
     const parser = permutationOptional(str("a"), str("b"), str("c"));
-    expect(runParser(parser, "c", "a").unwrap()).toEqual(["a", undefined, "c"]);
+    expect(unwrap(runParser(parser, "c", "a"))).toEqual(["a", undefined, "c"]);
   });
 
   it("returns an unrecoverable error immediately if encountered", () => {
     const fatalParser: Parser<string, string> = cut(fail("fatal"));
     const parser = permutationOptional(str("a"), fatalParser, str("b"));
     const result = runParser(parser, "a", "c", "b");
-    expect(result.isLeft()).toBe(true);
-    expect(result.unwrapError()).toBeInstanceOf(UnrecoverableParserError);
+    expect(unwrapErr(result)).toBeInstanceOf(UnrecoverableParserError);
   });
 
   it("works with a single parser", () => {
     const parser = permutationOptional(str("foo"));
-    expect(runParserPartial(parser, "foo").unwrap()).toEqual([["foo"], []]);
-    expect(runParserPartial(parser, "bar").unwrap()).toEqual([
+    expect(unwrap(runParserPartial(parser, "foo"))).toEqual([["foo"], []]);
+    expect(unwrap(runParserPartial(parser, "bar"))).toEqual([
       [undefined],
       ["bar"],
     ]);
@@ -76,7 +77,7 @@ describe("permutationOptional", () => {
 
   it("returns an empty array if no parsers are given", () => {
     const parser = permutationOptional();
-    expect(runParserPartial(parser, "anything").unwrap()).toEqual([
+    expect(unwrap(runParserPartial(parser, "anything"))).toEqual([
       [],
       ["anything"],
     ]);
@@ -86,16 +87,16 @@ describe("permutationOptional", () => {
 describe("permutation", () => {
   it("parses all elements in any order", () => {
     const parser = permutation(str("a"), str("b"), str("c"));
-    expect(runParser(parser, "a", "b", "c").unwrap()).toEqual(["a", "b", "c"]);
-    expect(runParser(parser, "a", "c", "b").unwrap()).toEqual(["a", "b", "c"]);
-    expect(runParser(parser, "b", "a", "c").unwrap()).toEqual(["a", "b", "c"]);
-    expect(runParser(parser, "c", "a", "b").unwrap()).toEqual(["a", "b", "c"]);
-    expect(runParser(parser, "c", "b", "a").unwrap()).toEqual(["a", "b", "c"]);
+    expect(unwrap(runParser(parser, "a", "b", "c"))).toEqual(["a", "b", "c"]);
+    expect(unwrap(runParser(parser, "a", "c", "b"))).toEqual(["a", "b", "c"]);
+    expect(unwrap(runParser(parser, "b", "a", "c"))).toEqual(["a", "b", "c"]);
+    expect(unwrap(runParser(parser, "c", "a", "b"))).toEqual(["a", "b", "c"]);
+    expect(unwrap(runParser(parser, "c", "b", "a"))).toEqual(["a", "b", "c"]);
   });
 
   it("returns an error if any parser fails to match", () => {
     const parser = permutation(str("a"), str("b"), str("c"));
-    expect(runParser(parser, "c", "x", "a").unwrapError().message).toMatch(
+    expect(unwrapErr(runParser(parser, "c", "x", "a")).message).toMatch(
       /No parsers succeeded in permutation/,
     );
   });
@@ -104,19 +105,18 @@ describe("permutation", () => {
     const fatalParser: Parser<string, string> = cut(fail("fatal"));
     const parser = permutation(str("a"), fatalParser, str("b"));
     const result = runParser(parser, "a", "c", "b");
-    expect(result.isLeft()).toBe(true);
-    expect(result.unwrapError()).toBeInstanceOf(UnrecoverableParserError);
+    expect(unwrapErr(result)).toBeInstanceOf(UnrecoverableParserError);
   });
 
   it("works with a single parser", () => {
     const parser = permutation(str("foo"));
-    expect(runParser(parser, "foo").unwrap()).toEqual(["foo"]);
-    expect(runParser(parser, "bar").isLeft()).toBe(true);
+    expect(unwrap(runParser(parser, "foo"))).toEqual(["foo"]);
+    expect(runParser(parser, "bar").isErr).toBe(true);
   });
 
   it("returns an empty array if no parsers are given", () => {
     const parser = permutation();
-    expect(runParserPartial(parser, "anything").unwrap()).toEqual([
+    expect(unwrap(runParserPartial(parser, "anything"))).toEqual([
       [],
       ["anything"],
     ]);

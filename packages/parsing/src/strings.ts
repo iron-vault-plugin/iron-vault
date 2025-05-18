@@ -2,7 +2,7 @@
  * Parsers for working with string nodes. (This is different than a character
  * parser)
  */
-import { flatMap, Right } from "utils/either";
+import { ok } from "true-myth/result";
 import {
   makeError,
   Parser,
@@ -16,7 +16,7 @@ export function regex<E extends ParserErrors = ParserErrors>(
   pattern: RegExp,
 ): Parser<string[], string, E | RecoverableParserError> {
   return (node) => {
-    return flatMap(str()(node), (result) => {
+    return str()(node).andThen((result) => {
       const match = result.value.match(pattern);
       if (!match) {
         return makeError(
@@ -25,7 +25,7 @@ export function regex<E extends ParserErrors = ParserErrors>(
         );
       }
       // console.log(`Matched regex ${pattern} on "${result.value}"`, match);
-      return Right.create({
+      return ok({
         value: [...match],
         start: result.start,
         next: result.next,
@@ -89,7 +89,7 @@ export function str<E extends ParserErrors = ParserErrors>(
         `expected string ${strs.map((str) => `"${str}"`).join(", ")}; found "${node.value}"`,
       );
     }
-    return Right.create({
+    return ok({
       value: node.value,
       start: node,
       next: node.next,

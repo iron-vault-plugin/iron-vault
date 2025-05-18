@@ -31,7 +31,8 @@ import { gfmFromMarkdown, gfmToMarkdown } from "mdast-util-gfm";
 import { toMarkdown } from "mdast-util-to-markdown";
 import { frontmatter } from "micromark-extension-frontmatter";
 import { gfm } from "micromark-extension-gfm";
-import { Either, flatMap, Left, Right } from "utils/either";
+import { Result } from "true-myth";
+import { err, ok } from "true-myth/result";
 
 /**
  * Parses a markdown asset into a Datasworn asset object.
@@ -56,7 +57,7 @@ import { Either, flatMap, Left, Right } from "utils/either";
  */
 export function markdownMoveToDatasworn(
   content: string,
-): Either<ParserError, Omit<DataswornSource.Move, "_source">> {
+): Result<Omit<DataswornSource.Move, "_source">, ParserError> {
   const tree = fromMarkdown(content, {
     extensions: [gfm(), frontmatter(["yaml"])],
     mdastExtensions: [gfmFromMarkdown(), frontmatterFromMarkdown(["yaml"])],
@@ -68,9 +69,9 @@ export function markdownMoveToDatasworn(
 
   const result = runParser(parser, tree);
 
-  return flatMap(result, ([_frontmatter, name, blocks]) => {
+  return result.andThen(([_frontmatter, name, blocks]) => {
     if (name === undefined) {
-      return Left.create(new ParserError("Move must have a name"));
+      return err(new ParserError("Move must have a name"));
     }
 
     // Convert blocks to sentences
@@ -84,8 +85,8 @@ export function markdownMoveToDatasworn(
       ),
       ...blocks,
     );
-    if (result.isLeft()) {
-      return result;
+    if (result.isErr) {
+      return result.cast();
     }
 
     const [[trigger, sentences]] = result.value;
@@ -134,9 +135,7 @@ export function markdownMoveToDatasworn(
         };
       } else if (sentence.tag === "roll") {
         // This should not happen, as we expect all rolls to be before outcomes
-        return Left.create(
-          new ParserError("Unexpected roll after outcomes in move"),
-        );
+        return err(new ParserError("Unexpected roll after outcomes in move"));
       }
     }
 
@@ -159,7 +158,7 @@ export function markdownMoveToDatasworn(
       outcomes,
     };
 
-    return Right.create(move);
+    return ok(move);
   });
 }
 
@@ -221,7 +220,7 @@ export function sentenceRegex(
     if (result === null) {
       return makeError(node, `Expected sentence to match regex "${re}"`);
     }
-    return Right.create({
+    return ok({
       value: result,
       start: node,
       next: node.next,

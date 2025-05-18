@@ -1,7 +1,6 @@
 /** Parser combinators related to branching logic. */
 
-import { Either, Left, Right } from "utils/either";
-import { numberRangeExclusive } from "utils/numbers";
+import Result, { err, ok } from "true-myth/result";
 import {
   makeError,
   Parser,
@@ -11,14 +10,26 @@ import {
   UnrecoverableParserError,
 } from "./parser";
 
+/** Generate array with integers between `from` and `to` (exclusive of to). */
+function numberRangeExclusive(from: number, to: number): number[] {
+  if (from > to) {
+    throw new Error(
+      `Invalid range: from (${from}) cannot be greater than to (${to})`,
+    );
+  }
+  return Array(to - from)
+    .fill(0)
+    .map((_, i) => from + i);
+}
+
 /** Convert a recoverable parser error to an unrecoverable one */
 export function cut<V, N, E extends ParserErrors = ParserErrors>(
   parser: Parser<V, N, E>,
 ): Parser<V, N, E | UnrecoverableParserError> {
   return (node) => {
     const result = parser(node);
-    if (result.isLeft() && result.error instanceof RecoverableParserError) {
-      return Left.create(
+    if (result.isErr && result.error instanceof RecoverableParserError) {
+      return err(
         new UnrecoverableParserError(
           `Unrecoverable error: ${result.error.message}`,
           { cause: result.error },
@@ -35,8 +46,8 @@ export function optional<V, N, E extends ParserErrors = ParserErrors>(
 ): Parser<V | undefined, N, E & UnrecoverableParserError> {
   return (node) => {
     const result = parser(node);
-    if (result.isLeft() && result.error instanceof RecoverableParserError) {
-      return Right.create({
+    if (result.isErr && result.error instanceof RecoverableParserError) {
+      return ok({
         value: undefined,
         start: node,
         next: node,
@@ -53,7 +64,7 @@ export function debug<V, N, E extends ParserErrors = ParserErrors>(
   return (node) => {
     console.log("Debugging parser at node:", JSON.stringify(node?.value));
     const result = parser(node);
-    if (result.isLeft()) {
+    if (result.isErr) {
       console.log("Parser failed with error:", result.error);
     } else {
       console.log(
@@ -106,7 +117,7 @@ export function alt<E extends ParserErrors = ParserErrors>(
     const errors: E[] = [];
     for (const parser of parsers) {
       const result = parser(node);
-      if (result.isRight()) {
+      if (result.isOk) {
         return result;
       }
       if (result.error instanceof UnrecoverableParserError) {
@@ -114,7 +125,7 @@ export function alt<E extends ParserErrors = ParserErrors>(
       }
       errors.push(result.error);
     }
-    return Left.create(
+    return err(
       new RecoverableParserError(
         `No parsers succeeded in alternative. Last failed with: ${errors[errors.length - 1].message}`,
         { cause: errors[errors.length - 1] },
@@ -175,16 +186,16 @@ export function permutationOptional<N, E extends ParserErrors = ParserErrors>(
       /** Indices of unused parsers. */
       remaining: Set<number>,
       nextNode: typeof node,
-    ): Either<
-      E | RecoverableParserError,
-      { value: unknown[]; next: PNode<N> | undefined }
+    ): Result<
+      { value: unknown[]; next: PNode<N> | undefined },
+      E | RecoverableParserError
     > {
       for (const unusedIndex of remaining) {
         const parser = parsers[unusedIndex];
         const result = parser(nextNode);
-        if (result.isLeft()) {
+        if (result.isErr) {
           if (result.error instanceof UnrecoverableParserError) {
-            return result; // Stop on unrecoverable error
+            return result.cast(); // Stop on unrecoverable error
           }
           continue; // Try the next parser
         }
@@ -194,7 +205,7 @@ export function permutationOptional<N, E extends ParserErrors = ParserErrors>(
         newRemaining.delete(unusedIndex);
 
         const remainingResults = tryParsers(newRemaining, result.value.next);
-        if (remainingResults.isRight()) {
+        if (remainingResults.isOk) {
           // Since we have succeeded, we can fill in the result at the unused index.
           remainingResults.value.value[unusedIndex] = result.value.value;
           return remainingResults;
@@ -205,7 +216,7 @@ export function permutationOptional<N, E extends ParserErrors = ParserErrors>(
       }
 
       // If we reach here, all parsers have been attempted.
-      return Right.create({
+      return ok({
         value: Array(parsers.length).fill(undefined),
         next: nextNode,
       });
@@ -265,13 +276,13 @@ export function permutation<N, E extends ParserErrors = ParserErrors>(
       /** Indices of unused parsers. */
       remaining: Set<number>,
       nextNode: typeof node,
-    ): Either<
-      E | RecoverableParserError,
-      { value: unknown[]; next: PNode<N> | undefined }
+    ): Result<
+      { value: unknown[]; next: PNode<N> | undefined },
+      E | RecoverableParserError
     > {
       if (remaining.size === 0) {
         // All parsers have been used successfully. Allocate the result array.
-        return Right.create({
+        return ok({
           value: Array(parsers.length),
           next: nextNode,
         });
@@ -280,9 +291,9 @@ export function permutation<N, E extends ParserErrors = ParserErrors>(
       for (const unusedIndex of remaining) {
         const parser = parsers[unusedIndex];
         const result = parser(nextNode);
-        if (result.isLeft()) {
+        if (result.isErr) {
           if (result.error instanceof UnrecoverableParserError) {
-            return result; // Stop on unrecoverable error
+            return result.cast(); // Stop on unrecoverable error
           }
           continue; // Try the next parser
         }
@@ -292,7 +303,7 @@ export function permutation<N, E extends ParserErrors = ParserErrors>(
         newRemaining.delete(unusedIndex);
 
         const remainingResults = tryParsers(newRemaining, result.value.next);
-        if (remainingResults.isRight()) {
+        if (remainingResults.isOk) {
           // Since we have succeeded, we can fill in the result at the unused index.
           remainingResults.value.value[unusedIndex] = result.value.value;
           return remainingResults;

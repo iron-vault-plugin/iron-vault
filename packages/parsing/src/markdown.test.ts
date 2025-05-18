@@ -1,4 +1,6 @@
 import * as mdast from "mdast";
+import { unwrap } from "true-myth/test-support";
+import { describe, expect, it, test } from "vitest";
 import { cut } from "./branching";
 import { Sentence, sentence, sentenceToString } from "./markdown";
 import { runParser } from "./parser";
@@ -114,7 +116,7 @@ describe("sentence parser", () => {
       repeat(undefined, undefined, cut(sentence)),
       ...input,
     );
-    expect(result.unwrap()).toEqual(expected);
+    expect(unwrap(result)).toEqual(expected);
   });
 });
 

@@ -1,4 +1,5 @@
 import { DataswornSource } from "@datasworn/core";
+import { unwrap } from "true-myth/test-support";
 import { markdownMoveToDatasworn } from "./markdown-move";
 
 describe("markdownMoveToDatasworn", () => {
@@ -19,7 +20,7 @@ foo: bar
 ${text}
 `;
     const result = markdownMoveToDatasworn(md);
-    expect(result.unwrap()).toEqual({
+    expect(unwrap(result)).toEqual({
       type: "move",
       name: "Move Name",
       roll_type: "action_roll",

@@ -8,7 +8,7 @@ import { gfmFromMarkdown, gfmToMarkdown } from "mdast-util-gfm";
 import { toMarkdown } from "mdast-util-to-markdown";
 import { frontmatter } from "micromark-extension-frontmatter";
 import { gfm } from "micromark-extension-gfm";
-import { Either, flatMap, Left, Right } from "utils/either";
+import Result, { err, ok } from "true-myth/result";
 import {
   apply,
   check,
@@ -70,7 +70,7 @@ import {
  */
 export function markdownAssetToDatasworn(
   content: string,
-): Either<ParserError, Omit<DataswornSource.Asset, "_source">> {
+): Result<Omit<DataswornSource.Asset, "_source">, ParserError> {
   const tree = fromMarkdown(content, {
     extensions: [gfm(), frontmatter(["yaml"])],
     mdastExtensions: [gfmFromMarkdown(), frontmatterFromMarkdown(["yaml"])],
@@ -91,8 +91,7 @@ export function markdownAssetToDatasworn(
 
   const result = runParser(parser, tree);
 
-  return flatMap(
-    result,
+  return result.andThen(
     ([
       _frontmatter,
       nameField,
@@ -101,7 +100,7 @@ export function markdownAssetToDatasworn(
       [controls, options],
     ]) => {
       if (nameField === undefined) {
-        return Left.create(new ParserError("Asset must have a name"));
+        return err(new ParserError("Asset must have a name"));
       }
 
       const [name, category] = nameField;
@@ -132,7 +131,7 @@ export function markdownAssetToDatasworn(
         );
       }
 
-      return Right.create(asset);
+      return ok(asset);
     },
   );
 }
@@ -144,18 +143,16 @@ const parseNameHeading = matchOpt(
     node.type == "heading" && node.depth == 1,
   (node: Heading) => {
     if (node.children.length === 0 || node.children[0].type !== "text") {
-      return Left.create(
-        new RecoverableParserError("Name must be a text node"),
-      );
+      return err(new RecoverableParserError("Name must be a text node"));
     }
     const name = node.children[0].value.trim().match(NAME_RE);
     if (!name) {
-      return Left.create(
+      return err(
         new RecoverableParserError("name must match format 'Name (type)'"),
       );
     }
     const [, nameText, type] = name;
-    return Right.create([nameText.trim(), type?.trim()]);
+    return ok([nameText.trim(), type?.trim()]);
   },
 );
 
@@ -169,12 +166,12 @@ const parseRequirement = optional(pipe(mdastType("paragraph"), cut(onlyText)));
 
 const parseAbility = match(
   (node: ListContent): node is ListItem => node.type === "listItem",
-  (node: ListItem): Either<ParserError, DataswornSource.AssetAbility> => {
+  (node: ListItem): Result<DataswornSource.AssetAbility, ParserError> => {
     const text = toMarkdown(
       { type: "root", children: node.children },
       { extensions: [gfmToMarkdown()] },
     ).trim();
-    return Right.create({
+    return ok({
       text,
       enabled: node.checked ?? false,
     });
@@ -207,7 +204,7 @@ const parseOptionsString: Parser<Map<string, string>, string> = (node) => {
     }
     options.set(key, value);
   }
-  return Right.create({
+  return ok({
     value: options,
     start: node,
     next: node.next,
