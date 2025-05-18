@@ -1,4 +1,3 @@
-import { syntaxTree } from "@codemirror/language";
 import { CampaignDataContext } from "campaigns/context";
 import { IDataContext } from "datastore/data-context";
 import { rootLogger, setLogLevel } from "logger";
@@ -52,11 +51,6 @@ export class IronVaultAPI {
 
   public stripLinks(input: string): string {
     return stripLinks(input);
-  }
-
-  public getSyntaxTree(): unknown {
-    const state = this.plugin.app.workspace.activeEditor?.editor?.cm.state;
-    return state && syntaxTree(state);
   }
 
   get logLevel(): loglevel.LogLevelDesc {

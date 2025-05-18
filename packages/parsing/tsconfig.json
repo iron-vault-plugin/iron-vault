@@ -2,7 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "isolatedDeclarations": true,
-    "declaration": true
+    "declaration": true,
+    "moduleResolution": "nodenext",
+    "module": "NodeNext"
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["./dist"]

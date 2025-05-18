@@ -1,4 +1,5 @@
-import { Either, Left, Right } from "utils/either";
+import { Result } from "true-myth";
+import { err, Ok, ok } from "true-myth/result";
 import { apply } from ".";
 import {
   Parser,
@@ -51,19 +52,19 @@ export function seq<N, E extends ParserError>(
 ): Parser<unknown[], N, E> {
   return (
     start: PNode<N> | undefined,
-  ): Either<E, ParseResult<unknown[], N>> => {
+  ): Result<ParseResult<unknown[], N>, E> => {
     const results: unknown[] = [];
     let next: PNode<N, N> | undefined = start;
     for (const parser of parsers) {
       const result = parser(next);
-      if (result.isLeft()) {
-        return result;
+      if (result.isErr) {
+        return result.cast();
       }
       const { value, next: newNext } = result.value;
       results.push(value);
       next = newNext;
     }
-    return Right.create({
+    return ok({
       value: results,
       start,
       next,
@@ -94,9 +95,9 @@ export function repeat<V, N, E extends ParserErrors = ParserErrors>(
 
     while (currentNode !== undefined && results.length < max) {
       const result = parser(currentNode);
-      if (result.isLeft()) {
+      if (result.isErr) {
         if (result.error instanceof UnrecoverableParserError) {
-          return result;
+          return result.cast();
         }
 
         break;
@@ -106,14 +107,14 @@ export function repeat<V, N, E extends ParserErrors = ParserErrors>(
     }
 
     if (results.length < min) {
-      return Left.create(
+      return err(
         new RecoverableParserError(
           `expected at least ${min} matches, found ${results.length}`,
         ),
       );
     }
 
-    return Right.create({
+    return ok({
       value: results,
       start: node,
       next: currentNode,
@@ -121,17 +122,21 @@ export function repeat<V, N, E extends ParserErrors = ParserErrors>(
   };
 }
 
+function cleanOk<V, E = never>(result: V): Ok<V, E> {
+  return ok<V, E>(result) as Ok<V, E>;
+}
+
 /** Slurps all remaining nodes into a list. */
 export function consumeAll<N>(
   node: PNode<N> | undefined,
-): Right<ParseResult<N[], N>> {
+): Ok<ParseResult<N[], N>, never> {
   const result: N[] = [];
   let currentNode = node;
   while (currentNode !== undefined) {
     result.push(currentNode.value);
     currentNode = currentNode.next;
   }
-  return Right.create({
+  return cleanOk({
     value: result,
     next: undefined,
     start: node,

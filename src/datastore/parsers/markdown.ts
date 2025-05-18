@@ -40,24 +40,25 @@ export function markdownAssetParser(
     title: `Oracles from ${baseName}`,
     url: "https://example.com",
   };
-  const table = markdownAssetToDatasworn(content);
 
-  if (table.isLeft()) {
-    return {
+  return markdownAssetToDatasworn(content).match({
+    Ok: (asset): ParserReturn => {
+      const fullTable: DataswornSource.Asset = {
+        ...asset,
+        ...metadata,
+        _source: source,
+      };
+      return {
+        success: true,
+        result: fullTable,
+      };
+    },
+    Err: (error): ParserReturn => ({
       success: false,
-      error: table.error,
+      error,
       result: { type: "asset" },
-    };
-  }
-  const fullTable: DataswornSource.Asset = {
-    ...table.value,
-    ...metadata,
-    _source: source,
-  };
-  return {
-    success: true,
-    result: fullTable,
-  };
+    }),
+  });
 }
 
 export function inlineOracleParser(

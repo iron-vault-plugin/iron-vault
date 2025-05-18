@@ -1,4 +1,5 @@
 import { DataswornSource } from "@datasworn/core";
+import { unwrap, unwrapErr } from "true-myth/test-support";
 import { markdownAssetToDatasworn } from "./markdown-asset";
 
 describe("markdownAssetToDatasworn", () => {
@@ -17,7 +18,7 @@ Requirement text
 * [ ] Ability 3
 `;
     const result = markdownAssetToDatasworn(md);
-    expect(result.unwrap()).toEqual({
+    expect(unwrap(result)).toEqual({
       type: "asset",
       name: "Asset Name",
       requirement: "Requirement text",
@@ -36,7 +37,7 @@ Requirement text
 * [x] Your combat bot companion fights at your side. When you [Strike](datasworn:move:starforged/combat/strike) aided by the bot, add +1; if you [Clash](datasworn:move:starforged/combat/clash), take +1 momentum on a hit.
 `;
     const result = markdownAssetToDatasworn(md);
-    expect(result.unwrap()).toEqual({
+    expect(unwrap(result)).toEqual({
       type: "asset",
       name: "Asset Name",
       abilities: [
@@ -60,10 +61,7 @@ Requirement text
 * [x] Ability 1
 `;
     const result = markdownAssetToDatasworn(md);
-    expect(result.isLeft()).toBe(true);
-    if (result.isLeft()) {
-      expect(result.error.message).toMatch(/Asset must have a name/);
-    }
+    expect(unwrapErr(result).message).toMatch(/Asset must have a name/);
   });
 
   it("parses asset without frontmatter", () => {
@@ -74,11 +72,10 @@ Requirement text
 * [x] Ability 1
 `;
     const result = markdownAssetToDatasworn(md);
-    expect(result.isRight()).toBe(true);
-    if (result.isRight()) {
-      expect(result.value.name).toBe("Asset Name");
-      expect(result.value.requirement).toBe("Requirement text");
-    }
+    expect(unwrap(result)).toMatchObject({
+      name: "Asset Name",
+      requirement: "Requirement text",
+    });
   });
 
   it("returns error if name heading is not a text node", () => {
@@ -89,10 +86,7 @@ Requirement text
 * [x] Ability 1
 `;
     const result = markdownAssetToDatasworn(md);
-    expect(result.isLeft()).toBe(true);
-    if (result.isLeft()) {
-      expect(result.error.message).toMatch(/Name must be a text node/);
-    }
+    expect(unwrapErr(result).message).toMatch(/Name must be a text node/);
   });
 
   it("returns error if requirement is not a text node", () => {
@@ -103,10 +97,7 @@ Requirement text
 * [x] Ability 1
 `;
     const result = markdownAssetToDatasworn(md);
-    expect(result.isLeft()).toBe(true);
-    if (result.isLeft()) {
-      expect(result.error.message).toMatch(/Expected a text node as child/);
-    }
+    expect(unwrapErr(result).message).toMatch(/Expected a text node as child/);
   });
 
   describe("controls and options", () => {
@@ -128,7 +119,7 @@ foo: bar
 * Test field (condition_meter, max: 5, value: 5)
 `;
       const result = markdownAssetToDatasworn(md);
-      expect(result.unwrap().controls).toEqual({
+      expect(unwrap(result).controls).toEqual({
         test_field: {
           field_type: "condition_meter",
           min: 0,
@@ -147,7 +138,7 @@ foo: bar
 * Test field (checkbox, is_impact: true, disables_asset: false)
 `;
       const result = markdownAssetToDatasworn(md);
-      expect(result.unwrap().controls).toEqual({
+      expect(unwrap(result).controls).toEqual({
         test_field: {
           field_type: "checkbox",
           is_impact: true,
@@ -165,7 +156,7 @@ foo: bar
 * Test field (card_flip, is_impact: true, disables_asset: false)
 `;
       const result = markdownAssetToDatasworn(md);
-      expect(result.unwrap().controls).toEqual({
+      expect(unwrap(result).controls).toEqual({
         test_field: {
           field_type: "card_flip",
           is_impact: true,
@@ -184,7 +175,7 @@ foo: bar
   * Ouchy  (checkbox, is_impact: true)
 `;
       const result = markdownAssetToDatasworn(md);
-      expect(result.unwrap().controls).toEqual({
+      expect(unwrap(result).controls).toEqual({
         test_field: {
           field_type: "condition_meter",
           min: 0,
@@ -210,7 +201,7 @@ foo: bar
 * Test field (text)
 `;
       const result = markdownAssetToDatasworn(md);
-      expect(result.unwrap().options).toEqual({
+      expect(unwrap(result).options).toEqual({
         test_field: {
           field_type: "text",
           label: "test field",
@@ -232,8 +223,8 @@ foo: bar
 * Test control (condition_meter, max: 5, value: 5)
 `;
       expect(
-        markdownAssetToDatasworn(base + options + controls).unwrap(),
-      ).toEqual(markdownAssetToDatasworn(base + controls + options).unwrap());
+        unwrap(markdownAssetToDatasworn(base + options + controls)),
+      ).toEqual(unwrap(markdownAssetToDatasworn(base + controls + options)));
     });
   });
 });

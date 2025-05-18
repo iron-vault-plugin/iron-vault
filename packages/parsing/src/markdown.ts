@@ -1,6 +1,6 @@
 import * as mdast from "mdast";
 import { FrontmatterContent, RootContent, RootContentMap, Yaml } from "mdast";
-import { Left, Right } from "utils/either";
+import { err, ok } from "true-myth/result";
 import { apply, consumeAll, liftAsList, matchOpt, pipe, some } from ".";
 import {
   LazyPNode,
@@ -34,7 +34,7 @@ export function mdastType<
         return makeError(node, `node of type ${type} did not pass check`);
       }
 
-      return Right.create({
+      return ok({
         value: value as RootContentMap[C],
         start: node,
         next: node.next,
@@ -66,7 +66,7 @@ export const skipFrontmatter: Parser<
   ParserErrors
 > = matchOpt(
   (node: RootContent): node is FrontmatterContent => node.type === "yaml",
-  (node: Yaml) => Right.create(node.value),
+  (node: Yaml) => ok(node.value),
 );
 
 /** Parse a node that has only a single text child. */
@@ -91,7 +91,7 @@ export const onlyText: Parser<string, mdast.Parents> = (node) => {
     );
   }
 
-  return Right.create({
+  return ok({
     value: children[0].value,
     start: node,
     next: node.next,
@@ -161,7 +161,7 @@ export function sentenceToString(sentence: Sentence): string {
 /** Splits markdown content on sentence breaks. Preserves the structure across splits. */
 export const sentence: Parser<Sentence, mdast.PhrasingContent> = (start) => {
   if (start === undefined) {
-    return Left.create(new ParserError("Expected phrasing content, found end"));
+    return err(new ParserError("Expected phrasing content, found end"));
   }
   const parts: Sentence["parts"] = [];
   let node: typeof start | undefined = start;
@@ -185,7 +185,7 @@ export const sentence: Parser<Sentence, mdast.PhrasingContent> = (start) => {
           // We had a period, so we take the left part and return it as a sentence.
           parts.push({ ...node.value, value: left + "." });
 
-          return Right.create({
+          return ok({
             value: { parts },
             start: node,
             next:
@@ -200,7 +200,7 @@ export const sentence: Parser<Sentence, mdast.PhrasingContent> = (start) => {
       case "break":
         // An explicit break means we end the sentence here.
         parts.push(node.value);
-        return Right.create({
+        return ok({
           value: { parts },
           start: node,
           next: node.next,
@@ -210,7 +210,7 @@ export const sentence: Parser<Sentence, mdast.PhrasingContent> = (start) => {
       case "emphasis":
       case "strong": {
         const subResult = sentence(LazyPNode.forSeq(...node.value.children));
-        if (subResult.isLeft()) {
+        if (subResult.isErr) {
           return subResult;
         }
         const { value: subValue, next: subNext } = subResult.value;
@@ -225,12 +225,14 @@ export const sentence: Parser<Sentence, mdast.PhrasingContent> = (start) => {
             ? {
                 value: {
                   ...node.value,
-                  children: consumeAll(subNext).unwrap().value,
+                  children: consumeAll(subNext).unwrapOrElse((e) => {
+                    throw new Error("unexpected error", { cause: e });
+                  }).value,
                 },
                 next: node.next,
               }
             : node.next;
-          return Right.create({
+          return ok({
             value: { parts },
             start: node,
             next,
@@ -263,7 +265,7 @@ export const sentence: Parser<Sentence, mdast.PhrasingContent> = (start) => {
   if (parts.length === 0) {
     return makeError(node, "Expected phrasing content, found end");
   }
-  return Right.create({
+  return ok({
     value: { parts },
     start,
     next: undefined,
