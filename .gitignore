@@ -5,6 +5,7 @@ node_modules/
 /main.js.map
 /styles.css
 /data.json
+.eslintcache
 
 # Ignore .obsidian
 # No one will commit these files, they just spam 'git status'

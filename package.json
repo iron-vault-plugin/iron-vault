@@ -18,8 +18,7 @@
     "bump": "node ./scripts/update_manifest.js release ${npm_config_tag:?} && npm version --no-git-tag-version ${npm_config_tag} && git commit -a -m \"bumping manifest version to ${npm_config_tag}\" && git tag -a ${npm_config_tag} -m ${npm_config_tag} && git push --follow-tags",
     "bump:beta": "node ./scripts/update_manifest.js beta ${npm_config_tag:?} && npm version --no-git-tag-version ${npm_config_tag} && git add manifest-beta.json && git commit -a -m \"bumping manifest-beta version to ${npm_config_tag}\" && git tag -a ${npm_config_tag} -m ${npm_config_tag} && git push --follow-tags",
     "latestrev": "git tag -l --sort -creatordate '[0-9]*' | head -n 1",
-    "lint": "pnpm run '/^lint:.*/'",
-    "lint:js": "eslint src",
+    "lint": "eslint --cache .",
     "copy:target": "pnpm dev:build && targetdir=\"$(<.targetdir)\" && cp -v main.js manifest.json styles.css \"${targetdir:?}/iron-vault/\""
   },
   "keywords": [],
