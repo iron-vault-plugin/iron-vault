@@ -1,10 +1,6 @@
 {
   "editor.tabSize": 2,
   "git.branchProtection": [],
-  "jest.jestCommandLine": "pnpm test",
-  "jest.nodeEnv": {
-    "NODE_OPTIONS": "--experimental-vm-modules"
-  },
   "yaml.schemas": {
     "./node_modules/@datasworn/core/json/datasworn.schema.json": ["/data/*"],
     "./node_modules/@datasworn/core/json/datasworn-source.schema.json": [
