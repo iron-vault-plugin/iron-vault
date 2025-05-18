@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "declaration": true,
+    "module": "ESNext",
+    "target": "ES2023",
+    "allowJs": false,
+    "noImplicitAny": true,
+    "noEmit": true,
+    "strict": true,
+    "strictFunctionTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "lib": [
+      "dom",
+      "es5",
+      "scripthost",
+      "ES2023",
+      "DOM.Iterable",
+      "ESNext.Iterator"
+    ],
+    "resolveJsonModule": true,
+    "paths": {
+      "@ironvault/parsing/*": ["../packages/parsing/src/*"]
+    }
+  }
+}

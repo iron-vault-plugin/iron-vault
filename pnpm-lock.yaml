@@ -38,6 +38,9 @@ importers:
       '@eslint/js':
         specifier: ^9.27.0
         version: 9.27.0
+      '@ironvault/parsing':
+        specifier: workspace:^
+        version: link:packages/parsing
       '@jest/expect':
         specifier: ^29.7.0
         version: 29.7.0
@@ -218,6 +221,10 @@ importers:
       zod:
         specifier: ^3.24.2
         version: 3.24.2
+
+  packages/parsing: {}
+
+  packages/utils: {}
 
 packages:
 

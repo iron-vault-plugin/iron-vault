@@ -1,5 +1,5 @@
-import { fail, str, succ } from ".";
 import { alt, cut, permutation, permutationOptional } from "./branching";
+import { fail, str, succ } from "./index";
 import {
   Parser,
   RecoverableParserError,

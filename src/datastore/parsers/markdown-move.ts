@@ -1,12 +1,4 @@
 import { DataswornSource } from "@datasworn/core";
-import * as mdast from "mdast";
-import { fromMarkdown } from "mdast-util-from-markdown";
-import { frontmatterFromMarkdown } from "mdast-util-frontmatter";
-import { gfmFromMarkdown, gfmToMarkdown } from "mdast-util-gfm";
-import { toMarkdown } from "mdast-util-to-markdown";
-import { frontmatter } from "micromark-extension-frontmatter";
-import { gfm } from "micromark-extension-gfm";
-import { Either, flatMap, Left, Right } from "utils/either";
 import {
   apply,
   consumed,
@@ -21,8 +13,8 @@ import {
   runParserPartial,
   seq,
   some,
-} from "utils/parsing";
-import { alt, cut, optional } from "utils/parsing/branching";
+} from "@ironvault/parsing";
+import { alt, cut, optional } from "@ironvault/parsing/branching";
 import {
   children,
   mdastType,
@@ -31,7 +23,15 @@ import {
   Sentence,
   sentenceToString,
   skipFrontmatter,
-} from "utils/parsing/markdown";
+} from "@ironvault/parsing/markdown";
+import * as mdast from "mdast";
+import { fromMarkdown } from "mdast-util-from-markdown";
+import { frontmatterFromMarkdown } from "mdast-util-frontmatter";
+import { gfmFromMarkdown, gfmToMarkdown } from "mdast-util-gfm";
+import { toMarkdown } from "mdast-util-to-markdown";
+import { frontmatter } from "micromark-extension-frontmatter";
+import { gfm } from "micromark-extension-gfm";
+import { Either, flatMap, Left, Right } from "utils/either";
 
 /**
  * Parses a markdown asset into a Datasworn asset object.

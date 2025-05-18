@@ -54,7 +54,7 @@ export class IronVaultAPI {
     return stripLinks(input);
   }
 
-  public getSyntaxTree() {
+  public getSyntaxTree(): unknown {
     const state = this.plugin.app.workspace.activeEditor?.editor?.cm.state;
     return state && syntaxTree(state);
   }
