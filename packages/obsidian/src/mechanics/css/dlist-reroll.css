@@ -1,0 +1,33 @@
+.iron-vault-mechanics dl.reroll {
+  &:before {
+    content: "🔁";
+  }
+  & dd {
+    &.action-die {
+      &:has(~ .action-die) {
+        &:before {
+          content: "(act: ";
+        }
+      }
+      &:not(:has(~ .action-die)):after {
+        content: ") ";
+      }
+    }
+    &.challenge-die {
+      &.from:before {
+        content: "(vs: ";
+      }
+      &.to {
+        &:before {
+          content: none;
+        }
+        &:after {
+          content: ") ";
+        }
+      }
+    }
+    &.outcome {
+      display: none;
+    }
+  }
+}

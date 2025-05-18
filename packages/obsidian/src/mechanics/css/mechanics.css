@@ -1,0 +1,60 @@
+@import url("actor.css");
+@import url("move.css");
+@import url("details.css");
+@import url("summary.css");
+@import url("paragraphs.css");
+@import url("oracle-group.css");
+@import url("dlist-shared.css");
+@import url("dlist-add.css");
+@import url("dlist-asset.css");
+@import url("dlist-roll.css");
+@import url("dlist-reroll.css");
+@import url("dlist-meter.css");
+@import url("dlist-burn.css");
+@import url("dlist-progress.css");
+@import url("dlist-track.css");
+@import url("dlist-track-status.css");
+@import url("dlist-xp.css");
+@import url("dlist-clock.css");
+@import url("dlist-clock-status.css");
+@import url("dlist-oracle.css");
+@import url("dlist-impact.css");
+@import url("dlist-initiative.css");
+
+.iron-vault-mechanics {
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  cursor: default;
+  margin: 0.5em auto;
+  max-width: 460px;
+  background-color: var(--background-secondary);
+  padding: 1em;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  & .markdown-wrapper {
+    display: inline;
+    & > * {
+      margin: 0;
+    }
+  }
+  &.collapsed > :not(.toggle) {
+    display: none;
+  }
+  & .toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0 auto;
+    width: 100%;
+    font-size: 0.8em;
+    color: var(--link-color);
+    text-decoration: var(--link-decoration);
+    text-decoration-thickness: var(--link-decoration-thickness);
+    box-shadow: none;
+    text-align: center;
+    &:hover {
+      color: var(--link-color-hover);
+      text-decoration: var(--link-decoration-hover);
+      text-decoration-thickness: var(--link-decoration-thickness-hover);
+    }
+  }
+}

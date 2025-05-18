@@ -1,0 +1,81 @@
+.iron-vault-mechanics dl {
+  --item-gap: 0.3em;
+  display: flex;
+  flex-flow: row wrap;
+  gap: var(--item-gap);
+  &:before {
+    margin-right: 0.5em;
+  }
+  &:after {
+    font-weight: var(--font-semibold);
+    padding-left: 0.5em;
+  }
+  &.match.strong-hit:after {
+    color: var(--text-success);
+  }
+  &.match.miss:after {
+    color: var(--text-error);
+  }
+  &.match:after {
+    content: "match";
+    text-transform: uppercase;
+    font-weight: var(--font-bold);
+    font-size: 0.8em;
+    padding: 0.2em 0;
+  }
+  & dt {
+    display: none;
+  }
+  & dd {
+    margin: 0;
+    padding: 0;
+    font-weight: var(--font-semibold);
+    & * {
+      display: inline;
+    }
+    &.challenge-die {
+      &:has(~ .challenge-die):before {
+        content: " vs ";
+      }
+      &:not(:has(~ .challenge-die)):before {
+        content: " | ";
+      }
+      &.vs1 {
+        color: var(--vs1-color);
+      }
+      &.vs2 {
+        color: var(--vs2-color);
+      }
+    }
+    &.score {
+      &:before {
+        content: " = ";
+      }
+    }
+    &.from:after {
+      content: " → ";
+    }
+    &:before,
+    &:after {
+      color: var(--text-muted);
+    }
+  }
+  &.strong-hit {
+    & dd.score,
+    & dd.progress-score {
+      color: var(--text-success);
+    }
+  }
+  &.weak-hit {
+    & dd.score,
+    & dd.progress-score {
+      color: var(--text-warning);
+    }
+  }
+  &.miss {
+    & dd.score,
+    & dd.progress-score {
+      color: var(--text-error);
+    }
+  }
+}

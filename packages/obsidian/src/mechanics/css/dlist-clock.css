@@ -1,0 +1,34 @@
+.iron-vault-mechanics dl.clock {
+  &:before {
+    content: "🕒";
+  }
+  & dd {
+    &.clock-name {
+      &:after {
+        content: ": ";
+      }
+    }
+    &.from,
+    &.to,
+    &.out-of {
+      color: var(--text-accent);
+    }
+    &.from,
+    &.to {
+      &:before {
+        content: none;
+      }
+      &:after {
+        content: "/";
+      }
+    }
+    &.out-of:has(~ .out-of) {
+      &:after {
+        content: " → ";
+      }
+    }
+    &.out-of {
+      margin-left: calc(var(--item-gap) * -1);
+    }
+  }
+}

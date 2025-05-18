@@ -1,0 +1,13 @@
+.iron-vault-mechanics dl.initiative {
+  &:before {
+    content: "⚔️";
+  }
+  & dd {
+    &.has-initiative {
+      color: var(--text-success);
+    }
+    &.no-initiative {
+      color: var(--text-error);
+    }
+  }
+}

@@ -1,0 +1,13 @@
+@import url("asset-card.css");
+@import url("asset-list.css");
+
+.iron-vault-asset-modal {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+   & > button {
+    max-width: 20em;
+   }
+}

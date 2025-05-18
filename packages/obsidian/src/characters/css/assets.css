@@ -1,0 +1,18 @@
+.iron-vault-character .assets {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5em;
+  justify-content: center;
+  align-items: center;
+  & > ul {
+    list-style: none;
+    display: flex;
+    flex-flow: row wrap;
+    gap: 0.4em;
+    /* NB(@zkat): Fix some obnoxious Obsidian styles */
+    & ul > li,
+    & ol > li {
+      margin-inline-start: 0;
+    }
+  }
+}

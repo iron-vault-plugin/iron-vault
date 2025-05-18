@@ -1,0 +1,35 @@
+.iron-vault-mechanics dl.xp {
+  &:before {
+    content: "💡";
+  }
+  & dd {
+    &.delta {
+      &:before {
+        color: var(--text-muted);
+      }
+      &.positive {
+        color: var(--text-success);
+        &:before {
+          content: "XP +";
+        }
+      }
+      &.negative {
+        color: var(--text-error);
+        &:before {
+          content: "XP -";
+        }
+      }
+    }
+    &.from {
+      &:before {
+        content: " (";
+      }
+      &:after {
+        content: " → ";
+      }
+    }
+    &.to:after {
+      content: ")";
+    }
+  }
+}

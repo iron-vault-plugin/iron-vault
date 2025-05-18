@@ -1,0 +1,109 @@
+@import url("assets.css");
+@import url("asset-card.css");
+@import url("asset-list.css");
+@import url("character-info.css");
+@import url("impacts.css");
+@import url("meters.css");
+@import url("special_tracks.css");
+@import url("stats.css");
+
+.markdown-rendered .iron-vault-character ul {
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.markdown-rendered.show-indentation-guide .iron-vault-character li > ul::before {
+  /* Markdown embed stuff draws a border here. Make it go away. */
+  display: none;
+}
+
+.iron-vault-character {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  /* NB(@zkat): Fix some obnoxious Obsidian styles */
+  & ul > li, & ol > li {
+    margin-inline-start: 0;
+  }
+  > * {
+    width: 100%;
+    padding: 1em 0;
+    margin: 0 !important;
+    padding-inline-start: 0;
+  }
+  > * + * {
+    border-top: 2px solid var(--background-modifier-border);
+  }
+  & li::before {
+    /* Some themes (Like ITS Theme) try to be more clever than they deserve
+      to be with list bullets. Make that b.s. go away. */
+    display: none;
+  }
+  & label {
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  & label:has(> input[type="checkbox"]) {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    font-weight: var(--font-semibold);
+  }
+  & label > input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    border: none !important;
+    background-color: transparent !important;
+    width: 1.4em;
+    height: 2em;
+    margin: 0;
+    margin-left: 0.5em;
+    &:focus-visible {
+      box-shadow: none;
+      outline-offset: initial;
+    }
+    &:checked {
+      &::after {
+        content: "⬢";
+      }
+    }
+    &::after {
+      margin: 0;
+      padding: 0;
+      -webkit-mask-image: none;
+      mask-image: none;
+      font-size: 1.8em;
+      content: "⬡";
+      height: auto;
+      width: auto;
+      text-align: center;
+      background-color: transparent;
+    }
+  }
+  & .assets {
+    & .asset-card-wrapper {
+      position: relative;
+      cursor: pointer;
+      & > .remove-asset {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        z-index: 1;
+      }
+    }
+    & li:has(.add-asset) {
+      align-self: center;
+      justify-self: center;
+      & .add-asset {
+        text-transform: uppercase;
+        font-weight: var(--font-semibold);
+        font-size: 1em;
+        padding: 1em;
+      }
+    }
+  }
+}

@@ -10,8 +10,8 @@
   },
   "private": true,
   "scripts": {
-    "test": "env NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest",
-    "build": "tsc --noEmit && node esbuild.config.js production",
+    "build": "pnpm recursive run build",
+    "test": "vitest",
     "dev:build": "tsc --noEmit && node esbuild.config.js nowatch",
     "compile-data": "yq -ojson data/starforged.supplement.yaml > data/starforged.supplement.json && yq -ojson data/sundered-isles.supplement.yaml > data/sundered-isles.supplement.json",
     "dev": "node esbuild.config.js",
@@ -96,6 +96,7 @@
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.26.1",
     "unist-util-is": "^6.0.0",
+    "vitest": "^3.1.3",
     "yaml": "^2.7.0",
     "zod": "^3.24.2"
   },

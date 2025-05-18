@@ -1,0 +1,10 @@
+{
+  "id": "iron-vault",
+  "name": "Iron Vault",
+  "minAppVersion": "1.6.3",
+  "description": "Gameplay plugin/VTT for the Ironsworn/Starforged family of tabletop RPGs.",
+  "author": "Iron Vault Dev Team",
+  "authorUrl": "https://github.com/iron-vault-plugin",
+  "isDesktopOnly": false,
+  "version": "1.96.0"
+}

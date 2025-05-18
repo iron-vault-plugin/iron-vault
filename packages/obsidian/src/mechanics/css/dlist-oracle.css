@@ -1,0 +1,52 @@
+.iron-vault-mechanics dl.oracle {
+  &:has(dd.replaced[data-value="true"]) {
+    & dd.result {
+      text-decoration: line-through;
+      color: var(--text-faint);
+      &:before,
+      &:after {
+        color: var(--text-faint);
+      }
+    }
+  }
+  &:has(dd.cursed) ~ blockquote > .oracle-container > dl.oracle {
+    &:before {
+      content: "💀";
+    }
+  }
+  &:before {
+    content: "🔮";
+  }
+  & ~ blockquote {
+    margin-left: 0.5em;
+    padding-left: 1.2em;
+    border-left-style: dashed;
+  }
+  & dd {
+    &.name:after {
+      content: " ";
+    }
+    &.roll {
+      &:before {
+        content: "(=";
+      }
+      &:after {
+        content: ") ";
+      }
+    }
+    &.result {
+      &:before,
+      &:after {
+        content: '"';
+      }
+    }
+    &.replaced {
+      display: none;
+    }
+    &.cursed {
+      &:before {
+        content: "💀=";
+      }
+    }
+  }
+}
