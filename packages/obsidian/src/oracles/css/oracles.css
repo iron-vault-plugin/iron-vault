@@ -1,0 +1,71 @@
+.iron-vault-oracle-modal {
+  & header {
+    padding: 0 0 1em 0;
+    font-size: 1em;
+    color: var(--text-muted);
+    font-weight: var(--font-semibold);
+  }
+}
+
+.iron-vault-oracle-table-container {
+  overflow-y: auto;
+  min-height: 3em;
+  max-height: calc(var(--modal-max-height) * 0.5);
+}
+
+table.iron-vault-oracle-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  box-shadow: var(--shadow);
+  margin-top: 1em;
+  & thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  & thead tr {
+    background-color: var(--background-primary);
+  }
+  & th, & td {
+    padding: 0.6em;
+  }
+  & tbody tr {
+    background-color: var(--background-primary-alt);
+    border-bottom: 1px solid var(--background-modifier-border);
+    &:nth-of-type(even) {
+      background-color: var(--background-secondary-alt);
+    }
+    &:last-child {
+      border-bottom: none;
+    }
+    &:hover {
+      background-color: var(--interactive-accent-hover);
+      & a {
+        color: var(--text-on-accent);
+      }
+    }
+    & td {
+      & > p {
+        margin: 0;
+      }
+      &:first-child {
+        text-align: center;
+        font-weight: var(--font-semibold);
+        white-space: nowrap;
+      }
+    }
+  }
+
+  & tbody tr.selected {
+    background-color: var(--interactive-accent);
+
+    &:hover {
+      background-color: var(--interactive-accent-hover);
+    }
+
+    & a {
+      color: var(--text-on-accent);
+    }
+  }
+}

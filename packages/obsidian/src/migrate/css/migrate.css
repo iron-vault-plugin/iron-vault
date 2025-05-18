@@ -1,0 +1,19 @@
+.iron-vault-migration-report {
+  user-select: text;
+}
+
+.iron-vault-migrate-diff {
+  & .before {
+    background-color: rgba(var(--color-red-rgb), 0.4);
+  }
+
+  & .after {
+    background-color: rgba(var(--color-green-rgb), 0.4);
+  }
+}
+
+.iron-vault-migration-view {
+  & button {
+    white-space: normal;
+  }
+}

@@ -1,0 +1,146 @@
+.iron-vault-character section.character-info {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+  /* NB(@zkat): Fix some obnoxious Obsidian styles */
+  & ul > li, & ol > li {
+    margin-inline-start: 0;
+  }
+  & .initiative {
+    margin-bottom: 1em;
+  }
+  & .name input {
+    font-size: 1.6em;
+    height: 1.6em;
+    font-weight: var(--font-semibold);
+    padding-bottom: 0.5em;
+    background-color: transparent;
+    max-width: 340px;
+    text-align: center;
+    border: none;
+  }
+  & .active-char {
+    font-size: 0.8em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-weight: var(--font-semibold);
+    margin-bottom: 0.5em;
+  }
+  & .set-active {
+    margin-bottom: 0.5em;
+  }
+  & dl,
+  & dt,
+  & dd {
+    margin: 0;
+    padding: 0;
+  }
+  & dl {
+    display: grid;
+    max-width: 460px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr auto 1fr 1fr 1fr 1fr 1fr;
+    grid-template-areas:
+      "callsign pronouns"
+      "callsign-txt pronouns-txt"
+      "description description"
+      "description-txt description-txt"
+      "player player"
+      "player-txt player-txt"
+      "xp-from-tracks xp-added"
+      "xp-from-tracks-txt xp-added-txt"
+      "total-xp xp-spent"
+      "total-xp-txt xp-spent-txt";
+    column-gap: 0.2em;
+    align-items: end;
+    & dt:has(+ .callsign) {
+      grid-area: callsign;
+    }
+    & dd.callsign {
+      grid-area: callsign-txt;
+    }
+    & dt:has(+ .pronouns) {
+      grid-area: pronouns;
+    }
+    & dd.pronouns {
+      grid-area: pronouns-txt;
+    }
+    & dt:has(+ .description) {
+      grid-area: description;
+    }
+    & dd.description {
+      grid-area: description-txt;
+    }
+    & dt:has(+ .player) {
+      grid-area: player;
+    }
+    & dd.player {
+      grid-area: player-txt;
+    }
+    & dt:has(+ .xp-from-tracks) {
+      grid-area: xp-from-tracks;
+    }
+    & dd.xp-from-tracks {
+      grid-area: xp-from-tracks-txt;
+    }
+    & dt:has(+ .xp-added) {
+      grid-area: xp-added;
+    }
+    & dd.xp-added {
+      grid-area: xp-added-txt;
+    }
+    & dt:has(+ .total-xp) {
+      grid-area: total-xp;
+    }
+    & dd.total-xp {
+      grid-area: total-xp-txt;
+    }
+    & dt:has(+ .xp-spent) {
+      grid-area: xp-spent;
+    }
+    & dd.xp-spent {
+      grid-area: xp-spent-txt;
+    }
+    & dt {
+      vertical-align: bottom;
+      font-weight: var(--font-semibold);
+      font-size: 0.8em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    & dd input, & dd textarea, & dd:has(textarea) {
+      padding: 0.4em;
+      width: 100%;
+      font-size: 1em;
+      background-color: transparent;
+      border: none;
+      border-bottom: 1px solid var(--background-modifier-border);
+      border-radius: 0;
+      &:focus {
+        border-radius: var(--input-radius);
+      }
+    }
+    & dd:has(textarea) {
+      /* See https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/ */
+      border-bottom: none;
+      padding: 0;
+      display: grid;
+      &::after {
+        content: attr(data-replicated-value) " ";
+        white-space: pre-wrap;
+        visibility: hidden;
+      }
+      & > textarea {
+        resize: none;
+        overflow: hidden;
+      }
+      & > textarea, &::after {
+        grid-area: 1 / 1 / 2 / 2;
+      }
+    }
+    & dd.xp-earned, & dd.xp-from-tracks {
+      padding-left: 0.4em;
+    }
+  }
+}

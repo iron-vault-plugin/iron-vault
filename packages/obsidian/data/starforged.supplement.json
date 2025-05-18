@@ -1,0 +1,225 @@
+{
+  "type": "expansion",
+  "_id": "starforgedsupp",
+  "datasworn_version": "0.1.0",
+  "ruleset": "starforged",
+  "title": "Iron Vault support for Ironsworn: Starforged",
+  "description": "Collection of utility oracles and assets for use with Starforged",
+  "authors": [
+    {
+      "name": "Iron Vault Dev Team"
+    }
+  ],
+  "date": "2024-07-16",
+  "license": "MIT",
+  "url": "https://ironvault.quest",
+  "oracles": {
+    "templates": {
+      "_id": "oracle_collection:starforgedsupp/templates",
+      "name": "Templates",
+      "type": "oracle_collection",
+      "oracle_type": "tables",
+      "_source": {
+        "title": "Iron Vault Support Oracles",
+        "authors": [
+          {
+            "name": "Iron Vault Dev Team"
+          }
+        ],
+        "date": "2024-06-15",
+        "url": "https://github.com/iron-vault-plugin/iron-vault",
+        "license": "MIT"
+      },
+      "collections": {},
+      "contents": {
+        "actiontheme": {
+          "_id": "oracle_rollable:starforgedsupp/templates/actiontheme",
+          "type": "oracle_rollable",
+          "oracle_type": "table_text",
+          "name": "Action + Theme",
+          "dice": "1d100",
+          "_source": {
+            "title": "Iron Vault Support Oracles",
+            "authors": [
+              {
+                "name": "Iron Vault Dev Team"
+              }
+            ],
+            "date": "2024-06-15",
+            "url": "https://github.com/iron-vault-plugin/iron-vault",
+            "license": "MIT"
+          },
+          "column_labels": {
+            "roll": "Roll",
+            "text": "Result"
+          },
+          "rows": [
+            {
+              "_id": "oracle_rollable.row:starforgedsupp/templates/actiontheme.1",
+              "roll": {
+                "min": 1,
+                "max": 100
+              },
+              "text": "[Action](oracle_rollable:starforged/core/action) [Theme](oracle_rollable:starforged/core/theme)",
+              "template": {
+                "text": "{{text>oracle_rollable:starforged/core/action}} {{text>oracle_rollable:starforged/core/theme}}"
+              }
+            }
+          ]
+        },
+        "descriptorfocus": {
+          "_id": "oracle_rollable:starforgedsupp/templates/descriptorfocus",
+          "name": "Descriptor+Focus",
+          "dice": "1d100",
+          "type": "oracle_rollable",
+          "oracle_type": "table_text",
+          "_source": {
+            "title": "Iron Vault Support Oracles",
+            "authors": [
+              {
+                "name": "Iron Vault Dev Team"
+              }
+            ],
+            "date": "2024-06-15",
+            "url": "https://github.com/iron-vault-plugin/iron-vault",
+            "license": "MIT"
+          },
+          "column_labels": {
+            "roll": "Roll",
+            "text": "Result"
+          },
+          "rows": [
+            {
+              "_id": "oracle_rollable.row:starforgedsupp/templates/descriptorfocus.0",
+              "roll": {
+                "min": 1,
+                "max": 100
+              },
+              "text": "[Descriptor](oracle_rollable:starforged/core/descriptor) [Focus](oracle_rollable:starforged/core/focus)",
+              "template": {
+                "text": "{{text>oracle_rollable:starforged/core/descriptor}} {{text>oracle_rollable:starforged/core/focus}}"
+              }
+            }
+          ]
+        },
+        "region": {
+          "_id": "oracle_rollable:starforgedsupp/core/region",
+          "name": "Region",
+          "dice": "1d100",
+          "type": "oracle_rollable",
+          "oracle_type": "table_text",
+          "_source": {
+            "title": "Iron Vault Support Oracles",
+            "authors": [
+              {
+                "name": "Iron Vault Dev Team"
+              }
+            ],
+            "date": "2024-06-15",
+            "url": "https://github.com/iron-vault-plugin/iron-vault",
+            "license": "MIT"
+          },
+          "column_labels": {
+            "roll": "Roll",
+            "text": "Region"
+          },
+          "rows": [
+            {
+              "_id": "oracle_rollable.row:starforgedsupp/core/region.0",
+              "roll": {
+                "min": 1,
+                "max": 45
+              },
+              "text": "Terminus"
+            },
+            {
+              "_id": "oracle_rollable.row:starforgedsupp/core/region.1",
+              "roll": {
+                "min": 46,
+                "max": 80
+              },
+              "text": "Outlands"
+            },
+            {
+              "_id": "oracle_rollable.row:starforgedsupp/core/region.2",
+              "roll": {
+                "min": 81,
+                "max": 100
+              },
+              "text": "Expanse"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "assets": {
+    "incidental_vehicle": {
+      "name": "Incidental Vehicle",
+      "type": "asset_collection",
+      "_source": {
+        "title": "Iron Vault Support Assets for Starforged",
+        "authors": [
+          {
+            "name": "Iron Vault Dev Team"
+          }
+        ],
+        "date": "2024-06-15",
+        "url": "https://github.com/iron-vault-plugin/iron-vault",
+        "license": "MIT"
+      },
+      "contents": {
+        "incidental_vehicle": {
+          "name": "Incidental Vehicle",
+          "type": "asset",
+          "category": "Incidental Vehicle",
+          "shared": true,
+          "options": {
+            "name": {
+              "field_type": "text",
+              "label": "name",
+              "value": null
+            }
+          },
+          "abilities": [],
+          "_source": {
+            "title": "Iron Vault Support Assets for Starforged",
+            "authors": [
+              {
+                "name": "Iron Vault Dev Team"
+              }
+            ],
+            "date": "2024-06-15",
+            "url": "https://github.com/iron-vault-plugin/iron-vault",
+            "license": "MIT"
+          },
+          "requirement": "An incidental vehicle is one you temporarily acquire through the course of your story. For example, if you need to journey across the surface of an ocean world, you might borrow a sea-skimmer from a local settlement. Incidental vehicles have an integrity meter, but cannot be marked as battered. When you board an incidental vehicle, envision its nature and assign a max integrity as follows.\n\n* **Heavy** - 5 integrity\n* **Medium** - 4 integrity\n* **Light** - 3 integrity\n",
+          "controls": {
+            "integrity": {
+              "label": "integrity",
+              "field_type": "condition_meter",
+              "max": 5,
+              "value": 5,
+              "moves": {
+                "suffer": [
+                  "move:starforged/suffer/withstand_damage"
+                ],
+                "recover": [
+                  "move:starforged/recover/repair"
+                ]
+              },
+              "controls": {},
+              "rollable": true,
+              "min": 0
+            }
+          },
+          "count_as_impact": false,
+          "_id": "asset:starforgedsupp/incidental_vehicle/sailing_ship"
+        }
+      },
+      "collections": {},
+      "_id": "asset_collection:starforgedsupp/incidental_vehicle"
+    }
+  },
+  "moves": {}
+}

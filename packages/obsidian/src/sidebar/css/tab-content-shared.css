@@ -1,0 +1,92 @@
+.iron-vault-sidebar-view.tabs > .tab > .content {
+  position: absolute;
+  top: 2.6em;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.search-box:has(
+    + :is(
+        .iron-vault-moves-list,
+        .iron-vault-oracles-list,
+        .iron-vault-asset-list
+      )
+  ) {
+  width: 100%;
+  height: 2em;
+  font-size: 1.2em;
+}
+ul.iron-vault-moves-list,
+ul.iron-vault-oracles-list,
+ul.iron-vault-asset-list {
+  margin: 0;
+  padding: 0;
+  padding-left: 0 !important;
+  list-style-type: none;
+  background-color: var(--background-primary-alt);
+
+  & details:has(+ .content) {
+    & > summary > span {
+      transition: background-color 200ms ease;
+      &:hover {
+        background-color: var(--background-modifier-hover);
+      }
+      &:active {
+        background-color: var(--background-modifier-active-hover);
+      }
+    }
+
+    max-width: 100%;
+    overflow: hidden;
+    & > summary {
+      background-color: var(--background-secondary-alt);
+      display: block;
+      &::-webkit-details-marker,
+      &::marker {
+        display: none;
+      }
+
+      & span {
+        position: relative;
+        padding: 0.5em;
+        display: flex;
+        align-items: center;
+        &:hover {
+          cursor: pointer;
+        }
+        &::before {
+          content: "►";
+          font-size: 1rem;
+          display: flex;
+          align-items: center;
+          margin-right: 0.5rem;
+          transition: rotate 100ms 100ms ease-out;
+        }
+      }
+    }
+  }
+
+  & details + .content {
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0 0.5em;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 100ms ease-out;
+  }
+
+  & details[open] {
+    & + .content {
+      max-height: 100%;
+      transition:
+        max-height 250ms ease-out,
+        border 0ms linear;
+      padding: 0.5em;
+    }
+    & > summary > span::before {
+      rotate: 90deg;
+      transition: rotate 100ms ease-out;
+    }
+  }
+}

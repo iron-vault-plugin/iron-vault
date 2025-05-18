@@ -1,0 +1,13 @@
+.iv-sub-setting {
+  padding-top: 0.1em;
+  padding-left: 2em;
+  border-top: initial;
+
+  & .ruleset-img {
+    height: 2.75em;
+  }
+
+  & .is-disabled {
+    background-color: var(--background-modifier-border-hover);
+  }
+}

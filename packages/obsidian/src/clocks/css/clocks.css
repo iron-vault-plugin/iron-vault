@@ -1,0 +1,87 @@
+.block-language-iron-vault-clock {
+  container: iron-vault-clock / inline-size;
+}
+.iron-vault-clock-widget {
+  & .clock-segment {
+    vector-effect: non-scaling-stroke;
+  }
+  max-width: 200px;
+  @container iron-vault-clock (min-width: 300px) {
+    max-width: 300px;
+  }
+  pointer-events: none;
+  fill: var(--interactive-accent);
+  fill-opacity: 0.8;
+  stroke: var(--background-modifier-border);
+  stroke-width: 4;
+  aspect-ratio: 1;
+
+  &:hover {
+    fill-opacity: 0.8;
+
+    & .clock-segment {
+      &:hover {
+        fill: var(--interactive-accent-hover);
+        & ~ .clock-segment {
+          fill: var(--interactive-normal);
+        }
+      }
+    }
+  }
+
+  &:not(:hover) {
+    & .clock-segment {
+      &[aria-selected="true"] {
+        & ~ .clock-segment {
+          fill: var(--interactive-normal);
+        }
+      }
+    }
+  }
+
+  &[aria-valuenow="0"]:not(:hover) {
+    & .clock-segment {
+      fill: var(--interactive-normal);
+    }
+  }
+
+  & .clock-segment {
+    transition: fill 0.3s ease;
+    cursor: pointer;
+    pointer-events: visible;
+
+    &:active {
+      fill-opacity: 1;
+    }
+  }
+}
+.iron-vault-clock {
+  margin: 0.5em auto;
+  & > .clock-name {
+    font-size: 1.5em;
+    font-weight: var(--font-semibold);
+    & input {
+      font-size: 1em;
+      font-weight: var(--font-semibold);
+      padding: 0;
+      margin: 0.6em 0;
+      background-color: transparent;
+    }
+  }
+  & > .clock-segments {
+    & input[type=number] {
+      width: 3em;
+      background-color: transparent;
+      font-size: 1em;
+      display: inline;
+      margin-left: 0.2em;
+    }
+    & label:has(input[type=checkbox]) {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      gap: 0.4em;
+    }
+  }
+
+}

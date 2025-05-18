@@ -1,0 +1,32 @@
+.iron-vault-truth {
+  margin: 0.5em auto;
+  max-width: 460px;
+  display: grid;
+  gap: 0.5em;
+  grid-template-columns: auto 1fr;
+  background-color: var(--background-primary-alt);
+  padding: 1em;
+  border-radius: 10px;
+  & > button:first-child {
+    grid-column: 1 / span 2;
+  }
+  & select {
+    min-width: 0;
+  }
+  & > section {
+    grid-column: 1 / span 2;
+    display: grid;
+    gap: 0.5em;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: auto 2.5em 2.5em;
+    & > :first-child {
+      grid-column: 1 / span 3;
+    }
+    & > button {
+      width: 3em;
+      height: 100%;
+      justify-self: end;
+      padding: 0.5em !important;
+    }
+  }
+}

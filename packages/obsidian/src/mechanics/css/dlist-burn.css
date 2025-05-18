@@ -1,0 +1,10 @@
+.iron-vault-mechanics dl.burn {
+  &:before {
+    content: "🔥";
+  }
+  & dd {
+    &.outcome {
+      display: none;
+    }
+  }
+}

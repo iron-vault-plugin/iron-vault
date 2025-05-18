@@ -1,0 +1,70 @@
+.iron-vault-character .meters {
+  display: flex;
+  flex-flow: wrap;
+  list-style: none;
+  text-transform: uppercase;
+  gap: 1em;
+  justify-content: center;
+  align-items: center;
+  /* NB(@zkat): Fix some obnoxious Obsidian styles */
+  & ul > li, & ol > li {
+    margin-inline-start: 0;
+  }
+  & li {
+    background-color: var(--background-secondary);
+    border-radius: 8px;
+    border: 2px solid var(--background-modifier-border);
+    margin: 0;
+    & button {
+      background-color: var(--interactive-normal);
+      border: 1px solid var(--background-modifier-border);
+      &:hover {
+        background-color: var(--interactive-hover);
+      }
+    }
+    &.momentum {
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: center;
+      justify-content: center;
+      & > button {
+        font-size: 1em;
+        margin: 0 0.4em;
+        width: 92%;
+      }
+    }
+  }
+  & dl {
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    & dt,
+    dd {
+      margin: 0;
+      padding: 0;
+    }
+    & dt {
+      font-size: 0.8em;
+      width: 100%;
+      text-align: center;
+      padding: 0.2em 0;
+      border-bottom: 2px solid var(--background-modifier-border);
+    }
+    & dd {
+      font-size: 1.6em;
+      display: flex;
+      flex: row nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2em;
+      padding: 0 0.2em;
+      & > span {
+        width: 1.8em;
+        text-align: center;
+      }
+    }
+  }
+}

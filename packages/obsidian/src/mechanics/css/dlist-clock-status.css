@@ -1,0 +1,20 @@
+.iron-vault-mechanics dl.clock-status {
+  &:before {
+    content: "🕒";
+  }
+  & dd {
+    &.clock-name:has(~ .clock-status[data-value="added"]) {
+      &:before {
+        content: "Clock added: ";
+      }
+    }
+    &.clock-name:has(~ .clock-status[data-value="resolved"]) {
+      &:before {
+        content: "Clock resolved: ";
+      }
+    }
+    &.clock-status {
+      display: none;
+    }
+  }
+}

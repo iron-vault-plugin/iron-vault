@@ -31,7 +31,7 @@
     ],
     "resolveJsonModule": true,
     "paths": {
-      "@ironvault/parsing/*": ["../packages/parsing/src/*"]
+      "@ironvault/parsing/*": ["../../packages/parsing/src/*"]
     }
   }
 }
