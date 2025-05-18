@@ -257,19 +257,71 @@ importers:
 
   packages/datasworn-compiler:
     dependencies:
+      '@datasworn/core':
+        specifier: 'catalog:'
+        version: 0.1.0-0
+      '@ironvault/dice':
+        specifier: workspace:^
+        version: link:../dice
       '@ironvault/parsing':
         specifier: workspace:^
         version: link:../parsing
       '@ironvault/parsing-markdown':
         specifier: workspace:^
         version: link:../parsing-markdown
+      '@ironvault/utils':
+        specifier: workspace:^
+        version: link:../utils
+      ajv:
+        specifier: 'catalog:'
+        version: 8.17.1
+      ajv-formats:
+        specifier: 'catalog:'
+        version: 3.0.1(ajv@8.17.1)
+      immer:
+        specifier: 'catalog:'
+        version: 10.1.1
+      mdast-util-from-markdown:
+        specifier: 'catalog:'
+        version: 2.0.2
+      mdast-util-frontmatter:
+        specifier: 'catalog:'
+        version: 2.0.1
+      mdast-util-gfm:
+        specifier: 'catalog:'
+        version: 3.1.0
+      mdast-util-to-markdown:
+        specifier: 'catalog:'
+        version: 2.1.2
+      micromark-extension-frontmatter:
+        specifier: 'catalog:'
+        version: 2.0.0
+      micromark-extension-gfm:
+        specifier: 'catalog:'
+        version: 3.0.0
       true-myth:
         specifier: 'catalog:'
         version: 9.0.0
+      yaml:
+        specifier: 'catalog:'
+        version: 2.7.0
     devDependencies:
       '@types/mdast':
         specifier: 'catalog:'
         version: 4.0.4
+      vitest:
+        specifier: 'catalog:'
+        version: 3.1.3(@types/debug@4.1.12)(@types/node@22.13.10)(jsdom@20.0.3)(yaml@2.7.0)
+
+  packages/dice:
+    dependencies:
+      '@ironvault/utils':
+        specifier: workspace:^
+        version: link:../utils
+      true-myth:
+        specifier: 'catalog:'
+        version: 9.0.0
+    devDependencies:
       vitest:
         specifier: 'catalog:'
         version: 3.1.3(@types/debug@4.1.12)(@types/node@22.13.10)(jsdom@20.0.3)(yaml@2.7.0)
@@ -306,12 +358,21 @@ importers:
       '@eslint/js':
         specifier: 'catalog:'
         version: 9.27.0
+      '@ironvault/datasworn-compiler':
+        specifier: workspace:^
+        version: link:../datasworn-compiler
+      '@ironvault/dice':
+        specifier: workspace:^
+        version: link:../dice
       '@ironvault/parsing':
         specifier: workspace:^
         version: link:../parsing
       '@ironvault/parsing-markdown':
         specifier: workspace:^
         version: link:../parsing-markdown
+      '@ironvault/utils':
+        specifier: workspace:^
+        version: link:../utils
       '@jgoz/esbuild-plugin-typecheck':
         specifier: 'catalog:'
         version: 4.0.3(esbuild@0.25.4)(typescript@5.8.2)
@@ -504,7 +565,11 @@ importers:
         specifier: 'catalog:'
         version: 3.1.3(@types/debug@4.1.12)(@types/node@22.13.10)(jsdom@20.0.3)(yaml@2.7.0)
 
-  packages/utils: {}
+  packages/utils:
+    devDependencies:
+      vitest:
+        specifier: 'catalog:'
+        version: 3.1.3(@types/debug@4.1.12)(@types/node@22.13.10)(jsdom@20.0.3)(yaml@2.7.0)
 
 packages:
 

@@ -1,3 +1,4 @@
+import { childOfPath, parentFolderOf } from "@ironvault/utils/paths";
 import Emittery, { UnsubscribeFunction } from "emittery";
 import IronVaultPlugin from "index";
 import { onlyValid } from "indexer/index-impl";
@@ -16,7 +17,6 @@ import {
 } from "obsidian";
 import { EVENT_TYPES as LOCAL_SETTINGS_EVENT_TYPES } from "settings/local";
 import { Either, Left, Right } from "utils/either";
-import { childOfPath, parentFolderOf } from "utils/paths";
 import { CustomSuggestModal } from "utils/suggest";
 import { z } from "zod";
 import { CampaignDataContext } from "./context";

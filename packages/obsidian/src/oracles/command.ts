@@ -1,15 +1,16 @@
-import { determineCampaignContext } from "campaigns/manager";
-import IronVaultPlugin from "index";
-import { rootLogger } from "logger";
-import { createOrAppendMechanics } from "mechanics/editor";
-import { createOracleNode } from "mechanics/node-builders";
 import {
   EditorSelection,
   MarkdownFileInfo,
   type Editor,
   type MarkdownView,
 } from "obsidian";
-import { numberRange } from "utils/numbers";
+
+import { numberRange } from "@ironvault/utils/numbers";
+import { determineCampaignContext } from "campaigns/manager";
+import IronVaultPlugin from "index";
+import { rootLogger } from "logger";
+import { createOrAppendMechanics } from "mechanics/editor";
+import { createOracleNode } from "mechanics/node-builders";
 import { Oracle, OracleGrouping, OracleGroupingType } from "../model/oracle";
 import { Roll } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";

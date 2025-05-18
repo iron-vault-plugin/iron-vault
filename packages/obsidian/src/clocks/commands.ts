@@ -1,6 +1,9 @@
+import { Node } from "kdljs";
+import { Editor, MarkdownFileInfo, MarkdownView, Notice } from "obsidian";
+
+import { Dice, DiceGroup } from "@ironvault/dice";
 import { determineCampaignContext } from "campaigns/manager";
 import IronVaultPlugin from "index";
-import { Node } from "kdljs";
 import { appendNodesToMoveOrMechanicsBlock } from "mechanics/editor";
 import { createDetailsNode } from "mechanics/node-builders";
 import {
@@ -8,9 +11,7 @@ import {
   createClockCreationNode,
   createClockNode,
 } from "mechanics/node-builders/clocks";
-import { Editor, MarkdownFileInfo, MarkdownView, Notice } from "obsidian";
-import { Dice, DieKind } from "utils/dice";
-import { DiceGroup } from "utils/dice-group";
+import { DieKind } from "utils/dice-roller";
 import { node } from "utils/kdl";
 import { capitalize } from "utils/strings";
 import { stripMarkdown } from "utils/strip-markdown";

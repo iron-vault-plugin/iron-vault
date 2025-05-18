@@ -1,7 +1,8 @@
 import { type Datasworn } from "@datasworn/core";
+import { Dice, DiceGroup } from "@ironvault/dice";
 import { scopeSource, scopeTags } from "datastore/datasworn-symbols";
 import { rootLogger } from "logger";
-import { DiceGroup } from "utils/dice-group";
+import { DieKind } from "utils/dice-roller";
 import { NoSuchOracleError } from "../../../model/errors";
 import {
   CurseBehavior,
@@ -18,7 +19,6 @@ import {
   Subroll,
   sameRoll,
 } from "../../../model/rolls";
-import { Dice, DieKind } from "../../../utils/dice";
 
 const logger = rootLogger.getLogger("datasworn/oracles");
 

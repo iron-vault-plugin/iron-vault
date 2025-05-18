@@ -1,0 +1,39 @@
+{
+  "name": "@ironvault/datasworn-compiler",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "types": "./src/index.ts",
+  "scripts": {
+    "test": "vitest"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.6.2",
+  "dependencies": {
+    "@datasworn/core": "catalog:",
+    "@ironvault/dice": "workspace:^",
+    "@ironvault/parsing": "workspace:^",
+    "@ironvault/parsing-markdown": "workspace:^",
+    "@ironvault/utils": "workspace:^",
+    "ajv": "catalog:",
+    "ajv-formats": "catalog:",
+    "immer": "catalog:",
+    "mdast-util-from-markdown": "catalog:",
+    "mdast-util-frontmatter": "catalog:",
+    "mdast-util-gfm": "catalog:",
+    "mdast-util-to-markdown": "catalog:",
+    "micromark-extension-frontmatter": "catalog:",
+    "micromark-extension-gfm": "catalog:",
+    "true-myth": "catalog:",
+    "yaml": "catalog:"
+  },
+  "devDependencies": {
+    "@types/mdast": "catalog:",
+    "vitest": "catalog:"
+  }
+}

@@ -1,6 +1,6 @@
 import { Datasworn, DataswornSource } from "@datasworn/core";
 import { Either } from "utils/either";
-import { FileProblem } from "./builder";
+import { FileProblem } from "../../../../datasworn-compiler/src/builder";
 
 export type IndexCommand =
   | {

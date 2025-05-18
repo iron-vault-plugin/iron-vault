@@ -1,8 +1,17 @@
+import Result from "true-myth/result";
+
+import {
+  Content,
+  ContentIndexer,
+  ContentManagerImpl,
+  MetarootContentManager,
+  PackageBuilder,
+  ensureRulesPackageBuilderInitialized,
+} from "@ironvault/datasworn-compiler";
 import { DataIndexDb, createDataIndexDb } from "datastore/db";
-import { ensureRulesPackageBuilderInitialized } from "datastore/parsers/collection";
 import { rootLogger } from "logger";
-import { Content, ContentIndexer, PackageBuilder } from "./builder";
-import { ContentManagerImpl, MetarootContentManager } from "./content-store";
+import { Either, Left, Right } from "utils/either";
+import { mapValues } from "utils/mapValues";
 import { DataswornTypes, walkDataswornRulesPackage } from "./datasworn-indexer";
 import { debouncerByKey } from "./debouncerByKey";
 import { IndexCommand, IndexResult } from "./messages";
@@ -16,6 +25,14 @@ declare function postMessage(
 ): void;
 
 ensureRulesPackageBuilderInitialized();
+
+function convertResultToEither<T, E>(result: Result<T, E>): Either<E, T> {
+  if (result.isOk) {
+    return Right.create(result.value);
+  } else {
+    return Left.create(result.error);
+  }
+}
 
 (async () => {
   logger.debug("[data-loader.worker] Initializing worker");
@@ -63,7 +80,7 @@ function main(db: DataIndexDb<DataswornTypes> | undefined) {
       postMessage({
         type: "updated:package",
         root,
-        files,
+        files: mapValues(files, convertResultToEither),
         package: result,
       });
 

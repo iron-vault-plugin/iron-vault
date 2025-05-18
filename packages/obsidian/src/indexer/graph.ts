@@ -1,3 +1,9 @@
+import { extractFrontmatter } from "@ironvault/parsing-markdown";
+import {
+  baseNameOf,
+  childOfPath,
+  parentFolderOf,
+} from "@ironvault/utils/paths";
 import {
   batch,
   computed,
@@ -26,8 +32,6 @@ import {
   makeEitherPartialEquality,
   Right,
 } from "utils/either";
-import { extractFrontmatter } from "utils/markdown";
-import { baseNameOf, childOfPath, parentFolderOf } from "utils/paths";
 import { zodResultToEither } from "utils/zodutils";
 import { PLUGIN_KIND_FIELD } from "../constants";
 import {
@@ -80,7 +84,7 @@ const ironVaultKind = memoizeWeak((file: Signal<File>) =>
   onlyChanges(
     computed(() => {
       const fm: Record<string, unknown> =
-        frontmatter(file).value.getOrElse({}) ?? {};
+        frontmatter(file).value.unwrapOr({}) ?? {};
       return fm[PLUGIN_KIND_FIELD] as string | undefined;
     }),
     isEqual,
@@ -277,13 +281,17 @@ export type NodeParsers<
 
 const nodeTypes: NodeParsers<AllowableTypes, keyof FileKind> = {
   campaign: (graph: GraphContext<AllowableTypes>, file: Signal<File>) => {
-    return flatMap(frontmatter(file).value, (content) =>
-      zodResultToEither(campaignFileSchemaWithPlayset.safeParse(content)).map(
-        (raw) => ({
-          ...raw,
-          name: raw.name || baseNameOf(file.value.path),
-        }),
-      ),
+    return flatMap(
+      frontmatter(file).value.mapOrElse<
+        Either<Error, undefined | Record<string, unknown>>
+      >(Left.create, Right.create),
+      (content) =>
+        zodResultToEither(campaignFileSchemaWithPlayset.safeParse(content)).map(
+          (raw) => ({
+            ...raw,
+            name: raw.name || baseNameOf(file.value.path),
+          }),
+        ),
     );
   },
   character: (graph: GraphContext<AllowableTypes>, file: Signal<File>) => {
@@ -300,8 +308,8 @@ const nodeTypes: NodeParsers<AllowableTypes, keyof FileKind> = {
     }
 
     const fm = frontmatter(file).value;
-    if (fm.isLeft()) {
-      return fm;
+    if (fm.isErr) {
+      return Left.create(fm.error);
     }
 
     return flatMap(

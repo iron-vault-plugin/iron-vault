@@ -1,3 +1,4 @@
+import { findTopLevelParent } from "@ironvault/utils/paths";
 import { rootLogger } from "logger";
 import {
   App,
@@ -10,7 +11,6 @@ import {
   type Plugin,
 } from "obsidian";
 import { IronVaultKind, PLUGIN_KIND_FIELD } from "../constants";
-import { findTopLevelParent } from "./paths";
 
 const logger = rootLogger.getLogger("utils");
 

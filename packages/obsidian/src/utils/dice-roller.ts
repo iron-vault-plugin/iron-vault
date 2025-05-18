@@ -1,35 +1,24 @@
+import {
+  AsyncDiceRoller,
+  DiceGroup,
+  DiceResult,
+  DiceRoller,
+  PlainDiceRoller,
+} from "@ironvault/dice";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
-import { Dice, DieKind } from "./dice";
-import { DiceGroup } from "./dice-group";
 
 const logger = rootLogger.getLogger("dice-roller");
 
-export type DiceResult = { dice: Dice; value: number };
+export { PlainDiceRoller } from "@ironvault/dice";
+export type { AsyncDiceRoller, DiceResult, DiceRoller } from "@ironvault/dice";
 
-export interface DiceRoller {
-  roll(group: DiceGroup): DiceResult[];
-}
-
-export interface AsyncDiceRoller {
-  rollAsync(group: DiceGroup): Promise<DiceResult[]>;
-}
-
-export class PlainDiceRoller implements DiceRoller, AsyncDiceRoller {
-  static readonly INSTANCE = new PlainDiceRoller();
-
-  roll(group: DiceGroup): DiceResult[] {
-    return group.dice.map((dice) => {
-      return {
-        value: dice.roll(),
-        dice,
-      };
-    });
-  }
-
-  rollAsync(group: DiceGroup): Promise<DiceResult[]> {
-    return Promise.resolve(this.roll(group));
-  }
+export enum DieKind {
+  Action = "action",
+  Challenge1 = "challenge1",
+  Challenge2 = "challenge2",
+  Oracle = "oracle",
+  Cursed = "cursed",
 }
 
 export class GraphicalDiceRoller implements DiceRoller, AsyncDiceRoller {
@@ -85,7 +74,7 @@ export class GraphicalDiceRoller implements DiceRoller, AsyncDiceRoller {
     }));
   }
 
-  themeColor(kind: DieKind | undefined): string | undefined {
+  themeColor(kind: DieKind | string | undefined): string | undefined {
     switch (kind) {
       case DieKind.Action:
         return this.plugin?.settings.actionDieColor;

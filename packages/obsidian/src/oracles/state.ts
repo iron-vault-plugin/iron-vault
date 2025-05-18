@@ -2,10 +2,12 @@
  * Classes that allow us to track the state of user oracle result selection.
  */
 import { Datasworn } from "@datasworn/core";
+
+import { randomInt } from "@ironvault/utils/numbers";
+
 import { NoSuchOracleError } from "model/errors";
 import { CurseBehavior, Oracle, RollContext } from "model/oracle";
 import { RollWrapper, Subroll, withinRange } from "model/rolls";
-import { randomInt } from "utils/dice";
 
 export class RollerState {
   static fromRoll(initialRoll: RollWrapper): RollerState {
