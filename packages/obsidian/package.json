@@ -29,6 +29,7 @@
     "@datasworn/sundered-isles": "0.1.0-0",
     "@eslint/js": "^9.27.0",
     "@ironvault/parsing": "workspace:^",
+    "@ironvault/parsing-markdown": "workspace:^",
     "@jgoz/esbuild-plugin-typecheck": "^4.0.3",
     "@nrsk/sigma": "^3.8.0",
     "@preact/signals-core": "^1.8.0",
