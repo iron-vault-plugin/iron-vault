@@ -1,6 +1,6 @@
 /.targetdir
 node_modules/
-/dist/
+**/dist/
 /main.js
 /main.js.map
 /styles.css
