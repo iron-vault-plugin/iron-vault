@@ -14,8 +14,9 @@
     "build": "tsup",
     "test": "vitest"
   },
+  "private": false,
   "keywords": [],
-  "author": "",
+  "author": "Iron Vault Dev Team",
   "license": "SEE LICENSE IN LICENSE.md",
   "packageManager": "pnpm@10.6.2",
   "dependencies": {
