@@ -199,8 +199,7 @@ export class NodeTree<L, G> {
     data: G,
     createIfMissing: boolean = false,
   ): DataGroup<L, G> {
-    const segments = path.split("/");
-    if (segments.length === 0 || segments[0] === "") {
+    if (path == "" || path == "/") {
       throw new Error("Path must not be empty.");
     }
     const existingNode = this.nodes.get(path);
@@ -215,6 +214,7 @@ export class NodeTree<L, G> {
       );
     }
 
+    const segments = path.split("/");
     const parentPath = segments.slice(0, -1).join("/"); // Get the parent path
     let parent = this.nodes.get(parentPath);
     if (parent && parent.type !== "group") {
@@ -247,8 +247,7 @@ export class NodeTree<L, G> {
     data: L,
     createIfMissing: boolean = false,
   ): DataLeaf<L, G> {
-    const segments = path.split("/");
-    if (segments.length === 0 || segments[0] === "") {
+    if (path == "" || path == "/") {
       throw new Error("Path must not be empty.");
     }
     const existingNode = this.nodes.get(path);
@@ -262,6 +261,7 @@ export class NodeTree<L, G> {
       );
     }
 
+    const segments = path.split("/");
     const parentPath = segments.slice(0, -1).join("/"); // Get the parent path
     let parent = this.nodes.get(parentPath);
     if (parent && parent.type !== "group") {

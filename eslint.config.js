@@ -22,6 +22,12 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ["dist/", "**/.obsidian", "main.js", "docs-built/"],
+    ignores: [
+      "**/dist/",
+      "**/node_modules/",
+      "**/.obsidian",
+      "main.js",
+      "docs-built/",
+    ],
   },
 );

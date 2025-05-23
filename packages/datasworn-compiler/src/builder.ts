@@ -15,6 +15,7 @@ import {
 import Result from "true-myth/result";
 import { COMPILER_DATASWORN_VERSION } from "./constants";
 import { ContentManagerImpl, IContentManager } from "./content-store";
+import { logger } from "./logger";
 import {
   collectNodes,
   DataGroup,
@@ -30,10 +31,6 @@ export const WILDCARD_TARGET_RULESET: string = "*";
 
 export const WILDCARD_TARGET_RULESET_PLACEHOLDER: string =
   "highly_improbable_wildcard_placeholder_string";
-
-// export const logger = rootLogger.getLogger("content-indexer");
-// logger.setDefaultLevel("debug");
-const logger = console;
 
 export type Content = {
   path: string;
@@ -534,7 +531,7 @@ export class PackageBuilder {
 
   compile(): PackageResults {
     if (this.#packages.length === 0) {
-      logger.debug("[package-builder:] No packages to compile.");
+      logger.debug("No packages to compile.");
       return { result: null, files: new Map() };
     }
 
@@ -543,18 +540,9 @@ export class PackageBuilder {
     for (const [filePath, source] of this.#packages) {
       if (source.isErr) {
         this.#files.set(filePath, Result.err(new ErrorProblem(source.error)));
-        logger.error(
-          "[package-builder:%s] Error building file %s: %o",
-          this.packageId,
-          filePath,
-          source.error,
-        );
+        logger.info("Error building file", filePath, ":", source.error);
       } else {
-        logger.debug(
-          "File path: %s -> Source: %o",
-          filePath,
-          structuredClone(source.value),
-        );
+        logger.debug("File at path", filePath, ":", source.value);
 
         // Note that the datasworn compiler makes destructive changes to the data
         // passed in. As a result, we need to clone the source value to preserve
@@ -630,42 +618,42 @@ export class PackageBuilder {
   ): [string, Result<DataswornSource.RulesPackage, Error>][] {
     if (node.type !== "group") throw new Error("this can't happen");
 
+    const walkChildren = () =>
+      reduceNodes<
+        Content["value"],
+        CollectionAnnotations,
+        [string, Result<DataswornSource.RulesPackage, Error>][],
+        [string, Result<DataswornSource.RulesPackage, Error>][]
+      >(node, {
+        reduceLeaf({ data, path }) {
+          switch (data.kind) {
+            case "content":
+              return [
+                [
+                  path,
+                  Result.err(
+                    data.data.success
+                      ? new Error(
+                          `Content parsed successfully, but collection type could not be determined.`,
+                        )
+                      : data.data.error,
+                  ),
+                ],
+              ];
+            case "package":
+              return [[path, Result.ok(data.package)]];
+            case "index":
+              return [];
+          }
+        },
+        reduceGroup(_group, { children }) {
+          return children.flatMap(([, results]) => results);
+        },
+      });
+
     const groupTypeResult = this._getGroupType(node);
     if (groupTypeResult.isErr) {
-      return [
-        [node.path, groupTypeResult.cast()],
-        ...reduceNodes<
-          Content["value"],
-          CollectionAnnotations,
-          [string, Result<DataswornSource.RulesPackage, Error>][],
-          [string, Result<DataswornSource.RulesPackage, Error>][]
-        >(node, {
-          reduceLeaf({ data, path }) {
-            switch (data.kind) {
-              case "content":
-                return [
-                  [
-                    path,
-                    Result.err(
-                      data.data.success
-                        ? new Error(
-                            `Content parsed successfully, but collection type could not be determined.`,
-                          )
-                        : data.data.error,
-                    ),
-                  ],
-                ];
-              case "package":
-                return [[path, Result.ok(data.package)]];
-              case "index":
-                return [];
-            }
-          },
-          reduceGroup(_group, { children }) {
-            return children.flatMap(([, results]) => results);
-          },
-        }),
-      ];
+      return [[node.path, groupTypeResult.cast()], ...walkChildren()];
     }
 
     const collectionType = groupTypeResult.value;
@@ -697,6 +685,10 @@ export class PackageBuilder {
               draft.assets[key] = collection;
             }),
         );
+      case null:
+        // This is a group with no collection type, so let's just check the
+        // children for package files
+        return walkChildren();
       default:
         return [
           [
@@ -711,7 +703,7 @@ export class PackageBuilder {
 
   _getGroupType(
     node: DataNode<Content["value"], CollectionAnnotations>,
-  ): Result<CollectionTypes, Error> {
+  ): Result<CollectionTypes | null, Error> {
     if (node.type === "leaf") {
       return Result.err(new Error("Expected a group node"));
     }
@@ -727,8 +719,10 @@ export class PackageBuilder {
       return allowableTypes.cast();
     }
 
-    const collectionTypes = allowableTypes.value ?? [];
-    if (collectionTypes.length != 1) {
+    const collectionTypes = allowableTypes.value;
+    if (collectionTypes == null) {
+      return Result.ok(null);
+    } else if (collectionTypes.length != 1) {
       return Result.err(
         new Error(
           `Expected exactly one collection type, but found ${collectionTypes}.`,
@@ -1027,6 +1021,7 @@ export function labelCollections(
             ? [group.data.collectionType]
             : COLLECTION_TYPES,
         );
+        let hasTypedChildren = false;
 
         for (const [, { allowableParents }] of children) {
           if (allowableParents == null) continue;
@@ -1038,6 +1033,7 @@ export function labelCollections(
               allowableTypes.delete(existingType);
             }
           }
+          hasTypedChildren = true;
         }
 
         if (allowableTypes.size === 0) {
@@ -1073,16 +1069,20 @@ export function labelCollections(
           }
         }
 
-        const allowableParents = [
-          ...new Set(
-            [...allowableTypes.values()].flatMap(
-              (type) => parentForCollection[type],
-            ),
-          ),
-        ];
+        const allowableParents = hasTypedChildren
+          ? [
+              ...new Set(
+                [...allowableTypes.values()].flatMap(
+                  (type) => parentForCollection[type],
+                ),
+              ),
+            ]
+          : null;
         return {
           kind: "collection",
-          allowableTypes: Result.ok([...allowableTypes]),
+          allowableTypes: Result.ok(
+            hasTypedChildren ? [...allowableTypes] : null,
+          ),
           allowableParents,
         };
       },

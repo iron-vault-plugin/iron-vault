@@ -3,8 +3,7 @@
  */
 import { childOfPath, findTopLevelParentPath } from "@ironvault/utils/paths";
 
-// const logger = rootLogger.getLogger("content-store");
-const logger = console; // TODO: fix this
+import { logger } from "./logger";
 
 export interface IContentManager<Content extends { path: string }> {
   onUpdateRoot(

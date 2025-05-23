@@ -1,0 +1,37 @@
+{
+  "name": "@ironvault/datasworn-compiler-cli",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "bin": {
+    "datasworn-compiler": "./dist/cli.js"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "packageManager": "pnpm@10.6.2",
+  "dependencies": {
+    "@ironvault/datasworn-compiler": "workspace:^",
+    "@ironvault/dice": "workspace:^",
+    "@ironvault/parsing-markdown": "workspace:^",
+    "@ironvault/utils": "workspace:^",
+    "@stricli/auto-complete": "^1.1.2",
+    "@stricli/core": "^1.1.2",
+    "adze": "^2.2.3",
+    "yaml": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "esbuild": "catalog:",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.5.0"
+  }
+}

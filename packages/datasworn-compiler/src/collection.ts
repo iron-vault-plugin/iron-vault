@@ -1,12 +1,13 @@
+import type { ErrorObject, KeywordDefinition } from "ajv";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
+
 import { Datasworn, DataswornSource } from "@datasworn/core";
 import { RulesPackageBuilder } from "@datasworn/core/dist/Builders";
 import dataswornSourceSchema from "@datasworn/core/json/datasworn-source.schema.json" assert { type: "json" };
 import dataswornSchema from "@datasworn/core/json/datasworn.schema.json" assert { type: "json" };
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
 
-// const logger = rootLogger.getLogger("homebrew-collection");
-const logger = console;
+import { logger } from "./logger";
 
 export class InvalidHomebrewError extends Error {}
 
@@ -20,8 +21,6 @@ export class SchemaValidationFailedError extends InvalidHomebrewError {
     this.errors = errors;
   }
 }
-
-import type { ErrorObject, KeywordDefinition } from "ajv";
 
 const rollableTableLike = {
   /* type annotation omitted because it won't place nice with anyOf */
