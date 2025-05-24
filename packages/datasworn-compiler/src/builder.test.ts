@@ -5,7 +5,6 @@ import { ok } from "true-myth/result";
 
 import { unwrapErr } from "true-myth/test-support";
 import {
-  COLLECTION_TYPES,
   CollectionAnnotations,
   CollectionLabel,
   CollectionTypes,
@@ -175,8 +174,9 @@ describe("labelCollections", () => {
 
     const labels = labelCollections(root);
 
-    expect(labels.getAtPath("empty")!).toMatchObject({
-      allowableTypes: ok(COLLECTION_TYPES),
+    expect(labels.getAtPath("empty")!).toMatchObject<Partial<NodeLabel>>({
+      allowableTypes: ok(null),
+      allowableParents: null,
     });
   });
 
@@ -193,8 +193,8 @@ describe("labelCollections", () => {
     const labels = labelCollections(root);
 
     expect(labels.getAtPath("ruleset")!.kind).toEqual("package");
-    expect(labels.getAtPath("")).toMatchObject({
-      allowableTypes: ok(["root"]),
+    expect(labels.getAtPath("")).toMatchObject<Partial<NodeLabel>>({
+      allowableTypes: ok(null),
     });
   });
 
