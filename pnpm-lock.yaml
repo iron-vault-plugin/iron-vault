@@ -315,18 +315,6 @@ importers:
 
   packages/datasworn-compiler-cli:
     dependencies:
-      '@ironvault/datasworn-compiler':
-        specifier: workspace:^
-        version: link:../datasworn-compiler
-      '@ironvault/dice':
-        specifier: workspace:^
-        version: link:../dice
-      '@ironvault/parsing-markdown':
-        specifier: workspace:^
-        version: link:../parsing-markdown
-      '@ironvault/utils':
-        specifier: workspace:^
-        version: link:../utils
       '@stricli/auto-complete':
         specifier: ^1.1.2
         version: 1.1.2
@@ -340,6 +328,18 @@ importers:
         specifier: 'catalog:'
         version: 2.7.0
     devDependencies:
+      '@ironvault/datasworn-compiler':
+        specifier: workspace:^
+        version: link:../datasworn-compiler
+      '@ironvault/dice':
+        specifier: workspace:^
+        version: link:../dice
+      '@ironvault/parsing-markdown':
+        specifier: workspace:^
+        version: link:../parsing-markdown
+      '@ironvault/utils':
+        specifier: workspace:^
+        version: link:../utils
       '@types/node':
         specifier: 'catalog:'
         version: 20.17.24
