@@ -137,6 +137,9 @@ export type MoveRendererOptions = {
 
 /** A Component that represents a rendering of a move definition. */
 export class MoveRenderer extends MarkdownRenderChild {
+  rollsEl: HTMLUListElement | undefined = undefined;
+  actionContext: IActionContext | undefined;
+
   /** Render a move into the given container element. */
   static async render(
     container: HTMLElement,
@@ -154,11 +157,11 @@ export class MoveRenderer extends MarkdownRenderChild {
       options,
     );
     component.addChild(renderer);
-    await renderer.render();
+    await renderer.initialize();
     return renderer;
   }
 
-  private constructor(
+  constructor(
     readonly containerEl: HTMLElement,
     readonly plugin: IronVaultPlugin,
     readonly dataContext: IDataContext,
@@ -166,6 +169,7 @@ export class MoveRenderer extends MarkdownRenderChild {
     readonly options: MoveRendererOptions,
   ) {
     super(containerEl);
+    this.actionContext = options.actionContext;
   }
 
   onunload(): void {
@@ -173,44 +177,63 @@ export class MoveRenderer extends MarkdownRenderChild {
     super.onunload();
   }
 
-  async render(): Promise<void> {
+  updateActionContext(actionContext: IActionContext | undefined): void {
+    this.actionContext = actionContext;
+    if (this.rollsEl && actionContext) {
+      this.renderRolls(this.rollsEl, actionContext);
+    }
+  }
+
+  renderRolls(rollsEl: HTMLElement, context: IActionContext) {
+    const suggested =
+      this.move.roll_type === "action_roll" &&
+      suggestedRollablesForMove(this.move);
+    if (!suggested) {
+      rollsEl.empty();
+      return;
+    }
+
+    const rollables = context.rollables.filter((r) => suggested[r.key]);
+    render(
+      html`${map(
+        rollables,
+        (meter) => html`
+          <li @click=${() => this.options.onMakeMove?.(this.move, meter)}>
+            <dl>
+              <dt data-value=${meter.definition.label}>
+                ${meter.definition.label}
+              </dt>
+              <dd data-value=${meter.value}>
+                <span
+                  ${ref((el) => el && setIcon(el as HTMLElement, "dice"))}
+                ></span>
+                <span>+</span>
+                <span>${meter.value}</span>
+              </dd>
+            </dl>
+          </li>
+        `,
+      )}`,
+      rollsEl,
+    );
+  }
+
+  async initialize(): Promise<void> {
     const { containerEl } = this;
 
     if (this.options.onMakeMove) {
       const moveButtonsEl = containerEl.createDiv("iron-vault-move-buttons");
 
-      const context = this.options.actionContext;
+      const context = this.actionContext;
       const suggested =
         this.move.roll_type === "action_roll" &&
         suggestedRollablesForMove(this.move);
       if (suggested && context) {
-        const rollsList = moveButtonsEl.createEl("ul", {
+        this.rollsEl = moveButtonsEl.createEl("ul", {
           cls: "rollable-stats",
         });
 
-        const rollables = context.rollables.filter((r) => suggested[r.key]);
-        render(
-          html`${map(
-            rollables,
-            (meter) => html`
-              <li @click=${() => this.options.onMakeMove?.(this.move, meter)}>
-                <dl>
-                  <dt data-value=${meter.definition.label}>
-                    ${meter.definition.label}
-                  </dt>
-                  <dd data-value=${meter.value}>
-                    <span
-                      ${ref((el) => el && setIcon(el as HTMLElement, "dice"))}
-                    ></span>
-                    <span>+</span>
-                    <span>${meter.value}</span>
-                  </dd>
-                </dl>
-              </li>
-            `,
-          )}`,
-          rollsList,
-        );
+        this.renderRolls(this.rollsEl, context);
       }
       new ButtonComponent(moveButtonsEl)
         .setButtonText("Make this move with prompts")

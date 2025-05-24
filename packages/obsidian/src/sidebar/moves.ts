@@ -1,6 +1,5 @@
 import { MoveCategory } from "@datasworn/core/dist/Datasworn";
-import { html, nothing, render } from "lit-html";
-import { map } from "lit-html/directives/map.js";
+import { html, noChange, nothing, render } from "lit-html";
 import MiniSearch from "minisearch";
 
 import { CampaignDependentBlockRenderer } from "campaigns/campaign-source";
@@ -12,12 +11,18 @@ import {
   WithMetadata,
 } from "datastore/datasworn-indexer";
 import IronVaultPlugin from "index";
-import { guard } from "lit-html/directives/guard.js";
-import { ref } from "lit-html/directives/ref.js";
+import { AsyncDirective } from "lit-html/async-directive.js";
+import {
+  ChildPart,
+  directive,
+  PartInfo,
+  PartType,
+} from "lit-html/directive.js";
+import { repeat } from "lit-html/directives/repeat.js";
 import { styleMap } from "lit-html/directives/style-map.js";
 import { runMoveCommand } from "moves/action";
 import { MoveModal, MoveRenderer, MoveRendererOptions } from "moves/move-modal";
-import { MarkdownView, SearchComponent } from "obsidian";
+import { Component, MarkdownView, SearchComponent } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { md } from "utils/ui/directives";
 import {
@@ -47,6 +52,7 @@ export class MoveList extends CampaignDependentBlockRenderer {
     super(containerEl, plugin, sourcePath, {
       watchDataIndex: true,
       watchSettings: ["useLegacyMoveModal"],
+      watchActiveCharacter: true,
       debouncePeriod: 100,
     });
     this.contentEl = containerEl.createDiv({
@@ -96,6 +102,7 @@ export class MoveList extends CampaignDependentBlockRenderer {
 
   onunload() {
     this.contentEl.remove();
+    super.onunload();
   }
 
   scrollToMove(id: string) {
@@ -185,36 +192,44 @@ export class MoveList extends CampaignDependentBlockRenderer {
     const onToggle = () => this.updateCollapseExpand();
     const tpl = html`
       <ul class="iron-vault-moves-list">
-        ${map(Object.entries(sources), ([source, sourceCats]) =>
-          renderRuleset({
-            name: source,
-            open: true,
-            children: map(sourceCats, (cat) =>
-              renderGrouping({
-                name: cat.canonical_name ?? cat.name,
-                listItemClass: "move-category",
-                color: cat.color,
-                hidden: !Object.values(cat.contents ?? {}).some((move) =>
-                  matches.has(move._id),
-                ),
-                open: this.filter ? true : undefined,
-                onToggle,
-                children: Object.values(cat.contents ?? {}).map(
-                  (move) =>
-                    html`${this.renderMove(
-                      this.dataContext!.moves.get(move._id)!,
-                      {
-                        hidden: !matches.has(move._id),
-                        open: matches.size <= 5 ? true : undefined,
-                        onMakeMove,
-                        onRollOracle,
-                        onToggle,
-                      },
+        ${repeat(
+          Object.entries(sources),
+          ([source]) => source,
+          ([source, sourceCats]) =>
+            renderRuleset({
+              name: source,
+              open: true,
+              children: repeat(
+                sourceCats,
+                (cat) => cat._id,
+                (cat) =>
+                  renderGrouping({
+                    name: cat.canonical_name ?? cat.name,
+                    listItemClass: "move-category",
+                    color: cat.color,
+                    hidden: !Object.values(cat.contents ?? {}).some((move) =>
+                      matches.has(move._id),
+                    ),
+                    open: this.filter ? true : undefined,
+                    onToggle,
+                    children: html`${repeat(
+                      Object.values(cat.contents ?? {}),
+                      (move) => move._id,
+                      (move) =>
+                        html`${this.renderMove(
+                          this.dataContext!.moves.get(move._id)!,
+                          {
+                            hidden: !matches.has(move._id),
+                            open: matches.size <= 5 ? true : undefined,
+                            onMakeMove,
+                            onRollOracle,
+                            onToggle,
+                          },
+                        )}`,
                     )}`,
-                ),
-              }),
-            ),
-          }),
+                  }),
+              ),
+            }),
         )}
       </ul>
     `;
@@ -238,29 +253,6 @@ export class MoveList extends CampaignDependentBlockRenderer {
     },
   ) {
     if (this.shouldEmbed()) {
-      let renderer: MoveRenderer | undefined;
-      const callback = async (el?: Element) => {
-        if (el instanceof HTMLElement) {
-          if (!renderer) {
-            renderer = await MoveRenderer.render(
-              el,
-              this.plugin,
-              this.dataContext!,
-              move,
-              this,
-              {
-                showOracles: true,
-                actionContext: this.actionContext,
-                onMakeMove: onMakeMove,
-                onRollOracle: onRollOracle,
-              },
-            );
-          }
-        } else if (renderer) {
-          this.removeChild(renderer);
-          renderer = undefined;
-        }
-      };
       return html`
         <li
           class="move-item"
@@ -274,10 +266,12 @@ export class MoveList extends CampaignDependentBlockRenderer {
             .open=${hidden || open === undefined ? nothing : open}
           >
             <summary>${move.name}</summary>
-            ${guard(
-              [move._id, this.dataContext],
-              () => html`<div ${ref(callback)}></div>`,
-            )}
+            ${moveRenderer(this.plugin, this.dataContext!, move, this, {
+              showOracles: true,
+              actionContext: this.actionContext,
+              onMakeMove: onMakeMove,
+              onRollOracle: onRollOracle,
+            })}
           </details>
         </li>
       `;
@@ -316,6 +310,90 @@ export class MoveList extends CampaignDependentBlockRenderer {
     );
   }
 }
+
+class MoveRendererDirective extends AsyncDirective {
+  _renderer: MoveRenderer | undefined;
+  _component: Component | undefined;
+
+  constructor(partInfo: PartInfo) {
+    super(partInfo);
+    if (partInfo.type !== PartType.CHILD) {
+      throw new Error(
+        `Invalid part type ${partInfo.type} for MoveRendererDirective`,
+      );
+    }
+  }
+
+  protected disconnected(): void {
+    console.log("MoveRendererDirective: disconnected");
+    if (this._renderer && this._component) {
+      console.log(
+        "MoveRendererDirective: disconnected, removing renderer from component",
+      );
+      this._component.removeChild(this._renderer);
+    }
+  }
+
+  protected reconnected(): void {
+    if (this._renderer && this._component) {
+      console.log(
+        "MoveRendererDirective: reconnected, adding renderer to component",
+      );
+      this._component.addChild(this._renderer);
+    }
+  }
+
+  update(
+    _part: ChildPart,
+    [plugin, dataContext, move, component, options]: Parameters<
+      MoveRendererDirective["render"]
+    >,
+  ): unknown {
+    if (this._component && this._component !== component) {
+      if (this._renderer) {
+        this._component.removeChild(this._renderer);
+        if (this.isConnected) {
+          component.addChild(this._renderer);
+        }
+      }
+    }
+
+    this._component = component;
+
+    if (!this._renderer) {
+      if (!this.isConnected) return noChange;
+
+      const tempEl = document.createElement("div");
+      this._renderer = new MoveRenderer(
+        tempEl,
+        plugin,
+        dataContext,
+        move,
+        options ?? {},
+      );
+      this._renderer?.initialize();
+      return tempEl;
+    } else if (
+      this._renderer.options.actionContext !== options?.actionContext
+    ) {
+      this._renderer.updateActionContext(options?.actionContext);
+    }
+
+    return noChange;
+  }
+
+  render(
+    _plugin: IronVaultPlugin,
+    _dataContext: IDataContext,
+    _move: AnyDataswornMove,
+    _component: Component,
+    _options: MoveRendererOptions | undefined = {},
+  ): unknown {
+    return noChange;
+  }
+}
+
+export const moveRenderer = directive(MoveRendererDirective);
 
 function makeIndex(dataContext: IDataContext) {
   const idx = new MiniSearch<WithMetadata<MoveWithSelector>>({

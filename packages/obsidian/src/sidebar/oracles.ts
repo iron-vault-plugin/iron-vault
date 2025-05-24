@@ -32,6 +32,8 @@ export class OracleList extends CampaignDependentBlockRenderer {
   search: SearchComponent;
   collapseExpandDec: CollapseExpandDecorator;
 
+  #behaviors: OracleViewBehaviors;
+
   constructor(
     containerEl: HTMLElement,
     readonly plugin: IronVaultPlugin,
@@ -64,6 +66,12 @@ export class OracleList extends CampaignDependentBlockRenderer {
         detailsEl.open = shouldExpand;
       });
     });
+
+    this.#behaviors = {
+      onClickOracleDetails: this.openOracleModal.bind(this),
+      onClickOracleName: this.handleOracleRoll.bind(this),
+      onClickOracleGroup: this.rollOracleBatch.bind(this),
+    };
   }
 
   updateCollapseExpand(method?: "collapse-all" | "expand-all") {
@@ -92,17 +100,6 @@ export class OracleList extends CampaignDependentBlockRenderer {
   }
 
   render() {
-    const behaviors: OracleViewBehaviors = {
-      onClickOracleDetails: (oracle) => {
-        openOracleModal(this.plugin, oracle);
-      },
-      onClickOracleName: (oracle) => {
-        handleOracleRoll(this.plugin, oracle);
-      },
-      onClickOracleGroup: (group) => {
-        rollOracleBatch(this.plugin, group);
-      },
-    };
     const { rulesets, total } = getOracleTree(
       this.dataContext,
       this.index!,
@@ -116,7 +113,7 @@ export class OracleList extends CampaignDependentBlockRenderer {
               open: true,
               name: r.name,
               children: map(r.children, (group) =>
-                renderGroup(behaviors, group, total <= 5, () =>
+                renderGroup(this.#behaviors, group, total <= 5, () =>
                   this.updateCollapseExpand(),
                 ),
               ),
@@ -135,6 +132,46 @@ export class OracleList extends CampaignDependentBlockRenderer {
       </article>`,
       this.contentEl,
     );
+  }
+
+  rollOracleBatch(group: CollectionGrouping) {
+    let entityDefn = Object.values(ENTITIES).find(
+      (desc) => desc.collectionId === group.id,
+    );
+    if (!entityDefn) {
+      entityDefn = {
+        collectionId: group.id,
+        label: group.name,
+        spec: Object.fromEntries(
+          group.children.map((oracle) => [
+            oracle.name,
+            {
+              id: oracle.id,
+              firstLook: false,
+            },
+          ]),
+        ),
+      };
+    }
+    const { workspace } = this.plugin.app;
+    const view = workspace.getActiveFileView();
+    if (view && view instanceof MarkdownView) {
+      const editor = view.editor;
+      generateEntityCommand(this.plugin, editor, view, entityDefn);
+    }
+  }
+
+  handleOracleRoll(oracle: Oracle) {
+    const { workspace } = this.plugin.app;
+    const view = workspace.getActiveFileView();
+    if (view && view instanceof MarkdownView) {
+      const editor = view.editor;
+      runOracleCommand(this.plugin, editor, view, oracle);
+    }
+  }
+
+  openOracleModal(oracle: Oracle) {
+    new OracleModal(this.plugin.app, this.plugin, oracle).open();
   }
 }
 
@@ -275,46 +312,6 @@ function renderOracle(behaviors: OracleViewBehaviors, oracle: Oracle) {
       </button>
     </li>
   `;
-}
-
-function rollOracleBatch(plugin: IronVaultPlugin, group: CollectionGrouping) {
-  let entityDefn = Object.values(ENTITIES).find(
-    (desc) => desc.collectionId === group.id,
-  );
-  if (!entityDefn) {
-    entityDefn = {
-      collectionId: group.id,
-      label: group.name,
-      spec: Object.fromEntries(
-        group.children.map((oracle) => [
-          oracle.name,
-          {
-            id: oracle.id,
-            firstLook: false,
-          },
-        ]),
-      ),
-    };
-  }
-  const { workspace } = plugin.app;
-  const view = workspace.getActiveFileView();
-  if (view && view instanceof MarkdownView) {
-    const editor = view.editor;
-    generateEntityCommand(plugin, editor, view, entityDefn);
-  }
-}
-
-function handleOracleRoll(plugin: IronVaultPlugin, oracle: Oracle) {
-  const { workspace } = plugin.app;
-  const view = workspace.getActiveFileView();
-  if (view && view instanceof MarkdownView) {
-    const editor = view.editor;
-    runOracleCommand(plugin, editor, view, oracle);
-  }
-}
-
-function openOracleModal(plugin: IronVaultPlugin, oracle: Oracle) {
-  new OracleModal(plugin.app, plugin, oracle).open();
 }
 
 function makeIndex(dataContext: IDataContext): MiniSearch<OracleIndexEntry> {

@@ -157,6 +157,9 @@ export type CampaignDependentBlockRendererOptions = {
   /** If true, watches all settings. If a list of settings */
   watchSettings?: boolean | (keyof IronVaultPluginSettings)[];
 
+  /** Watch active character */
+  watchActiveCharacter?: boolean;
+
   /** Debounce period for updates, in milliseconds. Defaults to 0. */
   debouncePeriod?: number;
 };
@@ -218,6 +221,24 @@ export abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild
           }),
         );
       }
+    }
+
+    if (options.watchActiveCharacter) {
+      this.registerEvent(
+        this.plugin.campaignManager.on(
+          "active-campaign-settings-changed",
+          ({ key }) => {
+            if (key === "activeCharacter") {
+              this.triggerUpdate();
+            }
+          },
+        ),
+      );
+      this.registerEvent(
+        // TODO: probably this should be limited to just the current character, although
+        // how often would we change the non-active character?
+        this.plugin.characters.on("changed", this.triggerUpdate.bind(this)),
+      );
     }
   }
 
