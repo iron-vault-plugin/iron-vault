@@ -14,6 +14,7 @@ export class CharacterRenderer extends CampaignDependentBlockRenderer {
     super(containerEl, plugin, sourcePath, {
       watchDataIndex: true,
       debouncePeriod: 100,
+      watchActiveCharacter: true,
     });
   }
 
@@ -21,25 +22,6 @@ export class CharacterRenderer extends CampaignDependentBlockRenderer {
     super.onload();
 
     console.log("CharacterRenderer: onload");
-    this.registerEvent(
-      this.plugin.campaignManager.on(
-        "active-campaign-settings-changed",
-        ({ key }) => {
-          if (key === "activeCharacter") {
-            console.debug(
-              "active character changed, updating character renderer",
-            );
-            this.triggerUpdate();
-          }
-        },
-      ),
-    );
-
-    this.registerEvent(
-      // TODO: probably this should be limited to just the current character, although
-      // how often would we change the non-active character?
-      this.plugin.characters.on("changed", this.triggerUpdate.bind(this)),
-    );
   }
 
   renderWithoutContext(): void | Promise<void> {
