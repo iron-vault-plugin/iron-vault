@@ -11,7 +11,7 @@ import { Ruleset } from "rules/ruleset";
 import { IronVaultPluginSettings } from "settings";
 import { ProgressTrack, legacyTrackXpEarned } from "tracks/progress";
 import { renderTrack } from "tracks/track-block";
-import { Lens } from "utils/lens";
+import { Lens, updating } from "utils/lens";
 import { vaultProcess } from "utils/obsidian";
 import { capitalize } from "utils/strings";
 import {
@@ -446,17 +446,13 @@ class CharacterRenderer extends TrackedEntityRenderer<
   renderSpecialTracks(charCtx: CharacterContext) {
     const lens = charCtx.lens;
     const raw = charCtx.character;
-    const updateTrack = (
+    const updateTrack = async (
       track: Lens<ValidatedCharacter, ProgressTrack>,
-      info: { steps?: number; ticks?: number },
+      updateFn: (track: ProgressTrack) => ProgressTrack,
     ) => {
-      charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
-        track.update(
-          char,
-          info.steps == null
-            ? track.get(raw).withTicks(info.ticks!)
-            : track.get(raw).advanced(info.steps),
-        ),
+      await charCtx.updater(
+        vaultProcess(this.plugin.app, this.sourcePath),
+        updating(track, updateFn),
       );
     };
     return html`
@@ -472,8 +468,7 @@ class CharacterRenderer extends TrackedEntityRenderer<
                   trackType: "special track",
                   track: value.get(raw),
                 },
-                (info: { steps?: number; ticks?: number }) =>
-                  updateTrack(value, info),
+                updateTrack.bind(undefined, value),
                 false,
                 legacyTrackXpEarned(value.get(raw)),
               )}

@@ -172,6 +172,15 @@ export class ProgressTrack {
     return new ProgressTrack({ ...this, progress: newProgress });
   }
 
+  /** Replaces the rank for this track. Note that it does not alter the progress. */
+  withRank(rank: ChallengeRanks): ProgressTrack {
+    if (this.rank === rank) return this;
+    return new ProgressTrack({
+      ...this,
+      rank,
+    });
+  }
+
   /** Advance the meter by `steps`, ensuring legal range for this meter. */
   advanced(steps: number): ProgressTrack {
     return this.advancedByTicks(steps * this.ticksPerStep);
@@ -263,6 +272,30 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     update: (track: ProgressTrack) => ProgressTrack,
   ): ProgressTrackFileAdapter {
     return this.withTrack(update(this.track));
+  }
+
+  withName(name: string): ProgressTrackFileAdapter {
+    if (this.name === name) return this;
+    return new ProgressTrackFileAdapter(
+      produce(this.raw, (data) => {
+        data.name = name;
+      }),
+      this.track,
+    );
+  }
+
+  withTrackType(trackType: string): ProgressTrackFileAdapter {
+    if (this.trackType === trackType) return this;
+    return new ProgressTrackFileAdapter(
+      produce(this.raw, (data) => {
+        data["track-type"] = trackType;
+      }),
+      this.track,
+    );
+  }
+
+  withRank(rank: ChallengeRanks): ProgressTrackFileAdapter {
+    return this.updatingTrack((track) => track.withRank(rank));
   }
 
   withTrack(other: ProgressTrack): ProgressTrackFileAdapter {

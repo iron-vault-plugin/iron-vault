@@ -43,7 +43,7 @@ class TrackRenderer extends TrackedEntityRenderer<
       renderTrack(
         this.plugin,
         trackFile,
-        (incr) => this.updateTrack(incr),
+        this.updateTrack.bind(this),
         undefined,
         undefined,
         this,
@@ -52,38 +52,28 @@ class TrackRenderer extends TrackedEntityRenderer<
     );
   }
 
-  async updateTrack({
-    name,
-    rank,
-    trackType,
-    steps,
-    ticks,
-  }: {
-    name?: string;
-    rank?: ChallengeRanks;
-    trackType?: string;
-    steps?: number;
-    ticks?: number;
-  }) {
+  async updateName(name: string) {
+    return this.updateTrackFile((trackFile) => trackFile.withName(name));
+  }
+
+  async updateTrack(updateFn: (track: ProgressTrack) => ProgressTrack) {
+    await this.updateTrackFile((trackFile) =>
+      trackFile.updatingTrack(updateFn),
+    );
+  }
+
+  async updateTrackType(trackType: string) {
+    return this.updateTrackFile((trackFile) =>
+      trackFile.withTrackType(trackType),
+    );
+  }
+
+  async updateTrackFile(
+    updateFn: (trackFile: ProgressTrackFileAdapter) => ProgressTrackFileAdapter,
+  ) {
     await progressTrackUpdater(
       vaultProcess(this.plugin.app, this.sourcePath),
-      (trackFile) => {
-        const updatedFile = trackFile.updatingTrack((track) => {
-          const advanced =
-            ticks != null ? track.withTicks(ticks) : track.advanced(steps ?? 0);
-          return ProgressTrack.create_({
-            rank: rank ?? advanced.rank,
-            progress: advanced.progress,
-            complete: advanced.complete,
-            unbounded: advanced.unbounded,
-          });
-        });
-        return ProgressTrackFileAdapter.newFromTrack({
-          name: name ?? updatedFile.name,
-          trackType: trackType ?? updatedFile.trackType,
-          track: updatedFile.track,
-        }).expect("failed to update track");
-      },
+      updateFn,
     );
   }
 }
@@ -91,13 +81,9 @@ class TrackRenderer extends TrackedEntityRenderer<
 export function renderTrack(
   plugin: IronVaultPlugin,
   info: ProgressTrackInfo,
-  updateTrack: (incr: {
-    name?: string;
-    rank?: ChallengeRanks;
-    trackType?: string;
-    steps?: number;
-    ticks?: number;
-  }) => void,
+  updateTrack: (
+    updateFn: (track: ProgressTrack) => ProgressTrack,
+  ) => void | Promise<void>,
   showTrackInfo: boolean = true,
   xpEarned?: number,
   trackRenderer?: TrackRenderer,
@@ -122,9 +108,9 @@ export function renderTrack(
                 setTimeout(() => trackRenderer?.render(), 0);
               }}
               @change=${(ev: Event) => {
-                updateTrack({
-                  name: (ev.target! as HTMLInputElement).value,
-                });
+                trackRenderer.updateName(
+                  (ev.target! as HTMLTextAreaElement).value,
+                );
               }}
             />`
           : html`<span
@@ -158,10 +144,12 @@ export function renderTrack(
                         ev.stopPropagation();
                       }}
                       @change=${(ev: Event) =>
-                        updateTrack({
-                          rank: (ev.target! as HTMLSelectElement)
-                            .value as ChallengeRanks,
-                        })}
+                        updateTrack((_) =>
+                          _.withRank(
+                            (ev.target! as HTMLSelectElement)
+                              .value as ChallengeRanks,
+                          ),
+                        )}
                     >
                       ${Object.values(ChallengeRanks).map(
                         (rank) =>
@@ -184,9 +172,9 @@ export function renderTrack(
                         ev.stopPropagation(); // See above
                       }}
                       @change=${(ev: Event) =>
-                        updateTrack({
-                          trackType: (ev.target! as HTMLSelectElement).value,
-                        })}
+                        trackRenderer.updateTrackType(
+                          (ev.target! as HTMLInputElement).value,
+                        )}
                     /> `
                   : html`${capitalize(info.trackType)}`}
               </span>
@@ -201,7 +189,7 @@ export function renderTrack(
           type="button"
           @click=${(ev: Event) => {
             ev.stopPropagation();
-            updateTrack({ steps: -1 });
+            updateTrack((track) => track.advanced(-1));
           }}
         >
           -
@@ -213,7 +201,7 @@ export function renderTrack(
           type="button"
           @click=${(ev: Event) => {
             ev.stopPropagation();
-            updateTrack({ steps: 1 });
+            updateTrack((track) => track.advanced(1));
           }}
         >
           +
@@ -224,7 +212,9 @@ export function renderTrack(
             ev.stopPropagation(); // See above
           }}
           @change=${(ev: Event) =>
-            updateTrack({ ticks: +(ev.target! as HTMLInputElement).value })}
+            updateTrack((track) =>
+              track.advancedByTicks(+(ev.target! as HTMLInputElement).value),
+            )}
         />
         <span>ticks</span>
       </div>
