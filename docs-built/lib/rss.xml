@@ -1,4 +1,4 @@
-<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://ironvault.quest/</link><image><url>https://ironvault.quest/lib/media/favicon.png</url><title>Iron Vault</title><link>https://ironvault.quest/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Wed, 30 Apr 2025 02:09:21 GMT</lastBuildDate><atom:link href="https://ironvault.quest/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Wed, 30 Apr 2025 02:09:15 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Iron Vault]]></title><description><![CDATA[Obsidian digital garden]]></description><link>https://ironvault.quest/</link><image><url>https://ironvault.quest/lib/media/favicon.png</url><title>Iron Vault</title><link>https://ironvault.quest/</link></image><generator>Webpage HTML Export plugin for Obsidian</generator><lastBuildDate>Thu, 29 May 2025 10:29:36 GMT</lastBuildDate><atom:link href="https://ironvault.quest/lib/rss.xml" rel="self" type="application/rss+xml"/><pubDate>Thu, 29 May 2025 10:29:30 GMT</pubDate><copyright><![CDATA[Iron Vault Dev Team]]></copyright><ttl>60</ttl><dc:creator>Iron Vault Dev Team</dc:creator><item><title><![CDATA[About Blocks]]></title><description><![CDATA[ 
  <br>"Blocks" are used throughout Iron Vault to provide custom rendering of various game features. Most blocks also provide interactivity, so instead of having to manually edit frontmatter data, you can do the edits through the blocks' rendered views themselves.<br>
 You can use them as much or as little as you want, just like any other Iron Vault feature.<br>All blocks are used by using triple backticks (`), the name of the block, a new line, then a closing set of triple backticks.<br>Most blocks don't contain anything in order to work, but some, like <a data-href="Mechanics Blocks" href="https://ironvault.quest/blocks/mechanics-blocks.html" class="internal-link" target="_self" rel="noopener nofollow">Mechanics Blocks</a>, have special contents that determine how they're rendered.<br>The following blocks are supported:<br>
 <br><a data-href="Asset Blocks" href="https://ironvault.quest/blocks/asset-blocks.html" class="internal-link" target="_self" rel="noopener nofollow">Asset Blocks</a> (iron-vault-assets) - inline asset cards (with read-only, no settings).
@@ -47,7 +47,50 @@ rank: dangerous
 ---
 ```iron-vault-track
 ```
-<br>Will render a track that looks like this:<br>Write the Docs<br><br><br>To mark progress on the vow, click on the + button. To remove progress, use the - button. If you want more fine-grained control over the number of ticks, such as removing only 2 ticks in a Dangerous track, you can click on the text field with the number of ticks and edit it. The number of ticks will be updated when you click away or press enter.]]></description><link>https://ironvault.quest/blocks/track-blocks.html</link><guid isPermaLink="false">Blocks/Track Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 12 Jul 2024 19:41:57 GMT</pubDate></item><item><title><![CDATA[Oracles Blocks]]></title><description><![CDATA[ 
+<br>Will render a track that looks like this:<br>Write the Docs<br><br>
+    
+      
+        
+              I vow to write this documentation
+      
+      
+            
+              
+                
+                      
+                            Troublesome
+                          
+                            Dangerous
+                          
+                            Formidable
+                          
+                            Extreme
+                          
+                            Epic
+                          
+                    
+              
+              
+                 
+              
+            
+          
+      
+      
+        
+          -
+        
+        
+          <br>box 4<br>box 4<br>box 4<br>box 4<br>box 4<br>box 2<br>box 0<br>box 0<br>box 0<br>box 0
+        
+        
+          +
+        
+        
+        ticks
+      
+    
+  <br><br>To mark progress on the vow, click on the + button. To remove progress, use the - button. If you want more fine-grained control over the number of ticks, such as removing only 2 ticks in a Dangerous track, you can click on the text field with the number of ticks and edit it. The number of ticks will be updated when you click away or press enter.]]></description><link>https://ironvault.quest/blocks/track-blocks.html</link><guid isPermaLink="false">Blocks/Track Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 12 Jul 2024 19:41:57 GMT</pubDate></item><item><title><![CDATA[Oracles Blocks]]></title><description><![CDATA[ 
  <br>Oracles blocks are rendered using iron-vault-oracles. The entire purpose of these blocks is to render the searchable list of oracles from the <a data-href="Sidebar" href="https://ironvault.quest/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener nofollow">Sidebar</a>, but in a regular note.<br><br>Using it is as simple as putting the following in a note:<br>```iron-vault-oracles
 ```
 <br>Which will render this:<br>]]></description><link>https://ironvault.quest/blocks/oracles-blocks.html</link><guid isPermaLink="false">Blocks/Oracles Blocks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 12 Jul 2024 19:41:57 GMT</pubDate></item><item><title><![CDATA[Moves Blocks]]></title><description><![CDATA[ 
@@ -1787,7 +1830,7 @@ Doomsday Device<br><br>
         ticks
       
     
-  <br><br>The following schema describes the expected structure of Progress Track file frontmatter in order for Iron Vault to be able to treat it as a Progress Track. It is automatically generated by the <a data-href="Create a progress track" href="https://ironvault.quest/commands/create-a-progress-track.html" class="internal-link" target="_self" rel="noopener nofollow">Create a progress track</a> command and modified by <a data-href="Advance a progress track" href="https://ironvault.quest/commands/advance-a-progress-track.html" class="internal-link" target="_self" rel="noopener nofollow">Advance a progress track</a>.<br>]]></description><link>https://ironvault.quest/entities/progress-tracks.html</link><guid isPermaLink="false">Entities/Progress Tracks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 12 Jul 2024 19:41:57 GMT</pubDate></item><item><title><![CDATA[Planets]]></title><description><![CDATA[ 
+  <br><br>The following schema describes the expected structure of Progress Track file frontmatter in order for Iron Vault to be able to treat it as a Progress Track. It is automatically generated by the <a data-href="Create a progress track" href="https://ironvault.quest/commands/create-a-progress-track.html" class="internal-link" target="_self" rel="noopener nofollow">Create a progress track</a> command and modified by <a data-href="Advance a progress track" href="https://ironvault.quest/commands/advance-a-progress-track.html" class="internal-link" target="_self" rel="noopener nofollow">Advance a progress track</a>.<br>]]></description><link>https://ironvault.quest/entities/progress-tracks.html</link><guid isPermaLink="false">Entities/Progress Tracks.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Thu, 29 May 2025 00:57:24 GMT</pubDate></item><item><title><![CDATA[Planets]]></title><description><![CDATA[ 
  <br>Iron Vault has support for Planets by using the related Oracle Entity, which can be rolled either through the <a data-href="Sidebar" href="https://ironvault.quest/other-features/sidebar.html" class="internal-link" target="_self" rel="noopener nofollow">Sidebar</a> or through the <a data-href="Generate an entity" href="https://ironvault.quest/commands/generate-an-entity.html" class="internal-link" target="_self" rel="noopener nofollow">Generate an entity</a> command. You'll be given the option to save the results into a new file, which will include a Markdown table with all the roll results. Rolling this oracle group will also record the results in your journal.<br>Besides this, there is no additional support specific to planets. You are free to organize these entities however you want, including having multiple planets in a single file (although we recommend doing 1-entity, 1-file as a general rule).<br>For mapping, you can use anything you want! One idea might be to generate maps with something like <a data-tooltip-position="top" aria-label="https://watabou.github.io/" rel="noopener nofollow" class="external-link" href="https://watabou.github.io/" target="_blank">Procgen Arcana</a>, then use <a data-tooltip-position="top" aria-label="https://phd20.com/blog/creating-a-basic-interactive-map-in-obsidian/" rel="noopener nofollow" class="external-link" href="https://phd20.com/blog/creating-a-basic-interactive-map-in-obsidian/" target="_blank">this guide on creating an interactive map</a> to make it all very pretty and linkable.]]></description><link>https://ironvault.quest/entities/planets.html</link><guid isPermaLink="false">Entities/Planets.md</guid><dc:creator><![CDATA[Iron Vault Dev Team]]></dc:creator><pubDate>Fri, 12 Jul 2024 19:41:57 GMT</pubDate></item><item><title><![CDATA[Oracles]]></title><description><![CDATA[ 
  <br>Oracles are a core Ironsworn/Starforged games, and solo roleplaying games in general. They allow you to inject randomness and unpredictability into your games, as well as serve as inspiration for what to do next when you feel stuck in your story.<br><br>There's three ways to roll Oracles in Iron Vault:<br>
 <br>Use the <a data-href="Ask the Oracle" href="https://ironvault.quest/commands/ask-the-oracle.html" class="internal-link" target="_self" rel="noopener nofollow">Ask the Oracle</a> command.
