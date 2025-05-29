@@ -1,8 +1,13 @@
 import { type Datasworn } from "@datasworn/core";
 import { IDataContext, MockDataContext } from "datastore/data-context";
 import { produce } from "immer";
+import { unwrap } from "true-myth/test-support";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { integratedAssetLens, walkAsset } from "./assets";
+import {
+  integratedAssetReader,
+  integratedAssetWriter,
+  walkAsset,
+} from "./assets";
 
 const starship = () =>
   ({
@@ -204,7 +209,7 @@ describe("walkAsset", () => {
   });
 });
 
-describe("integratedAssetLens", () => {
+describe("integratedAssetReader", () => {
   let dataContext: IDataContext;
 
   beforeEach(() => {
@@ -214,12 +219,14 @@ describe("integratedAssetLens", () => {
   describe("#get", () => {
     it("updates marked abilities", () => {
       expect(
-        integratedAssetLens(dataContext).get({
-          id: starship()._id,
-          abilities: [true, false, true],
-          options: {},
-          controls: {},
-        }),
+        unwrap(
+          integratedAssetReader(dataContext).get({
+            id: starship()._id,
+            abilities: [true, false, true],
+            options: {},
+            controls: {},
+          }),
+        ),
       ).toMatchObject({
         abilities: [{ enabled: true }, { enabled: false }, { enabled: true }],
       });
@@ -227,83 +234,99 @@ describe("integratedAssetLens", () => {
 
     it("integrates option values", () => {
       expect(
-        integratedAssetLens(dataContext).get({
-          id: starship()._id,
-          abilities: [true, false, false],
-          options: {},
-          controls: {},
-        }),
+        unwrap(
+          integratedAssetReader(dataContext).get({
+            id: starship()._id,
+            abilities: [true, false, false],
+            options: {},
+            controls: {},
+          }),
+        ),
       ).toHaveProperty("options.label.value", null);
       expect(
-        integratedAssetLens(dataContext).get({
-          id: starship()._id,
-          abilities: [true, false, false],
-          options: { label: "arclight" },
-          controls: {},
-        }),
+        unwrap(
+          integratedAssetReader(dataContext).get({
+            id: starship()._id,
+            abilities: [true, false, false],
+            options: { label: "arclight" },
+            controls: {},
+          }),
+        ),
       ).toHaveProperty("options.label.value", "arclight");
     });
     it("integrates meter values", () => {
       expect(
-        integratedAssetLens(dataContext).get({
-          id: starship()._id,
-          abilities: [true, false, false],
-          options: {},
-          controls: {},
-        }),
+        unwrap(
+          integratedAssetReader(dataContext).get({
+            id: starship()._id,
+            abilities: [true, false, false],
+            options: {},
+            controls: {},
+          }),
+        ),
       ).toHaveProperty("controls.integrity.value", 5);
       expect(
-        integratedAssetLens(dataContext).get({
-          id: starship()._id,
-          abilities: [true, false, false],
-          options: {},
-          controls: { integrity: 3 },
-        }),
+        unwrap(
+          integratedAssetReader(dataContext).get({
+            id: starship()._id,
+            abilities: [true, false, false],
+            options: {},
+            controls: { integrity: 3 },
+          }),
+        ),
       ).toHaveProperty("controls.integrity.value", 3);
     });
 
     it("integrates meter subfield values", () => {
       expect(
-        integratedAssetLens(dataContext).get({
-          id: starship()._id,
-          abilities: [true, false, false],
-          options: {},
-          controls: {},
-        }),
+        unwrap(
+          integratedAssetReader(dataContext).get({
+            id: starship()._id,
+            abilities: [true, false, false],
+            options: {},
+            controls: {},
+          }),
+        ),
       ).toHaveProperty("controls.integrity.controls.battered.value", false);
       expect(
-        integratedAssetLens(dataContext).get({
-          id: starship()._id,
-          abilities: [true, false, false],
-          options: {},
-          controls: { "integrity/battered": true },
-        }),
+        unwrap(
+          integratedAssetReader(dataContext).get({
+            id: starship()._id,
+            abilities: [true, false, false],
+            options: {},
+            controls: { "integrity/battered": true },
+          }),
+        ),
       ).toHaveProperty("controls.integrity.controls.battered.value", true);
     });
 
     it("integrates ability values", () => {
       expect(
-        integratedAssetLens(dataContext).get({
-          id: starship()._id,
-          abilities: [false, false, false],
-          options: {},
-          controls: {},
-        }),
+        unwrap(
+          integratedAssetReader(dataContext).get({
+            id: starship()._id,
+            abilities: [false, false, false],
+            options: {},
+            controls: {},
+          }),
+        ),
       ).toHaveProperty("abilities.0.options.made_up.value", null);
       expect(
-        integratedAssetLens(dataContext).get({
-          id: starship()._id,
-          abilities: [false, false, false],
-          options: { "0/made_up": "foo" },
-          controls: {},
-        }),
+        unwrap(
+          integratedAssetReader(dataContext).get({
+            id: starship()._id,
+            abilities: [false, false, false],
+            options: { "0/made_up": "foo" },
+            controls: {},
+          }),
+        ),
       ).toHaveProperty("abilities.0.options.made_up.value", "foo");
     });
   });
 
   it("update", () => {
     expect(
-      integratedAssetLens(dataContext).update(
+      integratedAssetWriter().update(
         {
           id: starship()._id,
           abilities: [false, false, false],

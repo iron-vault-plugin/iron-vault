@@ -27,7 +27,7 @@ import {
   reader,
   updating,
 } from "../utils/lens";
-import { assetMeters, integratedAssetLens } from "./assets";
+import { assetMeters, integratedAssetReader } from "./assets";
 import { InvalidCharacterError } from "./errors";
 
 const ValidationTag: unique symbol = Symbol("validated ruleset");
@@ -313,16 +313,20 @@ export function movesReader(
   charLens: CharacterLens,
   dataContext: IDataContext,
 ): CharReader<{ move: Datasworn.EmbeddedMove; asset: Datasworn.Asset }[]> {
-  const assetLens = integratedAssetLens(dataContext);
+  const assetLens = integratedAssetReader(dataContext);
+  const allAssets = pipe(charLens.assets, arrayReader(assetLens));
   return reader((source) => {
-    return get(pipe(charLens.assets, arrayReader(assetLens)), source).flatMap(
-      (asset) =>
+    return get(allAssets, source).flatMap((asset) =>
+      // NOTE: This silently ignores assets that are not found. I think that's probably
+      // best, but we also don't have great ways of surfacing this fact to the user.
+      asset.mapOr([], (asset) =>
         asset.abilities
           // Take only enabled abilities
           .filter((ability) => ability.enabled)
           // Gather moves
           .flatMap((ability) => Object.values(ability.moves ?? {}))
-          .map((move) => ({ move, asset })),
+          .map((move) => ({ move, asset: asset })),
+      ),
     );
   });
 }
@@ -378,12 +382,13 @@ export function meterLenses(
     value: charLens.momentum.get(character),
   });
 
-  const assetLens = integratedAssetLens(dataContext);
+  const assetLens = integratedAssetReader(dataContext);
+  const allAssets = pipe(charLens.assets, arrayReader(assetLens));
   meters.push(
-    ...get(pipe(charLens.assets, arrayReader(assetLens)), character)
-      .flatMap((asset) => {
-        return assetMeters(charLens, asset);
-      })
+    ...get(allAssets, character)
+      // NOTE: This silently ignores assets that are not found. I think that's probably
+      // best, but we also don't have great ways of surfacing this fact to the user.
+      .flatMap((_) => _.mapOr([], (asset) => assetMeters(charLens, asset)))
       .map((meter) => ({ ...meter, value: meter.lens.get(character) })),
   );
   ensureUnique(meters.map(({ key }) => key));

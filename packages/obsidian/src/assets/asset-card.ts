@@ -19,7 +19,7 @@ import IronVaultPlugin from "index";
 import { repeat } from "lit-html/directives/repeat.js";
 import { rootLogger } from "logger";
 import { md } from "utils/ui/directives";
-import { integratedAssetLens } from "../characters/assets";
+import { integratedAssetReader } from "../characters/assets";
 import { IronVaultSheetAssetSchema } from "../characters/lens";
 
 const logger = rootLogger.getLogger("asset-card");
@@ -47,13 +47,14 @@ export default function renderAssetCard(
   sheetAsset: IronVaultSheetAssetSchema,
   updateAsset?: (asset: Asset) => void,
 ) {
-  let asset;
-  try {
-    asset = integratedAssetLens(dataContext).get(sheetAsset);
-  } catch (e) {
-    // @ts-expect-error it's just an error. Let it crash if there's no message.
-    return html`<article class="iron-vault-asset-card">Error: ${e.message}</a>`;
+  const assetRes = integratedAssetReader(dataContext).get(sheetAsset);
+
+  if (assetRes.isErr) {
+    return html`<article class="iron-vault-asset-card">Error: ${assetRes.error.message}</a>`;
   }
+
+  const asset = assetRes.value;
+
   return html`
     <article class="iron-vault-asset-card">
       <header>

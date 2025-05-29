@@ -120,10 +120,7 @@ export async function addAssetToCharacter(
   });
 
   await context.updater(vaultProcess(plugin.app, path), (char) =>
-    addOrUpdateViaDataswornAsset(lens, actionContext).update(
-      char,
-      updatedAsset,
-    ),
+    addOrUpdateViaDataswornAsset(lens).update(char, updatedAsset),
   );
 }
 

@@ -485,10 +485,7 @@ class CharacterRenderer extends TrackedEntityRenderer<
 
     const updateAsset = (asset: Asset) => {
       charCtx.updater(vaultProcess(this.plugin.app, this.sourcePath), (char) =>
-        addOrUpdateViaDataswornAsset(lens, this.campaignContext()).update(
-          char,
-          asset,
-        ),
+        addOrUpdateViaDataswornAsset(lens).update(char, asset),
       );
     };
 

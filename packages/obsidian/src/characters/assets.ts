@@ -3,7 +3,9 @@ import { IDataContext } from "datastore/data-context";
 import { produce } from "immer";
 import merge from "lodash.merge";
 import { ConditionMeterDefinition } from "rules/ruleset";
-import { Lens, addOrUpdateMatching, writer } from "../utils/lens";
+import { Result } from "true-myth";
+import { err, ok } from "true-myth/result";
+import { Reader, Writer, addOrUpdateMatching, writer } from "../utils/lens";
 import { MissingAssetError } from "./errors";
 import {
   CharLens,
@@ -151,10 +153,9 @@ export function addOrUpdateAssetData(
  */
 export function addOrUpdateViaDataswornAsset(
   charLens: CharacterLens,
-  dataContext: IDataContext,
 ): CharWriter<Datasworn.Asset> {
   const assetDataWriter = addOrUpdateAssetData(charLens);
-  const assetLens = integratedAssetLens(dataContext);
+  const assetLens = integratedAssetWriter();
 
   return writer((source, newval) => {
     return assetDataWriter.update(
@@ -172,43 +173,58 @@ function assetKey(key: string, parentKey: string | number | undefined): string {
 }
 
 /** A lens that takes a character asset choice and produces an asset w/ choices merged in. */
-export function integratedAssetLens(
+export function integratedAssetReader(
   dataContext: IDataContext,
-): Lens<IronVaultSheetAssetSchema, Datasworn.Asset> {
+): Reader<
+  IronVaultSheetAssetSchema,
+  Result<Datasworn.Asset, MissingAssetError>
+> {
   return {
     get(assetData) {
       const dataswornAsset = dataContext.assets.get(assetData.id);
       if (!dataswornAsset) {
-        throw new MissingAssetError(`unable to find asset ${assetData.id}`);
+        return err(
+          new MissingAssetError(`unable to find asset ${assetData.id}`),
+        );
       }
-      return produce(dataswornAsset, (draft) => {
-        assetData.abilities.forEach((enabled, index) => {
-          if (enabled != null) {
-            draft.abilities[index].enabled = enabled;
-          }
-          if (
-            draft.abilities[index].enabled &&
-            draft.abilities[index].enhance_asset
-          ) {
-            draft = merge(draft, draft.abilities[index].enhance_asset);
-          }
-        });
-        walkAsset(draft, {
-          onAnyOption(key, option, parentKey) {
-            const newVal = assetData.options[assetKey(key, parentKey)];
-            if (newVal !== undefined && option.value !== newVal) {
-              option.value = newVal as string;
+      return ok(
+        produce(dataswornAsset, (draft) => {
+          assetData.abilities.forEach((enabled, index) => {
+            if (enabled != null) {
+              draft.abilities[index].enabled = enabled;
             }
-          },
-          onAnyControl(key, control, parentKey) {
-            const newVal = assetData.controls[assetKey(key, parentKey)];
-            if (newVal !== undefined && control.value !== newVal) {
-              control.value = newVal;
+            if (
+              draft.abilities[index].enabled &&
+              draft.abilities[index].enhance_asset
+            ) {
+              draft = merge(draft, draft.abilities[index].enhance_asset);
             }
-          },
-        });
-      });
+          });
+          walkAsset(draft, {
+            onAnyOption(key, option, parentKey) {
+              const newVal = assetData.options[assetKey(key, parentKey)];
+              if (newVal !== undefined && option.value !== newVal) {
+                option.value = newVal as string;
+              }
+            },
+            onAnyControl(key, control, parentKey) {
+              const newVal = assetData.controls[assetKey(key, parentKey)];
+              if (newVal !== undefined && control.value !== newVal) {
+                control.value = newVal;
+              }
+            },
+          });
+        }),
+      );
     },
+  };
+}
+
+export function integratedAssetWriter(): Writer<
+  IronVaultSheetAssetSchema,
+  Datasworn.Asset
+> {
+  return {
     update(source, asset) {
       return produce(source, (draft) => {
         draft.id = asset._id;

@@ -31,6 +31,8 @@ import {
   renderRuleset,
 } from "./content-tree";
 
+// const logger = rootLogger.getLogger("sidebar.moves");
+
 export type IronVaultMoveRendererOptions = {
   embed?: boolean;
 };
@@ -325,20 +327,20 @@ class MoveRendererDirective extends AsyncDirective {
   }
 
   protected disconnected(): void {
-    console.log("MoveRendererDirective: disconnected");
+    // logger.debug("MoveRendererDirective: disconnected");
     if (this._renderer && this._component) {
-      console.log(
-        "MoveRendererDirective: disconnected, removing renderer from component",
-      );
+      // logger.debug(
+      //   "MoveRendererDirective: disconnected, removing renderer from component",
+      // );
       this._component.removeChild(this._renderer);
     }
   }
 
   protected reconnected(): void {
     if (this._renderer && this._component) {
-      console.log(
-        "MoveRendererDirective: reconnected, adding renderer to component",
-      );
+      // logger.debug(
+      //   "MoveRendererDirective: reconnected, adding renderer to component",
+      // );
       this._component.addChild(this._renderer);
     }
   }
@@ -371,8 +373,8 @@ class MoveRendererDirective extends AsyncDirective {
         move,
         options ?? {},
       );
-      this._renderer?.initialize();
-      return tempEl;
+      this._renderer?.initialize().then(() => this.setValue(tempEl));
+      return noChange;
     } else if (
       this._renderer.options.actionContext !== options?.actionContext
     ) {
