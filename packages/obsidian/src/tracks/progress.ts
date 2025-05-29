@@ -56,6 +56,7 @@ export const baseProgressTrackerSchema = z.object({
       },
     ),
   "track-type": z.string(),
+  character: z.string().nullish(),
 });
 
 export const progressTrackerSchema = z.union([
@@ -172,6 +173,15 @@ export class ProgressTrack {
     return new ProgressTrack({ ...this, progress: newProgress });
   }
 
+  /** Replaces the rank for this track. Note that it does not alter the progress. */
+  withRank(rank: ChallengeRanks): ProgressTrack {
+    if (this.rank === rank) return this;
+    return new ProgressTrack({
+      ...this,
+      rank,
+    });
+  }
+
   /** Advance the meter by `steps`, ensuring legal range for this meter. */
   advanced(steps: number): ProgressTrack {
     return this.advancedByTicks(steps * this.ticksPerStep);
@@ -225,14 +235,20 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     return this.raw["track-type"];
   }
 
+  get character(): string | null {
+    return this.raw.character ?? null;
+  }
+
   static newFromTrack({
     name,
     trackType,
     track,
+    character,
   }: {
     name: string;
     trackType: string;
     track: ProgressTrack;
+    character?: string | null;
   }): Either<ZodError, ProgressTrackFileAdapter> {
     return this.create({
       name,
@@ -241,7 +257,10 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
       tags: track.complete ? ["complete"] : ["incomplete"],
       "track-type": trackType,
       [PLUGIN_KIND_FIELD]: IronVaultKind.ProgressTrack,
-    } as ProgressTrackerInputSchema);
+      character,
+    } satisfies z.input<typeof baseProgressTrackerSchema> & {
+      [PLUGIN_KIND_FIELD]: IronVaultKind.ProgressTrack;
+    });
   }
 
   static create(data: unknown): Either<ZodError, ProgressTrackFileAdapter> {
@@ -263,6 +282,30 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     update: (track: ProgressTrack) => ProgressTrack,
   ): ProgressTrackFileAdapter {
     return this.withTrack(update(this.track));
+  }
+
+  withName(name: string): ProgressTrackFileAdapter {
+    if (this.name === name) return this;
+    return new ProgressTrackFileAdapter(
+      produce(this.raw, (data) => {
+        data.name = name;
+      }),
+      this.track,
+    );
+  }
+
+  withTrackType(trackType: string): ProgressTrackFileAdapter {
+    if (this.trackType === trackType) return this;
+    return new ProgressTrackFileAdapter(
+      produce(this.raw, (data) => {
+        data["track-type"] = trackType;
+      }),
+      this.track,
+    );
+  }
+
+  withRank(rank: ChallengeRanks): ProgressTrackFileAdapter {
+    return this.updatingTrack((track) => track.withRank(rank));
   }
 
   withTrack(other: ProgressTrack): ProgressTrackFileAdapter {

@@ -6,6 +6,7 @@ import IronVaultPlugin from "index";
 import { onlyValid } from "indexer/index-impl";
 import { TFile, type CachedMetadata } from "obsidian";
 import { Left } from "utils/either";
+import { Lens } from "utils/lens";
 import { CustomSuggestModal } from "utils/suggest";
 import { updaterWithContext } from "utils/update";
 import { z } from "zod";
@@ -69,6 +70,10 @@ export class CharacterContext {
       (character) => character.raw,
       this,
     );
+  }
+
+  getting<T>(lens: Lens<ValidatedCharacter, T>): T {
+    return lens.get(this.character);
   }
 }
 
