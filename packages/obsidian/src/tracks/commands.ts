@@ -13,7 +13,7 @@ import { stripMarkdown } from "utils/strip-markdown";
 import { BLOCK_TYPE__TRACK, IronVaultKind } from "../constants";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ProgressContext } from "./context";
-import { ProgressTrack, ProgressTrackFileAdapter } from "./progress";
+import { ProgressTrackFileAdapter } from "./progress";
 import { ProgressTrackCreateModal } from "./progress-create";
 import { selectProgressTrack } from "./select";
 
@@ -58,20 +58,7 @@ export async function createProgressTrack(
   plugin: IronVaultPlugin,
   editor: Editor,
 ): Promise<void> {
-  const trackInput: {
-    targetFolder: string;
-    fileName: string;
-    name: string;
-    trackType: string;
-    track: ProgressTrack;
-  } = await new Promise((onAccept, onReject) => {
-    new ProgressTrackCreateModal(
-      plugin,
-      { targetFolder: plugin.settings.defaultProgressTrackFolder },
-      onAccept,
-      onReject,
-    ).open();
-  });
+  const trackInput = await ProgressTrackCreateModal.show(plugin);
 
   const track =
     ProgressTrackFileAdapter.newFromTrack(trackInput).expect("invalid track");

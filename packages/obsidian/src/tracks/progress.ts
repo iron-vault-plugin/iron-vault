@@ -56,6 +56,7 @@ export const baseProgressTrackerSchema = z.object({
       },
     ),
   "track-type": z.string(),
+  character: z.string().nullish(),
 });
 
 export const progressTrackerSchema = z.union([
@@ -234,14 +235,20 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     return this.raw["track-type"];
   }
 
+  get character(): string | null {
+    return this.raw.character ?? null;
+  }
+
   static newFromTrack({
     name,
     trackType,
     track,
+    character,
   }: {
     name: string;
     trackType: string;
     track: ProgressTrack;
+    character?: string | null;
   }): Either<ZodError, ProgressTrackFileAdapter> {
     return this.create({
       name,
@@ -250,7 +257,10 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
       tags: track.complete ? ["complete"] : ["incomplete"],
       "track-type": trackType,
       [PLUGIN_KIND_FIELD]: IronVaultKind.ProgressTrack,
-    } as ProgressTrackerInputSchema);
+      character,
+    } satisfies z.input<typeof baseProgressTrackerSchema> & {
+      [PLUGIN_KIND_FIELD]: IronVaultKind.ProgressTrack;
+    });
   }
 
   static create(data: unknown): Either<ZodError, ProgressTrackFileAdapter> {

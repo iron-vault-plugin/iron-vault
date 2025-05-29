@@ -9,6 +9,7 @@ import {
 } from "obsidian";
 import { generateObsidianFilename } from "utils/filename";
 import { CampaignSelectComponent } from "utils/ui/settings/campaign-suggest";
+import { CharacterSelectComponent } from "utils/ui/settings/character-select";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
 import { GenericTextSuggest } from "utils/ui/settings/generic-text-suggest";
 import { RelativeFolderSearchComponent } from "utils/ui/settings/relative-folder-search";
@@ -21,6 +22,7 @@ export type ProgressTrackCreateResultType = {
   trackType: string;
   fileName: string;
   targetFolder: string;
+  character: string | undefined;
 };
 
 export class ProgressTrackCreateModal extends Modal {
@@ -31,6 +33,7 @@ export class ProgressTrackCreateModal extends Modal {
     trackType: "",
     fileName: "",
     targetFolder: "",
+    character: undefined,
   };
 
   public accepted: boolean = false;
@@ -41,6 +44,7 @@ export class ProgressTrackCreateModal extends Modal {
     protected readonly onAccept: (arg: {
       name: string;
       trackType: string;
+      character: string | undefined;
       targetFolder: string;
       fileName: string;
       track: ProgressTrack;
@@ -51,6 +55,28 @@ export class ProgressTrackCreateModal extends Modal {
     Object.assign(this.result, defaults);
   }
 
+  static async show(plugin: IronVaultPlugin): Promise<{
+    name: string;
+    trackType: string;
+    character: string | undefined;
+    targetFolder: string;
+    fileName: string;
+    track: ProgressTrack;
+  }> {
+    return new Promise((onAccept, onReject) => {
+      try {
+        new ProgressTrackCreateModal(
+          plugin,
+          { targetFolder: plugin.settings.defaultProgressTrackFolder },
+          onAccept,
+          onReject,
+        ).open();
+      } catch (error) {
+        onReject(error);
+      }
+    });
+  }
+
   onOpen(): void {
     this.accepted = false;
 
@@ -58,16 +84,17 @@ export class ProgressTrackCreateModal extends Modal {
     new Setting(contentEl).setName("New progress track").setHeading();
 
     let campaign!: CampaignFile;
+    let characterSelect!: CharacterSelectComponent;
 
     const onChangeCampaign = () => {
       //TODO(@cwegrzyn): this should update to use the campaign-specific folder
+      const context = this.plugin.campaignManager.campaignContextFor(campaign);
       folderComponent
         .setBaseFolder(campaign.file.parent!)
         .setValue(this.plugin.settings.defaultProgressTrackFolder)
         .onChanged();
-      trackTypeSuggest.items = [
-        ...this.plugin.campaignManager.campaignContextFor(campaign).trackTypes,
-      ];
+      trackTypeSuggest.items = [...context.trackTypes];
+      characterSelect.setCampaignContext(context);
     };
 
     const validate = debounce(() => {
@@ -89,6 +116,24 @@ export class ProgressTrackCreateModal extends Modal {
           validate();
         });
         campaign = dropdown.getValue();
+      },
+    );
+
+    CharacterSelectComponent.addToSetting(
+      new Setting(contentEl)
+        .setName("Character")
+        .setDesc(
+          "Track will be associated with this character. Leave blank for a shared track.",
+        ),
+      this.plugin,
+      (select) => {
+        characterSelect = select
+          .onChange((path) => {
+            this.result.character = path == "" ? undefined : `[[${path}]]`;
+            validate();
+          })
+          .allowEmpty(true)
+          .defaultToActiveCharacter(true);
       },
     );
 
@@ -165,9 +210,7 @@ export class ProgressTrackCreateModal extends Modal {
           (createButton = btn
             .setButtonText("Create")
             .setCta()
-            .onClick(() => {
-              this.accept();
-            })),
+            .onClick(this.accept.bind(this))),
       )
       .addButton((btn) =>
         btn.setButtonText("Cancel").onClick(() => {
@@ -188,6 +231,7 @@ export class ProgressTrackCreateModal extends Modal {
       trackType: this.result.trackType,
       fileName: this.result.fileName,
       targetFolder: this.result.targetFolder,
+      character: this.result.character,
       track: ProgressTrack.create_({
         rank: this.result.rank,
         progress: this.result.progress,
