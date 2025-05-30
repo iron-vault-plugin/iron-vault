@@ -79,7 +79,7 @@ const context = await esbuild.context({
         {
           from: ["../../manifest.json"],
           to: [
-            ".test-vault/.obsidian/plugins/iron-vault/manifest.json",
+            "./test-vault/.obsidian/plugins/iron-vault/manifest.json",
             "./docs/.obsidian/plugins/iron-vault/manifest.json",
           ],
         },
