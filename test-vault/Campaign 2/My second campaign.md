@@ -2,7 +2,6 @@
 iron-vault-kind: campaign
 ironvault:
   playset:
-    type: globs
-    lines:
-      - "@include(classic)"
+    type: registry
+    key: classic_delve
 ---

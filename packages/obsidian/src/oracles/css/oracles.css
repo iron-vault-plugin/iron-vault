@@ -19,6 +19,7 @@ table.iron-vault-oracle-table {
 
   box-shadow: var(--shadow);
   margin-top: 1em;
+  margin-bottom: 1em;
   & thead {
     position: sticky;
     top: 0;
@@ -27,7 +28,8 @@ table.iron-vault-oracle-table {
   & thead tr {
     background-color: var(--background-primary);
   }
-  & th, & td {
+  & th,
+  & td {
     padding: 0.6em;
   }
   & tbody tr {

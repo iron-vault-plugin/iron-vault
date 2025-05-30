@@ -29,7 +29,7 @@ import { runOracleCommand } from "oracles/command";
 import { generateOracleTable } from "oracles/render";
 import { runMoveCommand, suggestedRollablesForMove } from "./action";
 
-const TABLE_REGEX = /\{\{table>([^}]+)\}\}/g;
+const TABLE_REGEX = /\{\{(table(?:_columns)?)>([^}]+)\}\}/g;
 
 export class MoveModal extends Modal {
   moveHistory: AnyDataswornMove[] = [];
@@ -254,9 +254,12 @@ export class MoveRenderer extends MarkdownRenderChild {
     // Render oracles
     if (this.options.showOracles) {
       for (const { oracleText, oracle } of oracles) {
+        const oracleEl = this.containerEl.createEl("div", {
+          cls: "move-oracle",
+        });
         if (this.options.onRollOracle) {
           const callback = this.options.onRollOracle;
-          new ButtonComponent(this.containerEl)
+          new ButtonComponent(oracleEl)
             .setButtonText(`Roll ${oracle.name}`)
             .setTooltip(`Roll on the ${oracle.name} oracle.`)
             .onClick(() => callback(oracle));
@@ -264,7 +267,7 @@ export class MoveRenderer extends MarkdownRenderChild {
         await MarkdownRenderer.render(
           this.plugin.app,
           oracleText,
-          this.containerEl.createEl("div", { cls: "md-wrapper" }),
+          oracleEl,
           ".",
           this,
         );
@@ -293,12 +296,30 @@ export class MoveRenderer extends MarkdownRenderChild {
     let moveText = move.text;
     const oracles = [];
     for (const match of move.text.matchAll(TABLE_REGEX)) {
-      const oracle = this.dataContext.oracles.get(match[1]);
-      if (oracle) {
-        const dom = await generateOracleTable(this.plugin.app, oracle, this);
-        const oracleText = dom.outerHTML + "\n";
-        oracles.push({ oracleText, oracle });
-        moveText = moveText.replaceAll(match[0], "");
+      const type = match[1];
+      if (type === "table") {
+        const oracle = this.dataContext.oracles.get(match[2]);
+        if (oracle) {
+          const dom = await generateOracleTable(this.plugin.app, oracle, this);
+          const oracleText = dom.outerHTML + "\n";
+          oracles.push({ oracleText, oracle });
+          moveText = moveText.replaceAll(match[0], "");
+        }
+      } else if (type === "table_columns" && match[2].startsWith("move:")) {
+        const prefix =
+          match[2].replace(/^move:/, "move.oracle_rollable:") + ".";
+        for (const [oracleId, oracle] of this.dataContext.oracles.entries()) {
+          if (oracleId.startsWith(prefix)) {
+            const dom = await generateOracleTable(
+              this.plugin.app,
+              oracle,
+              this,
+            );
+            const oracleText = dom.outerHTML + "\n";
+            oracles.push({ oracleText, oracle });
+            moveText = moveText.replaceAll(match[0], "");
+          }
+        }
       }
     }
     return { moveText, oracles };
