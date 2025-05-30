@@ -231,6 +231,16 @@ export class CampaignManager extends Component {
       }),
     );
 
+    this.plugin.app.workspace.onLayoutReady(() => {
+      const file = this.plugin.app.workspace.getActiveFile();
+      if (file) {
+        this.setActiveCampaignFromFile(
+          file,
+          true, // force update
+        );
+      }
+    });
+
     this.register(
       this.plugin.localSettings.on("change", (change) => {
         if (change.campaignFile === this.#lastActive?.campaign?.file) {
