@@ -12,6 +12,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "dev": "tsup --watch . --watch ../datasworn-compiler/src",
     "test": "vitest"
   },
   "private": false,
@@ -30,6 +31,7 @@
     "@ironvault/dice": "workspace:^",
     "@ironvault/parsing-markdown": "workspace:^",
     "@ironvault/utils": "workspace:^",
+    "@microsoft/api-extractor": "^7.52.8",
     "@types/node": "catalog:",
     "esbuild": "catalog:",
     "ts-node": "^10.9.2",
