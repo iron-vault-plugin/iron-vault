@@ -30,6 +30,9 @@ export const command = buildCommand({
       }),
     );
 
+    directory = path.resolve(directory);
+    logger.info(`Building project in directory: ${directory}`);
+
     if (directory == "." && !flags.outfile) {
       logger.error(
         "When building the current directory, you must specify an output file with --outfile",
@@ -37,13 +40,16 @@ export const command = buildCommand({
       return;
     }
 
+    // We use the basename of the directory as the root ID for the package.
+    const root = path.basename(directory);
+
     // TODO: make sure that outfile isn't a child of directory
 
     ensureRulesPackageBuilderInitialized();
     const contentManager = new MetarootContentManager(
       new ContentManagerImpl<Content>(),
     );
-    contentManager.addRoot(directory);
+    contentManager.addRoot(root);
     const contentIndexer = new ContentIndexer(contentManager);
     for (const file of await readdir(directory, {
       recursive: true,
@@ -51,7 +57,8 @@ export const command = buildCommand({
     })) {
       if (!file.isFile()) continue; // Skip directories
       const filePath = path.join(file.parentPath, file.name);
-      logger.info(`Loading file: ${filePath}`);
+      const relativePath = path.join(root, path.relative(directory, filePath));
+      logger.info(`Loading file: ${relativePath}`);
       const content = await readFile(filePath, {
         encoding: "utf-8",
       });
@@ -59,11 +66,17 @@ export const command = buildCommand({
       const frontmatter = extractFrontmatter(content).unwrapOrElse((err) => {
         throw err;
       });
-      await contentIndexer.indexFile(filePath, 0, hash, content, frontmatter);
+      await contentIndexer.indexFile(
+        relativePath,
+        0,
+        hash,
+        content,
+        frontmatter,
+      );
     }
     const { files, result } = PackageBuilder.fromContent(
-      directory,
-      contentManager.valuesUnderPath(directory),
+      root,
+      contentManager.valuesUnderPath(root),
     );
 
     for (const file of files) {

@@ -6,8 +6,9 @@
     "inlineSources": true,
     "skipLibCheck": true,
     "lib": ["ES2023", "ESNext.Iterator"],
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "rootDir": "src"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.config.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["dist/**/*"]
 }
