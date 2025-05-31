@@ -431,11 +431,7 @@ export class PackageBuilder {
     );
 
     for (const item of content) {
-      logger.debug(
-        "[PackageBuilder] [root:%s] Adding item at path: %s",
-        root,
-        item.path,
-      );
+      logger.debug("Adding item at path:", item.path);
       builder.addLeafNodeAtPath(item.path, item.value, true);
     }
 
@@ -616,7 +612,24 @@ export class PackageBuilder {
     parent: DataswornSource.Expansion,
     parentSource: DataswornSource.SourceInfo,
   ): [string, Result<DataswornSource.RulesPackage, Error>][] {
-    if (node.type !== "group") throw new Error("this can't happen");
+    if (node.type === "leaf") {
+      // If we have a leaf node, it should be a package file.
+      if (node.data.kind === "package") {
+        return [[node.path, Result.ok(node.data.package)]];
+      }
+
+      // Otherwise, we can't build a collection from a leaf node.
+      return [
+        [
+          node.path,
+          Result.err(
+            new Error(
+              `Expected a top-level YAML/JSON file or a folder, but got a '${node.data.kind}' file.`,
+            ),
+          ),
+        ],
+      ];
+    }
 
     const walkChildren = () =>
       reduceNodes<
