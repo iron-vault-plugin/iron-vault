@@ -432,7 +432,14 @@ export class PackageBuilder {
 
     for (const item of content) {
       logger.debug("Adding item at path:", item.path);
-      builder.addLeafNodeAtPath(item.path, item.value, true);
+      // We copy the data at the point of entry here, because the Datasworn compiler tends
+      // to mutate the data it receives. We both want to preserve the original data, and we
+      // need to break object reuse by aliases, so we use JSON.parse/stringify.
+      builder.addLeafNodeAtPath(
+        item.path,
+        JSON.parse(JSON.stringify(item.value)),
+        true,
+      );
     }
 
     const rootNode = builder.getNode(root);
@@ -452,11 +459,10 @@ export class PackageBuilder {
       case "leaf":
         if (rootNode.data.kind === "package") {
           try {
+            const data = rootNode.data.package;
             return {
               // TODO: we need to validate the package here.
-              result: RulesPackageBuilder.schemaValidator(rootNode.data.package)
-                ? rootNode.data.package
-                : null,
+              result: RulesPackageBuilder.schemaValidator(data) ? data : null,
               // TODO: maybe it should go in the files?
               files: new Map(),
             };
@@ -494,7 +500,7 @@ export class PackageBuilder {
     }
   }
 
-  constructor(
+  private constructor(
     private root: DataGroup<Content["value"], CollectionAnnotations>,
     public readonly packageId: string,
   ) {
@@ -540,12 +546,9 @@ export class PackageBuilder {
       } else {
         logger.debug("File at path", filePath, ":", source.value);
 
-        // Note that the datasworn compiler makes destructive changes to the data
-        // passed in. As a result, we need to clone the source value to preserve
-        // the original data.
         dataswornCompiler.addFiles({
           name: filePath,
-          data: structuredClone(source.value),
+          data: JSON.parse(JSON.stringify(source.value)), // Copy the data to avoid mutations
         });
 
         const validationError = dataswornCompiler.errors.get(filePath);
