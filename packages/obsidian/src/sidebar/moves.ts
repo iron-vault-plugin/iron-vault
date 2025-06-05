@@ -10,6 +10,7 @@ import {
   MoveWithSelector,
   WithMetadata,
 } from "datastore/datasworn-indexer";
+import { moveOrigin } from "datastore/datasworn-symbols";
 import IronVaultPlugin from "index";
 import { AsyncDirective } from "lit-html/async-directive.js";
 import {
@@ -162,6 +163,8 @@ export class MoveList extends CampaignDependentBlockRenderer {
         : [...this.dataContext.moves.values()].map((m) => m._id),
     );
 
+    const assetMoves = this.actionContext.assetMoves;
+
     const categories = this.dataContext.moveCategories.values();
     const sources: Record<string, MoveCategory[]> = {};
     for (const cat of categories) {
@@ -170,6 +173,29 @@ export class MoveList extends CampaignDependentBlockRenderer {
       }
       sources[cat._source.title].push(cat);
     }
+
+    for (const { move, asset } of assetMoves) {
+      if (!sources[asset._source.title]) {
+        sources[asset._source.title] = [];
+      }
+
+      let cat: MoveCategory | undefined = sources[asset._source.title].find(
+        (c) => c._id === asset._id,
+      );
+      if (!cat) {
+        cat = {
+          type: "move_category",
+          _id: asset._id,
+          name: "Asset: " + asset.name,
+          contents: {},
+          collections: {},
+          _source: asset._source,
+        };
+        sources[asset._source.title].push(cat);
+      }
+      cat.contents![move._id] = { ...move, _source: asset._source };
+    }
+
     const onMakeMove: MoveRendererOptions["onMakeMove"] =
       this.targetView &&
       ((move, rollable) => {
@@ -399,12 +425,28 @@ export const moveRenderer = directive(MoveRendererDirective);
 
 function makeIndex(dataContext: IDataContext) {
   const idx = new MiniSearch<WithMetadata<MoveWithSelector>>({
-    fields: ["name", "trigger.text"],
+    fields: ["name", "trigger.text", "asset_name"],
     idField: "_id",
     searchOptions: {
       prefix: true,
       fuzzy: 0.3,
       boost: { name: 2 },
+    },
+    extractField: (doc, fieldName) => {
+      if (fieldName === "name") {
+        return doc.name;
+      } else if (fieldName === "trigger.text") {
+        return doc.trigger?.text ?? "";
+      } else if (fieldName === "_id") {
+        return doc._id;
+      } else if (fieldName === "asset_name") {
+        if (doc[moveOrigin] && doc[moveOrigin].assetId) {
+          const asset = dataContext.assets.get(doc[moveOrigin].assetId);
+          return asset ? asset.name : "";
+        }
+        return "";
+      }
+      return "";
     },
   });
   idx.addAll([...dataContext.moves.values()]);

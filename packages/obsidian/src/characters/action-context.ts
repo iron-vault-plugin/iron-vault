@@ -1,3 +1,4 @@
+import { Datasworn } from "@datasworn/core";
 import { CampaignDataContext } from "campaigns/context";
 import { determineCampaignContext } from "campaigns/manager";
 import { IDataContext } from "datastore/data-context";
@@ -36,6 +37,10 @@ export interface IActionContext extends IDataContext {
     | MeterWithLens<ConditionMeterDefinition>
     | MeterWithoutLens<ConditionMeterDefinition>
   )[];
+  readonly assetMoves: {
+    move: Datasworn.EmbeddedMove;
+    asset: Datasworn.Asset;
+  }[];
 
   readonly oracleRoller: OracleRoller;
 
@@ -68,6 +73,13 @@ export class NoCharacterActionConext implements IActionContext {
 
   get assets() {
     return this.campaignContext.assets;
+  }
+
+  get assetMoves(): {
+    move: Datasworn.EmbeddedMove;
+    asset: Datasworn.Asset;
+  }[] {
+    return [];
   }
 
   get moveCategories() {
@@ -117,6 +129,7 @@ export class NoCharacterActionConext implements IActionContext {
 export class CharacterActionContext implements IActionContext {
   readonly kind = "character";
   #moves?: StandardIndex<DataswornTypes["move"]>;
+  #assetMoves?: { move: Datasworn.EmbeddedMove; asset: Datasworn.Asset }[];
 
   constructor(
     public readonly campaignContext: CampaignDataContext,
@@ -140,14 +153,30 @@ export class CharacterActionContext implements IActionContext {
     return this.campaignContext.assets;
   }
 
+  get assetMoves(): {
+    move: Datasworn.EmbeddedMove;
+    asset: Datasworn.Asset;
+  }[] {
+    if (!this.#assetMoves) {
+      try {
+        this.#assetMoves = movesReader(this.characterContext.lens, this).get(
+          this.characterContext.character,
+        );
+      } catch (err) {
+        if (err instanceof InvalidCharacterError) {
+          console.error(err);
+          new Notice(`Invalid character definition: ${err.message}`, 0);
+        }
+        throw err;
+      }
+    }
+    return this.#assetMoves;
+  }
+
   get moves(): StandardIndex<DataswornTypes["move"]> {
     if (!this.#moves) {
+      const characterMoves = this.assetMoves;
       try {
-        const characterMoves = movesReader(
-          this.characterContext.lens,
-          this,
-        ).get(this.characterContext.character);
-
         this.#moves = this.campaignContext.moves.projected((move) => {
           if (move[moveOrigin].assetId == null) return move;
           const assetMove = characterMoves.find(
