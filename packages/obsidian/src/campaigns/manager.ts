@@ -233,6 +233,7 @@ export class CampaignManager extends Component {
 
     this.plugin.app.workspace.onLayoutReady(() => {
       const file = this.plugin.app.workspace.getActiveFile();
+      logger.debug("Layout ready, active file: %o", file);
       if (file) {
         this.setActiveCampaignFromFile(
           file,

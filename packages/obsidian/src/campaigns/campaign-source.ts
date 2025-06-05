@@ -173,6 +173,7 @@ export type CampaignDependentBlockRendererOptions = {
 export abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild {
   campaignSource: BaseCampaignWatch;
   triggerUpdate: Debouncer<[], void | Promise<void>>;
+  lastContext: CampaignDataContext | undefined;
 
   constructor(
     containerEl: HTMLElement,
@@ -287,8 +288,14 @@ export abstract class CampaignDependentBlockRenderer extends MarkdownRenderChild
 
   update(): void | Promise<void> {
     const context = this.campaignSource.campaignContext;
-    if (context) {
+    if (this.lastContext !== context) {
+      logger.trace(
+        "CampaignDependentBlockRenderer.update: new context detected",
+      );
+      this.lastContext = context;
       this.onNewContext(context);
+    }
+    if (context) {
       return this.render();
     } else {
       return this.renderWithoutContext();
