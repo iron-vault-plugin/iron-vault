@@ -1,11 +1,16 @@
 import { html, render } from "lit-html";
 
 import { CampaignDependentBlockRenderer } from "campaigns/campaign-source";
-import { CharacterActionContext } from "characters/action-context";
+import { CampaignDataContext } from "campaigns/context";
 import IronVaultPlugin from "index";
 import { md } from "utils/ui/directives";
+import { CharacterSelectComponent } from "utils/ui/settings/character-select";
 
 export class CharacterRenderer extends CampaignDependentBlockRenderer {
+  characterSelect: CharacterSelectComponent;
+  characterSheetEl: HTMLElement;
+  characterPath: string | undefined;
+
   constructor(
     containerEl: HTMLElement,
     plugin: IronVaultPlugin,
@@ -16,35 +21,47 @@ export class CharacterRenderer extends CampaignDependentBlockRenderer {
       debouncePeriod: 100,
       watchActiveCharacter: true,
     });
+
+    this.characterSelect = new CharacterSelectComponent(containerEl, plugin)
+      .allowEmpty(false)
+      .defaultToActiveCharacter(true)
+      .onChange((character) => {
+        this.characterPath = character;
+        this.triggerUpdate();
+      });
+    this.characterSheetEl = containerEl.createDiv({
+      cls: "iron-vault-character-sheet",
+    });
+  }
+
+  protected onNewContext(_context: CampaignDataContext | undefined): void {
+    this.characterSelect.setCampaignContext(_context);
   }
 
   onload(): void {
     super.onload();
-
-    console.log("CharacterRenderer: onload");
   }
 
   renderWithoutContext(): void | Promise<void> {
-    render(html`<p>No active campaign.</p>`, this.containerEl);
+    render(html`<p>No active campaign.</p>`, this.characterSheetEl);
   }
 
   render() {
-    const context = this.actionContext;
-    if (!(context instanceof CharacterActionContext)) {
+    if (!this.characterPath) {
       render(
         html`<p>No active character for campaign '${this.campaign.name}'</p>`,
-        this.containerEl,
+        this.characterSheetEl,
       );
       return;
     }
     render(
       html`${md(
         this.plugin,
-        `![[${context.characterPath}|iv-embed]]`,
+        `![[${this.characterPath}|iv-embed]]`,
         this.sourcePath,
         this,
       )}`,
-      this.containerEl,
+      this.characterSheetEl,
     );
   }
 }

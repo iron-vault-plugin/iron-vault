@@ -50,7 +50,7 @@ export class CharacterSelectComponent extends ValueComponent<string> {
     return this;
   }
 
-  setCampaignContext(campaignContext: CampaignDataContext): this {
+  setCampaignContext(campaignContext: CampaignDataContext | undefined): this {
     if (this.#campaignContext === campaignContext) {
       return this;
     }
@@ -58,7 +58,7 @@ export class CharacterSelectComponent extends ValueComponent<string> {
 
     const availableCharacters = this.availableCharacters();
     if (this.#options.defaultToActiveCharacter || !this.#options.allowEmpty) {
-      const activeCharacter = campaignContext.localSettings.activeCharacter;
+      const activeCharacter = campaignContext?.localSettings.activeCharacter;
       if (activeCharacter) {
         this.#currentValue = activeCharacter;
       } else if (availableCharacters.length == 1) {
