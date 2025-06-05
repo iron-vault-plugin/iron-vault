@@ -1,3 +1,5 @@
+import "es-iterator-helpers/auto";
+
 import Result from "true-myth/result";
 
 import {
