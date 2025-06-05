@@ -29,8 +29,11 @@
     "@datasworn/starforged": "catalog:",
     "@datasworn/sundered-isles": "catalog:",
     "@eslint/js": "catalog:",
+    "@ironvault/datasworn-compiler": "workspace:^",
+    "@ironvault/dice": "workspace:^",
     "@ironvault/parsing": "workspace:^",
     "@ironvault/parsing-markdown": "workspace:^",
+    "@ironvault/utils": "workspace:^",
     "@jgoz/esbuild-plugin-typecheck": "catalog:",
     "@nrsk/sigma": "catalog:",
     "@preact/signals-core": "catalog:",
@@ -50,6 +53,7 @@
     "ajv-formats": "catalog:",
     "builtin-modules": "catalog:",
     "emittery": "catalog:",
+    "es-iterator-helpers": "^1.2.1",
     "esbuild": "catalog:",
     "esbuild-plugin-copy": "catalog:",
     "esbuild-plugin-inline-worker": "catalog:",
@@ -85,9 +89,6 @@
     "unist-util-is": "catalog:",
     "vite-tsconfig-paths": "catalog:",
     "yaml": "catalog:",
-    "zod": "catalog:",
-    "@ironvault/datasworn-compiler": "workspace:^",
-    "@ironvault/dice": "workspace:^",
-    "@ironvault/utils": "workspace:^"
+    "zod": "catalog:"
   }
 }

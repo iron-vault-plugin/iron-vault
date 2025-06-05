@@ -1,3 +1,5 @@
+import "es-iterator-helpers/auto";
+
 import registerAssetBlock from "assets/asset-block";
 import { CampaignIndex, CampaignIndexer } from "campaigns/indexer";
 import { CampaignManager } from "campaigns/manager";
