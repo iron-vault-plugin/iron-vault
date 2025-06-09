@@ -1,4 +1,3 @@
-import { format, Node as KdlNodeBare, parse } from "kdljs";
 import { html, render, TemplateResult } from "lit-html";
 import { ref } from "lit-html/directives/ref.js";
 import { styleMap } from "lit-html/directives/style-map.js";
@@ -9,16 +8,24 @@ import {
   MarkdownView,
   Menu,
 } from "obsidian";
+import { format, Node as KdlNodeBare, parse } from "utils/kdl";
 
+import {
+  evaluateExpr,
+  toStringWithValues,
+  tryParseDiceExpression,
+} from "@ironvault/dice";
 import { CampaignDependentBlockRenderer } from "campaigns/campaign-source";
 import { IDataContext } from "datastore/data-context";
 import { DataswornTypes } from "datastore/datasworn-indexer";
 import { repeat } from "lit-html/directives/repeat.js";
 import Sortable from "sortablejs";
 import { ProgressTrack } from "tracks/progress";
+import { tryOrElse } from "true-myth/result";
 import { node } from "utils/kdl";
 import { md } from "utils/ui/directives";
 import IronVaultPlugin from "../index";
+import { diceExprNode, MechanicsDiceExprNode } from "./node-builders";
 
 interface KdlNode extends KdlNodeBare {
   parent?: KdlNode;
@@ -340,6 +347,14 @@ See https://kdl.dev for syntax.</pre
       }
       case "actor": {
         return this.renderActor(node);
+      }
+      case "dice-expr": {
+        const result = diceExprNode.safeParse(node);
+        if (result.success) {
+          return this.renderDiceExpr(result.data, node);
+        } else {
+          return this.renderInvalid(node, result.error);
+        }
       }
       default: {
         return this.renderUnknown(node);
@@ -854,6 +869,46 @@ ${result.error.toString()}</pre
         ${this.renderChildren(node.children)}
       </div>
     </section>`;
+  }
+
+  renderDiceExpr(diceExprNode: MechanicsDiceExprNode, rawNode: KdlNode) {
+    const parsed = tryParseDiceExpression(diceExprNode.properties.expr);
+
+    const rolls = diceExprNode.children.flatMap((child) => {
+      if (child.name === "rolls") {
+        return [child.values];
+      }
+      return [];
+    });
+
+    const rendered = parsed.andThen((expr) =>
+      tryOrElse(
+        (e) => e,
+        () => {
+          const evaled = evaluateExpr(expr, (_expr, index) => rolls[index]);
+          return toStringWithValues(evaled, false);
+        },
+      ),
+    );
+
+    return this.renderDlist(
+      "dice-expr",
+      {
+        Expression: {
+          cls: "expr",
+          value: rendered.unwrapOr(diceExprNode.properties.expr),
+          md: false,
+        },
+        Value: { cls: "value", value: diceExprNode.values[0], md: false },
+      },
+      rawNode,
+    );
+  }
+
+  renderInvalid(node: KdlNode, error: Error) {
+    return html`<p class="error" @contextmenu=${this.makeMenuHandler(node)}>
+      Node "${node.name}" is invalid: ${error.message || "Unknown error"}
+    </p>`;
   }
 
   renderUnknown(node: KdlNode) {

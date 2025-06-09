@@ -1,5 +1,5 @@
 import { matchDataswornLink } from "datastore/parsers/datasworn/id";
-import * as kdl from "kdljs";
+import * as kdl from "utils/kdl";
 
 export function isMoveNode(
   node: kdl.Node,

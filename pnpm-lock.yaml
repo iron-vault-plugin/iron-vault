@@ -361,6 +361,9 @@ importers:
       '@ironvault/utils':
         specifier: workspace:^
         version: link:../utils
+      es-iterator-helpers:
+        specifier: ^1.2.1
+        version: 1.2.1
       true-myth:
         specifier: 'catalog:'
         version: 9.0.0

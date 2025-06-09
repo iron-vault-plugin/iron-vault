@@ -1,0 +1,13 @@
+.iron-vault-mechanics dl.dice-expr {
+  &:before {
+    content: "🎲";
+  }
+  & dd {
+    /* &.expr:before {
+      content: "Rolled ";
+    } */
+    &.expr:after {
+      content: " → ";
+    }
+  }
+}

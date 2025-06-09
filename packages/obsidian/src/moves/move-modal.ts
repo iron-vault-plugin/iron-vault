@@ -26,7 +26,7 @@ import {
   setIcon,
 } from "obsidian";
 import { runOracleCommand } from "oracles/command";
-import { generateOracleTable } from "oracles/render";
+import { generateOracleTable } from "oracles/ui/oracle-table";
 import { runMoveCommand, suggestedRollablesForMove } from "./action";
 
 const TABLE_REGEX = /\{\{(table(?:_columns)?)>([^}]+)\}\}/g;

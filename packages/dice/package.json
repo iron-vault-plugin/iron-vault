@@ -16,6 +16,7 @@
   "packageManager": "pnpm@10.6.2",
   "dependencies": {
     "@ironvault/utils": "workspace:^",
+    "es-iterator-helpers": "^1.2.1",
     "true-myth": "catalog:"
   },
   "devDependencies": {

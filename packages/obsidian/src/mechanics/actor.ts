@@ -1,7 +1,6 @@
 // export function activeActor(plugin: IronVaultPlugin, charContext: ActionContext):
 
-import { Node } from "kdljs";
-import { node } from "utils/kdl";
+import { Node, node } from "utils/kdl";
 
 export type ActorDescription = {
   /** Source path for this actor. */

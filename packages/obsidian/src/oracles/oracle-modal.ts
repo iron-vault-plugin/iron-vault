@@ -2,7 +2,7 @@ import IronVaultPlugin from "index";
 import { Oracle, OracleGrouping, OracleGroupingType } from "model/oracle";
 import { App, ButtonComponent, Component, MarkdownView, Modal } from "obsidian";
 import { runOracleCommand } from "oracles/command";
-import { generateOracleTable } from "./render";
+import { generateOracleTable } from "./ui/oracle-table";
 
 export class OracleModal extends Modal {
   modalComponent: Component;

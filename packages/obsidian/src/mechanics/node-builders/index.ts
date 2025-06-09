@@ -1,6 +1,5 @@
+import { ExprNode } from "@ironvault/dice";
 import { createDataswornMarkdownLink } from "datastore/parsers/datasworn/id";
-import * as kdl from "kdljs";
-import { Document, Node } from "kdljs";
 import { CurseBehavior } from "model/oracle";
 import { RollWrapper } from "model/rolls";
 import {
@@ -12,7 +11,9 @@ import {
 import { oracleNameWithParents } from "oracles/render";
 import { RollContainer } from "oracles/state";
 import { ProgressTrackWriterContext } from "tracks/writer";
-import { node } from "utils/kdl";
+import * as kdl from "utils/kdl";
+import { builder, noChildren, node } from "utils/kdl";
+import { z } from "zod";
 
 export function createProgressNode(
   // NB(@zkat): passed in as separate argument because we usually strip
@@ -55,6 +56,52 @@ export function createTrackCompletionNode(
   });
 }
 
+export const [rollsNode, makeRollsNode] = builder(
+  "rolls",
+  z.array(z.number()),
+  z.object({ dice: z.string() }),
+  noChildren,
+);
+
+export const [diceExprNode, makeDiceExprNode] = builder(
+  "dice-expr",
+  z.tuple([z.number()]),
+  z.object({ expr: z.string() }),
+  z.array(rollsNode),
+);
+
+export type MechanicsRollsNode = z.output<typeof rollsNode>;
+export type MechanicsDiceExprNode = z.output<typeof diceExprNode>;
+
+export function createDiceExpressionNode({
+  evaledExpr,
+}: {
+  evaledExpr: ExprNode<{ rolls?: number[]; value: number }>;
+}): MechanicsDiceExprNode {
+  const rolls: MechanicsRollsNode[] = [];
+
+  // Gather up each of the rolls
+  evaledExpr.walk({
+    visitDiceExprNode: (expr) => {
+      rolls.push(
+        makeRollsNode({
+          values: expr.label.rolls ?? [],
+          properties: {
+            dice: expr.dice.toString(),
+          },
+        }),
+      );
+    },
+  });
+  return makeDiceExprNode({
+    values: [evaledExpr.label.value],
+    properties: {
+      expr: evaledExpr.toString(),
+    },
+    children: rolls,
+  });
+}
+
 export function createOracleNode(
   roll: RollWrapper,
   prompt?: string,
@@ -91,7 +138,7 @@ export function createOracleNode(
   return baseResult;
 }
 
-export function generateActionRoll(move: ActionMoveDescription): Node {
+export function generateActionRoll(move: ActionMoveDescription): kdl.Node {
   const adds = (move.adds ?? []).reduce((acc, { amount }) => acc + amount, 0);
   return node("roll", {
     values: [move.stat],
@@ -105,8 +152,8 @@ export function generateActionRoll(move: ActionMoveDescription): Node {
   });
 }
 
-export function generateMechanicsNode(move: MoveDescription): Document {
-  const children: Node[] = [];
+export function generateMechanicsNode(move: MoveDescription): kdl.Document {
+  const children: kdl.Node[] = [];
   if (moveIsAction(move)) {
     // Add "add" nodes for each non-zero add
     children.push(
@@ -144,7 +191,7 @@ export function generateMechanicsNode(move: MoveDescription): Document {
     // Nothing to do for a no-roll move
   }
 
-  const doc: Document = [
+  const doc: kdl.Document = [
     node("move", {
       values: [generateMoveLink(move)],
       children,

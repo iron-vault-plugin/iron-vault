@@ -1,6 +1,6 @@
 import { Clock } from "clocks/clock";
 import { ClockFileAdapter } from "clocks/clock-file";
-import * as kdl from "kdljs";
+import * as kdl from "utils/kdl";
 import { node } from "utils/kdl";
 
 export function createClockCreationNode(

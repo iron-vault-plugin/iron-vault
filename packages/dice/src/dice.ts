@@ -1,4 +1,6 @@
 import { numberRange, randomInt } from "@ironvault/utils/numbers";
+import { Result } from "true-myth";
+import { ok } from "true-myth/result";
 
 const DICE_REGEX = /^(\d+)d(\d+)$/;
 
@@ -32,10 +34,16 @@ export class Dice {
 
   roll(): number {
     let total = 0;
-    for (let i = 0; i < this.count; i++) {
-      total += randomInt(1, this.sides);
+    for (const roll of this.rolls()) {
+      total += roll;
     }
     return total;
+  }
+
+  *rolls(): Generator<number> {
+    for (let i = 0; i < this.count; i++) {
+      yield randomInt(1, this.sides);
+    }
   }
 
   minRoll(): number {
@@ -69,32 +77,43 @@ export class Dice {
       this.kind === other.kind
     );
   }
+
+  get standard(): boolean {
+    return isStandardDice(this);
+  }
 }
 
-export interface ExprNode {
+export interface ExprNode<L extends object = object> {
   evaluate(valueFor: (dice: Dice) => number): number;
-  walk(visitor: Visitor): void;
+  walk(visitor: Visitor<L>): void;
   toString(): string;
   get precedence(): number;
-  copy(): ExprNode;
-  withKind(kind?: DieKind): ExprNode;
+  copy(): ExprNode<L>;
+  withKind(kind?: DieKind): ExprNode<L>;
+  updateLabels<K extends object>(
+    updater: (current: L, node: this) => K,
+  ): ExprNode<K>;
+  readonly label: L;
 }
 
-export interface Visitor {
-  visitNumberNode?(node: NumberNode): void;
-  visitDiceExprNode?(node: DiceExprNode): void;
-  visitBinaryOpNode?(node: BinaryOpNode): void;
-  visitUnaryOpNode?(node: UnaryOpNode): void;
+export interface Visitor<L extends object> {
+  visitNumberNode?(node: NumberNode<L>): void;
+  visitDiceExprNode?(node: DiceExprNode<L>): void;
+  visitBinaryOpNode?(node: BinaryOpNode<L>): void;
+  visitUnaryOpNode?(node: UnaryOpNode<L>): void;
 }
 
-export class NumberNode implements ExprNode {
-  constructor(public value: number) {}
+export class NumberNode<L extends object> implements ExprNode<L> {
+  constructor(
+    public value: number,
+    public readonly label: L,
+  ) {}
 
   evaluate(_valueFor: (dice: Dice) => number): number {
     return this.value;
   }
 
-  walk(visitor: Visitor): void {
+  walk(visitor: Visitor<L>): void {
     visitor.visitNumberNode?.(this);
   }
 
@@ -105,30 +124,48 @@ export class NumberNode implements ExprNode {
     return 10;
   }
 
-  copy(): NumberNode {
-    return new NumberNode(this.value);
+  copy(): NumberNode<L> {
+    return new NumberNode(this.value, this.label);
   }
 
-  withKind(_kind?: DieKind): ExprNode {
+  withKind(_kind?: DieKind): ExprNode<L> {
     return this;
+  }
+
+  updateLabels<K extends object>(
+    updater: (current: L, node: this) => K,
+  ): NumberNode<K>;
+  updateLabels<K extends object>(
+    updater: (current: L, node: this) => K | L,
+  ): NumberNode<K | L> {
+    const newLabel = updater(this.label, this);
+    if (newLabel === this.label) {
+      // If it returns the same label, we can assume it is the same type!
+      return this as unknown as NumberNode<K>;
+    }
+    return new NumberNode(this.value, newLabel);
   }
 }
 
-export class DiceExprNode implements ExprNode {
-  constructor(public readonly dice: Dice) {}
+export class DiceExprNode<L extends object> implements ExprNode<L> {
+  constructor(
+    public readonly dice: Dice,
+    public readonly label: L,
+  ) {}
 
-  static fromDiceString(
+  static fromDiceString<L extends object>(
     diceSpec: string,
     kind: DieKind | undefined,
-  ): DiceExprNode {
-    return new DiceExprNode(Dice.fromDiceString(diceSpec, kind));
+    label: L,
+  ): DiceExprNode<L> {
+    return new DiceExprNode(Dice.fromDiceString(diceSpec, kind), label);
   }
 
   evaluate(valueFor: (dice: Dice) => number): number {
     return valueFor(this.dice);
   }
 
-  walk(visitor: Visitor): void {
+  walk(visitor: Visitor<L>): void {
     visitor.visitDiceExprNode?.(this);
   }
 
@@ -140,27 +177,43 @@ export class DiceExprNode implements ExprNode {
     return 10;
   }
 
-  copy(): DiceExprNode {
-    return new DiceExprNode(this.dice.copy());
+  copy(): DiceExprNode<L> {
+    return new DiceExprNode(this.dice.copy(), this.label);
   }
 
-  withKind(kind: DieKind): DiceExprNode {
-    return new DiceExprNode(this.dice.withKind(kind));
+  withKind(kind: DieKind): DiceExprNode<L> {
+    return new DiceExprNode(this.dice.withKind(kind), this.label);
+  }
+
+  updateLabels<K extends object>(
+    updater: (current: L, node: this) => K,
+  ): DiceExprNode<K>;
+  updateLabels<K extends object>(
+    updater: (current: L, node: this) => K | L,
+  ): DiceExprNode<K | L> {
+    const newLabel = updater(this.label, this);
+    if (newLabel === this.label) {
+      // If it returns the same label, we can assume it is the same type!
+      return this as unknown as DiceExprNode<K>;
+    }
+    return new DiceExprNode(this.dice, newLabel);
   }
 }
 
-export class BinaryOpNode implements ExprNode {
+export class BinaryOpNode<L extends object> implements ExprNode<L> {
   constructor(
-    public left: ExprNode,
+    public left: ExprNode<L>,
     public operator: string,
-    public right: ExprNode,
+    public right: ExprNode<L>,
+    public readonly label: L,
   ) {}
 
-  evaluate(valueFor: (dice: Dice) => number): number {
-    const leftVal = this.left.evaluate(valueFor);
-    const rightVal = this.right.evaluate(valueFor);
-
-    switch (this.operator) {
+  static applyOperator(
+    operator: string,
+    leftVal: number,
+    rightVal: number,
+  ): number {
+    switch (operator) {
       case "+":
         return leftVal + rightVal;
       case "-":
@@ -173,8 +226,15 @@ export class BinaryOpNode implements ExprNode {
         // We want modulo, not remainder
         return ((leftVal % rightVal) + rightVal) % rightVal;
       default:
-        throw new Error(`Unknown operator: ${this.operator}`);
+        throw new Error(`Unknown operator: ${operator}`);
     }
+  }
+
+  evaluate(valueFor: (dice: Dice) => number): number {
+    const leftVal = this.left.evaluate(valueFor);
+    const rightVal = this.right.evaluate(valueFor);
+
+    return BinaryOpNode.applyOperator(this.operator, leftVal, rightVal);
   }
 
   get precedence(): number {
@@ -192,7 +252,7 @@ export class BinaryOpNode implements ExprNode {
     }
   }
 
-  walk(visitor: Visitor): void {
+  walk(visitor: Visitor<L>): void {
     this.left.walk(visitor);
     this.right.walk(visitor);
     visitor.visitBinaryOpNode?.(this);
@@ -202,22 +262,44 @@ export class BinaryOpNode implements ExprNode {
     return `${wrapIfNeeded(this.left, this.precedence)} ${this.operator} ${wrapIfNeeded(this.right, this.precedence)}`;
   }
 
-  copy(): ExprNode {
-    return new BinaryOpNode(this.left.copy(), this.operator, this.right.copy());
+  copy(): BinaryOpNode<L> {
+    return new BinaryOpNode(
+      this.left.copy(),
+      this.operator,
+      this.right.copy(),
+      this.label,
+    );
   }
 
-  withKind(kind?: DieKind): ExprNode {
+  withKind(kind?: DieKind): BinaryOpNode<L> {
     const left = this.left.withKind(kind);
     const right = this.right.withKind(kind);
     if (left != this.left || right != this.right) {
-      return new BinaryOpNode(left, this.operator, right);
+      return new BinaryOpNode(left, this.operator, right, this.label);
     } else {
       return this;
     }
   }
+
+  updateLabels<K extends object>(
+    updater: (current: L, node: this) => K,
+  ): BinaryOpNode<K>;
+  updateLabels<K extends object>(
+    updater: (current: L, node: this) => K | L,
+  ): BinaryOpNode<K | L> {
+    const newLabel = updater(this.label, this);
+    if (newLabel === this.label) {
+      // If it returns the same label, we can assume it is the same type!
+      return this as unknown as BinaryOpNode<K>;
+    }
+    return new BinaryOpNode(this.left, this.operator, this.right, newLabel);
+  }
 }
 
-function wrapIfNeeded(node: ExprNode, precedence: number): string {
+function wrapIfNeeded<L extends object>(
+  node: ExprNode<L>,
+  precedence: number,
+): string {
   return parenStringIf(node.precedence < precedence, node.toString());
 }
 
@@ -225,23 +307,28 @@ export function parenStringIf(expr: boolean, str: string): string {
   return expr ? `(${str})` : str;
 }
 
-export class UnaryOpNode implements ExprNode {
+export class UnaryOpNode<L extends object> implements ExprNode<L> {
   constructor(
     public operator: string,
-    public operand: ExprNode,
+    public operand: ExprNode<L>,
+    public readonly label: L,
   ) {}
 
-  evaluate(valueFor: (dice: Dice) => number): number {
-    const val = this.operand.evaluate(valueFor);
-    switch (this.operator) {
+  static applyOperator(operator: string, value: number): number {
+    switch (operator) {
       case "-":
-        return -val;
+        return -value;
       default:
-        throw new Error(`Unknown unary operator: ${this.operator}`);
+        throw new Error(`Unknown unary operator: ${operator}`);
     }
   }
 
-  walk(visitor: Visitor): void {
+  evaluate(valueFor: (dice: Dice) => number): number {
+    const val = this.operand.evaluate(valueFor);
+    return UnaryOpNode.applyOperator(this.operator, val);
+  }
+
+  walk(visitor: Visitor<L>): void {
     this.operand.walk(visitor);
     visitor.visitUnaryOpNode?.(this);
   }
@@ -254,17 +341,31 @@ export class UnaryOpNode implements ExprNode {
     return 5;
   }
 
-  copy(): ExprNode {
-    return new UnaryOpNode(this.operator, this.operand.copy());
+  copy(): UnaryOpNode<L> {
+    return new UnaryOpNode(this.operator, this.operand.copy(), this.label);
   }
 
-  withKind(kind?: DieKind): ExprNode {
+  withKind(kind?: DieKind): UnaryOpNode<L> {
     const operand = this.operand.withKind(kind);
     if (operand != this.operand) {
-      return new UnaryOpNode(this.operator, operand);
+      return new UnaryOpNode(this.operator, operand, this.label);
     } else {
       return this;
     }
+  }
+
+  updateLabels<K extends object>(
+    updater: (current: L, node: this) => K,
+  ): UnaryOpNode<K>;
+  updateLabels<K extends object>(
+    updater: (current: L, node: this) => K | L,
+  ): UnaryOpNode<K | L> {
+    const newLabel = updater(this.label, this);
+    if (newLabel === this.label) {
+      // If it returns the same label, we can assume it is the same type!
+      return this as unknown as UnaryOpNode<K>;
+    }
+    return new UnaryOpNode(this.operator, this.operand, newLabel);
   }
 }
 
@@ -296,7 +397,7 @@ export class DiceExpressionParser {
     while (this.match("+") || this.match("-")) {
       const operator = this.previous();
       const right = this.multiplicative();
-      expr = new BinaryOpNode(expr, operator, right);
+      expr = new BinaryOpNode(expr, operator, right, {});
     }
 
     return expr;
@@ -308,7 +409,7 @@ export class DiceExpressionParser {
     while (this.match("*") || this.match("/") || this.match("%")) {
       const operator = this.previous();
       const right = this.unary();
-      expr = new BinaryOpNode(expr, operator, right);
+      expr = new BinaryOpNode(expr, operator, right, {});
     }
 
     return expr;
@@ -317,7 +418,7 @@ export class DiceExpressionParser {
   private unary(): ExprNode {
     if (this.match("-")) {
       const right = this.unary();
-      return new UnaryOpNode("-", right);
+      return new UnaryOpNode("-", right, {});
     }
 
     return this.primary();
@@ -346,7 +447,7 @@ export class DiceExpressionParser {
 
           const diceExpr = this.input.substring(start, this.current);
           try {
-            return DiceExprNode.fromDiceString(diceExpr, this.dieKind);
+            return DiceExprNode.fromDiceString(diceExpr, this.dieKind, {});
           } catch (_e) {
             this.current = start;
           }
@@ -359,7 +460,7 @@ export class DiceExpressionParser {
       while (this.isDigit(this.peek())) this.advance();
 
       const value = parseInt(this.input.substring(start, this.current));
-      return new NumberNode(value);
+      return new NumberNode(value, {});
     }
 
     throw this.error(`Unexpected character: '${this.peek()}'`);
@@ -400,16 +501,50 @@ export class DiceExpressionParser {
   }
 }
 
+export type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
+export type StringNumber<T extends string, V = T> = T extends Digit
+  ? V
+  : T extends `${Digit}${infer R}`
+    ? StringNumber<R, V>
+    : `0`;
+
+export type DiceNotation<T extends string> =
+  T extends `${infer N}${"d" | "D"}${infer N1}`
+    ? N extends StringNumber<N>
+      ? N1 extends StringNumber<N1>
+        ? T
+        : `0`
+      : `0`
+    : `0`;
+export function parseDiceExpression<const T extends string>(
+  expr: DiceNotation<T>,
+  kind?: DieKind,
+): DiceExprNode<object>;
+export function parseDiceExpression(expr: string, kind?: DieKind): ExprNode;
 export function parseDiceExpression(expr: string, kind?: DieKind): ExprNode {
   const parser = new DiceExpressionParser(expr, kind);
   return parser.parse();
 }
 
-export function gatherDice(expr: ExprNode): Dice[] {
+export function tryParseDiceExpression(
+  expr: string,
+  kind?: DieKind,
+): Result<DiceExprNode<object>, Error> {
+  try {
+    return ok(parseDiceExpression(expr, kind) as DiceExprNode<object>);
+  } catch (e) {
+    return Result.err(
+      new Error(`Failed to parse dice expression: ${e}`, { cause: e }),
+    );
+  }
+}
+
+export function gatherDice(expr: ExprNode<never>): Dice[] {
   const dice: Dice[] = [];
 
   expr.walk({
-    visitDiceExprNode: (node: DiceExprNode) => {
+    visitDiceExprNode: (node: DiceExprNode<never>) => {
       dice.push(node.dice);
     },
   });
@@ -417,7 +552,7 @@ export function gatherDice(expr: ExprNode): Dice[] {
   return dice;
 }
 
-export function countComplexity(expr: ExprNode): number {
+export function countComplexity<L extends object>(expr: ExprNode<L>): number {
   let complexity = 0;
 
   expr.walk({
@@ -425,36 +560,39 @@ export function countComplexity(expr: ExprNode): number {
     visitDiceExprNode: () => {
       complexity++;
     },
-    visitBinaryOpNode: (_node: BinaryOpNode) => {},
-    visitUnaryOpNode: (_node: UnaryOpNode) => {},
+    visitBinaryOpNode: (_node: BinaryOpNode<L>) => {},
+    visitUnaryOpNode: (_node: UnaryOpNode<L>) => {},
   });
 
   return complexity;
 }
 
-interface ExprFolder<T> {
-  visitNumberNode(node: NumberNode): T;
-  visitDiceExprNode(node: DiceExprNode): T;
-  visitBinaryOpNode(node: BinaryOpNode, left: T, right: T): T;
-  visitUnaryOpNode(node: UnaryOpNode, operand: T): T;
+interface ExprFolder<T, L extends object = object> {
+  visitNumberNode(node: NumberNode<L>): T;
+  visitDiceExprNode(node: DiceExprNode<L>): T;
+  visitBinaryOpNode(node: BinaryOpNode<L>, left: T, right: T): T;
+  visitUnaryOpNode(node: UnaryOpNode<L>, operand: T): T;
 }
 
-export function foldExpr<T>(expr: ExprNode, folder: ExprFolder<T>): T {
+export function foldExpr<T, L extends object = object>(
+  expr: ExprNode<L>,
+  folder: ExprFolder<T, L>,
+): T {
   const resultStack: T[] = [];
 
   expr.walk({
-    visitNumberNode: (node: NumberNode) => {
+    visitNumberNode: (node: NumberNode<L>) => {
       resultStack.push(folder.visitNumberNode(node));
     },
-    visitDiceExprNode: (node: DiceExprNode) => {
+    visitDiceExprNode: (node: DiceExprNode<L>) => {
       resultStack.push(folder.visitDiceExprNode(node));
     },
-    visitBinaryOpNode: (node: BinaryOpNode) => {
+    visitBinaryOpNode: (node: BinaryOpNode<L>) => {
       const right = resultStack.pop();
       const left = resultStack.pop();
       resultStack.push(folder.visitBinaryOpNode(node, left!, right!));
     },
-    visitUnaryOpNode: (node: UnaryOpNode) => {
+    visitUnaryOpNode: (node: UnaryOpNode<L>) => {
       const operand = resultStack.pop();
       resultStack.push(folder.visitUnaryOpNode(node, operand!));
     },
@@ -469,15 +607,127 @@ export function foldExpr<T>(expr: ExprNode, folder: ExprFolder<T>): T {
   return resultStack[0];
 }
 
-export function calcRange(expr: ExprNode): [number, number] {
+export function rollsFromMap<L extends object>(
+  rolls: Map<DiceExprNode<L>, number[]>,
+): (expr: DiceExprNode<L>) => number[] | undefined {
+  return rolls.get.bind(rolls);
+}
+
+export function rollsFromIterator(
+  rolls: Iterable<{ rolls: number[] }>,
+): <L extends object>(expr: DiceExprNode<L>) => number[] | undefined {
+  const iter = Iterator.from(rolls);
+  return () => {
+    const next = iter.next();
+    return next.done ? undefined : next.value.rolls;
+  };
+}
+
+// evaluateExpr evaluates an expression by supplying rolls for each dice expression and
+// attaching the value at each node as a label.
+export function evaluateExpr<L extends object>(
+  expr: ExprNode<L>,
+  rollsFor: (expr: DiceExprNode<L>, index: number) => number[] | undefined,
+): ExprNode<L & { value: number; rolls?: number[] }> {
+  let index = 0;
   return foldExpr(expr, {
-    visitNumberNode: (node: NumberNode) => [node.value, node.value],
-    visitDiceExprNode: (node: DiceExprNode) => [
+    visitNumberNode: (node: NumberNode<L>) => {
+      return node.updateLabels((current) => ({
+        ...current,
+        value: node.value,
+      }));
+    },
+    visitDiceExprNode: (node: DiceExprNode<L>) => {
+      const rolls = rollsFor(node, index++);
+      if (!rolls) {
+        throw new Error(
+          `No rolls found for expression ${node.toString()} in the provided map.`,
+        );
+      }
+      if (rolls.length !== node.dice.count) {
+        throw new Error(
+          `Expected ${node.dice.count} rolls for expression ${node.toString()}, but got ${rolls.length}.`,
+        );
+      }
+      const invalidRolls = rolls.filter(
+        (roll) => roll < 1 || roll > node.dice.sides,
+      );
+      if (invalidRolls.length > 0) {
+        throw new Error(
+          `Invalid rolls found for expression ${node.toString()}: ${invalidRolls.join(", ")}`,
+        );
+      }
+      const total = rolls.reduce((sum, roll) => sum + roll, 0);
+      return node.updateLabels((current) => ({
+        ...current,
+        value: total,
+        rolls,
+      }));
+    },
+    visitBinaryOpNode: (
+      node: BinaryOpNode<L>,
+      left: ExprNode<L & { value: number; rolls?: number[] }>,
+      right: ExprNode<L & { value: number; rolls?: number[] }>,
+    ) => {
+      const result = BinaryOpNode.applyOperator(
+        node.operator,
+        left.label.value,
+        right.label.value,
+      );
+      return new BinaryOpNode(left, node.operator, right, {
+        ...node.label,
+        value: result,
+      });
+    },
+    visitUnaryOpNode: (
+      node: UnaryOpNode<L>,
+      operand: ExprNode<L & { value: number }>,
+    ) => {
+      const result = UnaryOpNode.applyOperator(
+        node.operator,
+        operand.label.value,
+      );
+      return new UnaryOpNode(node.operator, operand, {
+        ...node.label,
+        value: result,
+      });
+    },
+  });
+}
+
+/** toStringWithValues renders an evaluated (w/ evaluateExpr) tree with inline roll results. */
+export function toStringWithValues(
+  expr: ExprNode<{ value: number; rolls?: number[] }>,
+  includeResult: boolean = true,
+): string {
+  const rendered = foldExpr(expr, {
+    visitDiceExprNode(node) {
+      return `${node.dice.toString()}{${(node.label.rolls ?? ["?"]).join("+")}=${node.label.value}}`;
+    },
+    visitNumberNode(node) {
+      return node.toString();
+    },
+    visitUnaryOpNode(node, operand) {
+      return `${node.operator}${parenStringIf(node.operand.precedence < node.precedence, operand)}`;
+    },
+    visitBinaryOpNode(node, left, right) {
+      return `${parenStringIf(node.left.precedence < node.precedence, left)} ${node.operator} ${parenStringIf(node.right.precedence < node.precedence, right)}`;
+    },
+  });
+  return includeResult ? `${rendered} = ${expr.label.value}` : rendered;
+}
+
+export function calcRange<L extends object>(
+  expr: ExprNode<L>,
+): [number, number] {
+  return foldExpr(expr, {
+    visitNumberNode: (node: NumberNode<L>) => [node.value, node.value],
+    visitDiceExprNode: (node: DiceExprNode<L>) => [
       node.dice.minRoll(),
       node.dice.maxRoll(),
     ],
     visitBinaryOpNode: (
-      _node: BinaryOpNode,
+      _node: BinaryOpNode<L>,
       [leftMin, leftMax]: [number, number],
       [rightMin, rightMax]: [number, number],
     ) => {
@@ -527,7 +777,7 @@ export function calcRange(expr: ExprNode): [number, number] {
           throw new Error(`Unknown operator: ${_node.operator}`);
       }
     },
-    visitUnaryOpNode: (_node: UnaryOpNode, [min, max]: [number, number]) => [
+    visitUnaryOpNode: (_node: UnaryOpNode<L>, [min, max]: [number, number]) => [
       -max,
       -min,
     ],
@@ -575,9 +825,15 @@ export function convertToStandardDice(sides: number): ExprNode {
         const node =
           placeValue > 1
             ? new BinaryOpNode(
-                new NumberNode(placeValue),
+                new NumberNode(placeValue, {}),
                 "*",
-                new BinaryOpNode(diceExpr.copy(), "-", new NumberNode(1)),
+                new BinaryOpNode(
+                  diceExpr.copy(),
+                  "-",
+                  new NumberNode(1, {}),
+                  {},
+                ),
+                {},
               )
             : diceExpr.copy();
         const remainder = sides / standardSide;
@@ -588,7 +844,7 @@ export function convertToStandardDice(sides: number): ExprNode {
           // Otherwise, let's try to factor the remainder
           const subFactor = factor(remainder, placeValue * standardSide);
           if (subFactor) {
-            candidates.push(new BinaryOpNode(node, "+", subFactor));
+            candidates.push(new BinaryOpNode(node, "+", subFactor, {}));
           }
         }
 
@@ -606,15 +862,15 @@ export function convertToStandardDice(sides: number): ExprNode {
   }
 
   return (
-    factor(sides, 1) ?? DiceExprNode.fromDiceString(`1d${sides}`, undefined)
+    factor(sides, 1) ?? DiceExprNode.fromDiceString(`1d${sides}`, undefined, {})
   );
 }
 
-const conversionCache = new Map<number, ExprNode>();
+const conversionCache = new Map<number, ExprNode<object>>();
 export function convertToStandardDiceCached(
   sides: number,
   kind?: DieKind,
-): ExprNode {
+): ExprNode<object> {
   if (conversionCache.has(sides)) {
     return conversionCache.get(sides)!.withKind(kind);
   }
@@ -623,29 +879,81 @@ export function convertToStandardDiceCached(
   return result.withKind(kind);
 }
 
-export function expandNonStandardDice(expr: ExprNode): ExprNode {
-  function expand(diceExpr: DiceExprNode): ExprNode {
+export function expandNonStandardDice<L extends object>(
+  expr: ExprNode<L>,
+  labeler: (
+    originalLabels: L,
+    isNewRoot: boolean,
+    originalExpr: ExprNode<L>,
+    index?: number,
+  ) => L = (l) => l,
+): ExprNode<L> {
+  function expand(diceExpr: DiceExprNode<L>): ExprNode<L> {
     const dice = diceExpr.dice;
     if (isStandardDice(dice)) {
       return diceExpr;
     }
-    let count = dice.count;
-    let node = convertToStandardDiceCached(dice.sides, dice.kind);
-    while (--count > 0) {
-      node = new BinaryOpNode(
+    const count = dice.count;
+    let index = 0;
+    let node: ExprNode<L> = convertToStandardDiceCached(
+      dice.sides,
+      dice.kind,
+    ).updateLabels(() => labeler(diceExpr.label, count == 1, diceExpr, index));
+    while (++index < count) {
+      node = new BinaryOpNode<L>(
         node,
         "+",
-        convertToStandardDiceCached(dice.sides, dice.kind),
+        convertToStandardDiceCached(dice.sides, dice.kind).updateLabels(() =>
+          labeler(diceExpr.label, false, diceExpr, index),
+        ),
+        labeler(diceExpr.label, count + 1 == index, diceExpr),
       );
     }
     return node;
   }
   return foldExpr(expr, {
-    visitNumberNode: (node: NumberNode) => node,
-    visitDiceExprNode: (node: DiceExprNode) => expand(node),
-    visitBinaryOpNode: (node: BinaryOpNode, left: ExprNode, right: ExprNode) =>
-      new BinaryOpNode(left, node.operator, right),
-    visitUnaryOpNode: (node: UnaryOpNode, operand: ExprNode) =>
-      new UnaryOpNode(node.operator, operand),
+    visitNumberNode: (node: NumberNode<L>) => node,
+    visitDiceExprNode: (node: DiceExprNode<L>) => expand(node),
+    visitBinaryOpNode: (
+      node: BinaryOpNode<L>,
+      left: ExprNode<L>,
+      right: ExprNode<L>,
+    ) => new BinaryOpNode(left, node.operator, right, node.label),
+    visitUnaryOpNode: (node: UnaryOpNode<L>, operand: ExprNode<L>) =>
+      new UnaryOpNode(node.operator, operand, node.label),
   });
+}
+
+export const ExprId: unique symbol = Symbol("ExprId");
+
+/** Apply a numbered label to each dice expression. */
+export function numberDiceExpressions<
+  const K extends string | symbol,
+  L extends object,
+>(key: K, expr: ExprNode<L>): ExprNode<L & { [k in K]?: number }> {
+  let counter = 0;
+  return foldExpr(expr, {
+    visitNumberNode: (node: NumberNode<L>) => node,
+    visitDiceExprNode: (node: DiceExprNode<L>) => {
+      const label = ++counter;
+      const labeledNode = node.updateLabels((current) => ({
+        ...current,
+        [key]: label,
+      }));
+      return labeledNode;
+    },
+    visitBinaryOpNode: (
+      node: BinaryOpNode<L>,
+      left: ExprNode<L>,
+      right: ExprNode<L>,
+    ) => new BinaryOpNode(left, node.operator, right, node.label),
+    visitUnaryOpNode: (node: UnaryOpNode<L>, operand: ExprNode<L>) =>
+      new UnaryOpNode(node.operator, operand, node.label),
+  });
+}
+
+export function isDiceExprNode<L extends object>(
+  expr: ExprNode<L>,
+): expr is DiceExprNode<L> {
+  return expr instanceof DiceExprNode;
 }
