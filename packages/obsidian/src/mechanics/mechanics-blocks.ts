@@ -1,4 +1,4 @@
-import { html, render, TemplateResult } from "lit-html";
+import { html, nothing, render, TemplateResult } from "lit-html";
 import { ref } from "lit-html/directives/ref.js";
 import { styleMap } from "lit-html/directives/style-map.js";
 import {
@@ -394,7 +394,12 @@ See https://kdl.dev for syntax.</pre
       class="detail"
       @contextmenu=${this.makeMenuHandler(node)}
     >
-      ${md(this.plugin, "> " + details.join("\n> "))}
+      ${md(this.plugin, details.join("\n"))}
+      ${node.children.length > 0
+        ? html`<div ${ref((el) => makeSortable(el, node))}>
+            ${this.renderChildren(node.children)}
+          </div>`
+        : nothing}
     </aside>`;
   }
 
