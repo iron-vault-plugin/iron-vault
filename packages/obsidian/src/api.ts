@@ -1,11 +1,16 @@
 import { CampaignDataContext } from "campaigns/context";
+import { CharacterActionContext } from "characters/action-context";
 import { IDataContext } from "datastore/data-context";
 import { rootLogger, setLogLevel } from "logger";
 import loglevel from "loglevel";
 import { App, getLinkpath, parseLinktext } from "obsidian";
 import { OracleRoller } from "oracles/roller";
 import { ProgressIndex } from "tracks/indexer";
-import { CharacterTracker } from "./character-tracker";
+import {
+  CharacterTracker,
+  currentActiveCharacterForCampaign,
+  promptForCampaignCharacter,
+} from "./character-tracker";
 import { Datastore } from "./datastore";
 import IronVaultPlugin from "./index";
 import { RollWrapper } from "./model/rolls";
@@ -41,6 +46,29 @@ export class IronVaultAPI {
   /** A campaign data context if available, otherwise global. */
   get activeDataContext(): IDataContext {
     return this.activeCampaignContext ?? this.globalDataContext;
+  }
+
+  /** Prompt the user to select a character for the given campaign context.
+   * @returns promise that resolves to CharacterActionContext for the selected character, or fails
+   *   if the user cancels.
+   */
+  promptForCharacter(
+    campaignContext: CampaignDataContext,
+  ): Promise<CharacterActionContext> {
+    return promptForCampaignCharacter(this.plugin, campaignContext);
+  }
+
+  /** Returns the currently active character for the given campaign context.
+   * @param [campaignContext=undefined] - campaign context to get active character for, or undefined
+   *   for the currently active campaign (if any)
+   */
+  currentActiveCharacterForCampaign(
+    campaignContext: CampaignDataContext | undefined = undefined,
+  ): CharacterActionContext | undefined {
+    const campaign = campaignContext ?? this.activeCampaignContext;
+    return (
+      campaign && currentActiveCharacterForCampaign(this.plugin, campaign, true)
+    );
   }
 
   public async roll(oracle: string): Promise<RollWrapper> {

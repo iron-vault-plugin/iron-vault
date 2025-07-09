@@ -126,6 +126,12 @@ export class NoCharacterActionConext implements IActionContext {
   }
 }
 
+/** CharacterActionContext provides access to character and game data through the lens of a
+ * specific character.
+ *
+ * For example, the moves property will return the list of moves available to the character,
+ * combining the base moves from the campaign with any asset moves the character has.
+ */
 export class CharacterActionContext implements IActionContext {
   readonly kind = "character";
   #moves?: StandardIndex<DataswornTypes["move"]>;
@@ -133,6 +139,8 @@ export class CharacterActionContext implements IActionContext {
 
   constructor(
     public readonly campaignContext: CampaignDataContext,
+
+    /** Path to the character file */
     public readonly characterPath: string,
     public readonly characterContext: CharacterContext,
   ) {}
@@ -173,6 +181,7 @@ export class CharacterActionContext implements IActionContext {
     return this.#assetMoves;
   }
 
+  /** Returns the list of moves available to the character, combining the base moves from the campaign with any asset moves the character has. */
   get moves(): StandardIndex<DataswornTypes["move"]> {
     if (!this.#moves) {
       const characterMoves = this.assetMoves;
@@ -212,6 +221,7 @@ export class CharacterActionContext implements IActionContext {
     return this.campaignContext.truths;
   }
 
+  /** Returns the rollable meters for the character. */
   get rollables(): MeterWithLens[] {
     return rollablesReader(this.characterContext.lens, this).get(
       this.characterContext.character,
