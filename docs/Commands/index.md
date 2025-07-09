@@ -3,28 +3,13 @@ title: About Commands
 ---
 The following commands are supported:
 
-* [[Add asset to character]]
-* [[Advance a clock]]
-* [[Advance a progress track]]
-* [[Ask the Oracle]]
-* [[Burn momentum]]
-* [[Change position or initiative]]
-* [[Create a clock]]
-* [[Create a progress track]]
-* [[Create new character]]
-* [[Generate an entity]]
-* [[Generate Truths]]
-* [[Make a move]]
-* [[Make an action roll]]
-* [[Open documentation in a tab]]
-* [[Open documentation in your browser]]
-* [[Pick active character]]
-* [[Set action roll challenge dice sides]]
-* [[Show all commands]]
-* [[Show sidebar]]
-* [[Suffer on a meter]]
-* [[Take on a meter]]
-* [[Toggle displaying mechanics]]
+```dataview
+LIST rows.file.link
+FROM "Commands"
+WHERE file.name != "index"
+FLATTEN tags
+GROUP BY default(tags, "Other")
+```
 
 #### Journal Insertions
 

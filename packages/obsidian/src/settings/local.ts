@@ -130,6 +130,9 @@ export class CampaignLocalSettings {
   /** Number of sides for the two challenge dice for action rolls. */
   actionRollChallengeDiceSides: [number, number] | undefined = undefined;
 
+  /** Recent rolls */
+  recentRolls: Array<{ expression: string; lastRolledAt: Date }> = [];
+
   constructor(parent: IronVaultPluginLocalSettings, campaignFile: TFile) {
     return new Proxy(this, {
       set<K extends keyof CampaignLocalSettings>(
@@ -148,5 +151,31 @@ export class CampaignLocalSettings {
         return true;
       },
     });
+  }
+
+  addRecentRoll(expression: string) {
+    const existingRoll = this.recentRolls.find(
+      (roll) => roll.expression === expression,
+    );
+    if (existingRoll) {
+      // Update the last rolled time if it already exists
+      existingRoll.lastRolledAt = new Date();
+      this.recentRolls.sort(
+        (a, b) => b.lastRolledAt.getTime() - a.lastRolledAt.getTime(),
+      );
+    } else {
+      this.recentRolls.unshift({
+        expression,
+        lastRolledAt: new Date(),
+      });
+      // Keep only the last 10 rolls
+      if (this.recentRolls.length > 10) {
+        this.recentRolls.splice(10);
+      }
+    }
+
+    // Force triggering of change event
+    // eslint-disable-next-line no-self-assign
+    this.recentRolls = this.recentRolls;
   }
 }

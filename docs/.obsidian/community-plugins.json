@@ -1,5 +1,7 @@
 [
   "hot-reload",
   "webpage-html-export",
-  "iron-vault"
+  "iron-vault",
+  "dataview",
+  "tag-wrangler"
 ]

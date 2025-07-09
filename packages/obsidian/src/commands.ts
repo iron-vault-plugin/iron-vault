@@ -11,7 +11,7 @@ import { openDocsInBrowser, openDocsInTab } from "docs/commands";
 import { generateEntityCommand } from "entity/command";
 import { createFactionInfluenceGrid } from "factions/commands";
 import IronVaultPlugin from "index";
-import { insertComment } from "mechanics/commands";
+import { insertComment, rollDice } from "mechanics/commands";
 import { checkIfMigrationNeededCommand } from "migrate/command";
 import { makeActionRollCommand, runMoveCommand } from "moves/action";
 import { rerollDie } from "moves/action/action-modal";
@@ -60,6 +60,13 @@ export class IronVaultCommands {
       name: "Make an action roll",
       editorCallback: (editor, view) =>
         makeActionRollCommand(this.plugin, editor, view),
+    },
+    {
+      id: "roll-dice",
+      name: "Roll dice",
+      icon: "dice",
+      editorCallback: (editor: Editor, view: MarkdownView | MarkdownFileInfo) =>
+        rollDice(this.plugin, editor, view),
     },
     {
       id: "ask-the-oracle",

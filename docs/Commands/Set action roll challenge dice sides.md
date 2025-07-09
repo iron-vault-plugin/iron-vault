@@ -1,3 +1,7 @@
+---
+tags:
+  - Settings
+---
 Rules as written in Ironsworn and Starforged, you always use 1d10 for both challenge dice. Some third-party expansions, however, tweak this mechanic.
 
 Use the *Set action roll challenge dice sides* command when you want to pick different action roll challenge dice. You will be prompted for which die to use for the first and second action roll challenge dice independently.

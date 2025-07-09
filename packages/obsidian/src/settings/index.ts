@@ -1,4 +1,5 @@
 import Emittery from "emittery";
+import { DieKind } from "utils/dice-roller";
 
 export class IronVaultPluginSettings {
   graphicalOracleDice: boolean = true;
@@ -116,6 +117,16 @@ export class IronVaultPluginSettings {
     const fresh = Object.assign({}, new IronVaultPluginSettings());
     delete fresh.emitter;
     Object.assign(this, fresh);
+  }
+
+  colorMap(): Map<DieKind, string> {
+    return new Map([
+      [DieKind.Action, this.actionDieColor],
+      [DieKind.Challenge1, this.challengeDie1Color],
+      [DieKind.Challenge2, this.challengeDie2Color],
+      [DieKind.Oracle, this.oracleDiceColor],
+      [DieKind.Cursed, this.cursedDieColor],
+    ]);
   }
 }
 

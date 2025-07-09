@@ -1,4 +1,4 @@
-import * as kdl from "kdljs";
+import * as kdl from "utils/kdl";
 import {
   ActorDescription,
   ActorEqualityChecker,

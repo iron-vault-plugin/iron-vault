@@ -1,3 +1,7 @@
+---
+tags:
+  - Characters
+---
 Changes the initiative status for the active character.
 
 When Ironsworn is enabled, this will be "Has initiative"/"No initiative"/"Out of combat".

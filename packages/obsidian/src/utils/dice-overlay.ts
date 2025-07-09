@@ -14,7 +14,12 @@ import { rootLogger } from "logger";
 
 const logger = rootLogger.getLogger("dice-overlay");
 
-export class DiceOverlay extends Component {
+export interface IDiceOverlay {
+  roll(dice: string | string[] | Roll | Roll[]): Promise<RollResult[]>;
+  setMessage(msg: string): void;
+}
+
+export class DiceOverlay extends Component implements IDiceOverlay {
   diceBox: DiceBox;
   containerEl: HTMLElement;
 
@@ -116,12 +121,15 @@ export class DiceOverlay extends Component {
   }
 
   setMessage(msg: string) {
-    const container = document.getElementById("iron-vault-dice-notice");
-    container?.empty();
-    container?.createDiv({
-      text: msg,
-      cls: "notice",
-    });
+    if (this.plugin.settings.diceRollerDebug) {
+      const container = document.getElementById("iron-vault-dice-notice");
+      container?.empty();
+      container?.createDiv({
+        text: msg,
+        cls: "notice",
+      });
+      logger.info("Dice roller debug message:", msg);
+    }
   }
 }
 

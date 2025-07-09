@@ -4,8 +4,8 @@ import {
 } from "characters/action-context";
 import IronVaultPlugin from "index";
 import { onlyValid } from "indexer/index-impl";
-import * as kdl from "kdljs";
 import { Editor, EditorRange } from "obsidian";
+import * as kdl from "utils/kdl";
 import {
   findAdjacentCodeBlock,
   interiorRange,

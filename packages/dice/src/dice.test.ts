@@ -4,12 +4,16 @@ import {
   BinaryOpNode,
   Dice,
   DiceExprNode,
+  ExprId,
   NumberNode,
   UnaryOpNode,
   calcRange,
   convertToStandardDice,
+  evaluateExpr,
   expandNonStandardDice,
+  numberDiceExpressions,
   parseDiceExpression,
+  rollsFromMap,
 } from "./dice";
 
 it("parses and rolls", async () => {
@@ -328,5 +332,210 @@ describe("expandNonStandardDice", () => {
       "1d6 + 6 * (1d6 - 1) + 1d6 + 6 * (1d6 - 1)",
     );
     expect(calcRange(expanded)).toEqual([2, 72]);
+  });
+});
+
+describe("numberDiceExpressions", () => {
+  it("adds unique symbols to dice expressions", () => {
+    const expr = parseDiceExpression("2d6");
+    const labeled = numberDiceExpressions(ExprId, expr);
+    expect(labeled.label[ExprId]).toBe(1);
+  });
+
+  it("increments counter for multiple dice expressions", () => {
+    const expr = parseDiceExpression("2d6 + 3d8");
+    const labeled = numberDiceExpressions(ExprId, expr);
+
+    const symbols: (number | undefined)[] = [];
+    labeled.walk({
+      visitDiceExprNode: (node) => {
+        symbols.push(node.label[ExprId]);
+      },
+    });
+
+    expect(symbols).toEqual([1, 2]);
+  });
+
+  it("doesn't modify number nodes", () => {
+    const expr = parseDiceExpression("42");
+    const labeled = numberDiceExpressions(ExprId, expr);
+    expect(labeled.label[ExprId]).toBeUndefined();
+  });
+
+  it("preserves original labels while adding symbols", () => {
+    const originalExpr = new DiceExprNode(new Dice(2, 6), {
+      originalProp: "test",
+    });
+    const labeled = numberDiceExpressions(ExprId, originalExpr);
+
+    expect(labeled.label.originalProp).toBe("test");
+    expect(labeled.label[ExprId]).toBeDefined();
+  });
+
+  it("handles complex expressions with multiple dice", () => {
+    const expr = parseDiceExpression("1d20 + (2d6 * 3) - 4d4");
+    const labeled = numberDiceExpressions(ExprId, expr);
+
+    const symbols: (number | undefined)[] = [];
+    labeled.walk({
+      visitDiceExprNode: (node) => {
+        symbols.push(node.label[ExprId]);
+      },
+    });
+
+    expect(symbols).toEqual([1, 2, 3]);
+  });
+});
+
+describe("evaluateExpr", () => {
+  it("evaluates number nodes", () => {
+    const expr = parseDiceExpression("42");
+    const result = evaluateExpr(expr, () => {
+      throw new Error("Test error");
+    });
+    expect(result.label.value).toBe(42);
+  });
+
+  it("evaluates dice expressions", () => {
+    const expr = parseDiceExpression("2d6");
+    const resultMap = new Map([[expr, [3, 4]]]);
+    const result = evaluateExpr(expr, rollsFromMap(resultMap));
+    expect(result.label.value).toBe(7);
+    expect(result.label.rolls).toEqual([3, 4]);
+  });
+
+  it("evaluates binary operations", () => {
+    const expr = parseDiceExpression("2d6 + 5");
+    const result = evaluateExpr(expr, () => [3, 4]);
+    expect(result.label.value).toBe(12);
+  });
+
+  it("evaluates unary operations", () => {
+    const expr = parseDiceExpression("-2d6");
+    const result = evaluateExpr(expr, () => [3, 4]);
+    expect(result.label.value).toBe(-7);
+  });
+
+  it("handles complex expressions with nested operations", () => {
+    const expr = parseDiceExpression("2d6 * (1d4 - 2)");
+    const rollsMap = new Map([
+      ["2d6", [3, 4]],
+      ["1d4", [3]],
+    ]);
+    const result = evaluateExpr(expr, (node) => {
+      return rollsMap.get(node.toString());
+    });
+    expect(result.label.value).toBe(7); // (3+4) * (3-2) = 7 * 1 = 7
+  });
+
+  it("preserves original labels", () => {
+    const origNode = new DiceExprNode(new Dice(2, 6), { originalData: "test" });
+    const result = evaluateExpr(origNode, () => [3, 4]);
+    expect(result.label.originalData).toBe("test");
+    expect(result.label.value).toBe(7);
+  });
+
+  it("evaluates expressions with multiple dice", () => {
+    const expr = parseDiceExpression("1d20 + 2d6");
+    const rollsMap = new Map([
+      ["1d20", [15]],
+      ["2d6", [3, 4]],
+    ]);
+    const result = evaluateExpr(expr, (node) => {
+      return rollsMap.get(node.toString()) || [];
+    });
+    expect(result.label.value).toBe(22); // 15 + (3+4) = 22
+  });
+
+  it("evaluates expressions with all types of operations", () => {
+    const expr = parseDiceExpression("2d6 + 3 * (1d4 - 2) / 2");
+    const rollsMap = new Map([
+      ["2d6", [3, 4]],
+      ["1d4", [3]],
+    ]);
+    const result = evaluateExpr(expr, (node) => {
+      return rollsMap.get(node.toString()) || [];
+    });
+    expect(result.label.value).toBe(8); // (3+4) + 3 * (3-2) / 2 = 7 + 3 * 1 / 2 = 7 + 1 = 8
+  });
+
+  it("evaluates modulo operations", () => {
+    const expr = parseDiceExpression("1d6 % 4");
+    const result = evaluateExpr(expr, () => [6]);
+    expect(result.label.value).toBe(2); // 6 % 4 = 2
+  });
+
+  it("can track multiple sets of dice rolls", () => {
+    const expr = parseDiceExpression("1d20 + 2d6 - 1d4");
+    const rollsFor = (node: DiceExprNode<object>) => {
+      if (node.toString() === "1d20") return [20];
+      if (node.toString() === "2d6") return [5, 6];
+      if (node.toString() === "1d4") return [2];
+      return [];
+    };
+
+    const result = evaluateExpr(expr, rollsFor);
+
+    let d20Value, d6Value, d4Value;
+    result.walk({
+      visitDiceExprNode: (node) => {
+        if (node.toString() === "1d20") d20Value = node.label.value;
+        if (node.toString() === "2d6") d6Value = node.label.value;
+        if (node.toString() === "1d4") d4Value = node.label.value;
+      },
+    });
+
+    expect(d20Value).toBe(20);
+    expect(d6Value).toBe(11);
+    expect(d4Value).toBe(2);
+    expect(result.label.value).toBe(29); // 20 + 11 - 2 = 29
+  });
+
+  it("throws an error when no rolls are provided for a specific dice expression in complex expressions", () => {
+    const expr = parseDiceExpression("2d6 + 3d4");
+    const rollsFor = (node: DiceExprNode<object>) => {
+      if (node.toString() === "2d6") return [5, 6];
+      return undefined;
+    };
+
+    expect(() => evaluateExpr(expr, rollsFor)).toThrow(
+      "No rolls found for expression 3d4 in the provided map",
+    );
+  });
+
+  it("throws an error if too few rolls are provided for a dice expression", () => {
+    const expr = parseDiceExpression("3d6");
+    // Only provide 2 rolls for 3d6, which requires 3 rolls
+    const rollsFor = (node: DiceExprNode<object>) => {
+      if (node.toString() === "3d6") return [4, 5];
+      return undefined;
+    };
+    expect(() => evaluateExpr(expr, rollsFor)).toThrow(
+      "Expected 3 rolls for expression 3d6, but got 2.",
+    );
+  });
+
+  it("throws an error if too many rolls are provided for a dice expression", () => {
+    const expr = parseDiceExpression("3d6");
+    // Provide 4 rolls for 3d6, which requires 3 rolls
+    const rollsFor = (node: DiceExprNode<object>) => {
+      if (node.toString() === "3d6") return [4, 5, 6, 2];
+      return undefined;
+    };
+    expect(() => evaluateExpr(expr, rollsFor)).toThrow(
+      "Expected 3 rolls for expression 3d6, but got 4.",
+    );
+  });
+
+  it("throws an error if roll value is out of bounds", () => {
+    const expr = parseDiceExpression("1d6");
+    // Provide a roll value of 7 for 1d6, which is out of bounds
+    const rollsFor = (node: DiceExprNode<object>) => {
+      if (node.toString() === "1d6") return [7];
+      return undefined;
+    };
+    expect(() => evaluateExpr(expr, rollsFor)).toThrow(
+      "Invalid rolls found for expression 1d6: 7",
+    );
   });
 });
