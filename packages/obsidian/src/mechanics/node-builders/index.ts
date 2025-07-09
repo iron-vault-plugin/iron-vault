@@ -65,8 +65,8 @@ export const [rollsNode, makeRollsNode] = builder(
 
 export const [diceExprNode, makeDiceExprNode] = builder(
   "dice-expr",
-  z.tuple([z.number()]),
-  z.object({ expr: z.string() }),
+  kdl.noValues,
+  z.object({ result: z.number(), expr: z.string() }),
   z.array(rollsNode),
 );
 
@@ -94,8 +94,8 @@ export function createDiceExpressionNode({
     },
   });
   return makeDiceExprNode({
-    values: [evaledExpr.label.value],
     properties: {
+      result: evaledExpr.label.value,
       expr: evaledExpr.toString(),
     },
     children: rolls,

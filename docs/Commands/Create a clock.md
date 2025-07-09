@@ -1,3 +1,7 @@
+---
+tags:
+  - Clocks
+---
 Creates a [[Entities/Clocks|Clock]] file and appends a [[Mechanics Blocks#`clock`|`clock` mechanics node]] to the current journal. The Clock file will have all necessary frontmatter for commands like [[Advance a clock]] to work.
 
 When creating a clock, you'll need to set two clock-specific options:

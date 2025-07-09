@@ -1,3 +1,7 @@
+---
+tags:
+  - Characters
+---
 
 ```iron-vault-mechanics
 roll "edge" action=6 adds=0 stat=2 vs1=9 vs2=5

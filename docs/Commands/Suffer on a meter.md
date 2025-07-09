@@ -1,3 +1,7 @@
+---
+tags:
+  - Characters
+---
 Reduces one of your Meters by a certain amount, then records the results in your current journal as a [[Mechanics Blocks#`meter`|`meter` mechanics node]].
 
 This command can only be used when you've activated the [[Settings#General|Use character system Setting]], and thus requires an actual [[Characters|Active Character]] to work at all.

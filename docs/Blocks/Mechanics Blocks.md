@@ -549,3 +549,35 @@ initiative "has initiative" "no initiative"
 position from="in a bad spot" to="out of combat"
 ```
 ````
+#### `dice-expr`
+
+Records the results of an arbitrary dice roll
+
+##### Arguments
+
+- `result` (number): the final calculated result of the dice roll expression
+- `expr` (string): the original expression
+
+##### Children
+
+Each child is a `rolls` node of the format `rolls roll1 roll2 ... rollM dice="MdN"`
+
+##### Example
+
+```iron-vault-mechanics
+dice-expr expr="3d6 - 1d4 - 1d6 + 3" result=2 {
+    rolls 1 2 3 dice="3d6"
+    rolls 1 dice="1d4"
+    rolls 6 dice="1d6"
+}
+```
+
+````kdl
+```iron-vault-mechanics
+dice-expr expr="3d6 - 1d4 - 1d6 + 3" result=2 {
+    rolls 1 2 3 dice="3d6"
+    rolls 1 dice="1d4"
+    rolls 6 dice="1d6"
+}
+```
+````

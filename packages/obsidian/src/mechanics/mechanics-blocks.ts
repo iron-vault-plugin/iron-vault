@@ -899,7 +899,11 @@ ${result.error.toString()}</pre
           value: rendered.unwrapOr(diceExprNode.properties.expr),
           md: false,
         },
-        Value: { cls: "value", value: diceExprNode.values[0], md: false },
+        Value: {
+          cls: "value",
+          value: diceExprNode.properties.result,
+          md: false,
+        },
       },
       rawNode,
     );
