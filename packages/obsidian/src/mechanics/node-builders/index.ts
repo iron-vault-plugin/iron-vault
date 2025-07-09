@@ -124,7 +124,6 @@ export function createOracleNode(
   const baseResult = node("oracle", {
     properties: props,
     children: [
-      ...(prompt ? [node("-", { values: [prompt] })] : []),
       ...Object.values(roll.subrolls)
         .flatMap((subroll) => subroll.rolls)
         .map((subroll) => createOracleNode(subroll)),
@@ -135,7 +134,17 @@ export function createOracleNode(
     baseResult.properties.replaced =
       cursedResult.oracle.curseBehavior === CurseBehavior.ReplaceResult;
   }
-  return baseResult;
+  return wrapWithPrompt(prompt, baseResult);
+}
+
+/** If a prompt is provided, wrap the node in a details node. Otherwise, return just the node. */
+export function wrapWithPrompt(
+  prompt: string | undefined,
+  node: kdl.Node,
+): kdl.Node {
+  if (!prompt) return node;
+
+  return createDetailsNode(prompt, [node]);
 }
 
 export function generateActionRoll(move: ActionMoveDescription): kdl.Node {
@@ -230,9 +239,13 @@ export function createOracleGroup(
   });
 }
 
-export function createDetailsNode(details: string): kdl.Node {
+export function createDetailsNode(
+  details: string,
+  children: kdl.Node[] = [],
+): kdl.Node {
   return node("-", {
     values: [details],
+    children,
   });
 }
 

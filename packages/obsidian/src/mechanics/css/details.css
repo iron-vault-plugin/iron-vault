@@ -4,13 +4,34 @@
 .iron-vault-mechanics .detail {
   color: var(--text-muted);
   --blockquote-background-color: var(--background-secondary);
-  --blockquote-color: var(--text-muted);
-  border-radius: 10px;
-  & .markdown-wrapper > :first-child {
+  background-color: var(--blockquote-background-color);
+
+  border-inline-start: var(--blockquote-border-thickness) solid
+    var(--blockquote-border-color);
+  padding-inline-start: var(--size-4-6);
+  margin-left: 0.5em;
+  padding-left: 1.2em;
+
+  /* First child is the comment text */
+  & > :first-child {
+    display: block;
+    font-style: italic;
+  }
+
+  & > :not(:first-child) {
+    border-inline-start: var(--blockquote-border-thickness) dashed
+      var(--blockquote-border-color);
+    padding-inline-start: var(--size-4-6);
+    margin-left: 0.5em;
+    padding-left: 1.2em;
+  }
+
+  /* border-radius: 10px; */
+  /* & .markdown-wrapper > :first-child {
     margin-left: 0.5em;
     padding-left: 1.2em;
   }
   & .markdown-wrapper > :first-child:not(blockquote) {
     display: inline;
-  }
+  } */
 }
