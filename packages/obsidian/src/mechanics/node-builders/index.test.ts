@@ -18,8 +18,7 @@ describe("createDiceExpressionNode", () => {
 
     expect(result).toEqual(
       node("dice-expr", {
-        values: [7],
-        properties: { expr: "1d6 + 1" },
+        properties: { expr: "1d6 + 1", result: 7 },
         children: [
           node("rolls", {
             values: [6],
@@ -41,8 +40,7 @@ describe("createDiceExpressionNode", () => {
 
     expect(result).toEqual(
       node("dice-expr", {
-        values: [10],
-        properties: { expr: "2d6 + 2d4" },
+        properties: { expr: "2d6 + 2d4", result: 10 },
         children: [
           node("rolls", {
             values: [5, 3],
@@ -67,8 +65,7 @@ describe("createDiceExpressionNode", () => {
 
     expect(result).toEqual(
       node("dice-expr", {
-        values: [5],
-        properties: { expr: "5" },
+        properties: { expr: "5", result: 5 },
         children: [],
       }),
     );
@@ -84,8 +81,7 @@ describe("createDiceExpressionNode", () => {
 
     expect(result).toEqual(
       node("dice-expr", {
-        values: [5],
-        properties: { expr: "5" },
+        properties: { expr: "5", result: 5 },
         children: [],
       }),
     );

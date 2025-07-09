@@ -88,7 +88,7 @@ export function node(
     ...data,
     // TODO: the `as any` is a hack because the name field is not optional currently but should be
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tags: { properties: {}, values: [], ...data.tags } as any,
+    tags: { name: undefined, properties: {}, values: [], ...data.tags } as any,
   };
 }
 
