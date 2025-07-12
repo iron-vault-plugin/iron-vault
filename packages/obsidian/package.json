@@ -64,6 +64,7 @@
     "idb": "catalog:",
     "immer": "catalog:",
     "js-yaml": "catalog:",
+    "jsdom": "catalog:",
     "kdljs": "catalog:",
     "lit-html": "catalog:",
     "lodash.isequal": "catalog:",
