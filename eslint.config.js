@@ -26,6 +26,7 @@ export default tseslint.config(
       "**/dist/",
       "**/node_modules/",
       "**/.obsidian",
+      "**/.tsup/",
       "main.js",
       "docs-built/",
     ],
