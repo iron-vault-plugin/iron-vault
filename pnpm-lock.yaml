@@ -34,8 +34,8 @@ catalogs:
       specifier: 0.1.0-0
       version: 0.1.0-0
     '@eslint/js':
-      specifier: ^9.27.0
-      version: 9.27.0
+      specifier: ^9.31.0
+      version: 9.31.0
     '@jgoz/esbuild-plugin-typecheck':
       specifier: ^4.0.3
       version: 4.0.3
@@ -214,7 +214,7 @@ importers:
     devDependencies:
       '@eslint/js':
         specifier: 'catalog:'
-        version: 9.27.0
+        version: 9.31.0
       '@jgoz/esbuild-plugin-typecheck':
         specifier: 'catalog:'
         version: 4.0.3(esbuild@0.25.6)(typescript@5.8.2)
@@ -403,7 +403,7 @@ importers:
         version: 0.1.0-0
       '@eslint/js':
         specifier: 'catalog:'
-        version: 9.27.0
+        version: 9.31.0
       '@ironvault/datasworn-compiler':
         specifier: workspace:^
         version: link:../datasworn-compiler
@@ -1038,8 +1038,8 @@ packages:
     resolution: {integrity: sha512-vLFajx9o8d1/oL2ZkpMYbkLv8nDB6yaIwFNt7nI4+I80U/z03SxmfOMsLbvWr3p7C+Wnoh//aOu2pQW8cS0HCQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@eslint/js@9.27.0':
-    resolution: {integrity: sha512-G5JD9Tu5HJEu4z2Uo4aHY2sLV64B7CDMXxFzqzjl3NKd6RVzSXNoE80jk7Y0lJkTTkjiIhBAqmlYwjuBY3tvpA==}
+  '@eslint/js@9.31.0':
+    resolution: {integrity: sha512-LOm5OVt7D4qiKCqoiPbA7LWmI+tbw1VbTUowBcUMgQSuM6poJufkFkYDcQpo5KfgD39TnNySV26QjOh7VFpSyw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@eslint/object-schema@2.1.6':
@@ -4120,7 +4120,7 @@ snapshots:
 
   '@eslint/js@9.22.0': {}
 
-  '@eslint/js@9.27.0': {}
+  '@eslint/js@9.31.0': {}
 
   '@eslint/object-schema@2.1.6': {}
 
