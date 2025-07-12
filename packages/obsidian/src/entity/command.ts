@@ -82,7 +82,7 @@ export async function promptOracleRow(
   }
 }
 
-export async function generateEntity(
+async function generateEntityLegacyModal(
   plugin: IronVaultPlugin,
   dataContext: CampaignDataContext,
   entityDesc: EntityDescriptor<EntitySpec>,
@@ -116,7 +116,7 @@ export async function generateEntity(
   });
 }
 
-export async function generateEntityNewModal(
+async function generateEntityNewModal(
   plugin: IronVaultPlugin,
   dataContext: CampaignDataContext,
   entityDesc: EntityDescriptor<EntitySpec>,
@@ -130,6 +130,64 @@ export async function generateEntityNewModal(
   });
 }
 
+export async function generateEntityViaModal(
+  plugin: IronVaultPlugin,
+  campaignContext: CampaignDataContext,
+  entityDesc: EntityDescriptor<EntitySpec>,
+) {
+  if (plugin.settings.useLegacyRoller) {
+    return await generateEntityLegacyModal(plugin, campaignContext, entityDesc);
+  } else {
+    return await generateEntityNewModal(plugin, campaignContext, entityDesc);
+  }
+}
+
+/** Prompt the user to select an entity type. */
+export async function promptForEntityType(
+  plugin: IronVaultPlugin,
+  campaignContext: CampaignDataContext,
+): Promise<EntityDescriptor<EntitySpec>> {
+  return await CustomSuggestModal.select(
+    plugin.app,
+    availableEntityTypes(campaignContext).map(([, v]) => v),
+    ({ label }) => label,
+    (match, el) => {
+      const collId = match.item.collectionId;
+      if (collId) {
+        const path = extractDataswornLinkParts(collId)!.path;
+        const [rulesetId] = path.split("/");
+        const ruleset = campaignContext.rulesPackages.get(rulesetId);
+        if (ruleset) {
+          el.createEl("small", { cls: "iron-vault-suggest-hint" })
+            .createEl("strong")
+            .createEl("em", { text: ruleset.title });
+        }
+      }
+    },
+    "What kind of entity?",
+  );
+}
+
+/** Returns all available entity types for the given campaign. */
+export function availableEntityTypes(
+  campaignContext: CampaignDataContext,
+): [string, EntityDescriptor<EntitySpec>][] {
+  return Object.entries(ENTITIES).filter(([_k, v]) =>
+    /*
+     * Here we check if every non-templated oracle is included. This is not
+     * necessarily the best approach for performance or usability reasons.
+     * However, it is the most robust strategy that is easily implemented.
+     *
+     *TODO(@cwegrzyn): alternatives to consider include:
+     * 1. Index these entity generators-- this would be nice because it gives a pathway to define custom entities too
+     * 2. Just check if ANY oracle in the faction is present
+     */
+    Object.values(v.spec).every(
+      ({ id }) => id.includes("{{") || campaignContext.oracles.has(id),
+    ),
+  );
+}
+
 export async function generateEntityCommand(
   plugin: IronVaultPlugin,
   editor: Editor,
@@ -138,56 +196,13 @@ export async function generateEntityCommand(
 ): Promise<void> {
   const campaignContext = await determineCampaignContext(plugin, view);
 
-  let entityDesc: EntityDescriptor<EntitySpec>;
-  if (!selectedEntityDescriptor) {
-    const [, desc] = await CustomSuggestModal.select(
-      plugin.app,
-      Object.entries(ENTITIES).filter(([_k, v]) =>
-        /*
-         * Here we check if every non-templated oracle is included. This is not
-         * necessarily the best approach for performance or usability reasons.
-         * However, it is the most robust strategy that is easily implemented.
-         *
-         *TODO(@cwegrzyn): alternatives to consider include:
-         * 1. Index these entity generators-- this would be nice because it gives a pathway to define custom entities too
-         * 2. Just check if ANY oracle in the faction is present
-         */
-        Object.values(v.spec).every(
-          ({ id }) => id.includes("{{") || campaignContext.oracles.has(id),
-        ),
-      ),
-      ([_key, { label }]) => label,
-      (match, el) => {
-        const collId = match.item[1].collectionId;
-        if (collId) {
-          const path = extractDataswornLinkParts(collId)!.path;
-          const [rulesetId] = path.split("/");
-          const ruleset = campaignContext.rulesPackages.get(rulesetId);
-          if (ruleset) {
-            el.createEl("small", { cls: "iron-vault-suggest-hint" })
-              .createEl("strong")
-              .createEl("em", { text: ruleset.title });
-          }
-        }
-      },
-      "What kind of entity?",
-    );
-    entityDesc = desc;
-  } else {
-    entityDesc = selectedEntityDescriptor;
-  }
+  const entityDesc: EntityDescriptor<EntitySpec> =
+    selectedEntityDescriptor ??
+    (await promptForEntityType(plugin, campaignContext));
 
   let results: NewEntityModalResults<EntitySpec>;
   try {
-    if (plugin.settings.useLegacyRoller) {
-      results = await generateEntity(plugin, campaignContext, entityDesc);
-    } else {
-      results = await generateEntityNewModal(
-        plugin,
-        campaignContext,
-        entityDesc,
-      );
-    }
+    results = await generateEntityViaModal(plugin, campaignContext, entityDesc);
   } catch (e) {
     if (e) {
       new Notice(String(e));
