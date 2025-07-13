@@ -1,11 +1,21 @@
 import { html, render } from "lit-html";
-import { App, ItemView, MarkdownView, WorkspaceLeaf } from "obsidian";
+import {
+  App,
+  ItemView,
+  MarkdownView,
+  ViewStateResult,
+  WorkspaceLeaf,
+} from "obsidian";
 
 import IronVaultPlugin from "index";
 import { CharacterRenderer } from "./character";
 import { MoveList } from "./moves";
 import { OracleList } from "./oracles";
 export const SIDEBAR_VIEW_TYPE = "iron-vault-sidebar-view";
+
+export type SidebarViewState = {
+  activeTab: string;
+};
 
 export class SidebarView extends ItemView {
   plugin: IronVaultPlugin;
@@ -18,7 +28,7 @@ export class SidebarView extends ItemView {
     for (const leaf of app.workspace.getLeavesOfType(SIDEBAR_VIEW_TYPE)) {
       if (leaf.view instanceof SidebarView) {
         workspace.revealLeaf(leaf);
-        leaf.view.moveList.scrollToMove(moveId);
+        leaf.setEphemeralState({ moveId });
         return;
       }
     }
@@ -52,28 +62,62 @@ export class SidebarView extends ItemView {
     return "iron-vault";
   }
 
+  setActiveTab = (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    const tabName = target.dataset.tab;
+    if (!tabName) return;
+
+    this.setActiveTabByName(tabName);
+  };
+
+  setActiveTabByName = (tabName: string) => {
+    const tabs = this.contentEl.querySelectorAll(
+      ":scope > .iron-vault-sidebar-view .content",
+    );
+    for (const tab of tabs) {
+      tab.classList.remove("is-active");
+      if (tab.classList.contains(`${tabName}-tab`)) {
+        tab.classList.add("is-active");
+      }
+    }
+
+    const buttons = this.contentEl.querySelectorAll(
+      ":scope > .nav-header .nav-action-button",
+    ) as NodeListOf<HTMLDivElement>;
+    for (const button of buttons) {
+      button.classList.remove("is-active");
+      if (button.dataset.tab === tabName) {
+        button.classList.add("is-active");
+      }
+    }
+  };
+
   async onOpen() {
     this.contentEl.empty();
+
     const tpl = html`
-      <nav class="iron-vault-sidebar-view tabs">
-        <div class="tab">
-          <input type="radio" name="tab-group" id="oracle-tab" checked />
-          <label for="oracle-tab">Oracles</label>
-          <div class="content oracle-tab"></div>
+      <div class="nav-header">
+        <div class="nav-buttons-container" @click=${this.setActiveTab}>
+          <div class="nav-action-button clickable-icon" data-tab="oracle">
+            Oracles
+          </div>
+          <div class="nav-action-button clickable-icon" data-tab="move">
+            Moves
+          </div>
+          <div class="nav-action-button clickable-icon" data-tab="character">
+            Character
+          </div>
         </div>
-        <div class="tab">
-          <input type="radio" name="tab-group" id="move-tab" />
-          <label for="move-tab">Moves</label>
-          <div class="content move-tab"></div>
-        </div>
-        <div class="tab">
-          <input type="radio" name="tab-group" id="character-tab" />
-          <label for="character-tab">Character</label>
-          <div class="content character-tab"></div>
-        </div>
-      </nav>
+      </div>
+      <div class="iron-vault-sidebar-view tabs">
+        <div class="content oracle-tab"></div>
+        <div class="content move-tab"></div>
+        <div class="content character-tab"></div>
+      </div>
     `;
     render(tpl, this.contentEl);
+
+    this.setActiveTabByName("oracle");
 
     this.moveList = this.addChild(
       new MoveList(
@@ -102,6 +146,40 @@ export class SidebarView extends ItemView {
         this.oracleList.updateView(this.getActiveMarkdownView());
       }),
     );
+
+    this.app.workspace.onLayoutReady(() => {
+      this.moveList.updateView(this.getActiveMarkdownView());
+      this.oracleList.updateView(this.getActiveMarkdownView());
+    });
+  }
+
+  getState(): SidebarViewState {
+    const state = super.getState();
+    return {
+      ...state,
+      activeTab:
+        (
+          this.contentEl.querySelector(
+            ":scope > .nav-header .nav-action-button.is-active",
+          ) as HTMLDivElement | null
+        )?.dataset.tab || "oracle",
+    };
+  }
+
+  setState(state: unknown, result: ViewStateResult): Promise<void> {
+    // This is called when the view is restored from a saved state.
+    // We can use this to restore the active tab if needed.
+    if (state && typeof state === "object" && "activeTab" in state) {
+      this.setActiveTabByName(state.activeTab as string);
+    }
+    return super.setState(state, result);
+  }
+
+  setEphemeralState(state: unknown): void {
+    if (state && typeof state === "object" && "moveId" in state) {
+      this.setActiveTabByName("move");
+      this.moveList.scrollToMove(state.moveId as string);
+    }
   }
 
   private getActiveMarkdownView(): MarkdownView | undefined {

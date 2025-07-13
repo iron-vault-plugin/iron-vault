@@ -5,8 +5,6 @@
 [data-type="iron-vault-sidebar-view"] {
   & .view-content {
     padding: 0;
-    display: flex;
-    flex-flow: column nowrap;
     & > :first-child {
       padding: 0.5em 0;
     }
@@ -28,51 +26,21 @@
   }
   &.tabs {
     clear: both;
-    padding: 25px 0;
-    display: flex;
+    /* display: flex;
     flex-flow: row nowrap;
     flex: 1 1 auto;
-  }
-  & > .tab {
-    & > label {
-      font-size: 1.1em;
-      font-weight: var(--font-semibold);
-      background-color: var(--background-primary-alt);
-      padding: 0.5em;
-      border: 2px solid var(--background-modifier-border);
-      margin: 0;
-      left: 1px;
-      transition: background-color 200ms ease;
-      z-index: 3;
-      &:hover {
-        background-color: var(--background-modifier-hover);
-      }
-      &:active {
-        background-color: var(--background-modifier-active-hover);
-      }
-    }
-    & > [type="radio"] {
+ */
+    & > .content {
+      overflow-y: scroll;
+
+      /* Buffer from the status bar (matches what the official Obsidian tabs use) */
+      padding-bottom: var(--size-4-8);
+
       display: none;
-      & ~ .content {
-        overflow-y: scroll;
 
-        /* Buffer from the status bar (matches what the official Obsidian tabs use) */
-        padding-bottom: var(--size-4-8);
-
-        display: none;
-      }
-      &:checked ~ label {
-        background-color: var(--background-secondary-alt);
-        &:hover {
-          background-color: var(--background-modifier-hover);
-        }
-        &:active {
-          background-color: var(--background-modifier-active-hover);
-        }
-        & ~ .content {
-          z-index: 1;
-          display: block;
-        }
+      &.is-active {
+        display: block;
+        z-index: 1;
       }
     }
   }
