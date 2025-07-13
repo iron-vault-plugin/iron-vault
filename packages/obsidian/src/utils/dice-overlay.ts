@@ -170,7 +170,7 @@ async function ensureAssets(plugin: IronVaultPlugin) {
     const dest = normalizePath(assetsPath + "/" + path);
     return plugin.app.vault.adapter.mkdir(dest);
   }
-  function writeFile(path: string, data: Uint8Array | string) {
+  function writeFile(path: string, data: Uint8Array<ArrayBuffer> | string) {
     const dest = normalizePath([assetsPath, path].join("/"));
     if (typeof data === "string") {
       return plugin.app.vault.adapter.write(dest, data);

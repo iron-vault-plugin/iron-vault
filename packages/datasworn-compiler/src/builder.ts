@@ -270,7 +270,7 @@ export class ContentIndexer {
   async indexFile(
     path: string,
     mtime: number,
-    hash: Uint8Array<ArrayBuffer>,
+    hash: Uint8Array,
     data: string,
     frontmatter: Record<string, unknown> | undefined,
   ): Promise<void> {

@@ -1,4 +1,4 @@
-import { Editor, MarkdownFileInfo } from "obsidian";
+import { Editor, MarkdownFileInfo, Notice } from "obsidian";
 
 import {
   DiceExprGroup,
