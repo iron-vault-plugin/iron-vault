@@ -23,7 +23,7 @@ import { repeat } from "lit-html/directives/repeat.js";
 import { styleMap } from "lit-html/directives/style-map.js";
 import { runMoveCommand } from "moves/action";
 import { MoveModal, MoveRenderer, MoveRendererOptions } from "moves/move-modal";
-import { Component, MarkdownView, SearchComponent } from "obsidian";
+import { Component, MarkdownView, Platform, SearchComponent } from "obsidian";
 import { runOracleCommand } from "oracles/command";
 import { md } from "utils/ui/directives";
 import {
@@ -198,14 +198,19 @@ export class MoveList extends CampaignDependentBlockRenderer {
 
     const onMakeMove: MoveRendererOptions["onMakeMove"] =
       this.targetView &&
-      ((move, rollable) => {
-        runMoveCommand(
+      (async (move, rollable) => {
+        await runMoveCommand(
           this.plugin,
           this.targetView!.editor,
           this.targetView!,
           move,
           rollable,
         );
+
+        if (Platform.isMobile) {
+          // If we're on mobile, we want to collapse the sidebar after making a move.
+          this.plugin.app.workspace.rightSplit.collapse();
+        }
       });
     const onRollOracle: MoveRendererOptions["onRollOracle"] =
       this.targetView &&
