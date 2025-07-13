@@ -1,6 +1,6 @@
 {
   "name": "@ironvault/obsidian",
-  "version": "1.100.0",
+  "version": "1.100.1",
   "description": "",
   "main": "main.js",
   "type": "module",
