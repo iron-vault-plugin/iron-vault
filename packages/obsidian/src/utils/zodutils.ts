@@ -1,16 +1,16 @@
+import Result, { err, ok } from "true-myth/result";
 import { z } from "zod";
-import { Either, Left, Right } from "./either";
 
-export function zodResultToEither<Input, Output>(
+export function zodResultToResult<Input, Output>(
   result: z.SafeParseReturnType<Input, Output>,
-): Either<
-  z.SafeParseError<Input>["error"],
-  z.SafeParseSuccess<Output>["data"]
+): Result<
+  z.SafeParseSuccess<Output>["data"],
+  z.SafeParseError<Input>["error"]
 > {
   if (result.success) {
-    return Right.create(result.data);
+    return ok(result.data);
   } else {
-    return Left.create(result.error);
+    return err(result.error);
   }
 }
 

@@ -408,12 +408,12 @@ function renderControl<C extends AssetControlField | AssetAbilityControlField>(
 
     case "clock": {
       return clockWidget(
-        Clock.create({
+        Clock.mustCreate({
           active: true,
           name: control.label,
           progress: control.value,
           segments: control.max,
-        }).unwrap(),
+        }),
         updateClockValue,
       );
     }

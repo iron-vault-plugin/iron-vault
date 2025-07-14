@@ -15,7 +15,7 @@ import Emittery, { UnsubscribeFunction } from "emittery";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { CachedMetadata, Component, TFile, TFolder, Vault } from "obsidian";
-import { Either } from "utils/either";
+import { Result } from "true-myth/result";
 import { FileProblem } from "../../../../datasworn-compiler/src/builder";
 import { IndexResult } from "./messages";
 
@@ -27,7 +27,7 @@ export type DATA_MANAGER_EVENT_TYPES = {
     rulesPackage: Datasworn.RulesPackage | null;
     files: ReadonlyMap<
       string,
-      Either<FileProblem, DataswornSource.RulesPackage>
+      Result<DataswornSource.RulesPackage, FileProblem>
     >;
   };
 };
@@ -40,7 +40,7 @@ export class DataManager extends Component {
     string,
     {
       package: Datasworn.RulesPackage | null;
-      files: Map<string, Either<FileProblem, DataswornSource.RulesPackage>>;
+      files: Map<string, Result<DataswornSource.RulesPackage, FileProblem>>;
     }
   > = new Map();
 
@@ -54,7 +54,7 @@ export class DataManager extends Component {
     | {
         root: string;
         package: Datasworn.RulesPackage | null;
-        files: Map<string, Either<FileProblem, DataswornSource.RulesPackage>>;
+        files: Map<string, Result<DataswornSource.RulesPackage, FileProblem>>;
       }
     | undefined {
     for (const [
@@ -70,7 +70,7 @@ export class DataManager extends Component {
 
   getStatusForPath(
     path: string,
-  ): Either<FileProblem, DataswornSource.RulesPackage> | undefined {
+  ): Result<DataswornSource.RulesPackage, FileProblem> | undefined {
     for (const [packageRoot, { files }] of this.packages.entries()) {
       if (atOrChildOfPath(packageRoot, path)) {
         return files.get(path);

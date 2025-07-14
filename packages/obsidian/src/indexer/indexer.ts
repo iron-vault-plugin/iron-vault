@@ -2,7 +2,7 @@ import { EmittingIndex, ReadonlyIndex } from "indexer/index-interface";
 import { rootLogger } from "logger";
 import { Logger } from "loglevel";
 import { TFile, type CachedMetadata } from "obsidian";
-import { Either, Left } from "utils/either";
+import Result, { tryOrElse } from "true-myth/result";
 import { IronVaultKind } from "../constants";
 import { IndexImpl } from "./index-impl";
 
@@ -25,18 +25,17 @@ export class WontIndexError extends Error {}
 /** Unexpected indexing error is issued when an unhandled exception is raised while processing a file. */
 export class UnexpectedIndexingError extends Error {}
 
-export type IndexUpdate<T, E extends Error> = Either<
-  WontIndexError | UnexpectedIndexingError | E,
-  T
+export type IndexUpdate<T, E extends Error> = Result<
+  T,
+  WontIndexError | UnexpectedIndexingError | E
 >;
 
-export function wrapIndexUpdateError(
-  error: unknown,
-): Left<UnexpectedIndexingError> {
-  return Left.create(
-    new UnexpectedIndexingError(`encountered error while indexing: ${error}`, {
+export function wrapIndexUpdateError(error: unknown): UnexpectedIndexingError {
+  return new UnexpectedIndexingError(
+    `encountered error while indexing: ${error}`,
+    {
       cause: error,
-    }),
+    },
   );
 }
 
@@ -69,11 +68,14 @@ export interface Indexer {
 export type IndexerId = string;
 
 export type IndexOf<Idx> =
-  Idx extends BaseIndexer<infer T, infer E> ? ReadonlyIndex<T, E> : never;
+  Idx extends BaseIndexer<infer T, infer E>
+    ? ReadonlyIndex<T, E | UnexpectedIndexingError>
+    : never;
 
 export abstract class BaseIndexer<T, E extends Error> implements Indexer {
   abstract readonly id: IronVaultKind;
-  public readonly index: EmittingIndex<T, E> = new IndexImpl();
+  public readonly index: EmittingIndex<T, E | UnexpectedIndexingError> =
+    new IndexImpl();
 
   #_logger?: Logger;
 
@@ -91,15 +93,12 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
     file: TFile,
     cache: CachedMetadataWithFrontMatter,
   ): IndexUpdateResult<unknown, Error>["type"] {
-    let result: IndexUpdate<T, E>;
-    try {
-      result = this.processFile(file, cache);
-    } catch (error) {
-      result = wrapIndexUpdateError(error);
-    }
+    const result: IndexUpdate<T, E> = tryOrElse(wrapIndexUpdateError, () =>
+      this.processFile(file, cache),
+    ).andThen((x) => x);
 
-    if (result.isRight()) {
-      this.index.set(file.path, result);
+    if (result.isOk) {
+      this.index.set(file.path, result.cast());
       return "indexed";
     } else {
       if (result.error instanceof WontIndexError) {
@@ -122,7 +121,7 @@ export abstract class BaseIndexer<T, E extends Error> implements Indexer {
           file.path,
           result.error,
         );
-        this.index.set(file.path, result as Left<E>);
+        this.index.set(file.path, result);
         return "error";
       }
     }

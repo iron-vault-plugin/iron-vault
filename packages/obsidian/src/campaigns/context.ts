@@ -15,6 +15,7 @@ import { DataswornIndexer, DataswornTypes } from "datastore/datasworn-indexer";
 import { scopeTags } from "datastore/datasworn-symbols";
 import IronVaultPlugin from "index";
 import { ReadonlyIndex } from "indexer/index-interface";
+import { UnexpectedIndexingError } from "indexer/indexer";
 import { OracleRoller } from "oracles/roller";
 import { Ruleset } from "rules/ruleset";
 import { TrackedEntities } from "te/index-interface";
@@ -66,10 +67,16 @@ export class CampaignDataContext
     this.oracleRoller = new OracleRoller(plugin, this.oracles);
   }
 
-  campaigns: ReadonlyIndex<CampaignFile, ZodError>;
-  characters: ReadonlyIndex<CharacterContext, ZodError>;
-  clocks: ReadonlyIndex<ClockFileAdapter, ZodError>;
-  progressTracks: ReadonlyIndex<ProgressTrackFileAdapter, ZodError>;
+  campaigns: ReadonlyIndex<CampaignFile, ZodError | UnexpectedIndexingError>;
+  characters: ReadonlyIndex<
+    CharacterContext,
+    ZodError | UnexpectedIndexingError
+  >;
+  clocks: ReadonlyIndex<ClockFileAdapter, ZodError | UnexpectedIndexingError>;
+  progressTracks: ReadonlyIndex<
+    ProgressTrackFileAdapter,
+    ZodError | UnexpectedIndexingError
+  >;
 
   get moves(): StandardIndex<DataswornTypes["move"]> {
     return this.dataContext.moves;

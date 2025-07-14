@@ -487,7 +487,7 @@ See https://kdl.dev for syntax.</pre
       unbounded: (node.properties.unbounded ?? false) as boolean,
       complete: false,
     });
-    if (result.isLeft()) {
+    if (result.isErr) {
       // todo: Better error display
       return html`<pre class="error">
 Invalid track:

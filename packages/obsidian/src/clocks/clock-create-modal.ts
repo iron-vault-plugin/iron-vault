@@ -213,12 +213,12 @@ export class ClockCreateModal extends Modal {
     this.close();
     this.onAccept({
       ...this.result,
-      clock: Clock.create({
+      clock: Clock.mustCreate({
         name: this.result.name,
         progress: 0,
         segments: this.result.segments,
         active: true,
-      }).unwrap(),
+      }),
     });
   }
 

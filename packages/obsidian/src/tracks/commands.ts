@@ -60,8 +60,7 @@ export async function createProgressTrack(
 ): Promise<void> {
   const trackInput = await ProgressTrackCreateModal.show(plugin);
 
-  const track =
-    ProgressTrackFileAdapter.newFromTrack(trackInput).expect("invalid track");
+  const track = ProgressTrackFileAdapter.newFromTrack(trackInput);
 
   const file = await createNewIronVaultEntityFile(
     plugin.app,

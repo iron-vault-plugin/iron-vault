@@ -1,8 +1,8 @@
 import { produce } from "immer";
+import { Result } from "true-myth/result";
 import { normalizeKeys } from "utils/zodutils";
 import { ZodError, z } from "zod";
 import { IronVaultKind, PLUGIN_KIND_FIELD } from "../constants";
-import { Either, Left, Right } from "../utils/either";
 
 export enum ChallengeRanks {
   /** 12 ticks per step */
@@ -114,19 +114,21 @@ export class ProgressTrack {
 
   static create(
     data: z.input<typeof progressTrackSchema>,
-  ): Either<ZodError, ProgressTrack>;
-  static create(data: unknown): Either<ZodError, ProgressTrack>;
-  static create(data: unknown): Either<ZodError, ProgressTrack> {
+  ): Result<ProgressTrack, ZodError>;
+  static create(data: unknown): Result<ProgressTrack, ZodError>;
+  static create(data: unknown): Result<ProgressTrack, ZodError> {
     const result = progressTrackSchema.safeParse(data);
     if (result.success) {
-      return Right.create(new this(result.data));
+      return Result.ok(new this(result.data));
     } else {
-      return Left.create(result.error);
+      return Result.err(result.error);
     }
   }
 
   static create_(data: z.input<typeof progressTrackSchema>): ProgressTrack {
-    return this.create(data).expect("unexpected error value");
+    return this.create(data).unwrapOrElse((e) => {
+      throw new Error("unexpected error value", { cause: e });
+    });
   }
 
   private constructor(data: ProgressTrackSchema) {
@@ -249,8 +251,8 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     trackType: string;
     track: ProgressTrack;
     character?: string | null;
-  }): Either<ZodError, ProgressTrackFileAdapter> {
-    return this.create({
+  }): ProgressTrackFileAdapter {
+    return this.mustCreate({
       name,
       rank: track.rank,
       progress: track.progress,
@@ -263,7 +265,7 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
     });
   }
 
-  static create(data: unknown): Either<ZodError, ProgressTrackFileAdapter> {
+  static create(data: unknown): Result<ProgressTrackFileAdapter, ZodError> {
     const result = progressTrackerSchema.safeParse(data);
     if (result.success) {
       const raw = result.data;
@@ -274,8 +276,16 @@ export class ProgressTrackFileAdapter implements ProgressTrackInfo {
         unbounded: false,
       }).map((track) => new this(raw, track));
     } else {
-      return Left.create(result.error);
+      return Result.err(result.error);
     }
+  }
+
+  static mustCreate(
+    data: z.input<typeof progressTrackerSchema>,
+  ): ProgressTrackFileAdapter {
+    return this.create(data).unwrapOrElse((e) => {
+      throw new Error("unexpected error value", { cause: e });
+    });
   }
 
   updatingTrack(

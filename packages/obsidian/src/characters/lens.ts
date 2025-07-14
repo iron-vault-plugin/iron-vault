@@ -1,7 +1,8 @@
 import { type Datasworn } from "@datasworn/core";
 import { IDataContext } from "datastore/data-context";
+import { Result } from "true-myth/result";
 import { ensureUnique } from "utils/ensure-unique";
-import { zodResultToEither } from "utils/zodutils";
+import { zodResultToResult } from "utils/zodutils";
 import { z } from "zod";
 import {
   ConditionMeterDefinition,
@@ -14,7 +15,6 @@ import {
   ProgressTrack,
   legacyTrackXpEarned,
 } from "../tracks/progress";
-import { Either } from "../utils/either";
 import {
   Lens,
   Reader,
@@ -437,13 +437,13 @@ export function rollablesReader(
 
 export type CharacterValidater = (
   data: unknown,
-) => Either<z.ZodError, ValidatedCharacter>;
+) => Result<ValidatedCharacter, z.ZodError>;
 
 export function createValidCharacter(
   lens: CharacterLens,
   validater: CharacterValidater,
   name: string,
-): ValidatedCharacter {
+): Result<ValidatedCharacter, z.ZodError> {
   const character: BaseIronVaultSchema = { name, momentum: 2 };
   const { ruleset } = lens;
   for (const [key, meter] of Object.entries(ruleset.condition_meters)) {
@@ -461,7 +461,7 @@ export function createValidCharacter(
     character[progressKey] = 0;
     character[xpEarnedKey] = 0;
   }
-  return validater(character).unwrap();
+  return validater(character);
 }
 
 export function characterLens(ruleset: Ruleset): {
@@ -565,8 +565,8 @@ export function characterLens(ruleset: Ruleset): {
     ruleset,
   };
 
-  function validater(data: unknown): Either<z.ZodError, ValidatedCharacter> {
-    return zodResultToEither(schema.safeParse(data)).map((raw) => ({
+  function validater(data: unknown): Result<ValidatedCharacter, z.ZodError> {
+    return zodResultToResult(schema.safeParse(data)).map((raw) => ({
       raw,
       [ValidationTag]: ruleset.validationTag,
     }));

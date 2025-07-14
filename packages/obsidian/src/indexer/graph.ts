@@ -25,14 +25,9 @@ import { enableMapSet, produce } from "immer";
 import isEqual from "lodash.isequal";
 import { rootLogger } from "logger";
 import { Ruleset } from "rules/ruleset";
-import {
-  Either,
-  flatMap,
-  Left,
-  makeEitherPartialEquality,
-  Right,
-} from "utils/either";
-import { zodResultToEither } from "utils/zodutils";
+import { err, Result } from "true-myth/result";
+import { makeResultPartialEquality } from "utils/either";
+import { zodResultToResult } from "utils/zodutils";
 import { PLUGIN_KIND_FIELD } from "../constants";
 import {
   DataswornEntries,
@@ -45,8 +40,8 @@ logger.setDefaultLevel("debug");
 enableMapSet();
 
 export type FileKind = {
-  campaign: Either<Error, CampaignInput>;
-  character: Either<Error, ValidatedCharacter>;
+  campaign: Result<CampaignInput, Error>;
+  character: Result<ValidatedCharacter, Error>;
 };
 
 function isValidFileKind(
@@ -69,7 +64,7 @@ export type PlaysetValue = {
 
 export type AllowableTypes = FileKind & {
   "@file": File;
-  playset: Either<Error, PlaysetValue>;
+  playset: Result<PlaysetValue, Error>;
   // "campaign":
 };
 
@@ -91,15 +86,15 @@ const ironVaultKind = memoizeWeak((file: Signal<File>) =>
   ),
 );
 
-const eitherIsEqual = makeEitherPartialEquality(isEqual);
+const resultIsEqual = makeResultPartialEquality(isEqual);
 
 export const playsetConfigFor = memoizeWeak(
   (
     campaign: Signal<AllowableTypes["campaign"]>,
-  ): Signal<Either<Error, PlaysetConfigSchema>> =>
+  ): Signal<Result<PlaysetConfigSchema, Error>> =>
     onlyChanges(
       computed(() => campaign.value.map((_) => _.ironvault.playset)),
-      eitherIsEqual,
+      resultIsEqual,
     ),
 );
 
@@ -107,15 +102,14 @@ export const playsetNodeForCampaign = memoizeGraph((graph) =>
   memoizeWeak((campaign: Signal<AllowableTypes["campaign"]>) =>
     onlyChanges(
       computed((): AllowableTypes["playset"] =>
-        flatMap(
-          playsetConfigFor(campaign).value,
+        playsetConfigFor(campaign).value.andThen(
           (playset) =>
             graph.getOrCreateAtom<AllowableTypes["playset"]>(
               `playset/${JSON.stringify(playset)}`,
-              Left.create(
+              Result.err(
                 new Error(`playset not yet loaded: ${JSON.stringify(playset)}`),
               ),
-              eitherIsEqual,
+              resultIsEqual,
             ).value,
         ),
       ),
@@ -139,7 +133,7 @@ const allPlaysetSpecs = memoizeGraph((graph: GraphContext<AllowableTypes>) =>
           continue;
         }
         const playsetSpec = playsetConfigFor(campaign).value;
-        if (playsetSpec.isLeft()) {
+        if (playsetSpec.isErr) {
           logger.error("Error getting playset spec", playsetSpec.error);
           continue;
         }
@@ -153,8 +147,8 @@ const allPlaysetSpecs = memoizeGraph((graph: GraphContext<AllowableTypes>) =>
         // data rev it was built against, so we can see if we are waiting on updates...
         graph.getOrCreateAtom<AllowableTypes["playset"]>(
           `playset/${JSON.stringify(playsetSpec.value)}`,
-          Right.create({ entries: new Map(), revision: 0 }),
-          eitherIsEqual,
+          Result.ok({ entries: new Map(), revision: 0 }),
+          resultIsEqual,
         );
       }
       return playsetSpecs;
@@ -192,7 +186,7 @@ export function registerPlaysetHasher(graph: Graph, data: Signal<Data>) {
       ...allPlaysetSpecs(graph).value.entries(),
     ].flatMap(([key, spec]) => {
       const playsetConfig = playsetSpecToPlaysetConfig(spec);
-      if (playsetConfig.isLeft()) {
+      if (playsetConfig.isErr) {
         logger.error("Error getting playset spec", spec, playsetConfig.error);
         return [];
       }
@@ -227,8 +221,8 @@ export function registerPlaysetHasher(graph: Graph, data: Signal<Data>) {
         for (const [playsetKey, , playset] of playsets) {
           graph.setAtom<AllowableTypes["playset"]>(
             playsetKey,
-            Right.create(playset),
-            eitherIsEqual,
+            Result.ok(playset),
+            resultIsEqual,
           );
         }
       }
@@ -281,50 +275,40 @@ export type NodeParsers<
 
 const nodeTypes: NodeParsers<AllowableTypes, keyof FileKind> = {
   campaign: (graph: GraphContext<AllowableTypes>, file: Signal<File>) => {
-    return flatMap(
-      frontmatter(file).value.mapOrElse<
-        Either<Error, undefined | Record<string, unknown>>
-      >(Left.create, Right.create),
-      (content) =>
-        zodResultToEither(campaignFileSchemaWithPlayset.safeParse(content)).map(
-          (raw) => ({
-            ...raw,
-            name: raw.name || baseNameOf(file.value.path),
-          }),
-        ),
+    return frontmatter(file).value.andThen((content) =>
+      zodResultToResult(campaignFileSchemaWithPlayset.safeParse(content)).map(
+        (raw) => ({
+          ...raw,
+          name: raw.name || baseNameOf(file.value.path),
+        }),
+      ),
     );
   },
   character: (graph: GraphContext<AllowableTypes>, file: Signal<File>) => {
     const campaignPath = campaignAssignment(graph)(file);
     if (campaignPath.value === undefined) {
-      return Left.create(new Error("No campaign found"));
+      return err(new Error("No campaign found"));
     }
     // SAFE: if this campaign is in the campaign assignment, it must be a node.
     const campaign = graph.getNode("campaign", campaignPath.value)!;
 
     const playset = playsetNodeForCampaign(graph)(campaign).value;
-    if (playset.isLeft()) {
-      return playset;
+    if (playset.isErr) {
+      return playset.cast();
     }
 
     const fm = frontmatter(file).value;
     if (fm.isErr) {
-      return Left.create(fm.error);
+      return fm.cast();
     }
 
-    return flatMap(
-      Ruleset.fromActiveRulesPackages(
-        playset.value.entries
-          .values()
-          .filter((e) => e.kind === "rules_package")
-          .map((e) => e.value.data)
-          .toArray(),
-      ),
-      (ruleset) => {
-        const { validater } = characterLens(ruleset);
-        return validater(fm.value);
-      },
-    );
+    return Ruleset.fromActiveRulesPackages(
+      playset.value.entries
+        .values()
+        .filter((e) => e.kind === "rules_package")
+        .map((e) => e.value.data)
+        .toArray(),
+    ).andThen((ruleset) => characterLens(ruleset).validater(fm.value));
   },
 };
 

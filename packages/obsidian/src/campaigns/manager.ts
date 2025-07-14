@@ -2,7 +2,6 @@ import { childOfPath, parentFolderOf } from "@ironvault/utils/paths";
 import Emittery, { UnsubscribeFunction } from "emittery";
 import IronVaultPlugin from "index";
 import { onlyValid } from "indexer/index-impl";
-import { EmittingIndex } from "indexer/index-interface";
 import { rootLogger } from "logger";
 import {
   Component,
@@ -16,11 +15,11 @@ import {
   TFolder,
 } from "obsidian";
 import { EVENT_TYPES as LOCAL_SETTINGS_EVENT_TYPES } from "settings/local";
-import { Either, Left, Right } from "utils/either";
+import Result, { err, ok } from "true-myth/result";
 import { CustomSuggestModal } from "utils/suggest";
-import { z } from "zod";
 import { CampaignDataContext } from "./context";
 import { CampaignFile } from "./entity";
+import { CampaignIndex } from "./indexer";
 
 const logger = rootLogger.getLogger("campaign-manager");
 
@@ -41,7 +40,7 @@ export class CampaignWatcher extends Component {
 
   getAssignment(
     sourcePath: string,
-  ): Either<OverlappingCampaignError, CampaignFile | null> {
+  ): Result<CampaignFile | null, OverlappingCampaignError> {
     let foundAssignment: CampaignFile | null = null;
     for (const [thisPath, thisCampaign] of this.#lastSeen.entries()) {
       const thisRoot = parentFolderOf(thisPath);
@@ -49,13 +48,13 @@ export class CampaignWatcher extends Component {
         if (foundAssignment != null) {
           const msg = `Path '%s' has two potential campaign roots: '%s' and '%s'. It is not valid for two campaigns to have overlapping roots.`;
           logger.warn(msg);
-          return Left.create(new OverlappingCampaignError(msg));
+          return err(new OverlappingCampaignError(msg));
         } else {
           foundAssignment = thisCampaign;
         }
       }
     }
-    return Right.create(foundAssignment);
+    return ok(foundAssignment);
   }
 
   /** Get the campaign last seen by the watcher at this path. */
@@ -69,7 +68,7 @@ export class CampaignWatcher extends Component {
     update: () => unknown,
   ): { campaign: CampaignFile | null; unsubscribe: UnsubscribeFunction } {
     // We ignore overlapping campaign errors for watch.
-    const originalAssignment = this.getAssignment(watchPath).getOrElse(null);
+    const originalAssignment = this.getAssignment(watchPath).unwrapOr(null);
     const unsubscribe = this.#events.on(
       "update",
       ({ campaignRoot, campaign }) => {
@@ -95,7 +94,7 @@ export class CampaignWatcher extends Component {
   }
 
   constructor(
-    readonly campaigns: EmittingIndex<CampaignFile, z.ZodError>,
+    readonly campaigns: CampaignIndex,
     readonly areSame: (left: CampaignFile, right: CampaignFile) => boolean,
   ) {
     super();
@@ -106,7 +105,7 @@ export class CampaignWatcher extends Component {
     this.registerEvent(
       this.campaigns.on("changed", (path) => {
         const oldValue = this.#lastSeen.get(path);
-        const newValue = this.campaigns.get(path)?.getOrElse(undefined);
+        const newValue = this.campaigns.get(path)?.unwrapOr(undefined);
         logger.debug(
           "path=%s: detected change old=%o new=%o",
           path,
@@ -357,7 +356,7 @@ export class CampaignManager extends Component {
 
   campaignForPath(path: string): CampaignFile | undefined {
     const assignment = this.watcher.getAssignment(path);
-    if (assignment.isLeft()) {
+    if (assignment.isErr) {
       const error = assignment.error;
       new Notice(error.message, 0);
       throw error;

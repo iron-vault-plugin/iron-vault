@@ -1,6 +1,7 @@
 import { Datasworn } from "@datasworn/core";
+import Result from "true-myth/result";
 import { sameValueElementsInArray } from "utils/arrays";
-import { Either, trying } from "utils/either";
+import { trying } from "utils/either";
 import { z } from "zod";
 import { STANDARD_PLAYSET_DEFNS } from "./standard";
 
@@ -314,7 +315,7 @@ export class PlaysetConfig implements IPlaysetConfig {
     );
   }
 
-  static tryParse(lines: string[]): Either<Error, PlaysetConfig> {
+  static tryParse(lines: string[]): Result<PlaysetConfig, Error> {
     return trying(() => this.parse(lines));
   }
 

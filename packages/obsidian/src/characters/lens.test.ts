@@ -1,6 +1,7 @@
 import { type Datasworn } from "@datasworn/core";
 import starforgedData from "@datasworn/starforged/json/starforged.json" with { type: "json" };
 import { IDataContext, MockDataContext } from "datastore/data-context";
+import { unwrap } from "true-myth/test-support";
 import { beforeAll, describe, expect, it } from "vitest";
 import { Ruleset } from "../rules/ruleset";
 import { ChallengeRanks } from "../tracks/progress";
@@ -80,18 +81,18 @@ describe("validater", () => {
 
   it("returns a validated character on valid input", () => {
     expect(
-      validatedAgainst(TEST_RULESET, validater(VALID_INPUT).unwrap()),
+      validatedAgainst(TEST_RULESET, unwrap(validater(VALID_INPUT))),
     ).toBeTruthy();
   });
 
   it("sets a default for missing stat properties", () => {
     const data = { ...VALID_INPUT, wits: undefined };
-    expect(lens.stats.wits.get(validater(data).unwrap())).toBe(0);
+    expect(lens.stats.wits.get(unwrap(validater(data)))).toBe(0);
   });
 
   it("requires condition meter properties", () => {
     const data = { ...VALID_INPUT, health: undefined };
-    expect(lens.condition_meters.health.get(validater(data).unwrap())).toBe(3);
+    expect(lens.condition_meters.health.get(unwrap(validater(data)))).toBe(3);
   });
 });
 
@@ -110,16 +111,18 @@ describe("characterLens", () => {
   const { validater, lens } = characterLens(TEST_RULESET);
 
   describe("#name", () => {
-    const character = validater({
-      ...VALID_INPUT,
-      name: "Test Name",
-    }).unwrap();
+    const character = unwrap(
+      validater({
+        ...VALID_INPUT,
+        name: "Test Name",
+      }),
+    );
 
     actsLikeLens(lens.name, character, "Foo");
   });
 
   describe("stat", () => {
-    const character = validater({ ...VALID_INPUT, wits: 3 }).unwrap();
+    const character = unwrap(validater({ ...VALID_INPUT, wits: 3 }));
     actsLikeLens(lens.stats.wits, character, 4);
 
     it("enforces a minimum", () => {
@@ -132,7 +135,7 @@ describe("characterLens", () => {
   });
 
   describe("stat", () => {
-    const character = validater({ ...VALID_INPUT, health: 3 }).unwrap();
+    const character = unwrap(validater({ ...VALID_INPUT, health: 3 }));
     actsLikeLens(lens.condition_meters.health, character, 4);
 
     it("enforces a minimum", () => {
@@ -149,16 +152,18 @@ describe("characterLens", () => {
   });
 
   describe("#assets", () => {
-    const character = validater({
-      ...VALID_INPUT,
-      assets: [
-        {
-          id: "asset_id",
-          abilities: [true, false, false],
-          controls: { integrity: 2 },
-        },
-      ] as IronVaultSheetAssetInput[],
-    }).unwrap();
+    const character = unwrap(
+      validater({
+        ...VALID_INPUT,
+        assets: [
+          {
+            id: "asset_id",
+            abilities: [true, false, false],
+            controls: { integrity: 2 },
+          },
+        ] as IronVaultSheetAssetInput[],
+      }),
+    );
     actsLikeLens(lens.assets, character, [
       {
         id: "new_asset",
@@ -176,16 +181,18 @@ describe("characterLens", () => {
 
     it("get returns an empty array if missing in source", () => {
       expect(
-        lens.assets.get(validater({ ...VALID_INPUT }).unwrap()),
+        lens.assets.get(unwrap(validater({ ...VALID_INPUT }))),
       ).toStrictEqual([]);
     });
   });
 
   describe("#impacts", () => {
-    const character = validater({
-      ...VALID_INPUT,
-      wounded: "a",
-    }).unwrap();
+    const character = unwrap(
+      validater({
+        ...VALID_INPUT,
+        wounded: "a",
+      }),
+    );
 
     actsLikeLens(lens.impacts, character, {
       wounded: true,
@@ -193,7 +200,7 @@ describe("characterLens", () => {
     });
 
     it("treats a missing key as unmarked", () => {
-      const character = validater({ ...VALID_INPUT }).unwrap();
+      const character = unwrap(validater({ ...VALID_INPUT }));
       expect(lens.impacts.get(character)).toEqual({
         wounded: false,
         disappointed: false,
@@ -215,23 +222,23 @@ describe("momentumOps", () => {
   describe("with no impacts marked", () => {
     describe("take", () => {
       it("adds momentum", () => {
-        const character = validater({ ...VALID_INPUT, momentum: 3 }).unwrap();
+        const character = unwrap(validater({ ...VALID_INPUT, momentum: 3 }));
         expect(lens.momentum.get(take(3)(character))).toBe(6);
       });
 
       it("enforces a maximum", () => {
-        const character = validater({ ...VALID_INPUT, momentum: 3 }).unwrap();
+        const character = unwrap(validater({ ...VALID_INPUT, momentum: 3 }));
         expect(lens.momentum.get(take(8)(character))).toBe(10);
       });
     });
 
     describe("suffer", () => {
       it("removes momentum", () => {
-        const character = validater({ ...VALID_INPUT, momentum: 3 }).unwrap();
+        const character = unwrap(validater({ ...VALID_INPUT, momentum: 3 }));
         expect(lens.momentum.get(suffer(3)(character))).toBe(0);
       });
       it("enforces a minimum of -6", () => {
-        const character = validater({ ...VALID_INPUT, momentum: 3 }).unwrap();
+        const character = unwrap(validater({ ...VALID_INPUT, momentum: 3 }));
         expect(lens.momentum.get(suffer(10)(character))).toBe(-6);
       });
     });
@@ -244,11 +251,13 @@ describe("momentumOps", () => {
     // [4, 10 - 4], // TODO: add more test impacts?
   ])("when %d impacts marked", (impacts, max, momentumReset) => {
     const impactKeys = Object.keys(TEST_RULESET.impacts).slice(0, impacts);
-    const character = validater({
-      ...VALID_INPUT,
-      momentum: 3,
-      ...Object.fromEntries(impactKeys.map((key) => [key, true])),
-    }).unwrap();
+    const character = unwrap(
+      validater({
+        ...VALID_INPUT,
+        momentum: 3,
+        ...Object.fromEntries(impactKeys.map((key) => [key, true])),
+      }),
+    );
     it(`caps momentum to ${max}`, () => {
       expect(lens.momentum.get(take(8)(character))).toBe(max);
     });
@@ -281,7 +290,7 @@ describe("movesReader", () => {
     it("is empty if no assets", () => {
       expect(
         movesReader(lens, mockDataContext).get(
-          validater({ ...VALID_INPUT }).unwrap(),
+          unwrap(validater({ ...VALID_INPUT })),
         ),
       ).toEqual([]);
     });
@@ -289,15 +298,17 @@ describe("movesReader", () => {
     it("does not include moves for unmarked asset abilities", () => {
       expect(
         movesReader(lens, mockDataContext).get(
-          validater({
-            ...VALID_INPUT,
-            assets: [
-              {
-                id: "asset:starforged/path/empath",
-                abilities: [false, false, false],
-              },
-            ],
-          } satisfies BaseIronVaultSchema).unwrap(),
+          unwrap(
+            validater({
+              ...VALID_INPUT,
+              assets: [
+                {
+                  id: "asset:starforged/path/empath",
+                  abilities: [false, false, false],
+                },
+              ],
+            } satisfies BaseIronVaultSchema),
+          ),
         ),
       ).toEqual([]);
     });
@@ -306,30 +317,34 @@ describe("movesReader", () => {
       // This ability has no additional moves.
       expect(
         movesReader(lens, mockDataContext).get(
-          validater({
-            ...VALID_INPUT,
-            assets: [
-              {
-                id: "asset:starforged/path/empath",
-                abilities: [false, true, false],
-              },
-            ],
-          } satisfies BaseIronVaultSchema).unwrap(),
+          unwrap(
+            validater({
+              ...VALID_INPUT,
+              assets: [
+                {
+                  id: "asset:starforged/path/empath",
+                  abilities: [false, true, false],
+                },
+              ],
+            } satisfies BaseIronVaultSchema),
+          ),
         ),
       ).toHaveLength(0);
 
       // This ability adds one extra move.
       expect(
         movesReader(lens, mockDataContext).get(
-          validater({
-            ...VALID_INPUT,
-            assets: [
-              {
-                id: "asset:starforged/path/empath",
-                abilities: [true, true, false],
-              },
-            ],
-          } satisfies BaseIronVaultSchema).unwrap(),
+          unwrap(
+            validater({
+              ...VALID_INPUT,
+              assets: [
+                {
+                  id: "asset:starforged/path/empath",
+                  abilities: [true, true, false],
+                },
+              ],
+            } satisfies BaseIronVaultSchema),
+          ),
         ),
       ).toMatchObject([
         {
@@ -356,15 +371,17 @@ describe("meterLenses", () => {
   });
 
   const { validater, lens } = characterLens(TEST_RULESET);
-  const character = validater({
-    ...VALID_INPUT,
-    assets: [
-      {
-        id: "asset:starforged/companion/protocol_bot",
-        abilities: [true, false, false],
-      },
-    ],
-  }).expect("valid character");
+  const character = unwrap(
+    validater({
+      ...VALID_INPUT,
+      assets: [
+        {
+          id: "asset:starforged/companion/protocol_bot",
+          abilities: [true, false, false],
+        },
+      ],
+    }),
+  );
 
   it("returns base meters", () => {
     const result = meterLenses(lens, character, mockDataContext);
@@ -398,15 +415,17 @@ describe("meterLenses", () => {
   });
 
   it("updates meters according to enhance_assets", () => {
-    const character1 = validater({
-      ...VALID_INPUT,
-      assets: [
-        {
-          id: "asset:starforged/companion/symbiote",
-          abilities: [true, false, false],
-        },
-      ],
-    }).expect("valid character");
+    const character1 = unwrap(
+      validater({
+        ...VALID_INPUT,
+        assets: [
+          {
+            id: "asset:starforged/companion/symbiote",
+            abilities: [true, false, false],
+          },
+        ],
+      }),
+    );
     const result1 = meterLenses(lens, character1, mockDataContext);
     expect(result1).toEqual(
       expect.arrayContaining([
@@ -418,15 +437,17 @@ describe("meterLenses", () => {
       ]),
     );
 
-    const character2 = validater({
-      ...VALID_INPUT,
-      assets: [
-        {
-          id: "asset:starforged/companion/symbiote",
-          abilities: [true, false, true],
-        },
-      ],
-    }).expect("valid character");
+    const character2 = unwrap(
+      validater({
+        ...VALID_INPUT,
+        assets: [
+          {
+            id: "asset:starforged/companion/symbiote",
+            abilities: [true, false, true],
+          },
+        ],
+      }),
+    );
     const result2 = meterLenses(lens, character2, mockDataContext);
     expect(result2).toEqual(
       expect.arrayContaining([
@@ -463,17 +484,19 @@ describe("Special Tracks", () => {
   it("defaults Progress field to 0", () => {
     expect(
       lens.special_tracks["quests_legacy"].get(
-        validater({ ...VALID_INPUT, Quests_XPEarned: 0 }).unwrap(),
+        unwrap(validater({ ...VALID_INPUT, Quests_XPEarned: 0 })),
       ).progress,
     ).toBe(0);
   });
 
   it("extracts a progress track", () => {
-    const character = validater({
-      ...VALID_INPUT,
-      Quests_Progress: 4,
-      Quests_XPEarned: 2,
-    }).unwrap();
+    const character = unwrap(
+      validater({
+        ...VALID_INPUT,
+        Quests_Progress: 4,
+        Quests_XPEarned: 2,
+      }),
+    );
     const track = lens.special_tracks["quests_legacy"].get(character);
     expect(track).toMatchObject({
       progress: 4,
@@ -484,11 +507,13 @@ describe("Special Tracks", () => {
   });
 
   it("updates a progress track", () => {
-    const character = validater({
-      ...VALID_INPUT,
-      Quests_Progress: 4,
-      Quests_XPEarned: 2,
-    }).unwrap();
+    const character = unwrap(
+      validater({
+        ...VALID_INPUT,
+        Quests_Progress: 4,
+        Quests_XPEarned: 2,
+      }),
+    );
     expect(
       updating(lens.special_tracks["quests_legacy"], (track) =>
         track.advanced(2),
@@ -500,11 +525,13 @@ describe("Special Tracks", () => {
   });
 
   it("advances xp earned", () => {
-    const character = validater({
-      ...VALID_INPUT,
-      Quests_Progress: 4,
-      Quests_XPEarned: 2,
-    }).unwrap();
+    const character = unwrap(
+      validater({
+        ...VALID_INPUT,
+        Quests_Progress: 4,
+        Quests_XPEarned: 2,
+      }),
+    );
     expect(
       updating(lens.special_tracks["quests_legacy"], (track) =>
         track.advanced(4),
@@ -519,7 +546,7 @@ describe("Special Tracks", () => {
 describe("createValidCharacter", () => {
   const { lens, validater } = characterLens(STARFORGED_RULESET);
   it("creates a fully initialized character", () => {
-    expect(createValidCharacter(lens, validater, "Bobby").raw).toEqual({
+    expect(unwrap(createValidCharacter(lens, validater, "Bobby")).raw).toEqual({
       name: "Bobby",
       momentum: 2,
       health: 5,

@@ -20,6 +20,7 @@
   "eslint.useFlatConfig": true,
   "search.exclude": {
     // "**/node_modules": true,
-    "**/docs-built": true
+    "**/docs-built": true,
+    "**/.obsidian": true
   }
 }

@@ -1,6 +1,7 @@
+import { Result } from "true-myth/result";
+import { unwrap, unwrapErr } from "true-myth/test-support";
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
-import { Either } from "../utils/either";
 import {
   CHALLENGE_STEPS,
   ChallengeRanks,
@@ -20,14 +21,12 @@ describe("ProgressTrack", () => {
   };
 
   function make(overrides: Partial<ProgressTrackSchema> = {}): ProgressTrack {
-    return ProgressTrack.create({ ...TEST_DATA, ...overrides }).unwrap();
+    return ProgressTrack.create_({ ...TEST_DATA, ...overrides });
   }
 
   it("parses a valid progress tracker", () => {
     const result = ProgressTrack.create(TEST_DATA);
-    expect(result.isRight()).toBeTruthy();
-    const track = result.unwrap();
-    expect(track).toMatchObject<ProgressTrackSchema>({
+    expect(unwrap(result)).toMatchObject<ProgressTrackSchema>({
       rank: ChallengeRanks.Dangerous,
       progress: 10,
       complete: false,
@@ -40,9 +39,7 @@ describe("ProgressTrack", () => {
       ...TEST_DATA,
       rank: "DANGERous",
     });
-    expect(result.isRight()).toBeTruthy();
-    const track = result.unwrap();
-    expect(track).toMatchObject<ProgressTrackSchema>({
+    expect(unwrap(result)).toMatchObject<ProgressTrackSchema>({
       rank: ChallengeRanks.Dangerous,
       progress: 10,
       complete: false,
@@ -129,7 +126,7 @@ describe("ProgressTrackFileAdapter", () => {
     overrides: Omit<Partial<ProgressTrackerInputSchema>, "rank"> & {
       rank?: ChallengeRanks | string;
     } = {},
-  ): Either<ZodError, ProgressTrackFileAdapter> {
+  ): Result<ProgressTrackFileAdapter, ZodError> {
     return ProgressTrackFileAdapter.create({
       ...TEST_DATA,
       ...overrides,
@@ -141,7 +138,7 @@ describe("ProgressTrackFileAdapter", () => {
       Rank?: ChallengeRanks | string;
     } = {},
   ): ProgressTrackFileAdapter {
-    return make(overrides).unwrap();
+    return unwrap(make(overrides));
   }
 
   it("#track extracts the progress track data", () => {
@@ -164,7 +161,7 @@ describe("ProgressTrackFileAdapter", () => {
 
   it("requires a completion tag", () => {
     expect(
-      make({ tags: ["missing_completion"] }).unwrapError().issues,
+      unwrapErr(make({ tags: ["missing_completion"] })).issues,
     ).toMatchObject([
       {
         code: "custom",
@@ -176,7 +173,7 @@ describe("ProgressTrackFileAdapter", () => {
 
   it("rejects record with both 'complete' and 'incomplete'", () => {
     expect(
-      make({ tags: ["complete", "incomplete"] }).unwrapError().issues,
+      unwrapErr(make({ tags: ["complete", "incomplete"] })).issues,
     ).toEqual([
       {
         code: "custom",

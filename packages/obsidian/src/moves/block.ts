@@ -28,7 +28,7 @@ export function registerMoveBlock(plugin: IronVaultPlugin): void {
     await plugin.datastore.waitForReady;
     const validatedMove = parseMoveBlock(source);
 
-    if (validatedMove.isRight()) {
+    if (validatedMove.isOk) {
       const renderer = new MoveMarkdownRenderChild(
         el,
         plugin.app,
