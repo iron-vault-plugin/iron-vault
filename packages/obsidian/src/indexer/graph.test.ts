@@ -2,7 +2,8 @@ import { computed, effect, signal, Signal } from "@preact/signals-core";
 import { CampaignInput } from "campaigns/entity";
 import { ReadonlyDataIndexDb } from "datastore/db";
 import { produce } from "immer";
-import { Right } from "utils/either";
+import { Result } from "true-myth/result";
+import { unwrap } from "true-myth/test-support";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as yaml from "yaml";
 import { PLUGIN_KIND_FIELD } from "../constants";
@@ -208,7 +209,7 @@ describe("campaign", () => {
     node.subscribe(fn);
 
     expect(fn).toHaveBeenCalledWith(
-      Right.create({
+      Result.ok({
         ironvault: {
           playset: {
             type: "registry",
@@ -384,14 +385,14 @@ describe("registerPlaysetHasher", () => {
           const campaign = graph.getNodeTracked("campaign", file.path);
           if (!campaign) return;
           const config = playsetConfigFor(campaign);
-          if (config.value.isLeft()) return;
+          if (config.value.isErr) return;
           const playsetNode = graph.getNode(
             "playset",
             JSON.stringify(config.value.value),
           );
           if (
             !playsetNode ||
-            playsetNode.value.isLeft() ||
+            playsetNode.value.isErr ||
             playsetNode.value.value.revision !== revision
           )
             return;
@@ -418,7 +419,7 @@ describe("registerPlaysetHasher", () => {
     });
     graph.addOrUpdateFile(file);
     const result = waitForPlayset(graph, file);
-    const val = (await result).unwrap();
+    const val = unwrap(await result);
     expect(val.revision).toEqual(1);
     expect(val.entries.values()).toContainEqual(
       expect.objectContaining({ id: "asset:test/test" }),
@@ -463,7 +464,7 @@ describe("registerPlaysetHasher", () => {
       },
     });
     const result = waitForPlayset(graph, file, 2);
-    const val = (await result).unwrap();
+    const val = unwrap(await result);
     expect(val.revision).toEqual(2);
     expect(val.entries).toEqual(
       new Map([

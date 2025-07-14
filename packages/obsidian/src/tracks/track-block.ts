@@ -2,6 +2,7 @@ import { html, render } from "lit-html";
 import { md } from "utils/ui/directives";
 
 import IronVaultPlugin from "index";
+import { UnexpectedIndexingError } from "indexer/indexer";
 import { vaultProcess } from "utils/obsidian";
 import { capitalize } from "utils/strings";
 import { TrackedEntityRenderer } from "utils/ui/tracked-entity-renderer";
@@ -26,7 +27,7 @@ export default function registerTrackBlock(plugin: IronVaultPlugin): void {
 
 class TrackRenderer extends TrackedEntityRenderer<
   ProgressTrackFileAdapter,
-  ZodError
+  ZodError | UnexpectedIndexingError
 > {
   editingName = false;
 

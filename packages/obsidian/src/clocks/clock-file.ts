@@ -1,10 +1,10 @@
 import { produce } from "immer";
 import { CachedMetadata, TFile } from "obsidian";
+import Result from "true-myth/result";
 import { normalizeKeys } from "utils/zodutils";
 import { z } from "zod";
 import { IronVaultKind, PLUGIN_KIND_FIELD } from "../constants";
 import { BaseIndexer, IndexOf, IndexUpdate } from "../indexer/indexer";
-import { Either, Left } from "../utils/either";
 import { updater } from "../utils/update";
 import { Clock } from "./clock";
 
@@ -83,7 +83,7 @@ export class ClockFileAdapter {
     name: string;
     clock: Clock;
     defaultOdds: ClockOdds | undefined;
-  }): Either<z.ZodError, ClockFileAdapter> {
+  }): Result<ClockFileAdapter, z.ZodError> {
     return this.create({
       name,
       segments: clock.segments,
@@ -94,7 +94,7 @@ export class ClockFileAdapter {
     } satisfies z.input<typeof clockSchema>);
   }
 
-  static create(data: unknown): Either<z.ZodError, ClockFileAdapter> {
+  static create(data: unknown): Result<ClockFileAdapter, z.ZodError> {
     const result = normalizedClockSchema.safeParse(data);
     if (result.success) {
       const raw = result.data;
@@ -105,7 +105,7 @@ export class ClockFileAdapter {
         active: !raw.tags.includes("complete"),
       }).map((clock) => new this(raw, clock));
     } else {
-      return Left.create(result.error);
+      return Result.err(result.error);
     }
   }
 
@@ -165,7 +165,10 @@ export class ClockIndexer extends BaseIndexer<ClockFileAdapter, z.ZodError> {
 // TODO: feels like this could be merged into some class that provides the same config to
 //       ProgressIndexer
 export const clockUpdater = updater<ClockFileAdapter>(
-  (data) => ClockFileAdapter.create(data).expect("could not parse"),
+  (data) =>
+    ClockFileAdapter.create(data).unwrapOrElse((e) => {
+      throw new Error("could not parse", { cause: e });
+    }),
   (tracker) => tracker.raw,
 );
 

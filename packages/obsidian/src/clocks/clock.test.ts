@@ -1,3 +1,4 @@
+import { unwrap } from "true-myth/test-support";
 import { describe, expect, it } from "vitest";
 import { Clock, ClockInput } from "./clock";
 
@@ -16,12 +17,12 @@ describe("Clock", () => {
   describe("create", () => {
     it("accepts clocks with 0 progress", () => {
       expect(
-        Clock.create({
+        Clock.mustCreate({
           name: "blah",
           active: true,
           progress: 0,
           segments: 6,
-        }).unwrap(),
+        }),
       ).toEqual({
         name: "blah",
         progress: 0,
@@ -33,25 +34,25 @@ describe("Clock", () => {
 
   describe("withProgress", () => {
     it("returns a new clock with updated progress", () => {
-      const clock = make_clock({ progress: 1 }).unwrap();
+      const clock = unwrap(make_clock({ progress: 1 }));
       const newClock = clock.withProgress(2);
       expect(clock.progress).toBe(1);
       expect(newClock.progress).toBe(2);
     });
     it("constrains progress to be >= 0", () => {
-      expect(make_clock().unwrap().withProgress(-1).progress).toBe(0);
+      expect(unwrap(make_clock()).withProgress(-1).progress).toBe(0);
     });
 
     it("constrains progress to be < segments", () => {
-      expect(
-        make_clock({ segments: 6 }).unwrap().withProgress(7).progress,
-      ).toBe(6);
+      expect(unwrap(make_clock({ segments: 6 })).withProgress(7).progress).toBe(
+        6,
+      );
     });
   });
 
   describe("tick", () => {
     it("returns a new clock with updated progress", () => {
-      const clock = make_clock({ progress: 1 }).unwrap();
+      const clock = unwrap(make_clock({ progress: 1 }));
       const newClock = clock.tick(2);
       expect(clock.progress).toBe(1);
       expect(newClock.progress).toBe(3);

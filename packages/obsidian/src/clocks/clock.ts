@@ -1,6 +1,6 @@
+import Result from "true-myth/result";
 import { z } from "zod";
-import { Either } from "../utils/either";
-import { zodResultToEither } from "../utils/zodutils";
+import { zodResultToResult } from "../utils/zodutils";
 
 export const clockValidator = z
   .object({
@@ -33,11 +33,16 @@ export class Clock implements ClockLike {
 
   public static create(
     data: ClockInput,
-  ): Either<z.ZodError<ClockInput>, Clock> {
-    return zodResultToEither(clockValidator.safeParse(data)).map(
+  ): Result<Clock, z.ZodError<ClockInput>> {
+    return zodResultToResult(clockValidator.safeParse(data)).map(
       ({ name, progress, segments, active }) =>
         new this(name, progress, segments, active),
     );
+  }
+
+  public static mustCreate(data: ClockInput): Clock {
+    const { name, progress, segments, active } = clockValidator.parse(data);
+    return new this(name, progress, segments, active);
   }
 
   public withName(name: string): this {

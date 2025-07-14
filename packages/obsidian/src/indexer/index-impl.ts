@@ -1,5 +1,5 @@
 import { EventRef, Events } from "obsidian";
-import { Either } from "utils/either";
+import { Result } from "true-myth/result";
 import {
   ProjectableMap,
   projectedVersionedMap,
@@ -11,25 +11,25 @@ import { EmittingIndex } from "./index-interface";
 
 /** Filter map down to only valid entries. */
 export function onlyValid<K, T, E extends Error>(
-  map: ReadonlyVersionedMap<K, Either<E, T>>,
+  map: ReadonlyVersionedMap<K, Result<T, E>>,
 ): ProjectableMap<K, T> {
   return projectedVersionedMap(map, (result) =>
-    result.isRight() ? result.value : undefined,
+    result.isOk ? result.value : undefined,
   );
 }
 
 /** Filter map down to only invalid entries. */
 export function onlyInvalid<K, T, E extends Error>(
-  map: ReadonlyVersionedMap<K, Either<E, T>>,
+  map: ReadonlyVersionedMap<K, Result<T, E>>,
 ): ProjectableMap<K, E> {
   return projectedVersionedMap(map, (result) =>
-    result.isLeft() ? result.error : undefined,
+    result.isErr ? result.error : undefined,
   );
 }
 
 export class IndexImpl<T, E extends Error> implements EmittingIndex<T, E> {
   readonly events: Events = new Events();
-  readonly #map: VersionedMap<string, Either<E, T>> = new VersionedMapImpl();
+  readonly #map: VersionedMap<string, Result<T, E>> = new VersionedMapImpl();
 
   get revision(): number {
     return this.#map.revision;
@@ -54,9 +54,9 @@ export class IndexImpl<T, E extends Error> implements EmittingIndex<T, E> {
 
   forEach(
     callbackfn: (
-      value: Either<E, T>,
+      value: Result<T, E>,
       key: string,
-      map: Map<string, Either<E, T>>,
+      map: Map<string, Result<T, E>>,
     ) => void,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     thisArg?: any,
@@ -64,7 +64,7 @@ export class IndexImpl<T, E extends Error> implements EmittingIndex<T, E> {
     this.#map.forEach(callbackfn, thisArg);
   }
 
-  get(key: string): Either<E, T> | undefined {
+  get(key: string): Result<T, E> | undefined {
     return this.#map.get(key);
   }
 
@@ -72,7 +72,7 @@ export class IndexImpl<T, E extends Error> implements EmittingIndex<T, E> {
     return this.#map.has(key);
   }
 
-  set(key: string, value: Either<E, T>): this {
+  set(key: string, value: Result<T, E>): this {
     this.#map.set(key, value);
     this.trigger("changed", key);
     return this;
@@ -82,7 +82,7 @@ export class IndexImpl<T, E extends Error> implements EmittingIndex<T, E> {
     return this.#map.size;
   }
 
-  entries(): MapIterator<[string, Either<E, T>]> {
+  entries(): MapIterator<[string, Result<T, E>]> {
     return this.#map.entries();
   }
 
@@ -90,11 +90,11 @@ export class IndexImpl<T, E extends Error> implements EmittingIndex<T, E> {
     return this.#map.keys();
   }
 
-  values(): MapIterator<Either<E, T>> {
+  values(): MapIterator<Result<T, E>> {
     return this.#map.values();
   }
 
-  [Symbol.iterator](): MapIterator<[string, Either<E, T>]> {
+  [Symbol.iterator](): MapIterator<[string, Result<T, E>]> {
     return this.#map[Symbol.iterator]();
   }
 

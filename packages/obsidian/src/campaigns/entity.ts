@@ -1,6 +1,6 @@
 import { TFile } from "obsidian";
-import { Either, Left } from "utils/either";
-import { zodResultToEither } from "utils/zodutils";
+import Result from "true-myth/result";
+import { zodResultToResult } from "utils/zodutils";
 import { z } from "zod";
 import {
   IPlaysetConfig,
@@ -67,7 +67,7 @@ export type PlaysetConfigSchema = z.output<typeof PlaysetConfigSchema>;
 
 export function playsetSpecToPlaysetConfig(
   spec: z.output<typeof PlaysetConfigSchema>,
-): Either<Error, IPlaysetConfig> {
+): Result<IPlaysetConfig, Error> {
   switch (spec.type) {
     case "globs":
       return PlaysetConfig.tryParse(spec.lines);
@@ -76,7 +76,7 @@ export function playsetSpecToPlaysetConfig(
       if (standardDefn) {
         return PlaysetConfig.tryParse(standardDefn.lines);
       } else {
-        return Left.create(new Error(`Invalid playset key ${spec.key}`));
+        return Result.err(new Error(`Invalid playset key ${spec.key}`));
       }
     }
   }
@@ -130,10 +130,10 @@ export class CampaignFile implements BaseCampaign {
   static parse(
     file: TFile,
     data: CampaignInput,
-  ): Either<z.ZodError, CampaignFile>;
-  static parse(file: TFile, data: unknown): Either<z.ZodError, CampaignFile>;
-  static parse(file: TFile, data: unknown): Either<z.ZodError, CampaignFile> {
-    const result = zodResultToEither(
+  ): Result<CampaignFile, z.ZodError>;
+  static parse(file: TFile, data: unknown): Result<CampaignFile, z.ZodError>;
+  static parse(file: TFile, data: unknown): Result<CampaignFile, z.ZodError> {
+    const result = zodResultToResult(
       campaignFileSchemaWithPlayset.safeParse(data),
     );
     return result.map((raw) => new CampaignFile(file, raw));

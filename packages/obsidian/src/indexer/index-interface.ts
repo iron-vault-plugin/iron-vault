@@ -1,11 +1,8 @@
 import { EventRef } from "obsidian";
-import { Either } from "utils/either";
+import Result from "true-myth/result";
 import { ReadonlyVersionedMap, VersionedMap } from "utils/versioned-map";
 
-export type ReadonlyIndex<T, E extends Error> = ReadonlyVersionedMap<
-  string,
-  Either<E, T>
->;
+export type ReadonlyIndex<T, E> = ReadonlyVersionedMap<string, Result<T, E>>;
 
 export type AsEmitting<I> =
   I extends Index<infer T, infer E>
@@ -14,13 +11,12 @@ export type AsEmitting<I> =
       ? EmittingIndex<T, E>
       : never;
 
-export interface Index<T, E extends Error>
-  extends VersionedMap<string, Either<E, T>> {
+export interface Index<T, E> extends VersionedMap<string, Result<T, E>> {
   /** Rename the old key to the new key, returning true if old key was found. */
   rename(oldPath: string, newPath: string): boolean;
 }
 
-export interface EmittingIndex<T, E extends Error> extends Index<T, E> {
+export interface EmittingIndex<T, E> extends Index<T, E> {
   on(
     name: "changed",
     callback: (path: string) => unknown,

@@ -78,7 +78,7 @@ export class CampaignEditView extends FileView {
         this.contentEl,
       );
       return;
-    } else if (result.isLeft()) {
+    } else if (result.isErr) {
       try {
         campaign = CampaignFile.permissiveParse(
           this.plugin.app.metadataCache.getCache(file.path),

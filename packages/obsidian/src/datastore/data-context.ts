@@ -128,7 +128,9 @@ export class BaseDataContext implements ICompleteDataContext {
     const rules = [...this.prioritized.ofKind("rules_package").values()].map(
       ({ value }) => value,
     );
-    return Ruleset.fromActiveRulesPackages(rules).unwrap();
+    return Ruleset.fromActiveRulesPackages(rules).unwrapOrElse((e) => {
+      throw new Error(`Playset produced invalid ruleset: ${e.message}`);
+    });
   }
 
   get trackTypes() {

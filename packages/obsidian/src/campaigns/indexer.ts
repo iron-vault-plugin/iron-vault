@@ -1,5 +1,9 @@
-import { Index } from "indexer/index-interface";
-import { BaseIndexer, IndexUpdate } from "indexer/indexer";
+import { EmittingIndex } from "indexer/index-interface";
+import {
+  BaseIndexer,
+  IndexUpdate,
+  UnexpectedIndexingError,
+} from "indexer/indexer";
 import { CachedMetadata, TFile } from "obsidian";
 import { z } from "zod";
 import { IronVaultKind } from "../constants";
@@ -18,4 +22,7 @@ export class CampaignIndexer extends BaseIndexer<CampaignFile, z.ZodError> {
   protected reprocessRenamedFiles: boolean = true;
 }
 
-export type CampaignIndex = Index<CampaignFile, z.ZodError>;
+export type CampaignIndex = EmittingIndex<
+  CampaignFile,
+  z.ZodError | UnexpectedIndexingError
+>;

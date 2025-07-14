@@ -112,7 +112,7 @@ export abstract class TrackedEntityRenderer<
     const result = this.index.get(this.sourcePath);
     if (result == null) {
       return this.renderMissingEntity();
-    } else if (result.isLeft()) {
+    } else if (result.isErr) {
       return this.renderInvalidEntity(result.error);
     } else {
       try {

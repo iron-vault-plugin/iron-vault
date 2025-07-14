@@ -6,6 +6,7 @@ import Sortable from "sortablejs";
 
 import { Asset } from "@datasworn/core/dist/Datasworn";
 import IronVaultPlugin from "index";
+import { UnexpectedIndexingError } from "indexer/indexer";
 import { normalizePath } from "obsidian";
 import { Ruleset } from "rules/ruleset";
 import { IronVaultPluginSettings } from "settings";
@@ -72,7 +73,7 @@ enum CharacterSheetSection {
 
 class CharacterRenderer extends TrackedEntityRenderer<
   CharacterContext,
-  ZodError
+  ZodError | UnexpectedIndexingError
 > {
   sections: CharacterSheetSection[];
 

@@ -81,6 +81,9 @@ export class LegacyTrackWriter implements ProgressTrackWriterContext {
 //       ProgressIndexer
 
 export const progressTrackUpdater = updater<ProgressTrackFileAdapter>(
-  (data) => ProgressTrackFileAdapter.create(data).expect("could not parse"),
+  (data) =>
+    ProgressTrackFileAdapter.create(data).unwrapOrElse((e) => {
+      throw e;
+    }),
   (tracker) => tracker.raw,
 );

@@ -1,5 +1,5 @@
 import yaml from "js-yaml";
-import { Either, Left, Right } from "../utils/either";
+import { Result } from "true-myth/result";
 import {
   ActionMoveDescriptionV1,
   ActionMoveDescriptionV2,
@@ -12,12 +12,12 @@ export class MoveParseError extends Error {}
 
 export function parseMoveBlock(
   moveBlock: string,
-): Either<MoveParseError, MoveDescription> {
+): Result<MoveDescription, MoveParseError> {
   const lines = moveBlock.split(/\r?\n/g);
   const emptyLine = lines.findIndex((line) => line.length == 0);
   const dataLines = emptyLine == -1 ? lines : lines.slice(0, emptyLine);
   if (dataLines.length == 0) {
-    return Left.create(
+    return Result.err(
       new MoveParseError(
         "move block should start with move line or YAML; found empty line",
       ),
@@ -41,12 +41,12 @@ export function isV1ActionSchema(
 
 export function parseMoveYaml(
   input: string,
-): Either<MoveParseError, MoveDescription> {
+): Result<MoveDescription, MoveParseError> {
   let data;
   try {
     data = yaml.load(input);
   } catch (e) {
-    return Left.create(new MoveParseError("error parsing YAML", { cause: e }));
+    return Result.err(new MoveParseError("error parsing YAML", { cause: e }));
   }
   const initParseResult = AllMoveDescriptionSchemas.safeParse(data);
 
@@ -54,12 +54,12 @@ export function parseMoveYaml(
     const data = initParseResult.data;
 
     if (isV1ActionSchema(data)) {
-      return Right.create(convertV1toV2(data));
+      return Result.ok(convertV1toV2(data));
     }
 
-    return Right.create(data);
+    return Result.ok(data);
   } else {
-    return Left.create(
+    return Result.err(
       new MoveParseError("invalid move YAML", { cause: initParseResult.error }),
     );
   }

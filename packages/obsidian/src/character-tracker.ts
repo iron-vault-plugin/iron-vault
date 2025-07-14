@@ -5,7 +5,7 @@ import { CharacterActionContext } from "characters/action-context";
 import IronVaultPlugin from "index";
 import { onlyValid } from "indexer/index-impl";
 import { TFile, type CachedMetadata } from "obsidian";
-import { Left } from "utils/either";
+import Result from "true-myth/result";
 import { Lens } from "utils/lens";
 import { CustomSuggestModal } from "utils/suggest";
 import { updaterWithContext } from "utils/update";
@@ -47,7 +47,7 @@ export class CharacterIndexer extends BaseIndexer<
     const campaign = this.campaignManager.watchForReindex(file.path);
     if (campaign == null) {
       // TODO(@cwegrzyn): this should yield the real error, but then I have to update the stuff that expects a zod error
-      return Left.create(new UnexpectedIndexingError("missing campaign"));
+      return Result.err(new UnexpectedIndexingError("missing campaign"));
     }
     const context = this.campaignManager.campaignContextFor(campaign);
     const { validater, lens } = characterLens(context.ruleset);
@@ -66,7 +66,10 @@ export class CharacterContext {
 
   get updater() {
     return updaterWithContext<ValidatedCharacter, CharacterContext>(
-      (data) => this.validater(data).unwrap(),
+      (data) =>
+        this.validater(data).unwrapOrElse((e) => {
+          throw e;
+        }),
       (character) => character.raw,
       this,
     );

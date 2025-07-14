@@ -169,8 +169,10 @@ export async function createClock(
 ): Promise<void> {
   const clockInput = await ClockCreateModal.show(plugin);
 
-  const clock =
-    ClockFileAdapter.newFromClock(clockInput).expect("invalid clock");
+  const clock = ClockFileAdapter.newFromClock(clockInput).unwrapOrElse((e) => {
+    new Notice(`Error creating clock: ${e.message}`);
+    throw e;
+  });
 
   const file = await createNewIronVaultEntityFile(
     plugin.app,

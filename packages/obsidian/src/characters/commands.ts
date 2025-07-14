@@ -11,7 +11,7 @@ import { produce } from "immer";
 import IronVaultPlugin from "index";
 import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
 import { createInitiativeNode } from "mechanics/node-builders";
-import { Editor, MarkdownFileInfo, MarkdownView } from "obsidian";
+import { Editor, MarkdownFileInfo, MarkdownView, Notice } from "obsidian";
 import { createNewIronVaultEntityFile, vaultProcess } from "utils/obsidian";
 import { capitalize } from "utils/strings";
 import { CustomSuggestModal } from "utils/suggest";
@@ -138,12 +138,19 @@ export async function createNewCharacter(
     },
   );
 
+  const newChar = createValidCharacter(lens, validater, name).unwrapOrElse(
+    (err) => {
+      new Notice(`Error creating character: ${err.message}`);
+      throw err;
+    },
+  );
+
   await createNewIronVaultEntityFile(
     plugin.app,
     targetFolder,
     fileName,
     IronVaultKind.Character,
-    createValidCharacter(lens, validater, name).raw,
+    newChar.raw,
     plugin.settings.characterTemplateFile,
     `
 \`\`\`${pluginPrefixed("character-info")}

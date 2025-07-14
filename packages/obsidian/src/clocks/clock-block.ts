@@ -1,6 +1,7 @@
 import { html, render } from "lit-html";
 
 import IronVaultPlugin from "index";
+import { UnexpectedIndexingError } from "indexer/indexer";
 import { vaultProcess } from "utils/obsidian";
 import { md } from "utils/ui/directives";
 import { TrackedEntityRenderer } from "utils/ui/tracked-entity-renderer";
@@ -24,7 +25,10 @@ export default function registerClockBlock(plugin: IronVaultPlugin): void {
   );
 }
 
-class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
+class ClockRenderer extends TrackedEntityRenderer<
+  ClockFileAdapter,
+  ZodError | UnexpectedIndexingError
+> {
   editingName = false;
   editingSegments = false;
 
@@ -138,12 +142,12 @@ class ClockRenderer extends TrackedEntityRenderer<ClockFileAdapter, ZodError> {
                   vaultProcess(this.plugin.app, this.sourcePath),
                   (clockFile) =>
                     clockFile.updatingClock((clock) =>
-                      Clock.create({
+                      Clock.mustCreate({
                         active: !(ev.target as HTMLInputElement).checked,
                         progress: clock.progress,
                         segments: clock.segments,
                         name: clock.name,
-                      }).expect("This should be fine."),
+                      }),
                     ),
                 ))}
           /></label>
