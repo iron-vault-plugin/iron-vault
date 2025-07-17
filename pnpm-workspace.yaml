@@ -22,7 +22,7 @@ catalog:
   "@types/lodash.ismatch": ^4.4.9
   "@types/lodash.merge": ^4.6.9
   "@types/mdast": ^4.0.4
-  "@types/node": ^20.17.24
+  "@types/node": ^24.0.14
   "@types/obsidian-typings": npm:obsidian-typings@^3.12.1
   "@types/semver": ^7.7.0
   "@types/sortablejs": ^1.15.8
