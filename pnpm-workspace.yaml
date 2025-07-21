@@ -35,7 +35,7 @@ catalog:
   esbuild-plugin-copy: ^2.1.1
   esbuild-plugin-inline-worker: ^0.1.1
   eslint: ^9.31.0
-  eslint-config-prettier: ^10.1.5
+  eslint-config-prettier: ^10.1.8
   eslint-plugin-prettier: ^5.5.1
   handlebars: ^4.7.8
   idb: ^8.0.2
