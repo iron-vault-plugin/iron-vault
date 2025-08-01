@@ -41,10 +41,16 @@ export const characterAssetSchema = z.object({
   id: z.string(),
   abilities: z.array(z.boolean()),
   controls: z
-    .record(z.union([z.string(), z.number().int(), z.boolean()]).nullable())
+    .record(
+      z.string(),
+      z.union([z.string(), z.number().int(), z.boolean()]).nullable(),
+    )
     .default({}),
   options: z
-    .record(z.union([z.string(), z.number().int(), z.boolean()]).nullable())
+    .record(
+      z.string(),
+      z.union([z.string(), z.number().int(), z.boolean()]).nullable(),
+    )
     .default({}),
 });
 

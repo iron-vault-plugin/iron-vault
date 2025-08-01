@@ -33,32 +33,29 @@ export const STANDARD_ODDS: OddsTable = {
 
 export type ClockOdds = z.infer<typeof clockOddsSchema>;
 
-const clockSchema = z
-  .object({
-    name: z.string(),
-    segments: z.number().positive(),
-    progress: z.number().nonnegative(),
+const clockSchema = z.looseObject({
+  name: z.string(),
+  segments: z.number().positive(),
+  progress: z.number().nonnegative(),
 
-    /** Default odds of advancing the clock. Choose 'no roll' if you do not wish to be prompted ever. */
-    "default-odds": clockOddsSchema.optional(),
+  /** Default odds of advancing the clock. Choose 'no roll' if you do not wish to be prompted ever. */
+  "default-odds": clockOddsSchema.optional(),
 
-    tags: z
-      .union([z.string().transform((arg) => [arg]), z.array(z.string())])
-      .refine(
-        (arg) => {
-          const hasComplete = arg.includes("complete");
-          const hasIncomplete = arg.includes("incomplete");
-          return (
-            (hasComplete && !hasIncomplete) || (hasIncomplete && !hasComplete)
-          );
-        },
-        {
-          message:
-            "Tags must contain exactly one of 'incomplete' or 'complete'",
-        },
-      ),
-  })
-  .passthrough();
+  tags: z
+    .union([z.string().transform((arg) => [arg]), z.array(z.string())])
+    .refine(
+      (arg) => {
+        const hasComplete = arg.includes("complete");
+        const hasIncomplete = arg.includes("incomplete");
+        return (
+          (hasComplete && !hasIncomplete) || (hasIncomplete && !hasComplete)
+        );
+      },
+      {
+        message: "Tags must contain exactly one of 'incomplete' or 'complete'",
+      },
+    ),
+});
 
 export const normalizedClockSchema = normalizeKeys(clockSchema);
 

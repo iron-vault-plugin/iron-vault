@@ -67,6 +67,13 @@ assets:
       - false
     controls: {}
     options: {}
+  - id: asset:campaign/test/psychic_echo_asset_md
+    abilities:
+      - true
+      - false
+      - false
+    controls: {}
+    options: {}
 spirit: 5
 supply: 4
 Quests_Progress: 4

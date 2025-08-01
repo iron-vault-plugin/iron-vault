@@ -49,9 +49,9 @@ export type KdlNode<
 
 export function builder<
   const N extends string,
-  V extends z.ZodType<kdl.Value[], z.ZodTypeDef, unknown>,
-  P extends z.ZodType<Record<string, kdl.Value>, z.ZodTypeDef, unknown>,
-  C extends z.ZodType<Node[], z.ZodTypeDef, unknown>,
+  V extends z.ZodType<kdl.Value[], unknown>,
+  P extends z.ZodType<Record<string, kdl.Value>, unknown>,
+  C extends z.ZodType<Node[], unknown>,
 >(name: N, values: V, properties: P, children: C) {
   const schema = z.object({
     name: z.literal(name).default(name),
@@ -61,7 +61,7 @@ export function builder<
     tags: z
       .object({
         name: z.string().optional(),
-        properties: z.record(z.string().optional()).default({}),
+        properties: z.record(z.string(), z.string().optional()).default({}),
         values: z.array(z.string().optional()).default([]),
       })
       .default({ name: undefined, properties: {}, values: [] }),
@@ -73,7 +73,7 @@ export function builder<
 }
 
 export const noValues = z.tuple([]).default([]);
-export const noProperties = z.record(z.string()).default({});
+export const noProperties = z.record(z.string(), z.string()).default({});
 export const noChildren = z.tuple([]).default([]);
 
 export function node(

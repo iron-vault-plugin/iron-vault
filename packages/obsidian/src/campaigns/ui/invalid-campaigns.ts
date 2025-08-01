@@ -5,7 +5,7 @@ import { html, render, TemplateResult } from "lit-html";
 import { map } from "lit-html/directives/map.js";
 import { App, debounce, IconName, ItemView, WorkspaceLeaf } from "obsidian";
 import { showSingletonView } from "utils/obsidian";
-import { ZodError } from "zod";
+import z, { ZodError } from "zod";
 import { CampaignEditView } from "./edit-view";
 
 export const INVALID_CAMPAIGNS_VIEW_TYPE = "iron-vault-invalid-campaigns";
@@ -86,27 +86,25 @@ export class InvalidCampaignsView extends ItemView {
 
   protected reason(path: string, error: Error): TemplateResult {
     if (error instanceof ZodError) {
-      const validationErrors = (error as ZodError<CampaignInput>).format();
-      if (
-        validationErrors.ironvault?._errors &&
-        validationErrors.ironvault._errors.includes("Required")
-      ) {
+      const validationErrors = z.treeifyError(error as ZodError<CampaignInput>);
+      const ironvaultErrs = validationErrors.properties?.ironvault;
+      if (ironvaultErrs?.errors?.includes("Required")) {
         return html`Campaign is from a previous version of Ironvault. We now
           require campaigns to define a "playset".
           <a data-campaign-path="${path}" @click=${this.openCampaign.bind(this)}
             >Use the campaign editor to add a playset.</a
           >`;
       } else if (
-        validationErrors.ironvault?.playset?._errors &&
-        validationErrors.ironvault.playset._errors.length > 0
+        ironvaultErrs?.properties?.playset &&
+        ironvaultErrs?.properties?.playset?.errors.length > 0
       ) {
         return html`Playset is invalid or missing.
           <a data-campaign-path="${path}" @click=${this.openCampaign.bind(this)}
             >Use the campaign editor to add a playset.</a
-          >: ${validationErrors.ironvault.playset._errors.join("; ")}`;
+          >: ${ironvaultErrs?.properties?.playset.errors.join("; ")}`;
       } else {
         return html`Campaign is invalid:
-          <pre>${validationErrors}</pre>`;
+          <pre>${z.prettifyError(error)}</pre>`;
       }
     } else {
       return html`Unexpected error:
