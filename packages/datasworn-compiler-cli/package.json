@@ -31,7 +31,7 @@
     "@ironvault/dice": "workspace:^",
     "@ironvault/parsing-markdown": "workspace:^",
     "@ironvault/utils": "workspace:^",
-    "@microsoft/api-extractor": "^7.52.8",
+    "@microsoft/api-extractor": "^7.52.10",
     "@types/node": "catalog:",
     "esbuild": "catalog:",
     "ts-node": "^10.9.2",
