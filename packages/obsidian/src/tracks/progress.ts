@@ -29,18 +29,23 @@ export const CHALLENGE_STEPS: Record<ChallengeRanks, number> = {
   [ChallengeRanks.Epic]: 1,
 };
 
+export const challengeRanksEnum = z.enum(ChallengeRanks);
+
+export const foo: z.output<typeof challengeRanksEnum> =
+  ChallengeRanks.Troublesome;
+
 export const MAX_TICKS = 40;
 
 export const challengeRankSchema = z.preprocess(
   (val) => (typeof val === "string" ? val.toLowerCase() : val),
-  z.nativeEnum(ChallengeRanks),
+  z.enum(ChallengeRanks),
 );
 
 /** Schema for progress track files. */
 export const baseProgressTrackerSchema = z.object({
   name: z.string(),
   rank: challengeRankSchema,
-  progress: z.number().int().nonnegative().default(0),
+  progress: z.int().nonnegative().default(0),
   tags: z
     .union([z.string().transform((arg) => [arg]), z.array(z.string())])
     .refine(
@@ -60,21 +65,19 @@ export const baseProgressTrackerSchema = z.object({
 });
 
 export const progressTrackerSchema = z.union([
-  normalizeKeys(baseProgressTrackerSchema.passthrough()),
+  normalizeKeys(z.looseObject(baseProgressTrackerSchema.shape)),
   normalizeKeys(
-    baseProgressTrackerSchema
-      .omit({ rank: true })
-      .merge(
-        z.object({
-          difficulty: baseProgressTrackerSchema.shape.rank,
-        }),
-      )
-      .passthrough(),
+    z.looseObject({
+      ...baseProgressTrackerSchema.omit({ rank: true }).shape,
+      difficulty: baseProgressTrackerSchema.shape.rank,
+    }),
   ).transform(({ difficulty, ...rest }) => ({ ...rest, rank: difficulty })),
 ]);
 
-export type ProgressTrackerInputSchema = z.input<typeof progressTrackerSchema>;
-export type ProgressTrackerSchema = z.infer<typeof progressTrackerSchema>;
+export type ProgressTrackerInputSchema = z.input<
+  typeof baseProgressTrackerSchema
+>;
+export type ProgressTrackerSchema = z.output<typeof progressTrackerSchema>;
 
 /** Validation for progress track domain model object. */
 export const progressTrackSchema = z

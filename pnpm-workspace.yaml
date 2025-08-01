@@ -2,31 +2,31 @@ packages:
   - packages/*
 
 catalog:
-  "@3d-dice/dice-box": ^1.1.4
-  "@3d-dice/theme-smooth": ^0.2.1
-  "@codemirror/language": ^6.10.8
-  "@codemirror/view": ^6.36.4
-  "@datasworn/core": 0.1.0-0
-  "@datasworn/ironsworn-classic": 0.1.0-0
-  "@datasworn/ironsworn-classic-delve": 0.1.0-0
-  "@datasworn/starforged": 0.1.0-0
-  "@datasworn/sundered-isles": 0.1.0-0
-  "@eslint/js": ^9.31.0
-  "@jgoz/esbuild-plugin-typecheck": ^4.0.3
-  "@nrsk/sigma": ^3.8.0
-  "@preact/signals-core": ^1.8.0
-  "@types/electron": npm:@ophidian/electron-types@^24.3.1
-  "@types/js-yaml": ^4.0.9
-  "@types/lodash.isequal": ^4.5.8
-  "@types/lodash.isequalwith": ^4.4.9
-  "@types/lodash.ismatch": ^4.4.9
-  "@types/lodash.merge": ^4.6.9
-  "@types/mdast": ^4.0.4
-  "@types/node": ^20.17.24
-  "@types/obsidian-typings": npm:obsidian-typings@^3.12.1
-  "@types/semver": ^7.7.0
-  "@types/sortablejs": ^1.15.8
-  "@types/unist": ^3.0.3
+  '@3d-dice/dice-box': ^1.1.4
+  '@3d-dice/theme-smooth': ^0.2.1
+  '@codemirror/language': ^6.10.8
+  '@codemirror/view': ^6.36.4
+  '@datasworn/core': 0.1.0-0
+  '@datasworn/ironsworn-classic': 0.1.0-0
+  '@datasworn/ironsworn-classic-delve': 0.1.0-0
+  '@datasworn/starforged': 0.1.0-0
+  '@datasworn/sundered-isles': 0.1.0-0
+  '@eslint/js': ^9.31.0
+  '@jgoz/esbuild-plugin-typecheck': ^4.0.3
+  '@nrsk/sigma': ^3.8.0
+  '@preact/signals-core': ^1.8.0
+  '@types/electron': npm:@ophidian/electron-types@^24.3.1
+  '@types/js-yaml': ^4.0.9
+  '@types/lodash.isequal': ^4.5.8
+  '@types/lodash.isequalwith': ^4.4.9
+  '@types/lodash.ismatch': ^4.4.9
+  '@types/lodash.merge': ^4.6.9
+  '@types/mdast': ^4.0.4
+  '@types/node': ^20.17.24
+  '@types/obsidian-typings': npm:obsidian-typings@^3.12.1
+  '@types/semver': ^7.7.0
+  '@types/sortablejs': ^1.15.8
+  '@types/unist': ^3.0.3
   ajv: ^8.17.1
   ajv-formats: ^3.0.1
   builtin-modules: ^5.0.0
@@ -69,4 +69,4 @@ catalog:
   vitest: ^3.2.4
   vitest-tsconfig-paths: ^3.4.1
   yaml: ^2.7.0
-  zod: ^3.24.2
+  zod: ^4.0.14

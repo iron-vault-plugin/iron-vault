@@ -136,6 +136,10 @@ describe("ProgressTrackFileAdapter", () => {
   function make_(
     overrides: Omit<Partial<ProgressTrackerInputSchema>, "rank"> & {
       Rank?: ChallengeRanks | string;
+      rank?: ChallengeRanks | string;
+      difficulty?: ChallengeRanks | string;
+      Difficulty?: ChallengeRanks | string;
+      [k: string]: unknown;
     } = {},
   ): ProgressTrackFileAdapter {
     return unwrap(make(overrides));

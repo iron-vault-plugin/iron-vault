@@ -17,5 +17,7 @@ move "[Face Danger](move:starforged\/adventure\/face_danger)" {
     reroll action="5"
     reroll action="3"
 }
+move "[Ask the Oracle](datasworn:move:starforged\/fate\/ask_the_oracle)"
+
 ```
 

@@ -32,6 +32,17 @@ export const PlaysetConfigSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
+export const NonValidatingPlaysetConfigSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("globs"),
+    lines: z.array(z.string()),
+  }),
+  z.object({
+    type: z.literal("registry"),
+    key: z.string(),
+  }),
+]);
+
 export const campaignConfigSchema = z.object({
   playset: PlaysetConfigSchema,
   customContentFolder: z.string().optional(),
@@ -58,7 +69,7 @@ export type CampaignOutput = z.output<typeof campaignFileSchema>;
 export const recoveringCampaignFileSchema = campaignFileSchema.extend({
   ironvault: campaignFileSchema.shape.ironvault
     .extend({
-      playset: PlaysetConfigSchema.catch((def) => def.input),
+      playset: NonValidatingPlaysetConfigSchema,
     })
     .default({ playset: { type: "registry", key: "starforged" } }),
 });
@@ -130,9 +141,15 @@ export class CampaignFile implements BaseCampaign {
   static parse(
     file: TFile,
     data: CampaignInput,
-  ): Result<CampaignFile, z.ZodError>;
-  static parse(file: TFile, data: unknown): Result<CampaignFile, z.ZodError>;
-  static parse(file: TFile, data: unknown): Result<CampaignFile, z.ZodError> {
+  ): Result<CampaignFile, z.ZodError<CampaignOutput>>;
+  static parse(
+    file: TFile,
+    data: unknown,
+  ): Result<CampaignFile, z.ZodError<CampaignOutput>>;
+  static parse(
+    file: TFile,
+    data: unknown,
+  ): Result<CampaignFile, z.ZodError<CampaignOutput>> {
     const result = zodResultToResult(
       campaignFileSchemaWithPlayset.safeParse(data),
     );

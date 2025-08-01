@@ -27,23 +27,15 @@ export function prop<T, K extends string = string>(
   };
 }
 
-export type SchemaProp<
-  Output,
-  Def extends z.ZodTypeDef = z.ZodTypeDef,
-  Input = Output,
-> = {
-  schema: z.ZodType<Output, Def, Input>;
+export type SchemaProp<Output, Input = Output> = {
+  schema: z.ZodType<Output, Input>;
   path: string;
 };
 
-export function lensForSchemaProp<
-  Output,
-  Def extends z.ZodTypeDef = z.ZodTypeDef,
-  Input = Output,
->({
+export function lensForSchemaProp<Output, Input = Output>({
   schema,
   path,
-}: SchemaProp<Output, Def, Input>): Lens<Record<string, unknown>, Output> {
+}: SchemaProp<Output, Input>): Lens<Record<string, unknown>, Output> {
   return {
     get(source) {
       return schema.parse(source[path]);

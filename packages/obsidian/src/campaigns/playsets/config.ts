@@ -22,7 +22,7 @@ export const PlaysetLinesSchema = z
       PlaysetConfig.parse(lines);
     } catch (e) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: `Invalid playset line: ${e}`,
       });
     }
