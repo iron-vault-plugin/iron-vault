@@ -35,7 +35,7 @@ export class InfoModal extends Modal {
     });
   }
 
-  onClose(): void {
+  override onClose(): void {
     super.onClose();
     this.accept();
   }

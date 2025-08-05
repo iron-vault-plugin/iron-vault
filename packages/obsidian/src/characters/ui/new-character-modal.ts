@@ -49,7 +49,7 @@ export class CharacterCreateModal extends Modal {
     Object.assign(this.result, defaults);
   }
 
-  onOpen(): void {
+  override onOpen(): void {
     this.accepted = false;
 
     let fileNameText: TextComponent;
@@ -114,7 +114,7 @@ export class CharacterCreateModal extends Modal {
         folderComponent = search
           .setPlaceholder("Choose a folder")
           .setValue(this.result.targetFolder ?? "")
-          .onChange((newRelPath, newAbsPath, folder) => {
+          .onChange((_newRelPath, newAbsPath, folder) => {
             this.result.targetFolder = newAbsPath;
             if (folder) {
               folderSetting.setDesc(
@@ -156,7 +156,7 @@ export class CharacterCreateModal extends Modal {
     this.onAccept(this.result as CharacterCreateResultType);
   }
 
-  onClose(): void {
+  override onClose(): void {
     this.contentEl.empty();
     if (!this.accepted) {
       this.onCancel();

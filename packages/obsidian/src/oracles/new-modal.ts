@@ -368,7 +368,7 @@ export class NewOracleRollerModal extends Modal {
     ).open();
   }
 
-  onOpen(): void {
+  override onOpen(): void {
     this.accepted = false;
 
     this.renderTable();
@@ -380,7 +380,7 @@ export class NewOracleRollerModal extends Modal {
     this.onAccept(this.rollContainer);
   }
 
-  onClose(): void {
+  override onClose(): void {
     const { contentEl } = this;
     contentEl.empty();
     if (!this.accepted) {
@@ -466,7 +466,10 @@ class ToggleComponentDirective extends Directive {
     console.log("Creating toggle component...");
   }
 
-  update(part: ChildPart, [componentFn]: DirectiveParameters<this>): unknown {
+  override update(
+    _part: ChildPart,
+    [componentFn]: DirectiveParameters<this>,
+  ): unknown {
     if (this._component == null) {
       console.debug("Need a new inner object");
 

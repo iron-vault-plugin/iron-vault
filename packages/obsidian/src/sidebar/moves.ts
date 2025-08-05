@@ -48,7 +48,7 @@ export class MoveList extends CampaignDependentBlockRenderer {
 
   constructor(
     containerEl: HTMLElement,
-    readonly plugin: IronVaultPlugin,
+    plugin: IronVaultPlugin,
     readonly options: IronVaultMoveRendererOptions = {},
     sourcePath?: string,
   ) {
@@ -103,7 +103,7 @@ export class MoveList extends CampaignDependentBlockRenderer {
       : !this.plugin.settings.useLegacyMoveModal;
   }
 
-  onunload() {
+  override onunload() {
     this.contentEl.remove();
     super.onunload();
   }
@@ -152,7 +152,7 @@ export class MoveList extends CampaignDependentBlockRenderer {
     }
   }
 
-  onNewContext(dataContext: CampaignDataContext | undefined) {
+  override onNewContext(dataContext: CampaignDataContext | undefined) {
     this.index = dataContext && makeIndex(dataContext);
   }
 
@@ -334,7 +334,7 @@ export class MoveList extends CampaignDependentBlockRenderer {
     }
   }
 
-  renderWithoutContext(): void | Promise<void> {
+  override renderWithoutContext(): void | Promise<void> {
     render(
       html`<article class="error">
         This block may only be used within a campaign.
@@ -357,7 +357,7 @@ class MoveRendererDirective extends AsyncDirective {
     }
   }
 
-  protected disconnected(): void {
+  protected override disconnected(): void {
     // logger.debug("MoveRendererDirective: disconnected");
     if (this._renderer && this._component) {
       // logger.debug(
@@ -367,7 +367,7 @@ class MoveRendererDirective extends AsyncDirective {
     }
   }
 
-  protected reconnected(): void {
+  protected override reconnected(): void {
     if (this._renderer && this._component) {
       // logger.debug(
       //   "MoveRendererDirective: reconnected, adding renderer to component",
@@ -376,7 +376,7 @@ class MoveRendererDirective extends AsyncDirective {
     }
   }
 
-  update(
+  override update(
     _part: ChildPart,
     [plugin, dataContext, move, component, options]: Parameters<
       MoveRendererDirective["render"]

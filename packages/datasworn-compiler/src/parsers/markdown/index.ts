@@ -79,7 +79,7 @@ export function inlineOracleParser(
     const fullTable: DataswornSource.OracleTableText = {
       ...metadata,
       ...table,
-      name: (metadata?.name as string | undefined) ?? baseName,
+      name: (metadata?.["name"] as string | undefined) ?? baseName,
       _source: source,
     };
     return {

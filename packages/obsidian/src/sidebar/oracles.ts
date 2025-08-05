@@ -36,7 +36,7 @@ export class OracleList extends CampaignDependentBlockRenderer {
 
   constructor(
     containerEl: HTMLElement,
-    readonly plugin: IronVaultPlugin,
+    plugin: IronVaultPlugin,
     sourcePath?: string,
   ) {
     super(containerEl, plugin, sourcePath, {
@@ -84,11 +84,14 @@ export class OracleList extends CampaignDependentBlockRenderer {
     this.collapseExpandDec.setMethod(method);
   }
 
-  onunload() {
+  override onunload() {
     this.contentEl.remove();
+    super.onunload();
   }
 
-  protected onNewContext(context: CampaignDataContext | undefined): void {
+  protected override onNewContext(
+    context: CampaignDataContext | undefined,
+  ): void {
     this.index = context && makeIndex(context);
   }
 
@@ -125,7 +128,7 @@ export class OracleList extends CampaignDependentBlockRenderer {
     );
   }
 
-  renderWithoutContext(): void | Promise<void> {
+  override renderWithoutContext(): void | Promise<void> {
     render(
       html`<article class="error">
         This block may only be used within a campaign.

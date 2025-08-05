@@ -100,7 +100,7 @@ export class CampaignWatcher extends Component {
     super();
   }
 
-  onload(): void {
+  override onload(): void {
     super.onload();
     this.registerEvent(
       this.campaigns.on("changed", (path) => {
@@ -221,7 +221,7 @@ export class CampaignManager extends Component {
     return campaign && this.campaignContextFor(campaign);
   }
 
-  onload(): void {
+  override onload(): void {
     this.registerEvent(
       this.plugin.app.workspace.on("active-leaf-change", (leaf) => {
         if (leaf?.view instanceof MarkdownView && leaf.view.file) {

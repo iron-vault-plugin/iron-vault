@@ -58,7 +58,7 @@ export class SidebarView extends ItemView {
     return "Iron Vault";
   }
 
-  getIcon() {
+  override getIcon() {
     return "iron-vault";
   }
 
@@ -92,7 +92,7 @@ export class SidebarView extends ItemView {
     }
   };
 
-  async onOpen() {
+  override async onOpen() {
     this.contentEl.empty();
 
     const tpl = html`
@@ -153,7 +153,7 @@ export class SidebarView extends ItemView {
     });
   }
 
-  getState(): SidebarViewState {
+  override getState(): SidebarViewState {
     const state = super.getState();
     return {
       ...state,
@@ -166,7 +166,7 @@ export class SidebarView extends ItemView {
     };
   }
 
-  setState(state: unknown, result: ViewStateResult): Promise<void> {
+  override setState(state: unknown, result: ViewStateResult): Promise<void> {
     // This is called when the view is restored from a saved state.
     // We can use this to restore the active tab if needed.
     if (state && typeof state === "object" && "activeTab" in state) {
@@ -175,7 +175,7 @@ export class SidebarView extends ItemView {
     return super.setState(state, result);
   }
 
-  setEphemeralState(state: unknown): void {
+  override setEphemeralState(state: unknown): void {
     if (state && typeof state === "object" && "moveId" in state) {
       this.setActiveTabByName("move");
       this.moveList.scrollToMove(state.moveId as string);
@@ -187,7 +187,7 @@ export class SidebarView extends ItemView {
     return view && view instanceof MarkdownView ? view : undefined;
   }
 
-  async onClose() {
+  override async onClose() {
     // Nothing to clean up.
   }
 }

@@ -42,7 +42,7 @@ export class AssetPickerModal extends Modal {
     this.searchIdx = this.makeIndex();
   }
 
-  async onOpen() {
+  override async onOpen() {
     this.setTitle("Loading...");
     this.setTitle(
       `Add asset to ${this.actionContext.getWithLens((_) => _.name)}`,
@@ -178,7 +178,7 @@ export class AssetPickerModal extends Modal {
     return { sources, total };
   }
 
-  onClose() {
+  override onClose() {
     const { contentEl } = this;
     contentEl.empty();
   }

@@ -40,7 +40,7 @@ export function replaceIds(
   // First, replace links, to handle datasworn link syntax. Then, replace everything else.
   return replaceLinks(input).replaceAll(
     ID_OPTIONAL_KIND_REGEX,
-    (orig, kind: string, id: string, offset: number) => {
+    (orig, _kind: string, id: string, offset: number) => {
       const newId = getNewId(id);
       if (log && newId) {
         log.push({ offset, length: orig.length, newId });
@@ -53,7 +53,7 @@ export function replaceIds(
 export function replaceLinks(input: string): string {
   return input.replaceAll(
     LINK_REGEX,
-    (orig, label: string, kind: string, id: string) => {
+    (orig, label: string, _kind: string, id: string) => {
       const newId = getNewId(id);
       return newId ? createDataswornMarkdownLink(label, newId) : orig;
     },

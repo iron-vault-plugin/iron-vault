@@ -36,7 +36,7 @@ class YesNoModal extends Modal {
     if (title) this.setTitle(title);
   }
 
-  onOpen(): void {
+  override onOpen(): void {
     this.contentEl.createDiv({ text: this.prompt });
     const buttonsContainer = this.contentEl.createDiv();
     new Setting(buttonsContainer)
@@ -56,7 +56,7 @@ class YesNoModal extends Modal {
     this.close();
   }
 
-  onClose(): void {
+  override onClose(): void {
     this.resolve(this.choice);
   }
 }

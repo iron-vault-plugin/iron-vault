@@ -38,7 +38,7 @@ abstract class BaseCampaignWatch extends Component {
     return this;
   }
 
-  onunload(): void {
+  override onunload(): void {
     this.#onUpdate = undefined;
     super.onunload();
   }
@@ -55,7 +55,7 @@ export class ActiveCampaignWatch extends BaseCampaignWatch {
     super();
   }
 
-  onload() {
+  override onload() {
     logger.trace("ActiveCampaignWatch.onload: regstering watch");
     this.registerEvent(
       this.campaignManager.on("active-campaign-changed", () => this.update()),
@@ -111,7 +111,7 @@ export class FileBasedCampaignWatch extends BaseCampaignWatch {
     );
   }
 
-  onload(): void {
+  override onload(): void {
     this.registerEvent(
       this.vault.on("rename", (file, oldPath) => {
         if (this.#sourcePath == oldPath) {
@@ -137,7 +137,7 @@ export class FileBasedCampaignWatch extends BaseCampaignWatch {
     setTimeout(() => this.update());
   }
 
-  onunload(): void {
+  override onunload(): void {
     this.#unsub?.();
     super.onunload();
   }

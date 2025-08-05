@@ -77,7 +77,7 @@ export class ProgressTrackCreateModal extends Modal {
     });
   }
 
-  onOpen(): void {
+  override onOpen(): void {
     this.accepted = false;
 
     const { contentEl } = this;
@@ -241,7 +241,7 @@ export class ProgressTrackCreateModal extends Modal {
     });
   }
 
-  onClose(): void {
+  override onClose(): void {
     this.contentEl.empty();
     if (!this.accepted) {
       this.onCancel();

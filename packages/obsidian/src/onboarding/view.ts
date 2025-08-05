@@ -43,7 +43,7 @@ export async function updateOnboardingViewState(
 }
 
 export class OnboardingView extends ItemView {
-  readonly navigation: boolean = false;
+  override readonly navigation: boolean = false;
 
   readonly CAMPAIGN_EXPLAINER = html`
     <h2>What is a campaign?</h2>
@@ -161,7 +161,7 @@ export class OnboardingView extends ItemView {
     return ONBOARDING_VIEW_TYPE;
   }
 
-  getIcon(): IconName {
+  override getIcon(): IconName {
     return "iron-vault";
   }
 
@@ -169,7 +169,7 @@ export class OnboardingView extends ItemView {
     return "Welcome to Iron Vault!";
   }
 
-  async onOpen() {
+  override async onOpen() {
     this.contentEl.addClass("iron-vault-onboarding-view");
     this.render();
   }
@@ -196,7 +196,7 @@ export class OnboardingView extends ItemView {
     createNewCampaignCommand(this.plugin);
   }
 
-  async onClose() {
+  override async onClose() {
     // Nothing to clean up.
   }
 }

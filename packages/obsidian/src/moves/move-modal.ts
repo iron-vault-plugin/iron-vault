@@ -112,12 +112,12 @@ export class MoveModal extends Modal {
     }
   }
 
-  onOpen() {
+  override onOpen() {
     this.modalComponent.load();
     this.openMove(this.move);
   }
 
-  onClose() {
+  override onClose() {
     const { contentEl } = this;
     contentEl.empty();
     this.modalComponent.unload();
@@ -162,7 +162,7 @@ export class MoveRenderer extends MarkdownRenderChild {
   }
 
   constructor(
-    readonly containerEl: HTMLElement,
+    override readonly containerEl: HTMLElement,
     readonly plugin: IronVaultPlugin,
     readonly dataContext: IDataContext,
     readonly move: AnyDataswornMove,
@@ -172,7 +172,7 @@ export class MoveRenderer extends MarkdownRenderChild {
     this.actionContext = options.actionContext;
   }
 
-  onunload(): void {
+  override onunload(): void {
     this.containerEl.empty();
     super.onunload();
   }

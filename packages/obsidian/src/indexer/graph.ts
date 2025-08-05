@@ -274,7 +274,7 @@ export type NodeParsers<
 };
 
 const nodeTypes: NodeParsers<AllowableTypes, keyof FileKind> = {
-  campaign: (graph: GraphContext<AllowableTypes>, file: Signal<File>) => {
+  campaign: (_graph: GraphContext<AllowableTypes>, file: Signal<File>) => {
     return frontmatter(file).value.andThen((content) =>
       zodResultToResult(campaignFileSchemaWithPlayset.safeParse(content)).map(
         (raw) => ({
@@ -340,11 +340,11 @@ export class EqualitySignal<T> extends Signal<T> {
     super(value);
   }
 
-  get value(): T {
+  override get value(): T {
     return super.value;
   }
 
-  set value(newValue: T) {
+  override set value(newValue: T) {
     const prevValue = super.value;
     if (
       prevValue !== newValue &&

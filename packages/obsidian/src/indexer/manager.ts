@@ -41,14 +41,14 @@ export class IndexManager extends Component {
     this.handlers.set(indexer.id, indexer);
   }
 
-  public onload(): void {
+  public override onload(): void {
     if (ENABLE_INDEXEDDB) {
       this.worker = newIndexerWorker();
     }
 
     logger.debug("[index-manager] Starting event listeners...");
     this.registerEvent(
-      this.metadataCache.on("changed", (file, data, cache) => {
+      this.metadataCache.on("changed", (file, _data, cache) => {
         this.indexFile(file, cache);
       }),
     );
@@ -82,7 +82,7 @@ export class IndexManager extends Component {
     );
   }
 
-  public onunload(): void {
+  public override onunload(): void {
     if (this.worker) {
       this.worker.terminate();
       this.worker = undefined!;

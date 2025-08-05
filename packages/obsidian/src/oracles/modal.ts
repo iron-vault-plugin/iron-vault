@@ -42,7 +42,7 @@ export class OracleRollerModal extends Modal {
     super(plugin.app);
   }
 
-  async onOpen(): Promise<void> {
+  override async onOpen(): Promise<void> {
     this.accepted = false;
 
     const { contentEl } = this;
@@ -193,7 +193,7 @@ export class OracleRollerModal extends Modal {
     this.onAccept(roll, cursedRoll);
   }
 
-  onClose(): void {
+  override onClose(): void {
     const { contentEl } = this;
     contentEl.empty();
     if (!this.accepted) {

@@ -11,7 +11,7 @@ export class ProgressIndexer extends BaseIndexer<
   readonly id = IronVaultKind.ProgressTrack;
 
   processFile(
-    file: TFile,
+    _file: TFile,
     cache: CachedMetadata,
   ): IndexUpdate<ProgressTrackFileAdapter, z.ZodError> {
     return ProgressTrackFileAdapter.create(cache.frontmatter);

@@ -7,7 +7,7 @@ import { generateOracleTable } from "./ui/oracle-table";
 export class OracleModal extends Modal {
   modalComponent: Component;
   constructor(
-    readonly app: App,
+    app: App,
     readonly plugin: IronVaultPlugin,
     readonly oracle: Oracle,
   ) {
@@ -47,12 +47,12 @@ export class OracleModal extends Modal {
     );
   }
 
-  onOpen() {
+  override onOpen() {
     this.modalComponent.load();
     this.openOracle(this.oracle);
   }
 
-  onClose() {
+  override onClose() {
     const { contentEl } = this;
     contentEl.empty();
     this.modalComponent.unload();

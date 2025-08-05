@@ -72,7 +72,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     this.modalComponent = new Component();
   }
 
-  async onOpen(): Promise<void> {
+  override async onOpen(): Promise<void> {
     this.modalComponent.load();
 
     const { contentEl } = this;
@@ -334,7 +334,7 @@ export class EntityModal<T extends EntitySpec> extends Modal {
     onCreateFileChange(this.results.createFile);
   }
 
-  onClose(): void {
+  override onClose(): void {
     this.contentEl.empty();
     if (!this.accepted) {
       this.onCancel();

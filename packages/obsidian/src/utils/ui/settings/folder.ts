@@ -45,7 +45,10 @@ export class FolderTextSuggest extends AbstractInputSuggest<TFolder> {
     );
   }
 
-  selectSuggestion(value: TFolder, _evt: MouseEvent | KeyboardEvent): void {
+  override selectSuggestion(
+    value: TFolder,
+    _evt: MouseEvent | KeyboardEvent,
+  ): void {
     this.setValue(getRelativePath(this.baseFolder, value));
     if (this.textInputEl.instanceOf(HTMLInputElement))
       this.textInputEl.trigger("input");

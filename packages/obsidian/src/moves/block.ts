@@ -152,7 +152,7 @@ class MoveMarkdownRenderChild extends MarkdownRenderChild {
     return `> [!challenge-strong] ${move.name}\n> \n`;
   }
 
-  async onload(): Promise<void> {
+  override async onload(): Promise<void> {
     await this.render();
   }
 

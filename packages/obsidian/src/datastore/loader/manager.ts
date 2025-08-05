@@ -112,7 +112,7 @@ export class DataManager extends Component {
     };
   }
 
-  onload(): void {
+  override onload(): void {
     this.#restartWorker();
 
     this.registerEvent(
@@ -335,7 +335,7 @@ export class DataManager extends Component {
     });
   }
 
-  onunload(): void {
+  override onunload(): void {
     if (this.worker) {
       this.worker.terminate();
     }

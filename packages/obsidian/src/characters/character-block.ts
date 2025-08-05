@@ -94,7 +94,7 @@ class CharacterRenderer extends TrackedEntityRenderer<
     this.sections = sections;
   }
 
-  get watchedSettings():
+  override get watchedSettings():
     | Set<keyof IronVaultPluginSettings>
     | typeof ALL_SETTINGS {
     return ALL_SETTINGS;

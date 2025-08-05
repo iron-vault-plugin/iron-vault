@@ -26,17 +26,17 @@ export class VersionedMapImpl<K, V>
     return projectedVersionedMap(this, callbackfn);
   }
 
-  set(key: K, value: V): this {
+  override set(key: K, value: V): this {
     this.#revision++;
     return super.set(key, value);
   }
 
-  clear(): void {
+  override clear(): void {
     this.#revision++;
     return super.clear();
   }
 
-  delete(key: K): boolean {
+  override delete(key: K): boolean {
     if (super.delete(key)) {
       this.#revision++;
       return true;

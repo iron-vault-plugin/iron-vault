@@ -7,7 +7,7 @@ import { MigrationManager, MigrationStage } from "./manager";
 export const MIGRATION_VIEW_TYPE = "iron-vault-migration-view";
 
 export class IronVaultMigrationView extends ItemView {
-  readonly navigation: boolean = false;
+  override readonly navigation: boolean = false;
 
   constructor(
     leaf: WorkspaceLeaf,
@@ -28,16 +28,16 @@ export class IronVaultMigrationView extends ItemView {
     return "Iron Vault migration";
   }
 
-  onload(): void {
+  override onload(): void {
     super.onload();
     this.registerEvent(this.manager.on("changed", () => this.render()));
   }
 
-  onunload(): void {
+  override onunload(): void {
     super.onunload();
   }
 
-  async onOpen() {
+  override async onOpen() {
     if (this.manager.migrationNeeded === undefined) {
       this.manager.scan();
     }
@@ -141,7 +141,7 @@ export class IronVaultMigrationView extends ItemView {
     }
   }
 
-  async onClose() {
+  override async onClose() {
     // Nothing to clean up.
   }
 
