@@ -51,13 +51,13 @@ export class CampaignEditView extends FileView {
     return CAMPAIGN_EDIT_VIEW_TYPE;
   }
 
-  onload(): void {
+  override onload(): void {
     this.registerEvent(
       this.plugin.campaigns.on("changed", this.render.bind(this)),
     );
   }
 
-  async onLoadFile(file: TFile): Promise<void> {
+  override async onLoadFile(file: TFile): Promise<void> {
     await super.onLoadFile(file);
     this.render();
   }
@@ -200,7 +200,7 @@ export class CampaignEditView extends FileView {
     playsetSetting.setFromKeyAndConfig(playsetKey, customConfig);
   }
 
-  async onUnloadFile(_file: TFile): Promise<void> {
+  override async onUnloadFile(_file: TFile): Promise<void> {
     this.contentEl.empty();
   }
 }

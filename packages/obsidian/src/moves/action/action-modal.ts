@@ -66,7 +66,7 @@ export class ActionModal extends Modal {
     super(app);
   }
 
-  onOpen(): void {
+  override onOpen(): void {
     const { contentEl } = this;
     new Setting(contentEl).setName(this.move.name).setHeading();
 
@@ -110,7 +110,7 @@ export class ActionModal extends Modal {
     this.onAccept(shouldBurn);
   }
 
-  onClose(): void {
+  override onClose(): void {
     const { contentEl } = this;
     contentEl.empty();
     if (!this.accepted) {

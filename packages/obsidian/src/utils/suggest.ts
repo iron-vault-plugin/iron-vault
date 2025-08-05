@@ -229,7 +229,7 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
   //   el.createEl("small", { text: `(${moveKind}) ${move.Trigger.Text}` });
   // }
 
-  selectSuggestion(
+  override selectSuggestion(
     value: FuzzyMatch<T>,
     evt: MouseEvent | KeyboardEvent,
   ): void {
@@ -246,7 +246,7 @@ export class CustomSuggestModal<T> extends SuggestModal<FuzzyMatch<T>> {
     this.onSelect(item.item);
   }
 
-  onClose(): void {
+  override onClose(): void {
     super.onClose();
     if (!this.resolved) {
       this.onCancel();

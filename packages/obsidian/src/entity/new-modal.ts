@@ -175,7 +175,7 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
 
   fileNameInput!: TextComponent;
 
-  async onOpen(): Promise<void> {
+  override async onOpen(): Promise<void> {
     const { contentEl } = this;
 
     contentEl.toggleClass("iron-vault-modal", true);
@@ -540,7 +540,7 @@ export class NewEntityModal<T extends EntitySpec> extends Modal {
     )}`;
   }
 
-  onClose(): void {
+  override onClose(): void {
     this.contentEl.empty();
     if (!this.accepted) {
       this.onCancel();

@@ -1,7 +1,7 @@
 import { buildCommand } from "@stricli/core";
 
 import {
-  Content,
+  type Content,
   ContentIndexer,
   ContentManagerImpl,
   ensureRulesPackageBuilderInitialized,

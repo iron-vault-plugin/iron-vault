@@ -19,7 +19,7 @@ export class CampaignIndexer extends BaseIndexer<CampaignFile, z.ZodError> {
     return CampaignFile.parse(file, cache.frontmatter);
   }
 
-  protected reprocessRenamedFiles: boolean = true;
+  protected override reprocessRenamedFiles: boolean = true;
 }
 
 export type CampaignIndex = EmittingIndex<

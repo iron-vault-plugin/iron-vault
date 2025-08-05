@@ -121,7 +121,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     return this.campaignIndexer.index;
   }
 
-  async onload(): Promise<void> {
+  override async onload(): Promise<void> {
     initLogger();
     await this.loadSettings();
     addIcon(
@@ -238,7 +238,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     registerTruthBlock(this);
   }
 
-  onUserEnable(): void {}
+  override onUserEnable(): void {}
 
   onUserDisable(): void {
     // Detach the sidebar views when the plugin is disabled
@@ -274,7 +274,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     return leaf;
   }
 
-  onunload(): void {}
+  override onunload(): void {}
 
   async loadSettings(): Promise<void> {
     const settings = Object.assign(
@@ -290,7 +290,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     this.localSettings = new IronVaultPluginLocalSettings();
   }
 
-  async onExternalSettingsChange() {
+  override async onExternalSettingsChange() {
     Object.assign(this.settings, await this.loadData());
   }
 

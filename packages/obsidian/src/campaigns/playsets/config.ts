@@ -133,7 +133,7 @@ export class PlaysetTagFilter implements IPlaysetCondition {
     readonly targetValue: Datasworn.Tag,
   ) {}
 
-  match(id: string, obj: { tags?: Datasworn.Tags }): boolean {
+  match(_id: string, obj: { tags?: Datasworn.Tags }): boolean {
     return sameTagValue(
       this.targetValue,
       obj.tags?.[this.packageId]?.[this.tagId],

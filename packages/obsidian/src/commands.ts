@@ -102,7 +102,7 @@ export class IronVaultCommands {
           this.plugin,
           await determineCampaignContext(this.plugin),
         ),
-      editorCallback: async (editor, view) =>
+      editorCallback: async (_editor, view) =>
         createNewCharacter(
           this.plugin,
           await determineCampaignContext(this.plugin, view),
@@ -261,7 +261,7 @@ export class IronVaultCommands {
       id: "pick-active-character",
       name: "Pick active character",
       icon: "user-circle",
-      editorCallback: (editor, view) => pickActiveCharacter(this.plugin, view),
+      editorCallback: (_editor, view) => pickActiveCharacter(this.plugin, view),
     },
     {
       id: "toggle-mechanics",
@@ -328,7 +328,7 @@ export class IronVaultCommands {
       name: "Set action roll challenge dice sides",
       icon: "dice",
       editorCallback: async (
-        editor: Editor,
+        _editor: Editor,
         view: MarkdownView | MarkdownFileInfo,
       ) => {
         // This command allows the user to set the number of sides for the challenge dice used in action rolls.

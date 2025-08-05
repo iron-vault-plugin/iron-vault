@@ -30,7 +30,7 @@ export class FactionInfluenceGridCreateModal extends Modal {
     Object.assign(this.result, defaults);
   }
 
-  onOpen(): void {
+  override onOpen(): void {
     this.accepted = false;
 
     const { contentEl } = this;
@@ -130,7 +130,7 @@ export class FactionInfluenceGridCreateModal extends Modal {
     });
   }
 
-  onClose(): void {
+  override onClose(): void {
     this.contentEl.empty();
     if (!this.accepted) {
       this.onCancel();

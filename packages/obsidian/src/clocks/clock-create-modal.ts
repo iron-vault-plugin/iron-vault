@@ -70,7 +70,7 @@ export class ClockCreateModal extends Modal {
     Object.assign(this.result, defaults);
   }
 
-  onOpen(): void {
+  override onOpen(): void {
     this.accepted = false;
 
     const { contentEl } = this;
@@ -222,7 +222,7 @@ export class ClockCreateModal extends Modal {
     });
   }
 
-  onClose(): void {
+  override onClose(): void {
     this.contentEl.empty();
     if (!this.accepted) {
       this.onCancel();
@@ -290,7 +290,7 @@ export class OddsSuggest extends AbstractInputSuggest<FuzzyMatch<string>> {
     // }
   }
 
-  selectSuggestion({ item }: FuzzyMatch<string>): void {
+  override selectSuggestion({ item }: FuzzyMatch<string>): void {
     this.setValue(item);
     if (this.inputEl.instanceOf(HTMLInputElement))
       this.inputEl.trigger("input");

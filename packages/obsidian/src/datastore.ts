@@ -94,7 +94,7 @@ export class Datastore extends Component {
     }
   }
 
-  onload(): void {
+  override onload(): void {
     logger.info("Datastore loading...");
     super.onload();
     // Monitor the vault for changes within the homebrew folder and reindex top level entities

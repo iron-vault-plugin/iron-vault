@@ -35,13 +35,13 @@ export class IronVaultLinkView extends ItemView {
     return "Iron Vault documentation";
   }
 
-  async onOpen() {
+  override async onOpen() {
     await super.onOpen();
     // We render after a moment to give time for a setState call to update the link.
     this.registerInterval(window.setTimeout(() => this.render()));
   }
 
-  async onClose() {
+  override async onClose() {
     this.contentEl.empty();
     await super.onClose();
   }
@@ -68,7 +68,10 @@ export class IronVaultLinkView extends ItemView {
     }
   }
 
-  async setState(state: unknown, result: ViewStateResult): Promise<void> {
+  override async setState(
+    state: unknown,
+    result: ViewStateResult,
+  ): Promise<void> {
     if (
       typeof state === "object" &&
       typeof (state as Partial<LinkViewState>)?.link === "string"
@@ -80,7 +83,7 @@ export class IronVaultLinkView extends ItemView {
     return await super.setState(state, result);
   }
 
-  getState(): LinkViewState {
+  override getState(): LinkViewState {
     return {
       link: this.link,
     };

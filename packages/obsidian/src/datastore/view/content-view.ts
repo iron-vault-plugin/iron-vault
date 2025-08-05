@@ -27,11 +27,11 @@ export class ContentView extends FileView {
     return CONTENT_VIEW_TYPE;
   }
 
-  getDisplayText(): string {
+  override getDisplayText(): string {
     return "Iron Vault Homebrew Inspector";
   }
 
-  getIcon() {
+  override getIcon() {
     // TODO: magnifying glass?
     return "package-search";
   }
@@ -46,7 +46,7 @@ export class ContentView extends FileView {
     }
   }
 
-  onload(): void {
+  override onload(): void {
     super.onload();
     this.registerEvent(
       this.app.workspace.on("file-open", (file: TFile | null) => {
@@ -72,7 +72,7 @@ export class ContentView extends FileView {
     );
   }
 
-  protected async onOpen(): Promise<void> {
+  protected override async onOpen(): Promise<void> {
     await super.onOpen();
     this.update();
   }
@@ -175,12 +175,12 @@ export class ContentView extends FileView {
     }
   };
 
-  async onLoadFile(file: TFile): Promise<void> {
+  override async onLoadFile(file: TFile): Promise<void> {
     await super.onLoadFile(file);
     this.shouldUpdate();
   }
 
-  async onUnloadFile(file: TFile): Promise<void> {
+  override async onUnloadFile(file: TFile): Promise<void> {
     await super.onUnloadFile(file);
   }
 }

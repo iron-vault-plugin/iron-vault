@@ -152,7 +152,7 @@ export class ClockIndexer extends BaseIndexer<ClockFileAdapter, z.ZodError> {
   readonly id = IronVaultKind.Clock;
 
   processFile(
-    file: TFile,
+    _file: TFile,
     cache: CachedMetadata,
   ): IndexUpdate<ClockFileAdapter, z.ZodError> {
     return ClockFileAdapter.create(cache.frontmatter);

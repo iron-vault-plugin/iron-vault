@@ -11,7 +11,7 @@ import { CampaignEditView } from "./edit-view";
 export const INVALID_CAMPAIGNS_VIEW_TYPE = "iron-vault-invalid-campaigns";
 
 export class InvalidCampaignsView extends ItemView {
-  readonly navigation: boolean = false;
+  override readonly navigation: boolean = false;
 
   static async showIfNeeded(plugin: IronVaultPlugin): Promise<void> {
     if (onlyInvalid(plugin.campaigns).size > 0) {
@@ -40,16 +40,16 @@ export class InvalidCampaignsView extends ItemView {
     return "Iron Vault: Fix invalid campaigns";
   }
 
-  getIcon(): IconName {
+  override getIcon(): IconName {
     return "iron-vault";
   }
 
-  onload(): void {
+  override onload(): void {
     super.onload();
     this.registerEvent(this.plugin.campaigns.on("changed", this.render));
   }
 
-  protected async onOpen(): Promise<void> {
+  protected override async onOpen(): Promise<void> {
     this.render();
   }
 

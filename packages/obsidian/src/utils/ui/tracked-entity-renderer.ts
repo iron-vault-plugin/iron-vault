@@ -58,7 +58,7 @@ export abstract class TrackedEntityRenderer<
     return this.plugin.campaignManager.campaignContextFor(this.campaign());
   }
 
-  async onload() {
+  override async onload() {
     this.trace("onload");
 
     const rerender = debounce(() => this.render(), 100);

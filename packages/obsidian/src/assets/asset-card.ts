@@ -276,7 +276,7 @@ function renderControls<T extends Asset | AssetConditionMeter>(
 }
 
 function renderControl<C extends AssetControlField | AssetAbilityControlField>(
-  key: string,
+  _key: string,
   control: C,
   updateControl?: (control: C) => void,
 ) {

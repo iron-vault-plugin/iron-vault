@@ -44,7 +44,7 @@ export class RelativeFolderSearchComponent extends SearchComponent {
     });
   }
 
-  onChange(
+  override onChange(
     callback: (
       relativePath: string,
       absolutePath: string,
@@ -55,7 +55,7 @@ export class RelativeFolderSearchComponent extends SearchComponent {
     return this;
   }
 
-  onChanged(): void {
+  override onChanged(): void {
     const relPath = this.getValue();
     const absPath = joinPaths(this.suggest.baseFolder, relPath);
     if (this.#changeCallback)

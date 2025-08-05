@@ -236,7 +236,7 @@ export class PlaysetEditor extends Modal {
     );
   }
 
-  onClose(): void {
+  override onClose(): void {
     this.onCancel();
     super.onClose();
   }

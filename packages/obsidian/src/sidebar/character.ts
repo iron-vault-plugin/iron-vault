@@ -34,15 +34,13 @@ export class CharacterRenderer extends CampaignDependentBlockRenderer {
     });
   }
 
-  protected onNewContext(_context: CampaignDataContext | undefined): void {
+  protected override onNewContext(
+    _context: CampaignDataContext | undefined,
+  ): void {
     this.characterSelect.setCampaignContext(_context);
   }
 
-  onload(): void {
-    super.onload();
-  }
-
-  renderWithoutContext(): void | Promise<void> {
+  override renderWithoutContext(): void | Promise<void> {
     render(html`<p>No active campaign.</p>`, this.characterSheetEl);
   }
 

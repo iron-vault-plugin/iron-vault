@@ -133,7 +133,7 @@ export class AddsModal extends SuggestModal<FuzzyMatch<string>> {
     return results;
   }
 
-  selectSuggestion(
+  override selectSuggestion(
     value: FuzzyMatch<string>,
     evt: MouseEvent | KeyboardEvent,
   ): void {
@@ -142,7 +142,7 @@ export class AddsModal extends SuggestModal<FuzzyMatch<string>> {
     super.selectSuggestion(value, evt);
   }
 
-  onNoSuggestion(): void {
+  override onNoSuggestion(): void {
     this.chooser.setSuggestions([
       { item: this.inputEl.value, match: { matches: [], score: 0 } },
     ]);
@@ -159,7 +159,7 @@ export class AddsModal extends SuggestModal<FuzzyMatch<string>> {
     this.onSelect(item.item);
   }
 
-  onClose(): void {
+  override onClose(): void {
     super.onClose();
     if (!this.resolved) {
       this.onCancel();

@@ -5,8 +5,8 @@
 // (c) 2023 TfTHacker.
 
 import IronVaultPlugin from "index";
-import { FuzzySuggestModal } from "obsidian";
 import type { FuzzyMatch } from "obsidian";
+import { FuzzySuggestModal } from "obsidian";
 
 /**
  * Simple interface for what should be displayed and stored for suggester
@@ -61,7 +61,10 @@ export class GenericFuzzySuggester extends FuzzySuggestModal<SuggesterItem> {
     return;
   }
 
-  renderSuggestion(item: FuzzyMatch<SuggesterItem>, el: HTMLElement): void {
+  override renderSuggestion(
+    item: FuzzyMatch<SuggesterItem>,
+    el: HTMLElement,
+  ): void {
     el.createEl("div", { text: item.item.display });
   }
 
@@ -76,7 +79,7 @@ export class GenericFuzzySuggester extends FuzzySuggestModal<SuggesterItem> {
     }
   }
 
-  onChooseSuggestion(
+  override onChooseSuggestion(
     item: FuzzyMatch<SuggesterItem>,
     evt: MouseEvent | KeyboardEvent,
   ): void {

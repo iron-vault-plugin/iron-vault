@@ -61,12 +61,12 @@ export class DiceOverlay extends Component implements IDiceOverlay {
     });
   }
 
-  onload(): void {
+  override onload(): void {
     logger.trace("DiceOverlay: onload");
     this.assetsReady = ensureAssets(this.plugin);
   }
 
-  onunload(): void {
+  override onunload(): void {
     this.#removeDiceOverlay();
   }
 

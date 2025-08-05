@@ -49,7 +49,7 @@ export class NewCampaignModal extends Modal {
     };
   }
 
-  onOpen(): void {
+  override onOpen(): void {
     const { contentEl } = this;
 
     const validate = () => {
@@ -198,7 +198,7 @@ export class NewCampaignModal extends Modal {
     );
   }
 
-  onClose(): void {
+  override onClose(): void {
     this.reject(new Error("user cancelled"));
   }
 }

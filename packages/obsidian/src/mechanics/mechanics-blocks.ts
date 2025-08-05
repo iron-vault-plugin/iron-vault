@@ -68,7 +68,7 @@ export class MechanicsRenderer extends CampaignDependentBlockRenderer {
   constructor(
     contentEl: HTMLElement,
     public source: string,
-    public plugin: IronVaultPlugin,
+    plugin: IronVaultPlugin,
     public ctx: MarkdownPostProcessorContext,
   ) {
     super(contentEl, plugin, ctx.sourcePath, {
@@ -121,7 +121,7 @@ export class MechanicsRenderer extends CampaignDependentBlockRenderer {
     }
   }
 
-  renderWithoutContext(): void | Promise<void> {
+  override renderWithoutContext(): void | Promise<void> {
     // If we don't have a campaign context, that's cool-- let's just use the global context
     // for rendering moves, etc.
     // This kinda violates the assumptions that CampaignDependentBlockRenderer makes, but

@@ -4,7 +4,7 @@ import { IronVaultPluginSettings } from "settings";
 import { FolderTextSuggest } from "utils/ui/settings/folder";
 
 export class IronVaultSettingTab extends PluginSettingTab {
-  plugin: IronVaultPlugin;
+  override plugin: IronVaultPlugin;
 
   constructor(app: App, plugin: IronVaultPlugin) {
     super(app, plugin);

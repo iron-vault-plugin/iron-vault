@@ -44,11 +44,11 @@ export class AssetModal extends Modal {
     );
   }
 
-  onOpen() {
+  override onOpen() {
     this.openAsset(this.asset);
   }
 
-  onClose() {
+  override onClose() {
     const { contentEl } = this;
     contentEl.empty();
   }

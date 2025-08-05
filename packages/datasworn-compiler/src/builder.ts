@@ -787,7 +787,7 @@ export class PackageBuilder {
       ...attributes,
       oracle_type: "tables",
       type: "oracle_collection",
-      name: (attributes.name as string) ?? collectionName,
+      name: (attributes["name"] as string) ?? collectionName,
       // TODO: we should have validated this? Maybe push this info up the labels?
       _source:
         (attributes["_source"] as DataswornSource.SourceInfo) ?? parentSource,
@@ -875,7 +875,7 @@ export class PackageBuilder {
     const moveCategory: DataswornSource.MoveCategory = {
       ...attributes,
       type: "move_category",
-      name: (attributes.name as string) ?? collectionName,
+      name: (attributes["name"] as string) ?? collectionName,
       // TODO: we should have validated this? Maybe push this info up the labels?
       _source:
         (attributes["_source"] as DataswornSource.SourceInfo) ?? parentSource,
@@ -925,7 +925,7 @@ export class PackageBuilder {
     const assetCollection: DataswornSource.AssetCollection = {
       ...attributes,
       type: "asset_collection",
-      name: (attributes.name as string) ?? collectionName,
+      name: (attributes["name"] as string) ?? collectionName,
       // TODO: we should have validated this? Maybe push this info up the labels?
       _source:
         (attributes["_source"] as DataswornSource.SourceInfo) ?? parentSource,
@@ -1010,12 +1010,12 @@ export function labelCollections(
             return { kind: "package", allowableParents: null }; // Root package
           case "index":
             // TODO: should validate somewhere that this has a valid collection type?
-            return leaf.data.data.type != null &&
-              typeof leaf.data.data.type == "string" &&
-              leaf.data.data.type in parentForCollection
+            return leaf.data.data["type"] != null &&
+              typeof leaf.data.data["type"] == "string" &&
+              leaf.data.data["type"] in parentForCollection
               ? {
                   kind: "index",
-                  allowableParents: [leaf.data.data.type as CollectionTypes],
+                  allowableParents: [leaf.data.data["type"] as CollectionTypes],
                 }
               : { kind: "index", allowableParents: COLLECTION_TYPES }; // Index file with no specific collection type
 

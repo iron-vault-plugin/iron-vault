@@ -51,7 +51,7 @@ export class GenericTextSuggest extends AbstractInputSuggest<
     // }
   }
 
-  selectSuggestion({ item }: FuzzyMatch<string>): void {
+  override selectSuggestion({ item }: FuzzyMatch<string>): void {
     this.setValue(item);
     if (this.inputEl.instanceOf(HTMLInputElement))
       this.inputEl.trigger("input");
