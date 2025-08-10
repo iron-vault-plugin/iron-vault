@@ -118,17 +118,23 @@ export async function runOracleCommand(
   const modal = plugin.settings.useLegacyRoller
     ? OracleRollerModal
     : NewOracleRollerModal;
-  const { roll, cursedRoll } = await modal.forRoll(
+  const { roll, cursedRoll, modifiers } = await modal.forRoll(
     plugin,
     oracle,
     rollContext,
     initialRoll || (await oracle.roll(rollContext)),
+    { shiftActionLabel: "copy result" },
   );
 
-  // Delete the prompt and then inject the oracle node to a mechanics block
-  editor.setSelection(replaceSelection.anchor, replaceSelection.head);
-  editor.replaceSelection("");
-  createOrAppendMechanics(editor, [
-    createOracleNode(roll, prompt, undefined, cursedRoll),
-  ]);
+  if (modifiers.shift) {
+    // Copy the result to the clipboard
+    await navigator.clipboard.writeText((cursedRoll ?? roll).simpleResult);
+  } else {
+    // Delete the prompt and then inject the oracle node to a mechanics block
+    editor.setSelection(replaceSelection.anchor, replaceSelection.head);
+    editor.replaceSelection("");
+    createOrAppendMechanics(editor, [
+      createOracleNode(roll, prompt, undefined, cursedRoll),
+    ]);
+  }
 }
