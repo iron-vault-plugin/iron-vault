@@ -1,7 +1,7 @@
 import { Datasworn } from "@datasworn/core";
 import { parseDataswornLinks } from "datastore/parsers/datasworn/id";
 import IronVaultPlugin from "index";
-import { html, noChange, render } from "lit-html";
+import { html, noChange, nothing, render } from "lit-html";
 import {
   ChildPart,
   Directive,
@@ -24,32 +24,60 @@ import {
   SimpleRollContainer,
 } from "./state";
 
+export type OracleModalOptions = {
+  // Label for the action taken when holding shift and accepting
+  // Blank/undefined means no special action available
+  shiftActionLabel?: string;
+};
+
+// Swipe state for tracking touch/mouse interactions
+interface SwipeState {
+  startX: number;
+  startY: number;
+  currentX: number;
+  isDragging: boolean;
+  element: HTMLElement;
+  actionElement?: HTMLElement;
+}
+
+// Extended HTMLElement type for swipe handlers
+type SwipeEnabledElement = HTMLElement & { __swipeHandler?: EventListener };
+
 export class NewOracleRollerModal extends Modal {
   public accepted: boolean = false;
 
   protected tableContainerEl: HTMLDivElement;
   cursedToggle!: ToggleComponent;
+  private swipeStates = new Map<number, SwipeState>();
 
   static async forRoll(
     plugin: IronVaultPlugin,
     oracle: Oracle,
     context: RollContext,
     initialRoll: Roll,
-  ): Promise<{ roll: RollWrapper; cursedRoll?: RollWrapper }> {
+    options?: OracleModalOptions,
+  ): Promise<{
+    roll: RollWrapper;
+    cursedRoll?: RollWrapper;
+    modifiers: { shift: boolean };
+  }> {
     return new Promise((resolve, reject) => {
       try {
         new this(
           plugin,
           createRollContainer(new RollWrapper(oracle, context, initialRoll)),
-          (container) =>
+          (container, modifiers) =>
             resolve({
               roll: container.mainResult.currentRoll(),
               cursedRoll:
                 container.isCursable() && container.useCursedResult
                   ? container.cursedResult.currentRoll()
                   : undefined,
+              modifiers,
             }),
           reject,
+          undefined,
+          options,
         ).open();
       } catch (e) {
         reject(e);
@@ -60,9 +88,13 @@ export class NewOracleRollerModal extends Modal {
   constructor(
     private plugin: IronVaultPlugin,
     public rollContainer: RollContainer,
-    protected readonly onAccept: (rollContainer: RollContainer) => void,
+    protected readonly onAccept: (
+      rollContainer: RollContainer,
+      modifiers: { shift: boolean },
+    ) => void,
     protected readonly onCancel: () => void,
     public titlePrefix: string[] = [],
+    readonly options: OracleModalOptions = {},
   ) {
     super(plugin.app);
 
@@ -90,11 +122,20 @@ export class NewOracleRollerModal extends Modal {
         this.cursedToggle.setValue(!this.cursedToggle.getValue());
         // cont.useCursedResult = !cont.useCursedResult;
         this.renderTable();
+        return false;
       });
     }
     this.scope.register([], "Enter", () => {
-      this.accept();
+      this.accept({ shift: false });
+      return false;
     });
+
+    if (options.shiftActionLabel) {
+      this.scope.register(["Shift"], "Enter", () => {
+        this.accept({ shift: true });
+        return false;
+      });
+    }
   }
 
   async updateState(
@@ -270,16 +311,76 @@ export class NewOracleRollerModal extends Modal {
                     )})`;
                   };
                   return html`<tr
-                    @click=${async (_ev: MouseEvent) => {
+                    @click=${async (ev: MouseEvent) => {
                       await this.updateState((s) => s.updateSelection(() => i));
                       if (Platform.isMobile) {
-                        this.accept();
+                        this.accept({ shift: ev.shiftKey });
                       }
                     }}
-                    @dblclick=${async (_ev: MouseEvent) => {
+                    @dblclick=${async (ev: MouseEvent) => {
                       await this.updateState((s) => s.updateSelection(() => i));
-                      this.accept();
+                      this.accept({ shift: ev.shiftKey });
                     }}
+                    ${ref((el) => {
+                      if (el && Platform.isMobile) {
+                        const swipeElement = el as SwipeEnabledElement;
+
+                        // Remove any existing listeners first
+                        const existingHandler = swipeElement.__swipeHandler;
+                        if (existingHandler) {
+                          el.removeEventListener("touchstart", existingHandler);
+                        }
+
+                        // Add new touchstart handler with passive: false
+                        const touchStartHandler: EventListener = (
+                          ev: Event,
+                        ) => {
+                          const touchEvent = ev as TouchEvent;
+                          const handlers = this.createSwipeHandlers(i);
+                          handlers.handleStart(touchEvent);
+
+                          // Attach move and end handlers to document for better tracking
+                          const handleMoveGlobal = (e: TouchEvent) =>
+                            handlers.handleMove(e);
+                          const handleEndGlobal = (_e: TouchEvent) => {
+                            handlers.handleEnd();
+                            document.removeEventListener(
+                              "touchmove",
+                              handleMoveGlobal,
+                            );
+                            document.removeEventListener(
+                              "touchend",
+                              handleEndGlobal,
+                            );
+                            document.removeEventListener(
+                              "touchcancel",
+                              handleEndGlobal,
+                            );
+                          };
+
+                          document.addEventListener(
+                            "touchmove",
+                            handleMoveGlobal,
+                            {
+                              passive: false,
+                            },
+                          );
+                          document.addEventListener(
+                            "touchend",
+                            handleEndGlobal,
+                          );
+                          document.addEventListener(
+                            "touchcancel",
+                            handleEndGlobal,
+                          );
+                        };
+
+                        el.addEventListener("touchstart", touchStartHandler, {
+                          passive: false,
+                        });
+                        swipeElement.__swipeHandler = touchStartHandler;
+                      }
+                    })}
                     ${selected
                       ? ref(
                           (el) =>
@@ -293,6 +394,7 @@ export class NewOracleRollerModal extends Modal {
                         )
                       : null}
                     class=${selected ? "selected" : null}
+                    style="transition: transform 0.2s ease; position: relative; touch-action: pan-x;"
                   >
                     ${map(
                       columns,
@@ -319,6 +421,29 @@ export class NewOracleRollerModal extends Modal {
             <span class="prompt-instruction-command">⏎</span>
             <span>to accept</span>
           </div>
+          ${this.options.shiftActionLabel
+            ? html`<div class="prompt-instruction">
+                <span class="prompt-instruction-command">⇧⏎</span>
+                <span>${this.options.shiftActionLabel}</span>
+              </div>`
+            : nothing}
+          ${Platform.isMobile
+            ? html`
+                <div class="prompt-instruction">
+                  <span class="prompt-instruction-command">←</span>
+                  <span>swipe left to accept</span>
+                </div>
+                ${this.options.shiftActionLabel
+                  ? html`<div class="prompt-instruction">
+                      <span class="prompt-instruction-command">→</span>
+                      <span
+                        >swipe right to
+                        ${this.options.shiftActionLabel.toLowerCase()}</span
+                      >
+                    </div>`
+                  : nothing}
+              `
+            : nothing}
           <div class="prompt-instruction">
             <span class="prompt-instruction-command">r</span>
             <span>to reroll</span>
@@ -374,17 +499,273 @@ export class NewOracleRollerModal extends Modal {
     this.renderTable();
   }
 
-  accept(): void {
+  // Swipe handling methods for mobile actions
+  // Implements iOS-style swipe-to-reveal with action triggered on release
+  // Swipe left = accept (shift: false), Swipe right = special action (shift: true)
+  // Action is triggered only on release if swipe distance > 50px (fully highlighted)
+  private createSwipeHandlers(rowIndex: number) {
+    const handleStart = (e: TouchEvent | MouseEvent) => {
+      if (!Platform.isMobile) return;
+
+      const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+
+      const element = (e.target as HTMLElement).closest("tr") as HTMLElement;
+      if (!element) return;
+
+      this.swipeStates.set(rowIndex, {
+        startX: clientX,
+        startY: clientY,
+        currentX: clientX,
+        isDragging: false,
+        element,
+      });
+    };
+
+    const handleMove = (e: TouchEvent | MouseEvent) => {
+      const state = this.swipeStates.get(rowIndex);
+      if (!state || !Platform.isMobile) return;
+
+      const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+      const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+
+      const deltaX = clientX - state.startX;
+      const deltaY = clientY - state.startY;
+
+      // Check if this is a horizontal swipe (not vertical scroll)
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+        if (!state.isDragging) {
+          state.isDragging = true;
+          e.preventDefault();
+        }
+
+        state.currentX = clientX;
+
+        const swipeDistance = Math.min(Math.abs(deltaX), 100);
+        // Handle left swipe (accept action)
+        if (deltaX < 0) {
+          state.element.style.transform = `translateX(-${swipeDistance}px)`;
+
+          // Show accept action if not already shown
+          if (
+            swipeDistance > 30 &&
+            (!state.actionElement ||
+              !state.actionElement.classList.contains("oracle-row-swipe-left"))
+          ) {
+            this.showSwipeAction(state, rowIndex, "left");
+          }
+        }
+        // Handle right swipe (special action - shift: true)
+        else if (deltaX > 0 && this.options.shiftActionLabel) {
+          state.element.style.transform = `translateX(${swipeDistance}px)`;
+
+          // Show special action if not already shown
+          if (
+            swipeDistance > 30 &&
+            (!state.actionElement ||
+              !state.actionElement.classList.contains("oracle-row-swipe-right"))
+          ) {
+            this.showSwipeAction(state, rowIndex, "right");
+          }
+        }
+
+        // Visual feedback when action is fully highlighted
+        if (state.actionElement && swipeDistance > 50) {
+          state.actionElement.style.backgroundColor =
+            "var(--interactive-accent-hover)";
+          // Don't apply scale transform here as we're already using transform for position
+        } else if (state.actionElement) {
+          state.actionElement.style.backgroundColor =
+            "var(--interactive-accent)";
+        }
+      }
+    };
+
+    const handleEnd = () => {
+      const state = this.swipeStates.get(rowIndex);
+      if (!state || !Platform.isMobile) return;
+
+      if (state.isDragging) {
+        // Check if we should trigger an action based on swipe distance
+        const deltaX = state.currentX - state.startX;
+        const swipeDistance = Math.abs(deltaX);
+
+        // Trigger action if the swipe distance is past the highlight threshold (50px)
+        if (swipeDistance > 50 && state.actionElement) {
+          if (deltaX < 0) {
+            // Left swipe - regular accept
+            this.triggerSwipeAction(rowIndex, false);
+          } else if (deltaX > 0 && this.options.shiftActionLabel) {
+            // Right swipe - special action
+            this.triggerSwipeAction(rowIndex, true);
+          }
+        }
+
+        // Reset positions and clean up action element
+        state.element.style.transform = "";
+        if (state.actionElement) {
+          state.actionElement.style.transform = "";
+          state.actionElement.remove();
+        }
+      }
+
+      this.swipeStates.delete(rowIndex);
+    };
+
+    return { handleStart, handleMove, handleEnd };
+  }
+
+  // Shows the swipe action button that appears when swiping on mobile
+  // direction: "left" for accept action, "right" for special action
+  private showSwipeAction(
+    state: SwipeState,
+    rowIndex: number,
+    direction: "left" | "right",
+  ) {
+    if (state.actionElement) {
+      if (
+        state.actionElement.classList.contains(`oracle-row-swipe-${direction}`)
+      ) {
+        return;
+      } else {
+        state.actionElement.remove();
+        state.actionElement = undefined;
+      }
+    }
+
+    const actionEl = document.createElement("div");
+    actionEl.className = `oracle-row-swipe-action oracle-row-swipe-${direction}`;
+
+    // Set text and position based on direction
+    if (direction === "left") {
+      actionEl.textContent = "Accept";
+      actionEl.style.cssText = `
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 100%;
+        width: 100px;
+        background: var(--interactive-accent);
+        color: var(--text-on-accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        z-index: 5;
+        border-radius: 0 var(--radius-s) var(--radius-s) 0;
+        box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+        transition: opacity 0.2s ease, background-color 0.2s ease;
+        font-size: 12px;
+        text-align: center;
+      `;
+    } else {
+      actionEl.textContent = this.options.shiftActionLabel || "Special";
+      actionEl.style.cssText = `
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 100%;
+        width: 100px;
+        background: var(--interactive-accent);
+        color: var(--text-on-accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        z-index: 5;
+        border-radius: var(--radius-s) 0 0 var(--radius-s);
+        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+        transition: opacity 0.2s ease, background-color 0.2s ease;
+        font-size: 12px;
+        text-align: center;
+      `;
+    }
+
+    actionEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.triggerSwipeAction(rowIndex, direction === "right");
+    });
+
+    // Add touch feedback
+    actionEl.addEventListener(
+      "touchstart",
+      () => {
+        actionEl.style.opacity = "0.8";
+      },
+      { passive: true },
+    );
+
+    actionEl.addEventListener(
+      "touchend",
+      () => {
+        actionEl.style.opacity = "1";
+      },
+      { passive: true },
+    );
+
+    state.element.style.position = "relative";
+    state.element.style.overflow = "visible";
+
+    // Add as child but position it outside the row bounds
+    state.element.appendChild(actionEl);
+
+    state.actionElement = actionEl;
+  }
+
+  // Triggers the appropriate swipe action for the specified row
+  // shift: true for special action (right swipe), false for regular accept (left swipe)
+  private triggerSwipeAction(rowIndex: number, shift: boolean) {
+    // Update selection to the swiped row
+    this.updateState((s) => s.updateSelection(() => rowIndex)).then(() => {
+      // Trigger the appropriate action
+      this.accept({ shift });
+    });
+  }
+
+  accept(modifiers: { shift: boolean }): void {
     this.accepted = true;
     this.close();
-    this.onAccept(this.rollContainer);
+    this.onAccept(this.rollContainer, modifiers);
   }
 
   override onClose(): void {
     const { contentEl } = this;
+
+    // Clean up any remaining swipe states and event listeners
+    this.cleanupSwipeHandlers();
+
     contentEl.empty();
+
     if (!this.accepted) {
       this.onCancel();
+    }
+  }
+
+  // Clean up all swipe-related event listeners and states
+  private cleanupSwipeHandlers() {
+    // Clean up any remaining swipe states
+    this.swipeStates.clear();
+
+    // Clean up event listeners from table rows
+    const tableRows = this.tableContainerEl.querySelectorAll("tr");
+    tableRows.forEach((row) => {
+      const swipeElement = row as SwipeEnabledElement;
+      const handler = swipeElement.__swipeHandler;
+      if (handler) {
+        row.removeEventListener("touchstart", handler);
+        delete swipeElement.__swipeHandler;
+      }
+    });
+
+    // Clean up any remaining action elements from the table container
+    const tableContainer = this.tableContainerEl.querySelector(
+      ".iron-vault-oracle-table-container",
+    );
+    if (tableContainer) {
+      const actionElements = tableContainer.querySelectorAll(
+        ".oracle-row-swipe-action",
+      );
+      actionElements.forEach((el) => el.remove());
     }
   }
 }

@@ -13,14 +13,20 @@ export class OracleRollerModal extends Modal {
     oracle: Oracle,
     context: RollContext,
     initialRoll: Roll,
-  ): Promise<{ roll: RollWrapper; cursedRoll?: RollWrapper }> {
+    _options?: object,
+  ): Promise<{
+    roll: RollWrapper;
+    cursedRoll?: RollWrapper;
+    modifiers: { shift: false };
+  }> {
     return new Promise((resolve, reject) => {
       try {
         new this(
           plugin,
           oracle,
           new RollWrapper(oracle, context, initialRoll),
-          (roll, cursedRoll) => resolve({ roll, cursedRoll }),
+          (roll, cursedRoll) =>
+            resolve({ roll, cursedRoll, modifiers: { shift: false } }),
           reject,
         ).open();
       } catch (e) {
