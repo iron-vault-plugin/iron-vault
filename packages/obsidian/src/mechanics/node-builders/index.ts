@@ -51,7 +51,19 @@ export function createTrackCompletionNode(
   return node("track", {
     properties: {
       name: `[[${trackPath}|${trackName}]]`,
-      status: "removed",
+      status: "completed",
+    },
+  });
+}
+
+export function createTrackIncompletionNode(
+  trackName: string,
+  trackPath: string,
+): kdl.Node {
+  return node("track", {
+    properties: {
+      name: `[[${trackPath}|${trackName}]]`,
+      status: "reopened",
     },
   });
 }

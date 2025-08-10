@@ -202,6 +202,11 @@ export class ProgressTrack {
     return new ProgressTrack({ ...this, complete: true });
   }
 
+  markIncomplete(): ProgressTrack {
+    if (!this.complete) return this;
+    return new ProgressTrack({ ...this, complete: false });
+  }
+
   equals(other: ProgressTrack): boolean {
     if (this === other) return true;
     return (

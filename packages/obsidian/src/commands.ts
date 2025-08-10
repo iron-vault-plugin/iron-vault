@@ -27,6 +27,7 @@ import {
   advanceProgressTrack,
   createProgressTrack,
   markTrackCompleted,
+  markTrackIncomplete,
 } from "tracks/commands";
 import { generateTruthsCommand } from "truths/command";
 import { CustomSuggestModal } from "utils/suggest";
@@ -204,6 +205,13 @@ export class IronVaultCommands {
       icon: "square-check",
       editorCallback: (editor, view) =>
         markTrackCompleted(this.plugin, editor, view),
+    },
+    {
+      id: "progress-incomplete",
+      name: "Progress: Mark a progress track as incomplete",
+      icon: "square-check",
+      editorCallback: (editor, view) =>
+        markTrackIncomplete(this.plugin, editor, view),
     },
 
     /*

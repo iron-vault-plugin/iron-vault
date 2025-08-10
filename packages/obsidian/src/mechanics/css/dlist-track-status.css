@@ -10,7 +10,17 @@
     }
     &.track-name:has(~ .track-status[data-value="removed"]) {
       &:before {
-        content: "Track removed: ";
+        content: "Track completed: ";
+      }
+    }
+    &.track-name:has(~ .track-status[data-value="completed"]) {
+      &:before {
+        content: "Track completed: ";
+      }
+    }
+    &.track-name:has(~ .track-status[data-value="reopened"]) {
+      &:before {
+        content: "Track marked incomplete: ";
       }
     }
     &.track-status {
