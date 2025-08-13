@@ -197,14 +197,17 @@ export class ProgressTrack {
     return this.withTicks(this.progress + ticks);
   }
 
+  withCompletion(completion: boolean): ProgressTrack {
+    if (this.complete === completion) return this;
+    return new ProgressTrack({ ...this, complete: completion });
+  }
+
   completed(): ProgressTrack {
-    if (this.complete) return this;
-    return new ProgressTrack({ ...this, complete: true });
+    return this.withCompletion(true);
   }
 
   markIncomplete(): ProgressTrack {
-    if (!this.complete) return this;
-    return new ProgressTrack({ ...this, complete: false });
+    return this.withCompletion(false);
   }
 
   equals(other: ProgressTrack): boolean {
