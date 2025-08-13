@@ -344,7 +344,7 @@ say something like "erase two ticks from TKTK".
 ##### Arguments
 
 - `name` (md): the name of the progress track.
-- `status` (optional): a status change for the track. Can be either "added" or "removed". If this argument is present, all other arguments except `name` are ignored.
+- `status` (optional): a status change for the track. Can be either "added", "completed" (or "removed"), or "reopened" (which is for tracks marked incomplete after being completed). If this argument is present, all other arguments except `name` are ignored.
 - `from` (optional): the starting value of the progress track, in total ticks.
 - `from-boxes` (optional): the starting value of the progress track, in boxes.
 - `from-ticks` (optional): the starting value of the progress track, in ticks
@@ -359,12 +359,14 @@ say something like "erase two ticks from TKTK".
 ```iron-vault-mechanics
 track "My Background Vow" status="added"
 track "My Background Vow" from-boxes=3 from-ticks=2 to-boxes=4 to-ticks=1
+track "My Background Vow" status="completed"
 ```
 
 ````kdl
 ```iron-vault-mechanics
 track "My Background Vow" status="added"
 track "My Background Vow" from-boxes=3 from-ticks=2 to-boxes=4 to-ticks=1
+track "My Background Vow" status="completed"
 ```
 ````
 
