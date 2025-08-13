@@ -57,6 +57,10 @@ class TrackRenderer extends TrackedEntityRenderer<
     return this.updateTrackFile((trackFile) => trackFile.withName(name));
   }
 
+  async updateTrackCompletion(completion: boolean) {
+    return this.updateTrack((_) => _.withCompletion(completion));
+  }
+
   async updateTrack(updateFn: (track: ProgressTrack) => ProgressTrack) {
     await this.updateTrackFile((trackFile) =>
       trackFile.updatingTrack(updateFn),
@@ -178,6 +182,21 @@ export function renderTrack(
                         )}
                     /> `
                   : html`${capitalize(info.trackType)}`}
+              </span>
+              <span class="track-completion">
+                ${trackRenderer
+                  ? html`<input
+                      type="checkbox"
+                      .checked=${info.track.complete}
+                      @click=${(ev: Event) => {
+                        ev.stopPropagation(); // See above
+                      }}
+                      @change=${(ev: Event) =>
+                        trackRenderer.updateTrackCompletion(
+                          (ev.target! as HTMLInputElement).checked,
+                        )}
+                    /> `
+                  : html`${info.track.complete ? "Complete" : "Incomplete"}`}
               </span>
             </div>
           `

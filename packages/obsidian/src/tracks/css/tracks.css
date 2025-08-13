@@ -9,7 +9,8 @@
   align-items: center;
   justify-content: center;
   /* NB(@zkat): Fix some obnoxious Obsidian styles */
-  & ul > li, & ol > li {
+  & ul > li,
+  & ol > li {
     margin-inline-start: 0;
   }
   @container iron-vault-track (min-width: 460px) {
@@ -49,6 +50,7 @@
   }
   & .track-rank,
   & .track-type,
+  & .track-completion,
   & .track-xp {
     color: var(--text-muted);
   }
@@ -68,6 +70,19 @@
     margin: 0.6em 0;
     border: none;
     box-shadow: none;
+  }
+  & .track-completion {
+    font-size: 1em;
+    font-weight: var(--font-semibold);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    &:has(> input:not(:checked))::after {
+      content: "Incomplete";
+    }
+    &:has(> input:checked)::after {
+      content: "Complete";
+    }
   }
   & > .track-widget {
     display: flex;
