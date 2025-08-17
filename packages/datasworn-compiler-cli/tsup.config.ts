@@ -10,4 +10,11 @@ export default defineConfig((config) => ({
   experimentalDts: true,
   noExternal: [/^@ironvault\/[^/]+($|\/)/],
   external: ["yaml"],
+  banner: ({ format }) => {
+    if (format === "esm")
+      return {
+        js: `import { createRequire } from 'module'; const require = createRequire(import.meta.url);`,
+      };
+    return {};
+  },
 }));
