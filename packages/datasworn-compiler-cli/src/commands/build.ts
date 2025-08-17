@@ -79,16 +79,52 @@ export const command = buildCommand({
       contentManager.valuesUnderPath(root),
     );
 
-    for (const file of files) {
-      if (file[1].isErr) {
-        logger.error(`${file[0]}: Error processing file:`, file[1].error);
+    let filesWithErrors = 0;
+    let totalErrors = 0;
+    for (const [fileName, fileResult] of files) {
+      if (fileResult.isErr) {
+        const problem = fileResult.error;
+        switch (problem._tag) {
+          case "SchemaValidationFailedProblem":
+            for (const err of problem.errors) {
+              logger.error(
+                `${fileName}: Schema validation error at ${err.instancePath}: ${err.message}`,
+              );
+              totalErrors++;
+            }
+            break;
+          case "ErrorProblem":
+            logger.error(`${fileName}: ${problem.error.message}`);
+            totalErrors++;
+            break;
+          case "ContentValidationFailedProblem":
+            for (const err of problem.errors) {
+              logger.error(
+                `${fileName}: Content validation error at ${err.path.join(
+                  ".",
+                )}: ${err.message}`,
+              );
+              totalErrors++;
+            }
+            break;
+          case "WrongDataswornVersionProblem":
+            logger.error(`${fileName}: ${problem.message}`);
+            totalErrors++;
+        }
+        filesWithErrors++;
       } else {
-        logger.info(`${file[0]}: Loaded file successfully.`);
+        logger.info(`${fileName}: Loaded file successfully.`);
       }
     }
 
     if (result) {
-      logger.success(`Package ${result._id} built successfully.`);
+      if (filesWithErrors > 0) {
+        logger.warn(
+          `Package built with ${filesWithErrors} files containing errors (${totalErrors} total errors).`,
+        );
+      } else {
+        logger.success(`Package ${result._id} built successfully.`);
+      }
       if (flags.emit) {
         const outfile = flags.outfile ?? `${result._id}.json`;
         await writeFile(outfile, JSON.stringify(result, null, 2), {

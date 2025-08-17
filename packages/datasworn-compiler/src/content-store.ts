@@ -203,9 +203,11 @@ export class ContentManagerImpl<Content extends { path: string }>
   #updateRoot(root: string): void {
     const content = [...this.valuesUnderPath(root)];
     logger.debug(
-      "[content-manager] Updating root %s with %d content items.",
+      "Updating root",
       root,
+      "with",
       content.length,
+      "content items.",
     );
     this.updateRootCallback(root, content);
   }
@@ -213,17 +215,10 @@ export class ContentManagerImpl<Content extends { path: string }>
   #updateRootForPath(path: string): void {
     const root = this.rootForPath(path);
     if (root) {
-      logger.debug(
-        "[content-manager] Updating root for path %s under root %s.",
-        path,
-        root,
-      );
+      logger.debug("Updating root for path", path, "under root", root);
       this.#updateRoot(root);
     } else {
-      logger.debug(
-        "[content-manager] No root found for path %s. Cannot update.",
-        path,
-      );
+      logger.debug("No root found for path", path);
     }
   }
 
