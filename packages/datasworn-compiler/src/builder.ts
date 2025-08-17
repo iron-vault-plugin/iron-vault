@@ -25,6 +25,8 @@ import {
   NodeTree,
   reduceNodes,
 } from "./nodes";
+import { validate } from "./validators";
+import { ValidationError } from "./validators/error";
 
 /** Used as the expansion ruleset for an expansion that can target any base set (or is unspecified). */
 export const WILDCARD_TARGET_RULESET: string = "*";
@@ -71,6 +73,79 @@ class FilePath {
   }
 }
 
+function parseYaml(data: string): Record<string, unknown> {
+  return yaml.parse(data, {
+    schema: "core",
+    merge: true,
+    maxAliasCount: 1000,
+  });
+}
+
+function makeParseError(
+  message: string,
+  path: string,
+  cause: unknown,
+): Content["value"] {
+  return {
+    kind: "content",
+    data: {
+      success: false,
+      error: new Error(`${message} ${path}: ${cause}`, {
+        cause,
+      }),
+    },
+  };
+}
+
+class ContentValidationFailedError extends Error {
+  readonly _tag = "ContentValidationFailedError";
+
+  constructor(
+    public readonly errors: ValidationError[],
+    opts?: ErrorOptions,
+  ) {
+    super(
+      `content failed validation: ${errors.map((e) => e.message).join(", ")}`,
+      opts,
+    );
+  }
+}
+
+function validateIndivContent(value: ParserReturn): ParserReturn {
+  if (!value.success) return value;
+  return validate(value.result)
+    .map((_) => value)
+    .unwrapOrElse((errors) => ({
+      success: false,
+      error: new ContentValidationFailedError(errors),
+      result: { type: value.result.type },
+    }));
+}
+
+function validateContent(
+  value: Content["value"] | null,
+): Content["value"] | null {
+  if (value == null) return null;
+
+  switch (value.kind) {
+    case "content":
+      if (!value.data.success) return value;
+      return { ...value, data: validateIndivContent(value.data) };
+    case "package":
+      // TODO: validate package
+      return value;
+    case "index":
+      // TODO: validate index
+      return value;
+    default:
+      logger.warn(
+        "Unexpected content kind: %s",
+        (value as Content["value"]).kind,
+      );
+      return value;
+  }
+}
+
 export class ContentIndexer {
   constructor(private manager: IContentManager<Content>) {}
 
@@ -91,36 +166,13 @@ export class ContentIndexer {
       return { kind: "index", data: frontmatter ?? {} };
     } else if (filePath.extension == "yml" || filePath.extension == "yaml") {
       try {
-        return {
-          kind: "index",
-          data: yaml.parse(data, {
-            schema: "core",
-            merge: true,
-            maxAliasCount: 1000,
-          }),
-        };
+        return { kind: "index", data: parseYaml(data) };
       } catch (e) {
-        logger.error(
-          "[homebrew-indexer:%s] Failed to parse YAML file %s. Errors: %o",
-          "todo", // root should go here?
-          filePath.path,
-          e,
-        );
         // TODO: this is an index, but we're setting it as content, because that's where error lives. hrm.
-        return {
-          kind: "content",
-          data: {
-            success: false,
-            error: new Error(`Failed to parse YAML file ${filePath.path}`),
-          },
-        };
+        return makeParseError("Failed to parse YAML file", filePath.path, e);
       }
     } else {
-      logger.error(
-        "[homebrew-indexer:%s] Unexpected file type for index file %s",
-        "todo", // root should go here?
-        filePath.path,
-      );
+      logger.error("Unexpected file type for index file %s", filePath.path);
       // If we encounter an unexpected file type, we can return null
       // to indicate that it is not a valid index file.
       return null;
@@ -170,53 +222,19 @@ export class ContentIndexer {
     ) {
       let result;
 
-      if (filePath.extension == "yml" || filePath.extension == "yaml") {
-        logger.debug("[homebrew:%s] Found YAML file %s", "todo", filePath.path);
+      logger.debug("Found %s file %s", filePath.extension, filePath.path);
 
+      if (filePath.extension == "yml" || filePath.extension == "yaml") {
         try {
-          result = yaml.parse(data, {
-            schema: "core",
-            merge: true,
-            maxAliasCount: 1000,
-          });
+          result = parseYaml(data);
         } catch (e) {
-          logger.warn(
-            "[homebrew-collection:%s] Failed to parse YAML file %s. Errors: %o",
-            "todo",
-            filePath.path,
-            e,
-          );
-          return {
-            kind: "content",
-            data: {
-              success: false,
-              error: new Error(
-                `Failed to parse YAML file ${filePath.path}: ${e}`,
-              ),
-            },
-          };
+          return makeParseError("Failed to parse YAML file", filePath.path, e);
         }
       } else if (filePath.extension == "json") {
-        logger.debug("[homebrew:%s] Found JSON file %s", "todo", filePath.path);
-
         try {
           result = JSON.parse(data);
         } catch (e) {
-          logger.warn(
-            "[homebrew-collection:%s] Failed to parse JSON file %s. Errors: %o",
-            "todo",
-            filePath.path,
-            e,
-          );
-          return {
-            kind: "content",
-            data: {
-              success: false,
-              error: new Error(
-                `Failed to parse JSON file ${filePath.path}: ${e}`,
-              ),
-            },
-          };
+          return makeParseError("Failed to parse JSON file", filePath.path, e);
         }
       }
 
@@ -241,27 +259,16 @@ export class ContentIndexer {
 
         case "ruleset":
         case "expansion":
-          // TODO: should maybe validate it here
           return {
             kind: "package",
             package: result as DataswornSource.RulesPackage,
           };
         default:
-          logger.error(
-            "[homebrew-collection:%s] Unexpected file type %s in file %s",
-            "todo",
-            (result as DataswornSource.SourceRoot).type,
+          return makeParseError(
+            `Unexpected file type ${result.type} in file`,
             filePath.path,
+            undefined,
           );
-          return {
-            kind: "content",
-            data: {
-              success: false,
-              error: new Error(
-                `Unexpected file type ${result.type} in file ${filePath.path}`,
-              ),
-            },
-          };
       }
     }
     return null;
@@ -278,10 +285,7 @@ export class ContentIndexer {
     // sending the content
     const existing = this.manager.getContent(path);
     if (existing && existing.mtime >= mtime) {
-      logger.debug(
-        "[content-indexer] File %s has not changed. Skipping re-index.",
-        path,
-      );
+      logger.debug("File %s has not changed. Skipping re-index.", path);
       return; // No change in file, skip re-indexing
     }
 
@@ -289,20 +293,29 @@ export class ContentIndexer {
       existing != null &&
       hash.every((byte, index) => existing.hash[index] === byte)
     ) {
-      logger.debug(
-        "[content-indexer] File %s has not changed. Skipping re-index.",
-        path,
-      );
+      logger.debug("File %s has not changed. Skipping re-index.", path);
       return; // No change in content, skip re-indexing
     }
 
     const filePath = new FilePath(path);
-    const value = this.#parse(filePath, data, frontmatter);
+    let value: Content["value"] | null;
+    try {
+      value = validateContent(this.#parse(filePath, data, frontmatter));
+    } catch (e) {
+      logger.error("Internal error while parsing %s: %o", filePath.path, e);
+      value = {
+        kind: "content",
+        data: {
+          success: false,
+          error: new Error(
+            `Unexpected internal error while parsing file ${filePath.path}: ${e}`,
+            { cause: e },
+          ),
+        },
+      };
+    }
     if (value === null) {
-      logger.error(
-        "[content-indexer] Failed to parse file %s. No valid content found.",
-        path,
-      );
+      logger.warn("Failed to parse file %s. No valid content found.", path);
       return; // No valid content found, do not add to index
     }
 
@@ -377,11 +390,11 @@ export abstract class BaseFileProblem {
 }
 
 export class WrongDataswornVersionProblem extends BaseFileProblem {
-  _tag = "WrongDataswornVersionProblem";
+  _tag = "WrongDataswornVersionProblem" as const;
 }
 
 export class SchemaValidationFailedProblem extends BaseFileProblem {
-  _tag = "SchemaValidationFailedProblem";
+  _tag = "SchemaValidationFailedProblem" as const;
   errors: ErrorObject[];
 
   static is(problem: FileProblem): problem is SchemaValidationFailedProblem {
@@ -395,14 +408,66 @@ export class SchemaValidationFailedProblem extends BaseFileProblem {
 }
 
 export class ErrorProblem extends BaseFileProblem {
-  _tag = "ErrorProblem";
+  _tag = "ErrorProblem" as const;
   constructor(public readonly error: Error) {
     super(error.message);
   }
 }
 
+export class ContentValidationFailedProblem extends BaseFileProblem {
+  _tag = "ContentValidationFailedProblem" as const;
+  errors: ValidationError[];
+
+  static from(
+    error: ContentValidationFailedError,
+  ): ContentValidationFailedProblem {
+    return new ContentValidationFailedProblem(
+      `Content validation failed`,
+      error,
+    );
+  }
+
+  static is(problem: FileProblem): problem is ContentValidationFailedProblem {
+    return problem._tag === "ContentValidationFailedProblem";
+  }
+
+  constructor(message: string, error: ContentValidationFailedError) {
+    super(message);
+    this.errors = error.errors;
+  }
+}
+
+function fileProblemFromError(error: unknown): FileProblem {
+  if (error instanceof ContentValidationFailedError) {
+    return ContentValidationFailedProblem.from(error);
+  }
+  if (error instanceof SchemaValidationFailedError) {
+    if (
+      error.errors.find(
+        (err) =>
+          err.instancePath == "/datasworn_version" && err.keyword == "const",
+      )
+    ) {
+      return new WrongDataswornVersionProblem(
+        `Datasworn schema version does not match expected version ${COMPILER_DATASWORN_VERSION}`,
+      );
+    } else {
+      return new SchemaValidationFailedProblem(
+        `Datasworn schema validation failed`,
+        error,
+      );
+    }
+  }
+  return new ErrorProblem(
+    error instanceof Error
+      ? error
+      : new Error(`Unknown error ${JSON.stringify(error)}`),
+  );
+}
+
 export type FileProblem =
   | SchemaValidationFailedProblem
+  | ContentValidationFailedProblem
   | ErrorProblem
   | WrongDataswornVersionProblem;
 
@@ -432,14 +497,7 @@ export class PackageBuilder {
 
     for (const item of content) {
       logger.debug("Adding item at path:", item.path);
-      // We copy the data at the point of entry here, because the Datasworn compiler tends
-      // to mutate the data it receives. We both want to preserve the original data, and we
-      // need to break object reuse by aliases, so we use JSON.parse/stringify.
-      builder.addLeafNodeAtPath(
-        item.path,
-        JSON.parse(JSON.stringify(item.value)),
-        true,
-      );
+      builder.addLeafNodeAtPath(item.path, item.value, true);
     }
 
     const rootNode = builder.getNode(root);
@@ -459,7 +517,10 @@ export class PackageBuilder {
       case "leaf":
         if (rootNode.data.kind === "package") {
           try {
-            const data = rootNode.data.package;
+            // We need to clone the data here, because the Datasworn compiler mutates the data it receives.
+            // We both want to preserve the original data, and we
+            // need to break object reuse by aliases, so we use JSON.parse/stringify.
+            const data = JSON.parse(JSON.stringify(rootNode.data.package));
             return {
               // TODO: we need to validate the package here.
               result: RulesPackageBuilder.schemaValidator(data) ? data : null,
@@ -467,29 +528,7 @@ export class PackageBuilder {
               files: new Map(),
             };
           } catch (e) {
-            let packageProblem: FileProblem;
-            if (e instanceof SchemaValidationFailedError) {
-              if (
-                e.errors.find(
-                  (err) =>
-                    err.instancePath == "/datasworn_version" &&
-                    err.keyword == "const",
-                )
-              ) {
-                packageProblem = new WrongDataswornVersionProblem(
-                  `Datasworn schema version ${rootNode.data.package.datasworn_version} does not match expected version ${COMPILER_DATASWORN_VERSION}`,
-                );
-              } else {
-                packageProblem = new SchemaValidationFailedProblem(
-                  `Datasworn schema validation failed`,
-                  e,
-                );
-              }
-            } else {
-              packageProblem = new ErrorProblem(
-                e instanceof Error ? e : new Error(`Unknown error ${e}`),
-              );
-            }
+            const packageProblem = fileProblemFromError(e);
             return {
               result: null,
               files: new Map([[root, Result.err(packageProblem)]]),
@@ -541,8 +580,10 @@ export class PackageBuilder {
 
     for (const [filePath, source] of this.#packages) {
       if (source.isErr) {
-        this.#files.set(filePath, Result.err(new ErrorProblem(source.error)));
         logger.info("Error building file", filePath, ":", source.error);
+
+        const problem = fileProblemFromError(source.error);
+        this.#files.set(filePath, Result.err(problem));
       } else {
         logger.debug("File at path", filePath, ":", source.value);
 
@@ -555,18 +596,7 @@ export class PackageBuilder {
         if (validationError) {
           this.#files.set(
             filePath,
-            Result.err(
-              validationError instanceof SchemaValidationFailedError
-                ? new SchemaValidationFailedProblem(
-                    "Failed Datasworn Source schema validation",
-                    validationError,
-                  )
-                : new ErrorProblem(
-                    validationError instanceof Error
-                      ? validationError
-                      : new Error(`unexpected error: ${validationError}`),
-                  ),
-            ),
+            Result.err(fileProblemFromError(validationError)),
           );
           logger.error(
             "[package-builder:%s] Error validating file %s: %o",
@@ -597,14 +627,7 @@ export class PackageBuilder {
       this.#result = resultData;
     } catch (e) {
       this.#result = null;
-      this.#files.set(
-        this.root.path,
-        Result.err(
-          new ErrorProblem(
-            e instanceof Error ? e : new Error(`Error while compiling: ${e}`),
-          ),
-        ),
-      );
+      this.#files.set(this.root.path, Result.err(fileProblemFromError(e)));
     }
 
     return { result: this.#result, files: this.#files };
@@ -652,7 +675,7 @@ export class PackageBuilder {
                       ? new Error(
                           `Content parsed successfully, but collection type could not be determined.`,
                         )
-                      : data.data.error,
+                      : (data.data.error ?? new Error("Missing error")),
                   ),
                 ],
               ];
