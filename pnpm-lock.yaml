@@ -109,8 +109,8 @@ catalogs:
       specifier: ^10.1.8
       version: 10.1.8
     eslint-plugin-prettier:
-      specifier: ^5.5.3
-      version: 5.5.3
+      specifier: ^5.5.4
+      version: 5.5.4
     handlebars:
       specifier: ^4.7.8
       version: 4.7.8
@@ -238,7 +238,7 @@ importers:
         version: 10.1.8(eslint@9.34.0)
       eslint-plugin-prettier:
         specifier: 'catalog:'
-        version: 5.5.3(eslint-config-prettier@10.1.8(eslint@9.34.0))(eslint@9.34.0)(prettier@3.6.2)
+        version: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.34.0))(eslint@9.34.0)(prettier@3.6.2)
       prettier:
         specifier: 'catalog:'
         version: 3.6.2
@@ -499,7 +499,7 @@ importers:
         version: 10.1.8(eslint@9.34.0)
       eslint-plugin-prettier:
         specifier: 'catalog:'
-        version: 5.5.3(eslint-config-prettier@10.1.8(eslint@9.34.0))(eslint@9.34.0)(prettier@3.6.2)
+        version: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.34.0))(eslint@9.34.0)(prettier@3.6.2)
       handlebars:
         specifier: 'catalog:'
         version: 4.7.8
@@ -2579,8 +2579,8 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-prettier@5.5.3:
-    resolution: {integrity: sha512-NAdMYww51ehKfDyDhv59/eIItUVzU0Io9H2E8nHNGKEeeqlnci+1gCvrHib6EmZdf6GxF+LCV5K7UC65Ezvw7w==}
+  eslint-plugin-prettier@5.5.4:
+    resolution: {integrity: sha512-swNtI95SToIz05YINMA6Ox5R057IMAmWZ26GqPxusAp1TZzj+IdY9tXNWWD3vkF/wEqydCONcwjTFpxybBqZsg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       '@types/eslint': '>=8.0.0'
@@ -6336,7 +6336,7 @@ snapshots:
     dependencies:
       eslint: 9.34.0
 
-  eslint-plugin-prettier@5.5.3(eslint-config-prettier@10.1.8(eslint@9.34.0))(eslint@9.34.0)(prettier@3.6.2):
+  eslint-plugin-prettier@5.5.4(eslint-config-prettier@10.1.8(eslint@9.34.0))(eslint@9.34.0)(prettier@3.6.2):
     dependencies:
       eslint: 9.34.0
       prettier: 3.6.2
