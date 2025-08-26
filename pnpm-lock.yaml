@@ -181,8 +181,8 @@ catalogs:
       specifier: ^1.15.6
       version: 1.15.6
     true-myth:
-      specifier: ^9.0.0
-      version: 9.0.1
+      specifier: ^9.1.0
+      version: 9.1.0
     tslib:
       specifier: ^2.8.1
       version: 2.8.1
@@ -304,7 +304,7 @@ importers:
         version: 3.0.0
       true-myth:
         specifier: 'catalog:'
-        version: 9.0.1
+        version: 9.1.0
       yaml:
         specifier: 'catalog:'
         version: 2.8.1
@@ -369,7 +369,7 @@ importers:
         version: 1.2.1
       true-myth:
         specifier: 'catalog:'
-        version: 9.0.1
+        version: 9.1.0
     devDependencies:
       vitest:
         specifier: 'catalog:'
@@ -571,7 +571,7 @@ importers:
         version: 1.15.6
       true-myth:
         specifier: 'catalog:'
-        version: 9.0.1
+        version: 9.1.0
       tslib:
         specifier: 'catalog:'
         version: 2.8.1
@@ -598,7 +598,7 @@ importers:
     dependencies:
       true-myth:
         specifier: 'catalog:'
-        version: 9.0.1
+        version: 9.1.0
     devDependencies:
       vitest:
         specifier: 'catalog:'
@@ -611,7 +611,7 @@ importers:
         version: link:../parsing
       true-myth:
         specifier: 'catalog:'
-        version: 9.0.1
+        version: 9.1.0
       yaml:
         specifier: 'catalog:'
         version: 2.8.1
@@ -3986,8 +3986,8 @@ packages:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
 
-  true-myth@9.0.1:
-    resolution: {integrity: sha512-8ePgamjgV3CKDI43o6eUtid+9iadfEKUiu2WTucbeCnPTyDOQpZ4svCuozLwm9S4hzUolOclsUCJf3yjQg3g/Q==}
+  true-myth@9.1.0:
+    resolution: {integrity: sha512-YjUvyDXXlSLkdAauL1MeTh/skH6SCddCjhmX2vJHWev1VubXFhFn5DrG4Iy9xqWTchxpyuZYQsTCozRoMZcbAw==}
     engines: {node: 18.* || >= 20.*}
 
   ts-api-utils@2.1.0:
@@ -8047,7 +8047,7 @@ snapshots:
 
   tree-kill@1.2.2: {}
 
-  true-myth@9.0.1: {}
+  true-myth@9.1.0: {}
 
   ts-api-utils@2.1.0(typescript@5.9.2):
     dependencies:
