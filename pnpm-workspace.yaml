@@ -69,4 +69,4 @@ catalog:
   vitest: ^3.2.4
   vitest-tsconfig-paths: ^3.4.1
   yaml: ^2.8.1
-  zod: ^4.1.1
+  zod: ^4.1.3
