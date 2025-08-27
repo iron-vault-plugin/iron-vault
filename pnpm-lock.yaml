@@ -34,8 +34,8 @@ catalogs:
       specifier: 0.1.0-0
       version: 0.1.0-0
     '@eslint/js':
-      specifier: ^9.32.0
-      version: 9.32.0
+      specifier: ^9.34.0
+      version: 9.34.0
     '@jgoz/esbuild-plugin-typecheck':
       specifier: ^4.0.3
       version: 4.0.3
@@ -217,7 +217,7 @@ importers:
     devDependencies:
       '@eslint/js':
         specifier: 'catalog:'
-        version: 9.32.0
+        version: 9.34.0
       '@jgoz/esbuild-plugin-typecheck':
         specifier: 'catalog:'
         version: 4.0.3(esbuild@0.25.8)(typescript@5.9.2)
@@ -406,7 +406,7 @@ importers:
         version: 0.1.0-0
       '@eslint/js':
         specifier: 'catalog:'
-        version: 9.32.0
+        version: 9.34.0
       '@ironvault/datasworn-compiler':
         specifier: workspace:^
         version: link:../datasworn-compiler
@@ -1258,10 +1258,6 @@ packages:
 
   '@eslint/eslintrc@3.3.1':
     resolution: {integrity: sha512-gtF186CXhIl1p4pJNGZw8Yc6RlshoePRvE0X91oPGb3vZ8pM3qOS9W9NGPat9LziaBV7XrJWGylNQXkGcnM3IQ==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@eslint/js@9.32.0':
-    resolution: {integrity: sha512-BBpRFZK3eX6uMLKz8WxFOBIFFcGFJ/g8XuwjTHCqHROSIsopI+ddn/d5Cfh36+7+e5edVS8dbSHnBNhrLEX0zg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@eslint/js@9.34.0':
@@ -4803,8 +4799,6 @@ snapshots:
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
       - supports-color
-
-  '@eslint/js@9.32.0': {}
 
   '@eslint/js@9.34.0': {}
 

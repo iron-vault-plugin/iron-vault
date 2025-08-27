@@ -11,7 +11,7 @@ catalog:
   '@datasworn/ironsworn-classic-delve': 0.1.0-0
   '@datasworn/starforged': 0.1.0-0
   '@datasworn/sundered-isles': 0.1.0-0
-  '@eslint/js': ^9.32.0
+  '@eslint/js': ^9.34.0
   '@jgoz/esbuild-plugin-typecheck': ^4.0.3
   '@nrsk/sigma': ^3.8.0
   '@preact/signals-core': ^1.12.1
