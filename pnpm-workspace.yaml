@@ -31,7 +31,7 @@ catalog:
   ajv-formats: ^3.0.1
   builtin-modules: ^5.0.0
   emittery: ^1.1.0
-  esbuild: ^0.25.8
+  esbuild: ^0.25.9
   esbuild-plugin-copy: ^2.1.1
   esbuild-plugin-inline-worker: ^0.1.1
   eslint: ^9.34.0
