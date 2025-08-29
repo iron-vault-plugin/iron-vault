@@ -1,22 +1,31 @@
 import { numberRange, randomInt } from "@ironvault/utils/numbers";
-import { Result } from "true-myth";
-import { ok } from "true-myth/result";
+import Result from "true-myth/result";
 
 const DICE_REGEX = /^(\d+)d(\d+)$/;
 
 export type DieKind = string;
 
+class InvalidDiceError extends Error {}
+
 export class Dice {
-  static fromDiceString(spec: string, kind?: DieKind): Dice {
+  static tryFromDiceString(
+    spec: string,
+    kind?: DieKind,
+  ): Result<Dice, InvalidDiceError> {
     const parsed = spec.match(DICE_REGEX);
     if (parsed == null) {
-      throw new Error(`invalid dice spec ${spec}`);
+      return Result.err(new InvalidDiceError(`invalid dice spec ${spec}`));
     }
-    return new Dice(
-      Number.parseInt(parsed[1]),
-      Number.parseInt(parsed[2]),
-      kind,
+    return Result.ok(
+      new Dice(Number.parseInt(parsed[1]), Number.parseInt(parsed[2]), kind),
     );
+  }
+  static fromDiceString(spec: string, kind?: DieKind): Dice {
+    const result = Dice.tryFromDiceString(spec, kind);
+    if (result.isErr) {
+      throw result.error;
+    }
+    return result.value;
   }
 
   constructor(
@@ -532,7 +541,7 @@ export function tryParseDiceExpression(
   kind?: DieKind,
 ): Result<DiceExprNode<object>, Error> {
   try {
-    return ok(parseDiceExpression(expr, kind) as DiceExprNode<object>);
+    return Result.ok(parseDiceExpression(expr, kind) as DiceExprNode<object>);
   } catch (e) {
     return Result.err(
       new Error(`Failed to parse dice expression: ${e}`, { cause: e }),
