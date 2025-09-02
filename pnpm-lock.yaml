@@ -16,8 +16,8 @@ catalogs:
       specifier: ^6.10.8
       version: 6.11.2
     '@codemirror/view':
-      specifier: ^6.38.1
-      version: 6.38.1
+      specifier: ^6.38.2
+      version: 6.38.2
     '@datasworn/core':
       specifier: 0.1.0-0
       version: 0.1.0-0
@@ -388,7 +388,7 @@ importers:
         version: 6.11.2
       '@codemirror/view':
         specifier: 'catalog:'
-        version: 6.38.1
+        version: 6.38.2
       '@datasworn/core':
         specifier: 'catalog:'
         version: 0.1.0-0
@@ -457,7 +457,7 @@ importers:
         version: 20.19.7
       '@types/obsidian-typings':
         specifier: 'catalog:'
-        version: obsidian-typings@3.12.1(@codemirror/view@6.38.1)(@pixi/core@7.2.4)(@pixi/display@7.2.4(@pixi/core@7.2.4))(typescript@5.9.2)
+        version: obsidian-typings@3.12.1(@codemirror/view@6.38.2)(@pixi/core@7.2.4)(@pixi/display@7.2.4(@pixi/core@7.2.4))(typescript@5.9.2)
       '@types/semver':
         specifier: 'catalog:'
         version: 7.7.0
@@ -559,7 +559,7 @@ importers:
         version: 7.1.2
       obsidian:
         specifier: 'catalog:'
-        version: 1.8.7(@codemirror/state@6.5.2)(@codemirror/view@6.38.1)
+        version: 1.8.7(@codemirror/state@6.5.2)(@codemirror/view@6.38.2)
       prettier:
         specifier: 'catalog:'
         version: 3.6.2
@@ -709,8 +709,8 @@ packages:
   '@codemirror/state@6.5.2':
     resolution: {integrity: sha512-FVqsPqtPWKVVL3dPSxy8wEF/ymIEuVzF1PK3VbUgrxXpJUSHQWWZz4JMToquRxnkw+36LTamCZG2iua2Ptq0fA==}
 
-  '@codemirror/view@6.38.1':
-    resolution: {integrity: sha512-RmTOkE7hRU3OVREqFVITWHz6ocgBjv08GoePscAakgVQfciA3SGCEk7mb9IzwW61cKKmlTpHXG6DUE5Ubx+MGQ==}
+  '@codemirror/view@6.38.2':
+    resolution: {integrity: sha512-bTWAJxL6EOFLPzTx+O5P5xAO3gTqpatQ2b/ARQ8itfU/v2LlpS3pH2fkL0A3E/Fx8Y2St2KES7ZEV0sHTsSW/A==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -4128,7 +4128,7 @@ snapshots:
   '@codemirror/language@6.11.2':
     dependencies:
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.1
+      '@codemirror/view': 6.38.2
       '@lezer/common': 1.2.3
       '@lezer/highlight': 1.2.1
       '@lezer/lr': 1.4.2
@@ -4137,14 +4137,14 @@ snapshots:
   '@codemirror/search@6.5.11':
     dependencies:
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.1
+      '@codemirror/view': 6.38.2
       crelt: 1.0.6
 
   '@codemirror/state@6.5.2':
     dependencies:
       '@marijn/find-cluster-break': 1.0.2
 
-  '@codemirror/view@6.38.1':
+  '@codemirror/view@6.38.2':
     dependencies:
       '@codemirror/state': 6.5.2
       crelt: 1.0.6
@@ -6932,7 +6932,7 @@ snapshots:
       has-symbols: 1.1.0
       object-keys: 1.1.1
 
-  obsidian-typings@3.12.1(@codemirror/view@6.38.1)(@pixi/core@7.2.4)(@pixi/display@7.2.4(@pixi/core@7.2.4))(typescript@5.9.2):
+  obsidian-typings@3.12.1(@codemirror/view@6.38.2)(@pixi/core@7.2.4)(@pixi/display@7.2.4(@pixi/core@7.2.4))(typescript@5.9.2):
     dependencies:
       '@antfu/utils': 9.2.0
       '@capacitor/core': 6.2.1
@@ -6953,7 +6953,7 @@ snapshots:
       i18next: 25.3.2(typescript@5.9.2)
       mermaid: 11.8.1
       moment: 2.30.1
-      obsidian: 1.8.7(@codemirror/state@6.5.2)(@codemirror/view@6.38.1)
+      obsidian: 1.8.7(@codemirror/state@6.5.2)(@codemirror/view@6.38.2)
       pdfjs-dist: 5.3.93
       pixi.js: 8.9.2
       scrypt-js: 3.0.1
@@ -6965,10 +6965,10 @@ snapshots:
       - '@pixi/display'
       - supports-color
 
-  obsidian@1.8.7(@codemirror/state@6.5.2)(@codemirror/view@6.38.1):
+  obsidian@1.8.7(@codemirror/state@6.5.2)(@codemirror/view@6.38.2):
     dependencies:
       '@codemirror/state': 6.5.2
-      '@codemirror/view': 6.38.1
+      '@codemirror/view': 6.38.2
       '@types/codemirror': 5.60.8
       moment: 2.29.4
 
