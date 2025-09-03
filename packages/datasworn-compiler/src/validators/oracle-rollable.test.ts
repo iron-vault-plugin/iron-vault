@@ -81,7 +81,7 @@ describe("validateOracleRollable", () => {
       expect(result.isErr).toBe(true);
       if (result.isErr) {
         expect(result.error).toHaveLength(1);
-        expect(result.error[0].path).toEqual(["dice"]);
+        expect(result.error[0].instancePath).toEqual("/dice");
       }
     });
 
@@ -111,7 +111,7 @@ describe("validateOracleRollable", () => {
       const result = validateOracleRollable(data);
       expect(unwrapErr(result)).toContainEqual(
         expect.objectContaining({
-          path: ["rows", "0", "roll"],
+          instancePath: "/rows/0/roll",
           message: "Both min and max must be defined.",
         }),
       );
@@ -132,7 +132,7 @@ describe("validateOracleRollable", () => {
       const result = validateOracleRollable(data);
       expect(unwrapErr(result)).toContainEqual(
         expect.objectContaining({
-          path: ["rows", "0", "roll"],
+          instancePath: "/rows/0/roll",
           message: "Both min and max must be defined.",
         }),
       );
@@ -145,7 +145,7 @@ describe("validateOracleRollable", () => {
       const result = validateOracleRollable(data);
       expect(unwrapErr(result)).toContainEqual(
         expect.objectContaining({
-          path: ["rows", "0", "roll"],
+          instancePath: "/rows/0/roll",
           message: "Min (75) must be less than max (50).",
         }),
       );
@@ -159,7 +159,7 @@ describe("validateOracleRollable", () => {
       const result = validateOracleRollable(data);
       expect(unwrapErr(result)).toContainEqual(
         expect.objectContaining({
-          path: ["rows", "0", "roll"],
+          instancePath: "/rows/0/roll",
           message: "Roll range must be between 1 and 100.",
         }),
       );
@@ -189,7 +189,7 @@ describe("validateOracleRollable", () => {
       const result = validateOracleRollable(data);
       expect(unwrapErr(result)).toContainEqual(
         expect.objectContaining({
-          path: ["rows", "0", "roll"],
+          instancePath: "/rows/0/roll",
           message: "First row must start at 1, but starts at 2.",
         }),
       );
@@ -201,7 +201,7 @@ describe("validateOracleRollable", () => {
       const result = validateOracleRollable(data);
       expect(unwrapErr(result)).toContainEqual(
         expect.objectContaining({
-          path: ["rows", "1", "roll"],
+          instancePath: "/rows/1/roll",
           message: "Final row must end at 100, but ends at 60.",
         }),
       );
@@ -213,11 +213,13 @@ describe("validateOracleRollable", () => {
       const result = validateOracleRollable(data);
       expect(result.isErr).toBe(true);
       if (result.isErr) {
-        expect(result.error).toHaveLength(1);
-        expect(result.error[0].message).toBe(
-          "Roll range (45-100) must not overlap with previous row's range (1-50).",
-        );
-        expect(result.error[0].path).toEqual(["rows", "1", "roll"]);
+        expect(result.error).toEqual([
+          {
+            message:
+              "Roll range (45-100) must not overlap with previous row's range (1-50).",
+            instancePath: "/rows/1/roll",
+          },
+        ]);
       }
     });
 

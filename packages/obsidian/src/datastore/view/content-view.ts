@@ -1,4 +1,3 @@
-import { SchemaValidationFailedProblem } from "@ironvault/datasworn-compiler";
 import { atOrChildOfPath, relativeTo } from "@ironvault/utils/paths";
 import { DataManager } from "datastore/loader/manager";
 import { html, nothing, render, TemplateResult } from "lit-html";
@@ -117,35 +116,54 @@ export class ContentView extends FileView {
           ${when(activeResult, (res) => {
             if (res.isErr) {
               const problem = res.error;
-              // TODO: is this a bit of a hack? the error classes don't serialize
-              // over structured clone, so we need to check for the tag
-              if (SchemaValidationFailedProblem.is(problem)) {
-                return html`<div class="error-message">
-                  <strong>Error loading file:</strong>
-                  ${map(
-                    problem.errors.sort((a, b) =>
-                      a.instancePath.localeCompare(b.instancePath),
-                    ),
-                    (e) => html`
-                      <dl>
-                        ${map(
-                          Object.entries(e),
-                          ([key, value]) =>
-                            html`<dt data-key="${key}">${key}</dt>
-                              ${typeof value === "string"
-                                ? // prettier-ignore
-                                  html`<dd data-key=${key}">${join(value.split('/'), html`&ZeroWidthSpace;/&ZeroWidthSpace;`)}</dd>`
-                                : // prettier-ignore
-                                  html`<dd data-key="${key}">${JSON.stringify(value, undefined, 2)}</dd>`}`,
-                        )}
-                      </dl>
-                    `,
-                  )}
-                </div>`;
-              } else {
-                return html`<p class="error-message">
-                  <strong>Error loading file:</strong> ${res.error.message}
-                </p>`;
+              switch (problem._tag) {
+                case "SchemaValidationFailedProblem":
+                  return html`<div class="error-message">
+                    <strong>Error loading file:</strong>
+                    ${map(
+                      problem.errors.sort((a, b) =>
+                        a.instancePath.localeCompare(b.instancePath),
+                      ),
+                      (e) => html`
+                        <dl>
+                          ${map(
+                            Object.entries(e),
+                            ([key, value]) =>
+                              html`<dt data-key="${key}">${key}</dt>
+                                ${typeof value === "string"
+                                  ? // prettier-ignore
+                                    html`<dd data-key=${key}">${join(value.split('/'), html`&ZeroWidthSpace;/&ZeroWidthSpace;`)}</dd>`
+                                  : // prettier-ignore
+                                    html`<dd data-key="${key}">${JSON.stringify(value, undefined, 2)}</dd>`}`,
+                          )}
+                        </dl>
+                      `,
+                    )}
+                  </div>`;
+                case "ContentValidationFailedProblem":
+                  return html`<div class="error-message">
+                    <strong>Content validation errors:</strong>
+                    <dl>
+                      ${map(
+                        problem.errors.sort((a, b) =>
+                          a.instancePath.localeCompare(b.instancePath),
+                        ),
+                        (e) =>
+                          // prettier-ignore
+                          html`<dt data-key="${e.instancePath}">${e.instancePath}</dt>
+                            <dd data-key="${e.instancePath}">${e.message}</dd> `,
+                      )}
+                    </dl>
+                  </div>`;
+                case "ErrorProblem":
+                  return html`<p class="error-message">
+                    <strong>Error loading file:</strong> ${problem.message}
+                  </p>`;
+                case "WrongDataswornVersionProblem":
+                  return html`<p class="error-message">
+                    <strong>Unsupported Datasworn version:</strong>
+                    ${problem.message}
+                  </p>`;
               }
             } else {
               return html`<p>Successfully parsed.</p>`;

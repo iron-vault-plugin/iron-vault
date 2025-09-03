@@ -1,9 +1,10 @@
-export class ValidationError extends Error {
+export class ValidationError {
+  public readonly instancePath: string;
+
   constructor(
-    message: string,
-    public readonly path: string[],
-    opts?: ErrorOptions,
+    public readonly message: string,
+    path: string[],
   ) {
-    super(message, opts);
+    this.instancePath = "/" + path.map(encodeURIComponent).join("/");
   }
 }

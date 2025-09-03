@@ -100,9 +100,7 @@ export const command = buildCommand({
           case "ContentValidationFailedProblem":
             for (const err of problem.errors) {
               logger.error(
-                `${fileName}: Content validation error at ${err.path.join(
-                  ".",
-                )}: ${err.message}`,
+                `${fileName}: Content validation error at ${err.instancePath}: ${err.message}`,
               );
               totalErrors++;
             }
