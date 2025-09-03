@@ -6,10 +6,12 @@ import {
   ContentManagerImpl,
   MetarootContentManager,
   PackageBuilder,
+  PackageResults,
   ensureRulesPackageBuilderInitialized,
 } from "@ironvault/datasworn-compiler";
 import { DataIndexDb, createDataIndexDb } from "datastore/db";
 import { rootLogger } from "logger";
+import { mapValues } from "utils/mapValues";
 import { DataswornTypes, walkDataswornRulesPackage } from "./datasworn-indexer";
 import { debouncerByKey } from "./debouncerByKey";
 import { IndexCommand, IndexResult } from "./messages";
@@ -21,6 +23,15 @@ declare function postMessage(
   message: IndexResult,
   options?: WindowPostMessageOptions,
 ): void;
+
+function postPackageUpdate({ root, files, result }: PackageResults) {
+  postMessage({
+    type: "updated:package",
+    root,
+    files: mapValues(files, (f) => f.toJSON()),
+    package: result,
+  });
+}
 
 ensureRulesPackageBuilderInitialized();
 
@@ -60,21 +71,17 @@ function main(db: DataIndexDb<DataswornTypes> | undefined) {
         root,
         content.length,
       );
-      const { files, result } = PackageBuilder.fromContent(
+      const results = PackageBuilder.fromContent(
         root,
         content,
         // We use packageId "campaign" for campaign roots. For packages in meta root,
         // they use the folder name.
         contentManager.isInMetaRoot(root) ? undefined : "campaign",
       );
-      postMessage({
-        type: "updated:package",
-        root,
-        files,
-        package: result,
-      });
+      postPackageUpdate(results);
 
       if (db) {
+        const { result } = results;
         if (result) {
           // New content. Let's index it.
           db.index(root, "", walkDataswornRulesPackage(result));

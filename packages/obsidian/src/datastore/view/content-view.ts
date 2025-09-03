@@ -91,7 +91,7 @@ export class ContentView extends FileView {
       const { root, files } = rootStatus;
       const errors = files
         .values()
-        .filter((status) => "error" in status)
+        .filter((status) => status.isErr)
         .reduce((acc) => acc + 1, 0);
       const activeResult = this.file ? files.get(this.file!.path) : undefined;
       const entries = [...files.entries()].sort(([a], [b]) =>
@@ -108,14 +108,14 @@ export class ContentView extends FileView {
               key: path,
               inner: relativeTo(root, path)! || "<root>",
               onClick: this._click,
-              flair: "error" in _error ? "error" : undefined,
+              flair: _error.isErr ? "error" : undefined,
               active: this.file!.path === path,
             }),
           )}`,
         })}
         <div class="iv-content-view">
           ${when(activeResult, (res) => {
-            if ("error" in res) {
+            if (res.isErr) {
               const problem = res.error;
               // TODO: is this a bit of a hack? the error classes don't serialize
               // over structured clone, so we need to check for the tag

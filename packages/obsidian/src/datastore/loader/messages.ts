@@ -1,5 +1,5 @@
 import { Datasworn, DataswornSource } from "@datasworn/core";
-import { Result } from "true-myth/result";
+import { ResultJSON } from "true-myth/result";
 
 import { FileProblem } from "@ironvault/datasworn-compiler";
 
@@ -39,5 +39,5 @@ export type IndexResult =
       type: "updated:package";
       root: string; // The root path of the package that was updated
       package: Datasworn.RulesPackage | null; // The updated content of the package
-      files: Map<string, Result<DataswornSource.RulesPackage, FileProblem>>; // Any errors encountered during indexing, mapped by path
+      files: Map<string, ResultJSON<DataswornSource.RulesPackage, FileProblem>>; // Any errors encountered during indexing, mapped by path
     };
