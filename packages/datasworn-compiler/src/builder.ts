@@ -472,6 +472,7 @@ export type FileProblem =
   | WrongDataswornVersionProblem;
 
 export type PackageResults = {
+  root: string;
   files: Map<string, Result<DataswornSource.RulesPackage, FileProblem>>;
   result: Datasworn.RulesPackage | null;
 };
@@ -503,6 +504,7 @@ export class PackageBuilder {
     const rootNode = builder.getNode(root);
     if (rootNode == null) {
       return {
+        root,
         result: null,
         files: new Map([]),
       };
@@ -526,12 +528,14 @@ export class PackageBuilder {
               result: RulesPackageBuilder.schemaValidator(data) ? data : null,
               // TODO: maybe it should go in the files?
               files: new Map(),
+              root,
             };
           } catch (e) {
             const packageProblem = fileProblemFromError(e);
             return {
               result: null,
               files: new Map([[root, Result.err(packageProblem)]]),
+              root,
             };
           }
         }
@@ -573,7 +577,7 @@ export class PackageBuilder {
   compile(): PackageResults {
     if (this.#packages.length === 0) {
       logger.debug("No packages to compile.");
-      return { result: null, files: new Map() };
+      return { root: this.root.path, result: null, files: new Map() };
     }
 
     const dataswornCompiler = new RulesPackageBuilder(this.packageId, logger);
@@ -630,7 +634,7 @@ export class PackageBuilder {
       this.#files.set(this.root.path, Result.err(fileProblemFromError(e)));
     }
 
-    return { result: this.#result, files: this.#files };
+    return { root: this.root.path, result: this.#result, files: this.#files };
   }
 
   buildTopCollection(

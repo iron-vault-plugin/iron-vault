@@ -15,7 +15,8 @@ import Emittery, { UnsubscribeFunction } from "emittery";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { CachedMetadata, Component, TFile, TFolder, Vault } from "obsidian";
-import { Result } from "true-myth/result";
+import { fromJSON, Result } from "true-myth/result";
+import { mapValues } from "utils/mapValues";
 import { FileProblem } from "../../../../datasworn-compiler/src/builder";
 import { IndexResult } from "./messages";
 
@@ -99,14 +100,15 @@ export class DataManager extends Component {
       const result = event.data;
       // console.log("Data loaded:", result);
       if (result.type === "updated:package") {
+        const files = mapValues(result.files, fromJSON);
         this.packages.set(result.root, {
           package: result.package,
-          files: result.files,
+          files,
         });
         this.#emitter.emit("updated:package", {
           root: result.root,
           rulesPackage: result.package,
-          files: result.files,
+          files,
         });
       }
     };
