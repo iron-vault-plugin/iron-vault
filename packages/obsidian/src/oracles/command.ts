@@ -11,7 +11,12 @@ import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { createOrAppendMechanics } from "mechanics/editor";
 import { createOracleNode } from "mechanics/node-builders";
-import { Oracle, OracleGrouping, OracleGroupingType } from "../model/oracle";
+import {
+  Oracle,
+  OracleGrouping,
+  OracleGroupingType,
+  RollContext,
+} from "../model/oracle";
 import { Roll } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
@@ -96,7 +101,37 @@ export async function runOracleCommand(
     );
   }
   const rollContext = new OracleRoller(plugin, campaignContext.oracles);
+  const rollResult = await rollOracle(plugin, rollContext, oracle);
 
+  const modal = plugin.settings.useLegacyRoller
+    ? OracleRollerModal
+    : NewOracleRollerModal;
+  const { roll, cursedRoll, modifiers } = await modal.forRoll(
+    plugin,
+    oracle,
+    rollContext,
+    rollResult,
+    { shiftActionLabel: "copy result" },
+  );
+
+  if (modifiers.shift) {
+    // Copy the result to the clipboard
+    await navigator.clipboard.writeText((cursedRoll ?? roll).simpleResult);
+  } else {
+    // Delete the prompt and then inject the oracle node to a mechanics block
+    editor.setSelection(replaceSelection.anchor, replaceSelection.head);
+    editor.replaceSelection("");
+    createOrAppendMechanics(editor, [
+      createOracleNode(roll, prompt, undefined, cursedRoll),
+    ]);
+  }
+}
+
+export async function rollOracle(
+  plugin: IronVaultPlugin,
+  rollContext: RollContext,
+  oracle: Oracle,
+): Promise<Roll> {
   // If user wishes to make their own roll, prompt them now.
   let initialRoll: Roll | undefined = undefined;
   if (plugin.settings.promptForRollsInOracles) {
@@ -115,26 +150,8 @@ export async function runOracleCommand(
     }
   }
 
-  const modal = plugin.settings.useLegacyRoller
-    ? OracleRollerModal
-    : NewOracleRollerModal;
-  const { roll, cursedRoll, modifiers } = await modal.forRoll(
-    plugin,
-    oracle,
-    rollContext,
-    initialRoll || (await oracle.roll(rollContext)),
-    { shiftActionLabel: "copy result" },
-  );
-
-  if (modifiers.shift) {
-    // Copy the result to the clipboard
-    await navigator.clipboard.writeText((cursedRoll ?? roll).simpleResult);
-  } else {
-    // Delete the prompt and then inject the oracle node to a mechanics block
-    editor.setSelection(replaceSelection.anchor, replaceSelection.head);
-    editor.replaceSelection("");
-    createOrAppendMechanics(editor, [
-      createOracleNode(roll, prompt, undefined, cursedRoll),
-    ]);
+  if (initialRoll !== undefined) {
+    return Promise.resolve(initialRoll);
   }
+  return oracle.roll(rollContext);
 }
