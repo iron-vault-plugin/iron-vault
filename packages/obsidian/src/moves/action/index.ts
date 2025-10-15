@@ -46,6 +46,7 @@ import { CustomSuggestModal } from "../../utils/suggest";
 import {
   ActionMoveAdd,
   NoRollMoveDescription,
+  NoRollOracleMoveDescription,
   type ActionMoveDescription,
   type MoveDescription,
   type ProgressMoveDescription,
@@ -53,6 +54,13 @@ import {
 import { ActionMoveWrapper } from "../wrapper";
 import { checkForMomentumBurn } from "./action-modal";
 import { AddsModal } from "./adds-modal";
+import { createDataswornMarkdownLink } from "../../datastore/parsers/datasworn/id";
+import { RollContext } from "../../model/oracle";
+import { RollWrapper } from "../../model/rolls";
+import { rollOracle } from "../../oracles/command";
+import { OracleRollerModal } from "../../oracles/modal";
+import { NewOracleRollerModal } from "../../oracles/new-modal";
+import { oracleNameWithParents } from "../../oracles/render";
 
 const logger = rootLogger.getLogger("moves");
 
@@ -358,7 +366,7 @@ export async function runMoveCommand(
         break;
       }
       case "no_roll":
-        moveDescription = createEmptyMoveDescription(move);
+        moveDescription = await handleNoRoll(plugin, context, move);
         break;
       case "special_track":
       default:
@@ -378,6 +386,90 @@ export async function runMoveCommand(
     context,
     generateMechanicsNode(moveDescription),
   );
+}
+
+async function handleNoRoll(
+  plugin: IronVaultPlugin,
+  context: ActionContext,
+  move: Datasworn.MoveNoRoll | Datasworn.EmbeddedNoRollMove,
+): Promise<MoveDescription> {
+  const noRollMove = move as Datasworn.MoveNoRoll;
+  const oraclesCount = Object.keys(noRollMove.oracles ?? []).length;
+
+  if (oraclesCount > 0) {
+    // move has oracles, let's roll on those
+    const oracleRoll = await handleNoRollOracleMove(
+      plugin,
+      context,
+      noRollMove,
+    );
+
+    if (oracleRoll !== undefined) {
+      const oracleName = createDataswornMarkdownLink(
+        oracleNameWithParents(oracleRoll.oracle),
+        oracleRoll.oracle.id,
+      );
+
+      return {
+        id: move._id,
+        name: move.name,
+        oracleName: oracleName,
+        oracleValue: oracleRoll.diceValue,
+        oracleResult: oracleRoll.simpleResult,
+      } satisfies NoRollOracleMoveDescription;
+    }
+  }
+
+  // move either has no oracles, or rolling on them was skipped
+  return createEmptyMoveDescription(move);
+}
+
+async function handleNoRollOracleMove(
+  plugin: IronVaultPlugin,
+  context: ActionContext,
+  move: Datasworn.MoveNoRoll,
+): Promise<RollWrapper | undefined> {
+  if (move.oracles === undefined) {
+    logger.warn("Move should have oracles but doesn't", move);
+    return Promise.resolve(undefined);
+  }
+
+  const oracles = Object.values<Datasworn.EmbeddedOracleRollable>(move.oracles);
+
+  const choice =
+    await CustomSuggestModal.select<Datasworn.EmbeddedOracleRollable | null>(
+      plugin.app,
+      [...oracles, null],
+      (oracle) => (oracle === null ? "Skip rolling on oracle" : oracle.name),
+      undefined,
+      "Select oracle",
+    );
+
+  if (choice == null) {
+    // "Skip rolling on oracle" was chosen, abort
+    return Promise.resolve(undefined);
+  }
+
+  const rollContext: RollContext = context.campaignContext.oracleRoller;
+  const oracle = rollContext.lookup(choice._id);
+
+  if (oracle === undefined) {
+    logger.warn("Failed to look up oracle id '%s'", choice._id);
+    return Promise.resolve(undefined);
+  }
+
+  const modal = plugin.settings.useLegacyRoller
+    ? OracleRollerModal
+    : NewOracleRollerModal;
+  // only take the roll itself, moves don't consider the cursed die, and we don't have use for the modifiers here
+  const { roll } = await modal.forRoll(
+    plugin,
+    oracle,
+    rollContext,
+    await rollOracle(plugin, rollContext, oracle),
+  );
+
+  return roll;
 }
 
 function createEmptyMoveDescription(
