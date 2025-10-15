@@ -16,11 +16,11 @@ import { appendNodesToMoveOrMechanicsBlockWithActor } from "mechanics/editor";
 import { DieKind } from "utils/dice-roller";
 import { node } from "utils/kdl";
 import { CustomSuggestModal } from "utils/suggest";
-import { PromptModal } from "utils/ui/prompt";
 import { CharacterContext } from "../../character-tracker";
 import { MomentumTracker, momentumTrackerReader } from "../../characters/lens";
 import { ActionMoveDescription } from "../desc";
 import { ActionMoveWrapper, formatRollResult } from "../wrapper";
+import { numberRange } from "@ironvault/utils/numbers";
 
 export async function checkForMomentumBurn(
   app: App,
@@ -141,29 +141,40 @@ export async function rerollDie(
     undefined,
     "Select the die to reroll",
   );
-  let newValue: string;
+  let newValue: string | undefined = undefined;
+  let dieSides: number = 10;
+
+  if (dieName === "action") {
+    // Action die is always 6 sides.
+    dieSides = 6;
+  }
+  // For challenge dice, we need to check the campaign settings to determine the number of sides.
+  else if (dieName === "vs1" || dieName === "vs2") {
+    // Get the number of sides for the challenge dice from the campaign settings.
+    // This assumes that the campaign settings have been properly initialized and contain the sides for the dice.
+    // If the campaign settings are not available, default to 10 sides for challenge dice.
+    const [challenge1Sides, challenge2Sides] = actionContext.campaignContext
+      .localSettings.actionRollChallengeDiceSides ?? [10, 10];
+    dieSides = dieName === "vs1" ? challenge1Sides : challenge2Sides;
+  }
+
   if (plugin.settings.promptForRollsInMoves) {
-    newValue = await PromptModal.prompt(
+    const choice = await CustomSuggestModal.select(
       plugin.app,
-      "Enter the new die roll value",
+      ["Roll for me", ...numberRange(1, dieSides)],
+      (x) => x.toString(),
+      undefined,
+      `Roll ${dieName == "action" ? "your action" : "one challenge"} die (1d${dieSides}) and enter the value`,
     );
-  } else {
-    let dieSides: number = 10;
 
-    if (dieName === "action") {
-      // Action die is always 6 sides.
-      dieSides = 6;
+    if (typeof choice === "number") {
+      newValue = "" + choice;
     }
-    // For challenge dice, we need to check the campaign settings to determine the number of sides.
-    else if (dieName === "vs1" || dieName === "vs2") {
-      // Get the number of sides for the challenge dice from the campaign settings.
-      // This assumes that the campaign settings have been properly initialized and contain the sides for the dice.
-      // If the campaign settings are not available, default to 10 sides for challenge dice.
-      const [challenge1Sides, challenge2Sides] = actionContext.campaignContext
-        .localSettings.actionRollChallengeDiceSides ?? [10, 10];
-      dieSides = dieName === "vs1" ? challenge1Sides : challenge2Sides;
-    }
+  }
 
+  if (newValue === undefined) {
+    // newValue isn't set yet, meaning either settings.promptForRollsInMoves isn't enabled,
+    // or user chose "Roll for me" when prompted. Invoke dice roller in either case.
     newValue =
       "" +
       (
