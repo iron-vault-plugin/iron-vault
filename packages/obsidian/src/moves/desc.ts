@@ -101,3 +101,9 @@ export function moveIsProgress(
 ): move is ProgressMoveDescription {
   return (move as ProgressMoveDescription).progressTrack !== undefined;
 }
+
+export function moveHasOracles(
+  move: MoveDescription,
+): move is NoRollOracleMoveDescription {
+  return (move as NoRollOracleMoveDescription).oracleResult !== undefined;
+}
