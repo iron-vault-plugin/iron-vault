@@ -61,6 +61,18 @@ export const NoRollMoveDescriptionSchema = z.object({
 
 export type NoRollMoveDescription = z.infer<typeof NoRollMoveDescriptionSchema>;
 
+export const NoRollOracleMoveDescriptionSchema = z.object({
+  id: z.string().optional(),
+  name: z.string(),
+  oracleName: z.string(),
+  oracleValue: z.number(),
+  oracleResult: z.string(),
+});
+
+export type NoRollOracleMoveDescription = z.infer<
+  typeof NoRollOracleMoveDescriptionSchema
+>;
+
 export const AllMoveDescriptionSchemas = z.union([
   ActionMoveDescriptionSchemaV2,
   ProgressMoveDescriptionSchema,
@@ -74,6 +86,7 @@ export const MoveDescriptionSchema = z.union([
   ActionMoveDescriptionSchemaV2,
   ProgressMoveDescriptionSchema,
   NoRollMoveDescriptionSchema,
+  NoRollOracleMoveDescriptionSchema,
 ]);
 
 export type MoveDescription = z.infer<typeof MoveDescriptionSchema>;
