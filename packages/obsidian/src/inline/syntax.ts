@@ -409,6 +409,6 @@ export function formatAddsForDisplay(addsDetail?: ActionMoveAdd[], totalAdds?: n
     return totalAdds !== undefined ? `${totalAdds}` : "0";
   }
   return addsDetail
-    .map(({ amount, desc }) => `${amount}` + (desc ? `(${desc})` : ""))
+    .map(({ amount, desc }) => `${amount}` + (desc ? ` (${desc})` : ""))
     .join(" + ");
 }

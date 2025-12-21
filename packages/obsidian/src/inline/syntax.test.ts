@@ -291,7 +291,7 @@ describe("formatAddsForDisplay", () => {
         { amount: 2, desc: "Asset" },
         { amount: 1, desc: "Companion" },
       ])
-    ).toBe("2(Asset) + 1(Companion)");
+    ).toBe("2 (Asset) + 1 (Companion)");
   });
 
   it("formats adds without descriptions", () => {
@@ -306,7 +306,7 @@ describe("formatAddsForDisplay", () => {
         { amount: 2, desc: "Asset" },
         { amount: 1 },
       ])
-    ).toBe("2(Asset) + 1");
+    ).toBe("2 (Asset) + 1");
   });
 });
 
