@@ -1,0 +1,148 @@
+/**
+ * Inline mechanics styles.
+ * Uses the same outcome icons and color variables as mechanics blocks.
+ */
+
+.iv-inline-mechanics {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  background-color: var(--background-secondary);
+  font-family: var(--font-text);
+  font-size: 0.95em;
+  cursor: default;
+  vertical-align: baseline;
+}
+
+/* Outcome icon - uses same SVGs as mechanics blocks */
+.iv-inline-outcome-icon {
+  display: inline-block;
+  width: 1.4em;
+  height: 0.8em;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.iv-inline-mechanics.strong-hit .iv-inline-outcome-icon {
+  background-image: url("../../img/Outcomes/outcome-strong-hit.svg");
+}
+
+.iv-inline-mechanics.weak-hit .iv-inline-outcome-icon {
+  background-image: url("../../img/Outcomes/outcome-weak-hit.svg");
+}
+
+.iv-inline-mechanics.miss .iv-inline-outcome-icon {
+  background-image: url("../../img/Outcomes/outcome-miss.svg");
+}
+
+/* Move/oracle name - clickable link styling */
+.iv-inline-move-name,
+.iv-inline-progress-name {
+  font-weight: 600;
+}
+
+.iv-inline-link {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+
+.iv-inline-link:hover {
+  text-decoration-style: solid;
+  color: var(--text-accent);
+}
+
+/* Stat */
+.iv-inline-stat {
+  color: var(--text-muted);
+}
+
+/* Score */
+.iv-inline-score {
+  font-weight: 500;
+}
+
+/* Challenge dice - use same colors as mechanics blocks */
+.iv-inline-challenge-die.vs1 {
+  color: var(--vs1-color, var(--color-purple));
+}
+
+.iv-inline-challenge-die.vs2 {
+  color: var(--vs2-color, var(--color-purple));
+}
+
+/* Outcome-specific styling */
+.iv-inline-mechanics.strong-hit {
+  border-left: 3px solid var(--text-success);
+}
+
+.iv-inline-mechanics.strong-hit .iv-inline-score {
+  color: var(--text-success);
+}
+
+.iv-inline-mechanics.weak-hit {
+  border-left: 3px solid var(--text-warning, var(--color-orange));
+}
+
+.iv-inline-mechanics.weak-hit .iv-inline-score {
+  color: var(--text-warning, var(--color-orange));
+}
+
+.iv-inline-mechanics.miss {
+  border-left: 3px solid var(--text-error);
+}
+
+.iv-inline-mechanics.miss .iv-inline-score {
+  color: var(--text-error);
+}
+
+/* Match indicator - styled like mechanics blocks with uppercase MATCH text */
+.iv-inline-match {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.85em;
+  margin-left: 0.15em;
+}
+
+/* Color match text based on outcome (green for strong hit, red for miss) */
+.iv-inline-mechanics.strong-hit .iv-inline-match {
+  color: var(--text-success);
+}
+
+.iv-inline-mechanics.miss .iv-inline-match {
+  color: var(--text-error);
+}
+
+/* Burn momentum indicator (flame icon before score) */
+.iv-inline-burn-icon {
+  font-size: 0.9em;
+}
+
+/* Oracle styling */
+.iv-inline-mechanics.oracle {
+  border-left: 3px solid var(--text-accent);
+}
+
+.iv-inline-oracle-name {
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+.iv-inline-oracle-result {
+  font-style: italic;
+}
+
+.iv-inline-cursed {
+  color: var(--text-error);
+  font-size: 0.9em;
+}
+
+/* No-roll move styling */
+.iv-inline-mechanics.no-roll {
+  border-left: 3px solid var(--text-muted);
+}

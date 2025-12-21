@@ -369,6 +369,17 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("Mechanics blocks").setHeading();
 
     new Setting(containerEl)
+      .setName("Use inline mechanics")
+      .setDesc(
+        "When enabled, move and oracle results are inserted as inline text instead of mechanics code blocks. Inline results appear more naturally in flowing prose.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useInlineMechanics)
+          .onChange((value) => this.updateSetting("useInlineMechanics", value)),
+      );
+
+    new Setting(containerEl)
       .setName("Collapse move blocks")
       .setDesc(
         "If enabled, moves in mechanics blocks will only show the move name and result by default, and you'll need to click on them to see move details.",

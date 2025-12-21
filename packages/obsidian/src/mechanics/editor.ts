@@ -14,6 +14,18 @@ import {
 } from "../utils/editor";
 import { ActorDescription } from "./actor";
 import * as ops from "./operations";
+import {
+  moveToInlineSyntax,
+  progressToInlineSyntax,
+  oracleToInlineSyntax,
+  noRollToInlineSyntax,
+} from "../inline";
+import {
+  MoveDescription,
+  moveIsAction,
+  moveIsProgress,
+} from "moves/desc";
+import { RollWrapper } from "model/rolls";
 
 export const MECHANICS_CODE_BLOCK_TAG = "iron-vault-mechanics";
 
@@ -154,4 +166,54 @@ export function actorForActionContext(
   }
 
   return undefined;
+}
+
+/**
+ * Insert a move as inline mechanics if the setting is enabled.
+ * Returns true if inline was used, false if block should be used.
+ */
+export function insertInlineMove(
+  editor: Editor,
+  plugin: IronVaultPlugin,
+  move: MoveDescription,
+): boolean {
+  if (!plugin.settings.useInlineMechanics) {
+    return false;
+  }
+
+  let inlineText: string;
+  if (moveIsAction(move)) {
+    inlineText = moveToInlineSyntax(move);
+  } else if (moveIsProgress(move)) {
+    inlineText = progressToInlineSyntax(move);
+  } else {
+    // No-roll move
+    inlineText = noRollToInlineSyntax(move);
+  }
+
+  // Insert inline with a trailing space
+  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
+  editor.replaceSelection(`${extraSpace}${inlineText} `);
+  return true;
+}
+
+/**
+ * Insert an oracle roll as inline mechanics if the setting is enabled.
+ * Returns true if inline was used, false if block should be used.
+ */
+export function insertInlineOracle(
+  editor: Editor,
+  plugin: IronVaultPlugin,
+  roll: RollWrapper,
+): boolean {
+  if (!plugin.settings.useInlineMechanics) {
+    return false;
+  }
+
+  const inlineText = oracleToInlineSyntax(roll);
+
+  // Insert inline with a trailing space
+  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
+  editor.replaceSelection(`${extraSpace}${inlineText} `);
+  return true;
 }

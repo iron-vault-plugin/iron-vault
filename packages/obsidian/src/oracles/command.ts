@@ -9,7 +9,7 @@ import { numberRange } from "@ironvault/utils/numbers";
 import { determineCampaignContext } from "campaigns/manager";
 import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
-import { createOrAppendMechanics } from "mechanics/editor";
+import { createOrAppendMechanics, insertInlineOracle } from "mechanics/editor";
 import { createOracleNode } from "mechanics/node-builders";
 import { Oracle, OracleGrouping, OracleGroupingType } from "../model/oracle";
 import { Roll } from "../model/rolls";
@@ -130,11 +130,19 @@ export async function runOracleCommand(
     // Copy the result to the clipboard
     await navigator.clipboard.writeText((cursedRoll ?? roll).simpleResult);
   } else {
-    // Delete the prompt and then inject the oracle node to a mechanics block
-    editor.setSelection(replaceSelection.anchor, replaceSelection.head);
-    editor.replaceSelection("");
-    createOrAppendMechanics(editor, [
-      createOracleNode(roll, prompt, undefined, cursedRoll),
-    ]);
+    // Try inline insertion first if enabled
+    const rollToInsert = cursedRoll ?? roll;
+    if (insertInlineOracle(editor, plugin, rollToInsert)) {
+      // Inline insertion succeeded - don't delete any text, just insert at cursor
+      // The insertInlineOracle function handles the insertion
+    } else {
+      // Fall back to block insertion
+      // Delete the prompt and then inject the oracle
+      editor.setSelection(replaceSelection.anchor, replaceSelection.head);
+      editor.replaceSelection("");
+      createOrAppendMechanics(editor, [
+        createOracleNode(roll, prompt, undefined, cursedRoll),
+      ]);
+    }
   }
 }

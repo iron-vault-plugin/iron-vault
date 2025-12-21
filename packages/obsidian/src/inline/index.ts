@@ -1,0 +1,28 @@
+/**
+ * Inline mechanics module.
+ * Provides inline rendering for moves, oracles, and progress rolls.
+ */
+
+import IronVaultPlugin from "index";
+import { registerInlineProcessor } from "./processor";
+import { inlineMechanicsPlugin } from "./live-preview";
+
+export {
+  moveToInlineSyntax,
+  oracleToInlineSyntax,
+  progressToInlineSyntax,
+  noRollToInlineSyntax,
+  isInlineMechanics,
+  parseInlineMechanics,
+} from "./syntax";
+
+/**
+ * Register all inline mechanics handlers.
+ */
+export function registerInlineMechanics(plugin: IronVaultPlugin): void {
+  // Register the post-processor for Reading View
+  registerInlineProcessor(plugin);
+
+  // Register the CodeMirror extension for Live Preview
+  plugin.registerEditorExtension([inlineMechanicsPlugin(plugin)]);
+}

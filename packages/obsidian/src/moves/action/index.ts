@@ -25,6 +25,7 @@ import {
   createOrAppendMechanicsWithActor,
   findAdjacentMechanicsBlock,
   updatePreviousMoveOrCreateBlockWithActor,
+  insertInlineMove,
 } from "mechanics/editor";
 import {
   generateActionRoll,
@@ -372,12 +373,16 @@ export async function runMoveCommand(
     }
   }
 
-  createOrAppendMechanicsWithActor(
-    editor,
-    plugin,
-    context,
-    generateMechanicsNode(moveDescription),
-  );
+  // Try inline insertion first if enabled
+  if (!insertInlineMove(editor, plugin, moveDescription)) {
+    // Fall back to block insertion
+    createOrAppendMechanicsWithActor(
+      editor,
+      plugin,
+      context,
+      generateMechanicsNode(moveDescription),
+    );
+  }
 }
 
 function createEmptyMoveDescription(

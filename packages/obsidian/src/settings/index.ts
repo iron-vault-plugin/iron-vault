@@ -70,6 +70,9 @@ export class IronVaultPluginSettings {
   /** Whether to use new style move sidebar or revert to legacy move modal. */
   useLegacyMoveModal: boolean = false;
 
+  /** Use inline format for mechanics instead of code blocks. */
+  useInlineMechanics: boolean = false;
+
   emitter?: Emittery;
 
   constructor() {
