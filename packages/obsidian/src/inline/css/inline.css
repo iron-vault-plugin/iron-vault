@@ -48,12 +48,10 @@
 .iv-inline-link {
   cursor: pointer;
   text-decoration: underline;
-  text-decoration-style: dotted;
   text-underline-offset: 2px;
 }
 
 .iv-inline-link:hover {
-  text-decoration-style: solid;
   color: var(--text-accent);
 }
 
@@ -131,6 +129,10 @@
 .iv-inline-oracle-name {
   font-weight: 600;
   color: var(--text-accent);
+}
+
+.iv-inline-oracle-name.iv-inline-link:hover {
+  color: var(--link-color-hover, var(--text-accent-hover));
 }
 
 .iv-inline-oracle-result {
