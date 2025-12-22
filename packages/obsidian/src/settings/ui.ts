@@ -426,6 +426,19 @@ export class IronVaultSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
+      .setName("Inline mechanics word wrap")
+      .setDesc(
+        "When enabled, inline mechanics can wrap across multiple lines instead of staying as a single block.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.inlineMechanicsWordWrap)
+          .onChange((value) =>
+            this.updateSetting("inlineMechanicsWordWrap", value),
+          ),
+      );
+
+    new Setting(containerEl)
       .setName("Collapse move blocks")
       .setDesc(
         "If enabled, moves in mechanics blocks will only show the move name and result by default, and you'll need to click on them to see move details.",

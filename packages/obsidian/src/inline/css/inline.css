@@ -3,6 +3,7 @@
  * Uses the same outcome icons and color variables as mechanics blocks.
  */
 
+/* Base styles - no word wrap (atomic inline block) */
 .iv-inline-mechanics {
   display: inline-flex;
   align-items: center;
@@ -16,6 +17,23 @@
   vertical-align: baseline;
 }
 
+/* Word wrap mode - allows wrapping across lines */
+.iv-inline-word-wrap .iv-inline-mechanics {
+  display: inline;
+  /* box-decoration-break makes background/border apply to each line fragment */
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Children need explicit spacing in word-wrap mode since we lose flexbox gap */
+.iv-inline-word-wrap .iv-inline-mechanics > * {
+  margin-right: 0.25em;
+}
+
+.iv-inline-word-wrap .iv-inline-mechanics > *:last-child {
+  margin-right: 0;
+}
+
 /* Outcome icon - uses same SVGs as mechanics blocks */
 .iv-inline-outcome-icon {
   display: inline-block;
@@ -25,6 +43,7 @@
   background-repeat: no-repeat;
   background-position: center;
   flex-shrink: 0;
+  vertical-align: middle;
 }
 
 .iv-inline-mechanics.strong-hit .iv-inline-outcome-icon {
@@ -161,11 +180,13 @@
   display: inline-flex;
   align-items: center;
   color: var(--text-muted);
+  vertical-align: middle;
 }
 
 .iv-inline-track-icon svg {
   width: 1em;
   height: 1em;
+  vertical-align: middle;
 }
 
 .iv-inline-track-status {
@@ -225,11 +246,13 @@
   display: inline-flex;
   align-items: center;
   color: var(--text-muted);
+  vertical-align: middle;
 }
 
 .iv-inline-clock-icon svg {
   width: 1em;
   height: 1em;
+  vertical-align: middle;
 }
 
 .iv-inline-clock-status {
@@ -365,11 +388,13 @@
   display: inline-flex;
   align-items: center;
   color: var(--text-accent);
+  vertical-align: middle;
 }
 
 .iv-inline-entity-icon svg {
   width: 1em;
   height: 1em;
+  vertical-align: middle;
 }
 
 .iv-inline-entity-type {

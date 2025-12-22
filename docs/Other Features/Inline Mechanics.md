@@ -12,6 +12,12 @@ Iron Vault provides granular control over which mechanics use inline format. Go 
 
 Each can be enabled independently, so you can mix inline and block styles based on your preferences.
 
+### Word Wrap Behavior
+
+By default, inline mechanics can wrap across multiple lines when they reach the edge of your window. This means a long inline element (like a move with many adds) will flow naturally with your text rather than forcing the entire element to jump to a new line.
+
+If you prefer inline mechanics to stay as atomic blocks that don't break across lines, you can disable **Inline mechanics word wrap** in settings. When disabled, the entire inline element moves to the next line if it doesn't fit, keeping all parts together.
+
 ### How It Works
 
 When you perform an action with inline mechanics enabled, Iron Vault inserts a compact inline code snippet that renders as styled text within your paragraph.
