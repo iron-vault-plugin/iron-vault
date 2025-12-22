@@ -126,11 +126,24 @@ describe("parseOracleInline", () => {
 });
 
 describe("parseProgressInline", () => {
-  it("parses basic progress syntax", () => {
+  it("parses basic progress syntax without path", () => {
     const result = parseProgressInline("iv-progress:Escape the Vault|7|3|9");
     expect(result).toEqual({
       type: "progress",
       trackName: "Escape the Vault",
+      trackPath: undefined,
+      score: 7,
+      vs1: 3,
+      vs2: 9,
+    });
+  });
+
+  it("parses progress syntax with path", () => {
+    const result = parseProgressInline("iv-progress:My Vow|7|3|9|Campaign/Progress/My Vow.md");
+    expect(result).toEqual({
+      type: "progress",
+      trackName: "My Vow",
+      trackPath: "Campaign/Progress/My Vow.md",
       score: 7,
       vs1: 3,
       vs2: 9,
@@ -311,7 +324,7 @@ describe("formatAddsForDisplay", () => {
 });
 
 describe("progressToInlineSyntax", () => {
-  it("extracts display name from wiki-link with alias", () => {
+  it("extracts display name and path from wiki-link with alias", () => {
     const move = {
       name: "Fulfill Your Vow",
       progressTrack: "[[Campaign/Progress/My Vow.md|My Vow]]",
@@ -320,10 +333,10 @@ describe("progressToInlineSyntax", () => {
       challenge2: 9,
     };
     const result = progressToInlineSyntax(move);
-    expect(result).toBe("`iv-progress:My Vow|7|3|9`");
+    expect(result).toBe("`iv-progress:My Vow|7|3|9|Campaign/Progress/My Vow.md`");
   });
 
-  it("extracts filename from wiki-link without alias", () => {
+  it("extracts filename and path from wiki-link without alias", () => {
     const move = {
       name: "Fulfill Your Vow",
       progressTrack: "[[Campaign/Progress/My Vow.md]]",
@@ -332,10 +345,10 @@ describe("progressToInlineSyntax", () => {
       challenge2: 9,
     };
     const result = progressToInlineSyntax(move);
-    expect(result).toBe("`iv-progress:My Vow|7|3|9`");
+    expect(result).toBe("`iv-progress:My Vow|7|3|9|Campaign/Progress/My Vow.md`");
   });
 
-  it("handles plain text track names", () => {
+  it("handles plain text track names (no path)", () => {
     const move = {
       name: "Fulfill Your Vow",
       progressTrack: "My Vow",
@@ -364,5 +377,503 @@ describe("noRollToInlineSyntax", () => {
     };
     const result = noRollToInlineSyntax(move);
     expect(result).toBe("`iv-noroll:Begin a Session|move:starforged/session/begin_a_session`");
+  });
+});
+
+// ============================================================================
+// Track Parsing Tests
+// ============================================================================
+
+import {
+  parseTrackAdvanceInline,
+  parseTrackCreateInline,
+  parseTrackCompleteInline,
+  parseTrackReopenInline,
+  trackAdvanceToInlineSyntax,
+  trackCreateToInlineSyntax,
+  trackCompleteToInlineSyntax,
+  trackReopenToInlineSyntax,
+  parseClockCreateInline,
+  parseClockAdvanceInline,
+  parseClockResolveInline,
+  clockCreateToInlineSyntax,
+  clockAdvanceToInlineSyntax,
+  clockResolveToInlineSyntax,
+  parseMeterInline,
+  parseBurnInline,
+  parseInitiativeInline,
+  meterToInlineSyntax,
+  burnToInlineSyntax,
+  initiativeToInlineSyntax,
+  parseEntityCreateInline,
+  entityCreateToInlineSyntax,
+} from "./syntax";
+
+describe("parseTrackAdvanceInline", () => {
+  it("parses basic track advance syntax", () => {
+    const result = parseTrackAdvanceInline(
+      "iv-track-advance:My Vow|Progress/My Vow.md|4|8|dangerous|2"
+    );
+    expect(result).toEqual({
+      type: "track-advance",
+      name: "My Vow",
+      path: "Progress/My Vow.md",
+      from: 4,
+      to: 8,
+      rank: "dangerous",
+      steps: 2,
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseTrackAdvanceInline("not a track")).toBeNull();
+    expect(parseTrackAdvanceInline("iv-track-advance:Name|Path")).toBeNull();
+    expect(parseTrackAdvanceInline("iv-track-advance:Name|Path|a|8|rank|2")).toBeNull();
+  });
+});
+
+describe("parseTrackCreateInline", () => {
+  it("parses basic track create syntax", () => {
+    const result = parseTrackCreateInline("iv-track-create:My Vow|Progress/My Vow.md");
+    expect(result).toEqual({
+      type: "track-create",
+      name: "My Vow",
+      path: "Progress/My Vow.md",
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseTrackCreateInline("not a track")).toBeNull();
+    expect(parseTrackCreateInline("iv-track-create:Name")).toBeNull();
+  });
+});
+
+describe("parseTrackCompleteInline", () => {
+  it("parses basic track complete syntax", () => {
+    const result = parseTrackCompleteInline("iv-track-complete:My Vow|Progress/My Vow.md");
+    expect(result).toEqual({
+      type: "track-complete",
+      name: "My Vow",
+      path: "Progress/My Vow.md",
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseTrackCompleteInline("not a track")).toBeNull();
+  });
+});
+
+describe("parseTrackReopenInline", () => {
+  it("parses basic track reopen syntax", () => {
+    const result = parseTrackReopenInline("iv-track-reopen:My Vow|Progress/My Vow.md");
+    expect(result).toEqual({
+      type: "track-reopen",
+      name: "My Vow",
+      path: "Progress/My Vow.md",
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseTrackReopenInline("not a track")).toBeNull();
+  });
+});
+
+describe("trackToInlineSyntax", () => {
+  it("generates track advance syntax", () => {
+    const result = trackAdvanceToInlineSyntax("My Vow", "Progress/My Vow.md", 4, 8, "dangerous", 2);
+    expect(result).toBe("`iv-track-advance:My Vow|Progress/My Vow.md|4|8|dangerous|2`");
+  });
+
+  it("generates track create syntax", () => {
+    const result = trackCreateToInlineSyntax("My Vow", "Progress/My Vow.md");
+    expect(result).toBe("`iv-track-create:My Vow|Progress/My Vow.md`");
+  });
+
+  it("generates track complete syntax", () => {
+    const result = trackCompleteToInlineSyntax("My Vow", "Progress/My Vow.md");
+    expect(result).toBe("`iv-track-complete:My Vow|Progress/My Vow.md`");
+  });
+
+  it("generates track reopen syntax", () => {
+    const result = trackReopenToInlineSyntax("My Vow", "Progress/My Vow.md");
+    expect(result).toBe("`iv-track-reopen:My Vow|Progress/My Vow.md`");
+  });
+});
+
+// ============================================================================
+// Clock Parsing Tests
+// ============================================================================
+
+describe("parseClockCreateInline", () => {
+  it("parses basic clock create syntax", () => {
+    const result = parseClockCreateInline("iv-clock-create:Danger Approaches|Clocks/Danger.md");
+    expect(result).toEqual({
+      type: "clock-create",
+      name: "Danger Approaches",
+      path: "Clocks/Danger.md",
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseClockCreateInline("not a clock")).toBeNull();
+    expect(parseClockCreateInline("iv-clock-create:Name")).toBeNull();
+  });
+});
+
+describe("parseClockAdvanceInline", () => {
+  it("parses clock advance syntax with total", () => {
+    const result = parseClockAdvanceInline("iv-clock-advance:Danger|Clocks/Danger.md|2|4|2|6");
+    expect(result).toEqual({
+      type: "clock-advance",
+      name: "Danger",
+      path: "Clocks/Danger.md",
+      from: 2,
+      to: 4,
+      segments: 2,
+      total: 6,
+      oddsRoll: undefined,
+    });
+  });
+
+  it("parses legacy clock advance syntax without total", () => {
+    // Legacy format: segments was the 5th field, no total
+    const result = parseClockAdvanceInline("iv-clock-advance:Danger|Clocks/Danger.md|2|4|2");
+    expect(result).toEqual({
+      type: "clock-advance",
+      name: "Danger",
+      path: "Clocks/Danger.md",
+      from: 2,
+      to: 4,
+      segments: 2,
+      total: 4, // Estimated from 'to' value
+      oddsRoll: undefined,
+    });
+  });
+
+  it("parses clock advance with odds roll", () => {
+    const result = parseClockAdvanceInline(
+      "iv-clock-advance:Danger|Clocks/Danger.md|2|4|2|6|odds=Likely:45:Yes"
+    );
+    expect(result?.oddsRoll).toEqual({
+      odds: "Likely",
+      roll: 45,
+      result: "Yes",
+    });
+    expect(result?.total).toBe(6);
+  });
+
+  it("parses clock advance with failed odds roll", () => {
+    const result = parseClockAdvanceInline(
+      "iv-clock-advance:Danger|Clocks/Danger.md|2|2|2|6|odds=Unlikely:85:No"
+    );
+    expect(result?.oddsRoll).toEqual({
+      odds: "Unlikely",
+      roll: 85,
+      result: "No",
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseClockAdvanceInline("not a clock")).toBeNull();
+    expect(parseClockAdvanceInline("iv-clock-advance:Name|Path")).toBeNull();
+  });
+});
+
+describe("parseClockResolveInline", () => {
+  it("parses basic clock resolve syntax", () => {
+    const result = parseClockResolveInline("iv-clock-resolve:Danger|Clocks/Danger.md");
+    expect(result).toEqual({
+      type: "clock-resolve",
+      name: "Danger",
+      path: "Clocks/Danger.md",
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseClockResolveInline("not a clock")).toBeNull();
+  });
+});
+
+describe("clockToInlineSyntax", () => {
+  it("generates clock create syntax", () => {
+    const result = clockCreateToInlineSyntax("Danger", "Clocks/Danger.md");
+    expect(result).toBe("`iv-clock-create:Danger|Clocks/Danger.md`");
+  });
+
+  it("generates clock advance syntax without odds", () => {
+    const result = clockAdvanceToInlineSyntax("Danger", "Clocks/Danger.md", 2, 4, 2, 6);
+    expect(result).toBe("`iv-clock-advance:Danger|Clocks/Danger.md|2|4|2|6`");
+  });
+
+  it("generates clock advance syntax with odds", () => {
+    const result = clockAdvanceToInlineSyntax("Danger", "Clocks/Danger.md", 2, 4, 2, 6, {
+      odds: "Likely",
+      roll: 45,
+      result: "Yes",
+    });
+    expect(result).toBe("`iv-clock-advance:Danger|Clocks/Danger.md|2|4|2|6|odds=Likely:45:Yes`");
+  });
+
+  it("generates clock resolve syntax", () => {
+    const result = clockResolveToInlineSyntax("Danger", "Clocks/Danger.md");
+    expect(result).toBe("`iv-clock-resolve:Danger|Clocks/Danger.md`");
+  });
+});
+
+// ============================================================================
+// Meter Parsing Tests
+// ============================================================================
+
+describe("parseMeterInline", () => {
+  it("parses basic meter syntax", () => {
+    const result = parseMeterInline("iv-meter:Health|5|3");
+    expect(result).toEqual({
+      type: "meter",
+      name: "Health",
+      from: 5,
+      to: 3,
+    });
+  });
+
+  it("parses meter with negative values", () => {
+    const result = parseMeterInline("iv-meter:Spirit|-2|-3");
+    expect(result).toEqual({
+      type: "meter",
+      name: "Spirit",
+      from: -2,
+      to: -3,
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseMeterInline("not a meter")).toBeNull();
+    expect(parseMeterInline("iv-meter:Health")).toBeNull();
+    expect(parseMeterInline("iv-meter:Health|a|3")).toBeNull();
+  });
+});
+
+describe("parseBurnInline", () => {
+  it("parses basic burn syntax", () => {
+    const result = parseBurnInline("iv-burn:8|2");
+    expect(result).toEqual({
+      type: "burn",
+      from: 8,
+      to: 2,
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseBurnInline("not a burn")).toBeNull();
+    expect(parseBurnInline("iv-burn:8")).toBeNull();
+  });
+});
+
+describe("parseInitiativeInline", () => {
+  it("parses initiative with from and to", () => {
+    const result = parseInitiativeInline("iv-initiative:Initiative|in control|bad spot");
+    expect(result).toEqual({
+      type: "initiative",
+      label: "Initiative",
+      from: "in control",
+      to: "bad spot",
+    });
+  });
+
+  it("parses initiative with only to", () => {
+    const result = parseInitiativeInline("iv-initiative:Position||in control");
+    expect(result).toEqual({
+      type: "initiative",
+      label: "Position",
+      from: undefined,
+      to: "in control",
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseInitiativeInline("not initiative")).toBeNull();
+    expect(parseInitiativeInline("iv-initiative:")).toBeNull();
+  });
+});
+
+describe("meterToInlineSyntax", () => {
+  it("generates meter syntax", () => {
+    const result = meterToInlineSyntax("Health", 5, 3);
+    expect(result).toBe("`iv-meter:Health|5|3`");
+  });
+});
+
+describe("burnToInlineSyntax", () => {
+  it("generates burn syntax", () => {
+    const result = burnToInlineSyntax(8, 2);
+    expect(result).toBe("`iv-burn:8|2`");
+  });
+});
+
+describe("initiativeToInlineSyntax", () => {
+  it("generates initiative syntax with from and to", () => {
+    const result = initiativeToInlineSyntax("Initiative", "in control", "bad spot");
+    expect(result).toBe("`iv-initiative:Initiative|in control|bad spot`");
+  });
+
+  it("generates initiative syntax with only to", () => {
+    const result = initiativeToInlineSyntax("Position", undefined, "in control");
+    expect(result).toBe("`iv-initiative:Position||in control`");
+  });
+});
+
+// ============================================================================
+// Extended isInlineMechanics Tests
+// ============================================================================
+
+describe("isInlineMechanics extended", () => {
+  it("returns true for track-advance syntax", () => {
+    expect(isInlineMechanics("iv-track-advance:Name|Path|0|4|rank|2")).toBe(true);
+  });
+
+  it("returns true for track-create syntax", () => {
+    expect(isInlineMechanics("iv-track-create:Name|Path")).toBe(true);
+  });
+
+  it("returns true for track-complete syntax", () => {
+    expect(isInlineMechanics("iv-track-complete:Name|Path")).toBe(true);
+  });
+
+  it("returns true for track-reopen syntax", () => {
+    expect(isInlineMechanics("iv-track-reopen:Name|Path")).toBe(true);
+  });
+
+  it("returns true for clock-create syntax", () => {
+    expect(isInlineMechanics("iv-clock-create:Name|Path")).toBe(true);
+  });
+
+  it("returns true for clock-advance syntax", () => {
+    expect(isInlineMechanics("iv-clock-advance:Name|Path|0|2|6")).toBe(true);
+  });
+
+  it("returns true for clock-resolve syntax", () => {
+    expect(isInlineMechanics("iv-clock-resolve:Name|Path")).toBe(true);
+  });
+
+  it("returns true for meter syntax", () => {
+    expect(isInlineMechanics("iv-meter:Health|5|3")).toBe(true);
+  });
+
+  it("returns true for burn syntax", () => {
+    expect(isInlineMechanics("iv-burn:8|2")).toBe(true);
+  });
+
+  it("returns true for initiative syntax", () => {
+    expect(isInlineMechanics("iv-initiative:Initiative|in control|bad spot")).toBe(true);
+  });
+});
+
+// ============================================================================
+// Extended parseInlineMechanics Tests
+// ============================================================================
+
+describe("parseInlineMechanics extended", () => {
+  it("parses track-advance", () => {
+    const result = parseInlineMechanics("iv-track-advance:Name|Path|0|4|rank|2");
+    expect(result?.type).toBe("track-advance");
+  });
+
+  it("parses track-create", () => {
+    const result = parseInlineMechanics("iv-track-create:Name|Path");
+    expect(result?.type).toBe("track-create");
+  });
+
+  it("parses track-complete", () => {
+    const result = parseInlineMechanics("iv-track-complete:Name|Path");
+    expect(result?.type).toBe("track-complete");
+  });
+
+  it("parses track-reopen", () => {
+    const result = parseInlineMechanics("iv-track-reopen:Name|Path");
+    expect(result?.type).toBe("track-reopen");
+  });
+
+  it("parses clock-create", () => {
+    const result = parseInlineMechanics("iv-clock-create:Name|Path");
+    expect(result?.type).toBe("clock-create");
+  });
+
+  it("parses clock-advance", () => {
+    const result = parseInlineMechanics("iv-clock-advance:Name|Path|0|2|6");
+    expect(result?.type).toBe("clock-advance");
+  });
+
+  it("parses clock-resolve", () => {
+    const result = parseInlineMechanics("iv-clock-resolve:Name|Path");
+    expect(result?.type).toBe("clock-resolve");
+  });
+
+  it("parses meter", () => {
+    const result = parseInlineMechanics("iv-meter:Health|5|3");
+    expect(result?.type).toBe("meter");
+  });
+
+  it("parses burn", () => {
+    const result = parseInlineMechanics("iv-burn:8|2");
+    expect(result?.type).toBe("burn");
+  });
+
+  it("parses initiative", () => {
+    const result = parseInlineMechanics("iv-initiative:Initiative|in control|bad spot");
+    expect(result?.type).toBe("initiative");
+  });
+
+  it("parses entity-create", () => {
+    const result = parseInlineMechanics("iv-entity-create:NPC|Kira|Entities/Kira.md");
+    expect(result?.type).toBe("entity-create");
+  });
+});
+
+// ============================================================================
+// Entity Parsing Tests
+// ============================================================================
+
+describe("parseEntityCreateInline", () => {
+  it("parses basic entity create syntax", () => {
+    const result = parseEntityCreateInline("iv-entity-create:NPC|Kira|Entities/Kira.md");
+    expect(result).toEqual({
+      type: "entity-create",
+      entityType: "NPC",
+      name: "Kira",
+      path: "Entities/Kira.md",
+    });
+  });
+
+  it("parses entity with spaces in name", () => {
+    const result = parseEntityCreateInline("iv-entity-create:Location|The Frozen Wastes|Locations/The Frozen Wastes.md");
+    expect(result).toEqual({
+      type: "entity-create",
+      entityType: "Location",
+      name: "The Frozen Wastes",
+      path: "Locations/The Frozen Wastes.md",
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseEntityCreateInline("not an entity")).toBeNull();
+    expect(parseEntityCreateInline("iv-entity-create:NPC")).toBeNull();
+    expect(parseEntityCreateInline("iv-entity-create:NPC|Name")).toBeNull();
+  });
+});
+
+describe("entityCreateToInlineSyntax", () => {
+  it("generates entity create syntax", () => {
+    const result = entityCreateToInlineSyntax("NPC", "Kira", "Entities/Kira.md");
+    expect(result).toBe("`iv-entity-create:NPC|Kira|Entities/Kira.md`");
+  });
+
+  it("generates entity create syntax with spaces", () => {
+    const result = entityCreateToInlineSyntax("Location", "The Frozen Wastes", "Locations/The Frozen Wastes.md");
+    expect(result).toBe("`iv-entity-create:Location|The Frozen Wastes|Locations/The Frozen Wastes.md`");
+  });
+});
+
+describe("isInlineMechanics extended - entity-create", () => {
+  it("returns true for entity-create syntax", () => {
+    expect(isInlineMechanics("iv-entity-create:NPC|Kira|Entities/Kira.md")).toBe(true);
   });
 });

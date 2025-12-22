@@ -32,6 +32,15 @@ import {
 } from "./character-block";
 import { characterLens, createValidCharacter } from "./lens";
 import { CharacterCreateModal } from "./ui/new-character-modal";
+import { initiativeToInlineSyntax } from "../inline";
+
+/**
+ * Insert inline text at cursor with proper spacing.
+ */
+function insertInlineText(editor: Editor, text: string): void {
+  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
+  editor.replaceSelection(`${extraSpace}${text} `);
+}
 
 export async function addAssetToCharacter(
   plugin: IronVaultPlugin,
@@ -201,16 +210,26 @@ export const changeInitiative = async (
     lens.initiative.update(char, newInitiative),
   );
 
-  appendNodesToMoveOrMechanicsBlockWithActor(
-    editor,
-    plugin,
-    actionContext,
-    createInitiativeNode(
-      labelForCharacterInitiative(ruleset),
-      labelForCharacterInitiativeValue(ruleset, oldInitiative).toLowerCase(),
-      labelForCharacterInitiativeValue(ruleset, newInitiative).toLowerCase(),
-    ),
-  );
+  const label = labelForCharacterInitiative(ruleset);
+  const oldValue = labelForCharacterInitiativeValue(ruleset, oldInitiative).toLowerCase();
+  const newValue = labelForCharacterInitiativeValue(ruleset, newInitiative).toLowerCase();
+
+  // Use inline if setting is enabled
+  if (plugin.settings.useInlineMeters) {
+    const inlineText = initiativeToInlineSyntax(
+      capitalize(label),
+      oldValue,
+      newValue,
+    );
+    insertInlineText(editor, inlineText);
+  } else {
+    appendNodesToMoveOrMechanicsBlockWithActor(
+      editor,
+      plugin,
+      actionContext,
+      createInitiativeNode(label, oldValue, newValue),
+    );
+  }
 };
 export async function pickActiveCharacter(
   plugin: IronVaultPlugin,

@@ -20,6 +20,17 @@ import {
   parseOracleInline,
   parseProgressInline,
   parseNoRollInline,
+  parseTrackAdvanceInline,
+  parseTrackCreateInline,
+  parseTrackCompleteInline,
+  parseTrackReopenInline,
+  parseClockCreateInline,
+  parseClockAdvanceInline,
+  parseClockResolveInline,
+  parseMeterInline,
+  parseBurnInline,
+  parseInitiativeInline,
+  parseEntityCreateInline,
   ParsedInlineMechanics,
 } from "./syntax";
 import {
@@ -27,6 +38,17 @@ import {
   renderInlineOracle,
   renderInlineProgress,
   renderInlineNoRoll,
+  renderInlineTrackAdvance,
+  renderInlineTrackCreate,
+  renderInlineTrackComplete,
+  renderInlineTrackReopen,
+  renderInlineClockCreate,
+  renderInlineClockAdvance,
+  renderInlineClockResolve,
+  renderInlineMeter,
+  renderInlineBurn,
+  renderInlineInitiative,
+  renderInlineEntityCreate,
 } from "./renderers";
 
 /**
@@ -72,6 +94,28 @@ class InlineMechanicsWidget extends WidgetType {
         return renderInlineProgress(this.parsed, this.plugin);
       case "no-roll":
         return renderInlineNoRoll(this.parsed, this.plugin);
+      case "track-advance":
+        return renderInlineTrackAdvance(this.parsed, this.plugin);
+      case "track-create":
+        return renderInlineTrackCreate(this.parsed, this.plugin);
+      case "track-complete":
+        return renderInlineTrackComplete(this.parsed, this.plugin);
+      case "track-reopen":
+        return renderInlineTrackReopen(this.parsed, this.plugin);
+      case "clock-create":
+        return renderInlineClockCreate(this.parsed, this.plugin);
+      case "clock-advance":
+        return renderInlineClockAdvance(this.parsed, this.plugin);
+      case "clock-resolve":
+        return renderInlineClockResolve(this.parsed, this.plugin);
+      case "meter":
+        return renderInlineMeter(this.parsed, this.plugin);
+      case "burn":
+        return renderInlineBurn(this.parsed, this.plugin);
+      case "initiative":
+        return renderInlineInitiative(this.parsed, this.plugin);
+      case "entity-create":
+        return renderInlineEntityCreate(this.parsed, this.plugin);
     }
   }
 
@@ -129,6 +173,17 @@ function buildDecorations(
         if (!parsed) parsed = parseOracleInline(text);
         if (!parsed) parsed = parseProgressInline(text);
         if (!parsed) parsed = parseNoRollInline(text);
+        if (!parsed) parsed = parseTrackAdvanceInline(text);
+        if (!parsed) parsed = parseTrackCreateInline(text);
+        if (!parsed) parsed = parseTrackCompleteInline(text);
+        if (!parsed) parsed = parseTrackReopenInline(text);
+        if (!parsed) parsed = parseClockCreateInline(text);
+        if (!parsed) parsed = parseClockAdvanceInline(text);
+        if (!parsed) parsed = parseClockResolveInline(text);
+        if (!parsed) parsed = parseMeterInline(text);
+        if (!parsed) parsed = parseBurnInline(text);
+        if (!parsed) parsed = parseInitiativeInline(text);
+        if (!parsed) parsed = parseEntityCreateInline(text);
 
         if (!parsed) return;
 

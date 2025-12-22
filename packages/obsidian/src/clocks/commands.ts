@@ -27,6 +27,19 @@ import { BLOCK_TYPE__CLOCK, IronVaultKind } from "../constants";
 import { createNewIronVaultEntityFile, vaultProcess } from "../utils/obsidian";
 import { CustomSuggestModal } from "../utils/suggest";
 import { ClockCreateModal } from "./clock-create-modal";
+import {
+  clockCreateToInlineSyntax,
+  clockAdvanceToInlineSyntax,
+  clockResolveToInlineSyntax,
+} from "../inline";
+
+/**
+ * Insert inline text at cursor with proper spacing.
+ */
+function insertInlineText(editor: Editor, text: string): void {
+  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
+  editor.replaceSelection(`${extraSpace}${text} `);
+}
 
 export async function advanceClock(
   plugin: IronVaultPlugin,
@@ -54,6 +67,8 @@ export async function advanceClock(
   let wrapClockUpdates: (nodes: Node[]) => Node[];
   let rollOdds = 100;
   let oddsName = "no roll";
+  let oddsRollValue: number | undefined;
+  let oddsRollResult: "Yes" | "No" | undefined;
 
   if (defaultOdds !== "no roll") {
     const oddsIndex = namedOddsSchema.options.findIndex(
@@ -77,6 +92,8 @@ export async function advanceClock(
       .diceRollerFor("move")
       .rollAsync(DiceGroup.of(Dice.fromDiceString("1d100", DieKind.Oracle)));
     const shouldAdvance = result[0].value <= rollOdds;
+    oddsRollValue = result[0].value;
+    oddsRollResult = shouldAdvance ? "Yes" : "No";
 
     wrapClockUpdates = (nodes) => {
       const props: { name: string; roll: number; result: string } = {
@@ -93,7 +110,21 @@ export async function advanceClock(
     };
 
     if (!shouldAdvance) {
-      appendNodesToMoveOrMechanicsBlock(editor, ...wrapClockUpdates([]));
+      // Use inline if setting is enabled
+      if (plugin.settings.useInlineClocks) {
+        const inlineText = clockAdvanceToInlineSyntax(
+          stripMarkdown(plugin, clockInfo.name),
+          clockPath,
+          clockInfo.clock.progress,
+          clockInfo.clock.progress, // No change since roll failed
+          ticks,
+          clockInfo.clock.segments,
+          { odds: capitalize(oddsName), roll: oddsRollValue, result: "No" },
+        );
+        insertInlineText(editor, inlineText);
+      } else {
+        appendNodesToMoveOrMechanicsBlock(editor, ...wrapClockUpdates([]));
+      }
       return;
     }
   } else {
@@ -108,6 +139,7 @@ export async function advanceClock(
     );
   }
 
+  const fromProgress = clockInfo.clock.progress;
   const newClock = await clockUpdater(
     vaultProcess(plugin.app, clockPath),
     (clockAdapter) => {
@@ -129,13 +161,36 @@ export async function advanceClock(
   );
 
   const clockName = stripMarkdown(plugin, clockInfo.name);
-  appendNodesToMoveOrMechanicsBlock(
-    editor,
-    ...wrapClockUpdates([
-      createClockNode(clockName, clockPath, clockInfo, newClock.clock),
-      ...(shouldMarkResolved ? [clockResolvedNode(clockName, clockPath)] : []),
-    ]),
-  );
+
+  // Use inline if setting is enabled
+  if (plugin.settings.useInlineClocks) {
+    const oddsRoll = oddsRollValue !== undefined && oddsRollResult !== undefined
+      ? { odds: capitalize(oddsName), roll: oddsRollValue, result: oddsRollResult }
+      : undefined;
+    const inlineText = clockAdvanceToInlineSyntax(
+      clockName,
+      clockPath,
+      fromProgress,
+      newClock.clock.progress,
+      ticks,
+      newClock.clock.segments,
+      oddsRoll,
+    );
+    insertInlineText(editor, inlineText);
+    // If also resolved, add that inline too
+    if (shouldMarkResolved) {
+      const resolveText = clockResolveToInlineSyntax(clockName, clockPath);
+      insertInlineText(editor, resolveText);
+    }
+  } else {
+    appendNodesToMoveOrMechanicsBlock(
+      editor,
+      ...wrapClockUpdates([
+        createClockNode(clockName, clockPath, clockInfo, newClock.clock),
+        ...(shouldMarkResolved ? [clockResolvedNode(clockName, clockPath)] : []),
+      ]),
+    );
+  }
 }
 
 export async function resolveClock(
@@ -157,10 +212,19 @@ export async function resolveClock(
     },
   );
 
-  appendNodesToMoveOrMechanicsBlock(
-    editor,
-    clockResolvedNode(stripMarkdown(plugin, newClock.name), clockPath),
-  );
+  // Use inline if setting is enabled
+  if (plugin.settings.useInlineClocks) {
+    const inlineText = clockResolveToInlineSyntax(
+      stripMarkdown(plugin, newClock.name),
+      clockPath,
+    );
+    insertInlineText(editor, inlineText);
+  } else {
+    appendNodesToMoveOrMechanicsBlock(
+      editor,
+      clockResolvedNode(stripMarkdown(plugin, newClock.name), clockPath),
+    );
+  }
 }
 
 export async function createClock(
@@ -184,11 +248,24 @@ export async function createClock(
     `\n\`\`\`${BLOCK_TYPE__CLOCK}\n\`\`\`\n\n`,
   );
 
-  appendNodesToMoveOrMechanicsBlock(
-    editor,
-    createClockCreationNode(stripMarkdown(plugin, clockInput.name), file.path),
-    ...(plugin.settings.inlineOnCreation
-      ? [createDetailsNode(`![[${file.path}|iv-embed]]`)]
-      : []),
-  );
+  // Use inline if setting is enabled
+  if (plugin.settings.useInlineClocks) {
+    const inlineText = clockCreateToInlineSyntax(
+      stripMarkdown(plugin, clockInput.name),
+      file.path,
+    );
+    insertInlineText(editor, inlineText);
+    // Still add the embed if that setting is enabled
+    if (plugin.settings.inlineOnCreation) {
+      editor.replaceSelection(`![[${file.path}|iv-embed]] `);
+    }
+  } else {
+    appendNodesToMoveOrMechanicsBlock(
+      editor,
+      createClockCreationNode(stripMarkdown(plugin, clockInput.name), file.path),
+      ...(plugin.settings.inlineOnCreation
+        ? [createDetailsNode(`![[${file.path}|iv-embed]]`)]
+        : []),
+    );
+  }
 }

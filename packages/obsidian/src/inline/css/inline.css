@@ -148,3 +148,236 @@
 .iv-inline-mechanics.no-roll {
   border-left: 3px solid var(--text-muted);
 }
+
+/* ============================================================================
+   Track Styles
+   ============================================================================ */
+
+.iv-inline-track-name {
+  font-weight: 600;
+}
+
+.iv-inline-track-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.iv-inline-track-icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+.iv-inline-track-status {
+  font-size: 0.9em;
+}
+
+.iv-inline-track-progress {
+  color: var(--text-success);
+  font-weight: 500;
+}
+
+/* Track advance */
+.iv-inline-mechanics.track-advance {
+  border-left: 3px solid var(--text-success);
+}
+
+.iv-inline-mechanics.track-advance .iv-inline-track-icon {
+  color: var(--text-success);
+}
+
+/* Track create */
+.iv-inline-mechanics.track-create {
+  border-left: 3px solid var(--text-accent);
+}
+
+.iv-inline-mechanics.track-create .iv-inline-track-icon {
+  color: var(--text-accent);
+}
+
+/* Track complete */
+.iv-inline-mechanics.track-complete {
+  border-left: 3px solid var(--text-success);
+}
+
+.iv-inline-mechanics.track-complete .iv-inline-track-icon {
+  color: var(--text-success);
+}
+
+/* Track reopen */
+.iv-inline-mechanics.track-reopen {
+  border-left: 3px solid var(--text-warning, var(--color-orange));
+}
+
+.iv-inline-mechanics.track-reopen .iv-inline-track-icon {
+  color: var(--text-warning, var(--color-orange));
+}
+
+/* ============================================================================
+   Clock Styles
+   ============================================================================ */
+
+.iv-inline-clock-name {
+  font-weight: 600;
+}
+
+.iv-inline-clock-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.iv-inline-clock-icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+.iv-inline-clock-status {
+  font-size: 0.9em;
+}
+
+.iv-inline-clock-progress {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Clock create */
+.iv-inline-mechanics.clock-create {
+  border-left: 3px solid var(--text-accent);
+}
+
+.iv-inline-mechanics.clock-create .iv-inline-clock-icon {
+  color: var(--text-accent);
+}
+
+/* Clock advance */
+.iv-inline-mechanics.clock-advance {
+  border-left: 3px solid var(--text-warning, var(--color-orange));
+}
+
+.iv-inline-mechanics.clock-advance .iv-inline-clock-icon {
+  color: var(--text-warning, var(--color-orange));
+}
+
+/* Clock advance with successful odds roll */
+.iv-inline-clock-odds-success {
+  color: var(--text-success);
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+/* Clock advance failed (odds roll failed) */
+.iv-inline-mechanics.clock-advance-failed {
+  border-left: 3px solid var(--text-muted);
+}
+
+.iv-inline-mechanics.clock-advance-failed .iv-inline-clock-icon {
+  color: var(--text-muted);
+}
+
+.iv-inline-clock-odds-failed {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Clock resolve */
+.iv-inline-mechanics.clock-resolve {
+  border-left: 3px solid var(--text-success);
+}
+
+.iv-inline-mechanics.clock-resolve .iv-inline-clock-icon {
+  color: var(--text-success);
+}
+
+/* ============================================================================
+   Meter Styles
+   ============================================================================ */
+
+.iv-inline-meter-name {
+  font-weight: 600;
+}
+
+.iv-inline-meter-change {
+  font-weight: 500;
+}
+
+/* Meter increase */
+.iv-inline-mechanics.meter-increase {
+  border-left: 3px solid var(--text-success);
+}
+
+.iv-inline-mechanics.meter-increase .iv-inline-meter-change {
+  color: var(--text-success);
+}
+
+/* Meter decrease */
+.iv-inline-mechanics.meter-decrease {
+  border-left: 3px solid var(--text-error);
+}
+
+.iv-inline-mechanics.meter-decrease .iv-inline-meter-change {
+  color: var(--text-error);
+}
+
+/* ============================================================================
+   Burn Styles
+   ============================================================================ */
+
+.iv-inline-mechanics.burn {
+  border-left: 3px solid var(--text-warning, var(--color-orange));
+}
+
+.iv-inline-burn-label {
+  font-weight: 600;
+}
+
+.iv-inline-burn-change {
+  color: var(--text-warning, var(--color-orange));
+  font-weight: 500;
+}
+
+/* ============================================================================
+   Initiative Styles
+   ============================================================================ */
+
+.iv-inline-mechanics.initiative {
+  border-left: 3px solid var(--text-accent);
+}
+
+.iv-inline-initiative-label {
+  font-weight: 600;
+}
+
+.iv-inline-initiative-change {
+  color: var(--text-muted);
+}
+
+
+/* ============================================================================
+   Entity Styles
+   ============================================================================ */
+
+.iv-inline-entity-name {
+  font-weight: 600;
+}
+
+.iv-inline-entity-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-accent);
+}
+
+.iv-inline-entity-icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+.iv-inline-entity-type {
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+
+/* Entity create */
+.iv-inline-mechanics.entity-create {
+  border-left: 3px solid var(--text-accent);
+}

@@ -17,6 +17,20 @@ import { ProgressContext } from "./context";
 import { ProgressTrackFileAdapter } from "./progress";
 import { ProgressTrackCreateModal } from "./progress-create";
 import { selectProgressTrack } from "./select";
+import {
+  trackAdvanceToInlineSyntax,
+  trackCreateToInlineSyntax,
+  trackCompleteToInlineSyntax,
+  trackReopenToInlineSyntax,
+} from "../inline";
+
+/**
+ * Insert inline text at cursor with proper spacing.
+ */
+function insertInlineText(editor: Editor, text: string): void {
+  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
+  editor.replaceSelection(`${extraSpace}${text} `);
+}
 
 export async function advanceProgressTrack(
   plugin: IronVaultPlugin,
@@ -43,16 +57,30 @@ export async function advanceProgressTrack(
     "Select number of times to advance the progress track.",
   );
 
-  await trackContext.process((trackAdapter) => trackAdapter.advanced(steps));
+  const fromProgress = trackContext.track.progress;
+  const updatedTrack = await trackContext.process((trackAdapter) => trackAdapter.advanced(steps));
 
-  appendNodesToMoveOrMechanicsBlock(
-    editor,
-    createProgressNode(
+  // Use inline if setting is enabled
+  if (plugin.settings.useInlineProgressTracks) {
+    const inlineText = trackAdvanceToInlineSyntax(
       stripMarkdown(plugin, trackContext.name),
-      trackContext,
+      trackContext.location,
+      fromProgress,
+      updatedTrack.track.progress,
+      updatedTrack.track.rank,
       steps,
-    ),
-  );
+    );
+    insertInlineText(editor, inlineText);
+  } else {
+    appendNodesToMoveOrMechanicsBlock(
+      editor,
+      createProgressNode(
+        stripMarkdown(plugin, trackContext.name),
+        trackContext,
+        steps,
+      ),
+    );
+  }
 }
 
 export async function createProgressTrack(
@@ -76,13 +104,26 @@ export async function createProgressTrack(
     `\n\`\`\`${BLOCK_TYPE__TRACK}\n\`\`\`\n\n`,
   );
 
-  appendNodesToMoveOrMechanicsBlock(
-    editor,
-    createTrackCreationNode(stripMarkdown(plugin, trackInput.name), file.path),
-    ...(plugin.settings.inlineOnCreation
-      ? [createDetailsNode(`![[${file.path}|iv-embed]]`)]
-      : []),
-  );
+  // Use inline if setting is enabled
+  if (plugin.settings.useInlineProgressTracks) {
+    const inlineText = trackCreateToInlineSyntax(
+      stripMarkdown(plugin, trackInput.name),
+      file.path,
+    );
+    insertInlineText(editor, inlineText);
+    // Still add the embed if that setting is enabled
+    if (plugin.settings.inlineOnCreation) {
+      editor.replaceSelection(`![[${file.path}|iv-embed]] `);
+    }
+  } else {
+    appendNodesToMoveOrMechanicsBlock(
+      editor,
+      createTrackCreationNode(stripMarkdown(plugin, trackInput.name), file.path),
+      ...(plugin.settings.inlineOnCreation
+        ? [createDetailsNode(`![[${file.path}|iv-embed]]`)]
+        : []),
+    );
+  }
 }
 
 export async function markTrackCompleted(
@@ -100,13 +141,22 @@ export async function markTrackCompleted(
 
   await trackContext.process((trackAdapter) => trackAdapter.completed());
 
-  appendNodesToMoveOrMechanicsBlock(
-    editor,
-    createTrackCompletionNode(
+  // Use inline if setting is enabled
+  if (plugin.settings.useInlineProgressTracks) {
+    const inlineText = trackCompleteToInlineSyntax(
       stripMarkdown(plugin, trackContext.name),
       trackContext.location,
-    ),
-  );
+    );
+    insertInlineText(editor, inlineText);
+  } else {
+    appendNodesToMoveOrMechanicsBlock(
+      editor,
+      createTrackCompletionNode(
+        stripMarkdown(plugin, trackContext.name),
+        trackContext.location,
+      ),
+    );
+  }
 }
 
 export async function markTrackIncomplete(
@@ -124,11 +174,20 @@ export async function markTrackIncomplete(
 
   await trackContext.process((trackAdapter) => trackAdapter.markIncomplete());
 
-  appendNodesToMoveOrMechanicsBlock(
-    editor,
-    createTrackIncompletionNode(
+  // Use inline if setting is enabled
+  if (plugin.settings.useInlineProgressTracks) {
+    const inlineText = trackReopenToInlineSyntax(
       stripMarkdown(plugin, trackContext.name),
       trackContext.location,
-    ),
-  );
+    );
+    insertInlineText(editor, inlineText);
+  } else {
+    appendNodesToMoveOrMechanicsBlock(
+      editor,
+      createTrackIncompletionNode(
+        stripMarkdown(plugin, trackContext.name),
+        trackContext.location,
+      ),
+    );
+  }
 }

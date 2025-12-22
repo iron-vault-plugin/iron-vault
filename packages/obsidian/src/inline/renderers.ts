@@ -5,6 +5,7 @@
 
 import IronVaultPlugin from "index";
 import { MoveModal } from "moves/move-modal";
+import { setIcon } from "obsidian";
 import { OracleModal } from "oracles/oracle-modal";
 import { SidebarView } from "sidebar/sidebar-view";
 import {
@@ -12,6 +13,17 @@ import {
   ParsedInlineOracle,
   ParsedInlineProgress,
   ParsedInlineNoRoll,
+  ParsedInlineTrackAdvance,
+  ParsedInlineTrackCreate,
+  ParsedInlineTrackComplete,
+  ParsedInlineTrackReopen,
+  ParsedInlineClockCreate,
+  ParsedInlineClockAdvance,
+  ParsedInlineClockResolve,
+  ParsedInlineMeter,
+  ParsedInlineBurn,
+  ParsedInlineInitiative,
+  ParsedInlineEntityCreate,
   determineOutcome,
   outcomeText,
   formatAddsForDisplay,
@@ -214,7 +226,7 @@ export function renderInlineOracle(
  */
 export function renderInlineProgress(
   parsed: ParsedInlineProgress,
-  _plugin: IronVaultPlugin,
+  plugin: IronVaultPlugin,
 ): HTMLSpanElement {
   const { outcome, match } = determineOutcome(
     parsed.score,
@@ -225,11 +237,20 @@ export function renderInlineProgress(
   const outcomeClass = match ? `${outcome} match` : outcome;
   const container = createContainer(outcomeClass);
 
-  // Track name
+  // Track name (clickable if we have a path)
   const nameEl = createSpan({
     cls: "iv-inline-progress-name",
     text: parsed.trackName,
   });
+  if (parsed.trackPath) {
+    nameEl.addClass("iv-inline-link");
+    nameEl.setAttribute("data-track-path", parsed.trackPath);
+    nameEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      plugin.app.workspace.openLinkText(parsed.trackPath!, "");
+    });
+  }
   container.appendChild(nameEl);
 
   // Outcome icon (after track name, like action moves)
@@ -318,6 +339,464 @@ export function renderInlineNoRoll(
     });
   }
   container.appendChild(nameEl);
+
+  return container;
+}
+
+// ============================================================================
+// Track Renderers
+// ============================================================================
+
+/**
+ * Create a clickable link to a track file.
+ */
+function createTrackLink(
+  name: string,
+  path: string,
+  plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const linkEl = createSpan({
+    cls: "iv-inline-track-name iv-inline-link",
+    text: name,
+  });
+  linkEl.setAttribute("data-track-path", path);
+  linkEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    plugin.app.workspace.openLinkText(path, "");
+  });
+  return linkEl;
+}
+
+/**
+ * Render an inline track advance.
+ */
+export function renderInlineTrackAdvance(
+  parsed: ParsedInlineTrackAdvance,
+  plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const container = createContainer("track-advance");
+
+  // Icon indicator
+  const iconEl = createSpan({ cls: "iv-inline-track-icon" });
+  setIcon(iconEl, "copy-check");
+  container.appendChild(iconEl);
+
+  // Track name (clickable)
+  container.appendChild(createTrackLink(parsed.name, parsed.path, plugin));
+
+  // Progress indicator: +N (boxes/10)
+  // Ticks are stored as raw values, divide by 4 to get filled boxes
+  const filledBoxes = Math.floor(parsed.to / 4);
+  const progressEl = createSpan({
+    cls: "iv-inline-track-progress",
+    text: ` +${parsed.steps} (${filledBoxes}/10)`,
+  });
+  container.appendChild(progressEl);
+
+  // Tooltip with details
+  const fromBoxes = Math.floor(parsed.from / 4);
+  const tooltip = `Progress: ${fromBoxes} → ${filledBoxes} boxes\nRank: ${parsed.rank}\nSteps: ${parsed.steps}`;
+  container.setAttribute("aria-label", tooltip);
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+/**
+ * Render an inline track create.
+ */
+export function renderInlineTrackCreate(
+  parsed: ParsedInlineTrackCreate,
+  plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const container = createContainer("track-create");
+
+  // Icon indicator
+  const iconEl = createSpan({ cls: "iv-inline-track-icon" });
+  setIcon(iconEl, "square-stack");
+  container.appendChild(iconEl);
+
+  // Track name (clickable)
+  container.appendChild(createTrackLink(parsed.name, parsed.path, plugin));
+
+  // Tooltip
+  container.setAttribute("aria-label", "Track created");
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+/**
+ * Render an inline track complete.
+ */
+export function renderInlineTrackComplete(
+  parsed: ParsedInlineTrackComplete,
+  plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const container = createContainer("track-complete");
+
+  // Icon indicator
+  const iconEl = createSpan({ cls: "iv-inline-track-icon" });
+  setIcon(iconEl, "circle-check-big");
+  container.appendChild(iconEl);
+
+  // Track name (clickable)
+  container.appendChild(createTrackLink(parsed.name, parsed.path, plugin));
+
+  // Tooltip
+  container.setAttribute("aria-label", "Track completed");
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+/**
+ * Render an inline track reopen.
+ */
+export function renderInlineTrackReopen(
+  parsed: ParsedInlineTrackReopen,
+  plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const container = createContainer("track-reopen");
+
+  // Icon indicator
+  const iconEl = createSpan({ cls: "iv-inline-track-icon" });
+  setIcon(iconEl, "rotate-ccw");
+  container.appendChild(iconEl);
+
+  // Track name (clickable)
+  container.appendChild(createTrackLink(parsed.name, parsed.path, plugin));
+
+  // Tooltip
+  container.setAttribute("aria-label", "Track reopened");
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+// ============================================================================
+// Clock Renderers
+// ============================================================================
+
+/**
+ * Create a clickable link to a clock file.
+ */
+function createClockLink(
+  name: string,
+  path: string,
+  plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const linkEl = createSpan({
+    cls: "iv-inline-clock-name iv-inline-link",
+    text: name,
+  });
+  linkEl.setAttribute("data-clock-path", path);
+  linkEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    plugin.app.workspace.openLinkText(path, "");
+  });
+  return linkEl;
+}
+
+/**
+ * Render an inline clock create.
+ */
+export function renderInlineClockCreate(
+  parsed: ParsedInlineClockCreate,
+  plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const container = createContainer("clock-create");
+
+  // Icon indicator
+  const iconEl = createSpan({ cls: "iv-inline-clock-icon" });
+  setIcon(iconEl, "clock");
+  container.appendChild(iconEl);
+
+  // Clock name (clickable)
+  container.appendChild(createClockLink(parsed.name, parsed.path, plugin));
+
+  // Tooltip
+  container.setAttribute("aria-label", "Clock created");
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+/**
+ * Render an inline clock advance.
+ */
+export function renderInlineClockAdvance(
+  parsed: ParsedInlineClockAdvance,
+  plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  // If there's an odds roll that failed, show it differently
+  if (parsed.oddsRoll && parsed.oddsRoll.result === "No") {
+    const container = createContainer("clock-advance-failed");
+
+    // Icon indicator
+    const iconEl = createSpan({ cls: "iv-inline-clock-icon" });
+    setIcon(iconEl, "clock-arrow-up");
+    container.appendChild(iconEl);
+
+    // Clock name (clickable)
+    container.appendChild(createClockLink(parsed.name, parsed.path, plugin));
+
+    // Show current progress (no change)
+    const progressEl = createSpan({
+      cls: "iv-inline-clock-progress",
+      text: ` (${parsed.from}/${parsed.total})`,
+    });
+    container.appendChild(progressEl);
+
+    // Show the failed odds roll with shortened format
+    const oddsEl = createSpan({
+      cls: "iv-inline-clock-odds-failed",
+      text: ` ✗${parsed.oddsRoll.odds}`,
+    });
+    container.appendChild(oddsEl);
+
+    // Tooltip with full details
+    const tooltip = `Odds roll failed\n${parsed.oddsRoll.odds}: rolled ${parsed.oddsRoll.roll}`;
+    container.setAttribute("aria-label", tooltip);
+    container.setAttribute("data-tooltip-position", "top");
+
+    return container;
+  }
+
+  const container = createContainer("clock-advance");
+
+  // Icon indicator
+  const iconEl = createSpan({ cls: "iv-inline-clock-icon" });
+  setIcon(iconEl, "clock-arrow-up");
+  container.appendChild(iconEl);
+
+  // Clock name (clickable)
+  container.appendChild(createClockLink(parsed.name, parsed.path, plugin));
+
+  // Progress indicator: +N (current/total)
+  const progressEl = createSpan({
+    cls: "iv-inline-clock-progress",
+    text: ` +${parsed.segments} (${parsed.to}/${parsed.total})`,
+  });
+  container.appendChild(progressEl);
+
+  // If there's an odds roll that succeeded, show shortened format
+  if (parsed.oddsRoll) {
+    const oddsEl = createSpan({
+      cls: "iv-inline-clock-odds-success",
+      text: ` ✓${parsed.oddsRoll.odds}`,
+    });
+    container.appendChild(oddsEl);
+  }
+
+  // Tooltip with details
+  let tooltip = `Segments: ${parsed.from} → ${parsed.to} (+${parsed.segments})`;
+  if (parsed.oddsRoll) {
+    tooltip += `\n${parsed.oddsRoll.odds}: rolled ${parsed.oddsRoll.roll}`;
+  }
+  container.setAttribute("aria-label", tooltip);
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+/**
+ * Render an inline clock resolve.
+ */
+export function renderInlineClockResolve(
+  parsed: ParsedInlineClockResolve,
+  plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const container = createContainer("clock-resolve");
+
+  // Icon indicator
+  const iconEl = createSpan({ cls: "iv-inline-clock-icon" });
+  setIcon(iconEl, "clock-check");
+  container.appendChild(iconEl);
+
+  // Clock name (clickable)
+  container.appendChild(createClockLink(parsed.name, parsed.path, plugin));
+
+  // Tooltip
+  container.setAttribute("aria-label", "Clock resolved");
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+// ============================================================================
+// Meter Renderers
+// ============================================================================
+
+/**
+ * Render an inline meter change.
+ */
+export function renderInlineMeter(
+  parsed: ParsedInlineMeter,
+  _plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const delta = parsed.to - parsed.from;
+  const isIncrease = delta > 0;
+  const outcomeClass = isIncrease ? "meter-increase" : "meter-decrease";
+  const container = createContainer(outcomeClass);
+
+  // Meter name
+  const nameEl = createSpan({
+    cls: "iv-inline-meter-name",
+    text: parsed.name,
+  });
+  container.appendChild(nameEl);
+
+  // Change indicator
+  const changeEl = createSpan({
+    cls: "iv-inline-meter-change",
+    text: ` ${parsed.from}→${parsed.to}`,
+  });
+  container.appendChild(changeEl);
+
+  // Tooltip
+  const deltaStr = isIncrease ? `+${delta}` : `${delta}`;
+  container.setAttribute("aria-label", `${parsed.name}: ${deltaStr}`);
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+/**
+ * Render an inline momentum burn.
+ */
+export function renderInlineBurn(
+  parsed: ParsedInlineBurn,
+  _plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const container = createContainer("burn");
+
+  // Burn icon
+  const iconEl = createSpan({
+    cls: "iv-inline-burn-icon",
+    text: "🔥 ",
+  });
+  container.appendChild(iconEl);
+
+  // Label
+  const labelEl = createSpan({
+    cls: "iv-inline-burn-label",
+    text: "Burn",
+  });
+  container.appendChild(labelEl);
+
+  // Change indicator
+  const changeEl = createSpan({
+    cls: "iv-inline-burn-change",
+    text: ` ${parsed.from}→${parsed.to}`,
+  });
+  container.appendChild(changeEl);
+
+  // Tooltip
+  container.setAttribute("aria-label", `Burned momentum: ${parsed.from} → ${parsed.to}`);
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+/**
+ * Render an inline initiative change.
+ */
+export function renderInlineInitiative(
+  parsed: ParsedInlineInitiative,
+  _plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const container = createContainer("initiative");
+
+  // Label (Initiative or Position)
+  const labelEl = createSpan({
+    cls: "iv-inline-initiative-label",
+    text: parsed.label,
+  });
+  container.appendChild(labelEl);
+
+  // Change indicator
+  if (parsed.from && parsed.to) {
+    const changeEl = createSpan({
+      cls: "iv-inline-initiative-change",
+      text: `: ${parsed.from}→${parsed.to}`,
+    });
+    container.appendChild(changeEl);
+  } else if (parsed.to) {
+    const changeEl = createSpan({
+      cls: "iv-inline-initiative-change",
+      text: `: ${parsed.to}`,
+    });
+    container.appendChild(changeEl);
+  }
+
+  // Tooltip
+  let tooltip = parsed.label;
+  if (parsed.from && parsed.to) {
+    tooltip += `: ${parsed.from} → ${parsed.to}`;
+  } else if (parsed.to) {
+    tooltip += `: set to ${parsed.to}`;
+  }
+  container.setAttribute("aria-label", tooltip);
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+// ============================================================================
+// Entity Renderers
+// ============================================================================
+
+/**
+ * Create a clickable link to an entity file.
+ */
+function createEntityLink(
+  name: string,
+  path: string,
+  plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const linkEl = createSpan({
+    cls: "iv-inline-entity-name iv-inline-link",
+    text: name,
+  });
+  linkEl.setAttribute("data-entity-path", path);
+  linkEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    plugin.app.workspace.openLinkText(path, "");
+  });
+  return linkEl;
+}
+
+/**
+ * Render an inline entity create.
+ */
+export function renderInlineEntityCreate(
+  parsed: ParsedInlineEntityCreate,
+  plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const container = createContainer("entity-create");
+
+  // Icon indicator
+  const iconEl = createSpan({ cls: "iv-inline-entity-icon" });
+  setIcon(iconEl, "file-plus");
+  container.appendChild(iconEl);
+
+  // Entity type label
+  const typeEl = createSpan({
+    cls: "iv-inline-entity-type",
+    text: `${parsed.entityType}:`,
+  });
+  container.appendChild(typeEl);
+
+  // Entity name (clickable)
+  container.appendChild(createEntityLink(parsed.name, parsed.path, plugin));
+
+  // Tooltip
+  container.setAttribute("aria-label", `${parsed.entityType} created`);
+  container.setAttribute("data-tooltip-position", "top");
 
   return container;
 }

@@ -29,6 +29,7 @@ import {
   EntitySpec,
   NewEntityModalResults,
 } from "./specs";
+import { entityCreateToInlineSyntax } from "../inline";
 
 type OraclePromptOption =
   | { action: "pick"; row: OracleRollableRow }
@@ -216,6 +217,7 @@ export async function generateEntityCommand(
   const entityName = results.name ?? `New ${entityDesc.label}`;
 
   let oracleGroupTitle: string;
+  let filePath: string | undefined;
   if (createFile) {
     const fileName = results.fileName;
     const folder = await getExistingOrNewFolder(
@@ -254,12 +256,25 @@ export async function generateEntityCommand(
         { allowProtoPropertiesByDefault: true },
       ),
     );
+    filePath = file.path;
     oracleGroupTitle = plugin.app.fileManager.generateMarkdownLink(
       file,
       view.file?.path ?? "",
       undefined,
       entityName,
     );
+
+    // If inline entities is enabled and we created a file, use inline format
+    if (plugin.settings.useInlineEntities) {
+      const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
+      const inlineText = entityCreateToInlineSyntax(
+        entityDesc.label,
+        entityName,
+        filePath,
+      );
+      editor.replaceSelection(`${extraSpace}${inlineText} `);
+      return;
+    }
   } else {
     oracleGroupTitle = entityName;
   }

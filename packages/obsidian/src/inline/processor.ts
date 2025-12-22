@@ -12,12 +12,34 @@ import {
   parseOracleInline,
   parseProgressInline,
   parseNoRollInline,
+  parseTrackAdvanceInline,
+  parseTrackCreateInline,
+  parseTrackCompleteInline,
+  parseTrackReopenInline,
+  parseClockCreateInline,
+  parseClockAdvanceInline,
+  parseClockResolveInline,
+  parseMeterInline,
+  parseBurnInline,
+  parseInitiativeInline,
+  parseEntityCreateInline,
 } from "./syntax";
 import {
   renderInlineMove,
   renderInlineOracle,
   renderInlineProgress,
   renderInlineNoRoll,
+  renderInlineTrackAdvance,
+  renderInlineTrackCreate,
+  renderInlineTrackComplete,
+  renderInlineTrackReopen,
+  renderInlineClockCreate,
+  renderInlineClockAdvance,
+  renderInlineClockResolve,
+  renderInlineMeter,
+  renderInlineBurn,
+  renderInlineInitiative,
+  renderInlineEntityCreate,
 } from "./renderers";
 
 /**
@@ -76,6 +98,94 @@ function processInlineMechanics(
     const noRollData = parseNoRollInline(text);
     if (noRollData) {
       const rendered = renderInlineNoRoll(noRollData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render track advance
+    const trackAdvanceData = parseTrackAdvanceInline(text);
+    if (trackAdvanceData) {
+      const rendered = renderInlineTrackAdvance(trackAdvanceData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render track create
+    const trackCreateData = parseTrackCreateInline(text);
+    if (trackCreateData) {
+      const rendered = renderInlineTrackCreate(trackCreateData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render track complete
+    const trackCompleteData = parseTrackCompleteInline(text);
+    if (trackCompleteData) {
+      const rendered = renderInlineTrackComplete(trackCompleteData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render track reopen
+    const trackReopenData = parseTrackReopenInline(text);
+    if (trackReopenData) {
+      const rendered = renderInlineTrackReopen(trackReopenData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render clock create
+    const clockCreateData = parseClockCreateInline(text);
+    if (clockCreateData) {
+      const rendered = renderInlineClockCreate(clockCreateData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render clock advance
+    const clockAdvanceData = parseClockAdvanceInline(text);
+    if (clockAdvanceData) {
+      const rendered = renderInlineClockAdvance(clockAdvanceData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render clock resolve
+    const clockResolveData = parseClockResolveInline(text);
+    if (clockResolveData) {
+      const rendered = renderInlineClockResolve(clockResolveData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render meter
+    const meterData = parseMeterInline(text);
+    if (meterData) {
+      const rendered = renderInlineMeter(meterData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render burn
+    const burnData = parseBurnInline(text);
+    if (burnData) {
+      const rendered = renderInlineBurn(burnData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render initiative
+    const initiativeData = parseInitiativeInline(text);
+    if (initiativeData) {
+      const rendered = renderInlineInitiative(initiativeData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render entity create
+    const entityCreateData = parseEntityCreateInline(text);
+    if (entityCreateData) {
+      const rendered = renderInlineEntityCreate(entityCreateData, plugin);
       code.replaceWith(rendered);
       continue;
     }
