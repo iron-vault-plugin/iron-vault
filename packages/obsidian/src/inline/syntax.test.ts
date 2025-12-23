@@ -15,7 +15,9 @@ import {
   formatAddsForDisplay,
   progressToInlineSyntax,
   noRollToInlineSyntax,
+  moveToInlineSyntax,
 } from "./syntax";
+import { ActionMoveDescription } from "moves/desc";
 
 describe("parseMoveInline", () => {
   it("parses basic move syntax", () => {
@@ -377,6 +379,101 @@ describe("noRollToInlineSyntax", () => {
     };
     const result = noRollToInlineSyntax(move);
     expect(result).toBe("`iv-noroll:Begin a Session|move:starforged/session/begin_a_session`");
+  });
+});
+
+describe("moveToInlineSyntax", () => {
+  it("generates basic move syntax with V2 adds format", () => {
+    const move: ActionMoveDescription = {
+      name: "Strike",
+      stat: "Iron",
+      action: 4,
+      statVal: 2,
+      adds: [{ amount: 1 }],
+      challenge1: 3,
+      challenge2: 7,
+    };
+    const result = moveToInlineSyntax(move);
+    expect(result).toBe("`iv-move:Strike|Iron|4|2|1|3|7|adds=1`");
+  });
+
+  it("generates move syntax with moveId", () => {
+    const move: ActionMoveDescription = {
+      name: "Strike",
+      stat: "Iron",
+      action: 4,
+      statVal: 2,
+      adds: [],
+      challenge1: 3,
+      challenge2: 7,
+      id: "move:starforged/combat/strike",
+    };
+    const result = moveToInlineSyntax(move);
+    expect(result).toBe("`iv-move:Strike|Iron|4|2|0|3|7|move:starforged/combat/strike`");
+  });
+
+  it("generates move syntax with burn", () => {
+    const move: ActionMoveDescription = {
+      name: "Face Danger",
+      stat: "Shadow",
+      action: 3,
+      statVal: 2,
+      adds: [],
+      challenge1: 5,
+      challenge2: 9,
+      burn: { orig: 8, reset: 2 },
+    };
+    const result = moveToInlineSyntax(move);
+    expect(result).toBe("`iv-move:Face Danger|Shadow|3|2|0|5|9|burn=8:2`");
+  });
+
+  it("generates move syntax with adds detail including descriptions", () => {
+    const move: ActionMoveDescription = {
+      name: "Strike",
+      stat: "Iron",
+      action: 4,
+      statVal: 2,
+      adds: [
+        { amount: 2, desc: "Asset" },
+        { amount: 1, desc: "Companion" },
+      ],
+      challenge1: 3,
+      challenge2: 7,
+    };
+    const result = moveToInlineSyntax(move);
+    expect(result).toBe("`iv-move:Strike|Iron|4|2|3|3|7|adds=2(Asset),1(Companion)`");
+  });
+
+  it("generates move syntax with all options", () => {
+    const move: ActionMoveDescription = {
+      name: "Strike",
+      stat: "Iron",
+      action: 4,
+      statVal: 2,
+      adds: [{ amount: 2, desc: "Asset" }],
+      challenge1: 3,
+      challenge2: 7,
+      id: "move:starforged/combat/strike",
+      burn: { orig: 8, reset: 2 },
+    };
+    const result = moveToInlineSyntax(move);
+    expect(result).toBe(
+      "`iv-move:Strike|Iron|4|2|2|3|7|move:starforged/combat/strike|burn=8:2|adds=2(Asset)`"
+    );
+  });
+
+  it("handles empty adds array", () => {
+    const move: ActionMoveDescription = {
+      name: "Strike",
+      stat: "Iron",
+      action: 4,
+      statVal: 2,
+      adds: [],
+      challenge1: 3,
+      challenge2: 7,
+    };
+    const result = moveToInlineSyntax(move);
+    expect(result).toBe("`iv-move:Strike|Iron|4|2|0|3|7`");
   });
 });
 

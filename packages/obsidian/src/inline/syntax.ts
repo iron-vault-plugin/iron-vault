@@ -9,6 +9,17 @@
 
 import { ActionMoveDescription, ActionMoveAdd, ProgressMoveDescription, NoRollMoveDescription } from "moves/desc";
 import { RollWrapper } from "model/rolls";
+import { parseDataswornLinks } from "datastore/parsers/datasworn/id";
+
+/**
+ * Strip datasworn markdown links from text, keeping only the label.
+ * e.g., "[Action](datasworn:oracle_rollable:starforged/core/action)" -> "Action"
+ */
+function stripDataswornLinks(text: string): string {
+  return parseDataswornLinks(text)
+    .map((segment) => (typeof segment === "string" ? segment : segment.label))
+    .join("");
+}
 
 export interface ParsedInlineMove {
   type: "move";
@@ -516,12 +527,40 @@ export function noRollToInlineSyntax(move: NoRollMoveDescription): string {
 
 /**
  * Convert a RollWrapper (oracle roll) to inline syntax.
+ * Uses ownResult for the result text (which handles template substitution),
+ * and strips any datasworn markdown links for clean display.
  */
 export function oracleToInlineSyntax(roll: RollWrapper): string {
+  // Use ownResult which handles template substitution for templated results
+  // For Multi results (like "Roll twice"), we need to get the actual sub-roll results
+  // Strip datasworn links to get clean text (e.g., "[Action](datasworn:...)" -> "Action")
+  let resultText: string;
+  
+  // Check if this is a Multi result (like "Roll twice") where we need sub-roll results
+  const hasNonTemplateSubrolls = Object.values(roll.subrolls).some(
+    (subroll) => !subroll.inTemplate && subroll.rolls.length > 0
+  );
+  
+  if (hasNonTemplateSubrolls) {
+    // For Multi results, collect all the sub-roll results
+    const subResults: string[] = [];
+    for (const subroll of Object.values(roll.subrolls)) {
+      if (!subroll.inTemplate) {
+        for (const subrollWrapper of subroll.rolls) {
+          subResults.push(stripDataswornLinks(subrollWrapper.simpleResult));
+        }
+      }
+    }
+    resultText = subResults.join(", ");
+  } else {
+    // For Simple or Templated results, ownResult handles it
+    resultText = stripDataswornLinks(roll.ownResult);
+  }
+  
   const parts: (string | number)[] = [
     roll.oracle.name,
     roll.roll.roll,
-    roll.ownResult,
+    resultText,
   ];
   if (roll.oracle.id) parts.push(roll.oracle.id);
   if (roll.cursedRoll != null) parts.push(`cursed=${roll.cursedRoll}`);
