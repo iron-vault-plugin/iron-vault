@@ -717,14 +717,8 @@ export function renderInlineInitiative(
   });
   container.appendChild(labelEl);
 
-  // Change indicator
-  if (parsed.from && parsed.to) {
-    const changeEl = createSpan({
-      cls: "iv-inline-initiative-change",
-      text: `: ${parsed.from}→${parsed.to}`,
-    });
-    container.appendChild(changeEl);
-  } else if (parsed.to) {
+  // Show current state (just the "to" value)
+  if (parsed.to) {
     const changeEl = createSpan({
       cls: "iv-inline-initiative-change",
       text: `: ${parsed.to}`,
@@ -732,12 +726,12 @@ export function renderInlineInitiative(
     container.appendChild(changeEl);
   }
 
-  // Tooltip
+  // Tooltip shows the transition if we have both values
   let tooltip = parsed.label;
   if (parsed.from && parsed.to) {
     tooltip += `: ${parsed.from} → ${parsed.to}`;
   } else if (parsed.to) {
-    tooltip += `: set to ${parsed.to}`;
+    tooltip += `: ${parsed.to}`;
   }
   container.setAttribute("aria-label", tooltip);
   container.setAttribute("data-tooltip-position", "top");
