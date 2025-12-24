@@ -710,18 +710,23 @@ export function renderInlineInitiative(
 ): HTMLSpanElement {
   const container = createContainer("initiative");
 
-  // Label (Initiative or Position)
+  // Capitalize the "to" value for display
+  const capitalizedTo = parsed.to
+    ? parsed.to.charAt(0).toUpperCase() + parsed.to.slice(1)
+    : undefined;
+
+  // Label with colon (Initiative: or Position:)
   const labelEl = createSpan({
     cls: "iv-inline-initiative-label",
-    text: parsed.label,
+    text: `${parsed.label}:`,
   });
   container.appendChild(labelEl);
 
   // Show current state (just the "to" value)
-  if (parsed.to) {
+  if (capitalizedTo) {
     const changeEl = createSpan({
       cls: "iv-inline-initiative-change",
-      text: `: ${parsed.to}`,
+      text: capitalizedTo,
     });
     container.appendChild(changeEl);
   }
