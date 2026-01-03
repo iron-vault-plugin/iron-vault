@@ -137,12 +137,34 @@
 
 /* Burn momentum indicator (flame icon before score) */
 .iv-inline-burn-icon {
-  font-size: 0.9em;
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-warning, var(--color-orange));
+  vertical-align: middle;
+}
+
+.iv-inline-burn-icon svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
 }
 
 /* Oracle styling */
 .iv-inline-mechanics.oracle {
   border-left: 3px solid var(--text-accent);
+}
+
+.iv-inline-oracle-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-accent);
+  vertical-align: middle;
+}
+
+.iv-inline-oracle-icon svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
 }
 
 .iv-inline-oracle-name {
@@ -166,6 +188,19 @@
 /* No-roll move styling */
 .iv-inline-mechanics.no-roll {
   border-left: 3px solid var(--text-muted);
+}
+
+.iv-inline-noroll-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
+  vertical-align: middle;
+}
+
+.iv-inline-noroll-icon svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
 }
 
 /* ============================================================================
@@ -320,6 +355,18 @@
   font-weight: 600;
 }
 
+.iv-inline-meter-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.iv-inline-meter-icon svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
 .iv-inline-meter-change {
   font-weight: 500;
 }
@@ -329,6 +376,10 @@
   border-left: 3px solid var(--text-success);
 }
 
+.iv-inline-mechanics.meter-increase .iv-inline-meter-icon {
+  color: var(--text-success);
+}
+
 .iv-inline-mechanics.meter-increase .iv-inline-meter-change {
   color: var(--text-success);
 }
@@ -336,6 +387,10 @@
 /* Meter decrease */
 .iv-inline-mechanics.meter-decrease {
   border-left: 3px solid var(--text-error);
+}
+
+.iv-inline-mechanics.meter-decrease .iv-inline-meter-icon {
+  color: var(--text-error);
 }
 
 .iv-inline-mechanics.meter-decrease .iv-inline-meter-change {
@@ -365,6 +420,47 @@
 
 .iv-inline-mechanics.initiative {
   border-left: 3px solid var(--text-accent);
+}
+
+.iv-inline-mechanics.initiative-in-control {
+  border-left: 3px solid var(--text-success);
+}
+
+.iv-inline-mechanics.initiative-bad-spot {
+  border-left: 3px solid var(--text-error);
+}
+
+.iv-inline-mechanics.initiative-out-of-combat {
+  border-left: 3px solid var(--text-muted);
+}
+
+.iv-inline-initiative-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.iv-inline-initiative-icon svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
+/* Icon colors based on initiative state */
+.iv-inline-mechanics.initiative .iv-inline-initiative-icon {
+  color: var(--text-accent);
+}
+
+.iv-inline-mechanics.initiative-in-control .iv-inline-initiative-icon {
+  color: var(--text-success);
+}
+
+.iv-inline-mechanics.initiative-bad-spot .iv-inline-initiative-icon {
+  color: var(--text-error);
+}
+
+.iv-inline-mechanics.initiative-out-of-combat .iv-inline-initiative-icon {
+  color: var(--text-muted);
 }
 
 .iv-inline-initiative-label {

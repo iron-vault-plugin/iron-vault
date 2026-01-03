@@ -57,6 +57,10 @@ export function renderInlineMove(
   const outcomeClass = match ? `${outcome} match` : outcome;
   const container = createContainer(outcomeClass);
 
+  // Outcome icon (first for immediate visual feedback)
+  const iconEl = createSpan({ cls: "iv-inline-outcome-icon" });
+  container.appendChild(iconEl);
+
   // Move name (clickable if we have a moveId)
   const nameEl = createSpan({ cls: "iv-inline-move-name", text: parsed.name });
   if (parsed.moveId) {
@@ -94,19 +98,13 @@ export function renderInlineMove(
   });
   container.appendChild(statEl);
 
-  // Outcome icon (after stat, before semicolon)
-  const iconEl = createSpan({ cls: "iv-inline-outcome-icon" });
-  container.appendChild(iconEl);
-
   // Separator
   container.appendChild(createSpan({ text: "; " }));
 
   // Burn indicator (flame icon before score if momentum was burned)
   if (parsed.burn) {
-    const burnEl = createSpan({
-      cls: "iv-inline-burn-icon",
-      text: "🔥",
-    });
+    const burnEl = createSpan({ cls: "iv-inline-burn-icon" });
+    setIcon(burnEl, "flame");
     container.appendChild(burnEl);
   }
 
@@ -173,6 +171,11 @@ export function renderInlineOracle(
 ): HTMLSpanElement {
   const container = createContainer("oracle");
 
+  // Oracle icon
+  const iconEl = createSpan({ cls: "iv-inline-oracle-icon" });
+  setIcon(iconEl, "sparkles");
+  container.appendChild(iconEl);
+
   // Oracle name (clickable if we have an oracleId - always opens modal like mechanics blocks)
   const nameEl = createSpan({
     cls: "iv-inline-oracle-name",
@@ -237,6 +240,10 @@ export function renderInlineProgress(
   const outcomeClass = match ? `${outcome} match` : outcome;
   const container = createContainer(outcomeClass);
 
+  // Outcome icon (first for immediate visual feedback, like action moves)
+  const iconEl = createSpan({ cls: "iv-inline-outcome-icon" });
+  container.appendChild(iconEl);
+
   // Track name (clickable if we have a path)
   const nameEl = createSpan({
     cls: "iv-inline-progress-name",
@@ -252,10 +259,6 @@ export function renderInlineProgress(
     });
   }
   container.appendChild(nameEl);
-
-  // Outcome icon (after track name, like action moves)
-  const iconEl = createSpan({ cls: "iv-inline-outcome-icon" });
-  container.appendChild(iconEl);
 
   // Separator
   container.appendChild(createSpan({ text: "; " }));
@@ -310,6 +313,11 @@ export function renderInlineNoRoll(
   plugin: IronVaultPlugin,
 ): HTMLSpanElement {
   const container = createContainer("no-roll");
+
+  // No-roll icon
+  const iconEl = createSpan({ cls: "iv-inline-noroll-icon" });
+  setIcon(iconEl, "file-pen-line");
+  container.appendChild(iconEl);
 
   // Move name (clickable if we have a moveId)
   const nameEl = createSpan({ cls: "iv-inline-move-name", text: parsed.name });
@@ -613,7 +621,7 @@ export function renderInlineClockResolve(
 
   // Icon indicator
   const iconEl = createSpan({ cls: "iv-inline-clock-icon" });
-  setIcon(iconEl, "clock-check");
+  setIcon(iconEl, "circle-check");
   container.appendChild(iconEl);
 
   // Clock name (clickable)
@@ -641,6 +649,11 @@ export function renderInlineMeter(
   const isIncrease = delta > 0;
   const outcomeClass = isIncrease ? "meter-increase" : "meter-decrease";
   const container = createContainer(outcomeClass);
+
+  // Meter icon (trending up or down based on change)
+  const iconEl = createSpan({ cls: "iv-inline-meter-icon" });
+  setIcon(iconEl, isIncrease ? "trending-up" : "trending-down");
+  container.appendChild(iconEl);
 
   // Meter name
   const nameEl = createSpan({
@@ -673,11 +686,9 @@ export function renderInlineBurn(
 ): HTMLSpanElement {
   const container = createContainer("burn");
 
-  // Burn icon
-  const iconEl = createSpan({
-    cls: "iv-inline-burn-icon",
-    text: "🔥 ",
-  });
+  // Burn icon (flame)
+  const iconEl = createSpan({ cls: "iv-inline-burn-icon" });
+  setIcon(iconEl, "flame");
   container.appendChild(iconEl);
 
   // Label
@@ -708,7 +719,23 @@ export function renderInlineInitiative(
   parsed: ParsedInlineInitiative,
   _plugin: IronVaultPlugin,
 ): HTMLSpanElement {
-  const container = createContainer("initiative");
+  // Determine the initiative state class based on the "to" value
+  const toValue = parsed.to?.toLowerCase();
+  let stateClass = "initiative";
+  if (toValue === "in control") {
+    stateClass = "initiative-in-control";
+  } else if (toValue === "bad spot") {
+    stateClass = "initiative-bad-spot";
+  } else if (toValue === "out of combat") {
+    stateClass = "initiative-out-of-combat";
+  }
+
+  const container = createContainer(stateClass);
+
+  // Initiative icon (footprints)
+  const iconEl = createSpan({ cls: "iv-inline-initiative-icon" });
+  setIcon(iconEl, "footprints");
+  container.appendChild(iconEl);
 
   // Capitalize the "to" value for display
   const capitalizedTo = parsed.to
