@@ -369,6 +369,61 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("Mechanics blocks").setHeading();
 
     new Setting(containerEl)
+      .setName("Collapse move blocks")
+      .setDesc(
+        "If enabled, moves in mechanics blocks will only show the move name and result by default, and you'll need to click on them to see move details.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.collapseMoves)
+          .onChange((value) => this.updateSetting("collapseMoves", value)),
+      );
+
+    new Setting(containerEl)
+      .setName("Show mechanics toggle")
+      .setDesc(
+        "If enabled, mechanics blocks will show a small 'Hide mechanics' toggle underneath the mechanics items.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.showMechanicsToggle)
+          .onChange((value) =>
+            this.updateSetting("showMechanicsToggle", value),
+          ),
+      );
+
+    new Setting(containerEl)
+      .setName("Hide mechanics completely")
+      .setDesc(
+        "If enabled, mechanics blocks will not be displayed at all. Good for when you want to just read a story.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.hideMechanics)
+          .onChange((value) => this.updateSetting("hideMechanics", value)),
+      );
+
+    new Setting(containerEl)
+      .setName("Always record actor")
+      .setDesc(
+        "Enable this to generate actor blocks, even in a campaign with only one PC.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.alwaysRecordActor)
+          .onChange((value) => this.updateSetting("alwaysRecordActor", value)),
+      );
+
+    //--- Inline mechanics
+
+    new Setting(containerEl).setName("Inline mechanics").setHeading();
+
+    containerEl.createEl("p", {
+      text: "Inline mechanics display results as compact text within your prose, rather than as separate code blocks.",
+      cls: "setting-item-description",
+    });
+
+    new Setting(containerEl)
       .setName("Use inline moves & oracles")
       .setDesc(
         "When enabled, move and oracle results are inserted as inline text instead of mechanics code blocks. Inline results appear more naturally in flowing prose.",
@@ -426,54 +481,6 @@ export class IronVaultSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Inline mechanics word wrap")
-      .setDesc(
-        "When enabled, inline mechanics can wrap across multiple lines instead of staying as a single block.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.inlineMechanicsWordWrap)
-          .onChange((value) =>
-            this.updateSetting("inlineMechanicsWordWrap", value),
-          ),
-      );
-
-    new Setting(containerEl)
-      .setName("Collapse move blocks")
-      .setDesc(
-        "If enabled, moves in mechanics blocks will only show the move name and result by default, and you'll need to click on them to see move details.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.collapseMoves)
-          .onChange((value) => this.updateSetting("collapseMoves", value)),
-      );
-
-    new Setting(containerEl)
-      .setName("Show mechanics toggle")
-      .setDesc(
-        "If enabled, mechanics blocks will show a small 'Hide mechanics' toggle underneath the mechanics items.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.showMechanicsToggle)
-          .onChange((value) =>
-            this.updateSetting("showMechanicsToggle", value),
-          ),
-      );
-
-    new Setting(containerEl)
-      .setName("Hide mechanics completely")
-      .setDesc(
-        "If enabled, mechanics blocks will not be displayed at all. Good for when you want to just read a story.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.hideMechanics)
-          .onChange((value) => this.updateSetting("hideMechanics", value)),
-      );
-
-    new Setting(containerEl)
       .setName("Inline tracks and clocks on creation")
       .setDesc(
         "If enabled, new tracks and clocks will be automatically inlined in the journal when created.",
@@ -485,14 +492,16 @@ export class IronVaultSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Always record actor")
+      .setName("Inline mechanics word wrap")
       .setDesc(
-        "Enable this to generate actor blocks, even in a campaign with only one PC.",
+        "When enabled, inline mechanics can wrap across multiple lines instead of staying as a single block.",
       )
       .addToggle((toggle) =>
         toggle
-          .setValue(settings.alwaysRecordActor)
-          .onChange((value) => this.updateSetting("alwaysRecordActor", value)),
+          .setValue(settings.inlineMechanicsWordWrap)
+          .onChange((value) =>
+            this.updateSetting("inlineMechanicsWordWrap", value),
+          ),
       );
 
     new Setting(containerEl).setName("Legacy").setHeading();
