@@ -79,6 +79,11 @@
   color: var(--text-muted);
 }
 
+/* Separator (em dash) */
+.iv-inline-separator {
+  margin: 0 -0.1em;
+}
+
 /* Score */
 .iv-inline-score {
   font-weight: 500;

@@ -99,7 +99,7 @@ export function renderInlineMove(
   container.appendChild(statEl);
 
   // Separator
-  container.appendChild(createSpan({ text: "; " }));
+  container.appendChild(createSpan({ cls: "iv-inline-separator", text: "—" }));
 
   // Burn indicator (flame icon before score if momentum was burned)
   if (parsed.burn) {
@@ -261,7 +261,7 @@ export function renderInlineProgress(
   container.appendChild(nameEl);
 
   // Separator
-  container.appendChild(createSpan({ text: "; " }));
+  container.appendChild(createSpan({ cls: "iv-inline-separator", text: "—" }));
 
   // Score
   const scoreEl = createSpan({
