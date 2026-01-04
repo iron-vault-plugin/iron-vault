@@ -10,7 +10,16 @@
 @import url("migrate/css/migrate.css");
 @import url("campaigns/css/new-campaign.css");
 @import url("datastore/view/css/content-view.css");
-@import url("inline/css/inline.css");
+@import url("inline/css/base.css");
+@import url("inline/css/outcomes.css");
+@import url("inline/css/moves.css");
+@import url("inline/css/oracles.css");
+@import url("inline/css/tracks.css");
+@import url("inline/css/clocks.css");
+@import url("inline/css/meters.css");
+@import url("inline/css/burn.css");
+@import url("inline/css/initiative.css");
+@import url("inline/css/entity.css");
 
 .theme-light {
   --color-code: 0, 0, 0;

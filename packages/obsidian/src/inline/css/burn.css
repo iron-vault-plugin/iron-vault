@@ -1,0 +1,16 @@
+/**
+ * Burn momentum inline styles.
+ */
+
+.iv-inline-mechanics.burn {
+  border-left: 3px solid var(--text-warning, var(--color-orange));
+}
+
+.iv-inline-burn-label {
+  font-weight: 600;
+}
+
+.iv-inline-burn-change {
+  color: var(--text-warning, var(--color-orange));
+  font-weight: 500;
+}

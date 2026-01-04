@@ -1,0 +1,99 @@
+/**
+ * Base inline mechanics styles.
+ * Container styles and shared element styles used across multiple components.
+ */
+
+.iv-inline-mechanics {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  background-color: var(--background-secondary);
+  font-family: var(--font-text);
+  font-size: 0.95em;
+  cursor: default;
+  vertical-align: baseline;
+}
+
+/* Word wrap mode - allows wrapping across lines */
+.iv-inline-word-wrap .iv-inline-mechanics {
+  display: inline;
+  /* box-decoration-break makes background/border apply to each line fragment */
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+
+  /* Children need explicit spacing since we lose flexbox gap */
+  & > * {
+    margin-right: 0.25em;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+/* Clickable link styling */
+.iv-inline-link {
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover {
+    color: var(--text-accent);
+  }
+}
+
+/* Separator (em dash) */
+.iv-inline-separator {
+  margin: 0 -0.1em;
+}
+
+/* Score */
+.iv-inline-score {
+  font-weight: 500;
+}
+
+/* Challenge dice */
+.iv-inline-challenge-die {
+  &.vs1 {
+    color: var(--vs1-color, var(--color-purple));
+  }
+
+  &.vs2 {
+    color: var(--vs2-color, var(--color-purple));
+  }
+}
+
+/* Shared icon container styles */
+.iv-inline-burn-icon,
+.iv-inline-noroll-icon,
+.iv-inline-oracle-icon,
+.iv-inline-track-icon,
+.iv-inline-clock-icon,
+.iv-inline-meter-icon,
+.iv-inline-initiative-icon,
+.iv-inline-entity-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+
+  & svg {
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+  }
+}
+
+/* Shared name/label styles */
+.iv-inline-move-name,
+.iv-inline-progress-name,
+.iv-inline-oracle-name,
+.iv-inline-track-name,
+.iv-inline-clock-name,
+.iv-inline-meter-name,
+.iv-inline-burn-label,
+.iv-inline-initiative-label,
+.iv-inline-entity-name {
+  font-weight: 600;
+}

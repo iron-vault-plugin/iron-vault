@@ -1,0 +1,61 @@
+/**
+ * Clock inline styles.
+ */
+
+.iv-inline-clock-icon {
+  color: var(--text-muted);
+}
+
+.iv-inline-clock-status {
+  font-size: 0.9em;
+}
+
+.iv-inline-clock-progress {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.iv-inline-clock-odds-success {
+  color: var(--text-success);
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+.iv-inline-clock-odds-failed {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.iv-inline-mechanics {
+  &.clock-create {
+    border-left: 3px solid var(--text-accent);
+
+    & .iv-inline-clock-icon {
+      color: var(--text-accent);
+    }
+  }
+
+  &.clock-advance {
+    border-left: 3px solid var(--text-warning, var(--color-orange));
+
+    & .iv-inline-clock-icon {
+      color: var(--text-warning, var(--color-orange));
+    }
+  }
+
+  &.clock-advance-failed {
+    border-left: 3px solid var(--text-muted);
+
+    & .iv-inline-clock-icon {
+      color: var(--text-muted);
+    }
+  }
+
+  &.clock-resolve {
+    border-left: 3px solid var(--text-success);
+
+    & .iv-inline-clock-icon {
+      color: var(--text-success);
+    }
+  }
+}

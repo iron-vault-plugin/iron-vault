@@ -1,0 +1,50 @@
+/**
+ * Progress track inline styles.
+ */
+
+.iv-inline-track-icon {
+  color: var(--text-muted);
+}
+
+.iv-inline-track-status {
+  font-size: 0.9em;
+}
+
+.iv-inline-track-progress {
+  color: var(--text-success);
+  font-weight: 500;
+}
+
+.iv-inline-mechanics {
+  &.track-advance {
+    border-left: 3px solid var(--text-success);
+
+    & .iv-inline-track-icon {
+      color: var(--text-success);
+    }
+  }
+
+  &.track-create {
+    border-left: 3px solid var(--text-accent);
+
+    & .iv-inline-track-icon {
+      color: var(--text-accent);
+    }
+  }
+
+  &.track-complete {
+    border-left: 3px solid var(--text-success);
+
+    & .iv-inline-track-icon {
+      color: var(--text-success);
+    }
+  }
+
+  &.track-reopen {
+    border-left: 3px solid var(--text-warning, var(--color-orange));
+
+    & .iv-inline-track-icon {
+      color: var(--text-warning, var(--color-orange));
+    }
+  }
+}
