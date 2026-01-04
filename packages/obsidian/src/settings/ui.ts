@@ -364,6 +364,21 @@ export class IronVaultSettingTab extends PluginSettingTab {
           });
       });
 
+    //--- Display
+
+    new Setting(containerEl).setName("Display").setHeading();
+
+    new Setting(containerEl)
+      .setName("Hide mechanics completely")
+      .setDesc(
+        "If enabled, mechanics blocks and inline mechanics will not be displayed at all. Good for when you want to just read a story.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.hideMechanics)
+          .onChange((value) => this.updateSetting("hideMechanics", value)),
+      );
+
     //--- Mechanics blocks
 
     new Setting(containerEl).setName("Mechanics blocks").setHeading();
@@ -393,17 +408,6 @@ export class IronVaultSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Hide mechanics completely")
-      .setDesc(
-        "If enabled, mechanics blocks will not be displayed at all. Good for when you want to just read a story.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.hideMechanics)
-          .onChange((value) => this.updateSetting("hideMechanics", value)),
-      );
-
-    new Setting(containerEl)
       .setName("Always record actor")
       .setDesc(
         "Enable this to generate actor blocks, even in a campaign with only one PC.",
@@ -417,11 +421,6 @@ export class IronVaultSettingTab extends PluginSettingTab {
     //--- Inline mechanics
 
     new Setting(containerEl).setName("Inline mechanics").setHeading();
-
-    containerEl.createEl("p", {
-      text: "Inline mechanics display results as compact text within your prose, rather than as separate code blocks.",
-      cls: "setting-item-description",
-    });
 
     new Setting(containerEl)
       .setName("Use inline moves & oracles")

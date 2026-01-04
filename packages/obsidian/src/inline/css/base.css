@@ -28,6 +28,11 @@
   }
 }
 
+/* Hide inline mechanics when hideMechanics setting is enabled */
+.iv-hide-mechanics .iv-inline-mechanics {
+  display: none;
+}
+
 /* Clickable link styling */
 .iv-inline-link {
   cursor: pointer;
