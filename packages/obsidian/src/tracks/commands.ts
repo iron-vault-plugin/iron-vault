@@ -22,15 +22,8 @@ import {
   trackCreateToInlineSyntax,
   trackCompleteToInlineSyntax,
   trackReopenToInlineSyntax,
+  insertInlineText,
 } from "../inline";
-
-/**
- * Insert inline text at cursor with proper spacing.
- */
-function insertInlineText(editor: Editor, text: string): void {
-  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
-  editor.replaceSelection(`${extraSpace}${text} `);
-}
 
 export async function advanceProgressTrack(
   plugin: IronVaultPlugin,

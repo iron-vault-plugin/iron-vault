@@ -17,15 +17,11 @@ import {
 } from "./action-context";
 import { labelForMeter } from "./display";
 import { MeterWithLens, MeterWithoutLens, momentumOps } from "./lens";
-import { burnToInlineSyntax, meterToInlineSyntax } from "../inline";
-
-/**
- * Insert inline text at cursor with proper spacing.
- */
-function insertInlineText(editor: Editor, text: string): void {
-  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
-  editor.replaceSelection(`${extraSpace}${text} `);
-}
+import {
+  burnToInlineSyntax,
+  meterToInlineSyntax,
+  insertInlineText,
+} from "../inline";
 
 export async function burnMomentum(
   plugin: IronVaultPlugin,

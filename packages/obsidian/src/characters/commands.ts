@@ -32,15 +32,7 @@ import {
 } from "./character-block";
 import { characterLens, createValidCharacter } from "./lens";
 import { CharacterCreateModal } from "./ui/new-character-modal";
-import { initiativeToInlineSyntax } from "../inline";
-
-/**
- * Insert inline text at cursor with proper spacing.
- */
-function insertInlineText(editor: Editor, text: string): void {
-  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
-  editor.replaceSelection(`${extraSpace}${text} `);
-}
+import { initiativeToInlineSyntax, insertInlineText } from "../inline";
 
 export async function addAssetToCharacter(
   plugin: IronVaultPlugin,

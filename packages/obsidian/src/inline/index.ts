@@ -27,6 +27,8 @@ export {
   parseInlineMechanics,
 } from "./syntax";
 
+export { insertInlineText } from "./editor-utils";
+
 const WORD_WRAP_CLASS = "iv-inline-word-wrap";
 
 /**
