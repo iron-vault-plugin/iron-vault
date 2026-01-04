@@ -4,7 +4,7 @@
  */
 
 .iv-inline-mechanics {
-  display: inline-flex;
+  display: inline;
   align-items: center;
   gap: 0.25em;
   padding: 0.1em 0.4em;
@@ -14,16 +14,11 @@
   font-size: 0.95em;
   cursor: default;
   vertical-align: baseline;
-}
-
-/* Word wrap mode - allows wrapping across lines */
-.iv-inline-word-wrap .iv-inline-mechanics {
-  display: inline;
-  /* box-decoration-break makes background/border apply to each line fragment */
+  /* box-decoration-break makes background/border apply to each line fragment when wrapping */
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 
-  /* Children need explicit spacing since we lose flexbox gap */
+  /* Children need explicit spacing since we use inline display */
   & > * {
     margin-right: 0.25em;
 

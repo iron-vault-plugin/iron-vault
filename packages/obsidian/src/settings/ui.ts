@@ -491,19 +491,6 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .onChange((value) => this.updateSetting("inlineOnCreation", value)),
       );
 
-    new Setting(containerEl)
-      .setName("Inline mechanics word wrap")
-      .setDesc(
-        "When enabled, inline mechanics can wrap across multiple lines instead of staying as a single block.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.inlineMechanicsWordWrap)
-          .onChange((value) =>
-            this.updateSetting("inlineMechanicsWordWrap", value),
-          ),
-      );
-
     new Setting(containerEl).setName("Legacy").setHeading();
 
     new Setting(containerEl)

@@ -85,9 +85,6 @@ export class IronVaultPluginSettings {
   /** Use inline format for entity creation (when file is created). */
   useInlineEntities: boolean = false;
 
-  /** Allow inline mechanics to wrap across lines. */
-  inlineMechanicsWordWrap: boolean = true;
-
   emitter?: Emittery;
 
   constructor() {
