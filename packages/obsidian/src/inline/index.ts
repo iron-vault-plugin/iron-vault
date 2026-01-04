@@ -6,6 +6,7 @@
 import IronVaultPlugin from "index";
 import { registerInlineProcessor } from "./processor";
 import { inlineMechanicsPlugin } from "./live-preview";
+import { MarkdownView } from "obsidian";
 
 export {
   moveToInlineSyntax,
@@ -43,6 +44,24 @@ function updateHideMechanicsClass(enabled: boolean): void {
 }
 
 /**
+ * Force all CodeMirror editors to rebuild their decorations.
+ * This is needed when the hideMechanics setting changes.
+ */
+function refreshAllEditors(plugin: IronVaultPlugin): void {
+  plugin.app.workspace.iterateAllLeaves((leaf) => {
+    if (leaf.view instanceof MarkdownView) {
+      const editor = leaf.view.editor;
+      // Accessing internal CM6 editor
+      const cmEditor = (editor as unknown as { cm?: { dispatch: (tr: object) => void } })?.cm;
+      if (cmEditor) {
+        // Dispatch an empty transaction to trigger decoration rebuild
+        cmEditor.dispatch({});
+      }
+    }
+  });
+}
+
+/**
  * Register all inline mechanics handlers.
  */
 export function registerInlineMechanics(plugin: IronVaultPlugin): void {
@@ -60,6 +79,8 @@ export function registerInlineMechanics(plugin: IronVaultPlugin): void {
     plugin.settings.on("change", ({ key, newValue }) => {
       if (key === "hideMechanics") {
         updateHideMechanicsClass(newValue as boolean);
+        // Refresh all editors to rebuild decorations with new setting
+        refreshAllEditors(plugin);
       }
     }),
   );

@@ -124,6 +124,7 @@ function buildDecorations(
   plugin: IronVaultPlugin,
 ): DecorationSet {
   const widgets: { from: number; to: number; decoration: Decoration }[] = [];
+  const hideMechanics = plugin.settings.hideMechanics;
 
   // Regex to match inline-code syntax tree nodes
   const inlineCodeRegex = /.*?_?inline-code_?.*/;
@@ -152,6 +153,38 @@ function buildDecorations(
         // Skip if not inline mechanics
         if (!isInlineMechanics(text)) return;
 
+        // Calculate the range including backticks
+        let rangeStart = start - 1; // Include opening backtick
+        let rangeEnd = end + 1; // Include closing backtick
+
+        // If hideMechanics is enabled, also consume adjacent whitespace
+        // to avoid leaving gaps in the text
+        if (hideMechanics) {
+          const docText = view.state.doc.toString();
+
+          // Consume whitespace before (but keep at least one space if there's text before)
+          while (rangeStart > 0 && docText[rangeStart - 1] === " ") {
+            rangeStart--;
+          }
+          // If we consumed spaces and there's text before, add one space back
+          // by not consuming the last space
+          if (rangeStart < start - 1 && rangeStart > 0 && docText[rangeStart - 1] !== "\n") {
+            rangeStart++;
+          }
+
+          // Consume whitespace after
+          while (rangeEnd < docText.length && docText[rangeEnd] === " ") {
+            rangeEnd++;
+          }
+
+          widgets.push({
+            from: rangeStart,
+            to: rangeEnd,
+            decoration: Decoration.replace({}),
+          });
+          return;
+        }
+
         // Parse the inline mechanics
         const parsed = parseInlineMechanics(text);
 
@@ -159,8 +192,8 @@ function buildDecorations(
 
         // Create decoration
         widgets.push({
-          from: start - 1,
-          to: end + 1,
+          from: rangeStart,
+          to: rangeEnd,
           decoration: Decoration.replace({
             widget: new InlineMechanicsWidget(text, parsed, plugin),
             inclusive: false,
@@ -204,14 +237,12 @@ export function inlineMechanicsPlugin(plugin: IronVaultPlugin) {
           return;
         }
 
-        // Rebuild decorations when document changes, viewport changes, or selection changes
-        if (
-          update.docChanged ||
-          update.viewportChanged ||
-          update.selectionSet
-        ) {
-          this.decorations = this.buildDecorations(update.view);
-        }
+        // Rebuild decorations on any update. This handles:
+        // - Document changes
+        // - Viewport changes
+        // - Selection changes (to show/hide raw text when cursor enters/leaves)
+        // - Setting changes (triggered via refreshAllEditors dispatching empty transactions)
+        this.decorations = this.buildDecorations(update.view);
       }
 
       buildDecorations(view: EditorView): DecorationSet {
