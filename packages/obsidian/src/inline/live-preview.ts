@@ -16,21 +16,7 @@ import { editorLivePreviewField } from "obsidian";
 import IronVaultPlugin from "index";
 import {
   isInlineMechanics,
-  parseMoveInline,
-  parseOracleInline,
-  parseProgressInline,
-  parseNoRollInline,
-  parseTrackAdvanceInline,
-  parseTrackCreateInline,
-  parseTrackCompleteInline,
-  parseTrackReopenInline,
-  parseClockCreateInline,
-  parseClockAdvanceInline,
-  parseClockResolveInline,
-  parseMeterInline,
-  parseBurnInline,
-  parseInitiativeInline,
-  parseEntityCreateInline,
+  parseInlineMechanics,
   ParsedInlineMechanics,
 } from "./syntax";
 import {
@@ -166,24 +152,8 @@ function buildDecorations(
         // Skip if not inline mechanics
         if (!isInlineMechanics(text)) return;
 
-        // Try to parse
-        let parsed: ParsedInlineMechanics | null = null;
-
-        parsed = parseMoveInline(text);
-        if (!parsed) parsed = parseOracleInline(text);
-        if (!parsed) parsed = parseProgressInline(text);
-        if (!parsed) parsed = parseNoRollInline(text);
-        if (!parsed) parsed = parseTrackAdvanceInline(text);
-        if (!parsed) parsed = parseTrackCreateInline(text);
-        if (!parsed) parsed = parseTrackCompleteInline(text);
-        if (!parsed) parsed = parseTrackReopenInline(text);
-        if (!parsed) parsed = parseClockCreateInline(text);
-        if (!parsed) parsed = parseClockAdvanceInline(text);
-        if (!parsed) parsed = parseClockResolveInline(text);
-        if (!parsed) parsed = parseMeterInline(text);
-        if (!parsed) parsed = parseBurnInline(text);
-        if (!parsed) parsed = parseInitiativeInline(text);
-        if (!parsed) parsed = parseEntityCreateInline(text);
+        // Parse the inline mechanics
+        const parsed = parseInlineMechanics(text);
 
         if (!parsed) return;
 
