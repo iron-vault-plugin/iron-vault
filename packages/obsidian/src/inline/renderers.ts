@@ -446,7 +446,7 @@ export function renderInlineTrackComplete(
 
   // Icon indicator
   const iconEl = createSpan({ cls: "iv-inline-track-icon" });
-  setIcon(iconEl, "circle-check-big");
+  setIcon(iconEl, "square-check-big");
   container.appendChild(iconEl);
 
   // Track name (clickable)
@@ -621,7 +621,7 @@ export function renderInlineClockResolve(
 
   // Icon indicator
   const iconEl = createSpan({ cls: "iv-inline-clock-icon" });
-  setIcon(iconEl, "circle-check");
+  setIcon(iconEl, "circle-check-big");
   container.appendChild(iconEl);
 
   // Clock name (clickable)
