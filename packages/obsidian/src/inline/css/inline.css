@@ -33,13 +33,23 @@
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 
-  /* Children need explicit spacing since we use inline display */
+  /* Children need explicit spacing since inline display doesn't support gap.
+     Elements followed by the separator don't need right margin since separator handles its own spacing. */
   & > * {
     margin-right: 0.25em;
 
     &:last-child {
       margin-right: 0;
     }
+  }
+
+  & > *:has(+ .iv-inline-separator) {
+    margin-right: 0;
+  }
+
+  /* Separator (em dash) - symmetric spacing on both sides */
+  & > .iv-inline-separator {
+    margin: 0 0.15em;
   }
 }
 
@@ -57,11 +67,6 @@
   &:hover {
     color: var(--text-accent);
   }
-}
-
-/* Separator (em dash) */
-.iv-inline-separator {
-  margin: 0 -0.1em;
 }
 
 /* Score */
