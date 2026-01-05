@@ -425,7 +425,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline moves")
       .setDesc(
-        "When enabled, move results are inserted as inline text instead of mechanics code blocks. Inline results appear more naturally in flowing prose.",
+        "When enabled, move results are inserted as inline text.",
       )
       .addToggle((toggle) =>
         toggle
@@ -436,7 +436,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline oracles")
       .setDesc(
-        "When enabled, oracle results are inserted as inline text instead of mechanics code blocks.",
+        "When enabled, oracle results are inserted as inline text.",
       )
       .addToggle((toggle) =>
         toggle
@@ -493,7 +493,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Inline tracks and clocks on creation")
       .setDesc(
-        "If enabled, new tracks and clocks will be automatically inlined in the journal when created.",
+        "When enabled, new tracks and clocks are inserted as inline text.",
       )
       .addToggle((toggle) =>
         toggle
