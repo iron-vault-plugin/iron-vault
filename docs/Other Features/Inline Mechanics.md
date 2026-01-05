@@ -2,9 +2,10 @@ Iron Vault can display move and oracle results as compact inline text instead of
 
 ### Enabling Inline Mechanics
 
-Iron Vault provides granular control over which mechanics use inline format. Go to Iron Vault settings and you'll find five toggles under "Mechanics blocks":
+Iron Vault provides granular control over which mechanics use inline format. Go to Iron Vault settings and you'll find these toggles under "Inline mechanics":
 
-- **Use inline moves & oracles** — Move and oracle results
+- **Use inline moves** — Move results (action rolls, progress rolls, no-roll moves)
+- **Use inline oracles** — Oracle results
 - **Use inline progress tracks** — Create, advance, complete, and reopen track operations
 - **Use inline clocks** — Create, advance, and resolve clock operations
 - **Use inline meters** — Character meter changes, momentum burn, and initiative

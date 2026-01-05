@@ -423,14 +423,25 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("Inline mechanics").setHeading();
 
     new Setting(containerEl)
-      .setName("Use inline moves & oracles")
+      .setName("Use inline moves")
       .setDesc(
-        "When enabled, move and oracle results are inserted as inline text instead of mechanics code blocks. Inline results appear more naturally in flowing prose.",
+        "When enabled, move results are inserted as inline text instead of mechanics code blocks. Inline results appear more naturally in flowing prose.",
       )
       .addToggle((toggle) =>
         toggle
-          .setValue(settings.useInlineMechanics)
-          .onChange((value) => this.updateSetting("useInlineMechanics", value)),
+          .setValue(settings.useInlineMoves)
+          .onChange((value) => this.updateSetting("useInlineMoves", value)),
+      );
+
+    new Setting(containerEl)
+      .setName("Use inline oracles")
+      .setDesc(
+        "When enabled, oracle results are inserted as inline text instead of mechanics code blocks.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useInlineOracles)
+          .onChange((value) => this.updateSetting("useInlineOracles", value)),
       );
 
     new Setting(containerEl)

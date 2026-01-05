@@ -70,8 +70,11 @@ export class IronVaultPluginSettings {
   /** Whether to use new style move sidebar or revert to legacy move modal. */
   useLegacyMoveModal: boolean = false;
 
-  /** Use inline format for moves and oracles instead of code blocks. */
-  useInlineMechanics: boolean = false;
+  /** Use inline format for moves instead of code blocks. */
+  useInlineMoves: boolean = false;
+
+  /** Use inline format for oracles instead of code blocks. */
+  useInlineOracles: boolean = false;
 
   /** Use inline format for progress track operations. */
   useInlineProgressTracks: boolean = false;
