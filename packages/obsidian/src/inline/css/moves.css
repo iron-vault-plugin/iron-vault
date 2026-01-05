@@ -9,7 +9,7 @@
 
 /* Burn momentum indicator (flame icon before score) */
 .iv-inline-burn-icon {
-  color: var(--text-warning, var(--color-orange));
+  color: var(--text-warning);
 }
 
 /* No-roll move styling */

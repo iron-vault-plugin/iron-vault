@@ -41,10 +41,10 @@
   }
 
   &.track-reopen {
-    border-left: 3px solid var(--text-warning, var(--color-orange));
+    border-left: 3px solid var(--text-warning);
 
     & .iv-inline-track-icon {
-      color: var(--text-warning, var(--color-orange));
+      color: var(--text-warning);
     }
   }
 }

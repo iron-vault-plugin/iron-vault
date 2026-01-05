@@ -20,8 +20,6 @@
 
 .iv-inline-mechanics {
   display: inline;
-  align-items: center;
-  gap: 0.25em;
   padding: 0.1em 0.4em;
   border-radius: 4px;
   background-color: var(--background-secondary);

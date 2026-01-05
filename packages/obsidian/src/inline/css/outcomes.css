@@ -31,14 +31,14 @@
   }
 
   &.weak-hit {
-    border-left: 3px solid var(--text-warning, var(--color-orange));
+    border-left: 3px solid var(--text-warning);
 
     & .iv-inline-outcome-icon {
       background-image: url("../../img/Outcomes/outcome-weak-hit.svg");
     }
 
     & .iv-inline-score {
-      color: var(--text-warning, var(--color-orange));
+      color: var(--text-warning);
     }
   }
 

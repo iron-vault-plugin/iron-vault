@@ -36,10 +36,10 @@
   }
 
   &.clock-advance {
-    border-left: 3px solid var(--text-warning, var(--color-orange));
+    border-left: 3px solid var(--text-warning);
 
     & .iv-inline-clock-icon {
-      color: var(--text-warning, var(--color-orange));
+      color: var(--text-warning);
     }
   }
 

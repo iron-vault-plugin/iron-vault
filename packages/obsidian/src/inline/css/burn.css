@@ -3,7 +3,7 @@
  */
 
 .iv-inline-mechanics.burn {
-  border-left: 3px solid var(--text-warning, var(--color-orange));
+  border-left: 3px solid var(--text-warning);
 }
 
 .iv-inline-burn-label {
@@ -11,6 +11,6 @@
 }
 
 .iv-inline-burn-change {
-  color: var(--text-warning, var(--color-orange));
+  color: var(--text-warning);
   font-weight: 500;
 }
