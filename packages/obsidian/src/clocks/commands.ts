@@ -248,10 +248,6 @@ export async function createClock(
       file.path,
     );
     insertInlineText(editor, inlineText);
-    // Still add the embed if that setting is enabled
-    if (plugin.settings.inlineOnCreation) {
-      editor.replaceSelection(`![[${file.path}|iv-embed]] `);
-    }
   } else {
     appendNodesToMoveOrMechanicsBlock(
       editor,

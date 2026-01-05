@@ -418,6 +418,17 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .onChange((value) => this.updateSetting("alwaysRecordActor", value)),
       );
 
+    new Setting(containerEl)
+      .setName("Embed tracks and clocks on creation")
+      .setDesc(
+        "If enabled, new tracks and clocks will have an embed link added to the mechanics block when created.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.inlineOnCreation)
+          .onChange((value) => this.updateSetting("inlineOnCreation", value)),
+      );
+
     //--- Inline mechanics
 
     new Setting(containerEl).setName("Inline mechanics").setHeading();
@@ -425,7 +436,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline moves")
       .setDesc(
-        "When enabled, move results are inserted as inline text instead of mechanics code blocks. Inline results appear more naturally in flowing prose.",
+        "When enabled, move results are inserted as inline text instead of code blocks.",
       )
       .addToggle((toggle) =>
         toggle
@@ -436,7 +447,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline oracles")
       .setDesc(
-        "When enabled, oracle results are inserted as inline text instead of mechanics code blocks.",
+        "When enabled, oracle results are inserted as inline text instead of code blocks.",
       )
       .addToggle((toggle) =>
         toggle
@@ -447,7 +458,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline progress tracks")
       .setDesc(
-        "When enabled, progress track operations (create, advance, complete, reopen) are inserted as inline text.",
+        "When enabled, progress track operations (create, advance, complete, reopen) are inserted as inline text instead of code blocks..",
       )
       .addToggle((toggle) =>
         toggle
@@ -460,7 +471,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline clocks")
       .setDesc(
-        "When enabled, clock operations (create, advance, resolve) are inserted as inline text.",
+        "When enabled, clock operations (create, advance, resolve) are inserted as inline text instead of code blocks..",
       )
       .addToggle((toggle) =>
         toggle
@@ -471,7 +482,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline meters")
       .setDesc(
-        "When enabled, character meter changes (health, momentum, burn, initiative) are inserted as inline text.",
+        "When enabled, character meter changes (health, momentum, burn, initiative) are inserted as inline text instead of code blocks..",
       )
       .addToggle((toggle) =>
         toggle
@@ -482,23 +493,12 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline entities")
       .setDesc(
-        "When enabled, entity generation (NPCs, locations, etc.) shows as an inline link when a file is created. Oracle rolls are still stored in the entity file.",
+        "When enabled, entity generations (NPCs, locations, etc.) are inserted as inline text when a file is created. Oracle rolls are still stored in the entity file.",
       )
       .addToggle((toggle) =>
         toggle
           .setValue(settings.useInlineEntities)
           .onChange((value) => this.updateSetting("useInlineEntities", value)),
-      );
-
-    new Setting(containerEl)
-      .setName("Inline tracks and clocks on creation")
-      .setDesc(
-        "If enabled, new tracks and clocks will be automatically inlined in the journal when created.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.inlineOnCreation)
-          .onChange((value) => this.updateSetting("inlineOnCreation", value)),
       );
 
     new Setting(containerEl).setName("Legacy").setHeading();
