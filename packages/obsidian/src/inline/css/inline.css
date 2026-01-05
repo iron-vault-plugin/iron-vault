@@ -1,4 +1,19 @@
 /**
+ * Inline mechanics styles.
+ * Entry point that imports all inline-related CSS.
+ */
+
+@import url("outcomes.css");
+@import url("moves.css");
+@import url("oracles.css");
+@import url("tracks.css");
+@import url("clocks.css");
+@import url("meters.css");
+@import url("burn.css");
+@import url("initiative.css");
+@import url("entity.css");
+
+/**
  * Base inline mechanics styles.
  * Container styles and shared element styles used across multiple components.
  */
