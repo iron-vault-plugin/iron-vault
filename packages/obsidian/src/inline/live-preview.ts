@@ -177,7 +177,11 @@ function buildDecorations(
           }
           // If we consumed spaces and there's text before, add one space back
           // by not consuming the last space
-          if (rangeStart < start - 1 && rangeStart > 0 && docText[rangeStart - 1] !== "\n") {
+          if (
+            rangeStart < start - 1 &&
+            rangeStart > 0 &&
+            docText[rangeStart - 1] !== "\n"
+          ) {
             rangeStart++;
           }
 

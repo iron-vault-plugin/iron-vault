@@ -203,8 +203,14 @@ export const changeInitiative = async (
   );
 
   const label = labelForCharacterInitiative(ruleset);
-  const oldValue = labelForCharacterInitiativeValue(ruleset, oldInitiative).toLowerCase();
-  const newValue = labelForCharacterInitiativeValue(ruleset, newInitiative).toLowerCase();
+  const oldValue = labelForCharacterInitiativeValue(
+    ruleset,
+    oldInitiative,
+  ).toLowerCase();
+  const newValue = labelForCharacterInitiativeValue(
+    ruleset,
+    newInitiative,
+  ).toLowerCase();
 
   // Use inline if setting is enabled
   if (plugin.settings.useInlineMeters) {

@@ -55,7 +55,9 @@ function refreshAllEditors(plugin: IronVaultPlugin): void {
     if (leaf.view instanceof MarkdownView) {
       const editor = leaf.view.editor;
       // Accessing internal CM6 editor
-      const cmEditor = (editor as unknown as { cm?: { dispatch: (tr: object) => void } })?.cm;
+      const cmEditor = (
+        editor as unknown as { cm?: { dispatch: (tr: object) => void } }
+      )?.cm;
       if (cmEditor) {
         // Dispatch an empty transaction to trigger decoration rebuild
         cmEditor.dispatch({});

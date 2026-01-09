@@ -157,9 +157,14 @@ export async function advanceClock(
 
   // Use inline if setting is enabled
   if (plugin.settings.useInlineClocks) {
-    const oddsRoll = oddsRollValue !== undefined && oddsRollResult !== undefined
-      ? { odds: capitalize(oddsName), roll: oddsRollValue, result: oddsRollResult }
-      : undefined;
+    const oddsRoll =
+      oddsRollValue !== undefined && oddsRollResult !== undefined
+        ? {
+            odds: capitalize(oddsName),
+            roll: oddsRollValue,
+            result: oddsRollResult,
+          }
+        : undefined;
     const inlineText = clockAdvanceToInlineSyntax(
       clockName,
       clockPath,
@@ -180,7 +185,9 @@ export async function advanceClock(
       editor,
       ...wrapClockUpdates([
         createClockNode(clockName, clockPath, clockInfo, newClock.clock),
-        ...(shouldMarkResolved ? [clockResolvedNode(clockName, clockPath)] : []),
+        ...(shouldMarkResolved
+          ? [clockResolvedNode(clockName, clockPath)]
+          : []),
       ]),
     );
   }
@@ -251,7 +258,10 @@ export async function createClock(
   } else {
     appendNodesToMoveOrMechanicsBlock(
       editor,
-      createClockCreationNode(stripMarkdown(plugin, clockInput.name), file.path),
+      createClockCreationNode(
+        stripMarkdown(plugin, clockInput.name),
+        file.path,
+      ),
       ...(plugin.settings.inlineOnCreation
         ? [createDetailsNode(`![[${file.path}|iv-embed]]`)]
         : []),

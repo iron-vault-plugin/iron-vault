@@ -39,21 +39,21 @@ describe("parseMoveInline", () => {
 
   it("parses move with moveId", () => {
     const result = parseMoveInline(
-      "iv-move:Strike|Iron|4|2|1|3|7|move:starforged/combat/strike"
+      "iv-move:Strike|Iron|4|2|1|3|7|move:starforged/combat/strike",
     );
     expect(result?.moveId).toBe("move:starforged/combat/strike");
   });
 
   it("parses move with burn", () => {
     const result = parseMoveInline(
-      "iv-move:Face Danger|Shadow|3|2|0|5|9|move:starforged/adventure/face_danger|burn=8:2"
+      "iv-move:Face Danger|Shadow|3|2|0|5|9|move:starforged/adventure/face_danger|burn=8:2",
     );
     expect(result?.burn).toEqual({ orig: 8, reset: 2 });
   });
 
   it("parses move with adds detail", () => {
     const result = parseMoveInline(
-      "iv-move:Strike|Iron|4|2|3|3|7|move:starforged/combat/strike|adds=2(Asset),1(Companion)"
+      "iv-move:Strike|Iron|4|2|3|3|7|move:starforged/combat/strike|adds=2(Asset),1(Companion)",
     );
     expect(result?.addsDetail).toEqual([
       { amount: 2, desc: "Asset" },
@@ -63,7 +63,7 @@ describe("parseMoveInline", () => {
 
   it("parses move with adds detail without descriptions", () => {
     const result = parseMoveInline(
-      "iv-move:Strike|Iron|4|2|3|3|7|move:starforged/combat/strike|adds=2,1"
+      "iv-move:Strike|Iron|4|2|3|3|7|move:starforged/combat/strike|adds=2,1",
     );
     expect(result?.addsDetail).toEqual([
       { amount: 2, desc: undefined },
@@ -73,7 +73,7 @@ describe("parseMoveInline", () => {
 
   it("parses move with burn and adds", () => {
     const result = parseMoveInline(
-      "iv-move:Strike|Iron|4|2|3|3|7|move:starforged/combat/strike|burn=8:2|adds=2(Asset),1"
+      "iv-move:Strike|Iron|4|2|3|3|7|move:starforged/combat/strike|burn=8:2|adds=2(Asset),1",
     );
     expect(result?.burn).toEqual({ orig: 8, reset: 2 });
     expect(result?.addsDetail).toEqual([
@@ -108,14 +108,14 @@ describe("parseOracleInline", () => {
 
   it("parses oracle with oracleId", () => {
     const result = parseOracleInline(
-      "iv-oracle:Action|45|Bolster|oracle:starforged/oracles/core/action"
+      "iv-oracle:Action|45|Bolster|oracle:starforged/oracles/core/action",
     );
     expect(result?.oracleId).toBe("oracle:starforged/oracles/core/action");
   });
 
   it("parses oracle with cursed die", () => {
     const result = parseOracleInline(
-      "iv-oracle:Action|45|Bolster|oracle:starforged/oracles/core/action|cursed=7"
+      "iv-oracle:Action|45|Bolster|oracle:starforged/oracles/core/action|cursed=7",
     );
     expect(result?.cursedRoll).toBe(7);
   });
@@ -129,7 +129,9 @@ describe("parseOracleInline", () => {
 
 describe("parseProgressInline", () => {
   it("parses progress syntax with move name and track name", () => {
-    const result = parseProgressInline("iv-progress:Fulfill Your Vow|My Vow|7|3|9");
+    const result = parseProgressInline(
+      "iv-progress:Fulfill Your Vow|My Vow|7|3|9",
+    );
     expect(result).toEqual({
       type: "progress",
       moveName: "Fulfill Your Vow",
@@ -143,7 +145,9 @@ describe("parseProgressInline", () => {
   });
 
   it("parses progress syntax with move name, track name, and path", () => {
-    const result = parseProgressInline("iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md");
+    const result = parseProgressInline(
+      "iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md",
+    );
     expect(result).toEqual({
       type: "progress",
       moveName: "Fulfill Your Vow",
@@ -157,7 +161,9 @@ describe("parseProgressInline", () => {
   });
 
   it("parses progress syntax with move name, track name, path, and move ID", () => {
-    const result = parseProgressInline("iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md|move:starforged/quest/fulfill_your_vow");
+    const result = parseProgressInline(
+      "iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md|move:starforged/quest/fulfill_your_vow",
+    );
     expect(result).toEqual({
       type: "progress",
       moveName: "Fulfill Your Vow",
@@ -171,7 +177,9 @@ describe("parseProgressInline", () => {
   });
 
   it("parses progress syntax with move name, track name, and move ID (no path)", () => {
-    const result = parseProgressInline("iv-progress:Fulfill Your Vow|My Vow|7|3|9|move:starforged/quest/fulfill_your_vow");
+    const result = parseProgressInline(
+      "iv-progress:Fulfill Your Vow|My Vow|7|3|9|move:starforged/quest/fulfill_your_vow",
+    );
     expect(result).toEqual({
       type: "progress",
       moveName: "Fulfill Your Vow",
@@ -203,7 +211,7 @@ describe("parseNoRollInline", () => {
 
   it("parses no-roll with moveId", () => {
     const result = parseNoRollInline(
-      "iv-noroll:Begin a Session|move:starforged/session/begin_a_session"
+      "iv-noroll:Begin a Session|move:starforged/session/begin_a_session",
     );
     expect(result).toEqual({
       type: "no-roll",
@@ -230,7 +238,9 @@ describe("parseInlineMechanics", () => {
   });
 
   it("parses progress", () => {
-    const result = parseInlineMechanics("iv-progress:Fulfill Your Vow|Track|7|3|9");
+    const result = parseInlineMechanics(
+      "iv-progress:Fulfill Your Vow|Track|7|3|9",
+    );
     expect(result?.type).toBe("progress");
   });
 
@@ -337,22 +347,17 @@ describe("formatAddsForDisplay", () => {
       formatAddsForDisplay([
         { amount: 2, desc: "Asset" },
         { amount: 1, desc: "Companion" },
-      ])
+      ]),
     ).toBe("2 (Asset) + 1 (Companion)");
   });
 
   it("formats adds without descriptions", () => {
-    expect(
-      formatAddsForDisplay([{ amount: 2 }, { amount: 1 }])
-    ).toBe("2 + 1");
+    expect(formatAddsForDisplay([{ amount: 2 }, { amount: 1 }])).toBe("2 + 1");
   });
 
   it("formats mixed adds", () => {
     expect(
-      formatAddsForDisplay([
-        { amount: 2, desc: "Asset" },
-        { amount: 1 },
-      ])
+      formatAddsForDisplay([{ amount: 2, desc: "Asset" }, { amount: 1 }]),
     ).toBe("2 (Asset) + 1");
   });
 });
@@ -367,7 +372,9 @@ describe("progressToInlineSyntax", () => {
       challenge2: 9,
     };
     const result = progressToInlineSyntax(move);
-    expect(result).toBe("`iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md`");
+    expect(result).toBe(
+      "`iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md`",
+    );
   });
 
   it("generates syntax with move name, track name, and path from wiki-link without alias", () => {
@@ -379,7 +386,9 @@ describe("progressToInlineSyntax", () => {
       challenge2: 9,
     };
     const result = progressToInlineSyntax(move);
-    expect(result).toBe("`iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md`");
+    expect(result).toBe(
+      "`iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md`",
+    );
   });
 
   it("generates syntax with move name and track name (no path)", () => {
@@ -404,7 +413,9 @@ describe("progressToInlineSyntax", () => {
       challenge2: 9,
     };
     const result = progressToInlineSyntax(move);
-    expect(result).toBe("`iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md|move:starforged/quest/fulfill_your_vow`");
+    expect(result).toBe(
+      "`iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md|move:starforged/quest/fulfill_your_vow`",
+    );
   });
 
   it("generates syntax with move name, track name, and move ID (no path)", () => {
@@ -417,7 +428,9 @@ describe("progressToInlineSyntax", () => {
       challenge2: 9,
     };
     const result = progressToInlineSyntax(move);
-    expect(result).toBe("`iv-progress:Fulfill Your Vow|My Vow|7|3|9|move:starforged/quest/fulfill_your_vow`");
+    expect(result).toBe(
+      "`iv-progress:Fulfill Your Vow|My Vow|7|3|9|move:starforged/quest/fulfill_your_vow`",
+    );
   });
 });
 
@@ -436,7 +449,9 @@ describe("noRollToInlineSyntax", () => {
       id: "move:starforged/session/begin_a_session",
     };
     const result = noRollToInlineSyntax(move);
-    expect(result).toBe("`iv-noroll:Begin a Session|move:starforged/session/begin_a_session`");
+    expect(result).toBe(
+      "`iv-noroll:Begin a Session|move:starforged/session/begin_a_session`",
+    );
   });
 });
 
@@ -467,7 +482,9 @@ describe("moveToInlineSyntax", () => {
       id: "move:starforged/combat/strike",
     };
     const result = moveToInlineSyntax(move);
-    expect(result).toBe("`iv-move:Strike|Iron|4|2|0|3|7|move:starforged/combat/strike`");
+    expect(result).toBe(
+      "`iv-move:Strike|Iron|4|2|0|3|7|move:starforged/combat/strike`",
+    );
   });
 
   it("generates move syntax with burn", () => {
@@ -499,7 +516,9 @@ describe("moveToInlineSyntax", () => {
       challenge2: 7,
     };
     const result = moveToInlineSyntax(move);
-    expect(result).toBe("`iv-move:Strike|Iron|4|2|3|3|7|adds=2(Asset),1(Companion)`");
+    expect(result).toBe(
+      "`iv-move:Strike|Iron|4|2|3|3|7|adds=2(Asset),1(Companion)`",
+    );
   });
 
   it("generates move syntax with all options", () => {
@@ -516,7 +535,7 @@ describe("moveToInlineSyntax", () => {
     };
     const result = moveToInlineSyntax(move);
     expect(result).toBe(
-      "`iv-move:Strike|Iron|4|2|2|3|7|move:starforged/combat/strike|burn=8:2|adds=2(Asset)`"
+      "`iv-move:Strike|Iron|4|2|2|3|7|move:starforged/combat/strike|burn=8:2|adds=2(Asset)`",
     );
   });
 
@@ -567,7 +586,7 @@ import {
 describe("parseTrackAdvanceInline", () => {
   it("parses basic track advance syntax", () => {
     const result = parseTrackAdvanceInline(
-      "iv-track-advance:My Vow|Progress/My Vow.md|4|8|dangerous|2"
+      "iv-track-advance:My Vow|Progress/My Vow.md|4|8|dangerous|2",
     );
     expect(result).toEqual({
       type: "track-advance",
@@ -583,13 +602,17 @@ describe("parseTrackAdvanceInline", () => {
   it("returns null for invalid syntax", () => {
     expect(parseTrackAdvanceInline("not a track")).toBeNull();
     expect(parseTrackAdvanceInline("iv-track-advance:Name|Path")).toBeNull();
-    expect(parseTrackAdvanceInline("iv-track-advance:Name|Path|a|8|rank|2")).toBeNull();
+    expect(
+      parseTrackAdvanceInline("iv-track-advance:Name|Path|a|8|rank|2"),
+    ).toBeNull();
   });
 });
 
 describe("parseTrackCreateInline", () => {
   it("parses basic track create syntax", () => {
-    const result = parseTrackCreateInline("iv-track-create:My Vow|Progress/My Vow.md");
+    const result = parseTrackCreateInline(
+      "iv-track-create:My Vow|Progress/My Vow.md",
+    );
     expect(result).toEqual({
       type: "track-create",
       name: "My Vow",
@@ -605,7 +628,9 @@ describe("parseTrackCreateInline", () => {
 
 describe("parseTrackCompleteInline", () => {
   it("parses basic track complete syntax", () => {
-    const result = parseTrackCompleteInline("iv-track-complete:My Vow|Progress/My Vow.md");
+    const result = parseTrackCompleteInline(
+      "iv-track-complete:My Vow|Progress/My Vow.md",
+    );
     expect(result).toEqual({
       type: "track-complete",
       name: "My Vow",
@@ -620,7 +645,9 @@ describe("parseTrackCompleteInline", () => {
 
 describe("parseTrackReopenInline", () => {
   it("parses basic track reopen syntax", () => {
-    const result = parseTrackReopenInline("iv-track-reopen:My Vow|Progress/My Vow.md");
+    const result = parseTrackReopenInline(
+      "iv-track-reopen:My Vow|Progress/My Vow.md",
+    );
     expect(result).toEqual({
       type: "track-reopen",
       name: "My Vow",
@@ -635,8 +662,17 @@ describe("parseTrackReopenInline", () => {
 
 describe("trackToInlineSyntax", () => {
   it("generates track advance syntax", () => {
-    const result = trackAdvanceToInlineSyntax("My Vow", "Progress/My Vow.md", 4, 8, "dangerous", 2);
-    expect(result).toBe("`iv-track-advance:My Vow|Progress/My Vow.md|4|8|dangerous|2`");
+    const result = trackAdvanceToInlineSyntax(
+      "My Vow",
+      "Progress/My Vow.md",
+      4,
+      8,
+      "dangerous",
+      2,
+    );
+    expect(result).toBe(
+      "`iv-track-advance:My Vow|Progress/My Vow.md|4|8|dangerous|2`",
+    );
   });
 
   it("generates track create syntax", () => {
@@ -661,7 +697,9 @@ describe("trackToInlineSyntax", () => {
 
 describe("parseClockCreateInline", () => {
   it("parses basic clock create syntax", () => {
-    const result = parseClockCreateInline("iv-clock-create:Danger Approaches|Clocks/Danger.md");
+    const result = parseClockCreateInline(
+      "iv-clock-create:Danger Approaches|Clocks/Danger.md",
+    );
     expect(result).toEqual({
       type: "clock-create",
       name: "Danger Approaches",
@@ -677,7 +715,9 @@ describe("parseClockCreateInline", () => {
 
 describe("parseClockAdvanceInline", () => {
   it("parses clock advance syntax with total", () => {
-    const result = parseClockAdvanceInline("iv-clock-advance:Danger|Clocks/Danger.md|2|4|2|6");
+    const result = parseClockAdvanceInline(
+      "iv-clock-advance:Danger|Clocks/Danger.md|2|4|2|6",
+    );
     expect(result).toEqual({
       type: "clock-advance",
       name: "Danger",
@@ -692,7 +732,9 @@ describe("parseClockAdvanceInline", () => {
 
   it("parses legacy clock advance syntax without total", () => {
     // Legacy format: segments was the 5th field, no total
-    const result = parseClockAdvanceInline("iv-clock-advance:Danger|Clocks/Danger.md|2|4|2");
+    const result = parseClockAdvanceInline(
+      "iv-clock-advance:Danger|Clocks/Danger.md|2|4|2",
+    );
     expect(result).toEqual({
       type: "clock-advance",
       name: "Danger",
@@ -707,7 +749,7 @@ describe("parseClockAdvanceInline", () => {
 
   it("parses clock advance with odds roll", () => {
     const result = parseClockAdvanceInline(
-      "iv-clock-advance:Danger|Clocks/Danger.md|2|4|2|6|odds=Likely:45:Yes"
+      "iv-clock-advance:Danger|Clocks/Danger.md|2|4|2|6|odds=Likely:45:Yes",
     );
     expect(result?.oddsRoll).toEqual({
       odds: "Likely",
@@ -719,7 +761,7 @@ describe("parseClockAdvanceInline", () => {
 
   it("parses clock advance with failed odds roll", () => {
     const result = parseClockAdvanceInline(
-      "iv-clock-advance:Danger|Clocks/Danger.md|2|2|2|6|odds=Unlikely:85:No"
+      "iv-clock-advance:Danger|Clocks/Danger.md|2|2|2|6|odds=Unlikely:85:No",
     );
     expect(result?.oddsRoll).toEqual({
       odds: "Unlikely",
@@ -736,7 +778,9 @@ describe("parseClockAdvanceInline", () => {
 
 describe("parseClockResolveInline", () => {
   it("parses basic clock resolve syntax", () => {
-    const result = parseClockResolveInline("iv-clock-resolve:Danger|Clocks/Danger.md");
+    const result = parseClockResolveInline(
+      "iv-clock-resolve:Danger|Clocks/Danger.md",
+    );
     expect(result).toEqual({
       type: "clock-resolve",
       name: "Danger",
@@ -756,17 +800,34 @@ describe("clockToInlineSyntax", () => {
   });
 
   it("generates clock advance syntax without odds", () => {
-    const result = clockAdvanceToInlineSyntax("Danger", "Clocks/Danger.md", 2, 4, 2, 6);
+    const result = clockAdvanceToInlineSyntax(
+      "Danger",
+      "Clocks/Danger.md",
+      2,
+      4,
+      2,
+      6,
+    );
     expect(result).toBe("`iv-clock-advance:Danger|Clocks/Danger.md|2|4|2|6`");
   });
 
   it("generates clock advance syntax with odds", () => {
-    const result = clockAdvanceToInlineSyntax("Danger", "Clocks/Danger.md", 2, 4, 2, 6, {
-      odds: "Likely",
-      roll: 45,
-      result: "Yes",
-    });
-    expect(result).toBe("`iv-clock-advance:Danger|Clocks/Danger.md|2|4|2|6|odds=Likely:45:Yes`");
+    const result = clockAdvanceToInlineSyntax(
+      "Danger",
+      "Clocks/Danger.md",
+      2,
+      4,
+      2,
+      6,
+      {
+        odds: "Likely",
+        roll: 45,
+        result: "Yes",
+      },
+    );
+    expect(result).toBe(
+      "`iv-clock-advance:Danger|Clocks/Danger.md|2|4|2|6|odds=Likely:45:Yes`",
+    );
   });
 
   it("generates clock resolve syntax", () => {
@@ -825,7 +886,9 @@ describe("parseBurnInline", () => {
 
 describe("parseInitiativeInline", () => {
   it("parses initiative with from and to", () => {
-    const result = parseInitiativeInline("iv-initiative:Initiative|in control|bad spot");
+    const result = parseInitiativeInline(
+      "iv-initiative:Initiative|in control|bad spot",
+    );
     expect(result).toEqual({
       type: "initiative",
       label: "Initiative",
@@ -866,12 +929,20 @@ describe("burnToInlineSyntax", () => {
 
 describe("initiativeToInlineSyntax", () => {
   it("generates initiative syntax with from and to", () => {
-    const result = initiativeToInlineSyntax("Initiative", "in control", "bad spot");
+    const result = initiativeToInlineSyntax(
+      "Initiative",
+      "in control",
+      "bad spot",
+    );
     expect(result).toBe("`iv-initiative:Initiative|in control|bad spot`");
   });
 
   it("generates initiative syntax with only to", () => {
-    const result = initiativeToInlineSyntax("Position", undefined, "in control");
+    const result = initiativeToInlineSyntax(
+      "Position",
+      undefined,
+      "in control",
+    );
     expect(result).toBe("`iv-initiative:Position||in control`");
   });
 });
@@ -882,7 +953,9 @@ describe("initiativeToInlineSyntax", () => {
 
 describe("isInlineMechanics extended", () => {
   it("returns true for track-advance syntax", () => {
-    expect(isInlineMechanics("iv-track-advance:Name|Path|0|4|rank|2")).toBe(true);
+    expect(isInlineMechanics("iv-track-advance:Name|Path|0|4|rank|2")).toBe(
+      true,
+    );
   });
 
   it("returns true for track-create syntax", () => {
@@ -918,7 +991,9 @@ describe("isInlineMechanics extended", () => {
   });
 
   it("returns true for initiative syntax", () => {
-    expect(isInlineMechanics("iv-initiative:Initiative|in control|bad spot")).toBe(true);
+    expect(
+      isInlineMechanics("iv-initiative:Initiative|in control|bad spot"),
+    ).toBe(true);
   });
 });
 
@@ -928,7 +1003,9 @@ describe("isInlineMechanics extended", () => {
 
 describe("parseInlineMechanics extended", () => {
   it("parses track-advance", () => {
-    const result = parseInlineMechanics("iv-track-advance:Name|Path|0|4|rank|2");
+    const result = parseInlineMechanics(
+      "iv-track-advance:Name|Path|0|4|rank|2",
+    );
     expect(result?.type).toBe("track-advance");
   });
 
@@ -973,12 +1050,16 @@ describe("parseInlineMechanics extended", () => {
   });
 
   it("parses initiative", () => {
-    const result = parseInlineMechanics("iv-initiative:Initiative|in control|bad spot");
+    const result = parseInlineMechanics(
+      "iv-initiative:Initiative|in control|bad spot",
+    );
     expect(result?.type).toBe("initiative");
   });
 
   it("parses entity-create", () => {
-    const result = parseInlineMechanics("iv-entity-create:NPC|Kira|Entities/Kira.md");
+    const result = parseInlineMechanics(
+      "iv-entity-create:NPC|Kira|Entities/Kira.md",
+    );
     expect(result?.type).toBe("entity-create");
   });
 });
@@ -989,7 +1070,9 @@ describe("parseInlineMechanics extended", () => {
 
 describe("parseEntityCreateInline", () => {
   it("parses basic entity create syntax", () => {
-    const result = parseEntityCreateInline("iv-entity-create:NPC|Kira|Entities/Kira.md");
+    const result = parseEntityCreateInline(
+      "iv-entity-create:NPC|Kira|Entities/Kira.md",
+    );
     expect(result).toEqual({
       type: "entity-create",
       entityType: "NPC",
@@ -999,7 +1082,9 @@ describe("parseEntityCreateInline", () => {
   });
 
   it("parses entity with spaces in name", () => {
-    const result = parseEntityCreateInline("iv-entity-create:Location|The Frozen Wastes|Locations/The Frozen Wastes.md");
+    const result = parseEntityCreateInline(
+      "iv-entity-create:Location|The Frozen Wastes|Locations/The Frozen Wastes.md",
+    );
     expect(result).toEqual({
       type: "entity-create",
       entityType: "Location",
@@ -1017,19 +1102,31 @@ describe("parseEntityCreateInline", () => {
 
 describe("entityCreateToInlineSyntax", () => {
   it("generates entity create syntax", () => {
-    const result = entityCreateToInlineSyntax("NPC", "Kira", "Entities/Kira.md");
+    const result = entityCreateToInlineSyntax(
+      "NPC",
+      "Kira",
+      "Entities/Kira.md",
+    );
     expect(result).toBe("`iv-entity-create:NPC|Kira|Entities/Kira.md`");
   });
 
   it("generates entity create syntax with spaces", () => {
-    const result = entityCreateToInlineSyntax("Location", "The Frozen Wastes", "Locations/The Frozen Wastes.md");
-    expect(result).toBe("`iv-entity-create:Location|The Frozen Wastes|Locations/The Frozen Wastes.md`");
+    const result = entityCreateToInlineSyntax(
+      "Location",
+      "The Frozen Wastes",
+      "Locations/The Frozen Wastes.md",
+    );
+    expect(result).toBe(
+      "`iv-entity-create:Location|The Frozen Wastes|Locations/The Frozen Wastes.md`",
+    );
   });
 });
 
 describe("isInlineMechanics extended - entity-create", () => {
   it("returns true for entity-create syntax", () => {
-    expect(isInlineMechanics("iv-entity-create:NPC|Kira|Entities/Kira.md")).toBe(true);
+    expect(
+      isInlineMechanics("iv-entity-create:NPC|Kira|Entities/Kira.md"),
+    ).toBe(true);
   });
 });
 
@@ -1103,12 +1200,16 @@ describe("parseActionRollInline", () => {
   });
 
   it("parses action roll with burn", () => {
-    const result = parseActionRollInline("iv-action-roll:Edge|4|2|1|5|9|burn=8:2");
+    const result = parseActionRollInline(
+      "iv-action-roll:Edge|4|2|1|5|9|burn=8:2",
+    );
     expect(result?.burn).toEqual({ orig: 8, reset: 2 });
   });
 
   it("parses action roll with adds detail", () => {
-    const result = parseActionRollInline("iv-action-roll:Iron|4|2|3|3|7|adds=2(Asset),1(Companion)");
+    const result = parseActionRollInline(
+      "iv-action-roll:Iron|4|2|3|3|7|adds=2(Asset),1(Companion)",
+    );
     expect(result?.addsDetail).toEqual([
       { amount: 2, desc: "Asset" },
       { amount: 1, desc: "Companion" },
@@ -1116,7 +1217,9 @@ describe("parseActionRollInline", () => {
   });
 
   it("parses action roll with burn and adds", () => {
-    const result = parseActionRollInline("iv-action-roll:Shadow|4|2|3|3|7|burn=8:2|adds=2(Asset)");
+    const result = parseActionRollInline(
+      "iv-action-roll:Shadow|4|2|3|3|7|burn=8:2|adds=2(Asset)",
+    );
     expect(result?.burn).toEqual({ orig: 8, reset: 2 });
     expect(result?.addsDetail).toEqual([{ amount: 2, desc: "Asset" }]);
   });
@@ -1124,7 +1227,9 @@ describe("parseActionRollInline", () => {
   it("returns null for invalid syntax", () => {
     expect(parseActionRollInline("not an action roll")).toBeNull();
     expect(parseActionRollInline("iv-action-roll:Momentum|3")).toBeNull();
-    expect(parseActionRollInline("iv-action-roll:Momentum|a|9|0|5|4")).toBeNull();
+    expect(
+      parseActionRollInline("iv-action-roll:Momentum|a|9|0|5|4"),
+    ).toBeNull();
   });
 });
 
@@ -1135,7 +1240,10 @@ describe("actionRollToInlineSyntax", () => {
   });
 
   it("generates action roll syntax with burn", () => {
-    const result = actionRollToInlineSyntax("Edge", 4, 2, 1, 5, 9, undefined, { orig: 8, reset: 2 });
+    const result = actionRollToInlineSyntax("Edge", 4, 2, 1, 5, 9, undefined, {
+      orig: 8,
+      reset: 2,
+    });
     expect(result).toBe("`iv-action-roll:Edge|4|2|1|5|9|burn=8:2`");
   });
 
@@ -1144,12 +1252,25 @@ describe("actionRollToInlineSyntax", () => {
       { amount: 2, desc: "Asset" },
       { amount: 1, desc: "Companion" },
     ]);
-    expect(result).toBe("`iv-action-roll:Iron|4|2|3|3|7|adds=2(Asset),1(Companion)`");
+    expect(result).toBe(
+      "`iv-action-roll:Iron|4|2|3|3|7|adds=2(Asset),1(Companion)`",
+    );
   });
 
   it("generates action roll syntax with burn and adds", () => {
-    const result = actionRollToInlineSyntax("Shadow", 4, 2, 2, 3, 7, [{ amount: 2, desc: "Asset" }], { orig: 8, reset: 2 });
-    expect(result).toBe("`iv-action-roll:Shadow|4|2|2|3|7|burn=8:2|adds=2(Asset)`");
+    const result = actionRollToInlineSyntax(
+      "Shadow",
+      4,
+      2,
+      2,
+      3,
+      7,
+      [{ amount: 2, desc: "Asset" }],
+      { orig: 8, reset: 2 },
+    );
+    expect(result).toBe(
+      "`iv-action-roll:Shadow|4|2|2|3|7|burn=8:2|adds=2(Asset)`",
+    );
   });
 });
 
@@ -1179,10 +1300,7 @@ describe("parseInlineMechanics extended - dice and action rolls", () => {
 // Reroll Tests
 // ============================================================================
 
-import {
-  parseRerollInline,
-  rerollToInlineSyntax,
-} from "./syntax";
+import { parseRerollInline, rerollToInlineSyntax } from "./syntax";
 
 describe("parseRerollInline", () => {
   it("parses basic reroll syntax for action die", () => {
@@ -1234,7 +1352,9 @@ describe("parseRerollInline", () => {
   });
 
   it("returns null for invalid die name", () => {
-    expect(parseRerollInline("iv-reroll:invalid|3|6|Edge|2|1|5|9|3")).toBeNull();
+    expect(
+      parseRerollInline("iv-reroll:invalid|3|6|Edge|2|1|5|9|3"),
+    ).toBeNull();
   });
 
   it("returns null for missing parts", () => {

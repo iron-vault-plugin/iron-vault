@@ -139,7 +139,13 @@ export async function rerollDie(
   if (plugin.settings.useInlineDiceRolls) {
     const inlineRoll = findPrecedingInlineRoll(editor);
     if (inlineRoll) {
-      await handleInlineReroll(plugin, editor, actionContext, diceRoller, inlineRoll);
+      await handleInlineReroll(
+        plugin,
+        editor,
+        actionContext,
+        diceRoller,
+        inlineRoll,
+      );
       return;
     }
     // No inline roll found, fall through to block-based reroll
@@ -234,9 +240,10 @@ function findPrecedingInlineRoll(
     const matches = [...lineText.matchAll(/`([^`]+)`/g)];
 
     // If we're on the cursor line, only consider matches before the cursor
-    const relevantMatches = line === lineNum
-      ? matches.filter((m) => (m.index ?? 0) + m[0].length <= cursor.ch)
-      : matches;
+    const relevantMatches =
+      line === lineNum
+        ? matches.filter((m) => (m.index ?? 0) + m[0].length <= cursor.ch)
+        : matches;
 
     // Check matches from end to start (most recent first)
     for (let i = relevantMatches.length - 1; i >= 0; i--) {
@@ -260,8 +267,13 @@ async function handleInlineReroll(
   plugin: IronVaultPlugin,
   editor: Editor,
   actionContext: Awaited<ReturnType<typeof determineCharacterActionContext>>,
-  diceRoller: Awaited<ReturnType<typeof actionContext.campaignContext.diceRollerFor>>,
-  inlineRoll: { parsed: ParsedInlineMove | ParsedInlineActionRoll; raw: string },
+  diceRoller: Awaited<
+    ReturnType<typeof actionContext.campaignContext.diceRollerFor>
+  >,
+  inlineRoll: {
+    parsed: ParsedInlineMove | ParsedInlineActionRoll;
+    raw: string;
+  },
 ): Promise<void> {
   const { parsed } = inlineRoll;
 

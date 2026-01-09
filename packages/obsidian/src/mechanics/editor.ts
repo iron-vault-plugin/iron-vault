@@ -232,7 +232,7 @@ export function insertInlineActionRoll(
   const rawAdds = move.adds;
   let addsArray: { amount: number; desc?: string }[];
   let totalAdds: number;
-  
+
   if (typeof rawAdds === "number") {
     totalAdds = rawAdds;
     addsArray = totalAdds > 0 ? [{ amount: totalAdds }] : [];

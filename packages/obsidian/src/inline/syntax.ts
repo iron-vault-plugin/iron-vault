@@ -7,9 +7,17 @@
  * - Progress: `iv-progress:<moveName>|<trackName>|<score>|<vs1>|<vs2>[|<trackPath>][|<moveId>]`
  */
 
-import { ActionMoveDescription, ActionMoveAdd, ProgressMoveDescription, NoRollMoveDescription } from "moves/desc";
+import {
+  ActionMoveDescription,
+  ActionMoveAdd,
+  ProgressMoveDescription,
+  NoRollMoveDescription,
+} from "moves/desc";
 import { RollWrapper } from "model/rolls";
-import { extractDataswornLinkParts, parseDataswornLinks } from "datastore/parsers/datasworn/id";
+import {
+  extractDataswornLinkParts,
+  parseDataswornLinks,
+} from "datastore/parsers/datasworn/id";
 
 /**
  * Strip datasworn markdown links from text, keeping only the label.
@@ -265,7 +273,7 @@ function parseAddsDetail(addsStr: string): ActionMoveAdd[] {
  */
 function formatAddsDetail(adds: ActionMoveAdd[]): string {
   return adds
-    .map(({ amount, desc }) => desc ? `${amount}(${desc})` : `${amount}`)
+    .map(({ amount, desc }) => (desc ? `${amount}(${desc})` : `${amount}`))
     .join(",");
 }
 
@@ -531,7 +539,7 @@ export function moveToInlineSyntax(move: ActionMoveDescription): string {
   const rawAdds = move.adds;
   let addsArray: ActionMoveAdd[];
   let totalAdds: number;
-  
+
   if (typeof rawAdds === "number") {
     // V1 format: adds is just a number
     totalAdds = rawAdds;
@@ -541,7 +549,7 @@ export function moveToInlineSyntax(move: ActionMoveDescription): string {
     addsArray = rawAdds ?? [];
     totalAdds = addsArray.reduce((a, b) => a + b.amount, 0);
   }
-  
+
   const parts: (string | number)[] = [
     move.name,
     move.stat,
@@ -587,10 +595,12 @@ function extractNameAndPath(text: string): { name: string; path?: string } {
  */
 export function progressToInlineSyntax(move: ProgressMoveDescription): string {
   // Extract display name and path from wiki-link
-  const { name: trackName, path: trackPath } = extractNameAndPath(move.progressTrack);
+  const { name: trackName, path: trackPath } = extractNameAndPath(
+    move.progressTrack,
+  );
   const parts: (string | number)[] = [
-    move.name,  // Move name first (e.g., "Fulfill Your Vow")
-    trackName,  // Track name second (e.g., "My Vow")
+    move.name, // Move name first (e.g., "Fulfill Your Vow")
+    trackName, // Track name second (e.g., "My Vow")
     Math.floor(move.progressTicks / 4),
     move.challenge1,
     move.challenge2,
@@ -625,12 +635,12 @@ export function oracleToInlineSyntax(roll: RollWrapper): string {
   // For Multi results (like "Roll twice"), we need to get the actual sub-roll results
   // Strip datasworn links to get clean text (e.g., "[Action](datasworn:...)" -> "Action")
   let resultText: string;
-  
+
   // Check if this is a Multi result (like "Roll twice") where we need sub-roll results
   const hasNonTemplateSubrolls = Object.values(roll.subrolls).some(
-    (subroll) => !subroll.inTemplate && subroll.rolls.length > 0
+    (subroll) => !subroll.inTemplate && subroll.rolls.length > 0,
   );
-  
+
   if (hasNonTemplateSubrolls) {
     // For Multi results, collect all the sub-roll results
     const subResults: string[] = [];
@@ -646,7 +656,7 @@ export function oracleToInlineSyntax(roll: RollWrapper): string {
     // For Simple or Templated results, ownResult handles it
     resultText = stripDataswornLinks(roll.ownResult);
   }
-  
+
   const parts: (string | number)[] = [
     roll.oracle.name,
     roll.roll.roll,
@@ -679,7 +689,9 @@ export function determineOutcome(
 /**
  * Get human-readable outcome text.
  */
-export function outcomeText(outcome: "strong-hit" | "weak-hit" | "miss"): string {
+export function outcomeText(
+  outcome: "strong-hit" | "weak-hit" | "miss",
+): string {
   switch (outcome) {
     case "strong-hit":
       return "Strong hit";
@@ -693,7 +705,10 @@ export function outcomeText(outcome: "strong-hit" | "weak-hit" | "miss"): string
 /**
  * Format adds for display (like mechanics blocks do).
  */
-export function formatAddsForDisplay(addsDetail?: ActionMoveAdd[], totalAdds?: number): string {
+export function formatAddsForDisplay(
+  addsDetail?: ActionMoveAdd[],
+  totalAdds?: number,
+): string {
   if (!addsDetail || addsDetail.length === 0) {
     return totalAdds !== undefined ? `${totalAdds}` : "0";
   }
@@ -710,7 +725,9 @@ export function formatAddsForDisplay(addsDetail?: ActionMoveAdd[], totalAdds?: n
  * Parse inline track advance syntax.
  * Format: `iv-track-advance:<name>|<path>|<from>|<to>|<rank>|<steps>`
  */
-export function parseTrackAdvanceInline(text: string): ParsedInlineTrackAdvance | null {
+export function parseTrackAdvanceInline(
+  text: string,
+): ParsedInlineTrackAdvance | null {
   if (!text.startsWith(TRACK_ADVANCE_PREFIX)) return null;
 
   const content = text.slice(TRACK_ADVANCE_PREFIX.length);
@@ -741,7 +758,9 @@ export function parseTrackAdvanceInline(text: string): ParsedInlineTrackAdvance 
  * Parse inline track create syntax.
  * Format: `iv-track-create:<name>|<path>`
  */
-export function parseTrackCreateInline(text: string): ParsedInlineTrackCreate | null {
+export function parseTrackCreateInline(
+  text: string,
+): ParsedInlineTrackCreate | null {
   if (!text.startsWith(TRACK_CREATE_PREFIX)) return null;
 
   const content = text.slice(TRACK_CREATE_PREFIX.length);
@@ -762,7 +781,9 @@ export function parseTrackCreateInline(text: string): ParsedInlineTrackCreate | 
  * Parse inline track complete syntax.
  * Format: `iv-track-complete:<name>|<path>`
  */
-export function parseTrackCompleteInline(text: string): ParsedInlineTrackComplete | null {
+export function parseTrackCompleteInline(
+  text: string,
+): ParsedInlineTrackComplete | null {
   if (!text.startsWith(TRACK_COMPLETE_PREFIX)) return null;
 
   const content = text.slice(TRACK_COMPLETE_PREFIX.length);
@@ -783,7 +804,9 @@ export function parseTrackCompleteInline(text: string): ParsedInlineTrackComplet
  * Parse inline track reopen syntax.
  * Format: `iv-track-reopen:<name>|<path>`
  */
-export function parseTrackReopenInline(text: string): ParsedInlineTrackReopen | null {
+export function parseTrackReopenInline(
+  text: string,
+): ParsedInlineTrackReopen | null {
   if (!text.startsWith(TRACK_REOPEN_PREFIX)) return null;
 
   const content = text.slice(TRACK_REOPEN_PREFIX.length);
@@ -826,7 +849,10 @@ export function trackCreateToInlineSyntax(name: string, path: string): string {
 /**
  * Generate inline syntax for track complete.
  */
-export function trackCompleteToInlineSyntax(name: string, path: string): string {
+export function trackCompleteToInlineSyntax(
+  name: string,
+  path: string,
+): string {
   const parts = [name, path];
   return `\`${TRACK_COMPLETE_PREFIX}${parts.join("|")}\``;
 }
@@ -847,7 +873,9 @@ export function trackReopenToInlineSyntax(name: string, path: string): string {
  * Parse inline clock create syntax.
  * Format: `iv-clock-create:<name>|<path>`
  */
-export function parseClockCreateInline(text: string): ParsedInlineClockCreate | null {
+export function parseClockCreateInline(
+  text: string,
+): ParsedInlineClockCreate | null {
   if (!text.startsWith(CLOCK_CREATE_PREFIX)) return null;
 
   const content = text.slice(CLOCK_CREATE_PREFIX.length);
@@ -869,7 +897,9 @@ export function parseClockCreateInline(text: string): ParsedInlineClockCreate | 
  * Format: `iv-clock-advance:<name>|<path>|<from>|<to>|<segments>|<total>[|odds=<odds>:<roll>:<result>]`
  * Legacy format (backward compatible): `iv-clock-advance:<name>|<path>|<from>|<to>|<segments>[|odds=...]`
  */
-export function parseClockAdvanceInline(text: string): ParsedInlineClockAdvance | null {
+export function parseClockAdvanceInline(
+  text: string,
+): ParsedInlineClockAdvance | null {
   if (!text.startsWith(CLOCK_ADVANCE_PREFIX)) return null;
 
   const content = text.slice(CLOCK_ADVANCE_PREFIX.length);
@@ -888,8 +918,12 @@ export function parseClockAdvanceInline(text: string): ParsedInlineClockAdvance 
   // Check if next part is total (a number) or odds/other
   let total: number;
   let remainingParts = rest;
-  
-  if (rest.length > 0 && !rest[0].startsWith("odds=") && !isNaN(parseInt(rest[0], 10))) {
+
+  if (
+    rest.length > 0 &&
+    !rest[0].startsWith("odds=") &&
+    !isNaN(parseInt(rest[0], 10))
+  ) {
     total = parseInt(rest[0], 10);
     remainingParts = rest.slice(1);
   } else {
@@ -898,7 +932,9 @@ export function parseClockAdvanceInline(text: string): ParsedInlineClockAdvance 
     total = to <= 4 ? 4 : to <= 6 ? 6 : to <= 8 ? 8 : 10;
   }
 
-  let oddsRoll: { odds: string; roll: number; result: "Yes" | "No" } | undefined;
+  let oddsRoll:
+    | { odds: string; roll: number; result: "Yes" | "No" }
+    | undefined;
 
   for (const part of remainingParts) {
     if (part.startsWith("odds=")) {
@@ -929,7 +965,9 @@ export function parseClockAdvanceInline(text: string): ParsedInlineClockAdvance 
  * Parse inline clock resolve syntax.
  * Format: `iv-clock-resolve:<name>|<path>`
  */
-export function parseClockResolveInline(text: string): ParsedInlineClockResolve | null {
+export function parseClockResolveInline(
+  text: string,
+): ParsedInlineClockResolve | null {
   if (!text.startsWith(CLOCK_RESOLVE_PREFIX)) return null;
 
   const content = text.slice(CLOCK_RESOLVE_PREFIX.length);
@@ -1042,7 +1080,9 @@ export function parseBurnInline(text: string): ParsedInlineBurn | null {
  * Parse inline initiative syntax.
  * Format: `iv-initiative:<label>|<from>|<to>` or `iv-initiative:<label>||<to>` or `iv-initiative:<label>|<from>|`
  */
-export function parseInitiativeInline(text: string): ParsedInlineInitiative | null {
+export function parseInitiativeInline(
+  text: string,
+): ParsedInlineInitiative | null {
   if (!text.startsWith(INITIATIVE_PREFIX)) return null;
 
   const content = text.slice(INITIATIVE_PREFIX.length);
@@ -1063,7 +1103,11 @@ export function parseInitiativeInline(text: string): ParsedInlineInitiative | nu
 /**
  * Generate inline syntax for meter change.
  */
-export function meterToInlineSyntax(name: string, from: number, to: number): string {
+export function meterToInlineSyntax(
+  name: string,
+  from: number,
+  to: number,
+): string {
   const parts = [name, from, to];
   return `\`${METER_PREFIX}${parts.join("|")}\``;
 }
@@ -1096,7 +1140,9 @@ export function initiativeToInlineSyntax(
  * Parse inline entity create syntax.
  * Format: `iv-entity-create:<entityType>|<name>|<path>`
  */
-export function parseEntityCreateInline(text: string): ParsedInlineEntityCreate | null {
+export function parseEntityCreateInline(
+  text: string,
+): ParsedInlineEntityCreate | null {
   if (!text.startsWith(ENTITY_CREATE_PREFIX)) return null;
 
   const content = text.slice(ENTITY_CREATE_PREFIX.length);
@@ -1157,7 +1203,10 @@ export function parseDiceRollInline(text: string): ParsedInlineDiceRoll | null {
 /**
  * Generate inline syntax for dice roll.
  */
-export function diceRollToInlineSyntax(expression: string, result: number): string {
+export function diceRollToInlineSyntax(
+  expression: string,
+  result: number,
+): string {
   const parts = [expression, result];
   return `\`${DICE_ROLL_PREFIX}${parts.join("|")}\``;
 }
@@ -1170,7 +1219,9 @@ export function diceRollToInlineSyntax(expression: string, result: number): stri
  * Parse inline action roll syntax.
  * Format: `iv-action-roll:<stat>|<action>|<statVal>|<adds>|<vs1>|<vs2>[|burn=<orig>:<reset>][|adds=<detail>]`
  */
-export function parseActionRollInline(text: string): ParsedInlineActionRoll | null {
+export function parseActionRollInline(
+  text: string,
+): ParsedInlineActionRoll | null {
   if (!text.startsWith(ACTION_ROLL_PREFIX)) return null;
 
   const content = text.slice(ACTION_ROLL_PREFIX.length);
@@ -1256,7 +1307,17 @@ export function parseRerollInline(text: string): ParsedInlineReroll | null {
 
   if (parts.length < 9) return null;
 
-  const [die, oldValStr, newValStr, stat, statValStr, addsStr, vs1Str, vs2Str, actionStr] = parts;
+  const [
+    die,
+    oldValStr,
+    newValStr,
+    stat,
+    statValStr,
+    addsStr,
+    vs1Str,
+    vs2Str,
+    actionStr,
+  ] = parts;
 
   if (die !== "action" && die !== "vs1" && die !== "vs2") return null;
 
@@ -1268,7 +1329,8 @@ export function parseRerollInline(text: string): ParsedInlineReroll | null {
   const vs2 = parseInt(vs2Str, 10);
   const action = parseInt(actionStr, 10);
 
-  if ([oldVal, newVal, statVal, adds, vs1, vs2, action].some(isNaN)) return null;
+  if ([oldVal, newVal, statVal, adds, vs1, vs2, action].some(isNaN))
+    return null;
 
   return {
     type: "reroll",

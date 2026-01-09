@@ -24,7 +24,9 @@ function formatExpressionWithRolls(
   expr: ExprNode<{ value: number; rolls?: number[] }>,
 ): string {
   // Pre-scan to detect if expression has any operations (binary/unary)
-  function hasOperations(node: ExprNode<{ value: number; rolls?: number[] }>): boolean {
+  function hasOperations(
+    node: ExprNode<{ value: number; rolls?: number[] }>,
+  ): boolean {
     if ("left" in node && "right" in node && "operator" in node) {
       return true;
     }
@@ -37,7 +39,9 @@ function formatExpressionWithRolls(
   const exprHasOperations = hasOperations(expr);
 
   // Walk the expression tree and build a formatted string
-  function formatNode(node: ExprNode<{ value: number; rolls?: number[] }>): string {
+  function formatNode(
+    node: ExprNode<{ value: number; rolls?: number[] }>,
+  ): string {
     // Check if this is a dice node by looking for rolls in the label
     if (node.label.rolls && node.label.rolls.length > 0) {
       const rolls = node.label.rolls;

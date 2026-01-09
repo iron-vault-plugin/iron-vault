@@ -51,7 +51,9 @@ export async function advanceProgressTrack(
   );
 
   const fromProgress = trackContext.track.progress;
-  const updatedTrack = await trackContext.process((trackAdapter) => trackAdapter.advanced(steps));
+  const updatedTrack = await trackContext.process((trackAdapter) =>
+    trackAdapter.advanced(steps),
+  );
 
   // Use inline if setting is enabled
   if (plugin.settings.useInlineProgressTracks) {
@@ -107,7 +109,10 @@ export async function createProgressTrack(
   } else {
     appendNodesToMoveOrMechanicsBlock(
       editor,
-      createTrackCreationNode(stripMarkdown(plugin, trackInput.name), file.path),
+      createTrackCreationNode(
+        stripMarkdown(plugin, trackInput.name),
+        file.path,
+      ),
       ...(plugin.settings.inlineOnCreation
         ? [createDetailsNode(`![[${file.path}|iv-embed]]`)]
         : []),

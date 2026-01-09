@@ -49,13 +49,20 @@ export function renderInlineMove(
   plugin: IronVaultPlugin,
 ): HTMLSpanElement {
   // Calculate the original score (before burn)
-  const originalScore = Math.min(10, parsed.action + parsed.statVal + parsed.adds);
-  
+  const originalScore = Math.min(
+    10,
+    parsed.action + parsed.statVal + parsed.adds,
+  );
+
   // If burn was used, the effective score is the burn.orig (momentum value)
   const effectiveScore = parsed.burn ? parsed.burn.orig : originalScore;
-  
+
   // Determine outcome based on effective score
-  const { outcome, match } = determineOutcome(effectiveScore, parsed.vs1, parsed.vs2);
+  const { outcome, match } = determineOutcome(
+    effectiveScore,
+    parsed.vs1,
+    parsed.vs2,
+  );
 
   const outcomeClass = match ? `${outcome} match` : outcome;
   const container = createContainer(outcomeClass);
@@ -147,15 +154,16 @@ export function renderInlineMove(
 
   // Outcome text (in tooltip) - include adds breakdown if available
   let outcomeLabel = outcomeText(outcome) + (match ? " (match)" : "");
-  
+
   // Add roll breakdown to tooltip with minimal labels
   const addsDisplay = formatAddsForDisplay(parsed.addsDetail, parsed.adds);
-  const hasAdds = parsed.adds > 0 || (parsed.addsDetail && parsed.addsDetail.length > 0);
+  const hasAdds =
+    parsed.adds > 0 || (parsed.addsDetail && parsed.addsDetail.length > 0);
   const rollBreakdown = hasAdds
     ? `${parsed.action} (roll) + ${parsed.statVal} (${parsed.stat}) + ${addsDisplay} = ${originalScore}`
     : `${parsed.action} (roll) + ${parsed.statVal} (${parsed.stat}) = ${originalScore}`;
   outcomeLabel += `\n${rollBreakdown}`;
-  
+
   if (parsed.burn) {
     outcomeLabel += `\nBurned momentum (${parsed.burn.orig}→${parsed.burn.reset})`;
   }
@@ -248,7 +256,10 @@ export function renderInlineProgress(
   container.appendChild(iconEl);
 
   // Move name (clickable if we have a moveId)
-  const moveNameEl = createSpan({ cls: "iv-inline-move-name", text: parsed.moveName });
+  const moveNameEl = createSpan({
+    cls: "iv-inline-move-name",
+    text: parsed.moveName,
+  });
   if (parsed.moveId) {
     moveNameEl.addClass("iv-inline-link");
     moveNameEl.setAttribute("data-move-id", parsed.moveId);
@@ -738,7 +749,10 @@ export function renderInlineBurn(
   container.appendChild(changeEl);
 
   // Tooltip
-  container.setAttribute("aria-label", `Burned momentum: ${parsed.from} → ${parsed.to}`);
+  container.setAttribute(
+    "aria-label",
+    `Burned momentum: ${parsed.from} → ${parsed.to}`,
+  );
   container.setAttribute("data-tooltip-position", "top");
 
   return container;
@@ -885,7 +899,9 @@ export function renderInlineDiceRoll(
   container.appendChild(exprEl);
 
   // Arrow
-  container.appendChild(createSpan({ cls: "iv-inline-dice-arrow", text: " → " }));
+  container.appendChild(
+    createSpan({ cls: "iv-inline-dice-arrow", text: " → " }),
+  );
 
   // Result
   const resultEl = createSpan({
@@ -895,7 +911,10 @@ export function renderInlineDiceRoll(
   container.appendChild(resultEl);
 
   // Tooltip
-  container.setAttribute("aria-label", `${parsed.expression} = ${parsed.result}`);
+  container.setAttribute(
+    "aria-label",
+    `${parsed.expression} = ${parsed.result}`,
+  );
   container.setAttribute("data-tooltip-position", "top");
 
   return container;
@@ -913,13 +932,20 @@ export function renderInlineActionRoll(
   _plugin: IronVaultPlugin,
 ): HTMLSpanElement {
   // Calculate the original score (before burn)
-  const originalScore = Math.min(10, parsed.action + parsed.statVal + parsed.adds);
-  
+  const originalScore = Math.min(
+    10,
+    parsed.action + parsed.statVal + parsed.adds,
+  );
+
   // If burn was used, the effective score is the burn.orig (momentum value)
   const effectiveScore = parsed.burn ? parsed.burn.orig : originalScore;
-  
+
   // Determine outcome based on effective score
-  const { outcome, match } = determineOutcome(effectiveScore, parsed.vs1, parsed.vs2);
+  const { outcome, match } = determineOutcome(
+    effectiveScore,
+    parsed.vs1,
+    parsed.vs2,
+  );
 
   const outcomeClass = match ? `${outcome} match` : outcome;
   const container = createContainer(outcomeClass);
@@ -981,15 +1007,16 @@ export function renderInlineActionRoll(
 
   // Outcome text (in tooltip) - include adds breakdown if available
   let outcomeLabel = outcomeText(outcome) + (match ? " (match)" : "");
-  
+
   // Add roll breakdown to tooltip with minimal labels
   const addsDisplay = formatAddsForDisplay(parsed.addsDetail, parsed.adds);
-  const hasAdds = parsed.adds > 0 || (parsed.addsDetail && parsed.addsDetail.length > 0);
+  const hasAdds =
+    parsed.adds > 0 || (parsed.addsDetail && parsed.addsDetail.length > 0);
   const rollBreakdown = hasAdds
     ? `${parsed.action} (roll) + ${parsed.statVal} (${parsed.stat}) + ${addsDisplay} = ${originalScore}`
     : `${parsed.action} (roll) + ${parsed.statVal} (${parsed.stat}) = ${originalScore}`;
   outcomeLabel += `\n${rollBreakdown}`;
-  
+
   if (parsed.burn) {
     outcomeLabel += `\nBurned momentum (${parsed.burn.orig}→${parsed.burn.reset})`;
   }
@@ -1012,17 +1039,22 @@ export function renderInlineReroll(
   _plugin: IronVaultPlugin,
 ): HTMLSpanElement {
   // Calculate the new action value (if action was rerolled, use newVal; otherwise use original)
-  const effectiveAction = parsed.die === "action" ? parsed.newVal : parsed.action;
-  
+  const effectiveAction =
+    parsed.die === "action" ? parsed.newVal : parsed.action;
+
   // Calculate the new challenge dice values
   const effectiveVs1 = parsed.die === "vs1" ? parsed.newVal : parsed.vs1;
   const effectiveVs2 = parsed.die === "vs2" ? parsed.newVal : parsed.vs2;
-  
+
   // Calculate the new score
   const newScore = Math.min(10, effectiveAction + parsed.statVal + parsed.adds);
-  
+
   // Determine outcome based on new values
-  const { outcome, match } = determineOutcome(newScore, effectiveVs1, effectiveVs2);
+  const { outcome, match } = determineOutcome(
+    newScore,
+    effectiveVs1,
+    effectiveVs2,
+  );
 
   const outcomeClass = match ? `${outcome} match` : outcome;
   const container = createContainer(`reroll ${outcomeClass}`);
@@ -1082,8 +1114,13 @@ export function renderInlineReroll(
   }
 
   // Tooltip with details
-  const dieFullLabel = parsed.die === "action" ? "Action die" : parsed.die === "vs1" ? "Challenge die 1" : "Challenge die 2";
-  let tooltipText = `${outcomeText(outcome)}${match ? " (match)" : ""}\nRerolled ${dieFullLabel}: ${parsed.oldVal} → ${parsed.newVal}`;
+  const dieFullLabel =
+    parsed.die === "action"
+      ? "Action die"
+      : parsed.die === "vs1"
+        ? "Challenge die 1"
+        : "Challenge die 2";
+  const tooltipText = `${outcomeText(outcome)}${match ? " (match)" : ""}\nRerolled ${dieFullLabel}: ${parsed.oldVal} → ${parsed.newVal}`;
   container.setAttribute("aria-label", tooltipText);
   container.setAttribute("data-tooltip-position", "top");
 
