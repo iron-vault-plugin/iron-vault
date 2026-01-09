@@ -247,21 +247,41 @@ export function renderInlineProgress(
   const iconEl = createSpan({ cls: "iv-inline-outcome-icon" });
   container.appendChild(iconEl);
 
-  // Track name (clickable if we have a path)
-  const nameEl = createSpan({
-    cls: "iv-inline-progress-name",
-    text: parsed.trackName,
-  });
-  if (parsed.trackPath) {
-    nameEl.addClass("iv-inline-link");
-    nameEl.setAttribute("data-track-path", parsed.trackPath);
-    nameEl.addEventListener("click", (e) => {
+  // Move name (clickable if we have a moveId)
+  const moveNameEl = createSpan({ cls: "iv-inline-move-name", text: parsed.moveName });
+  if (parsed.moveId) {
+    moveNameEl.addClass("iv-inline-link");
+    moveNameEl.setAttribute("data-move-id", parsed.moveId);
+    moveNameEl.addEventListener("click", (e) => {
       e.stopPropagation();
       e.preventDefault();
-      plugin.app.workspace.openLinkText(parsed.trackPath!, "");
+
+      // Match the behavior of mechanics blocks:
+      // - If useLegacyMoveModal is enabled, open the modal
+      // - Otherwise, open in sidebar
+      if (plugin.settings.useLegacyMoveModal) {
+        const move = plugin.datastore.dataContext.moves.get(parsed.moveId!);
+        if (move) {
+          new MoveModal(
+            plugin.app,
+            plugin,
+            plugin.datastore.dataContext,
+            move,
+          ).open();
+        }
+      } else {
+        SidebarView.activate(plugin.app, parsed.moveId!);
+      }
     });
   }
-  container.appendChild(nameEl);
+  container.appendChild(moveNameEl);
+
+  // Track name in parentheses (secondary info)
+  const trackEl = createSpan({
+    cls: "iv-inline-progress-track",
+    text: ` (${parsed.trackName})`,
+  });
+  container.appendChild(trackEl);
 
   // Separator
   container.appendChild(createSpan({ cls: "iv-inline-separator", text: "—" }));

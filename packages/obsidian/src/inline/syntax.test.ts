@@ -128,11 +128,13 @@ describe("parseOracleInline", () => {
 });
 
 describe("parseProgressInline", () => {
-  it("parses basic progress syntax without path", () => {
-    const result = parseProgressInline("iv-progress:Escape the Vault|7|3|9");
+  it("parses progress syntax with move name and track name", () => {
+    const result = parseProgressInline("iv-progress:Fulfill Your Vow|My Vow|7|3|9");
     expect(result).toEqual({
       type: "progress",
-      trackName: "Escape the Vault",
+      moveName: "Fulfill Your Vow",
+      moveId: undefined,
+      trackName: "My Vow",
       trackPath: undefined,
       score: 7,
       vs1: 3,
@@ -140,10 +142,12 @@ describe("parseProgressInline", () => {
     });
   });
 
-  it("parses progress syntax with path", () => {
-    const result = parseProgressInline("iv-progress:My Vow|7|3|9|Campaign/Progress/My Vow.md");
+  it("parses progress syntax with move name, track name, and path", () => {
+    const result = parseProgressInline("iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md");
     expect(result).toEqual({
       type: "progress",
+      moveName: "Fulfill Your Vow",
+      moveId: undefined,
       trackName: "My Vow",
       trackPath: "Campaign/Progress/My Vow.md",
       score: 7,
@@ -152,10 +156,38 @@ describe("parseProgressInline", () => {
     });
   });
 
+  it("parses progress syntax with move name, track name, path, and move ID", () => {
+    const result = parseProgressInline("iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md|move:starforged/quest/fulfill_your_vow");
+    expect(result).toEqual({
+      type: "progress",
+      moveName: "Fulfill Your Vow",
+      moveId: "move:starforged/quest/fulfill_your_vow",
+      trackName: "My Vow",
+      trackPath: "Campaign/Progress/My Vow.md",
+      score: 7,
+      vs1: 3,
+      vs2: 9,
+    });
+  });
+
+  it("parses progress syntax with move name, track name, and move ID (no path)", () => {
+    const result = parseProgressInline("iv-progress:Fulfill Your Vow|My Vow|7|3|9|move:starforged/quest/fulfill_your_vow");
+    expect(result).toEqual({
+      type: "progress",
+      moveName: "Fulfill Your Vow",
+      moveId: "move:starforged/quest/fulfill_your_vow",
+      trackName: "My Vow",
+      trackPath: undefined,
+      score: 7,
+      vs1: 3,
+      vs2: 9,
+    });
+  });
+
   it("returns null for invalid syntax", () => {
     expect(parseProgressInline("not a progress")).toBeNull();
-    expect(parseProgressInline("iv-progress:Track|7")).toBeNull();
-    expect(parseProgressInline("iv-progress:Track|a|3|9")).toBeNull();
+    expect(parseProgressInline("iv-progress:Move|Track|7")).toBeNull();
+    expect(parseProgressInline("iv-progress:Move|Track|a|3|9")).toBeNull();
   });
 });
 
@@ -198,7 +230,7 @@ describe("parseInlineMechanics", () => {
   });
 
   it("parses progress", () => {
-    const result = parseInlineMechanics("iv-progress:Track|7|3|9");
+    const result = parseInlineMechanics("iv-progress:Fulfill Your Vow|Track|7|3|9");
     expect(result?.type).toBe("progress");
   });
 
@@ -326,7 +358,7 @@ describe("formatAddsForDisplay", () => {
 });
 
 describe("progressToInlineSyntax", () => {
-  it("extracts display name and path from wiki-link with alias", () => {
+  it("generates syntax with move name, track name, and path from wiki-link with alias", () => {
     const move = {
       name: "Fulfill Your Vow",
       progressTrack: "[[Campaign/Progress/My Vow.md|My Vow]]",
@@ -335,10 +367,10 @@ describe("progressToInlineSyntax", () => {
       challenge2: 9,
     };
     const result = progressToInlineSyntax(move);
-    expect(result).toBe("`iv-progress:My Vow|7|3|9|Campaign/Progress/My Vow.md`");
+    expect(result).toBe("`iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md`");
   });
 
-  it("extracts filename and path from wiki-link without alias", () => {
+  it("generates syntax with move name, track name, and path from wiki-link without alias", () => {
     const move = {
       name: "Fulfill Your Vow",
       progressTrack: "[[Campaign/Progress/My Vow.md]]",
@@ -347,10 +379,10 @@ describe("progressToInlineSyntax", () => {
       challenge2: 9,
     };
     const result = progressToInlineSyntax(move);
-    expect(result).toBe("`iv-progress:My Vow|7|3|9|Campaign/Progress/My Vow.md`");
+    expect(result).toBe("`iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md`");
   });
 
-  it("handles plain text track names (no path)", () => {
+  it("generates syntax with move name and track name (no path)", () => {
     const move = {
       name: "Fulfill Your Vow",
       progressTrack: "My Vow",
@@ -359,7 +391,33 @@ describe("progressToInlineSyntax", () => {
       challenge2: 9,
     };
     const result = progressToInlineSyntax(move);
-    expect(result).toBe("`iv-progress:My Vow|7|3|9`");
+    expect(result).toBe("`iv-progress:Fulfill Your Vow|My Vow|7|3|9`");
+  });
+
+  it("generates syntax with move name, track name, path, and move ID", () => {
+    const move = {
+      id: "move:starforged/quest/fulfill_your_vow",
+      name: "Fulfill Your Vow",
+      progressTrack: "[[Campaign/Progress/My Vow.md|My Vow]]",
+      progressTicks: 28,
+      challenge1: 3,
+      challenge2: 9,
+    };
+    const result = progressToInlineSyntax(move);
+    expect(result).toBe("`iv-progress:Fulfill Your Vow|My Vow|7|3|9|Campaign/Progress/My Vow.md|move:starforged/quest/fulfill_your_vow`");
+  });
+
+  it("generates syntax with move name, track name, and move ID (no path)", () => {
+    const move = {
+      id: "move:starforged/quest/fulfill_your_vow",
+      name: "Fulfill Your Vow",
+      progressTrack: "My Vow",
+      progressTicks: 28,
+      challenge1: 3,
+      challenge2: 9,
+    };
+    const result = progressToInlineSyntax(move);
+    expect(result).toBe("`iv-progress:Fulfill Your Vow|My Vow|7|3|9|move:starforged/quest/fulfill_your_vow`");
   });
 });
 

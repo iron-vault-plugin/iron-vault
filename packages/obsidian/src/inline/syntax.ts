@@ -4,7 +4,7 @@
  * Syntax formats:
  * - Moves: `iv-move:<name>|<stat>|<action>|<statVal>|<adds>|<vs1>|<vs2>[|<moveId>][|burn=<orig>:<reset>][|adds=<amount>(<desc>),...]`
  * - Oracles: `iv-oracle:<name>|<roll>|<result>[|<oracleId>][|cursed=<value>]`
- * - Progress: `iv-progress:<trackName>|<score>|<vs1>|<vs2>`
+ * - Progress: `iv-progress:<moveName>|<trackName>|<score>|<vs1>|<vs2>[|<trackPath>][|<moveId>]`
  */
 
 import { ActionMoveDescription, ActionMoveAdd, ProgressMoveDescription, NoRollMoveDescription } from "moves/desc";
@@ -51,6 +51,10 @@ export interface ParsedInlineOracle {
 
 export interface ParsedInlineProgress {
   type: "progress";
+  /** The move name (e.g., "Fulfill Your Vow") */
+  moveName: string;
+  /** The move ID for linking to the move definition */
+  moveId?: string;
   trackName: string;
   trackPath?: string;
   score: number;
@@ -364,7 +368,7 @@ export function parseOracleInline(text: string): ParsedInlineOracle | null {
 
 /**
  * Parse inline progress roll syntax.
- * Format: `iv-progress:<trackName>|<score>|<vs1>|<vs2>[|<trackPath>]`
+ * Format: `iv-progress:<moveName>|<trackName>|<score>|<vs1>|<vs2>[|<trackPath>][|<moveId>]`
  */
 export function parseProgressInline(text: string): ParsedInlineProgress | null {
   if (!text.startsWith(PROGRESS_PREFIX)) return null;
@@ -372,9 +376,9 @@ export function parseProgressInline(text: string): ParsedInlineProgress | null {
   const content = text.slice(PROGRESS_PREFIX.length);
   const parts = content.split("|");
 
-  if (parts.length < 4) return null;
+  if (parts.length < 5) return null;
 
-  const [trackName, scoreStr, vs1Str, vs2Str, trackPath] = parts;
+  const [moveName, trackName, scoreStr, vs1Str, vs2Str, ...rest] = parts;
 
   const score = parseInt(scoreStr, 10);
   const vs1 = parseInt(vs1Str, 10);
@@ -382,10 +386,27 @@ export function parseProgressInline(text: string): ParsedInlineProgress | null {
 
   if ([score, vs1, vs2].some(isNaN)) return null;
 
+  let trackPath: string | undefined;
+  let moveId: string | undefined;
+
+  for (const part of rest) {
+    if (part) {
+      // If it looks like a move ID (contains colon like "move:starforged/...")
+      if (part.includes(":")) {
+        moveId = part;
+      } else {
+        // Otherwise it's a track path
+        trackPath = part;
+      }
+    }
+  }
+
   return {
     type: "progress",
+    moveName,
+    moveId,
     trackName,
-    trackPath: trackPath || undefined,
+    trackPath,
     score,
     vs1,
     vs2,
@@ -562,12 +583,14 @@ function extractNameAndPath(text: string): { name: string; path?: string } {
 
 /**
  * Convert a ProgressMoveDescription to inline syntax.
+ * New format: `iv-progress:<moveName>|<trackName>|<score>|<vs1>|<vs2>[|<trackPath>][|<moveId>]`
  */
 export function progressToInlineSyntax(move: ProgressMoveDescription): string {
   // Extract display name and path from wiki-link
   const { name: trackName, path: trackPath } = extractNameAndPath(move.progressTrack);
   const parts: (string | number)[] = [
-    trackName,
+    move.name,  // Move name first (e.g., "Fulfill Your Vow")
+    trackName,  // Track name second (e.g., "My Vow")
     Math.floor(move.progressTicks / 4),
     move.challenge1,
     move.challenge2,
@@ -575,6 +598,10 @@ export function progressToInlineSyntax(move: ProgressMoveDescription): string {
   // Add path if available (for linking to the track file)
   if (trackPath) {
     parts.push(trackPath);
+  }
+  // Add move ID if available (for linking to the move definition)
+  if (move.id) {
+    parts.push(move.id);
   }
   return `\`${PROGRESS_PREFIX}${parts.join("|")}\``;
 }

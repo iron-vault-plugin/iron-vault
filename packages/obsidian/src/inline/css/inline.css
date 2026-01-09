@@ -117,3 +117,9 @@
 .iv-inline-entity-name {
   font-weight: 600;
 }
+
+/* Track name in parentheses for progress moves (secondary info) */
+.iv-inline-progress-track {
+  font-weight: normal;
+  opacity: 0.8;
+}
