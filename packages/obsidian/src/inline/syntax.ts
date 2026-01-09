@@ -9,7 +9,7 @@
 
 import { ActionMoveDescription, ActionMoveAdd, ProgressMoveDescription, NoRollMoveDescription } from "moves/desc";
 import { RollWrapper } from "model/rolls";
-import { parseDataswornLinks } from "datastore/parsers/datasworn/id";
+import { extractDataswornLinkParts, parseDataswornLinks } from "datastore/parsers/datasworn/id";
 
 /**
  * Strip datasworn markdown links from text, keeping only the label.
@@ -391,8 +391,8 @@ export function parseProgressInline(text: string): ParsedInlineProgress | null {
 
   for (const part of rest) {
     if (part) {
-      // If it looks like a move ID (contains colon like "move:starforged/...")
-      if (part.includes(":")) {
+      // Use the standard Datasworn ID parser to identify move IDs
+      if (extractDataswornLinkParts(part)) {
         moveId = part;
       } else {
         // Otherwise it's a track path
