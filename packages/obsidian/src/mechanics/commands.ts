@@ -44,8 +44,8 @@ function formatExpressionWithRolls(
       const sum = rolls.reduce((a, b) => a + b, 0);
       // Only show brackets if there's actual math: multiple dice OR operations in the expression
       if (rolls.length === 1 && !exprHasOperations) {
-        // Single die, no modifiers - just show the result directly
-        return `${sum}`;
+        // Single die, no modifiers - show "1d100 -> 17" style instead of "1d100{17=17}"
+        return `${node.toString()} -> ${sum}`;
       }
       // Format as "NdS{r1+r2+...=sum}"
       return `${node.toString()}{${rolls.join("+")}=${sum}}`;
