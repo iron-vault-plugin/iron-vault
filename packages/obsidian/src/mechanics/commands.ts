@@ -2,6 +2,7 @@ import { Editor, MarkdownFileInfo, Notice } from "obsidian";
 
 import {
   DiceExprGroup,
+  ExprNode,
   parseDiceExpression,
   PlainDiceRoller,
 } from "@ironvault/dice";
@@ -11,6 +12,54 @@ import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
 import { appendNodesToMoveOrMechanicsBlock } from "./editor";
 import { createDetailsNode, createDiceExpressionNode } from "./node-builders";
+import { diceRollToInlineSyntax } from "../inline";
+import { insertInlineText } from "../inline/editor-utils";
+
+/**
+ * Format a dice expression with roll values shown.
+ * e.g., "10d6 + 5" with rolls [1,2,3,4,5,6,1,2,3,4] becomes "10d6{1+2+3+4+5+6+1+2+3+4=31} + 5"
+ */
+function formatExpressionWithRolls(
+  expr: ExprNode<{ value: number; rolls?: number[] }>,
+): string {
+  // Walk the expression tree and build a formatted string
+  function formatNode(node: ExprNode<{ value: number; rolls?: number[] }>): string {
+    // Check if this is a dice node by looking for rolls in the label
+    if (node.label.rolls && node.label.rolls.length > 0) {
+      const rolls = node.label.rolls;
+      const sum = rolls.reduce((a, b) => a + b, 0);
+      // Format as "NdS{r1+r2+...=sum}"
+      return `${node.toString()}{${rolls.join("+")}=${sum}}`;
+    }
+
+    // For binary operations, recursively format children
+    if ("left" in node && "right" in node && "operator" in node) {
+      const binNode = node as unknown as {
+        left: ExprNode<{ value: number; rolls?: number[] }>;
+        right: ExprNode<{ value: number; rolls?: number[] }>;
+        operator: string;
+        precedence: number;
+      };
+      const leftStr = formatNode(binNode.left);
+      const rightStr = formatNode(binNode.right);
+      return `${leftStr} ${binNode.operator} ${rightStr}`;
+    }
+
+    // For unary operations
+    if ("operand" in node && "operator" in node) {
+      const unaryNode = node as unknown as {
+        operand: ExprNode<{ value: number; rolls?: number[] }>;
+        operator: string;
+      };
+      return `${unaryNode.operator}${formatNode(unaryNode.operand)}`;
+    }
+
+    // For number nodes or anything else, just use toString
+    return node.toString();
+  }
+
+  return formatNode(expr);
+}
 
 export async function insertComment(plugin: IronVaultPlugin, editor: Editor) {
   const comment = await PromptModal.prompt(plugin.app, "Enter your comment");
@@ -66,6 +115,15 @@ export async function rollDice(
   const rolls = await roller.rollAsync(dice);
 
   const evaledExpr = parsed.applyValues(rolls).exprs[0];
+
+  // Use inline format if enabled
+  if (plugin.settings.useInlineDiceRolls) {
+    const expression = formatExpressionWithRolls(evaledExpr);
+    const result = evaledExpr.label.value;
+    const inlineText = diceRollToInlineSyntax(expression, result);
+    insertInlineText(editor, inlineText);
+    return;
+  }
 
   appendNodesToMoveOrMechanicsBlock(
     editor,

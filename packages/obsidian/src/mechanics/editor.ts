@@ -19,9 +19,11 @@ import {
   progressToInlineSyntax,
   oracleToInlineSyntax,
   noRollToInlineSyntax,
+  actionRollToInlineSyntax,
 } from "../inline";
 import {
   MoveDescription,
+  ActionMoveDescription,
   moveIsAction,
   moveIsProgress,
 } from "moves/desc";
@@ -216,4 +218,41 @@ export function insertInlineOracle(
   const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
   editor.replaceSelection(`${extraSpace}${inlineText} `);
   return true;
+}
+
+/**
+ * Insert an action roll (without a move) as inline mechanics.
+ */
+export function insertInlineActionRoll(
+  editor: Editor,
+  _plugin: IronVaultPlugin,
+  move: ActionMoveDescription,
+): void {
+  // Handle both V1 (adds as number) and V2 (adds as array) formats
+  const rawAdds = move.adds;
+  let addsArray: { amount: number; desc?: string }[];
+  let totalAdds: number;
+  
+  if (typeof rawAdds === "number") {
+    totalAdds = rawAdds;
+    addsArray = totalAdds > 0 ? [{ amount: totalAdds }] : [];
+  } else {
+    addsArray = rawAdds ?? [];
+    totalAdds = addsArray.reduce((a, b) => a + b.amount, 0);
+  }
+
+  const inlineText = actionRollToInlineSyntax(
+    move.stat,
+    move.action,
+    move.statVal,
+    totalAdds,
+    move.challenge1,
+    move.challenge2,
+    addsArray.length > 0 ? addsArray : undefined,
+    move.burn,
+  );
+
+  // Insert inline with a trailing space
+  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
+  editor.replaceSelection(`${extraSpace}${inlineText} `);
 }

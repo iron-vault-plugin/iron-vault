@@ -23,6 +23,8 @@ import {
   parseBurnInline,
   parseInitiativeInline,
   parseEntityCreateInline,
+  parseDiceRollInline,
+  parseActionRollInline,
 } from "./syntax";
 import {
   renderInlineMove,
@@ -40,6 +42,8 @@ import {
   renderInlineBurn,
   renderInlineInitiative,
   renderInlineEntityCreate,
+  renderInlineDiceRoll,
+  renderInlineActionRoll,
 } from "./renderers";
 
 /**
@@ -186,6 +190,22 @@ function processInlineMechanics(
     const entityCreateData = parseEntityCreateInline(text);
     if (entityCreateData) {
       const rendered = renderInlineEntityCreate(entityCreateData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render dice roll
+    const diceRollData = parseDiceRollInline(text);
+    if (diceRollData) {
+      const rendered = renderInlineDiceRoll(diceRollData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render action roll
+    const actionRollData = parseActionRollInline(text);
+    if (actionRollData) {
+      const rendered = renderInlineActionRoll(actionRollData, plugin);
       code.replaceWith(rendered);
       continue;
     }

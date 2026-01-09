@@ -24,6 +24,8 @@ export {
   burnToInlineSyntax,
   initiativeToInlineSyntax,
   entityCreateToInlineSyntax,
+  diceRollToInlineSyntax,
+  actionRollToInlineSyntax,
   isInlineMechanics,
   parseInlineMechanics,
 } from "./syntax";

@@ -150,6 +150,29 @@ export interface ParsedInlineEntityCreate {
   path: string;
 }
 
+export interface ParsedInlineDiceRoll {
+  type: "dice-roll";
+  expression: string;
+  result: number;
+}
+
+export interface ParsedInlineActionRoll {
+  type: "action-roll";
+  stat: string;
+  action: number;
+  statVal: number;
+  /** Total adds (for backward compatibility) */
+  adds: number;
+  /** Individual adds with descriptions */
+  addsDetail?: ActionMoveAdd[];
+  vs1: number;
+  vs2: number;
+  burn?: {
+    orig: number;
+    reset: number;
+  };
+}
+
 export type ParsedInlineMechanics =
   | ParsedInlineMove
   | ParsedInlineOracle
@@ -165,7 +188,9 @@ export type ParsedInlineMechanics =
   | ParsedInlineMeter
   | ParsedInlineBurn
   | ParsedInlineInitiative
-  | ParsedInlineEntityCreate;
+  | ParsedInlineEntityCreate
+  | ParsedInlineDiceRoll
+  | ParsedInlineActionRoll;
 
 const MOVE_PREFIX = "iv-move:";
 const ORACLE_PREFIX = "iv-oracle:";
@@ -184,6 +209,8 @@ const METER_PREFIX = "iv-meter:";
 const BURN_PREFIX = "iv-burn:";
 const INITIATIVE_PREFIX = "iv-initiative:";
 const ENTITY_CREATE_PREFIX = "iv-entity-create:";
+const DICE_ROLL_PREFIX = "iv-dice:";
+const ACTION_ROLL_PREFIX = "iv-action-roll:";
 
 /**
  * Parse the adds detail string.
@@ -413,6 +440,12 @@ export function parseInlineMechanics(
   if (text.startsWith(ENTITY_CREATE_PREFIX)) {
     return parseEntityCreateInline(text);
   }
+  if (text.startsWith(DICE_ROLL_PREFIX)) {
+    return parseDiceRollInline(text);
+  }
+  if (text.startsWith(ACTION_ROLL_PREFIX)) {
+    return parseActionRollInline(text);
+  }
   return null;
 }
 
@@ -435,7 +468,9 @@ export function isInlineMechanics(text: string): boolean {
     text.startsWith(METER_PREFIX) ||
     text.startsWith(BURN_PREFIX) ||
     text.startsWith(INITIATIVE_PREFIX) ||
-    text.startsWith(ENTITY_CREATE_PREFIX)
+    text.startsWith(ENTITY_CREATE_PREFIX) ||
+    text.startsWith(DICE_ROLL_PREFIX) ||
+    text.startsWith(ACTION_ROLL_PREFIX)
   );
 }
 
@@ -1034,4 +1069,118 @@ export function entityCreateToInlineSyntax(
 ): string {
   const parts = [entityType, name, path];
   return `\`${ENTITY_CREATE_PREFIX}${parts.join("|")}\``;
+}
+
+// ============================================================================
+// Dice Roll Parsing and Generation
+// ============================================================================
+
+/**
+ * Parse inline dice roll syntax.
+ * Format: `iv-dice:<expression>|<result>`
+ */
+export function parseDiceRollInline(text: string): ParsedInlineDiceRoll | null {
+  if (!text.startsWith(DICE_ROLL_PREFIX)) return null;
+
+  const content = text.slice(DICE_ROLL_PREFIX.length);
+  const parts = content.split("|");
+
+  if (parts.length < 2) return null;
+
+  const [expression, resultStr] = parts;
+
+  const result = parseInt(resultStr, 10);
+  if (isNaN(result)) return null;
+
+  return {
+    type: "dice-roll",
+    expression,
+    result,
+  };
+}
+
+/**
+ * Generate inline syntax for dice roll.
+ */
+export function diceRollToInlineSyntax(expression: string, result: number): string {
+  const parts = [expression, result];
+  return `\`${DICE_ROLL_PREFIX}${parts.join("|")}\``;
+}
+
+// ============================================================================
+// Action Roll Parsing and Generation
+// ============================================================================
+
+/**
+ * Parse inline action roll syntax.
+ * Format: `iv-action-roll:<stat>|<action>|<statVal>|<adds>|<vs1>|<vs2>[|burn=<orig>:<reset>][|adds=<detail>]`
+ */
+export function parseActionRollInline(text: string): ParsedInlineActionRoll | null {
+  if (!text.startsWith(ACTION_ROLL_PREFIX)) return null;
+
+  const content = text.slice(ACTION_ROLL_PREFIX.length);
+  const parts = content.split("|");
+
+  if (parts.length < 6) return null;
+
+  const [stat, actionStr, statValStr, addsStr, vs1Str, vs2Str, ...rest] = parts;
+
+  const action = parseInt(actionStr, 10);
+  const statVal = parseInt(statValStr, 10);
+  const adds = parseInt(addsStr, 10);
+  const vs1 = parseInt(vs1Str, 10);
+  const vs2 = parseInt(vs2Str, 10);
+
+  if ([action, statVal, adds, vs1, vs2].some(isNaN)) return null;
+
+  let burn: { orig: number; reset: number } | undefined;
+  let addsDetail: ActionMoveAdd[] | undefined;
+
+  for (const part of rest) {
+    if (part.startsWith("burn=")) {
+      const burnParts = part.slice(5).split(":");
+      if (burnParts.length === 2) {
+        const orig = parseInt(burnParts[0], 10);
+        const reset = parseInt(burnParts[1], 10);
+        if (!isNaN(orig) && !isNaN(reset)) {
+          burn = { orig, reset };
+        }
+      }
+    } else if (part.startsWith("adds=")) {
+      addsDetail = parseAddsDetail(part.slice(5));
+    }
+  }
+
+  return {
+    type: "action-roll",
+    stat,
+    action,
+    statVal,
+    adds,
+    addsDetail,
+    vs1,
+    vs2,
+    burn,
+  };
+}
+
+/**
+ * Generate inline syntax for action roll.
+ */
+export function actionRollToInlineSyntax(
+  stat: string,
+  action: number,
+  statVal: number,
+  adds: number,
+  vs1: number,
+  vs2: number,
+  addsDetail?: ActionMoveAdd[],
+  burn?: { orig: number; reset: number },
+): string {
+  const parts: (string | number)[] = [stat, action, statVal, adds, vs1, vs2];
+  if (burn) parts.push(`burn=${burn.orig}:${burn.reset}`);
+  if (addsDetail && addsDetail.length > 0) {
+    parts.push(`adds=${formatAddsDetail(addsDetail)}`);
+  }
+  return `\`${ACTION_ROLL_PREFIX}${parts.join("|")}\``;
 }

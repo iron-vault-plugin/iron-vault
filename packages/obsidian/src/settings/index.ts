@@ -88,6 +88,9 @@ export class IronVaultPluginSettings {
   /** Use inline format for entity creation (when file is created). */
   useInlineEntities: boolean = false;
 
+  /** Use inline format for dice rolls (Roll dice, Make action roll). */
+  useInlineDiceRolls: boolean = false;
+
   emitter?: Emittery;
 
   constructor() {

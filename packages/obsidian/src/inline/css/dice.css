@@ -1,0 +1,37 @@
+/**
+ * Styles for inline dice rolls and action rolls.
+ */
+
+/* Dice roll container */
+.iv-inline-mechanics.dice-roll {
+  border-left: 3px solid var(--text-accent);
+}
+
+.iv-inline-dice-icon {
+  color: var(--text-accent);
+}
+
+.iv-inline-dice-icon svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
+.iv-inline-dice-expression {
+  font-family: var(--font-monospace);
+  color: var(--text-normal);
+}
+
+.iv-inline-dice-arrow {
+  color: var(--text-muted);
+}
+
+.iv-inline-dice-result {
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+/* Action roll - uses same outcome styling as moves */
+.iv-inline-mechanics.action-roll {
+  /* Inherits from outcome classes (strong-hit, weak-hit, miss) */
+}

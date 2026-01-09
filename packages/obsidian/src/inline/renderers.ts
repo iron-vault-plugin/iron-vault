@@ -24,6 +24,8 @@ import {
   ParsedInlineBurn,
   ParsedInlineInitiative,
   ParsedInlineEntityCreate,
+  ParsedInlineDiceRoll,
+  ParsedInlineActionRoll,
   determineOutcome,
   outcomeText,
   formatAddsForDisplay,
@@ -822,6 +824,146 @@ export function renderInlineEntityCreate(
 
   // Tooltip
   container.setAttribute("aria-label", `${parsed.entityType} created`);
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+// ============================================================================
+// Dice Roll Renderers
+// ============================================================================
+
+/**
+ * Render an inline dice roll result.
+ */
+export function renderInlineDiceRoll(
+  parsed: ParsedInlineDiceRoll,
+  _plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  const container = createContainer("dice-roll");
+
+  // Dice icon
+  const iconEl = createSpan({ cls: "iv-inline-dice-icon" });
+  setIcon(iconEl, "dice");
+  container.appendChild(iconEl);
+
+  // Expression
+  const exprEl = createSpan({
+    cls: "iv-inline-dice-expression",
+    text: parsed.expression,
+  });
+  container.appendChild(exprEl);
+
+  // Arrow
+  container.appendChild(createSpan({ cls: "iv-inline-dice-arrow", text: " → " }));
+
+  // Result
+  const resultEl = createSpan({
+    cls: "iv-inline-dice-result",
+    text: `${parsed.result}`,
+  });
+  container.appendChild(resultEl);
+
+  // Tooltip
+  container.setAttribute("aria-label", `${parsed.expression} = ${parsed.result}`);
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+// ============================================================================
+// Action Roll Renderers
+// ============================================================================
+
+/**
+ * Render an inline action roll result (without a move).
+ */
+export function renderInlineActionRoll(
+  parsed: ParsedInlineActionRoll,
+  _plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  // Calculate the original score (before burn)
+  const originalScore = Math.min(10, parsed.action + parsed.statVal + parsed.adds);
+  
+  // If burn was used, the effective score is the burn.orig (momentum value)
+  const effectiveScore = parsed.burn ? parsed.burn.orig : originalScore;
+  
+  // Determine outcome based on effective score
+  const { outcome, match } = determineOutcome(effectiveScore, parsed.vs1, parsed.vs2);
+
+  const outcomeClass = match ? `${outcome} match` : outcome;
+  const container = createContainer(outcomeClass);
+
+  // Outcome icon (first for immediate visual feedback)
+  const iconEl = createSpan({ cls: "iv-inline-outcome-icon" });
+  container.appendChild(iconEl);
+
+  // Stat (in parentheses) - no move name, just the stat
+  const statEl = createSpan({
+    cls: "iv-inline-stat",
+    text: `(${parsed.stat})`,
+  });
+  container.appendChild(statEl);
+
+  // Separator
+  container.appendChild(createSpan({ cls: "iv-inline-separator", text: "—" }));
+
+  // Burn indicator (flame icon before score if momentum was burned)
+  if (parsed.burn) {
+    const burnEl = createSpan({ cls: "iv-inline-burn-icon" });
+    setIcon(burnEl, "flame");
+    container.appendChild(burnEl);
+  }
+
+  // Score - show effective score (after burn if applicable)
+  const scoreEl = createSpan({
+    cls: "iv-inline-score",
+    text: `${effectiveScore}`,
+  });
+  container.appendChild(scoreEl);
+
+  // vs
+  container.appendChild(createSpan({ text: " vs " }));
+
+  // Challenge dice
+  const vs1El = createSpan({
+    cls: "iv-inline-challenge-die vs1",
+    text: `${parsed.vs1}`,
+  });
+  container.appendChild(vs1El);
+
+  container.appendChild(createSpan({ text: "|" }));
+
+  const vs2El = createSpan({
+    cls: "iv-inline-challenge-die vs2",
+    text: `${parsed.vs2}`,
+  });
+  container.appendChild(vs2El);
+
+  // Match text (after dice, if applicable)
+  if (match) {
+    const matchEl = createSpan({
+      cls: "iv-inline-match",
+      text: "match",
+    });
+    container.appendChild(matchEl);
+  }
+
+  // Outcome text (in tooltip) - include adds breakdown if available
+  let outcomeLabel = outcomeText(outcome) + (match ? " (match)" : "");
+  
+  // Add roll breakdown to tooltip with minimal labels
+  const addsDisplay = formatAddsForDisplay(parsed.addsDetail, parsed.adds);
+  const hasAdds = parsed.adds > 0 || (parsed.addsDetail && parsed.addsDetail.length > 0);
+  const rollBreakdown = hasAdds
+    ? `${parsed.action} (roll) + ${parsed.statVal} (${parsed.stat}) + ${addsDisplay} = ${originalScore}`
+    : `${parsed.action} (roll) + ${parsed.statVal} (${parsed.stat}) = ${originalScore}`;
+  outcomeLabel += `\n${rollBreakdown}`;
+  
+  if (parsed.burn) {
+    outcomeLabel += `\nBurned momentum (${parsed.burn.orig}→${parsed.burn.reset})`;
+  }
+  container.setAttribute("aria-label", outcomeLabel);
   container.setAttribute("data-tooltip-position", "top");
 
   return container;

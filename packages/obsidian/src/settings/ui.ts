@@ -501,6 +501,17 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .onChange((value) => this.updateSetting("useInlineEntities", value)),
       );
 
+    new Setting(containerEl)
+      .setName("Use inline dice rolls")
+      .setDesc(
+        "When enabled, dice rolls (Roll dice, Make action roll) are inserted as inline text instead of code blocks.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useInlineDiceRolls)
+          .onChange((value) => this.updateSetting("useInlineDiceRolls", value)),
+      );
+
     new Setting(containerEl).setName("Legacy").setHeading();
 
     new Setting(containerEl)

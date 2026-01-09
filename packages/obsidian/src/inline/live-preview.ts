@@ -35,6 +35,8 @@ import {
   renderInlineBurn,
   renderInlineInitiative,
   renderInlineEntityCreate,
+  renderInlineDiceRoll,
+  renderInlineActionRoll,
 } from "./renderers";
 
 /**
@@ -102,6 +104,10 @@ class InlineMechanicsWidget extends WidgetType {
         return renderInlineInitiative(this.parsed, this.plugin);
       case "entity-create":
         return renderInlineEntityCreate(this.parsed, this.plugin);
+      case "dice-roll":
+        return renderInlineDiceRoll(this.parsed, this.plugin);
+      case "action-roll":
+        return renderInlineActionRoll(this.parsed, this.plugin);
     }
   }
 

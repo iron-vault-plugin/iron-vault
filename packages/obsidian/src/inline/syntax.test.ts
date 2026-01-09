@@ -974,3 +974,145 @@ describe("isInlineMechanics extended - entity-create", () => {
     expect(isInlineMechanics("iv-entity-create:NPC|Kira|Entities/Kira.md")).toBe(true);
   });
 });
+
+// ============================================================================
+// Dice Roll Parsing Tests
+// ============================================================================
+
+import {
+  parseDiceRollInline,
+  diceRollToInlineSyntax,
+  parseActionRollInline,
+  actionRollToInlineSyntax,
+} from "./syntax";
+
+describe("parseDiceRollInline", () => {
+  it("parses basic dice roll syntax", () => {
+    const result = parseDiceRollInline("iv-dice:2d6+3|15");
+    expect(result).toEqual({
+      type: "dice-roll",
+      expression: "2d6+3",
+      result: 15,
+    });
+  });
+
+  it("parses dice roll with complex expression", () => {
+    const result = parseDiceRollInline("iv-dice:2d6{4+3=7}+20|27");
+    expect(result).toEqual({
+      type: "dice-roll",
+      expression: "2d6{4+3=7}+20",
+      result: 27,
+    });
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseDiceRollInline("not a dice roll")).toBeNull();
+    expect(parseDiceRollInline("iv-dice:2d6")).toBeNull();
+    expect(parseDiceRollInline("iv-dice:2d6|abc")).toBeNull();
+  });
+});
+
+describe("diceRollToInlineSyntax", () => {
+  it("generates dice roll syntax", () => {
+    const result = diceRollToInlineSyntax("2d6+3", 15);
+    expect(result).toBe("`iv-dice:2d6+3|15`");
+  });
+
+  it("generates dice roll syntax with complex expression", () => {
+    const result = diceRollToInlineSyntax("2d6{4+3=7}+20", 27);
+    expect(result).toBe("`iv-dice:2d6{4+3=7}+20|27`");
+  });
+});
+
+// ============================================================================
+// Action Roll Parsing Tests
+// ============================================================================
+
+describe("parseActionRollInline", () => {
+  it("parses basic action roll syntax", () => {
+    const result = parseActionRollInline("iv-action-roll:Momentum|3|9|0|5|4");
+    expect(result).toEqual({
+      type: "action-roll",
+      stat: "Momentum",
+      action: 3,
+      statVal: 9,
+      adds: 0,
+      addsDetail: undefined,
+      vs1: 5,
+      vs2: 4,
+      burn: undefined,
+    });
+  });
+
+  it("parses action roll with burn", () => {
+    const result = parseActionRollInline("iv-action-roll:Edge|4|2|1|5|9|burn=8:2");
+    expect(result?.burn).toEqual({ orig: 8, reset: 2 });
+  });
+
+  it("parses action roll with adds detail", () => {
+    const result = parseActionRollInline("iv-action-roll:Iron|4|2|3|3|7|adds=2(Asset),1(Companion)");
+    expect(result?.addsDetail).toEqual([
+      { amount: 2, desc: "Asset" },
+      { amount: 1, desc: "Companion" },
+    ]);
+  });
+
+  it("parses action roll with burn and adds", () => {
+    const result = parseActionRollInline("iv-action-roll:Shadow|4|2|3|3|7|burn=8:2|adds=2(Asset)");
+    expect(result?.burn).toEqual({ orig: 8, reset: 2 });
+    expect(result?.addsDetail).toEqual([{ amount: 2, desc: "Asset" }]);
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseActionRollInline("not an action roll")).toBeNull();
+    expect(parseActionRollInline("iv-action-roll:Momentum|3")).toBeNull();
+    expect(parseActionRollInline("iv-action-roll:Momentum|a|9|0|5|4")).toBeNull();
+  });
+});
+
+describe("actionRollToInlineSyntax", () => {
+  it("generates basic action roll syntax", () => {
+    const result = actionRollToInlineSyntax("Momentum", 3, 9, 0, 5, 4);
+    expect(result).toBe("`iv-action-roll:Momentum|3|9|0|5|4`");
+  });
+
+  it("generates action roll syntax with burn", () => {
+    const result = actionRollToInlineSyntax("Edge", 4, 2, 1, 5, 9, undefined, { orig: 8, reset: 2 });
+    expect(result).toBe("`iv-action-roll:Edge|4|2|1|5|9|burn=8:2`");
+  });
+
+  it("generates action roll syntax with adds detail", () => {
+    const result = actionRollToInlineSyntax("Iron", 4, 2, 3, 3, 7, [
+      { amount: 2, desc: "Asset" },
+      { amount: 1, desc: "Companion" },
+    ]);
+    expect(result).toBe("`iv-action-roll:Iron|4|2|3|3|7|adds=2(Asset),1(Companion)`");
+  });
+
+  it("generates action roll syntax with burn and adds", () => {
+    const result = actionRollToInlineSyntax("Shadow", 4, 2, 2, 3, 7, [{ amount: 2, desc: "Asset" }], { orig: 8, reset: 2 });
+    expect(result).toBe("`iv-action-roll:Shadow|4|2|2|3|7|burn=8:2|adds=2(Asset)`");
+  });
+});
+
+describe("isInlineMechanics extended - dice and action rolls", () => {
+  it("returns true for dice-roll syntax", () => {
+    expect(isInlineMechanics("iv-dice:2d6+3|15")).toBe(true);
+  });
+
+  it("returns true for action-roll syntax", () => {
+    expect(isInlineMechanics("iv-action-roll:Momentum|3|9|0|5|4")).toBe(true);
+  });
+});
+
+describe("parseInlineMechanics extended - dice and action rolls", () => {
+  it("parses dice-roll", () => {
+    const result = parseInlineMechanics("iv-dice:2d6+3|15");
+    expect(result?.type).toBe("dice-roll");
+  });
+
+  it("parses action-roll", () => {
+    const result = parseInlineMechanics("iv-action-roll:Momentum|3|9|0|5|4");
+    expect(result?.type).toBe("action-roll");
+  });
+});

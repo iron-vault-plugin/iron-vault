@@ -12,6 +12,7 @@
 @import url("burn.css");
 @import url("initiative.css");
 @import url("entity.css");
+@import url("dice.css");
 
 /**
  * Base inline mechanics styles.
@@ -91,7 +92,8 @@
 .iv-inline-clock-icon,
 .iv-inline-meter-icon,
 .iv-inline-initiative-icon,
-.iv-inline-entity-icon {
+.iv-inline-entity-icon,
+.iv-inline-dice-icon {
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
