@@ -276,11 +276,20 @@ export function renderInlineProgress(
   }
   container.appendChild(moveNameEl);
 
-  // Track name in parentheses (secondary info)
+  // Track name (clickable if we have a path)
   const trackEl = createSpan({
     cls: "iv-inline-progress-track",
-    text: ` (${parsed.trackName})`,
+    text: parsed.trackName,
   });
+  if (parsed.trackPath) {
+    trackEl.addClass("iv-inline-link");
+    trackEl.setAttribute("data-track-path", parsed.trackPath);
+    trackEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      plugin.app.workspace.openLinkText(parsed.trackPath!, "");
+    });
+  }
   container.appendChild(trackEl);
 
   // Separator
