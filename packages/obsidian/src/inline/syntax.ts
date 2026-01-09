@@ -173,6 +173,28 @@ export interface ParsedInlineActionRoll {
   };
 }
 
+export interface ParsedInlineReroll {
+  type: "reroll";
+  /** Which die was rerolled: "action", "vs1", or "vs2" */
+  die: "action" | "vs1" | "vs2";
+  /** Original die value */
+  oldVal: number;
+  /** New die value after reroll */
+  newVal: number;
+  /** Stat used for the roll */
+  stat: string;
+  /** Stat value */
+  statVal: number;
+  /** Total adds */
+  adds: number;
+  /** Challenge die 1 (possibly updated if vs1 was rerolled) */
+  vs1: number;
+  /** Challenge die 2 (possibly updated if vs2 was rerolled) */
+  vs2: number;
+  /** Original action die value (needed to calculate new score if action was rerolled) */
+  action: number;
+}
+
 export type ParsedInlineMechanics =
   | ParsedInlineMove
   | ParsedInlineOracle
@@ -190,7 +212,8 @@ export type ParsedInlineMechanics =
   | ParsedInlineInitiative
   | ParsedInlineEntityCreate
   | ParsedInlineDiceRoll
-  | ParsedInlineActionRoll;
+  | ParsedInlineActionRoll
+  | ParsedInlineReroll;
 
 const MOVE_PREFIX = "iv-move:";
 const ORACLE_PREFIX = "iv-oracle:";
@@ -211,6 +234,7 @@ const INITIATIVE_PREFIX = "iv-initiative:";
 const ENTITY_CREATE_PREFIX = "iv-entity-create:";
 const DICE_ROLL_PREFIX = "iv-dice:";
 const ACTION_ROLL_PREFIX = "iv-action-roll:";
+const REROLL_PREFIX = "iv-reroll:";
 
 /**
  * Parse the adds detail string.
@@ -446,6 +470,9 @@ export function parseInlineMechanics(
   if (text.startsWith(ACTION_ROLL_PREFIX)) {
     return parseActionRollInline(text);
   }
+  if (text.startsWith(REROLL_PREFIX)) {
+    return parseRerollInline(text);
+  }
   return null;
 }
 
@@ -470,7 +497,8 @@ export function isInlineMechanics(text: string): boolean {
     text.startsWith(INITIATIVE_PREFIX) ||
     text.startsWith(ENTITY_CREATE_PREFIX) ||
     text.startsWith(DICE_ROLL_PREFIX) ||
-    text.startsWith(ACTION_ROLL_PREFIX)
+    text.startsWith(ACTION_ROLL_PREFIX) ||
+    text.startsWith(REROLL_PREFIX)
   );
 }
 
@@ -1183,4 +1211,66 @@ export function actionRollToInlineSyntax(
     parts.push(`adds=${formatAddsDetail(addsDetail)}`);
   }
   return `\`${ACTION_ROLL_PREFIX}${parts.join("|")}\``;
+}
+
+// ============================================================================
+// Reroll Parsing and Generation
+// ============================================================================
+
+/**
+ * Parse inline reroll syntax.
+ * Format: `iv-reroll:<die>|<oldVal>|<newVal>|<stat>|<statVal>|<adds>|<vs1>|<vs2>|<action>`
+ */
+export function parseRerollInline(text: string): ParsedInlineReroll | null {
+  if (!text.startsWith(REROLL_PREFIX)) return null;
+
+  const content = text.slice(REROLL_PREFIX.length);
+  const parts = content.split("|");
+
+  if (parts.length < 9) return null;
+
+  const [die, oldValStr, newValStr, stat, statValStr, addsStr, vs1Str, vs2Str, actionStr] = parts;
+
+  if (die !== "action" && die !== "vs1" && die !== "vs2") return null;
+
+  const oldVal = parseInt(oldValStr, 10);
+  const newVal = parseInt(newValStr, 10);
+  const statVal = parseInt(statValStr, 10);
+  const adds = parseInt(addsStr, 10);
+  const vs1 = parseInt(vs1Str, 10);
+  const vs2 = parseInt(vs2Str, 10);
+  const action = parseInt(actionStr, 10);
+
+  if ([oldVal, newVal, statVal, adds, vs1, vs2, action].some(isNaN)) return null;
+
+  return {
+    type: "reroll",
+    die: die as "action" | "vs1" | "vs2",
+    oldVal,
+    newVal,
+    stat,
+    statVal,
+    adds,
+    vs1,
+    vs2,
+    action,
+  };
+}
+
+/**
+ * Generate inline syntax for reroll.
+ */
+export function rerollToInlineSyntax(
+  die: "action" | "vs1" | "vs2",
+  oldVal: number,
+  newVal: number,
+  stat: string,
+  statVal: number,
+  adds: number,
+  vs1: number,
+  vs2: number,
+  action: number,
+): string {
+  const parts = [die, oldVal, newVal, stat, statVal, adds, vs1, vs2, action];
+  return `\`${REROLL_PREFIX}${parts.join("|")}\``;
 }

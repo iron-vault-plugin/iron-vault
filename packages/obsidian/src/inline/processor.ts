@@ -25,6 +25,7 @@ import {
   parseEntityCreateInline,
   parseDiceRollInline,
   parseActionRollInline,
+  parseRerollInline,
 } from "./syntax";
 import {
   renderInlineMove,
@@ -44,6 +45,7 @@ import {
   renderInlineEntityCreate,
   renderInlineDiceRoll,
   renderInlineActionRoll,
+  renderInlineReroll,
 } from "./renderers";
 
 /**
@@ -206,6 +208,14 @@ function processInlineMechanics(
     const actionRollData = parseActionRollInline(text);
     if (actionRollData) {
       const rendered = renderInlineActionRoll(actionRollData, plugin);
+      code.replaceWith(rendered);
+      continue;
+    }
+
+    // Try to parse and render reroll
+    const rerollData = parseRerollInline(text);
+    if (rerollData) {
+      const rendered = renderInlineReroll(rerollData, plugin);
       code.replaceWith(rendered);
       continue;
     }

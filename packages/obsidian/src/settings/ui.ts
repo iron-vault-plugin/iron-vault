@@ -458,7 +458,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline progress tracks")
       .setDesc(
-        "When enabled, progress track operations (create, advance, complete, reopen) are inserted as inline text instead of code blocks..",
+        "When enabled, progress track operations (create, advance, complete, reopen) are inserted as inline text instead of code blocks.",
       )
       .addToggle((toggle) =>
         toggle
@@ -471,7 +471,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline clocks")
       .setDesc(
-        "When enabled, clock operations (create, advance, resolve) are inserted as inline text instead of code blocks..",
+        "When enabled, clock operations (create, advance, resolve) are inserted as inline text instead of code blocks.",
       )
       .addToggle((toggle) =>
         toggle
@@ -482,7 +482,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline meters")
       .setDesc(
-        "When enabled, character meter changes (health, momentum, burn, initiative) are inserted as inline text instead of code blocks..",
+        "When enabled, character meter changes (health, momentum, burn, initiative) are inserted as inline text instead of code blocks.",
       )
       .addToggle((toggle) =>
         toggle
@@ -504,7 +504,7 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Use inline dice rolls")
       .setDesc(
-        "When enabled, dice rolls (Roll dice, Make action roll) are inserted as inline text instead of code blocks.",
+        "When enabled, dice rolls (Roll dice, Make action roll, Reroll a die) are inserted as inline text instead of code blocks.",
       )
       .addToggle((toggle) =>
         toggle

@@ -26,6 +26,7 @@ export {
   entityCreateToInlineSyntax,
   diceRollToInlineSyntax,
   actionRollToInlineSyntax,
+  rerollToInlineSyntax,
   isInlineMechanics,
   parseInlineMechanics,
 } from "./syntax";

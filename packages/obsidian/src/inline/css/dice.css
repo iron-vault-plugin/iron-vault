@@ -1,5 +1,5 @@
 /**
- * Styles for inline dice rolls and action rolls.
+ * Styles for inline dice rolls, action rolls, and rerolls.
  */
 
 /* Dice roll container */
@@ -34,4 +34,33 @@
 /* Action roll - uses same outcome styling as moves */
 .iv-inline-mechanics.action-roll {
   /* Inherits from outcome classes (strong-hit, weak-hit, miss) */
+}
+
+/* Reroll - uses outcome styling but with distinct reroll indicator */
+.iv-inline-mechanics.reroll {
+  /* Inherits from outcome classes (strong-hit, weak-hit, miss) */
+}
+
+.iv-inline-reroll-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  color: var(--text-muted);
+}
+
+.iv-inline-reroll-icon svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
+.iv-inline-reroll-change {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Highlight rerolled challenge die */
+.iv-inline-challenge-die.rerolled {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }

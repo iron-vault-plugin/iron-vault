@@ -26,6 +26,7 @@ import {
   ParsedInlineEntityCreate,
   ParsedInlineDiceRoll,
   ParsedInlineActionRoll,
+  ParsedInlineReroll,
   determineOutcome,
   outcomeText,
   formatAddsForDisplay,
@@ -964,6 +965,97 @@ export function renderInlineActionRoll(
     outcomeLabel += `\nBurned momentum (${parsed.burn.orig}→${parsed.burn.reset})`;
   }
   container.setAttribute("aria-label", outcomeLabel);
+  container.setAttribute("data-tooltip-position", "top");
+
+  return container;
+}
+
+// ============================================================================
+// Reroll Renderers
+// ============================================================================
+
+/**
+ * Render an inline reroll result.
+ * Shows which die was rerolled (old→new), the new score, and challenge dice.
+ */
+export function renderInlineReroll(
+  parsed: ParsedInlineReroll,
+  _plugin: IronVaultPlugin,
+): HTMLSpanElement {
+  // Calculate the new action value (if action was rerolled, use newVal; otherwise use original)
+  const effectiveAction = parsed.die === "action" ? parsed.newVal : parsed.action;
+  
+  // Calculate the new challenge dice values
+  const effectiveVs1 = parsed.die === "vs1" ? parsed.newVal : parsed.vs1;
+  const effectiveVs2 = parsed.die === "vs2" ? parsed.newVal : parsed.vs2;
+  
+  // Calculate the new score
+  const newScore = Math.min(10, effectiveAction + parsed.statVal + parsed.adds);
+  
+  // Determine outcome based on new values
+  const { outcome, match } = determineOutcome(newScore, effectiveVs1, effectiveVs2);
+
+  const outcomeClass = match ? `${outcome} match` : outcome;
+  const container = createContainer(`reroll ${outcomeClass}`);
+
+  // Reroll icon
+  const rerollIconEl = createSpan({ cls: "iv-inline-reroll-icon" });
+  setIcon(rerollIconEl, "refresh-cw");
+  container.appendChild(rerollIconEl);
+
+  // Outcome icon (strong hit/weak hit/miss indicator)
+  const outcomeIconEl = createSpan({ cls: "iv-inline-outcome-icon" });
+  container.appendChild(outcomeIconEl);
+
+  // Die label with old→new value
+  const dieLabel = parsed.die === "action" ? "act" : parsed.die;
+  const dieChangeEl = createSpan({
+    cls: "iv-inline-reroll-change",
+    text: `(${dieLabel}: ${parsed.oldVal}→${parsed.newVal})`,
+  });
+  container.appendChild(dieChangeEl);
+
+  // Separator
+  container.appendChild(createSpan({ cls: "iv-inline-separator", text: "=" }));
+
+  // New score
+  const scoreEl = createSpan({
+    cls: "iv-inline-score",
+    text: `${newScore}`,
+  });
+  container.appendChild(scoreEl);
+
+  // vs
+  container.appendChild(createSpan({ text: " vs " }));
+
+  // Challenge dice (highlight the one that was rerolled)
+  const vs1El = createSpan({
+    cls: `iv-inline-challenge-die vs1${parsed.die === "vs1" ? " rerolled" : ""}`,
+    text: `${effectiveVs1}`,
+  });
+  container.appendChild(vs1El);
+
+  container.appendChild(createSpan({ text: "|" }));
+
+  const vs2El = createSpan({
+    cls: `iv-inline-challenge-die vs2${parsed.die === "vs2" ? " rerolled" : ""}`,
+    text: `${effectiveVs2}`,
+  });
+  container.appendChild(vs2El);
+
+  // Match text (after dice, if applicable)
+  if (match) {
+    const matchEl = createSpan({
+      cls: "iv-inline-match",
+      text: "match",
+    });
+    container.appendChild(matchEl);
+  }
+
+  // Tooltip with details
+  const dieFullLabel = parsed.die === "action" ? "Action die" : parsed.die === "vs1" ? "Challenge die 1" : "Challenge die 2";
+  let tooltipText = `${outcomeText(outcome)}${match ? " (match)" : ""}\nRerolled ${dieFullLabel}: ${parsed.oldVal} → ${parsed.newVal}`;
+  container.setAttribute("aria-label", tooltipText);
   container.setAttribute("data-tooltip-position", "top");
 
   return container;

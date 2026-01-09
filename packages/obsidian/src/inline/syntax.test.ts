@@ -1116,3 +1116,108 @@ describe("parseInlineMechanics extended - dice and action rolls", () => {
     expect(result?.type).toBe("action-roll");
   });
 });
+
+// ============================================================================
+// Reroll Tests
+// ============================================================================
+
+import {
+  parseRerollInline,
+  rerollToInlineSyntax,
+} from "./syntax";
+
+describe("parseRerollInline", () => {
+  it("parses basic reroll syntax for action die", () => {
+    const result = parseRerollInline("iv-reroll:action|3|6|Edge|2|1|5|9|3");
+    expect(result).toEqual({
+      type: "reroll",
+      die: "action",
+      oldVal: 3,
+      newVal: 6,
+      stat: "Edge",
+      statVal: 2,
+      adds: 1,
+      vs1: 5,
+      vs2: 9,
+      action: 3,
+    });
+  });
+
+  it("parses reroll syntax for vs1", () => {
+    const result = parseRerollInline("iv-reroll:vs1|8|3|Iron|3|0|3|7|4");
+    expect(result).toEqual({
+      type: "reroll",
+      die: "vs1",
+      oldVal: 8,
+      newVal: 3,
+      stat: "Iron",
+      statVal: 3,
+      adds: 0,
+      vs1: 3,
+      vs2: 7,
+      action: 4,
+    });
+  });
+
+  it("parses reroll syntax for vs2", () => {
+    const result = parseRerollInline("iv-reroll:vs2|10|2|Shadow|1|2|5|2|3");
+    expect(result).toEqual({
+      type: "reroll",
+      die: "vs2",
+      oldVal: 10,
+      newVal: 2,
+      stat: "Shadow",
+      statVal: 1,
+      adds: 2,
+      vs1: 5,
+      vs2: 2,
+      action: 3,
+    });
+  });
+
+  it("returns null for invalid die name", () => {
+    expect(parseRerollInline("iv-reroll:invalid|3|6|Edge|2|1|5|9|3")).toBeNull();
+  });
+
+  it("returns null for missing parts", () => {
+    expect(parseRerollInline("iv-reroll:action|3|6")).toBeNull();
+  });
+
+  it("returns null for non-numeric values", () => {
+    expect(parseRerollInline("iv-reroll:action|a|6|Edge|2|1|5|9|3")).toBeNull();
+  });
+
+  it("returns null for non-reroll prefix", () => {
+    expect(parseRerollInline("iv-move:Strike|Iron|4|2|1|3|7")).toBeNull();
+  });
+});
+
+describe("rerollToInlineSyntax", () => {
+  it("generates reroll syntax for action die", () => {
+    const result = rerollToInlineSyntax("action", 3, 6, "Edge", 2, 1, 5, 9, 3);
+    expect(result).toBe("`iv-reroll:action|3|6|Edge|2|1|5|9|3`");
+  });
+
+  it("generates reroll syntax for vs1", () => {
+    const result = rerollToInlineSyntax("vs1", 8, 3, "Iron", 3, 0, 3, 7, 4);
+    expect(result).toBe("`iv-reroll:vs1|8|3|Iron|3|0|3|7|4`");
+  });
+
+  it("generates reroll syntax for vs2", () => {
+    const result = rerollToInlineSyntax("vs2", 10, 2, "Shadow", 1, 2, 5, 2, 3);
+    expect(result).toBe("`iv-reroll:vs2|10|2|Shadow|1|2|5|2|3`");
+  });
+});
+
+describe("isInlineMechanics extended - reroll", () => {
+  it("returns true for reroll syntax", () => {
+    expect(isInlineMechanics("iv-reroll:action|3|6|Edge|2|1|5|9|3")).toBe(true);
+  });
+});
+
+describe("parseInlineMechanics extended - reroll", () => {
+  it("parses reroll", () => {
+    const result = parseInlineMechanics("iv-reroll:action|3|6|Edge|2|1|5|9|3");
+    expect(result?.type).toBe("reroll");
+  });
+});
