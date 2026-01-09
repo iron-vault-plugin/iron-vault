@@ -18,16 +18,35 @@ import { insertInlineText } from "../inline/editor-utils";
 /**
  * Format a dice expression with roll values shown.
  * e.g., "10d6 + 5" with rolls [1,2,3,4,5,6,1,2,3,4] becomes "10d6{1+2+3+4+5+6+1+2+3+4=31} + 5"
+ * For simple single-die rolls like "1d6", just shows "4" instead of "1d6{4=4}"
  */
 function formatExpressionWithRolls(
   expr: ExprNode<{ value: number; rolls?: number[] }>,
 ): string {
+  // Pre-scan to detect if expression has any operations (binary/unary)
+  function hasOperations(node: ExprNode<{ value: number; rolls?: number[] }>): boolean {
+    if ("left" in node && "right" in node && "operator" in node) {
+      return true;
+    }
+    if ("operand" in node && "operator" in node) {
+      return true;
+    }
+    return false;
+  }
+
+  const exprHasOperations = hasOperations(expr);
+
   // Walk the expression tree and build a formatted string
   function formatNode(node: ExprNode<{ value: number; rolls?: number[] }>): string {
     // Check if this is a dice node by looking for rolls in the label
     if (node.label.rolls && node.label.rolls.length > 0) {
       const rolls = node.label.rolls;
       const sum = rolls.reduce((a, b) => a + b, 0);
+      // Only show brackets if there's actual math: multiple dice OR operations in the expression
+      if (rolls.length === 1 && !exprHasOperations) {
+        // Single die, no modifiers - just show the result directly
+        return `${sum}`;
+      }
       // Format as "NdS{r1+r2+...=sum}"
       return `${node.toString()}{${rolls.join("+")}=${sum}}`;
     }
