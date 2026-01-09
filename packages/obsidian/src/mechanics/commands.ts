@@ -41,14 +41,13 @@ function formatExpressionWithRolls(
     // Check if this is a dice node by looking for rolls in the label
     if (node.label.rolls && node.label.rolls.length > 0) {
       const rolls = node.label.rolls;
-      const sum = rolls.reduce((a, b) => a + b, 0);
       // Only show brackets if there's actual math: multiple dice OR operations in the expression
       if (rolls.length === 1 && !exprHasOperations) {
-        // Single die, no modifiers - show "1d100 -> 17" style instead of "1d100{17=17}"
-        return `${node.toString()} -> ${sum}`;
+        // Single die, no modifiers - just show "1d100" (renderer adds "→ result")
+        return node.toString();
       }
-      // Format as "NdS{r1+r2+...=sum}"
-      return `${node.toString()}{${rolls.join("+")}=${sum}}`;
+      // Format as "NdS{r1+r2+...}" - just show the rolls, no sum (final result shown after arrow)
+      return `${node.toString()}{${rolls.join("+")}}`;
     }
 
     // For binary operations, recursively format children
