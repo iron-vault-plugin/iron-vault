@@ -46,7 +46,7 @@ import {
   renderInlineDiceRoll,
   renderInlineActionRoll,
   renderInlineReroll,
-} from "./renderers";
+} from "./renderers/index";
 
 /**
  * Register the inline mechanics post-processor.

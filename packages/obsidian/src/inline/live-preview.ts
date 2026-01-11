@@ -38,7 +38,7 @@ import {
   renderInlineDiceRoll,
   renderInlineActionRoll,
   renderInlineReroll,
-} from "./renderers";
+} from "./renderers/index";
 
 /**
  * Check if the editor selection overlaps with a given range.

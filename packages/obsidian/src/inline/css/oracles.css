@@ -26,3 +26,15 @@
   color: var(--text-error);
   font-size: 0.9em;
 }
+
+.iv-inline-cursed-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+
+  & svg {
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+  }
+}
