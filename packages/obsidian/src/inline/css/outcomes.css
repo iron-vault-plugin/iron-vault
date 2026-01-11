@@ -11,6 +11,8 @@
   background-position: center;
   flex-shrink: 0;
   vertical-align: middle;
+  position: relative;
+  top: -0.15em;
 }
 
 .iv-inline-mechanics {

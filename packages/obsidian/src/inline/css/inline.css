@@ -21,7 +21,7 @@
 
 .iv-inline-mechanics {
   display: inline;
-  padding: 0.1em 0.4em;
+  padding: 0.05em 0.4em;
   border-radius: 4px;
   background-color: var(--background-secondary);
   font-family: var(--font-text);
@@ -97,6 +97,8 @@
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
+  position: relative;
+  top: -0.15em;
 
   & svg {
     width: 1em;
