@@ -29,7 +29,7 @@ import {
   EntitySpec,
   NewEntityModalResults,
 } from "./specs";
-import { entityCreateToInlineSyntax } from "../inline";
+import { entityCreateToInlineSyntax, insertInlineText } from "../inline";
 
 type OraclePromptOption =
   | { action: "pick"; row: OracleRollableRow }
@@ -266,13 +266,12 @@ export async function generateEntityCommand(
 
     // If inline entities is enabled and we created a file, use inline format
     if (plugin.settings.useInlineEntities) {
-      const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
       const inlineText = entityCreateToInlineSyntax(
         entityDesc.label,
         entityName,
         filePath,
       );
-      editor.replaceSelection(`${extraSpace}${inlineText} `);
+      insertInlineText(editor, inlineText);
       return;
     }
   } else {
