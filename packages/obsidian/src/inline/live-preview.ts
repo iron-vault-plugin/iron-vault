@@ -19,26 +19,7 @@ import {
   parseInlineMechanics,
   ParsedInlineMechanics,
 } from "./syntax";
-import {
-  renderInlineMove,
-  renderInlineOracle,
-  renderInlineProgress,
-  renderInlineNoRoll,
-  renderInlineTrackAdvance,
-  renderInlineTrackCreate,
-  renderInlineTrackComplete,
-  renderInlineTrackReopen,
-  renderInlineClockCreate,
-  renderInlineClockAdvance,
-  renderInlineClockResolve,
-  renderInlineMeter,
-  renderInlineBurn,
-  renderInlineInitiative,
-  renderInlineEntityCreate,
-  renderInlineDiceRoll,
-  renderInlineActionRoll,
-  renderInlineReroll,
-} from "./renderers/index";
+import { renderParsedInline } from "./renderers/index";
 
 /**
  * Check if the editor selection overlaps with a given range.
@@ -74,44 +55,7 @@ class InlineMechanicsWidget extends WidgetType {
   }
 
   override toDOM(_view: EditorView): HTMLElement {
-    switch (this.parsed.type) {
-      case "move":
-        return renderInlineMove(this.parsed, this.plugin);
-      case "oracle":
-        return renderInlineOracle(this.parsed, this.plugin);
-      case "progress":
-        return renderInlineProgress(this.parsed, this.plugin);
-      case "no-roll":
-        return renderInlineNoRoll(this.parsed, this.plugin);
-      case "track-advance":
-        return renderInlineTrackAdvance(this.parsed, this.plugin);
-      case "track-create":
-        return renderInlineTrackCreate(this.parsed, this.plugin);
-      case "track-complete":
-        return renderInlineTrackComplete(this.parsed, this.plugin);
-      case "track-reopen":
-        return renderInlineTrackReopen(this.parsed, this.plugin);
-      case "clock-create":
-        return renderInlineClockCreate(this.parsed, this.plugin);
-      case "clock-advance":
-        return renderInlineClockAdvance(this.parsed, this.plugin);
-      case "clock-resolve":
-        return renderInlineClockResolve(this.parsed, this.plugin);
-      case "meter":
-        return renderInlineMeter(this.parsed, this.plugin);
-      case "burn":
-        return renderInlineBurn(this.parsed, this.plugin);
-      case "initiative":
-        return renderInlineInitiative(this.parsed, this.plugin);
-      case "entity-create":
-        return renderInlineEntityCreate(this.parsed, this.plugin);
-      case "dice-roll":
-        return renderInlineDiceRoll(this.parsed, this.plugin);
-      case "action-roll":
-        return renderInlineActionRoll(this.parsed, this.plugin);
-      case "reroll":
-        return renderInlineReroll(this.parsed, this.plugin);
-    }
+    return renderParsedInline(this.parsed, this.plugin);
   }
 
   override ignoreEvent(event: MouseEvent | Event): boolean {
