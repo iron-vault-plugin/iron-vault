@@ -10,7 +10,6 @@ import {
 import { generateObsidianFilename } from "utils/filename";
 import { CampaignSelectComponent } from "utils/ui/settings/campaign-suggest";
 import { CharacterSelectComponent } from "utils/ui/settings/character-select";
-import { FolderTextSuggest } from "utils/ui/settings/folder";
 import { GenericTextSuggest } from "utils/ui/settings/generic-text-suggest";
 import { RelativeFolderSearchComponent } from "utils/ui/settings/relative-folder-search";
 import { ChallengeRanks, ProgressTrack } from "./progress";
@@ -160,7 +159,6 @@ export class ProgressTrackCreateModal extends Modal {
       new Setting(contentEl).setName("Target folder"),
       this.plugin.app,
       (search) => {
-        new FolderTextSuggest(this.app, search.inputEl);
         folderComponent = search
           .setPlaceholder("Choose a folder")
           .setValue(this.result.targetFolder)
