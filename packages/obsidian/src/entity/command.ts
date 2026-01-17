@@ -214,7 +214,8 @@ export async function generateEntityCommand(
   }
 
   const { entity, createFile } = results;
-  const entityName = results.name ?? `New ${entityDesc.label}`;
+  const entityName =
+    results.name ?? (createFile && results.fileName) || `New ${entityDesc.label}`;
 
   let oracleGroupTitle: string;
   let filePath: string | undefined;
