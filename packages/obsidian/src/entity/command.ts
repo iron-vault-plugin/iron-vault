@@ -214,9 +214,13 @@ export async function generateEntityCommand(
   }
 
   const { entity, createFile } = results;
+  // Check if name is valid (not undefined, empty, or containing literal "undefined")
+  const hasValidName =
+    results.name && !results.name.toLowerCase().includes("undefined");
   const entityName =
-    results.name ??
-    ((createFile && results.fileName) || `New ${entityDesc.label}`);
+    (hasValidName && results.name) ||
+    (createFile && results.fileName) ||
+    `New ${entityDesc.label}`;
 
   let oracleGroupTitle: string;
   let filePath: string | undefined;
