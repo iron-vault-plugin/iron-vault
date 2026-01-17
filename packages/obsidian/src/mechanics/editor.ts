@@ -20,6 +20,7 @@ import {
   oracleToInlineSyntax,
   noRollToInlineSyntax,
   actionRollToInlineSyntax,
+  insertInlineText,
 } from "../inline";
 import {
   MoveDescription,
@@ -193,9 +194,7 @@ export function insertInlineMove(
     inlineText = noRollToInlineSyntax(move);
   }
 
-  // Insert inline with a trailing space
-  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
-  editor.replaceSelection(`${extraSpace}${inlineText} `);
+  insertInlineText(editor, inlineText);
   return true;
 }
 
@@ -214,9 +213,7 @@ export function insertInlineOracle(
 
   const inlineText = oracleToInlineSyntax(roll);
 
-  // Insert inline with a trailing space
-  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
-  editor.replaceSelection(`${extraSpace}${inlineText} `);
+  insertInlineText(editor, inlineText);
   return true;
 }
 
@@ -252,7 +249,5 @@ export function insertInlineActionRoll(
     move.burn,
   );
 
-  // Insert inline with a trailing space
-  const extraSpace = editor.getCursor("from").ch > 0 ? " " : "";
-  editor.replaceSelection(`${extraSpace}${inlineText} `);
+  insertInlineText(editor, inlineText);
 }
