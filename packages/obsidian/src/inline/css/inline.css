@@ -93,7 +93,8 @@
 .iv-inline-meter-icon,
 .iv-inline-initiative-icon,
 .iv-inline-entity-icon,
-.iv-inline-dice-icon {
+.iv-inline-dice-icon,
+.iv-inline-cursed-icon {
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
