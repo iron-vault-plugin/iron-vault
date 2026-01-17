@@ -1,0 +1,66 @@
+/**
+ * Styles for inline dice rolls, action rolls, and rerolls.
+ */
+
+/* Dice roll container */
+.iv-inline-mechanics.dice-roll {
+  border-left: 3px solid var(--text-accent);
+}
+
+.iv-inline-dice-icon {
+  color: var(--text-accent);
+}
+
+.iv-inline-dice-icon svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
+.iv-inline-dice-expression {
+  font-family: var(--font-monospace);
+  color: var(--text-normal);
+}
+
+.iv-inline-dice-arrow {
+  color: var(--text-muted);
+}
+
+.iv-inline-dice-result {
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+/* Action roll - uses same outcome styling as moves */
+.iv-inline-mechanics.action-roll {
+  /* Inherits from outcome classes (strong-hit, weak-hit, miss) */
+}
+
+/* Reroll - uses outcome styling but with distinct reroll indicator */
+.iv-inline-mechanics.reroll {
+  /* Inherits from outcome classes (strong-hit, weak-hit, miss) */
+}
+
+.iv-inline-reroll-icon {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  color: var(--text-muted);
+}
+
+.iv-inline-reroll-icon svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
+.iv-inline-reroll-change {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Highlight rerolled challenge die */
+.iv-inline-challenge-die.rerolled {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

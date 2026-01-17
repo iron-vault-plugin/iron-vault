@@ -364,6 +364,21 @@ export class IronVaultSettingTab extends PluginSettingTab {
           });
       });
 
+    //--- Display
+
+    new Setting(containerEl).setName("Display").setHeading();
+
+    new Setting(containerEl)
+      .setName("Hide mechanics completely")
+      .setDesc(
+        "If enabled, mechanics blocks and inline mechanics will not be displayed at all. Good for when you want to just read a story.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.hideMechanics)
+          .onChange((value) => this.updateSetting("hideMechanics", value)),
+      );
+
     //--- Mechanics blocks
 
     new Setting(containerEl).setName("Mechanics blocks").setHeading();
@@ -393,28 +408,6 @@ export class IronVaultSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName("Hide mechanics completely")
-      .setDesc(
-        "If enabled, mechanics blocks will not be displayed at all. Good for when you want to just read a story.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.hideMechanics)
-          .onChange((value) => this.updateSetting("hideMechanics", value)),
-      );
-
-    new Setting(containerEl)
-      .setName("Inline tracks and clocks on creation")
-      .setDesc(
-        "If enabled, new tracks and clocks will be automatically inlined in the journal when created.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.inlineOnCreation)
-          .onChange((value) => this.updateSetting("inlineOnCreation", value)),
-      );
-
-    new Setting(containerEl)
       .setName("Always record actor")
       .setDesc(
         "Enable this to generate actor blocks, even in a campaign with only one PC.",
@@ -423,6 +416,100 @@ export class IronVaultSettingTab extends PluginSettingTab {
         toggle
           .setValue(settings.alwaysRecordActor)
           .onChange((value) => this.updateSetting("alwaysRecordActor", value)),
+      );
+
+    new Setting(containerEl)
+      .setName("Embed tracks and clocks on creation")
+      .setDesc(
+        "If enabled, new tracks and clocks will have an embed link added to the mechanics block when created.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.inlineOnCreation)
+          .onChange((value) => this.updateSetting("inlineOnCreation", value)),
+      );
+
+    //--- Inline mechanics
+
+    new Setting(containerEl).setName("Inline mechanics").setHeading();
+
+    new Setting(containerEl)
+      .setName("Use inline moves")
+      .setDesc(
+        "When enabled, move results are inserted as inline text instead of code blocks.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useInlineMoves)
+          .onChange((value) => this.updateSetting("useInlineMoves", value)),
+      );
+
+    new Setting(containerEl)
+      .setName("Use inline oracles")
+      .setDesc(
+        "When enabled, oracle results are inserted as inline text instead of code blocks.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useInlineOracles)
+          .onChange((value) => this.updateSetting("useInlineOracles", value)),
+      );
+
+    new Setting(containerEl)
+      .setName("Use inline progress tracks")
+      .setDesc(
+        "When enabled, progress track operations (create, advance, complete, reopen) are inserted as inline text instead of code blocks.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useInlineProgressTracks)
+          .onChange((value) =>
+            this.updateSetting("useInlineProgressTracks", value),
+          ),
+      );
+
+    new Setting(containerEl)
+      .setName("Use inline clocks")
+      .setDesc(
+        "When enabled, clock operations (create, advance, resolve) are inserted as inline text instead of code blocks.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useInlineClocks)
+          .onChange((value) => this.updateSetting("useInlineClocks", value)),
+      );
+
+    new Setting(containerEl)
+      .setName("Use inline meters")
+      .setDesc(
+        "When enabled, character meter changes (health, momentum, burn, initiative) are inserted as inline text instead of code blocks.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useInlineMeters)
+          .onChange((value) => this.updateSetting("useInlineMeters", value)),
+      );
+
+    new Setting(containerEl)
+      .setName("Use inline entities")
+      .setDesc(
+        "When enabled, entity generations (NPCs, locations, etc.) are inserted as inline text when a file is created. Oracle rolls are still stored in the entity file.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useInlineEntities)
+          .onChange((value) => this.updateSetting("useInlineEntities", value)),
+      );
+
+    new Setting(containerEl)
+      .setName("Use inline dice rolls")
+      .setDesc(
+        "When enabled, dice rolls (Roll dice, Make action roll, Reroll a die) are inserted as inline text instead of code blocks.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useInlineDiceRolls)
+          .onChange((value) => this.updateSetting("useInlineDiceRolls", value)),
       );
 
     new Setting(containerEl).setName("Legacy").setHeading();

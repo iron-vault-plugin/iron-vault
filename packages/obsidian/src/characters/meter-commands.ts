@@ -17,6 +17,11 @@ import {
 } from "./action-context";
 import { labelForMeter } from "./display";
 import { MeterWithLens, MeterWithoutLens, momentumOps } from "./lens";
+import {
+  burnToInlineSyntax,
+  meterToInlineSyntax,
+  insertInlineText,
+} from "../inline";
 
 export async function burnMomentum(
   plugin: IronVaultPlugin,
@@ -39,15 +44,22 @@ export async function burnMomentum(
       },
     );
     const newValue = lens.momentum.get(updated);
-    const burnNode = node("burn", {
-      properties: { from: oldValue, to: newValue },
-    });
-    appendNodesToMoveOrMechanicsBlockWithActor(
-      editor,
-      plugin,
-      actionContext,
-      burnNode,
-    );
+
+    // Use inline if setting is enabled
+    if (plugin.settings.useInlineMeters) {
+      const inlineText = burnToInlineSyntax(oldValue, newValue);
+      insertInlineText(editor, inlineText);
+    } else {
+      const burnNode = node("burn", {
+        properties: { from: oldValue, to: newValue },
+      });
+      appendNodesToMoveOrMechanicsBlockWithActor(
+        editor,
+        plugin,
+        actionContext,
+        burnNode,
+      );
+    }
   }
 }
 
@@ -151,10 +163,20 @@ export const modifyMeterCommand = async (
     properties: { from: measure.value, to: newValue },
   });
 
-  appendNodesToMoveOrMechanicsBlockWithActor(
-    editor,
-    plugin,
-    actionContext,
-    meterNode,
-  );
+  // Use inline if setting is enabled
+  if (plugin.settings.useInlineMeters) {
+    const inlineText = meterToInlineSyntax(
+      labelForMeter(measure),
+      measure.value,
+      newValue,
+    );
+    insertInlineText(editor, inlineText);
+  } else {
+    appendNodesToMoveOrMechanicsBlockWithActor(
+      editor,
+      plugin,
+      actionContext,
+      meterNode,
+    );
+  }
 };

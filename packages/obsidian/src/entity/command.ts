@@ -29,6 +29,7 @@ import {
   EntitySpec,
   NewEntityModalResults,
 } from "./specs";
+import { entityCreateToInlineSyntax, insertInlineText } from "../inline";
 
 type OraclePromptOption =
   | { action: "pick"; row: OracleRollableRow }
@@ -213,9 +214,16 @@ export async function generateEntityCommand(
   }
 
   const { entity, createFile } = results;
-  const entityName = results.name ?? `New ${entityDesc.label}`;
+  // Check if name is valid (not undefined, empty, or containing literal "undefined")
+  const hasValidName =
+    results.name && !results.name.toLowerCase().includes("undefined");
+  const entityName =
+    (hasValidName && results.name) ||
+    (createFile && results.fileName) ||
+    `New ${entityDesc.label}`;
 
   let oracleGroupTitle: string;
+  let filePath: string | undefined;
   if (createFile) {
     const fileName = results.fileName;
     const folder = await getExistingOrNewFolder(
@@ -254,12 +262,24 @@ export async function generateEntityCommand(
         { allowProtoPropertiesByDefault: true },
       ),
     );
+    filePath = file.path;
     oracleGroupTitle = plugin.app.fileManager.generateMarkdownLink(
       file,
       view.file?.path ?? "",
       undefined,
       entityName,
     );
+
+    // If inline entities is enabled and we created a file, use inline format
+    if (plugin.settings.useInlineEntities) {
+      const inlineText = entityCreateToInlineSyntax(
+        entityDesc.label,
+        entityName,
+        filePath,
+      );
+      insertInlineText(editor, inlineText);
+      return;
+    }
   } else {
     oracleGroupTitle = entityName;
   }

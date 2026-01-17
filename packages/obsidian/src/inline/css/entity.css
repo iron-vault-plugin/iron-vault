@@ -1,0 +1,16 @@
+/**
+ * Entity inline styles.
+ */
+
+.iv-inline-entity-icon {
+  color: var(--text-accent);
+}
+
+.iv-inline-entity-type {
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+
+.iv-inline-mechanics.entity-create {
+  border-left: 3px solid var(--text-accent);
+}

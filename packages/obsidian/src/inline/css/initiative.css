@@ -1,0 +1,41 @@
+/**
+ * Initiative inline styles.
+ */
+
+.iv-inline-initiative-change {
+  color: var(--text-muted);
+}
+
+.iv-inline-mechanics {
+  &.initiative {
+    border-left: 3px solid var(--text-accent);
+
+    & .iv-inline-initiative-icon {
+      color: var(--text-accent);
+    }
+  }
+
+  &.initiative-in-control {
+    border-left: 3px solid var(--text-success);
+
+    & .iv-inline-initiative-icon {
+      color: var(--text-success);
+    }
+  }
+
+  &.initiative-bad-spot {
+    border-left: 3px solid var(--text-error);
+
+    & .iv-inline-initiative-icon {
+      color: var(--text-error);
+    }
+  }
+
+  &.initiative-out-of-combat {
+    border-left: 3px solid var(--text-muted);
+
+    & .iv-inline-initiative-icon {
+      color: var(--text-muted);
+    }
+  }
+}

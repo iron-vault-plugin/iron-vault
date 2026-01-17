@@ -1,0 +1,22 @@
+/**
+ * Move and progress roll inline styling.
+ */
+
+/* Stat display */
+.iv-inline-stat {
+  color: var(--text-muted);
+}
+
+/* Burn momentum indicator (flame icon before score) */
+.iv-inline-burn-icon {
+  color: var(--text-warning);
+}
+
+/* No-roll move styling */
+.iv-inline-mechanics.no-roll {
+  border-left: 3px solid var(--text-muted);
+}
+
+.iv-inline-noroll-icon {
+  color: var(--text-muted);
+}

@@ -1,0 +1,70 @@
+/**
+ * Outcome icon and styling for moves and progress rolls.
+ */
+
+.iv-inline-outcome-icon {
+  display: inline-block;
+  width: 1.4em;
+  height: 0.8em;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  flex-shrink: 0;
+  vertical-align: middle;
+  position: relative;
+  top: -0.15em;
+}
+
+.iv-inline-mechanics {
+  &.strong-hit {
+    border-left: 3px solid var(--text-success);
+
+    & .iv-inline-outcome-icon {
+      background-image: url("../../img/Outcomes/outcome-strong-hit.svg");
+    }
+
+    & .iv-inline-score {
+      color: var(--text-success);
+    }
+
+    & .iv-inline-match {
+      color: var(--text-success);
+    }
+  }
+
+  &.weak-hit {
+    border-left: 3px solid var(--text-warning);
+
+    & .iv-inline-outcome-icon {
+      background-image: url("../../img/Outcomes/outcome-weak-hit.svg");
+    }
+
+    & .iv-inline-score {
+      color: var(--text-warning);
+    }
+  }
+
+  &.miss {
+    border-left: 3px solid var(--text-error);
+
+    & .iv-inline-outcome-icon {
+      background-image: url("../../img/Outcomes/outcome-miss.svg");
+    }
+
+    & .iv-inline-score {
+      color: var(--text-error);
+    }
+
+    & .iv-inline-match {
+      color: var(--text-error);
+    }
+  }
+}
+
+/* Match indicator */
+.iv-inline-match {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.85em;
+  margin-left: 0.15em;
+}

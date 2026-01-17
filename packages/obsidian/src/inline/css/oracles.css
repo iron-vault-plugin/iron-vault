@@ -1,0 +1,30 @@
+/**
+ * Oracle inline styles.
+ */
+
+.iv-inline-mechanics.oracle {
+  border-left: 3px solid var(--text-accent);
+}
+
+.iv-inline-oracle-icon {
+  color: var(--text-accent);
+}
+
+.iv-inline-oracle-name {
+  color: var(--text-accent);
+
+  &.iv-inline-link:hover {
+    color: var(--link-color-hover, var(--text-accent-hover));
+  }
+}
+
+.iv-inline-oracle-result {
+  font-style: italic;
+}
+
+.iv-inline-cursed {
+  color: var(--text-error);
+  font-size: 0.9em;
+}
+
+/* .iv-inline-cursed-icon styles are in inline.css shared icon container */

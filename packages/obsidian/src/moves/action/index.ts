@@ -25,6 +25,8 @@ import {
   createOrAppendMechanicsWithActor,
   findAdjacentMechanicsBlock,
   updatePreviousMoveOrCreateBlockWithActor,
+  insertInlineMove,
+  insertInlineActionRoll,
 } from "mechanics/editor";
 import {
   generateActionRoll,
@@ -372,12 +374,16 @@ export async function runMoveCommand(
     }
   }
 
-  createOrAppendMechanicsWithActor(
-    editor,
-    plugin,
-    context,
-    generateMechanicsNode(moveDescription),
-  );
+  // Try inline insertion first if enabled
+  if (!insertInlineMove(editor, plugin, moveDescription)) {
+    // Fall back to block insertion
+    createOrAppendMechanicsWithActor(
+      editor,
+      plugin,
+      context,
+      generateMechanicsNode(moveDescription),
+    );
+  }
 }
 
 function createEmptyMoveDescription(
@@ -709,6 +715,23 @@ export async function makeActionRollCommand(
 ): Promise<void> {
   const context = await determineCharacterActionContext(plugin, view);
   const diceRoller = context.campaignContext.diceRollerFor("move");
+
+  // If inline dice rolls are enabled, use inline format (standalone, no block attachment)
+  if (plugin.settings.useInlineDiceRolls) {
+    const move: Datasworn.EmbeddedActionRollMove | Datasworn.MoveActionRoll =
+      createPlaceholderMove("action_roll", "Generic action roll");
+
+    const moveDescription: ActionMoveDescription = await handleActionRoll(
+      plugin,
+      diceRoller,
+      context,
+      move,
+      false,
+    );
+
+    insertInlineActionRoll(editor, plugin, moveDescription);
+    return;
+  }
 
   const priorBlock = findAdjacentMechanicsBlock(editor);
   let updatePriorMove = false;

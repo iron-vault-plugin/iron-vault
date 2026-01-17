@@ -47,6 +47,7 @@ import { ClockIndex, ClockIndexer } from "./clocks/clock-file";
 import { Datastore } from "./datastore";
 import registerMechanicsBlock from "./mechanics/mechanics-blocks";
 import { registerMoveBlock } from "./moves/block";
+import { registerInlineMechanics } from "./inline";
 import { IronVaultSettingTab } from "./settings/ui";
 import { pluginAsset } from "./utils/obsidian";
 
@@ -236,6 +237,7 @@ export default class IronVaultPlugin extends Plugin implements TrackedEntities {
     registerCharacterBlock(this);
     registerAssetBlock(this);
     registerTruthBlock(this);
+    registerInlineMechanics(this);
   }
 
   override onUserEnable(): void {}

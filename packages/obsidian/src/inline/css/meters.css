@@ -1,0 +1,33 @@
+/**
+ * Meter inline styles.
+ */
+
+.iv-inline-meter-change {
+  font-weight: 500;
+}
+
+.iv-inline-mechanics {
+  &.meter-increase {
+    border-left: 3px solid var(--text-success);
+
+    & .iv-inline-meter-icon {
+      color: var(--text-success);
+    }
+
+    & .iv-inline-meter-change {
+      color: var(--text-success);
+    }
+  }
+
+  &.meter-decrease {
+    border-left: 3px solid var(--text-error);
+
+    & .iv-inline-meter-icon {
+      color: var(--text-error);
+    }
+
+    & .iv-inline-meter-change {
+      color: var(--text-error);
+    }
+  }
+}

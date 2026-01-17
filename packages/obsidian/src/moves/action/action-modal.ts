@@ -5,6 +5,7 @@ import {
   MarkdownFileInfo,
   MarkdownView,
   Modal,
+  Notice,
   Setting,
 } from "obsidian";
 
@@ -21,6 +22,13 @@ import { CharacterContext } from "../../character-tracker";
 import { MomentumTracker, momentumTrackerReader } from "../../characters/lens";
 import { ActionMoveDescription } from "../desc";
 import { ActionMoveWrapper, formatRollResult } from "../wrapper";
+import {
+  parseInlineMechanics,
+  rerollToInlineSyntax,
+  ParsedInlineMove,
+  ParsedInlineActionRoll,
+} from "../../inline/syntax";
+import { insertInlineText } from "../../inline/editor-utils";
 
 export async function checkForMomentumBurn(
   app: App,
@@ -127,6 +135,22 @@ export async function rerollDie(
   const actionContext = await determineCharacterActionContext(plugin, view);
   const diceRoller = actionContext.campaignContext.diceRollerFor("move");
 
+  // Check if inline dice rolls are enabled - if so, try to find a preceding inline roll
+  if (plugin.settings.useInlineDiceRolls) {
+    const inlineRoll = findPrecedingInlineRoll(editor);
+    if (inlineRoll) {
+      await handleInlineReroll(
+        plugin,
+        editor,
+        actionContext,
+        diceRoller,
+        inlineRoll,
+      );
+      return;
+    }
+    // No inline roll found, fall through to block-based reroll
+  }
+
   const dieName: "action" | "vs1" | "vs2" = await CustomSuggestModal.select(
     plugin.app,
     ["action", "vs1", "vs2"],
@@ -196,4 +220,144 @@ export async function rerollDie(
     actionContext,
     rerollNode,
   );
+}
+
+/**
+ * Search backwards from cursor to find the most recent inline roll (iv-move or iv-action-roll).
+ * Returns the parsed data if found, null otherwise.
+ */
+function findPrecedingInlineRoll(
+  editor: Editor,
+): { parsed: ParsedInlineMove | ParsedInlineActionRoll; raw: string } | null {
+  const cursor = editor.getCursor();
+  const lineNum = cursor.line;
+
+  // Search backwards through lines
+  for (let line = lineNum; line >= 0; line--) {
+    const lineText = editor.getLine(line);
+
+    // Find all inline code blocks in this line (search from end to start)
+    const matches = [...lineText.matchAll(/`([^`]+)`/g)];
+
+    // If we're on the cursor line, only consider matches before the cursor
+    const relevantMatches =
+      line === lineNum
+        ? matches.filter((m) => (m.index ?? 0) + m[0].length <= cursor.ch)
+        : matches;
+
+    // Check matches from end to start (most recent first)
+    for (let i = relevantMatches.length - 1; i >= 0; i--) {
+      const match = relevantMatches[i];
+      const content = match[1];
+
+      const parsed = parseInlineMechanics(content);
+      if (parsed && (parsed.type === "move" || parsed.type === "action-roll")) {
+        return { parsed, raw: content };
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Handle reroll for an inline roll.
+ */
+async function handleInlineReroll(
+  plugin: IronVaultPlugin,
+  editor: Editor,
+  actionContext: Awaited<ReturnType<typeof determineCharacterActionContext>>,
+  diceRoller: Awaited<
+    ReturnType<typeof actionContext.campaignContext.diceRollerFor>
+  >,
+  inlineRoll: {
+    parsed: ParsedInlineMove | ParsedInlineActionRoll;
+    raw: string;
+  },
+): Promise<void> {
+  const { parsed } = inlineRoll;
+
+  const dieName: "action" | "vs1" | "vs2" = await CustomSuggestModal.select(
+    plugin.app,
+    ["action", "vs1", "vs2"],
+    (item) =>
+      item === "action"
+        ? "Action die"
+        : item === "vs1"
+          ? "Challenge die 1"
+          : item === "vs2"
+            ? "Challenge die 2"
+            : "Other",
+    undefined,
+    "Select the die to reroll",
+  );
+
+  // Get the old value
+  let oldValue: number;
+  if (dieName === "action") {
+    oldValue = parsed.action;
+  } else if (dieName === "vs1") {
+    oldValue = parsed.vs1;
+  } else {
+    oldValue = parsed.vs2;
+  }
+
+  // Roll the new value
+  let newValue: number;
+  if (plugin.settings.promptForRollsInMoves) {
+    const input = await PromptModal.prompt(
+      plugin.app,
+      "Enter the new die roll value",
+    );
+    newValue = parseInt(input, 10);
+    if (isNaN(newValue)) {
+      new Notice("Invalid die value");
+      return;
+    }
+  } else {
+    let dieSides: number = 10;
+
+    if (dieName === "action") {
+      dieSides = 6;
+    } else if (dieName === "vs1" || dieName === "vs2") {
+      const [challenge1Sides, challenge2Sides] = actionContext.campaignContext
+        .localSettings.actionRollChallengeDiceSides ?? [10, 10];
+      dieSides = dieName === "vs1" ? challenge1Sides : challenge2Sides;
+    }
+
+    newValue = (
+      await diceRoller.rollAsync(
+        DiceGroup.of(
+          new Dice(
+            1,
+            dieSides,
+            dieName === "action"
+              ? DieKind.Action
+              : dieName === "vs1"
+                ? DieKind.Challenge1
+                : DieKind.Challenge2,
+          ),
+        ),
+      )
+    )[0].value;
+  }
+
+  // Calculate the new challenge dice values (update if that die was rerolled)
+  const newVs1 = dieName === "vs1" ? newValue : parsed.vs1;
+  const newVs2 = dieName === "vs2" ? newValue : parsed.vs2;
+
+  // Generate the reroll inline syntax
+  const inlineText = rerollToInlineSyntax(
+    dieName,
+    oldValue,
+    newValue,
+    parsed.stat,
+    parsed.statVal,
+    parsed.adds,
+    newVs1,
+    newVs2,
+    parsed.action,
+  );
+
+  insertInlineText(editor, inlineText);
 }

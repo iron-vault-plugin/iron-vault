@@ -70,6 +70,27 @@ export class IronVaultPluginSettings {
   /** Whether to use new style move sidebar or revert to legacy move modal. */
   useLegacyMoveModal: boolean = false;
 
+  /** Use inline format for moves instead of code blocks. */
+  useInlineMoves: boolean = false;
+
+  /** Use inline format for oracles instead of code blocks. */
+  useInlineOracles: boolean = false;
+
+  /** Use inline format for progress track operations. */
+  useInlineProgressTracks: boolean = false;
+
+  /** Use inline format for clock operations. */
+  useInlineClocks: boolean = false;
+
+  /** Use inline format for character meter changes. */
+  useInlineMeters: boolean = false;
+
+  /** Use inline format for entity creation (when file is created). */
+  useInlineEntities: boolean = false;
+
+  /** Use inline format for dice rolls (Roll dice, Make action roll). */
+  useInlineDiceRolls: boolean = false;
+
   emitter?: Emittery;
 
   constructor() {

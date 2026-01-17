@@ -14,6 +14,21 @@ import {
 } from "../utils/editor";
 import { ActorDescription } from "./actor";
 import * as ops from "./operations";
+import {
+  moveToInlineSyntax,
+  progressToInlineSyntax,
+  oracleToInlineSyntax,
+  noRollToInlineSyntax,
+  actionRollToInlineSyntax,
+  insertInlineText,
+} from "../inline";
+import {
+  MoveDescription,
+  ActionMoveDescription,
+  moveIsAction,
+  moveIsProgress,
+} from "moves/desc";
+import { RollWrapper } from "model/rolls";
 
 export const MECHANICS_CODE_BLOCK_TAG = "iron-vault-mechanics";
 
@@ -154,4 +169,85 @@ export function actorForActionContext(
   }
 
   return undefined;
+}
+
+/**
+ * Insert a move as inline mechanics if the setting is enabled.
+ * Returns true if inline was used, false if block should be used.
+ */
+export function insertInlineMove(
+  editor: Editor,
+  plugin: IronVaultPlugin,
+  move: MoveDescription,
+): boolean {
+  if (!plugin.settings.useInlineMoves) {
+    return false;
+  }
+
+  let inlineText: string;
+  if (moveIsAction(move)) {
+    inlineText = moveToInlineSyntax(move);
+  } else if (moveIsProgress(move)) {
+    inlineText = progressToInlineSyntax(move);
+  } else {
+    // No-roll move
+    inlineText = noRollToInlineSyntax(move);
+  }
+
+  insertInlineText(editor, inlineText);
+  return true;
+}
+
+/**
+ * Insert an oracle roll as inline mechanics if the setting is enabled.
+ * Returns true if inline was used, false if block should be used.
+ */
+export function insertInlineOracle(
+  editor: Editor,
+  plugin: IronVaultPlugin,
+  roll: RollWrapper,
+): boolean {
+  if (!plugin.settings.useInlineOracles) {
+    return false;
+  }
+
+  const inlineText = oracleToInlineSyntax(roll);
+
+  insertInlineText(editor, inlineText);
+  return true;
+}
+
+/**
+ * Insert an action roll (without a move) as inline mechanics.
+ */
+export function insertInlineActionRoll(
+  editor: Editor,
+  _plugin: IronVaultPlugin,
+  move: ActionMoveDescription,
+): void {
+  // Handle both V1 (adds as number) and V2 (adds as array) formats
+  const rawAdds = move.adds;
+  let addsArray: { amount: number; desc?: string }[];
+  let totalAdds: number;
+
+  if (typeof rawAdds === "number") {
+    totalAdds = rawAdds;
+    addsArray = totalAdds > 0 ? [{ amount: totalAdds }] : [];
+  } else {
+    addsArray = rawAdds ?? [];
+    totalAdds = addsArray.reduce((a, b) => a + b.amount, 0);
+  }
+
+  const inlineText = actionRollToInlineSyntax(
+    move.stat,
+    move.action,
+    move.statVal,
+    totalAdds,
+    move.challenge1,
+    move.challenge2,
+    addsArray.length > 0 ? addsArray : undefined,
+    move.burn,
+  );
+
+  insertInlineText(editor, inlineText);
 }
