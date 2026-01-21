@@ -5,7 +5,7 @@ catalog:
   '@3d-dice/dice-box': ^1.1.4
   '@3d-dice/theme-smooth': ^0.2.1
   '@codemirror/language': ^6.10.8
-  '@codemirror/view': ^6.38.1
+  '@codemirror/view': ^6.38.6
   '@datasworn/core': 0.1.0-0
   '@datasworn/ironsworn-classic': 0.1.0-0
   '@datasworn/ironsworn-classic-delve': 0.1.0-0
