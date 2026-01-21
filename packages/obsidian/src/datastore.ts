@@ -24,19 +24,19 @@ import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type:
 
 const logger = rootLogger.getLogger("datastore");
 
-const BUILTIN_SOURCES: [Datasworn.RulesPackage, number][] = [
-  [ironswornRuleset, 0],
-  [ironswornDelvePackage, 0],
+const BUILTIN_SOURCES: [Datasworn.RulesPackage, number, boolean][] = [
+  [ironswornRuleset, 0, false],
+  [ironswornDelvePackage, 0, false],
 
-  [starforgedRuleset, 0],
-  [starforgedSupp as Datasworn.Expansion, 5],
+  [starforgedRuleset, 0, false],
+  [starforgedSupp as Datasworn.Expansion, 5, false],
 
-  [sunderedIslesPackage, 0],
-  [sunderedSupp as Datasworn.Expansion, 5],
+  [sunderedIslesPackage, 0, false],
+  [sunderedSupp as Datasworn.Expansion, 5, false],
 
-  [ancientWondersPackage, 0],
-  [feRunnersPackage, 0],
-  [starsmithPackage, 0],
+  [ancientWondersPackage, 0, true],
+  [feRunnersPackage, 0, true],
+  [starsmithPackage, 0, true],
 ];
 
 export class Datastore extends Component {
@@ -81,8 +81,8 @@ export class Datastore extends Component {
     this._ready = false;
     this.indexer.clear();
 
-    for (const [pkg, priority] of BUILTIN_SOURCES) {
-      this.indexBuiltInData(pkg, priority);
+    for (const [pkg, priority, isCommunity] of BUILTIN_SOURCES) {
+      this.indexBuiltInData(pkg, priority, isCommunity);
     }
 
     if (this.plugin.settings.useHomebrew) {
@@ -162,8 +162,12 @@ export class Datastore extends Component {
   triggerIndexChanged() {
     if (!this._ready) {
       if (
-        BUILTIN_SOURCES.every(([pkg]) =>
-          this.indexer.hasSource(`@datasworn/${pkg._id}.json`),
+        BUILTIN_SOURCES.every(
+          ([pkg]) =>
+            this.indexer.hasSource(`@datasworn/${pkg._id}.json`) ||
+            this.indexer.hasSource(
+              `@datasworn-community-content/${pkg._id}.json`,
+            ),
         )
       ) {
         this._ready = true;
@@ -207,7 +211,11 @@ export class Datastore extends Component {
     // }
   }
 
-  indexBuiltInData(pkg: Datasworn.RulesPackage, _priority: number = 0) {
+  indexBuiltInData(
+    pkg: Datasworn.RulesPackage,
+    _priority: number = 0,
+    isCommunity = false,
+  ) {
     // if (isDebugEnabled()) {
     //   logger.debug("Validating datasworn package %s", pkg._id);
     //   const validate = this.ajv.compile(dataswornSchema);
@@ -222,7 +230,7 @@ export class Datastore extends Component {
     //   }
     // }
 
-    const path = `@datasworn/${pkg._id}.json`;
+    const path = `@datasworn${isCommunity ? "-community-content" : ""}/${pkg._id}.json`;
     this.dataManager.addCampaignContentRoot(path);
     this.dataManager.indexDirect({
       path,

@@ -202,6 +202,9 @@ overrides:
   '@datasworn/ironsworn-classic-delve': github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn/ironsworn-classic-delve
   '@datasworn/starforged': github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn/starforged
   '@datasworn/sundered-isles': github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn/sundered-isles
+  '@datasworn-community-content/ancient-wonders': github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn-community-content/ancient-wonders
+  '@datasworn-community-content/fe-runners': github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn-community-content/fe-runners
+  '@datasworn-community-content/starsmith': github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn-community-content/starsmith
 
 importers:
 
