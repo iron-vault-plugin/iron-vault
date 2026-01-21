@@ -1,8 +1,11 @@
 import { type Datasworn } from "@datasworn/core";
-import ironswornDelvePackage from "@datasworn/ironsworn-classic-delve/json/delve.json" assert { type: "json" };
-import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
-import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
-import sunderedIslesPackage from "@datasworn/sundered-isles/json/sundered_isles.json" assert { type: "json" };
+import { classic as ironswornRuleset } from "@datasworn/ironsworn-classic";
+import { delve as ironswornDelvePackage } from "@datasworn/ironsworn-classic-delve";
+import { starforged as starforgedRuleset } from "@datasworn/starforged";
+import { sundered_isles as sunderedIslesPackage } from "@datasworn/sundered-isles";
+import { ancient_wonders as ancientWondersPackage } from "@datasworn-community-content/ancient-wonders";
+import { fe_runners as feRunnersPackage } from "@datasworn-community-content/fe-runners";
+import { starsmith as starsmithPackage } from "@datasworn-community-content/starsmith";
 import Ajv from "ajv";
 import { BaseDataContext } from "datastore/data-context";
 import { DataIndexer } from "datastore/data-indexer";
@@ -21,17 +24,19 @@ import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type:
 
 const logger = rootLogger.getLogger("datastore");
 
-const BUILTIN_SOURCES: [Datasworn.RulesPackage, number][] = [
-  [ironswornRuleset as Datasworn.Ruleset, 0],
-  // @ts-expect-error tsc seems to infer type of data in an incompatible way
-  [ironswornDelvePackage as Datasworn.Expansion, 0],
+const BUILTIN_SOURCES: [Datasworn.RulesPackage, number, boolean][] = [
+  [ironswornRuleset, 0, false],
+  [ironswornDelvePackage, 0, false],
 
-  // @ts-expect-error tsc seems to infer type of data in an incompatible way
-  [starforgedRuleset as Datasworn.Ruleset, 0],
-  [starforgedSupp as Datasworn.Expansion, 5],
+  [starforgedRuleset, 0, false],
+  [starforgedSupp as Datasworn.Expansion, 5, false],
 
-  [sunderedIslesPackage as Datasworn.Expansion, 0],
-  [sunderedSupp as Datasworn.Expansion, 5],
+  [sunderedIslesPackage, 0, false],
+  [sunderedSupp as Datasworn.Expansion, 5, false],
+
+  [ancientWondersPackage, 0, true],
+  [feRunnersPackage, 0, true],
+  [starsmithPackage, 0, true],
 ];
 
 export class Datastore extends Component {
@@ -76,8 +81,8 @@ export class Datastore extends Component {
     this._ready = false;
     this.indexer.clear();
 
-    for (const [pkg, priority] of BUILTIN_SOURCES) {
-      this.indexBuiltInData(pkg, priority);
+    for (const [pkg, priority, isCommunity] of BUILTIN_SOURCES) {
+      this.indexBuiltInData(pkg, priority, isCommunity);
     }
 
     if (this.plugin.settings.useHomebrew) {
@@ -157,8 +162,12 @@ export class Datastore extends Component {
   triggerIndexChanged() {
     if (!this._ready) {
       if (
-        BUILTIN_SOURCES.every(([pkg]) =>
-          this.indexer.hasSource(`@datasworn/${pkg._id}.json`),
+        BUILTIN_SOURCES.every(
+          ([pkg]) =>
+            this.indexer.hasSource(`@datasworn/${pkg._id}.json`) ||
+            this.indexer.hasSource(
+              `@datasworn-community-content/${pkg._id}.json`,
+            ),
         )
       ) {
         this._ready = true;
@@ -202,7 +211,11 @@ export class Datastore extends Component {
     // }
   }
 
-  indexBuiltInData(pkg: Datasworn.RulesPackage, _priority: number = 0) {
+  indexBuiltInData(
+    pkg: Datasworn.RulesPackage,
+    _priority: number = 0,
+    isCommunity = false,
+  ) {
     // if (isDebugEnabled()) {
     //   logger.debug("Validating datasworn package %s", pkg._id);
     //   const validate = this.ajv.compile(dataswornSchema);
@@ -217,7 +230,7 @@ export class Datastore extends Component {
     //   }
     // }
 
-    const path = `@datasworn/${pkg._id}.json`;
+    const path = `@datasworn${isCommunity ? "-community-content" : ""}/${pkg._id}.json`;
     this.dataManager.addCampaignContentRoot(path);
     this.dataManager.indexDirect({
       path,

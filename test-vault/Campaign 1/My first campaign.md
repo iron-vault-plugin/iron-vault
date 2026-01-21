@@ -2,9 +2,7 @@
 iron-vault-kind: campaign
 ironvault:
   playset:
-    type: globs
-    lines:
-      - "@include(starforged)"
-      - "*:starsmith/**"
+    type: registry
+    key: starforged__ancient_wonders__si_assets
   customContentFolder: Custom Content
 ---

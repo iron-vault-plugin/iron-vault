@@ -18,6 +18,42 @@ export const STANDARD_PLAYSET_DEFNS = {
       "asset:sundered_isles/** [starforged.recommended=true]",
     ],
   },
+  starforged__ancient_wonders: {
+    name: "Starforged w/ Ancient Wonders community expansion content",
+    lines: ["@include(starforged)", "*:ancient_wonders/**"],
+  },
+  starforged__ancient_wonders__si_assets: {
+    name: "Starforged w/ Sundered Isles assets and Ancient Wonders community expansion content",
+    lines: [
+      "@include(starforged)",
+      "asset:sundered_isles/** [starforged.recommended=true]",
+      "*:ancient_wonders/**",
+    ],
+  },
+  starforged__fe_runners: {
+    name: "Starforged w/ FE Runners community expansion content",
+    lines: ["@include(starforged)", "*:fe_runners/**"],
+  },
+  starforged__fe_runners__si_assets: {
+    name: "Starforged w/ Sundered Isles assets and FE Runners community expansion content",
+    lines: [
+      "@include(starforged)",
+      "asset:sundered_isles/** [starforged.recommended=true]",
+      "*:fe_runners/**",
+    ],
+  },
+  starforged__starsmith: {
+    name: "Starforged w/ Starsmith community expansion content",
+    lines: ["@include(starforged)", "*:starsmith/**"],
+  },
+  starforged__starsmith__si_assets: {
+    name: "Starforged w/ Sundered Isles assets and Starsmith community expansion content",
+    lines: [
+      "@include(starforged)",
+      "asset:sundered_isles/** [starforged.recommended=true]",
+      "*:starsmith/**",
+    ],
+  },
 
   sundered_isles__assets_all: {
     name: "Sundered Isles (all SF and SI assets)",

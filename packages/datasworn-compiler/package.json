@@ -15,7 +15,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.6.2",
   "dependencies": {
-    "@datasworn/core": "catalog:",
+    "@datasworn/core": "github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn/core",
     "@ironvault/dice": "workspace:^",
     "@ironvault/parsing": "workspace:^",
     "@ironvault/parsing-markdown": "workspace:^",
@@ -35,5 +35,8 @@
   "devDependencies": {
     "@types/mdast": "catalog:",
     "vitest": "catalog:"
+  },
+  "overrides": {
+    "@datasworn/core": "github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn/core"
   }
 }

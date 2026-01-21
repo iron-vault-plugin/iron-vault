@@ -16,6 +16,9 @@ type PlaysetState = {
   starforgedIncludeSunderedIslesRecommended: boolean;
   sunderedIslesIncludeTechnologicalAssets: boolean;
   sunderedIslesIncludeSupernaturalAssets: boolean;
+  starforgedIncludeAncientWonders: boolean;
+  starforgedIncludeFERunners: boolean;
+  starforgedIncludeStarsmith: boolean;
   customPlaysetChoice: string | null;
   customConfig: string;
 };
@@ -35,10 +38,58 @@ const STANDARD_PLAYSET_SETTINGS: Record<
   starforged: {
     base: "starforged",
     starforgedIncludeSunderedIslesRecommended: false,
+    starforgedIncludeAncientWonders: false,
+    starforgedIncludeFERunners: false,
+    starforgedIncludeStarsmith: false,
   },
   starforged__si_assets: {
     base: "starforged",
     starforgedIncludeSunderedIslesRecommended: true,
+    starforgedIncludeAncientWonders: false,
+    starforgedIncludeFERunners: false,
+    starforgedIncludeStarsmith: false,
+  },
+  starforged__ancient_wonders: {
+    base: "starforged",
+    starforgedIncludeSunderedIslesRecommended: false,
+    starforgedIncludeAncientWonders: true,
+    starforgedIncludeFERunners: false,
+    starforgedIncludeStarsmith: false,
+  },
+  starforged__ancient_wonders__si_assets: {
+    base: "starforged",
+    starforgedIncludeSunderedIslesRecommended: true,
+    starforgedIncludeAncientWonders: true,
+    starforgedIncludeFERunners: false,
+    starforgedIncludeStarsmith: false,
+  },
+  starforged__fe_runners: {
+    base: "starforged",
+    starforgedIncludeSunderedIslesRecommended: false,
+    starforgedIncludeAncientWonders: false,
+    starforgedIncludeFERunners: true,
+    starforgedIncludeStarsmith: false,
+  },
+  starforged__fe_runners__si_assets: {
+    base: "starforged",
+    starforgedIncludeSunderedIslesRecommended: true,
+    starforgedIncludeAncientWonders: false,
+    starforgedIncludeFERunners: true,
+    starforgedIncludeStarsmith: false,
+  },
+  starforged__starsmith: {
+    base: "starforged",
+    starforgedIncludeSunderedIslesRecommended: false,
+    starforgedIncludeAncientWonders: false,
+    starforgedIncludeFERunners: false,
+    starforgedIncludeStarsmith: true,
+  },
+  starforged__starsmith__si_assets: {
+    base: "starforged",
+    starforgedIncludeSunderedIslesRecommended: true,
+    starforgedIncludeAncientWonders: false,
+    starforgedIncludeFERunners: false,
+    starforgedIncludeStarsmith: true,
   },
   sundered_isles__assets_all: {
     base: "sundered_isles",
@@ -67,6 +118,9 @@ export class PlaysetSetting {
     base: "classic",
     classicIncludeDelve: false,
     starforgedIncludeSunderedIslesRecommended: false,
+    starforgedIncludeAncientWonders: false,
+    starforgedIncludeFERunners: false,
+    starforgedIncludeStarsmith: false,
     sunderedIslesIncludeTechnologicalAssets: true,
     sunderedIslesIncludeSupernaturalAssets: true,
     customConfig: "",
@@ -198,6 +252,57 @@ export class PlaysetSetting {
       });
 
     new Setting(contentEl)
+      .setDesc("Include Ancient Wonders community expansion content")
+      .setClass("iv-sub-setting")
+      .addToggle((toggle) => {
+        toggle.onChange((val) => {
+          this.updatePlaysetState({
+            starforgedIncludeAncientWonders: val,
+            starforgedIncludeFERunners: val && false,
+            starforgedIncludeStarsmith: val && false,
+          });
+        });
+        subToggles["starforgedIncludeAncientWonders"] = toggle;
+      })
+      .then((setting) => {
+        subToggleSettings["starforged"].push(setting);
+      });
+
+    new Setting(contentEl)
+      .setDesc("Include FE Runners community expansion content")
+      .setClass("iv-sub-setting")
+      .addToggle((toggle) => {
+        toggle.onChange((val) => {
+          this.updatePlaysetState({
+            starforgedIncludeAncientWonders: val && false,
+            starforgedIncludeFERunners: val,
+            starforgedIncludeStarsmith: val && false,
+          });
+        });
+        subToggles["starforgedIncludeFERunners"] = toggle;
+      })
+      .then((setting) => {
+        subToggleSettings["starforged"].push(setting);
+      });
+
+    new Setting(contentEl)
+      .setDesc("Include Starsmith community expansion content")
+      .setClass("iv-sub-setting")
+      .addToggle((toggle) => {
+        toggle.onChange((val) => {
+          this.updatePlaysetState({
+            starforgedIncludeAncientWonders: val && false,
+            starforgedIncludeFERunners: val && false,
+            starforgedIncludeStarsmith: val,
+          });
+        });
+        subToggles["starforgedIncludeStarsmith"] = toggle;
+      })
+      .then((setting) => {
+        subToggleSettings["starforged"].push(setting);
+      });
+
+    new Setting(contentEl)
       .setName("Sundered Isles")
       .addToggle((toggle) => {
         toggle.onChange((val) => {
@@ -285,6 +390,7 @@ export class PlaysetSetting {
       const standardPlayset = Object.entries(STANDARD_PLAYSET_SETTINGS).find(
         ([_key, settings]) => isMatch(this.playsetState, settings),
       );
+      console.log(this.playsetState, standardPlayset);
       if (standardPlayset) {
         return standardPlayset[0];
       } else {
@@ -305,6 +411,7 @@ export class PlaysetSetting {
       const standardSettings = Object.entries(STANDARD_PLAYSET_SETTINGS).find(
         ([standardPlayset]) => standardPlayset === playset,
       );
+      console.log(playset, standardSettings);
       if (standardSettings) {
         this.updatePlaysetState(standardSettings[1]);
       } else {
