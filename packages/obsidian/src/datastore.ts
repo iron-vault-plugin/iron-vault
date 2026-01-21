@@ -1,11 +1,11 @@
 import { type Datasworn } from "@datasworn/core";
-import ironswornDelvePackage from "@datasworn/ironsworn-classic-delve/json/delve.json" assert { type: "json" };
-import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
-import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
-import sunderedIslesPackage from "@datasworn/sundered-isles/json/sundered_isles.json" assert { type: "json" };
-import ancientWondersPackage from "@datasworn-community-content/ancient-wonders/json/ancient_wonders.json" assert { type: "json" };
-import feRunnersPackage from "@datasworn-community-content/fe-runners/json/fe_runners.json" assert { type: "json" };
-import starsmithPackage from "@datasworn-community-content/starsmith/json/starsmith.json" assert { type: "json" };
+import { classic as ironswornRuleset } from "@datasworn/ironsworn-classic";
+import { delve as ironswornDelvePackage } from "@datasworn/ironsworn-classic-delve";
+import { starforged as starforgedRuleset } from "@datasworn/starforged";
+import { sundered_isles as sunderedIslesPackage } from "@datasworn/sundered-isles";
+import { ancient_wonders as ancientWondersPackage } from "@datasworn-community-content/ancient-wonders";
+import { fe_runners as feRunnersPackage } from "@datasworn-community-content/fe-runners";
+import { starsmith as starsmithPackage } from "@datasworn-community-content/starsmith";
 import Ajv from "ajv";
 import { BaseDataContext } from "datastore/data-context";
 import { DataIndexer } from "datastore/data-indexer";
@@ -25,18 +25,18 @@ import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type:
 const logger = rootLogger.getLogger("datastore");
 
 const BUILTIN_SOURCES: [Datasworn.RulesPackage, number][] = [
-  [ironswornRuleset as unknown as Datasworn.Ruleset, 0],
-  [ironswornDelvePackage as unknown as Datasworn.Expansion, 0],
+  [ironswornRuleset, 0],
+  [ironswornDelvePackage, 0],
 
-  [starforgedRuleset as unknown as Datasworn.Ruleset, 0],
+  [starforgedRuleset, 0],
   [starforgedSupp as Datasworn.Expansion, 5],
 
-  [sunderedIslesPackage as unknown as Datasworn.Expansion, 0],
+  [sunderedIslesPackage, 0],
   [sunderedSupp as Datasworn.Expansion, 5],
 
-  [ancientWondersPackage as Datasworn.Expansion, 0],
-  [feRunnersPackage as Datasworn.Expansion, 0],
-  [starsmithPackage as Datasworn.Expansion, 0],
+  [ancientWondersPackage, 0],
+  [feRunnersPackage, 0],
+  [starsmithPackage, 0],
 ];
 
 export class Datastore extends Component {
