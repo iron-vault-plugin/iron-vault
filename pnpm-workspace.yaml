@@ -6,11 +6,6 @@ catalog:
   '@3d-dice/theme-smooth': ^0.2.1
   '@codemirror/language': ^6.10.8
   '@codemirror/view': ^6.38.1
-  '@datasworn/core': 0.1.0-0
-  '@datasworn/ironsworn-classic': 0.1.0-0
-  '@datasworn/ironsworn-classic-delve': 0.1.0-0
-  '@datasworn/starforged': 0.1.0-0
-  '@datasworn/sundered-isles': 0.1.0-0
   '@eslint/js': ^9.34.0
   '@jgoz/esbuild-plugin-typecheck': ^4.0.3
   '@nrsk/sigma': ^3.8.0

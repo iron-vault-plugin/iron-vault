@@ -3,6 +3,9 @@ import ironswornDelvePackage from "@datasworn/ironsworn-classic-delve/json/delve
 import ironswornRuleset from "@datasworn/ironsworn-classic/json/classic.json" assert { type: "json" };
 import starforgedRuleset from "@datasworn/starforged/json/starforged.json" assert { type: "json" };
 import sunderedIslesPackage from "@datasworn/sundered-isles/json/sundered_isles.json" assert { type: "json" };
+import ancientWondersPackage from "@datasworn-community-content/ancient-wonders/json/ancient_wonders.json" assert { type: "json" };
+import feRunnersPackage from "@datasworn-community-content/fe-runners/json/fe_runners.json" assert { type: "json" };
+import starsmithPackage from "@datasworn-community-content/starsmith/json/starsmith.json" assert { type: "json" };
 import Ajv from "ajv";
 import { BaseDataContext } from "datastore/data-context";
 import { DataIndexer } from "datastore/data-indexer";
@@ -22,16 +25,18 @@ import sunderedSupp from "../data/sundered-isles.supplement.json" assert { type:
 const logger = rootLogger.getLogger("datastore");
 
 const BUILTIN_SOURCES: [Datasworn.RulesPackage, number][] = [
-  [ironswornRuleset as Datasworn.Ruleset, 0],
-  // @ts-expect-error tsc seems to infer type of data in an incompatible way
-  [ironswornDelvePackage as Datasworn.Expansion, 0],
+  [ironswornRuleset as unknown as Datasworn.Ruleset, 0],
+  [ironswornDelvePackage as unknown as Datasworn.Expansion, 0],
 
-  // @ts-expect-error tsc seems to infer type of data in an incompatible way
-  [starforgedRuleset as Datasworn.Ruleset, 0],
+  [starforgedRuleset as unknown as Datasworn.Ruleset, 0],
   [starforgedSupp as Datasworn.Expansion, 5],
 
-  [sunderedIslesPackage as Datasworn.Expansion, 0],
+  [sunderedIslesPackage as unknown as Datasworn.Expansion, 0],
   [sunderedSupp as Datasworn.Expansion, 5],
+
+  [ancientWondersPackage as Datasworn.Expansion, 0],
+  [feRunnersPackage as Datasworn.Expansion, 0],
+  [starsmithPackage as Datasworn.Expansion, 0],
 ];
 
 export class Datastore extends Component {
