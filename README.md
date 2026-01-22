@@ -14,7 +14,7 @@ The full documentation is available on the docs site at https://ironvault.quest/
 
 You can start reading about the various Iron Vault features here:
 
-* [Built-in Official Rulesets](https://ironvault.quest/other-features/rulesets-and-homebrew.html#Built-in_Rulesets) - Includes support for Ironsworn Classic, Ironsworn: Delve, Ironsworn: Starforged, and Sundered Isles.
+* [Built-in Rulesets](https://ironvault.quest/other-features/rulesets-and-homebrew.html#Built-in_Rulesets) - Includes support for Ironsworn Classic, Ironsworn: Delve, Ironsworn: Starforged, and Sundered Isles, as well as community expansions Ancient Wonders, Fe-Runners, and Starsmith.
 * [Blocks](https://ironvault.quest/blocks/about-blocks.html) - Special blocks used throughout the tool to render things nicely and give you handy interactive widgets for editing game data.
 * [Commands](https://ironvault.quest/commands/about-commands.html) - Various Obsidian commands, all of which can be bound to hotkeys or the quick access bar, for performing all sorts of game actions, like making moves, creating progress tracks, etc.
 * [Entities](https://ironvault.quest/entities/about-entities.html) - How Iron Vault represents all sorts of different game concepts, or some ways that you might choose to represent them yourself.
@@ -30,7 +30,9 @@ You can start reading about the various Iron Vault features here:
 
 ## Installing the plugin
 
-For now, the easiest way to install is via [BRAT](https://tfthacker.com/brat-plugins). You should be able to add this repo to BRAT, and it will install the latest release of this plugin
+The easiest way to install the plugin is simply to search for it under Community Plugins in Obsidian itself. Just install, enable it, and you're good to go! Check out the [documentation site](https://ironvault.quest/) for more information on how to play!
+
+You can also install other versions via [BRAT](https://tfthacker.com/brat-plugins). You should be able to add this repo to BRAT, and it will install the latest release of this plugin
 
 You can also install it manually by downloading the latest files from [Github Release](https://github.com/iron-vault-plugin/iron-vault/releases/latest). You'll want to put `main.js`, `manifest.json`, and `styles.css` in `your-vault/.obsidian/plugins/iron-vault`.
 

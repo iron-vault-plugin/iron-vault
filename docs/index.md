@@ -26,7 +26,7 @@ You can also open this documentation at any time while in Obsidian by running th
 You can start reading about the various Iron Vault features here:
 
 * [[Campaigns/index]] - All functionality in Iron Vault is centered on a *campaign*-- which includes all of the game entities, such as player characters, that are part of the game.
-* [[Rulesets and Homebrew#Built-in Rulesets|Built-in Official Rulesets]] - Includes support for Ironsworn Classic, Ironsworn: Delve, Ironsworn: Starforged, and Sundered Isles.
+* [[Rulesets and Homebrew#Built-in Rulesets|Built-in Rulesets]] - Includes support for Ironsworn Classic, Ironsworn: Delve, Ironsworn: Starforged, and Sundered Isles, along with community expansions like Ancient Wonders, Fe-Runners, and Starsmith.
 * [[Blocks/index|Blocks]] - Special blocks used throughout the tool to render things nicely and give you handy interactive widgets for editing game data.
 * [[Commands/index|Commands]] - Various Obsidian commands, all of which can be bound to hotkeys or the quick access bar, for performing all sorts of game actions, like making moves, creating progress tracks, etc.
 * [[Entities/index|Entities]] - How Iron Vault represents all sorts of different game concepts, or some ways that you might choose to represent them yourself.

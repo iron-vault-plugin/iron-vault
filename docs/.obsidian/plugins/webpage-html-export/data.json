@@ -43,7 +43,7 @@
   "defaultFileIcon": "lucide//file",
   "defaultFolderIcon": "lucide//folder",
   "defaultMediaIcon": "lucide//file-image",
-  "exportPath": "/Users/chriswegrzyn/code/personal/iron-vault/docs-built",
+  "exportPath": "/Users/zkat/src/iron-vault-plugin/iron-vault/docs-built",
   "filesToExport": [
     [
       "Blocks",
