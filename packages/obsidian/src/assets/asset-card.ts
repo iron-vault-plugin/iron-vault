@@ -333,7 +333,7 @@ function renderControl<C extends AssetControlField | AssetAbilityControlField>(
         <ul class="meter">
           <li><span>${control.label}</span></li>
           ${repeat(
-            range(control.max + 1),
+            range(control.min || 0, control.max + 1),
             (i) => i,
             (i) =>
               html`<li>

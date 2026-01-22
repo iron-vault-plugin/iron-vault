@@ -74,6 +74,17 @@ assets:
       - false
     controls: {}
     options: {}
+  - id: asset:ancient_wonders/item_consumable/medicine
+    abilities:
+      - true
+      - false
+      - false
+      - false
+    controls:
+      uses: 3
+      consumed: false
+      broken: false
+    options: {}
 spirit: 5
 supply: 4
 Quests_Progress: 4
