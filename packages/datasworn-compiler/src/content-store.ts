@@ -19,9 +19,9 @@ export interface IContentManager<Content extends { path: string }> {
   valuesUnderPath(path: string): Iterable<Content>;
 }
 
-export class MetarootContentManager<Content extends { path: string }>
-  implements IContentManager<Content>
-{
+export class MetarootContentManager<
+  Content extends { path: string },
+> implements IContentManager<Content> {
   private metaRoot: string | null = null;
 
   constructor(private readonly delegate: IContentManager<Content>) {}
@@ -156,9 +156,9 @@ export class MetarootContentManager<Content extends { path: string }>
   }
 }
 
-export class ContentManagerImpl<Content extends { path: string }>
-  implements IContentManager<Content>
-{
+export class ContentManagerImpl<
+  Content extends { path: string },
+> implements IContentManager<Content> {
   private contentIndex: Map<string, Content>;
   private roots: Set<string> = new Set();
   private updateRootCallback: (

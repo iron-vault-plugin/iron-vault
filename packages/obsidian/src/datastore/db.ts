@@ -74,9 +74,9 @@ export interface ReadonlyDataIndexDb<Kinds extends Record<string, unknown>> {
   iteratePriorityEntries(): AsyncGenerator<EntryTypes<Kinds>[keyof Kinds]>;
 }
 
-export class DataIndexDb<Kinds extends Record<string, unknown>>
-  implements ReadonlyDataIndexDb<Kinds>
-{
+export class DataIndexDb<
+  Kinds extends Record<string, unknown>,
+> implements ReadonlyDataIndexDb<Kinds> {
   channel: BroadcastChannel;
 
   constructor(readonly db: IDBPDatabase<IronVaultDb<Kinds>>) {

@@ -117,8 +117,7 @@ export interface SourcedMap<
 export class SourcedMapImpl<
   Kinds extends Record<string, unknown>,
   Kind extends keyof Kinds = keyof Kinds,
-> implements SourcedMap<Kinds, Kind>
-{
+> implements SourcedMap<Kinds, Kind> {
   constructor(
     readonly all: ReadonlyVersionedMap<string, SourcedKindsArray<Kinds>[Kind]>,
   ) {}
@@ -190,9 +189,9 @@ export class SourcedMapImpl<
 export type DataIndex<Kinds extends Record<string, unknown>> =
   ReadonlyVersionedMap<string, SourcedByArray<Kinds>>;
 
-export class DataIndexer<Kinds extends Record<string, unknown>>
-  implements ProjectableMap<string, SourcedByArray<Kinds>>
-{
+export class DataIndexer<
+  Kinds extends Record<string, unknown>,
+> implements ProjectableMap<string, SourcedByArray<Kinds>> {
   /** Maps keys to source data */
   private readonly _dataMap: VersionedMapImpl<string, SourcedByArray<Kinds>> =
     new VersionedMapImpl();
