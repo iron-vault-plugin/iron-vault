@@ -4,7 +4,7 @@ packages:
 catalog:
   '@3d-dice/dice-box': ^1.1.4
   '@3d-dice/theme-smooth': ^0.2.1
-  '@codemirror/language': ^6.10.8
+  '@codemirror/language': ^6.11.3
   '@codemirror/view': ^6.38.1
   '@eslint/js': ^9.34.0
   '@jgoz/esbuild-plugin-typecheck': ^4.0.3
