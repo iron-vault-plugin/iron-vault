@@ -6,6 +6,7 @@ import { rootLogger } from "logger";
 import { Setting, ToggleComponent } from "obsidian";
 import { DELVE_LOGO, IS_LOGO, SF_LOGO, SI_LOGO } from "utils/logos";
 import { PlaysetEditor } from "./playset-editor";
+import { html, render } from "lit-html";
 
 const logger = rootLogger.getLogger("playset-setting");
 
@@ -199,6 +200,20 @@ export class PlaysetSetting {
         isImg.src = IS_LOGO;
         isImg.toggleClass("ruleset-img", true);
         setting.settingEl.prepend(isImg);
+        createFragment((frag) => {
+          render(
+            html`<a
+                href="https://tomkinpress.com/collections/products-for-ironsworn"
+                >Buy</a
+              >
+              -
+              <a href="https://creativecommons.org/licenses/by/4.0"
+                >CC-BY-4.0</a
+              >`,
+            frag,
+          );
+          setting.descEl.appendChild(frag);
+        });
       });
 
     new Setting(contentEl)
@@ -217,6 +232,21 @@ export class PlaysetSetting {
         delveSetting.settingEl.prepend(delveImg);
 
         subToggleSettings["classic"].push(delveSetting);
+
+        createFragment((frag) => {
+          render(
+            html`<br /><a
+                href="https://tomkinpress.com/collections/products-for-ironsworn-delve"
+                >Buy</a
+              >
+              -
+              <a href="https://creativecommons.org/licenses/by/4.0"
+                >CC-BY-4.0</a
+              >`,
+            frag,
+          );
+          delveSetting.descEl.appendChild(frag);
+        });
       });
 
     new Setting(contentEl)
@@ -234,6 +264,20 @@ export class PlaysetSetting {
         sfImg.src = SF_LOGO;
         sfImg.toggleClass("ruleset-img", true);
         sfSetting.settingEl.prepend(sfImg);
+        createFragment((frag) => {
+          render(
+            html`<a
+                href="https://tomkinpress.com/collections/products-for-ironsworn-starforged"
+                >Buy</a
+              >
+              -
+              <a href="https://creativecommons.org/licenses/by/4.0"
+                >CC-BY-4.0</a
+              >`,
+            frag,
+          );
+          sfSetting.descEl.appendChild(frag);
+        });
       });
 
     new Setting(contentEl)
@@ -266,6 +310,23 @@ export class PlaysetSetting {
       })
       .then((setting) => {
         subToggleSettings["starforged"].push(setting);
+        createFragment((frag) => {
+          render(
+            html`<br /><a href="https://ludicpen.itch.io/ancient-wonders"
+                >Buy Digital</a
+              >
+              -
+              <a href="https://www.drivethrurpg.com/product/505365"
+                >Print-on-demand</a
+              >
+              -
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0"
+                >CC-BY-NC-SA-4.0</a
+              >`,
+            frag,
+          );
+          setting.descEl.appendChild(frag);
+        });
       });
 
     new Setting(contentEl)
@@ -283,6 +344,17 @@ export class PlaysetSetting {
       })
       .then((setting) => {
         subToggleSettings["starforged"].push(setting);
+        createFragment((frag) => {
+          render(
+            html`<br /><a href="https://zombiecraig.itch.io/fe-runners">Buy</a>
+              -
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0"
+                >CC-BY-NC-SA-4.0</a
+              >`,
+            frag,
+          );
+          setting.descEl.appendChild(frag);
+        });
       });
 
     new Setting(contentEl)
@@ -300,6 +372,19 @@ export class PlaysetSetting {
       })
       .then((setting) => {
         subToggleSettings["starforged"].push(setting);
+        createFragment((frag) => {
+          render(
+            html`<br /><a href="https://playeveryrole.com/starsmith-products/"
+                >Buy</a
+              >
+              -
+              <a href="https://creativecommons.org/licenses/by/4.0"
+                >CC-BY-4.0</a
+              >`,
+            frag,
+          );
+          setting.descEl.appendChild(frag);
+        });
       });
 
     new Setting(contentEl)
@@ -318,6 +403,20 @@ export class PlaysetSetting {
         siImg.src = SI_LOGO;
         siImg.toggleClass("ruleset-img", true);
         siSetting.settingEl.prepend(siImg);
+        createFragment((frag) => {
+          render(
+            html`<a
+                href="https://tomkinpress.com/collections/products-for-sundered-isles"
+                >Buy</a
+              >
+              -
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0"
+                >CC-BY-NC-SA-4.0</a
+              >`,
+            frag,
+          );
+          siSetting.descEl.appendChild(frag);
+        });
       });
 
     new Setting(contentEl)
