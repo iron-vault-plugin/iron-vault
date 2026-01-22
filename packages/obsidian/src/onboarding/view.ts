@@ -45,6 +45,34 @@ export async function updateOnboardingViewState(
 export class OnboardingView extends ItemView {
   override readonly navigation: boolean = false;
 
+  readonly DATA_EXPLAINER = html`
+    <h2>Included Datasets</h2>
+
+    <p>
+      Iron Vault includes data from various official and community rulesets and
+      expansions. This data has been generously made available for free to
+      community tools by their respective authors, allowing you to use Iron
+      Vault without paying. You can control which datasets are activated in the
+      playset settings page for your campaign.
+    </p>
+
+    <p>
+      We ask that, if you haven't already, you consider buying the source books
+      for these rulesets and expansions when you decide to play with them in
+      your campaign, in order to support the game creators that make this
+      experience possible:
+      <ul>
+        <li>[Ironsworn](https://tomkinpress.com/collections/products-for-ironsworn) ([CC-BY-4.0](https://creativecommons.org/licenses/by/4.0))</li>
+        <li>[Ironsworn: Delve](https://tomkinpress.com/collections/products-for-ironsworn-delve) ([CC-BY-4.0](https://creativecommons.org/licenses/by/4.0))</li>
+        <li>[Ironsworn: Starforged](https://tomkinpress.com/collections/products-for-ironsworn-starforged) ([CC-BY-4.0](https://creativecommons.org/licenses/by/4.0))</li>
+        <li>[Sundered Isled](https://tomkinpress.com/collections/products-for-sundered-isles) ([CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0))</li>
+        <li>[Ancient Wonders](https://ludicpen.itch.io/ancient-wonders) ([Print-on-demand](https://www.drivethrurpg.com/product/505365)) ([CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0))</li>
+        <li>[Fe-Runners](https://zombiecraig.itch.io/fe-runners) ([CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0))</li>
+        <li>[Starsmith Expanded Oracles](https://playeveryrole.com/starsmith-products/) ([CC-BY-4.0](https://creativecommons.org/licenses/by/4.0))</li>
+      </ul>
+    </p>
+  `;
+
   readonly CAMPAIGN_EXPLAINER = html`
     <h2>What is a campaign?</h2>
 
@@ -98,7 +126,7 @@ export class OnboardingView extends ItemView {
       </li>
     </ul>
 
-    ${this.CAMPAIGN_EXPLAINER}
+    ${this.DATA_EXPLAINER} ${this.CAMPAIGN_EXPLAINER}
   `;
 
   readonly EXISTING_USER_WELCOME_MESSAGE = html`
@@ -147,7 +175,7 @@ export class OnboardingView extends ItemView {
       folder, and your "root" campaign will be moved there.
     </p>
 
-    ${this.CAMPAIGN_EXPLAINER}
+    ${this.DATA_EXPLAINER} ${this.CAMPAIGN_EXPLAINER}
   `;
 
   constructor(
