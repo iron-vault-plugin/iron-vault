@@ -296,7 +296,7 @@ export class PlaysetSetting {
       });
 
     new Setting(contentEl)
-      .setDesc("Include Ancient Wonders community expansion content")
+      .setDesc("Include Ancient Wonders community expansion")
       .setClass("iv-sub-setting")
       .addToggle((toggle) => {
         toggle.onChange((val) => {
@@ -330,7 +330,7 @@ export class PlaysetSetting {
       });
 
     new Setting(contentEl)
-      .setDesc("Include FE Runners community expansion content")
+      .setDesc("Include FE Runners community expansion")
       .setClass("iv-sub-setting")
       .addToggle((toggle) => {
         toggle.onChange((val) => {
@@ -358,7 +358,7 @@ export class PlaysetSetting {
       });
 
     new Setting(contentEl)
-      .setDesc("Include Starsmith community expansion content")
+      .setDesc("Include Starsmith community expansion")
       .setClass("iv-sub-setting")
       .addToggle((toggle) => {
         toggle.onChange((val) => {
