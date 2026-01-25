@@ -512,6 +512,17 @@ export class IronVaultSettingTab extends PluginSettingTab {
           .onChange((value) => this.updateSetting("useInlineDiceRolls", value)),
       );
 
+    new Setting(containerEl)
+      .setName("Use inline OOC comments")
+      .setDesc(
+        "When enabled, out-of-character comments are inserted as inline text instead of code blocks.",
+      )
+      .addToggle((toggle) =>
+        toggle
+          .setValue(settings.useInlineOOC)
+          .onChange((value) => this.updateSetting("useInlineOOC", value)),
+      );
+
     new Setting(containerEl).setName("Legacy").setHeading();
 
     new Setting(containerEl)

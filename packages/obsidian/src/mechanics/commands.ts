@@ -12,7 +12,7 @@ import { CustomSuggestModal } from "utils/suggest";
 import { PromptModal } from "utils/ui/prompt";
 import { appendNodesToMoveOrMechanicsBlock } from "./editor";
 import { createDetailsNode, createDiceExpressionNode } from "./node-builders";
-import { diceRollToInlineSyntax } from "../inline";
+import { diceRollToInlineSyntax, oocToInlineSyntax } from "../inline";
 import { insertInlineText } from "../inline/editor-utils";
 
 /**
@@ -85,6 +85,14 @@ function formatExpressionWithRolls(
 
 export async function insertComment(plugin: IronVaultPlugin, editor: Editor) {
   const comment = await PromptModal.prompt(plugin.app, "Enter your comment");
+
+  // Use inline format if enabled
+  if (plugin.settings.useInlineOOC) {
+    const inlineText = oocToInlineSyntax(comment);
+    insertInlineText(editor, inlineText);
+    return;
+  }
+
   appendNodesToMoveOrMechanicsBlock(editor, createDetailsNode(comment));
 }
 

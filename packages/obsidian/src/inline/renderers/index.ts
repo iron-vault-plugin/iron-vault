@@ -33,6 +33,7 @@ import {
   renderInlineActionRoll,
   renderInlineReroll,
 } from "./dice";
+import { renderInlineOOC } from "./ooc";
 
 // Re-export individual renderers
 export {
@@ -63,6 +64,7 @@ export {
   renderInlineActionRoll,
   renderInlineReroll,
 } from "./dice";
+export { renderInlineOOC } from "./ooc";
 
 /**
  * Render any parsed inline mechanics to an HTML element.
@@ -109,5 +111,7 @@ export function renderParsedInline(
       return renderInlineActionRoll(parsed, plugin);
     case "reroll":
       return renderInlineReroll(parsed, plugin);
+    case "ooc":
+      return renderInlineOOC(parsed, plugin);
   }
 }

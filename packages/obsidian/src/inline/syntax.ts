@@ -207,6 +207,12 @@ export interface ParsedInlineReroll {
   action: number;
 }
 
+export interface ParsedInlineOOC {
+  type: "ooc";
+  /** The out-of-character comment text */
+  text: string;
+}
+
 export type ParsedInlineMechanics =
   | ParsedInlineMove
   | ParsedInlineOracle
@@ -225,7 +231,8 @@ export type ParsedInlineMechanics =
   | ParsedInlineEntityCreate
   | ParsedInlineDiceRoll
   | ParsedInlineActionRoll
-  | ParsedInlineReroll;
+  | ParsedInlineReroll
+  | ParsedInlineOOC;
 
 const MOVE_PREFIX = "iv-move:";
 const ORACLE_PREFIX = "iv-oracle:";
@@ -247,6 +254,7 @@ const ENTITY_CREATE_PREFIX = "iv-entity-create:";
 const DICE_ROLL_PREFIX = "iv-dice:";
 const ACTION_ROLL_PREFIX = "iv-action-roll:";
 const REROLL_PREFIX = "iv-reroll:";
+const OOC_PREFIX = "iv-ooc:";
 
 /**
  * Parse the adds detail string.
@@ -502,6 +510,9 @@ export function parseInlineMechanics(
   if (text.startsWith(REROLL_PREFIX)) {
     return parseRerollInline(text);
   }
+  if (text.startsWith(OOC_PREFIX)) {
+    return parseOOCInline(text);
+  }
   return null;
 }
 
@@ -527,7 +538,8 @@ export function isInlineMechanics(text: string): boolean {
     text.startsWith(ENTITY_CREATE_PREFIX) ||
     text.startsWith(DICE_ROLL_PREFIX) ||
     text.startsWith(ACTION_ROLL_PREFIX) ||
-    text.startsWith(REROLL_PREFIX)
+    text.startsWith(REROLL_PREFIX) ||
+    text.startsWith(OOC_PREFIX)
   );
 }
 
@@ -1362,4 +1374,34 @@ export function rerollToInlineSyntax(
 ): string {
   const parts = [die, oldVal, newVal, stat, statVal, adds, vs1, vs2, action];
   return `\`${REROLL_PREFIX}${parts.join("|")}\``;
+}
+
+
+// ============================================================================
+// OOC (Out-of-Character) Comment Parsing and Generation
+// ============================================================================
+
+/**
+ * Parse inline OOC comment syntax.
+ * Format: `iv-ooc:<text>`
+ */
+export function parseOOCInline(text: string): ParsedInlineOOC | null {
+  if (!text.startsWith(OOC_PREFIX)) return null;
+
+  const content = text.slice(OOC_PREFIX.length);
+
+  // OOC comments must have some text
+  if (!content) return null;
+
+  return {
+    type: "ooc",
+    text: content,
+  };
+}
+
+/**
+ * Generate inline syntax for OOC comment.
+ */
+export function oocToInlineSyntax(text: string): string {
+  return `\`${OOC_PREFIX}${text}\``;
 }

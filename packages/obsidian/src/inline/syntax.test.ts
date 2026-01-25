@@ -1399,3 +1399,73 @@ describe("parseInlineMechanics extended - reroll", () => {
     expect(result?.type).toBe("reroll");
   });
 });
+
+
+// ============================================================================
+// OOC (Out-of-Character) Comment Tests
+// ============================================================================
+
+import { parseOOCInline, oocToInlineSyntax } from "./syntax";
+
+describe("parseOOCInline", () => {
+  it("parses basic OOC syntax", () => {
+    const result = parseOOCInline("iv-ooc:This is a comment");
+    expect(result).toEqual({
+      type: "ooc",
+      text: "This is a comment",
+    });
+  });
+
+  it("parses OOC with special characters", () => {
+    const result = parseOOCInline("iv-ooc:Note: I'm not sure about this!");
+    expect(result).toEqual({
+      type: "ooc",
+      text: "Note: I'm not sure about this!",
+    });
+  });
+
+  it("parses OOC with pipe characters", () => {
+    const result = parseOOCInline("iv-ooc:Option A | Option B");
+    expect(result).toEqual({
+      type: "ooc",
+      text: "Option A | Option B",
+    });
+  });
+
+  it("returns null for empty OOC", () => {
+    expect(parseOOCInline("iv-ooc:")).toBeNull();
+  });
+
+  it("returns null for non-OOC prefix", () => {
+    expect(parseOOCInline("iv-move:Strike|Iron|4|2|1|3|7")).toBeNull();
+  });
+
+  it("returns null for invalid syntax", () => {
+    expect(parseOOCInline("not an ooc")).toBeNull();
+  });
+});
+
+describe("oocToInlineSyntax", () => {
+  it("generates OOC syntax", () => {
+    const result = oocToInlineSyntax("This is a comment");
+    expect(result).toBe("`iv-ooc:This is a comment`");
+  });
+
+  it("generates OOC syntax with special characters", () => {
+    const result = oocToInlineSyntax("Note: I'm not sure about this!");
+    expect(result).toBe("`iv-ooc:Note: I'm not sure about this!`");
+  });
+});
+
+describe("isInlineMechanics extended - OOC", () => {
+  it("returns true for OOC syntax", () => {
+    expect(isInlineMechanics("iv-ooc:This is a comment")).toBe(true);
+  });
+});
+
+describe("parseInlineMechanics extended - OOC", () => {
+  it("parses OOC", () => {
+    const result = parseInlineMechanics("iv-ooc:This is a comment");
+    expect(result?.type).toBe("ooc");
+  });
+});
