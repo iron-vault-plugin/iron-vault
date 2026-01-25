@@ -1376,7 +1376,6 @@ export function rerollToInlineSyntax(
   return `\`${REROLL_PREFIX}${parts.join("|")}\``;
 }
 
-
 // ============================================================================
 // OOC (Out-of-Character) Comment Parsing and Generation
 // ============================================================================
