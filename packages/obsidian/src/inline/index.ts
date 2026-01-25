@@ -27,6 +27,7 @@ export {
   diceRollToInlineSyntax,
   actionRollToInlineSyntax,
   rerollToInlineSyntax,
+  oocToInlineSyntax,
   isInlineMechanics,
   parseInlineMechanics,
 } from "./syntax";

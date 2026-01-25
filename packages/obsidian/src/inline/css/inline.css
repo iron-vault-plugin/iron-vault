@@ -13,6 +13,7 @@
 @import url("initiative.css");
 @import url("entity.css");
 @import url("dice.css");
+@import url("ooc.css");
 
 /**
  * Base inline mechanics styles.
@@ -94,7 +95,8 @@
 .iv-inline-initiative-icon,
 .iv-inline-entity-icon,
 .iv-inline-dice-icon,
-.iv-inline-cursed-icon {
+.iv-inline-cursed-icon,
+.iv-inline-ooc-icon {
   display: inline-flex;
   align-items: center;
   vertical-align: middle;

@@ -1,0 +1,16 @@
+/**
+ * OOC (Out-of-Character) comment inline styles.
+ * Styled similarly to no-roll moves.
+ */
+
+.iv-inline-mechanics.ooc {
+  border-left: 3px solid var(--text-muted);
+}
+
+.iv-inline-ooc-icon {
+  color: var(--text-muted);
+}
+
+.iv-inline-ooc-text {
+  font-style: italic;
+}

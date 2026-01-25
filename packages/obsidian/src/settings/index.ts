@@ -91,6 +91,9 @@ export class IronVaultPluginSettings {
   /** Use inline format for dice rolls (Roll dice, Make action roll). */
   useInlineDiceRolls: boolean = false;
 
+  /** Use inline format for OOC (out-of-character) comments. */
+  useInlineOOC: boolean = false;
+
   emitter?: Emittery;
 
   constructor() {
