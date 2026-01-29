@@ -270,8 +270,8 @@ export async function generateEntityCommand(
       entityName,
     );
 
-    // If inline entities is enabled and we created a file, use inline format
-    if (plugin.settings.useInlineEntities) {
+    // If inline mechanics is enabled and we created a file, use inline mechanics
+    if (plugin.settings.useInlineMechanics) {
       const inlineText = entityCreateToInlineSyntax(
         entityDesc.label,
         entityName,

@@ -135,8 +135,8 @@ export async function rerollDie(
   const actionContext = await determineCharacterActionContext(plugin, view);
   const diceRoller = actionContext.campaignContext.diceRollerFor("move");
 
-  // Check if inline dice rolls are enabled - if so, try to find a preceding inline roll
-  if (plugin.settings.useInlineDiceRolls) {
+  // Check if inline mechanics are enabled - if so, try to find a preceding inline roll
+  if (plugin.settings.useInlineMechanics) {
     const inlineRoll = findPrecedingInlineRoll(editor);
     if (inlineRoll) {
       await handleInlineReroll(

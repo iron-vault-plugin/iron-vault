@@ -55,8 +55,8 @@ export async function advanceProgressTrack(
     trackAdapter.advanced(steps),
   );
 
-  // Use inline if setting is enabled
-  if (plugin.settings.useInlineProgressTracks) {
+  // Use inline mechanics if setting is enabled
+  if (plugin.settings.useInlineMechanics) {
     const inlineText = trackAdvanceToInlineSyntax(
       stripMarkdown(plugin, trackContext.name),
       trackContext.location,
@@ -99,8 +99,8 @@ export async function createProgressTrack(
     `\n\`\`\`${BLOCK_TYPE__TRACK}\n\`\`\`\n\n`,
   );
 
-  // Use inline if setting is enabled
-  if (plugin.settings.useInlineProgressTracks) {
+  // Use inline mechanics if setting is enabled
+  if (plugin.settings.useInlineMechanics) {
     const inlineText = trackCreateToInlineSyntax(
       stripMarkdown(plugin, trackInput.name),
       file.path,
@@ -135,8 +135,8 @@ export async function markTrackCompleted(
 
   await trackContext.process((trackAdapter) => trackAdapter.completed());
 
-  // Use inline if setting is enabled
-  if (plugin.settings.useInlineProgressTracks) {
+  // Use inline mechanics if setting is enabled
+  if (plugin.settings.useInlineMechanics) {
     const inlineText = trackCompleteToInlineSyntax(
       stripMarkdown(plugin, trackContext.name),
       trackContext.location,
@@ -168,8 +168,8 @@ export async function markTrackIncomplete(
 
   await trackContext.process((trackAdapter) => trackAdapter.markIncomplete());
 
-  // Use inline if setting is enabled
-  if (plugin.settings.useInlineProgressTracks) {
+  // Use inline mechanics if setting is enabled
+  if (plugin.settings.useInlineMechanics) {
     const inlineText = trackReopenToInlineSyntax(
       stripMarkdown(plugin, trackContext.name),
       trackContext.location,

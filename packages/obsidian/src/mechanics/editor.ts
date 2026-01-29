@@ -180,7 +180,7 @@ export function insertInlineMove(
   plugin: IronVaultPlugin,
   move: MoveDescription,
 ): boolean {
-  if (!plugin.settings.useInlineMoves) {
+  if (!plugin.settings.useInlineMechanics) {
     return false;
   }
 
@@ -207,7 +207,7 @@ export function insertInlineOracle(
   plugin: IronVaultPlugin,
   roll: RollWrapper,
 ): boolean {
-  if (!plugin.settings.useInlineOracles) {
+  if (!plugin.settings.useInlineMechanics) {
     return false;
   }
 
