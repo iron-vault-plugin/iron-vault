@@ -5,6 +5,7 @@ import { starforged as starforgedRuleset } from "@datasworn/starforged";
 import { sundered_isles as sunderedIslesPackage } from "@datasworn/sundered-isles";
 import { ancient_wonders as ancientWondersPackage } from "@datasworn-community-content/ancient-wonders";
 import { fe_runners as feRunnersPackage } from "@datasworn-community-content/fe-runners";
+import { ironsmith as ironsmithPackage } from "@datasworn-community-content/ironsmith";
 import { starsmith as starsmithPackage } from "@datasworn-community-content/starsmith";
 import Ajv from "ajv";
 import { BaseDataContext } from "datastore/data-context";
@@ -36,6 +37,7 @@ const BUILTIN_SOURCES: [Datasworn.RulesPackage, number, boolean][] = [
 
   [ancientWondersPackage, 0, true],
   [feRunnersPackage, 0, true],
+  [ironsmithPackage, 0, true],
   [starsmithPackage, 0, true],
 ];
 

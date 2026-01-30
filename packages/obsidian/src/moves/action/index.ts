@@ -176,9 +176,9 @@ function createPlaceholderMove(
         roll_type: baseMove.roll_type,
         trigger: { conditions: [], text: "" },
         outcomes: {
-          strong_hit: { text: "" },
-          weak_hit: { text: "" },
-          miss: { text: "" },
+          strong_hit: { _id: "", text: "" },
+          weak_hit: { _id: "", text: "" },
+          miss: { _id: "", text: "" },
         },
         allow_momentum_burn: true,
       } satisfies Datasworn.EmbeddedActionRollMove;
@@ -196,9 +196,9 @@ function createPlaceholderMove(
         roll_type: baseMove.roll_type,
         trigger: { conditions: [], text: "" },
         outcomes: {
-          strong_hit: { text: "" },
-          weak_hit: { text: "" },
-          miss: { text: "" },
+          strong_hit: { _id: "", text: "" },
+          weak_hit: { _id: "", text: "" },
+          miss: { _id: "", text: "" },
         },
         tracks: { category: "*" },
         allow_momentum_burn: false,
@@ -209,9 +209,9 @@ function createPlaceholderMove(
         roll_type: baseMove.roll_type,
         trigger: { conditions: [], text: "" },
         outcomes: {
-          strong_hit: { text: "" },
-          weak_hit: { text: "" },
-          miss: { text: "" },
+          strong_hit: { _id: "", text: "" },
+          weak_hit: { _id: "", text: "" },
+          miss: { _id: "", text: "" },
         },
         allow_momentum_burn: false,
       } satisfies Datasworn.EmbeddedSpecialTrackMove;

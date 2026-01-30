@@ -14,11 +14,12 @@ const logger = rootLogger.getLogger("playset-setting");
 type PlaysetState = {
   base: "classic" | "starforged" | "sundered_isles" | "custom";
   classicIncludeDelve: boolean;
+  classicIncludeIronsmith: boolean;
   starforgedIncludeSunderedIslesRecommended: boolean;
   sunderedIslesIncludeTechnologicalAssets: boolean;
   sunderedIslesIncludeSupernaturalAssets: boolean;
   starforgedIncludeAncientWonders: boolean;
-  starforgedIncludeFERunners: boolean;
+  starforgedIncludeFeRunners: boolean;
   starforgedIncludeStarsmith: boolean;
   customPlaysetChoice: string | null;
   customConfig: string;
@@ -31,65 +32,77 @@ const STANDARD_PLAYSET_SETTINGS: Record<
   classic: {
     base: "classic",
     classicIncludeDelve: false,
+    classicIncludeIronsmith: false,
+  },
+  classic__ironsmith: {
+    base: "classic",
+    classicIncludeIronsmith: true,
+    classicIncludeDelve: false,
   },
   classic_delve: {
     base: "classic",
     classicIncludeDelve: true,
+    classicIncludeIronsmith: false,
+  },
+  classic_delve__ironsmith: {
+    base: "classic",
+    classicIncludeDelve: true,
+    classicIncludeIronsmith: true,
   },
   starforged: {
     base: "starforged",
     starforgedIncludeSunderedIslesRecommended: false,
     starforgedIncludeAncientWonders: false,
-    starforgedIncludeFERunners: false,
+    starforgedIncludeFeRunners: false,
     starforgedIncludeStarsmith: false,
   },
   starforged__si_assets: {
     base: "starforged",
     starforgedIncludeSunderedIslesRecommended: true,
     starforgedIncludeAncientWonders: false,
-    starforgedIncludeFERunners: false,
+    starforgedIncludeFeRunners: false,
     starforgedIncludeStarsmith: false,
   },
   starforged__ancient_wonders: {
     base: "starforged",
     starforgedIncludeSunderedIslesRecommended: false,
     starforgedIncludeAncientWonders: true,
-    starforgedIncludeFERunners: false,
+    starforgedIncludeFeRunners: false,
     starforgedIncludeStarsmith: false,
   },
   starforged__ancient_wonders__si_assets: {
     base: "starforged",
     starforgedIncludeSunderedIslesRecommended: true,
     starforgedIncludeAncientWonders: true,
-    starforgedIncludeFERunners: false,
+    starforgedIncludeFeRunners: false,
     starforgedIncludeStarsmith: false,
   },
   starforged__fe_runners: {
     base: "starforged",
     starforgedIncludeSunderedIslesRecommended: false,
     starforgedIncludeAncientWonders: false,
-    starforgedIncludeFERunners: true,
+    starforgedIncludeFeRunners: true,
     starforgedIncludeStarsmith: false,
   },
   starforged__fe_runners__si_assets: {
     base: "starforged",
     starforgedIncludeSunderedIslesRecommended: true,
     starforgedIncludeAncientWonders: false,
-    starforgedIncludeFERunners: true,
+    starforgedIncludeFeRunners: true,
     starforgedIncludeStarsmith: false,
   },
   starforged__starsmith: {
     base: "starforged",
     starforgedIncludeSunderedIslesRecommended: false,
     starforgedIncludeAncientWonders: false,
-    starforgedIncludeFERunners: false,
+    starforgedIncludeFeRunners: false,
     starforgedIncludeStarsmith: true,
   },
   starforged__starsmith__si_assets: {
     base: "starforged",
     starforgedIncludeSunderedIslesRecommended: true,
     starforgedIncludeAncientWonders: false,
-    starforgedIncludeFERunners: false,
+    starforgedIncludeFeRunners: false,
     starforgedIncludeStarsmith: true,
   },
   sundered_isles__assets_all: {
@@ -118,9 +131,10 @@ export class PlaysetSetting {
   playsetState: PlaysetState = {
     base: "classic",
     classicIncludeDelve: false,
+    classicIncludeIronsmith: false,
     starforgedIncludeSunderedIslesRecommended: false,
     starforgedIncludeAncientWonders: false,
-    starforgedIncludeFERunners: false,
+    starforgedIncludeFeRunners: false,
     starforgedIncludeStarsmith: false,
     sunderedIslesIncludeTechnologicalAssets: true,
     sunderedIslesIncludeSupernaturalAssets: true,
@@ -250,6 +264,33 @@ export class PlaysetSetting {
       });
 
     new Setting(contentEl)
+      .setDesc("Include Ironsmith community expansion")
+      .setClass("iv-sub-setting")
+      .addToggle((toggle) => {
+        toggle.onChange((val) => {
+          this.updatePlaysetState({
+            classicIncludeIronsmith: val,
+          });
+        });
+        subToggles["classicIncludeStarsmith"] = toggle;
+      })
+      .then((setting) => {
+        subToggleSettings["classic"].push(setting);
+        createFragment((frag) => {
+          render(
+            html`<br /><a href="https://playeveryrole.com/ironsmith/"
+                >Buy</a
+              >
+              -
+              <a href="https://creativecommons.org/licenses/by/4.0"
+                >CC-BY-4.0</a
+              >`,
+            frag,
+          );
+          setting.descEl.appendChild(frag);
+        });
+      });
+    new Setting(contentEl)
       .setName("Starforged")
       .addToggle((toggle) => {
         toggle.onChange((val) => {
@@ -302,7 +343,7 @@ export class PlaysetSetting {
         toggle.onChange((val) => {
           this.updatePlaysetState({
             starforgedIncludeAncientWonders: val,
-            starforgedIncludeFERunners: val && false,
+            starforgedIncludeFeRunners: val && false,
             starforgedIncludeStarsmith: val && false,
           });
         });
@@ -330,17 +371,17 @@ export class PlaysetSetting {
       });
 
     new Setting(contentEl)
-      .setDesc("Include FE Runners community expansion")
+      .setDesc("Include Fe Runners community expansion")
       .setClass("iv-sub-setting")
       .addToggle((toggle) => {
         toggle.onChange((val) => {
           this.updatePlaysetState({
             starforgedIncludeAncientWonders: val && false,
-            starforgedIncludeFERunners: val,
+            starforgedIncludeFeRunners: val,
             starforgedIncludeStarsmith: val && false,
           });
         });
-        subToggles["starforgedIncludeFERunners"] = toggle;
+        subToggles["starforgedIncludeFeRunners"] = toggle;
       })
       .then((setting) => {
         subToggleSettings["starforged"].push(setting);
@@ -364,7 +405,7 @@ export class PlaysetSetting {
         toggle.onChange((val) => {
           this.updatePlaysetState({
             starforgedIncludeAncientWonders: val && false,
-            starforgedIncludeFERunners: val && false,
+            starforgedIncludeFeRunners: val && false,
             starforgedIncludeStarsmith: val,
           });
         });

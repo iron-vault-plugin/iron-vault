@@ -50,14 +50,14 @@
       "obsidian-typings"
     ],
     "overrides": {
-      "@datasworn/core": "github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn/core",
-      "@datasworn/ironsworn-classic": "github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn/ironsworn-classic",
-      "@datasworn/ironsworn-classic-delve": "github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn/ironsworn-classic-delve",
-      "@datasworn/starforged": "github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn/starforged",
-      "@datasworn/sundered-isles": "github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn/sundered-isles",
-      "@datasworn-community-content/ancient-wonders": "github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn-community-content/ancient-wonders",
-      "@datasworn-community-content/fe-runners": "github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn-community-content/fe-runners",
-      "@datasworn-community-content/starsmith": "github:tbsvttr/datasworn#48f14840&path:pkg/nodejs/@datasworn-community-content/starsmith"
+      "@datasworn/core": "github:tbsvttr/datasworn#56cd259&path:pkg/nodejs/@datasworn/core",
+      "@datasworn/ironsworn-classic": "github:tbsvttr/datasworn#56cd259&path:pkg/nodejs/@datasworn/ironsworn-classic",
+      "@datasworn/ironsworn-classic-delve": "github:tbsvttr/datasworn#56cd259&path:pkg/nodejs/@datasworn/ironsworn-classic-delve",
+      "@datasworn/starforged": "github:tbsvttr/datasworn#56cd259&path:pkg/nodejs/@datasworn/starforged",
+      "@datasworn/sundered-isles": "github:tbsvttr/datasworn#56cd259&path:pkg/nodejs/@datasworn/sundered-isles",
+      "@datasworn-community-content/ancient-wonders": "github:tbsvttr/datasworn#56cd259&path:pkg/nodejs/@datasworn-community-content/ancient-wonders",
+      "@datasworn-community-content/fe-runners": "github:tbsvttr/datasworn#56cd259&path:pkg/nodejs/@datasworn-community-content/fe-runners",
+      "@datasworn-community-content/starsmith": "github:tbsvttr/datasworn#56cd259&path:pkg/nodejs/@datasworn-community-content/starsmith"
     }
   },
   "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748"

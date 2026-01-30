@@ -6,6 +6,7 @@ node_modules/
 /styles.css
 /data.json
 .eslintcache
+.DS_Store
 
 # Ignore .obsidian
 # No one will commit these files, they just spam 'git status'

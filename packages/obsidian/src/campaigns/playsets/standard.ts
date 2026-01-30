@@ -3,9 +3,23 @@ export const STANDARD_PLAYSET_DEFNS = {
     name: string;
     lines: string[];
   },
+  classic__ironsmith: {
+    name: "Ironsworn w/ Ironsmith content",
+    lines: ["@include(classic)", "*:ironsmith/**"],
+  } as {
+    name: string;
+    lines: string[];
+  },
   classic_delve: {
     name: "Ironsworn w/ Delve",
     lines: ["@include(classic)", "*:delve/**"],
+  },
+  classic_delve__ironsmith: {
+    name: "Ironsworn w/ Delve and Ironsmith content",
+    lines: ["@include(classic)", "*:delve/**", "*:ironsmith/**"],
+  } as {
+    name: string;
+    lines: string[];
   },
   starforged: {
     name: "Starforged",
@@ -31,11 +45,11 @@ export const STANDARD_PLAYSET_DEFNS = {
     ],
   },
   starforged__fe_runners: {
-    name: "Starforged w/ FE Runners community expansion content",
+    name: "Starforged w/ Fe Runners community expansion content",
     lines: ["@include(starforged)", "*:fe_runners/**"],
   },
   starforged__fe_runners__si_assets: {
-    name: "Starforged w/ Sundered Isles assets and FE Runners community expansion content",
+    name: "Starforged w/ Sundered Isles assets and Fe Runners community expansion content",
     lines: [
       "@include(starforged)",
       "asset:sundered_isles/** [starforged.recommended=true]",
