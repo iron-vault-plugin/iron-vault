@@ -212,8 +212,8 @@ export const changeInitiative = async (
     newInitiative,
   ).toLowerCase();
 
-  // Use inline if setting is enabled
-  if (plugin.settings.useInlineMeters) {
+  // Use inline mechanics if setting is enabled
+  if (plugin.settings.useInlineMechanics) {
     const inlineText = initiativeToInlineSyntax(
       capitalize(label),
       oldValue,

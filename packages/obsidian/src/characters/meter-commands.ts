@@ -45,8 +45,8 @@ export async function burnMomentum(
     );
     const newValue = lens.momentum.get(updated);
 
-    // Use inline if setting is enabled
-    if (plugin.settings.useInlineMeters) {
+    // Use inline mechanics if setting is enabled
+    if (plugin.settings.useInlineMechanics) {
       const inlineText = burnToInlineSyntax(oldValue, newValue);
       insertInlineText(editor, inlineText);
     } else {
@@ -163,8 +163,8 @@ export const modifyMeterCommand = async (
     properties: { from: measure.value, to: newValue },
   });
 
-  // Use inline if setting is enabled
-  if (plugin.settings.useInlineMeters) {
+  // Use inline mechanics if setting is enabled
+  if (plugin.settings.useInlineMechanics) {
     const inlineText = meterToInlineSyntax(
       labelForMeter(measure),
       measure.value,

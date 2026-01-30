@@ -103,8 +103,8 @@ export async function advanceClock(
     };
 
     if (!shouldAdvance) {
-      // Use inline if setting is enabled
-      if (plugin.settings.useInlineClocks) {
+      // Use inline mechanics if setting is enabled
+      if (plugin.settings.useInlineMechanics) {
         const inlineText = clockAdvanceToInlineSyntax(
           stripMarkdown(plugin, clockInfo.name),
           clockPath,
@@ -155,8 +155,8 @@ export async function advanceClock(
 
   const clockName = stripMarkdown(plugin, clockInfo.name);
 
-  // Use inline if setting is enabled
-  if (plugin.settings.useInlineClocks) {
+  // Use inline mechanics if setting is enabled
+  if (plugin.settings.useInlineMechanics) {
     const oddsRoll =
       oddsRollValue !== undefined && oddsRollResult !== undefined
         ? {
@@ -212,8 +212,8 @@ export async function resolveClock(
     },
   );
 
-  // Use inline if setting is enabled
-  if (plugin.settings.useInlineClocks) {
+  // Use inline mechanics if setting is enabled
+  if (plugin.settings.useInlineMechanics) {
     const inlineText = clockResolveToInlineSyntax(
       stripMarkdown(plugin, newClock.name),
       clockPath,
@@ -248,8 +248,8 @@ export async function createClock(
     `\n\`\`\`${BLOCK_TYPE__CLOCK}\n\`\`\`\n\n`,
   );
 
-  // Use inline if setting is enabled
-  if (plugin.settings.useInlineClocks) {
+  // Use inline mechanics if setting is enabled
+  if (plugin.settings.useInlineMechanics) {
     const inlineText = clockCreateToInlineSyntax(
       stripMarkdown(plugin, clockInput.name),
       file.path,

@@ -86,8 +86,8 @@ function formatExpressionWithRolls(
 export async function insertComment(plugin: IronVaultPlugin, editor: Editor) {
   const comment = await PromptModal.prompt(plugin.app, "Enter your comment");
 
-  // Use inline format if enabled
-  if (plugin.settings.useInlineOOC) {
+  // Use inline mechanics if setting is enabled
+  if (plugin.settings.useInlineMechanics) {
     const inlineText = oocToInlineSyntax(comment);
     insertInlineText(editor, inlineText);
     return;
@@ -146,8 +146,8 @@ export async function rollDice(
 
   const evaledExpr = parsed.applyValues(rolls).exprs[0];
 
-  // Use inline format if enabled
-  if (plugin.settings.useInlineDiceRolls) {
+  // Use inline mechanics if enabled
+  if (plugin.settings.useInlineMechanics) {
     const expression = formatExpressionWithRolls(evaledExpr);
     const result = evaledExpr.label.value;
     const inlineText = diceRollToInlineSyntax(expression, result);

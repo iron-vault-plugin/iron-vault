@@ -716,8 +716,8 @@ export async function makeActionRollCommand(
   const context = await determineCharacterActionContext(plugin, view);
   const diceRoller = context.campaignContext.diceRollerFor("move");
 
-  // If inline dice rolls are enabled, use inline format (standalone, no block attachment)
-  if (plugin.settings.useInlineDiceRolls) {
+  // If inline mechanics are enabled, use inline format (standalone, no block attachment)
+  if (plugin.settings.useInlineMechanics) {
     const move: Datasworn.EmbeddedActionRollMove | Datasworn.MoveActionRoll =
       createPlaceholderMove("action_roll", "Generic action roll");
 

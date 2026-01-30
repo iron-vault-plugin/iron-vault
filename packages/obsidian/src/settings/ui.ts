@@ -434,93 +434,14 @@ export class IronVaultSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName("Inline mechanics").setHeading();
 
     new Setting(containerEl)
-      .setName("Use inline moves")
+      .setName("Use inline mechanics")
       .setDesc(
-        "When enabled, move results are inserted as inline text instead of code blocks.",
+        "When enabled, all mechanics (moves, oracles, progress tracks, clocks, meters, entities, dice rolls, and OOC comments) are inserted as inline text instead of code blocks.",
       )
       .addToggle((toggle) =>
         toggle
-          .setValue(settings.useInlineMoves)
-          .onChange((value) => this.updateSetting("useInlineMoves", value)),
-      );
-
-    new Setting(containerEl)
-      .setName("Use inline oracles")
-      .setDesc(
-        "When enabled, oracle results are inserted as inline text instead of code blocks.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.useInlineOracles)
-          .onChange((value) => this.updateSetting("useInlineOracles", value)),
-      );
-
-    new Setting(containerEl)
-      .setName("Use inline progress tracks")
-      .setDesc(
-        "When enabled, progress track operations (create, advance, complete, reopen) are inserted as inline text instead of code blocks.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.useInlineProgressTracks)
-          .onChange((value) =>
-            this.updateSetting("useInlineProgressTracks", value),
-          ),
-      );
-
-    new Setting(containerEl)
-      .setName("Use inline clocks")
-      .setDesc(
-        "When enabled, clock operations (create, advance, resolve) are inserted as inline text instead of code blocks.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.useInlineClocks)
-          .onChange((value) => this.updateSetting("useInlineClocks", value)),
-      );
-
-    new Setting(containerEl)
-      .setName("Use inline meters")
-      .setDesc(
-        "When enabled, character meter changes (health, momentum, burn, initiative) are inserted as inline text instead of code blocks.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.useInlineMeters)
-          .onChange((value) => this.updateSetting("useInlineMeters", value)),
-      );
-
-    new Setting(containerEl)
-      .setName("Use inline entities")
-      .setDesc(
-        "When enabled, entity generations (NPCs, locations, etc.) are inserted as inline text when a file is created. Oracle rolls are still stored in the entity file.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.useInlineEntities)
-          .onChange((value) => this.updateSetting("useInlineEntities", value)),
-      );
-
-    new Setting(containerEl)
-      .setName("Use inline dice rolls")
-      .setDesc(
-        "When enabled, dice rolls (Roll dice, Make action roll, Reroll a die) are inserted as inline text instead of code blocks.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.useInlineDiceRolls)
-          .onChange((value) => this.updateSetting("useInlineDiceRolls", value)),
-      );
-
-    new Setting(containerEl)
-      .setName("Use inline OOC comments")
-      .setDesc(
-        "When enabled, out-of-character comments are inserted as inline text instead of code blocks.",
-      )
-      .addToggle((toggle) =>
-        toggle
-          .setValue(settings.useInlineOOC)
-          .onChange((value) => this.updateSetting("useInlineOOC", value)),
+          .setValue(settings.useInlineMechanics)
+          .onChange((value) => this.updateSetting("useInlineMechanics", value)),
       );
 
     new Setting(containerEl).setName("Legacy").setHeading();
