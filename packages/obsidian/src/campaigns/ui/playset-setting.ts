@@ -4,7 +4,16 @@ import IronVaultPlugin from "index";
 import isMatch from "lodash.ismatch";
 import { rootLogger } from "logger";
 import { Setting, ToggleComponent } from "obsidian";
-import { DELVE_LOGO, IS_LOGO, SF_LOGO, SI_LOGO } from "utils/logos";
+import {
+  DELVE_LOGO,
+  IS_LOGO,
+  SF_LOGO,
+  SI_LOGO,
+  ANCIENT_WONDERS_LOGO,
+  FE_RUNNERS_LOGO,
+  IRONSMITH_LOGO,
+  STARSMITH_LOGO,
+} from "utils/logos";
 import { PlaysetEditor } from "./playset-editor";
 import { html, render } from "lit-html";
 
@@ -275,12 +284,15 @@ export class PlaysetSetting {
         subToggles["classicIncludeStarsmith"] = toggle;
       })
       .then((setting) => {
+        const img = document.createElement("img");
+        img.src = IRONSMITH_LOGO;
+        img.toggleClass("ruleset-img", true);
+        setting.settingEl.prepend(img);
+
         subToggleSettings["classic"].push(setting);
         createFragment((frag) => {
           render(
-            html`<br /><a href="https://playeveryrole.com/ironsmith/"
-                >Buy</a
-              >
+            html`<br /><a href="https://playeveryrole.com/ironsmith/">Buy</a>
               -
               <a href="https://creativecommons.org/licenses/by/4.0"
                 >CC-BY-4.0</a
@@ -290,6 +302,7 @@ export class PlaysetSetting {
           setting.descEl.appendChild(frag);
         });
       });
+
     new Setting(contentEl)
       .setName("Starforged")
       .addToggle((toggle) => {
@@ -350,6 +363,11 @@ export class PlaysetSetting {
         subToggles["starforgedIncludeAncientWonders"] = toggle;
       })
       .then((setting) => {
+        const img = document.createElement("img");
+        img.src = ANCIENT_WONDERS_LOGO;
+        img.toggleClass("ruleset-img", true);
+        setting.settingEl.prepend(img);
+
         subToggleSettings["starforged"].push(setting);
         createFragment((frag) => {
           render(
@@ -384,6 +402,11 @@ export class PlaysetSetting {
         subToggles["starforgedIncludeFeRunners"] = toggle;
       })
       .then((setting) => {
+        const img = document.createElement("img");
+        img.src = FE_RUNNERS_LOGO;
+        img.toggleClass("ruleset-img", true);
+        setting.settingEl.prepend(img);
+
         subToggleSettings["starforged"].push(setting);
         createFragment((frag) => {
           render(
@@ -412,6 +435,11 @@ export class PlaysetSetting {
         subToggles["starforgedIncludeStarsmith"] = toggle;
       })
       .then((setting) => {
+        const img = document.createElement("img");
+        img.src = STARSMITH_LOGO;
+        img.toggleClass("ruleset-img", true);
+        setting.settingEl.prepend(img);
+
         subToggleSettings["starforged"].push(setting);
         createFragment((frag) => {
           render(

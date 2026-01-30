@@ -2466,6 +2466,7 @@ table.iron-vault-oracle-table {
   padding-left: 2em;
   border-top: initial;
   & .ruleset-img {
+    padding-top: 0.4em;
     height: 2.75em;
   }
   & .is-disabled {
