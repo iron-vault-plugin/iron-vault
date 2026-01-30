@@ -45,7 +45,8 @@ We ask that, if you haven't already, you consider buying the source books for th
 * [Sundered Isles](https://tomkinpress.com/collections/products-for-sundered-isles) ([CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0))
 * [Ancient Wonders](https://ludicpen.itch.io/ancient-wonders) ([Print-on-demand](https://www.drivethrurpg.com/product/505365)) ([CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0))
 * [Fe-Runners](https://zombiecraig.itch.io/fe-runners) ([CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0))
-* [Starsmith Expanded Oracles](https://playeveryrole.com/starsmith-products/) ([CC-BY-4.0](https://creativecommons.org/licenses/by/4.0))
+* [Ironsmith](https://playeveryrole.com/ironsmith/) ([CC-BY-4.0](https://creativecommons.org/licenses/by/4.0))
+* [Starsmith](https://playeveryrole.com/starsmith-products/) ([CC-BY-4.0](https://creativecommons.org/licenses/by/4.0))
 `,
   );
 
