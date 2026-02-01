@@ -93,7 +93,7 @@ export function renderInlineInitiative(
   let stateClass = "initiative";
   if (toValue === "in control") {
     stateClass = "initiative-in-control";
-  } else if (toValue === "bad spot") {
+  } else if (toValue === "in a bad spot") {
     stateClass = "initiative-bad-spot";
   } else if (toValue === "out of combat") {
     stateClass = "initiative-out-of-combat";
