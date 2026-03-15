@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -64,7 +64,7 @@ jobs:
       tag: ${{ steps.get_tag.outputs.tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Get Tag
@@ -80,7 +80,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: refs/tags/${{ needs.get_current_tag.outputs.tag }}
 
