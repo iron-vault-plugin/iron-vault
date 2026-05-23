@@ -197,6 +197,16 @@ export async function generateEntityCommand(
 ): Promise<void> {
   const campaignContext = await determineCampaignContext(plugin, view);
 
+  if (!selectedEntityDescriptor) {
+    const entityTypes = availableEntityTypes(campaignContext);
+    if (entityTypes.length === 0) {
+      new Notice(
+        "No rollable entity types are available for the active ruleset. Entity generation may not be supported for Ironsworn Classic yet.",
+      );
+      return;
+    }
+  }
+
   const entityDesc: EntityDescriptor<EntitySpec> =
     selectedEntityDescriptor ??
     (await promptForEntityType(plugin, campaignContext));
