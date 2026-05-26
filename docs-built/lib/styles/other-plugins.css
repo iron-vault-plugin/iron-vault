@@ -2466,7 +2466,6 @@ table.iron-vault-oracle-table {
   padding-left: 2em;
   border-top: initial;
   & .ruleset-img {
-    padding-top: 0.4em;
     height: 2.75em;
   }
   & .is-disabled {
@@ -2808,6 +2807,17 @@ table.iron-vault-oracle-table {
   text-underline-offset: 2px;
 }
 
+/* src/inline/css/ooc.css */
+.iv-inline-mechanics.ooc {
+  border-left: 3px solid var(--text-muted);
+}
+.iv-inline-ooc-icon {
+  color: var(--text-muted);
+}
+.iv-inline-ooc-text {
+  font-style: italic;
+}
+
 /* src/inline/css/inline.css */
 .iv-inline-mechanics {
   display: inline;
@@ -2864,7 +2874,8 @@ table.iron-vault-oracle-table {
 .iv-inline-initiative-icon,
 .iv-inline-entity-icon,
 .iv-inline-dice-icon,
-.iv-inline-cursed-icon {
+.iv-inline-cursed-icon,
+.iv-inline-ooc-icon {
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
