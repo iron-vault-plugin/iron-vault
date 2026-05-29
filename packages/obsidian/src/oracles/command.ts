@@ -11,7 +11,12 @@ import IronVaultPlugin from "index";
 import { rootLogger } from "logger";
 import { createOrAppendMechanics, insertInlineOracle } from "mechanics/editor";
 import { createOracleNode } from "mechanics/node-builders";
-import { Oracle, OracleGrouping, OracleGroupingType } from "../model/oracle";
+import {
+  Oracle,
+  OracleGrouping,
+  OracleGroupingType,
+  RollContext,
+} from "../model/oracle";
 import { Roll } from "../model/rolls";
 import { CustomSuggestModal } from "../utils/suggest";
 import { OracleRollerModal } from "./modal";
@@ -96,24 +101,7 @@ export async function runOracleCommand(
     );
   }
   const rollContext = new OracleRoller(plugin, campaignContext.oracles);
-
-  // If user wishes to make their own roll, prompt them now.
-  let initialRoll: Roll | undefined = undefined;
-  if (plugin.settings.promptForRollsInOracles) {
-    const diceValue = await CustomSuggestModal.select(
-      plugin.app,
-      [
-        "Roll for me",
-        ...numberRange(oracle.dice.minRoll(), oracle.dice.maxRoll()),
-      ],
-      (x) => x.toString(),
-      undefined,
-      `Roll your oracle dice (${oracle.dice}) and enter the value`,
-    );
-    if (typeof diceValue === "number") {
-      initialRoll = oracle.evaluate(rollContext, diceValue);
-    }
-  }
+  const rollResult = await rollOracle(plugin, rollContext, oracle);
 
   const modal = plugin.settings.useLegacyRoller
     ? OracleRollerModal
@@ -122,7 +110,7 @@ export async function runOracleCommand(
     plugin,
     oracle,
     rollContext,
-    initialRoll || (await oracle.roll(rollContext)),
+    rollResult,
     { shiftActionLabel: "copy result" },
   );
 
@@ -145,4 +133,33 @@ export async function runOracleCommand(
       ]);
     }
   }
+}
+
+export async function rollOracle(
+  plugin: IronVaultPlugin,
+  rollContext: RollContext,
+  oracle: Oracle,
+): Promise<Roll> {
+  // If user wishes to make their own roll, prompt them now.
+  let initialRoll: Roll | undefined = undefined;
+  if (plugin.settings.promptForRollsInOracles) {
+    const diceValue = await CustomSuggestModal.select(
+      plugin.app,
+      [
+        "Roll for me",
+        ...numberRange(oracle.dice.minRoll(), oracle.dice.maxRoll()),
+      ],
+      (x) => x.toString(),
+      undefined,
+      `Roll your oracle dice (${oracle.dice}) and enter the value`,
+    );
+    if (typeof diceValue === "number") {
+      initialRoll = oracle.evaluate(rollContext, diceValue);
+    }
+  }
+
+  if (initialRoll !== undefined) {
+    return Promise.resolve(initialRoll);
+  }
+  return oracle.roll(rollContext);
 }
