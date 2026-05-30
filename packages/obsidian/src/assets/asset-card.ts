@@ -217,7 +217,12 @@ function renderAssetAbility(
         ?checked=${ability.enabled}
         @click=${toggleAbility}
       />
-      <span>${md(plugin, ability.text)}</span>
+      <span>
+        ${ability.name
+          ? html`<span class="asset-ability-name">${ability.name}:</span>`
+          : ""}
+        ${md(plugin, ability.text)}
+      </span>
     </label>
     ${ability.controls
       ? html`<ul class="controls">
