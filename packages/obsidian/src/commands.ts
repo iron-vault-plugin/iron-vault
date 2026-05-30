@@ -171,8 +171,8 @@ export class IronVaultCommands {
         changeInitiative(this.plugin, editor, view),
     },
     {
-      id: "reroll-die",
-      name: "Reroll a die",
+      id: "reroll-or-set-die",
+      name: "Reroll or set a die",
       icon: "dice",
       editorCallback: (editor: Editor, view) =>
         rerollDie(this.plugin, editor, view),

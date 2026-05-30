@@ -5,6 +5,7 @@ import { RollWrapper } from "model/rolls";
 import {
   ActionMoveDescription,
   MoveDescription,
+  moveHasOracles,
   moveIsAction,
   moveIsProgress,
 } from "moves/desc";
@@ -205,6 +206,16 @@ export function generateMechanicsNode(move: MoveDescription): kdl.Document {
           score: Math.floor(move.progressTicks / 4),
           vs1: move.challenge1,
           vs2: move.challenge2,
+        },
+      }),
+    );
+  } else if (moveHasOracles(move)) {
+    children.push(
+      node("oracle", {
+        properties: {
+          name: move.oracleName,
+          roll: move.oracleValue,
+          result: move.oracleResult,
         },
       }),
     );
