@@ -29,7 +29,7 @@ export const PARSERS_BY_TYPE: Record<string, MarkdownDataParser> = {
 
 export function markdownAssetParser(
   content: string,
-  baseName: string,
+  _baseName: string,
   metadata: Record<string, unknown> | undefined,
 ): ParserReturn {
   // TODO: what should source be?
@@ -37,7 +37,7 @@ export function markdownAssetParser(
     authors: [{ name: "User" }],
     date: "0000-00-00",
     license: null,
-    title: `Oracles from ${baseName}`,
+    title: `Assets from Markdown`,
     url: "https://example.com",
   };
 
