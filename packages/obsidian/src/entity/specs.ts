@@ -401,17 +401,12 @@ export const ENTITIES: Record<string, EntityDescriptor<EntitySpec>> = {
   isIronlander: {
     collectionId: "oracle_collection:classic/character",
     label: "Ironlander",
-    nameGen: (ent) => ent.nameA[0]?.simpleResult ?? ent.nameB[0]?.simpleResult,
+    nameGen: (ent) => ent.name[0]?.simpleResult,
     spec: {
-      nameA: {
-        id: "oracle_rollable:classic/name/ironlander/a",
-        name: "Name table A",
+      name: {
+        id: "oracle_rollable:classic/name/ironlander",
+        name: "Character name",
         firstLook: true,
-      },
-      nameB: {
-        id: "oracle_rollable:classic/name/ironlander/b",
-        name: "Name table B",
-        firstLook: false,
       },
       role: {
         id: "oracle_rollable:classic/character/role",
