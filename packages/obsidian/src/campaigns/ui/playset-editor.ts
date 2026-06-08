@@ -131,7 +131,9 @@ export class PlaysetEditor extends Modal {
           this.currentPlaysetChoice = playsetChoice;
           // Make the editor reflect this config
           if (this.currentPlaysetChoice == "custom") {
-            this.configEditorEl.value = this.customConfig;
+            if (this.customConfig) {
+              this.configEditorEl.value = this.customConfig;
+            } // else use the currently selected standard playset as base
             this.configEditorEl.disabled = false;
           } else {
             this.configEditorEl.value =
