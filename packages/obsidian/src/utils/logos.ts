@@ -1,5 +1,6 @@
-import delveLogoBin from "../../media/ironvault_logo_delve.png";
 import ironswornLogoBin from "../../media/ironvault_logo_ironsworn.png";
+import delveLogoBin from "../../media/ironvault_logo_delve.png";
+import lodestarLogoBin from "../../media/ironvault_logo_lodestar.png";
 import starforgedLogoBin from "../../media/ironvault_logo_starforged.png";
 import sunderedIslesLogoBin from "../../media/ironvault_logo_sunderedisles.png";
 import ancientWondersLogoBin from "../../media/ironvault_logo_ancientwonders.png";
@@ -19,6 +20,9 @@ export const IS_LOGO = bytesToPngDataURI(
 );
 export const DELVE_LOGO = bytesToPngDataURI(
   delveLogoBin as unknown as Uint8Array,
+);
+export const LODESTAR_LOGO = bytesToPngDataURI(
+  lodestarLogoBin as unknown as Uint8Array,
 );
 export const SF_LOGO = bytesToPngDataURI(
   starforgedLogoBin as unknown as Uint8Array,

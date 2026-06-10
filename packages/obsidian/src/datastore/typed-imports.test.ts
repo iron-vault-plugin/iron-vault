@@ -10,6 +10,7 @@ import { type Datasworn } from "@datasworn/core";
 // Import typed exports - these should work without type assertions
 import { classic } from "@datasworn/ironsworn-classic";
 import { delve } from "@datasworn/ironsworn-classic-delve";
+import { lodestar } from "@datasworn/ironsworn-classic-lodestar";
 import { starforged } from "@datasworn/starforged";
 import { sundered_isles } from "@datasworn/sundered-isles";
 import { ancient_wonders } from "@datasworn-community-content/ancient-wonders";
@@ -39,6 +40,13 @@ describe("Typed Datasworn Imports", () => {
       const expansion: Datasworn.Expansion = delve;
       expect(expansion.type).toBe("expansion");
       expect(expansion._id).toBe("delve");
+      expect(expansion.ruleset).toBe("classic");
+    });
+
+    it("lodestar is typed as Datasworn.Expansion", () => {
+      const expansion: Datasworn.Expansion = lodestar;
+      expect(expansion.type).toBe("expansion");
+      expect(expansion._id).toBe("lodestar");
       expect(expansion.ruleset).toBe("classic");
     });
 

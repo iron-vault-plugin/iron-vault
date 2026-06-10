@@ -10,6 +10,14 @@ export const STANDARD_PLAYSET_DEFNS = {
     name: string;
     lines: string[];
   },
+  classic__lodestar: {
+    name: "Ironsworn w/ Lodestar content",
+    lines: ["@include(classic)", "*:lodestar/**"],
+  },
+  classic__lodestar__ironsmith: {
+    name: "Ironsworn w/ Lodestar and Ironsmith content",
+    lines: ["@include(classic)", "*:lodestar/**", "*:ironsmith/**"],
+  },
   classic_delve: {
     name: "Ironsworn w/ Delve",
     lines: ["@include(classic)", "*:delve/**"],
@@ -20,6 +28,14 @@ export const STANDARD_PLAYSET_DEFNS = {
   } as {
     name: string;
     lines: string[];
+  },
+  classic_delve__lodestar: {
+    name: "Ironsworn w/ Delve and Lodestar content",
+    lines: ["@include(classic_delve)", "*:lodestar/**"],
+  },
+  classic_delve__lodestar__ironsmith: {
+    name: "Ironsworn w/ Delve, Lodestar, and Ironsmith content",
+    lines: ["@include(classic_delve)", "*:lodestar/**", "*:ironsmith/**"],
   },
   starforged: {
     name: "Starforged",
