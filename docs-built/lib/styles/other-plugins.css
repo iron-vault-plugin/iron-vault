@@ -128,14 +128,6 @@
       display: flex;
       flex-flow: row nowrap;
       align-items: flex-start !important;
-      & .asset-ability-name {
-        font-weight: var(--font-extrabold);
-      }
-      & > span,
-      & > span .markdown-wrapper,
-      & > span .markdown-wrapper p {
-        display: inline;
-      }
     }
     & .markdown-wrapper ul {
       list-style: square;
