@@ -386,7 +386,7 @@ function renderControl<C extends AssetControlField | AssetAbilityControlField>(
         <select
           ?disabled=${!updateControl}
           .value=${control.value}
-          @click=${updateControlValue}
+          @change=${updateControlValue}
         >
           <option ?selected=${control.value == null}></option>
           ${map(Object.entries(control.choices), ([key, choice]) =>
