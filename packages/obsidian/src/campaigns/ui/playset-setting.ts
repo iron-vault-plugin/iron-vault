@@ -5,8 +5,9 @@ import isMatch from "lodash.ismatch";
 import { rootLogger } from "logger";
 import { Setting, ToggleComponent } from "obsidian";
 import {
-  DELVE_LOGO,
   IS_LOGO,
+  DELVE_LOGO,
+  LODESTAR_LOGO,
   SF_LOGO,
   SI_LOGO,
   ANCIENT_WONDERS_LOGO,
@@ -24,6 +25,7 @@ type PlaysetState = {
   base: "classic" | "starforged" | "sundered_isles" | "custom";
   classicIncludeDelve: boolean;
   classicIncludeIronsmith: boolean;
+  classicIncludeLodestar: boolean;
   starforgedIncludeSunderedIslesRecommended: boolean;
   sunderedIslesIncludeTechnologicalAssets: boolean;
   sunderedIslesIncludeSupernaturalAssets: boolean;
@@ -42,21 +44,49 @@ const STANDARD_PLAYSET_SETTINGS: Record<
     base: "classic",
     classicIncludeDelve: false,
     classicIncludeIronsmith: false,
+    classicIncludeLodestar: false,
   },
   classic__ironsmith: {
     base: "classic",
-    classicIncludeIronsmith: true,
     classicIncludeDelve: false,
+    classicIncludeIronsmith: true,
+    classicIncludeLodestar: false,
+  },
+  classic__lodestar: {
+    base: "classic",
+    classicIncludeDelve: false,
+    classicIncludeIronsmith: false,
+    classicIncludeLodestar: true,
+  },
+  classic__lodestar__ironsmith: {
+    base: "classic",
+    classicIncludeDelve: false,
+    classicIncludeIronsmith: true,
+    classicIncludeLodestar: true,
   },
   classic_delve: {
     base: "classic",
     classicIncludeDelve: true,
     classicIncludeIronsmith: false,
+    classicIncludeLodestar: false,
   },
   classic_delve__ironsmith: {
     base: "classic",
     classicIncludeDelve: true,
     classicIncludeIronsmith: true,
+    classicIncludeLodestar: false,
+  },
+  classic_delve__lodestar: {
+    base: "classic",
+    classicIncludeDelve: true,
+    classicIncludeIronsmith: false,
+    classicIncludeLodestar: true,
+  },
+  classic_delve__lodestar__ironsmith: {
+    base: "classic",
+    classicIncludeDelve: true,
+    classicIncludeIronsmith: true,
+    classicIncludeLodestar: true,
   },
   starforged: {
     base: "starforged",
@@ -141,6 +171,7 @@ export class PlaysetSetting {
     base: "classic",
     classicIncludeDelve: false,
     classicIncludeIronsmith: false,
+    classicIncludeLodestar: false,
     starforgedIncludeSunderedIslesRecommended: false,
     starforgedIncludeAncientWonders: false,
     starforgedIncludeFeRunners: false,
@@ -230,8 +261,8 @@ export class PlaysetSetting {
                 >Buy</a
               >
               -
-              <a href="https://creativecommons.org/licenses/by/4.0"
-                >CC-BY-4.0</a
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0"
+                >CC BY-NC-SA 4.0</a
               >`,
             frag,
           );
@@ -263,8 +294,8 @@ export class PlaysetSetting {
                 >Buy</a
               >
               -
-              <a href="https://creativecommons.org/licenses/by/4.0"
-                >CC-BY-4.0</a
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0"
+                >CC BY-NC-SA 4.0</a
               >`,
             frag,
           );
@@ -295,7 +326,45 @@ export class PlaysetSetting {
             html`<br /><a href="https://playeveryrole.com/ironsmith/">Buy</a>
               -
               <a href="https://creativecommons.org/licenses/by/4.0"
-                >CC-BY-4.0</a
+                >CC BY 4.0</a
+              >`,
+            frag,
+          );
+          setting.descEl.appendChild(frag);
+        });
+      });
+
+    new Setting(contentEl)
+      .setDesc("Include Lodestar Expanded Reference Guide")
+      .setClass("iv-sub-setting")
+      .addToggle((toggle) => {
+        let userWantsDelve: boolean = false;
+        toggle.onChange((value) => {
+          if (value) {
+            userWantsDelve = subToggles["classicIncludeDelve"].getValue();
+          }
+          this.updatePlaysetState({
+            classicIncludeLodestar: value,
+            classicIncludeDelve: value ? value : userWantsDelve,
+          });
+        });
+        subToggles["classicIncludeLodestar"] = toggle;
+      })
+      .then((setting) => {
+        const img = document.createElement("img");
+        img.src = LODESTAR_LOGO;
+        img.toggleClass("ruleset-img", true);
+        setting.settingEl.prepend(img);
+        subToggleSettings["classic"].push(setting);
+        createFragment((frag) => {
+          render(
+            html`<br /><a
+                href="https://tomkinpress.com/products/ironsworn-lodestar-expanded-reference-guide"
+                >Buy</a
+              >
+              -
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0"
+                >CC BY-NC-SA 4.0</a
               >`,
             frag,
           );
@@ -325,8 +394,8 @@ export class PlaysetSetting {
                 >Buy</a
               >
               -
-              <a href="https://creativecommons.org/licenses/by/4.0"
-                >CC-BY-4.0</a
+              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0"
+                >CC BY-NC-SA 4.0</a
               >`,
             frag,
           );
@@ -379,9 +448,7 @@ export class PlaysetSetting {
                 >Print-on-demand</a
               >
               -
-              <a href="https://creativecommons.org/licenses/by-nc-sa/4.0"
-                >CC-BY-NC-SA-4.0</a
-              >`,
+              <a href="https://ludicpen.com/">&copy; 2024 Ludic Pen</a>`,
             frag,
           );
           setting.descEl.appendChild(frag);
@@ -413,7 +480,7 @@ export class PlaysetSetting {
             html`<br /><a href="https://zombiecraig.itch.io/fe-runners">Buy</a>
               -
               <a href="https://creativecommons.org/licenses/by-nc-sa/4.0"
-                >CC-BY-NC-SA-4.0</a
+                >CC BY-NC-SA 4.0</a
               >`,
             frag,
           );
@@ -448,7 +515,7 @@ export class PlaysetSetting {
               >
               -
               <a href="https://creativecommons.org/licenses/by/4.0"
-                >CC-BY-4.0</a
+                >CC BY 4.0</a
               >`,
             frag,
           );
@@ -480,7 +547,7 @@ export class PlaysetSetting {
               >
               -
               <a href="https://creativecommons.org/licenses/by-nc-sa/4.0"
-                >CC-BY-NC-SA-4.0</a
+                >CC BY-NC-SA 4.0</a
               >`,
             frag,
           );

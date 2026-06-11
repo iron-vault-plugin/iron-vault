@@ -1,6 +1,7 @@
 import { type Datasworn } from "@datasworn/core";
 import { classic as ironswornRuleset } from "@datasworn/ironsworn-classic";
 import { delve as ironswornDelvePackage } from "@datasworn/ironsworn-classic-delve";
+import { lodestar as ironswornLodestarPackage } from "@datasworn/ironsworn-classic-lodestar";
 import { starforged as starforgedRuleset } from "@datasworn/starforged";
 import { sundered_isles as sunderedIslesPackage } from "@datasworn/sundered-isles";
 import { ancient_wonders as ancientWondersPackage } from "@datasworn-community-content/ancient-wonders";
@@ -28,6 +29,7 @@ const logger = rootLogger.getLogger("datastore");
 const BUILTIN_SOURCES: [Datasworn.RulesPackage, number, boolean][] = [
   [ironswornRuleset, 0, false],
   [ironswornDelvePackage, 0, false],
+  [ironswornLodestarPackage, 0, false],
 
   [starforgedRuleset, 0, false],
   [starforgedSupp as Datasworn.Expansion, 5, false],
