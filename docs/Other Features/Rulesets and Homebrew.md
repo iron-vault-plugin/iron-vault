@@ -17,13 +17,15 @@ Iron Vault includes data from various official and community rulesets and expans
 
 We ask that, if you haven't already, you consider buying the source books for these rulesets and expansions when you decide to play with them in your campaign, in order to support the game creators that make this experience possible:
 
-* [Ironsworn](https://tomkinpress.com/collections/products-for-ironsworn) - [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0)
-* [Ironsworn: Delve](https://tomkinpress.com/collections/products-for-ironsworn-delve) - [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0)
-* [Ironsworn: Starforged](https://tomkinpress.com/collections/products-for-ironsworn-starforged) - [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0)
-* [Sundered Isles](https://tomkinpress.com/collections/products-for-sundered-isles) - [CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0)
-* [Ancient Wonders](https://ludicpen.itch.io/ancient-wonders) - [Print-on-demand](https://www.drivethrurpg.com/product/505365)- [CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0)
-* [Fe-Runners](https://zombiecraig.itch.io/fe-runners) - [CC-BY-NC-SA-4.0](https://creativecommons.org/licenses/by-nc-sa/4.0)
-* [Starsmith Expanded Oracles](https://playeveryrole.com/starsmith-products/) - [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0)
+* [Ironsworn](https://tomkinpress.com/collections/products-for-ironsworn) - [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0)
+* [Ironsworn: Delve](https://tomkinpress.com/collections/products-for-ironsworn-delve) - [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0)
+* [Ironsworn: Lodestar](https://tomkinpress.com/products/ironsworn-lodestar-expanded-reference-guide) - [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0)
+* [Ironsworn: Starforged](https://tomkinpress.com/collections/products-for-ironsworn-starforged) - [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0)
+* [Sundered Isles](https://tomkinpress.com/collections/products-for-sundered-isles) - [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0)
+* [Ancient Wonders](https://ludicpen.itch.io/ancient-wonders) - [Print-on-demand](https://www.drivethrurpg.com/product/505365) - [Copyright © 2024 Ludic Pen](https://ludicpen.com)
+* [Ironsmith](https://playeveryrole.com/ironsmith/) - [CC BY 4.0](https://creativecommons.org/licenses/by/4.0)
+* [Fe-Runners](https://zombiecraig.itch.io/fe-runners) - [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0)
+* [Starsmith Expanded Oracles](https://playeveryrole.com/starsmith-products/) - [CC BY 4.0](https://creativecommons.org/licenses/by/4.0)
 
 ### Homebrew
 
