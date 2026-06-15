@@ -21,6 +21,8 @@ Not sure where to start? There's a full [[Player's Guide/index|Player's Guide]] 
 
 You can also open this documentation at any time while in Obsidian by running the [[Open documentation in a tab]] or [[Open documentation in your browser]] commands.
 
+If you prefer video tutorials, there's also a video series available on YouTube: [Iron Vault Demystified](https://youtube.com/playlist?list=PLumyrfN5odiR_OMZxmAECmRw59rMvkpLd&si=u1s8KTeWBlSjS2jP)
+
 ### Features
 
 You can start reading about the various Iron Vault features here:
