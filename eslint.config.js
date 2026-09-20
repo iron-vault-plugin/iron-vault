@@ -28,7 +28,7 @@ export default tseslint.config(
       "**/.obsidian",
       "**/.tsup/",
       "main.js",
-      "docs-built/",
+      "docs/build/",
     ],
   },
 );
