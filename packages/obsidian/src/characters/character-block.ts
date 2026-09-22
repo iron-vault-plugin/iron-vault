@@ -311,7 +311,7 @@ class CharacterRenderer extends TrackedEntityRenderer<
           ([stat, value]) => html`
             <li>
               <dl>
-                <dt data-value=${stat}>${stat}</dt>
+                <dt data-value=${stat}>${lens.ruleset.stats[stat].label}</dt>
                 <dd data-value=${value.get(raw)}>
                   <input
                     type="number"
@@ -355,7 +355,9 @@ class CharacterRenderer extends TrackedEntityRenderer<
           ([meter, value]) => html`
             <li>
               <dl>
-                <dt data-value=${meter}>${meter}</dt>
+                <dt data-value=${meter}>
+                  ${lens.ruleset.condition_meters[meter].label}
+                </dt>
                 <dd data-value=${value.get(raw)}>
                   <button type="button" @click=${() => updateMeter(value, -1)}>
                     -
@@ -431,7 +433,7 @@ class CharacterRenderer extends TrackedEntityRenderer<
                           .value=${value}
                           @click=${() => toggleImpact(lens.impacts, impact)}
                         />
-                        <span>${impact.replaceAll(/_/g, " ")}</span>
+                        <span>${lens.ruleset.impacts[impact].label}</span>
                       </label>
                     </li>
                   `,
