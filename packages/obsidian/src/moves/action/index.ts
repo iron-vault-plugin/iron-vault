@@ -283,7 +283,11 @@ async function processActionMove(
 }
 
 async function processProgressMove(
-  move: Datasworn.MoveProgressRoll | Datasworn.EmbeddedProgressRollMove,
+  move:
+    | Datasworn.MoveProgressRoll
+    | Datasworn.EmbeddedProgressRollMove
+    | Datasworn.MoveSpecialTrack
+    | Datasworn.EmbeddedSpecialTrackMove,
   tracker: ProgressTrackWriterContext,
   diceRoller: AsyncDiceRoller,
   roll?: { challenge1: number; challenge2: number },
@@ -371,13 +375,16 @@ export async function runMoveCommand(
         moveDescription = await handleNoRoll(plugin, context, move);
         break;
       case "special_track":
-      default:
-        // TODO: this probably makes sense with new mechanics format?
-        logger.warn(
-          "Teach me how to handle a move with roll type %s: %o",
-          move.roll_type,
+        moveDescription = await handleSpecialTrackRoll(
+          plugin,
+          diceRoller,
+          new ProgressContext(plugin, context),
           move,
         );
+        break;
+      default:
+        // Shouldn't happen unless move.roll_type was extended and forgotten to handle here
+        logger.warn("Unhandled move type: %o", move);
         moveDescription = createEmptyMoveDescription(move);
     }
   }
@@ -501,6 +508,30 @@ async function handleProgressRoll(
       !prog.track.complete,
   );
 
+  const rolls = await promptForChallengeDiceRolls(plugin);
+
+  // TODO: when would we mark complete? should we prompt on a hit?
+  return await processProgressMove(move, progressTrack, diceRoller, rolls);
+}
+
+async function handleSpecialTrackRoll(
+  plugin: IronVaultPlugin,
+  diceRoller: AsyncDiceRoller,
+  context: ProgressContext,
+  move: Datasworn.MoveSpecialTrack | Datasworn.EmbeddedSpecialTrackMove,
+): Promise<MoveDescription> {
+  const progressTrack = await selectProgressTrack(
+    context,
+    plugin,
+    (prog) => prog.trackType === "Legacy",
+  );
+
+  const rolls = await promptForChallengeDiceRolls(plugin);
+
+  return await processProgressMove(move, progressTrack, diceRoller, rolls);
+}
+
+async function promptForChallengeDiceRolls(plugin: IronVaultPlugin) {
   let rolls: { challenge1: number; challenge2: number } | undefined;
   if (plugin.settings.promptForRollsInMoves) {
     const challenge1 = await CustomSuggestModal.select(
@@ -522,9 +553,7 @@ async function handleProgressRoll(
       rolls = { challenge1, challenge2 };
     }
   }
-
-  // TODO: when would we mark complete? should we prompt on a hit?
-  return await processProgressMove(move, progressTrack, diceRoller, rolls);
+  return rolls;
 }
 
 const ORDINALS = [
