@@ -170,6 +170,14 @@ class CharacterRenderer extends TrackedEntityRenderer<
         );
       };
     };
+    const legacyTrackXp = () => {
+      if (!lens.ruleset.gainXpFromLegacyTracks) {
+        return 0;
+      }
+      return Object.values(lens.special_tracks).reduce((acc, track) => {
+        return acc + legacyTrackXpEarned(track.get(raw));
+      }, 0);
+    };
     const campaignContext = this.campaignContext();
     return html`<section class="character-info">
       <header class="name">
@@ -260,11 +268,7 @@ class CharacterRenderer extends TrackedEntityRenderer<
           />
         </dd>
         <dt>XP From Tracks</dt>
-        <dd class="xp-from-tracks">
-          ${Object.values(lens.special_tracks).reduce((acc, track) => {
-            return acc + legacyTrackXpEarned(track.get(raw));
-          }, 0)}
-        </dd>
+        <dd class="xp-from-tracks">${legacyTrackXp()}</dd>
         <dt>XP added</dt>
         <dd class="xp-added">
           <input
@@ -275,10 +279,7 @@ class CharacterRenderer extends TrackedEntityRenderer<
         </dd>
         <dt>Total XP earned</dt>
         <dd class="xp-earned">
-          ${(lens.xp_added.get(raw) ?? 0) +
-          Object.values(lens.special_tracks).reduce((acc, track) => {
-            return acc + legacyTrackXpEarned(track.get(raw));
-          }, 0)}
+          ${(lens.xp_added.get(raw) ?? 0) + legacyTrackXp()}
         </dd>
         <dt>XP spent</dt>
         <dd class="xp-spent">
@@ -471,7 +472,9 @@ class CharacterRenderer extends TrackedEntityRenderer<
                 },
                 updateTrack.bind(undefined, value),
                 false,
-                legacyTrackXpEarned(value.get(raw)),
+                lens.ruleset.gainXpFromLegacyTracks
+                  ? legacyTrackXpEarned(value.get(raw))
+                  : undefined,
               )}
             </li>
           `,

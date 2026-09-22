@@ -107,7 +107,7 @@ function camelCase(str: string): string {
     .join("");
 }
 
-function legacyTrack(specialTrackRule: SpecialTrackRule) {
+function legacyTrack(specialTrackRule: SpecialTrackRule, gainXp: boolean) {
   const formattedLabel = camelCase(specialTrackRule.label);
   const progressKey = `${formattedLabel}_Progress`;
   const xpEarnedKey = `${formattedLabel}_XPEarned`;
@@ -131,7 +131,7 @@ function legacyTrack(specialTrackRule: SpecialTrackRule) {
         const orig = this.get(source);
 
         if (orig.progress === newval.progress) return source;
-        if (legacyTrackXpEarned(orig) !== source[xpEarnedKey]) {
+        if (gainXp && legacyTrackXpEarned(orig) !== source[xpEarnedKey]) {
           throw new Error(
             `unexpected XP amount ${source[xpEarnedKey]} for track with ${source[progressKey]} progress (expected: ${legacyTrackXpEarned(orig)})`,
           );
@@ -139,7 +139,7 @@ function legacyTrack(specialTrackRule: SpecialTrackRule) {
         return {
           ...source,
           [progressKey]: newval.progress,
-          [xpEarnedKey]: legacyTrackXpEarned(newval),
+          [xpEarnedKey]: gainXp ? legacyTrackXpEarned(newval) : 0,
         };
       },
     } satisfies Lens<Record<string, unknown>, ProgressTrack>,
@@ -489,7 +489,7 @@ export function characterLens(ruleset: Ruleset): {
     path: key,
   }));
   const specialTracks = objectMap(ruleset.special_tracks, (rule) =>
-    legacyTrack(rule),
+    legacyTrack(rule, ruleset.gainXpFromLegacyTracks),
   );
   const schema = baseIronVaultSchema.extend({
     ...objectMap(stats, ({ schema }) => schema),

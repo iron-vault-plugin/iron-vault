@@ -199,4 +199,11 @@ export class Ruleset {
   get baseRulesetId(): string {
     return this.rulesPackageIds[0];
   }
+
+  get gainXpFromLegacyTracks(): boolean {
+    // Classic Ironsworn doesn't award XP from legacy tracks, only Starforged.
+    // Unfortunately, there's no value in Datasworn to determine that,
+    // so for now we're just checking if the ruleset is "classic" or not.
+    return this.baseRulesetId !== "classic";
+  }
 }
